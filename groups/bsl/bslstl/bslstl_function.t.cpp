@@ -426,6 +426,185 @@ public:
         { return a.value() != b.value(); }
 };
 
+// Using the curiously-recurring template pattern with a template template
+// parameter, we can implement the boiler-plate part of an STL-style
+// allocator.
+template <class TYPE, template <class T> class ALLOC>
+class STLAllocatorBase
+{
+    // Define the boilerplate for the specified 'ALLOC' allocator.  The
+    // minimum requirement for 'ALLOC' is that it have a 'bslmaAllocator'
+    // method that returns a pointer to a 'bslma::Allocator' used to allocate
+    // the underlying memory.
+
+public:
+    typedef TYPE        value_type;
+    typedef TYPE       *pointer;
+    typedef const TYPE *const_pointer;
+    typedef unsigned    size_type;
+    typedef int         difference_type;
+  
+    template <class U>
+    struct rebind {
+        typedef ALLOC<U> other;
+    };
+  
+    static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
+  
+    void construct(pointer p, const TYPE& value)
+        { new((void *)p) TYPE(value); }
+  
+    void destroy(pointer p) { p->~TYPE(); }
+};
+
+// Test allocator used by all instances of 'EmptySTLAllocator'
+bslma::TestAllocator *emptySTLAllocSource = NULL;
+
+template <class TYPE>
+class EmptySTLAllocator : public STLAllocatorBase<TYPE, EmptySTLAllocator>
+{
+
+public:
+    explicit EmptySTLAllocator(bslma::TestAllocator *ta)
+        { emptySTLAllocSource = ta; }
+
+    template <class U>
+    EmptySTLAllocator(const EmptySTLAllocator<U>&) { }
+
+    TYPE *allocate(std::size_t n, void* = 0 /* nullptr */) {
+        return (TYPE*) emptySTLAllocSource->allocate(n * sizeof(TYPE));
+    }
+  
+    void deallocate(TYPE *p, std::size_t) {
+        emptySTLAllocSource->deallocate(p);
+    }
+};
+
+template <class TYPE1, class TYPE2>
+inline
+bool operator==(const EmptySTLAllocator<TYPE1>&,
+                const EmptySTLAllocator<TYPE2>&)
+{
+    return true;
+}
+
+template <class TYPE1, class TYPE2>
+inline
+bool operator!=(const EmptySTLAllocator<TYPE1>&,
+                const EmptySTLAllocator<TYPE2>&)
+{
+    return false;
+}
+
+template <class TYPE>
+class StatefulAllocatorBase
+{
+    bslma::TestAllocator *d_mechanism;
+
+public:
+    explicit StatefulAllocatorBase(bslma::TestAllocator *mechanism)
+        : d_mechanism(mechanism) { }
+
+    TYPE *allocate(std::size_t n, void* = 0 /* nullptr */) {
+        return (TYPE*) d_mechanism->allocate(n * sizeof(TYPE));
+    }
+  
+    void deallocate(TYPE *p, std::size_t) {
+        d_mechanism->deallocate(p);
+    }
+
+    bslma::TestAllocator *mechanism() const { return d_mechanism; }
+};
+
+template <class TYPE1, class TYPE2>
+inline
+bool operator==(const StatefulAllocatorBase<TYPE1>& a,
+                const StatefulAllocatorBase<TYPE2>& b)
+{
+    return a.mechanism() == b.mechanism();
+}
+
+template <class TYPE1, class TYPE2>
+inline
+bool operator!=(const StatefulAllocatorBase<TYPE1>& a,
+                const StatefulAllocatorBase<TYPE2>& b)
+{
+    return a.mechanism() != b.mechanism();
+}
+
+template <class TYPE>
+class TinySTLAllocator :
+    public StatefulAllocatorBase<TYPE>,
+    public STLAllocatorBase<TYPE, TinySTLAllocator>
+{
+    // Smallest stateful allocator.
+
+public:
+    explicit TinySTLAllocator(bslma::TestAllocator *mechanism)
+        : StatefulAllocatorBase<TYPE>(mechanism) { }
+
+    template <class U>
+    TinySTLAllocator(const TinySTLAllocator<U>& other)
+        : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
+};
+
+template <class TYPE>
+class SmallSTLAllocator :
+    public StatefulAllocatorBase<TYPE>,
+    public STLAllocatorBase<TYPE, SmallSTLAllocator>
+{
+    // Allocator that is small enough to fit in the SmallObjectBuffer
+    // alongside SmallFunctor.
+
+    typedef bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> > Adaptor;
+    char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor) -
+                   sizeof(SmallFunctor)];
+public:
+    explicit SmallSTLAllocator(bslma::TestAllocator *mechanism)
+        : StatefulAllocatorBase<TYPE>(mechanism) { }
+
+    template <class U>
+    SmallSTLAllocator(const SmallSTLAllocator<U>& other)
+        : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
+};
+
+template <class TYPE>
+class MediumSTLAllocator :
+    public StatefulAllocatorBase<TYPE>,
+    public STLAllocatorBase<TYPE, MediumSTLAllocator>
+{
+    // Allocator that is small enough to fit in the SmallObjectBuffer
+    // by itself or with a stateless functor.
+
+    typedef bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> > Adaptor;
+    char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor)];
+public:
+    explicit MediumSTLAllocator(bslma::TestAllocator *mechanism)
+        : StatefulAllocatorBase<TYPE>(mechanism) { }
+
+    template <class U>
+    MediumSTLAllocator(const MediumSTLAllocator<U>& other)
+        : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
+};
+
+template <class TYPE>
+class LargeSTLAllocator :
+    public StatefulAllocatorBase<TYPE>,
+    public STLAllocatorBase<TYPE, LargeSTLAllocator>
+{
+    // Allocator that is too large to fit in the SmallObjectBuffer.
+
+    typedef bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> > Adaptor;
+    char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor) + 1];
+public:
+    explicit LargeSTLAllocator(bslma::TestAllocator *mechanism)
+        : StatefulAllocatorBase<TYPE>(mechanism) { }
+
+    template <class U>
+    LargeSTLAllocator(const LargeSTLAllocator<U>& other)
+        : StatefulAllocatorBase<TYPE>(other.mechanism()) { }
+};
+
 inline bool isConstPtr(void *) { return false; }
 inline bool isConstPtr(const void *) { return true; }
 
@@ -471,7 +650,7 @@ struct ValueGenerator : ValueGeneratorBase<T> {
     // pointer type.)
 
     // Since rvalue is passed by value, it is not modified by function calls.
-    // The expected value thus is ignored when checking the value.
+    // The expected value is therefore ignored when checking the value.
     T obj() { return this->reset(); }
     bool check(int /* exp */) const
         { return this->value() == ValueGeneratorBase<T>::INIT_VALUE; }
@@ -720,6 +899,291 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 
+      case 8: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTOR function(allocator_arg_t, const ALLOC& alloc, FUNC func)
+        //
+        // Note: Invocation is only to ensure that that the function was
+        // constructed succesfuly.  It is not necessary to thoroughly test all
+        // argument-list combinations.
+        // --------------------------------------------------------------------
+
+      } break;
+
+      case 7: {
+        // --------------------------------------------------------------------
+        // CONSTRUCTOR function(allocator_arg_t, const ALLOC& alloc)
+        //
+        // Concerns:
+        //: 1 Constructing an 'function' using this constructor yields an
+        //:   empty 'function' object.
+        //: 2 If 'alloc' is a pointer to a 'bslma::Allocator' object, then the
+        //:   'allocator' accessor will return that pointer.
+        //: 3 If 'alloc' is a 'bsl::allocator' object, then the 'allocator'
+        //:   accessor will return 'alloc.mechanism()'.
+        //: 4 If 'alloc' is an STL-style allocator with no state, then the
+        //:   'allocator' accessor will return a pointer to an object of type
+        //:   'bslma::AllocatorAdaptor<ALLOC>'.  That same pointer will be
+        //:   returned by any 'function' created with that allocator type.
+        //: 5 If 'alloc' is an STL-style allocator with state, then the
+        //:   'allocator' accessor will return a pointer to an object of type
+        //:   'bslma::AllocatorAdaptor<ALLOC>' which wraps a copy of 'alloc'.
+        //: 6 If 'alloc' is other than an STL-style allocator with state, then
+        //:   no memory is allocated by this constructor.
+        //: 7 If 'alloc' is an STL-style allocator that fits within the small
+        //:   object buffer, then no memory is allocated by this constructor.
+        //: 8 If 'alloc' is an STL-style allocator that does not fit within
+        //:   the small object buffer, then one block of memory is allocated
+        //:   from 'alloc' itself.
+        //: 9 If memory is allocated, the destructor frees it.
+        //: 10 All of the above concerns also apply to the
+        //:   'function(allocator_arg_t, const ALLOC&, nullptr_t)' constructor.
+        //
+        // Plan:
+        //: 1 For concern 1 test each 'function' object constructed using this
+        //:   constructor to verify that converts to a Boolean false value.
+        //: 2 For concern 2, construct a 'function' object with the address of
+        //:   a 'bslma:TestAllocator'.  Verify that 'allocator' returns the
+        //:   address of the test allocator.
+        //: 3 For concern 3, construct a 'bsl::allocator' wrapping a test
+        //:   allocator.  Construct a 'function' object with the
+        //:   'bsl::allocator' object.  Verify that 'allocator' returns the
+        //:   address of the test allocator (i.e., the 'mechanism()' of the
+        //:   'bsl::allocator'.
+        //: 4 For concern 4, define a stateless STL-style allocator class and
+        //:   use an instance of that class to construct a 'function'
+        //:   object.  Verify that 'allocator' returns a pointer that can
+        //:   dynamically cast to a 'bslma::AllocatorAdaptor' wrapping the
+        //:   STL-style allocator.  Verify that multiple 'function' objects
+        //:   instantiated with multiple instantiations of the same STL-style
+        //:   allocator return the same result from calling the 'allocator'
+        //:   method.
+        //: 5 For concern 5, define a stateful STL-style allocator class and
+        //:   use an instance of that  class to construct a 'function'
+        //:   object.  Verify that 'allocator' returns a pointer that can
+        //:   dynamically cast to a 'bslma::AllocatorAdaptor' wrapping the
+        //:   STL-style allocator and that the allocator wrapped by the
+        //:   adaptor is equal to the original STL-style allocator.
+        //: 6 For concern 6, test the results of steps 2-4 to verify that no
+        //:   memory is allocated either from the global allocator or from the
+        //:   allocator used to construct the 'function' object.
+        //: 7 For concern 7, perform step 5 using alloctors of various sizes
+        //:   from very small to one that barely fits within the small object
+        //:   buffer and verify, in each case, that no memory is allocated
+        //:   either from the global allocator or from the allocator used to
+        //:   construct the 'function' object.
+        //: 8 For concern 8, perform step 5 using an allocator that does not
+        //:   fit in the small object buffer and verify that exactly one block
+        //:   was allocated from the allocator used to construct the
+        //:   'function' and that no memory was allocated from the global
+        //:   allocator.
+        //: 9 For concern 9, check at the end of step 8, when the 'function'
+        //:   object is destroyed, that all memory was returned to the
+        //:   allocator.
+        //: 10 For concern 10, preform all of the previous steps using the 
+        //:   'function(allocator_arg_t, const ALLOC&, nullptr_t)' constructor.
+        //
+        // TESTING
+        //      function(allocator_arg_t, const ALLOC& alloc);
+        //      function(allocator_arg_t, const ALLOC& alloc, nullptr_t);
+        //      ~function();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONSTRUCTOR function(allocator_arg_t, "
+                            "const ALLOC& alloc)"
+                            "\n======================================"
+                            "===================\n");
+
+        bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
+
+        if (veryVerbose) printf("with bslma::Allocator*\n");
+        {
+            globalAllocMonitor.reset();
+            bslma::TestAllocator ta;
+            bsl::function<int(float)> f(bsl::allocator_arg, &ta);
+            ASSERT(! f);
+            ASSERT(&ta == f.allocator());
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+
+            bsl::function<int(float)> f2(bsl::allocator_arg, &ta,
+                                         bsl::nullptr_t());
+            ASSERT(! f2);
+            ASSERT(&ta == f2.allocator());
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+        }
+
+        if (veryVerbose) printf("with bsl::allocator<T>\n");
+        {
+            globalAllocMonitor.reset();
+            bslma::TestAllocator ta;
+            bsl::allocator<void*> alloc(&ta);
+
+            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+            ASSERT(! f);
+            ASSERT(&ta == f.allocator());
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+
+            bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                         bsl::nullptr_t());
+            ASSERT(! f2);
+            ASSERT(&ta == f2.allocator());
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+        }
+
+        if (veryVerbose) printf("with stateless allocator\n");
+        {
+            typedef EmptySTLAllocator<double>                         Alloc;
+            typedef EmptySTLAllocator<bool>                           Alloc2;
+            typedef bslma::AllocatorAdaptor<EmptySTLAllocator<char> > Adaptor;
+
+            globalAllocMonitor.reset();
+            bslma::TestAllocator ta;
+            Alloc alloc(&ta);
+            ASSERT(bsl::is_empty<Alloc>::value);
+            
+            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+            ASSERT(! f);
+            bslma::Allocator *erasedAlloc = f.allocator();
+            ASSERT(0 != dynamic_cast<Adaptor *>(erasedAlloc));
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+
+            Alloc2 alloc2(&ta);
+            bsl::function<int(float)> f2(bsl::allocator_arg, alloc2,
+                                         bsl::nullptr_t());
+            ASSERT(! f2);
+            ASSERT(erasedAlloc == f2.allocator());
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+        }
+
+        if (veryVerbose) printf("with tiny to medium allocator\n");
+        {
+            typedef TinySTLAllocator<double>                         Alloc;
+            typedef bslma::AllocatorAdaptor<TinySTLAllocator<char> > Adaptor;
+
+            globalAllocMonitor.reset();
+            bslma::TestAllocator ta;
+            Alloc alloc(&ta);
+            ASSERT(! bsl::is_empty<Alloc>::value);
+            
+            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+            ASSERT(! f);
+            bslma::Allocator *erasedAlloc = f.allocator();
+            Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+            ASSERT(adaptor);
+            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+
+            bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                         bsl::nullptr_t());
+            ASSERT(! f2);
+            erasedAlloc = f.allocator();
+            adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+            ASSERT(adaptor);
+            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+        }
+        
+        {
+            typedef SmallSTLAllocator<double>                         Alloc;
+            typedef bslma::AllocatorAdaptor<SmallSTLAllocator<char> > Adaptor;
+
+            globalAllocMonitor.reset();
+            bslma::TestAllocator ta;
+            Alloc alloc(&ta);
+            ASSERT(! bsl::is_empty<Alloc>::value);
+            
+            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+            ASSERT(! f);
+            bslma::Allocator *erasedAlloc = f.allocator();
+            Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+            ASSERT(adaptor);
+            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+
+            bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                         bsl::nullptr_t());
+            ASSERT(! f2);
+            erasedAlloc = f.allocator();
+            adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+            ASSERT(adaptor);
+            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+        }
+        
+        {
+            typedef MediumSTLAllocator<double>                         Alloc;
+            typedef bslma::AllocatorAdaptor<MediumSTLAllocator<char> > Adaptor;
+
+            globalAllocMonitor.reset();
+            bslma::TestAllocator ta;
+            Alloc alloc(&ta);
+            ASSERT(! bsl::is_empty<Alloc>::value);
+            
+            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+            ASSERT(! f);
+            bslma::Allocator *erasedAlloc = f.allocator();
+            Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+            ASSERT(adaptor);
+            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+
+            bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                         bsl::nullptr_t());
+            ASSERT(! f2);
+            erasedAlloc = f.allocator();
+            adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+            ASSERT(adaptor);
+            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+        }
+        
+        if (veryVerbose) printf("with large allocator\n");
+        {
+            typedef LargeSTLAllocator<double>                         Alloc;
+            typedef bslma::AllocatorAdaptor<LargeSTLAllocator<char> > Adaptor;
+
+            globalAllocMonitor.reset();
+            bslma::TestAllocator ta;
+            Alloc alloc(&ta);
+            ASSERT(! bsl::is_empty<Alloc>::value);
+
+            {
+                bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+                ASSERT(! f);
+                bslma::Allocator *erasedAlloc = f.allocator();
+                Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+                ASSERT(adaptor);
+                ASSERT(adaptor->getAdaptedAllocator() == alloc);
+                ASSERT(1 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+
+                bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                             bsl::nullptr_t());
+                ASSERT(! f2);
+                erasedAlloc = f.allocator();
+                adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+                ASSERT(adaptor);
+                ASSERT(adaptor->getAdaptedAllocator() == alloc);
+                ASSERT(2 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+            }
+            ASSERT(0 == ta.numBlocksInUse());
+        }
+        
+      } break;
+
       case 6: {
         // --------------------------------------------------------------------
         // FUNCTOR INVOCATION
@@ -768,7 +1232,7 @@ int main(int argc, char *argv[])
         //:   it, verifying that the return value and side-effects are as
         //:   expected.
         //: 3 For concern 3, add to the functor class another 'operator()'
-        //:   taking a 'const char*' argument and returning void.  Verify that
+        //:   Taking a 'const char*' argument and returning void.  Verify that
         //:   a 'bsl::function' object this invoker can be invoked and has the
         //:   expected size-effect.
         //: 4 For concern 4, create a 'bsl::function' with parameter
