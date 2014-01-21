@@ -129,8 +129,9 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     // 'min' call.
 
     size_t result = native_std::max(
-                            requestedBuckets,
-                            Impl::throwIfOverMax(minElements / maxLoadFactor));
+                          requestedBuckets,
+                          Impl::throwIfOverMax(static_cast<double>(minElements)
+                                               / maxLoadFactor));
 
     result = nextPrime(result);  // throws if too large
 

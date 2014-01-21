@@ -448,7 +448,7 @@ void fillWithJunk(void *buf, int size)
     char *p = reinterpret_cast<char*>(buf);
 
     for (int i = 0; i < size; ++i) {
-        p[i] = (char)(i % MAX_VALUE) + 1;
+        p[i] = (char)((i % MAX_VALUE) + 1);
     }
 }
 

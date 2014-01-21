@@ -582,8 +582,8 @@ void testBasicAccessors(bool verbose)
         const bslstl::StringRefImp<CHAR>& X2 = x2;
 
         // NON-EMPTY STRING
-        int Len = native_std::char_traits<CHAR>::length(
-                                               TestData<CHAR>::nonEmptyString);
+        int Len = static_cast<int>(native_std::char_traits<CHAR>::length(
+                                              TestData<CHAR>::nonEmptyString));
         for (int idx = 0; idx < Len; ++idx) {
             LOOP_ASSERT(idx, X2[idx] == TestData<CHAR>::nonEmptyString[idx]);
         }
@@ -2260,7 +2260,8 @@ int main(int argc, char *argv[])
           ASSERT(X1.begin()   == EMPTY_STRING);
           ASSERT(X1.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));
 
-          x1.assign(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
+          x1.assign(NON_EMPTY_STRING,
+                    static_cast<int>(std::strlen(NON_EMPTY_STRING)));
 
           ASSERT(!X1.isEmpty());
           ASSERT(X1.length()  != 0);
@@ -2634,7 +2635,7 @@ int main(int argc, char *argv[])
                                << "\n= = = = = = = = = = = = = = = ="
                                << std::endl;
         {
-          const int SIZE = 1000;        // max length of output string
+          const size_t SIZE = 1000;     // max length of output string
           const char XX = (char) 0xFF;  // value representing an unset 'char'
           char mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
 
@@ -2647,7 +2648,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
                                      << out.str() << std::endl;
 
-          const int ESSZ = ES.length() + 1;
+          const Obj::size_type ESSZ = ES.length() + 1;
           ASSERT(ESSZ < SIZE);           // Check buffer is large enough.
           ASSERT(out.str() == ES);
           ASSERT(out.good());
@@ -2662,7 +2663,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
                                      << out1.str() << std::endl;
 
-          const int ESSZ1 = ES1.length() + 1;
+          const Obj::size_type ESSZ1 = ES1.length() + 1;
           ASSERT(ESSZ1 < SIZE);           // Check buffer is large enough.
           ASSERT(out1.str() == ES1);
           ASSERT(out1.good());
@@ -2675,7 +2676,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
                                      << nesOut.str() << std::endl;
 
-          const int NESSZ = NES.length() + 1;
+          const Obj::size_type NESSZ = NES.length() + 1;
           ASSERT(NESSZ < SIZE);           // Check buffer is large enough.
           ASSERT(nesOut.str() == NES);
           ASSERT(nesOut.good());
@@ -2690,7 +2691,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
                                      << nessOut.str() << std::endl;
 
-          const int NESSSZ = NESS.length() + 1;
+          const Obj::size_type NESSSZ = NESS.length() + 1;
           ASSERT(NESSSZ < SIZE);          // Check buffer is large enough.
           ASSERT(nessOut.str() == NESS);
           ASSERT(nessOut.good());
@@ -2729,14 +2730,14 @@ int main(int argc, char *argv[])
           fmtOut.str(bsl::string());
           fmtOut << std::left
                  << std::setfill(' ')
-                 << std::setw(NES.length() + 10)
+                 << std::setw(static_cast<int>(NES.length() + 10))
                  << NES;
           ASSERT(fmtOut.str() == NES + bsl::string(10, ' '));
 
           fmtOut.str(bsl::string());
           fmtOut << std::right
                  << std::setfill('?')
-                 << std::setw(NES.length() + 10)
+                 << std::setw(static_cast<int>(NES.length() + 10))
                  << NES;
           ASSERT(fmtOut.str() == bsl::string(10, '?') + NES);
         }
@@ -2845,7 +2846,8 @@ int main(int argc, char *argv[])
 
         {
           // Empty string
-          Obj x1(EMPTY_STRING, std::strlen(EMPTY_STRING));  const Obj& X1 = x1;
+          Obj x1(EMPTY_STRING, static_cast<int>(std::strlen(EMPTY_STRING)));
+          const Obj& X1 = x1;
           ASSERT(X1.isEmpty());
           ASSERT(X1.length()  == 0);
           ASSERT(X1.begin()   == X1.end());
@@ -2853,7 +2855,8 @@ int main(int argc, char *argv[])
           ASSERT(X1.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));
 
           // Non-empty string
-          Obj x2(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
+          Obj x2(NON_EMPTY_STRING,
+                 static_cast<int>(std::strlen(NON_EMPTY_STRING)));
           const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
           ASSERT(X2.length()  == 30);

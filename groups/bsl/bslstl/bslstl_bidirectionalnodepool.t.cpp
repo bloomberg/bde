@@ -183,7 +183,7 @@ typedef bslalg::BidirectionalNode<int> IntNode;
 
 namespace {
 
-bool expectToAllocate(int n)
+bool expectToAllocate(size_t n)
     // Return 'true' if the container is expected to allocate memory on the
     // specified 'n'th element, and 'false' otherwise.
 {
@@ -423,7 +423,7 @@ class Stack
     // ACCESSORS
     bool empty() const { return 0 == d_size; }
 
-    int size() const { return d_size; }
+    size_t size() const { return d_size; }
 
     Link *back() const
     {
@@ -1017,7 +1017,7 @@ void TestDriver<VALUE>::testCase9()
         Obj mY(&oa);
         Stack usedY;
 
-        for (int i = 0; i < 16; ++i) {
+        for (size_t i = 0; i < 16; ++i) {
             bslma::TestAllocatorMonitor oam(&oa);
 
             Link *ptr = mY.cloneNode(*usedX[i]);
@@ -1106,7 +1106,7 @@ void TestDriver<VALUE>::testCase8()
 
         Stack usedX;
 
-        for (int i = 0; i < 16; ++i) {
+        for (short unsigned i = 0; i < 16; ++i) {
             bslma::TestAllocatorMonitor oam(&oa);
 
             double arg1  = i;
@@ -1200,7 +1200,7 @@ void TestDriver<VALUE>::testCase7()
 
         Stack usedX;
 
-        for (int i = 0; i < 16; ++i) {
+        for (size_t i = 0; i < 16; ++i) {
             bslma::TestAllocatorMonitor oam(&oa);
 
             Link *ptr = mX.createNode(VALUES[i]);
@@ -1438,7 +1438,7 @@ void TestDriver<VALUE>::testCase5()
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE     = DATA[ti].d_line;
         const char *const SEQUENCE = DATA[ti].d_sequence;
-        const int         LENGTH   = strlen(SEQUENCE);
+        const size_t      LENGTH   = strlen(SEQUENCE);
 
         Stack usedBlocks;
         Stack freeBlocks;
@@ -1450,7 +1450,7 @@ void TestDriver<VALUE>::testCase5()
 
         Obj mX(&oa);
 
-        for (int tj = 0; tj < LENGTH; ++tj) {
+        for (size_t tj = 0; tj < LENGTH; ++tj) {
             bslma::TestAllocatorMonitor oam(&oa);
 
             if (SEQUENCE[tj] == 'A') {
@@ -1716,7 +1716,7 @@ void TestDriver<VALUE>::testCase2()
 
         Stack usedBlocks;
 
-        for (int i = 0; i < 96; ++i) {
+        for (size_t i = 0; i < 96; ++i) {
             bslma::TestAllocatorMonitor oam(&oa);
 
             Link *ptr = mX.createNode();
@@ -1796,7 +1796,7 @@ void TestDriver<VALUE>::testCase2()
 
         Stack usedBlocks;
 
-        for (int i = 0; i < 96; ++i) {
+        for (size_t i = 0; i < 96; ++i) {
             bslma::TestAllocatorMonitor dam(&da);
             bslma::TestAllocatorMonitor sam(&sa);
 

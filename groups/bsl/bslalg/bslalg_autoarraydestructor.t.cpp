@@ -312,9 +312,9 @@ struct UsesBslmaAllocator<UsageType> : bsl::true_type {};
 class my_String {
 
     // DATA
-    char *d_string_p;
-    int   d_length;
-    int   d_size;
+    char   *d_string_p;
+    size_t  d_length;
+    size_t  d_size;
 
   public:
     // CREATORS
@@ -326,7 +326,7 @@ class my_String {
 
     // ACCESSORS
     inline
-    int length() const { return d_length; }
+    size_t length() const { return d_length; }
     inline
     operator const char *() const { return d_string_p; }
     // ...
@@ -640,8 +640,8 @@ int main(int argc, char *argv[])
 // Then, we declare a string of chars we will use to initialize the 'UsageType'
 // objects in our array.
 
-        const char *DATA = "Hello";
-        const int   DATA_LEN = std::strlen(DATA);
+        const char   *DATA = "Hello";
+        const size_t  DATA_LEN = std::strlen(DATA);
 
 // Next, we verify that even right after exceptions have been thrown and
 // caught, no memory is outstanding:
@@ -700,7 +700,7 @@ int main(int argc, char *argv[])
 
 // Finally, destroy & free our work and verify that no memory is leaked:
 
-        for (int i = 0; i < DATA_LEN; ++i) {
+        for (size_t i = 0; i < DATA_LEN; ++i) {
             array[i].~UsageType();
         }
         ta.deallocate(array);

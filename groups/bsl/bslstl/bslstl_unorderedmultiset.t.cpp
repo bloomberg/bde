@@ -321,12 +321,12 @@ TYPE my_abs(const TYPE& x)
 template <typename TYPE>
 bool nearlyEqual(const TYPE& x, const TYPE& y)
 {
-    TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001;
+    TYPE tolerance = my_max(my_abs(x), my_abs(y)) * 0.0001f;
     return my_abs(x - y) <= tolerance;
 }
 
 template <class CONTAINER>
-int verifySpec(const CONTAINER& object, const char *spec)
+ptrdiff_t verifySpec(const CONTAINER& object, const char *spec)
 {
     typedef typename CONTAINER::key_type       Key;
     typedef typename CONTAINER::const_iterator CIter;
@@ -524,11 +524,12 @@ template <class CONTAINER>
 void validateIteration(CONTAINER &c)
 {
     typedef typename CONTAINER::iterator       iterator;
+    typedef typename CONTAINER::size_type      SizeType;
     typedef typename CONTAINER::const_iterator const_iterator;
 
-    const int size = c.size();
+    const SizeType size = c.size();
 
-    int counter = 0;
+    SizeType counter = 0;
     for (iterator it = c.begin(); it != c.end(); ++it, ++counter) {}
     LOOP2_ASSERT(size, counter, size == counter);
 
@@ -575,7 +576,7 @@ void testBuckets(CONTAINER& mX)
     SizeType itemCount  = 0;
 
     for (unsigned i = 0; i != bucketCount; ++i ) {
-        const unsigned count = x.bucket_size(i);
+        const SizeType count = x.bucket_size(i);
         if (0 == count) {
             ASSERT(x.begin(i) == x.end(i));
             ASSERT(mX.begin(i) == mX.end(i));
@@ -1363,7 +1364,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase14()
         {
             ObjStlAlloc mX(BEGIN, END);  const ObjStlAlloc& X = mX;
 
-            const int v = verifySpec(X, SPEC);
+            const ptrdiff_t v = verifySpec(X, SPEC);
             ASSERTV(LINE, v, SPEC, X.size(), -1 == v);
             ASSERTV(LINE, da.numBlocksInUse(),
                     TYPE_ALLOC * LENGTH <= da.numBlocksInUse());
@@ -1492,7 +1493,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
 
                 const size_t BC = X.bucket_count();
                 ASSERTV(X.load_factor() <= X.max_load_factor());
-                ASSERTV(0.9999 * LENGTH / X.bucket_count() <
+                ASSERTV(0.9999
+                        * static_cast<double>(LENGTH)
+                          / static_cast<double>(X.bucket_count()) <
                                                           X.max_load_factor());
 
                 if (!TYPE_ALLOC) {
@@ -1546,10 +1549,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
 
             const size_t COUNT = X.bucket_count();
             const float  LOAD  = X.load_factor();
-
-            ASSERTV(LOAD, X.size() / (double) X.bucket_count(),
-                  nearlyEqual<double>(LOAD,
-                                      (X.size() / (double) X.bucket_count())));
+            const double LOAD_EXPECTED =
+                                       static_cast<double>(X.size())
+                                       / static_cast<double>(X.bucket_count());
+            ASSERTV(LOAD,
+                    LOAD_EXPECTED,
+                    nearlyEqual<double>(LOAD, LOAD_EXPECTED));
             ASSERTV(1.0f == X.max_load_factor());
 
             const float NEW_MAX = LOAD / 4;
@@ -1566,9 +1571,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
             ASSERTV(NEW_MAX >= X.load_factor());
 
             const float LOAD2 = X.load_factor();
-            ASSERTV(LOAD2, X.size() / (float) X.bucket_count(),
-                   nearlyEqual<float>(LOAD2,
-                               (float) (X.size() / (float) X.bucket_count())));
+            const float LOAD_EXPECTED2 =
+                                        static_cast<float>(X.size())
+                                        / static_cast<float>(X.bucket_count());
+            ASSERTV(LOAD2,
+                    LOAD_EXPECTED2,
+                    nearlyEqual<float>(LOAD2, LOAD_EXPECTED2));
 
             ASSERTV(X == Y);
 
@@ -2784,7 +2792,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase6()
 
             const bool EXP = (ti == tj);
 
-            const int BLOCKS = da.numBlocksTotal();
+            const bsls::Types::Int64 BLOCKS = da.numBlocksTotal();
 
             ASSERT( EXP == (X == Y));
             ASSERT(!EXP == (X != Y));
@@ -3057,12 +3065,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                 printf("max_load_factor, load_factor, bucket_count\n");
             }
 
-            ASSERTV(X.load_factor(), LENGTH, X.bucket_count(),
-                    (double) LENGTH / X.bucket_count(),
-                    nearlyEqual<double>(
-                         X.load_factor(), (double) LENGTH / X.bucket_count()));
+            const double LOAD_EXPECTED =
+                                        static_cast<double>(LENGTH)
+                                        / static_cast<double>(X.bucket_count());
+            ASSERTV(X.load_factor(),
+                    LENGTH,
+                    X.bucket_count(),
+                    LOAD_EXPECTED,
+                    nearlyEqual<double>(X.load_factor(), LOAD_EXPECTED));
             ASSERTV(X.load_factor() <= X.max_load_factor());
-
             if (veryVerbose) {
                 printf("mX.begin, mX.end, X.begin, X.end, X.cbegin, X.cend\n");
                 printf("X.count, mX.find, X.find, mX.equal_range,"
@@ -3295,13 +3306,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = strlen(SPEC);
+            const int         LENGTH = static_cast<int>(strlen(SPEC));
 
             Obj mX(&oa);    const Obj& X = mX;
 
-            if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
-                 ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
+            if (LENGTH != oldLen) {
+                if (verbose) printf("\tof length %d:\n", LENGTH);
+                 ASSERTV(LINE, oldLen <= LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 
@@ -3311,7 +3322,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
 
             ASSERTV(LINE, INDEX == RESULT);
 
-            int retX = verifySpec(X, SPEC);
+            ptrdiff_t retX = verifySpec(X, SPEC);
             ASSERTV(ti, retX, (INDEX == -1) == (-1 == retX));
         }
     }
@@ -3362,7 +3373,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
             for (int tj = 0; tj < NUM_DATA; ++tj) {
                 const char *JSPEC = DATA[tj].d_spec;
 
-                int retX = verifySpec(X, JSPEC);
+                ptrdiff_t retX = verifySpec(X, JSPEC);
                 ASSERTV(ti, tj, retX, (ti == tj) == (-1 == retX));
             }
         }
@@ -4086,7 +4097,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
             if (veryVerbose) P(ORIG_BUCKETS);
             if (veryVerbose) P(maxLoadFactor);
 
-            ASSERTV(ORIG_BUCKETS * maxLoadFactor >= X.size());
+            ASSERTV(static_cast<float>(ORIG_BUCKETS) * maxLoadFactor >=
+                                                                     X.size());
 
             maxLoadFactor /= 10;
 
@@ -4104,7 +4116,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             ASSERTV(maxLoadFactor == X.max_load_factor());
             ASSERTV(MORE_BUCKETS > ORIG_BUCKETS);
-            ASSERTV(MORE_BUCKETS * maxLoadFactor >= X.size());
+            ASSERTV(static_cast<float>(MORE_BUCKETS) * maxLoadFactor >=
+                                                                     X.size());
 
             mX.reserve(10 * X.size());
 
@@ -4120,7 +4133,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             ASSERTV(nearlyEqual<float>(maxLoadFactor, X.max_load_factor()));
             ASSERTV(EVEN_MORE_BUCKETS > MORE_BUCKETS);
-            ASSERTV(EVEN_MORE_BUCKETS * maxLoadFactor >= 10 * X.size());
+            ASSERTV(static_cast<float>(EVEN_MORE_BUCKETS) * maxLoadFactor >=
+                                                                10 * X.size());
 
             mX.rehash(EVEN_MORE_BUCKETS * 2);
 
@@ -4134,7 +4148,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
             ASSERTV(maxLoadFactor == X.max_load_factor());
             ASSERTV(MAX_BUCKETS, MAX_BUCKETS > EVEN_MORE_BUCKETS);
-            ASSERTV(MAX_BUCKETS * maxLoadFactor >= 20 * X.size());
+            ASSERTV(static_cast<float>(MAX_BUCKETS) * maxLoadFactor >=
+                                                                20 * X.size());
 
             if (veryVerbose) { P(MAX_BUCKETS); P(X.max_load_factor()); }
         }

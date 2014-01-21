@@ -244,10 +244,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-        // Suppress an unused function warning from the usage-example.
-
-        (void  *)&allocateFromBuffer;
-
         // Silence 'defined but not used' warning:
 
         (void) allocateFromBuffer;
@@ -285,6 +281,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'enum' and 'toAscii'"
                             "\n============================\n");
 
+        int invalidEnumValues[] = { -1, -5, 99 };
         static const struct {
             int         d_lineNum;  // source line number
             Enum        d_value;    // enumerator value
@@ -297,9 +294,9 @@ int main(int argc, char *argv[])
             {  L_,     Obj::BSLS_BYTEALIGNED,          "BYTEALIGNED"     },
 
             {  L_,     (Enum)NUM_ENUMERATORS,          UNKNOWN_FORMAT    },
-            {  L_,     (Enum)-1,                       UNKNOWN_FORMAT    },
-            {  L_,     (Enum)-5,                       UNKNOWN_FORMAT    },
-            {  L_,     (Enum)99,                       UNKNOWN_FORMAT    }
+            {  L_,     (Enum)invalidEnumValues[0],     UNKNOWN_FORMAT    },
+            {  L_,     (Enum)invalidEnumValues[1],     UNKNOWN_FORMAT    },
+            {  L_,     (Enum)invalidEnumValues[2],     UNKNOWN_FORMAT    }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -334,7 +331,7 @@ int main(int argc, char *argv[])
             typedef const char *(*FuncPtr)(Enum);
 
             const FuncPtr FP = &Obj::toAscii;
-            (void *)FP;
+            (void) FP;  // Suppress the unused variable warning
         }
 
       } break;

@@ -12,6 +12,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 
+#include <climits>  // INT_MAX
 #include <cstdio>
 
 namespace BloombergLP {
@@ -38,25 +39,23 @@ bool isPowerOfTwo(int alignment)
 }
 
 static
-void *allocateFromBufferImp(int  *cursor,
-                            char *buffer,
-                            int   bufSize,
-                            int   size,
-                            int   alignment)
+void *allocateFromBufferImp(int                               *cursor,
+                            char                              *buffer,
+                            bslma::BufferAllocator::size_type  bufSize,
+                            bslma::BufferAllocator::size_type  size,
+                            int                                alignment)
     // Allocate a memory block of the specified 'size' from the specified
     // 'buffer' at the specified 'cursor' position, aligned at the specified
     // 'alignment' boundary.  Return the address of the allocated memory block
     // if 'buffer' contains enough available memory, and 'null' otherwise.  The
     // 'cursor' is set to the position of remaining free buffer space after the
-    // allocation.  The behavior is undefined unless '0 <= bufSize',
-    // '0 < size', '0 < alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'
-    // and alignment is an integral power of 2.
+    // allocation.  The behavior is undefined unless
+    // '0 < alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' and alignment
+    // is an integral power of 2.
 
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufSize);
-    BSLS_ASSERT(0 < size);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
@@ -69,8 +68,19 @@ void *allocateFromBufferImp(int  *cursor,
         return static_cast<void *>(0);
     }
 
+#if 0
+    // Consider adding the following:
+
+    if (*cursor + offset + size > 
+                     static_cast<bslma::BufferAllocator::size_type>(INT_MAX)) {
+        // not representable
+
+        return static_cast<void *>(0);
+    }
+#endif
+
     void *result = &buffer[*cursor + offset];
-    *cursor += offset + size;
+    *cursor += static_cast<int>(offset + size);
 
     return result;
 }
@@ -90,20 +100,18 @@ void *BufferAllocator::allocateFromBuffer(int               *cursor,
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufSize);
-    BSLS_ASSERT(0 <= size);
 
     return 0 >= size
            ? static_cast<void *>(0)
            : allocateFromBufferImp(
-                              cursor,
-                              buffer,
-                              bufSize,
-                              static_cast<int>(size),
-                              strategy == NATURAL_ALIGNMENT
-                              ? bsls::AlignmentUtil::calculateAlignmentFromSize(
-                                                        static_cast<int>(size))
-                              : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                             cursor,
+                             buffer,
+                             bufSize,
+                             size,
+                             strategy == NATURAL_ALIGNMENT
+                             ? bsls::AlignmentUtil::calculateAlignmentFromSize(
+                                                                          size)
+                             : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
 void *BufferAllocator::allocateFromBuffer(int       *cursor,
@@ -114,8 +122,6 @@ void *BufferAllocator::allocateFromBuffer(int       *cursor,
 {
     BSLS_ASSERT(cursor);
     BSLS_ASSERT(buffer);
-    BSLS_ASSERT(0 <= bufSize);
-    BSLS_ASSERT(0 <= size);
     BSLS_ASSERT(0 < alignment);
     BSLS_ASSERT(alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     BSLS_ASSERT_SAFE(isPowerOfTwo(alignment));
@@ -125,7 +131,7 @@ void *BufferAllocator::allocateFromBuffer(int       *cursor,
            : allocateFromBufferImp(cursor,
                                    buffer,
                                    bufSize,
-                                   static_cast<int>(size),
+                                   size,
                                    alignment);
 }
 
@@ -137,8 +143,6 @@ BufferAllocator::~BufferAllocator()
 // MANIPULATORS
 void *BufferAllocator::allocate(size_type size)
 {
-    BSLS_ASSERT(0 <= size);
-
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == size)) {
         return static_cast<void *>(0);
     }
@@ -151,13 +155,13 @@ void *BufferAllocator::allocate(size_type size)
                            d_bufferSize,
                            size,
                            bsls::AlignmentUtil::calculateAlignmentFromSize(
-                                                      static_cast<int>(size)));
+                                                                        size));
     } else { // default is MAXIMUM_ALIGNMENT
         result = allocateFromBufferImp(
                                       &d_cursor,
                                       d_buffer_p,
                                       d_bufferSize,
-                                      static_cast<int>(size),
+                                      size,
                                       bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
     }
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {

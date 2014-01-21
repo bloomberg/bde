@@ -342,8 +342,8 @@ int main(int argc, char *argv[])
         ASSERT(999 == dispatchOnIntConstant(8, "nine", MetaInt<999>()));
 
         if (veryVerbose) printf("Testing bool dispatch\n");
-        ASSERT(1 == dispatchOnBoolConstant(0.3, MetaInt<0>()));
-        ASSERT(2 == dispatchOnBoolConstant(5.2, MetaInt<1>()));
+        ASSERT(1 == dispatchOnBoolConstant(0.3f, MetaInt<0>()));
+        ASSERT(2 == dispatchOnBoolConstant(5.2f, MetaInt<1>()));
 
       } break;
       case 3: {
@@ -435,8 +435,8 @@ int main(int argc, char *argv[])
         ASSERT(999 == dispatchOnIntConstant(8, "nine", MetaInt<999>()));
 
         if (veryVerbose) printf("Testing bool dispatch\n");
-        ASSERT(1 == dispatchOnBoolConstant(0.3, MetaInt<0>()));
-        ASSERT(2 == dispatchOnBoolConstant(5.2, MetaInt<1>()));
+        ASSERT(1 == dispatchOnBoolConstant(0.3f, MetaInt<0>()));
+        ASSERT(2 == dispatchOnBoolConstant(5.2f, MetaInt<1>()));
 
       } break;
       case 2: {

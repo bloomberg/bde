@@ -295,7 +295,7 @@ class my_ShortArray {
      // ...
 
     ~my_ShortArray();
-    void append(int value);
+    void append(short value);
     const short& operator[](int index) const { return d_array_p[index]; }
     int length() const { return d_length; }
     operator const short *() const { return d_array_p; }
@@ -311,7 +311,7 @@ my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 , d_length(0)
 , d_allocator_p(basicAllocator)
 {
-    int sz = d_size * sizeof *d_array_p;
+    size_t sz = d_size * sizeof *d_array_p;
     if (basicAllocator) {
         d_array_p = (short *) d_allocator_p->allocate(sz);
     }
@@ -335,7 +335,7 @@ my_ShortArray::~my_ShortArray()
     }
 }
 
-inline void my_ShortArray::append(int value)
+inline void my_ShortArray::append(short value)
 {
     if (d_length >= d_size) {
         increaseSize();
@@ -361,7 +361,7 @@ void reallocate(short            **array,
     ASSERT(length <= newSize);          // enforce class invariant
 
     short *tmp = *array;                // support exception neutrality
-    int sz = newSize * sizeof **array;
+    size_t sz = newSize * sizeof **array;
     if (basicAllocator) {
         *array = (short *) basicAllocator->allocate(sz);
     }
@@ -476,7 +476,7 @@ static int verifyPrint(const bslma::TestAllocator& ta,
     // The code below forks a process and captures stdout to a memory
     // buffer.
     int pipes[2];
-    int sz;
+    ssize_t sz;
     pipe(pipes);
     if (fork()) {
         // Parent process.  Read pipe[0] into memory
@@ -1013,7 +1013,7 @@ int main(int argc, char *argv[])
                         X.numMismatches(), X.numBoundsErrors());
             }
 
-            int offset = strlen(expBuffer);
+            size_t offset = strlen(expBuffer);
 
             if (NUM_ALLOCS != NUM_DEALLOCS) {
                 for (int i = 0; i < NUM_ALLOCS; ++i) {
@@ -1101,7 +1101,7 @@ int main(int argc, char *argv[])
                     alloc.numMismatches() << endl;
         }
 
-        int expectedBoundsErrors = 0;
+        bsls::Types::Int64 expectedBoundsErrors = 0;
         bool success;
 
         // Verify overrun is detected -- write on the trailing pad, deallocate,
@@ -1571,8 +1571,8 @@ int main(int argc, char *argv[])
                           << endl << "======================================"
                           << endl;
 
-        const char *NAME   = "Test Allocator";
-        const int   length = strlen(NAME);
+        const char   *NAME   = "Test Allocator";
+        const size_t  length = strlen(NAME);
         Obj a(NAME, veryVeryVerbose);
 
         if (verbose) cout << "Make sure all internal states initialized."
@@ -1625,14 +1625,15 @@ int main(int argc, char *argv[])
             mX.setAllocationLimit(LIMIT[ti]);
 
             for (int ai = 0; ai < NUM_ALLOC; ++ai) {
-                const int SIZE = ai + 1; // alloc size varies for each test
+                const bslma::Allocator::size_type SIZE = ai + 1;
+                                             // alloc size varies for each test
                 if (veryVerbose) { P_(ti); P_(ai); P_(SIZE); P(LIMIT[ti]); }
                 try {
                     void *p = mX.allocate(SIZE);
                     mX.deallocate(p);
                 }
                 catch (bslma::TestAllocatorException& e) {
-                    int numBytes = e.numBytes();
+                    bslma::Allocator::size_type numBytes = e.numBytes();
                     if (veryVerbose) { cout << "Caught: "; P(numBytes); }
                     LOOP2_ASSERT(ti, ai, LIMIT[ti] == ai);
                     LOOP2_ASSERT(ti, ai, SIZE == numBytes);
@@ -1746,7 +1747,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t[deallocate unallocated pointer]" << endl;
             if (veryVerbose) cout << LINE << endl;
             void *p = operator new(100);
-            for (i = 0; i < 100; ++i) { ((char *)p)[i] = i; }
+            for (i = 0; i < 100; ++i) { ((char *)p)[i] = (char) i; }
                                 ASSERT(0 == a.numBlocksInUse());
                                 ASSERT(0 == a.numBytesInUse());
                                 ASSERT(0 == a.status());
@@ -1788,7 +1789,7 @@ int main(int argc, char *argv[])
             if (verbose) cout <<
                 "\nEnsure incompatibility with malloc/free." << endl;
             p = malloc(200);
-            for (i = 0; i < 200; ++i) { ((char *)p)[i] = i; }
+            for (i = 0; i < 200; ++i) { ((char *)p)[i] = (char) i; }
                                 ASSERT(0 == a.numBlocksInUse());
                                 ASSERT(0 == a.numBytesInUse());
                                 ASSERT(2 == a.status());

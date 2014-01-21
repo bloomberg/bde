@@ -77,7 +77,7 @@ class TestAllocator : public bslma::ManagedAllocator {
     // Test class used to verify protocol.
 
     int  d_fun; // Holds value indicating the most recent method invoked.
-    int  d_arg; // Holds argument from 'allocate'.
+    size_type d_arg; // Holds argument from 'allocate'.
 
   public:
     enum { ALLOCATE = 1, DEALLOCATE = 2, RELEASE = 3 };
@@ -92,7 +92,7 @@ class TestAllocator : public bslma::ManagedAllocator {
     int fun() const { return d_fun; }
     // Return descriptive code for the function called.
 
-    int arg() const { return d_arg; }
+    size_type arg() const { return d_arg; }
     // Return last argument value for 'allocate'.
 };
 
@@ -105,8 +105,8 @@ class LinkedListMA : public bslma::ManagedAllocator {
 
     class Node {
       public:
-        Node *d_next;
-        int   d_dataSize;
+        Node      *d_next;
+        size_type  d_dataSize;
         // Data implicitly here.
     };
 

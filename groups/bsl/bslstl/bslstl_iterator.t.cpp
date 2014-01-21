@@ -1097,7 +1097,9 @@ int main(int argc, char *argv[])
                           << endl;
 
         const_reverse_iterator itBegin(it1);
-        int distance = bsl::distance(itEnd, itBegin);
+        bsl::iterator_traits<
+                            const_reverse_iterator>::difference_type distance =
+                                                 bsl::distance(itEnd, itBegin);
         LOOP_ASSERT(distance, 2 == distance);
 
         if (verbose) cout << "\nVerify writing through a dereferenced iterator"
