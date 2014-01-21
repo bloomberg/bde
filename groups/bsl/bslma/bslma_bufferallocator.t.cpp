@@ -158,7 +158,7 @@ class my_ShortArray {
     // ...
 
     ~my_ShortArray();
-    void append(int value);
+    void append(short value);
     const short& operator[](int index) const { return d_array_p[index]; }
     int length() const { return d_length; }
 };
@@ -187,7 +187,7 @@ my_ShortArray::~my_ShortArray()
     d_allocator_p->deallocate(d_array_p);
 }
 
-inline void my_ShortArray::append(int value)
+inline void my_ShortArray::append(short value)
 {
     if (d_length >= d_size) {
         increaseSize();
@@ -229,7 +229,7 @@ void my_ShortArray::increaseSize()
 }
 // ...
 
-void *callbackFunc(int size)
+void *callbackFunc(int /* size */)
 {
     cerr << "Buffer allocator out of memory." << endl;
     exit(-1);
@@ -369,7 +369,7 @@ int main(int argc, char *argv[])
                                     : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
             // configure expected value buffer
-            const int BUF_SZ =  1000;     // Big enough to hold output.
+            const ssize_t BUF_SZ =  1000;     // Big enough to hold output.
             const char XX = (char) 0xFF;  // Value for an unset char.
             char mExp[BUF_SZ];    const char *EXP = mExp;
             memset(mExp, XX, BUF_SZ);
@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
                      << "\nACTUAL FORMAT (print):" << endl << buf << endl;
             }
 
-            const int EXP_SZ = strlen(EXP);
+            const ssize_t EXP_SZ = strlen(EXP);
             ASSERT(EXP_SZ < BUF_SZ);           // Check buffer is large enough.
             ASSERT(sz < BUF_SZ);               // Check buffer is large enough.
             ASSERT(0 < sz);                    // Check something was printed
@@ -1068,14 +1068,14 @@ int main(int argc, char *argv[])
 
                 char *const BUF = buf; // ensure pointer not modified
                 for (int i = 0; i < DATA_SZ; ++i) {
-                    const int LINE = DATA[i].d_line;
-                    const int SIZE = DATA[i].d_bufSize;
-                    const int al   = DATA[i].d_align;
-                    int       cp   = DATA[i].d_cursorPos;
-                    const int iCp  = cp;        // initial cursor value.
-                    const int as   = DATA[i].d_allocSize;
-                    const int eo   = DATA[i].d_expOffset[ti];
-                    const int ec   = DATA[i].d_expCursor[ti];
+                    const int       LINE = DATA[i].d_line;
+                    const int       SIZE = DATA[i].d_bufSize;
+                    const int       al   = DATA[i].d_align;
+                    int             cp   = DATA[i].d_cursorPos;
+                    const int       iCp  = cp;        // initial cursor value.
+                    const int       as   = DATA[i].d_allocSize;
+                    const ptrdiff_t eo   = DATA[i].d_expOffset[ti];
+                    const int       ec   = DATA[i].d_expCursor[ti];
 
                     if ((N4 == al && 4 != T::BSLS_MAX_ALIGNMENT)
                         || (N8 == al && 8 != T::BSLS_MAX_ALIGNMENT)
@@ -1099,7 +1099,7 @@ int main(int argc, char *argv[])
                         LOOP3_ASSERT(LINE, ti, i, 0 == ret);
                     }
                     else {
-                        int off = (char *) ret - (BUF + iCp);
+                        ptrdiff_t off = (char *) ret - (BUF + iCp);
                         if (veryVerbose) {
                             cout << '\t'; P_(i); PA_(BUF); P_(cp);
                             PA_(ret); P(off);

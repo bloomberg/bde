@@ -27,14 +27,14 @@ BSLS_IDENT("$Id: $")
 // specified.  This component also provides static utility functions for
 // allocating memory directly from a user-specified buffer:
 //..
-//   ,---------------------.
+//   ,----------------------.
 //  ( bslma::BufferAllocator )
-//   `---------------------'
+//   `----------------------'
 //              |         ctor
 //              V
-//      ,---------------.
+//      ,----------------.
 //     ( bslma::Allocator )
-//      `---------------'
+//      `----------------'
 //                      allocate
 //                      deallocate
 //                      dtor
@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //      ~my_ShortArray();
-//      void append(int value);
+//      void append(short value);
 //      const short& operator[](int index) const { return d_array_p[index]; }
 //      int length() const { return d_length; }
 //  };
@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  void my_ShortArray::append(int value)
+//  void my_ShortArray::append(short value)
 //  {
 //      if (d_length >= d_size) {
 //          increaseSize();
@@ -176,7 +176,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Use buffer allocator to allocate memory for 'my_ShortArray' as follows:
 //..
-//  void *callbackFunc(int size)
+//  void *callbackFunc(int /* size */)
 //  {
 //      std::cerr << "Buffer allocator out of memory." << std::endl;
 //      exit(-1);
