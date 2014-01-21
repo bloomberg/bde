@@ -4,20 +4,17 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 
-#include <bdema_managedptr.h>
-#include <bdef_bind.h>
-#include <bdef_memfn.h>
 #include <bdesu_pathutil.h>
+
+#include <bdef_bind.h>
+#include <bdema_managedptr.h>
 #include <bdetu_epoch.h>
 #include <bdetu_systemtime.h> // for testing only
-
-#include <bslma_allocator.h>
-#include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
-
-#include <bsl_cstring.h>
+#include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
+#include <bsl_cstring.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -25,31 +22,25 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <direct.h>
 #undef MIN
 #define snprintf _snprintf
-#else
 
-#ifdef BSLS_PLATFORM_OS_HPUX
-#define _LARGEFILE64_SOURCE  // activates '64' variants of open() etc
-#endif
+#else // !BSLS_PLATFORM_OS_WINDOWS
 
+#include <bsl_c_errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <glob.h>
-#include <bsl_c_errno.h>
 #ifndef _POSIX_PTHREAD_SEMANTICS
 #define _POSIX_PTHREAD_SEMANTICS
 #endif
+#include <bsl_c_limits.h>
 #include <unistd.h>
 #include <dirent.h>
-#include <utime.h> // for testing only ... for now
 #include <sys/uio.h>
-#include <bsl_c_limits.h>
 #include <sys/resource.h>
 #include <sys/statvfs.h>
 #endif
-
-#include <bsl_algorithm.h>
 
 namespace BloombergLP {
 

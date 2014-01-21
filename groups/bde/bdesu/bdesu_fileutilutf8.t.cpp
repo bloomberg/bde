@@ -2,44 +2,39 @@
 #include <bdesu_fileutilutf8.h>
 
 #include <bdesu_pathutil.h>
+
+#include <bdede_charconvertutf16.h>
 #include <bdef_bind.h>
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
-
-#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
-#include <bsls_types.h>
-
-#include <bsl_cstdlib.h>
-#include <bsl_sstream.h>
-#include <bsl_map.h>
+#include <bsl_algorithm.h>
 #include <bsl_c_errno.h>
+#include <bsl_c_stdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
+#include <bsl_map.h>
+#include <bsl_sstream.h>
+#include <bsl_vector.h>
 
-#include <fcntl.h>
 #ifndef BSLS_PLATFORM_OS_WINDOWS
+#include <fcntl.h>
 #include <utime.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <unistd.h>
-#else // !BSLS_PLATFORM_OS_WINDOWS
+
+#else // BSLS_PLATFORM_OS_WINDOWS
+
 #include <windows.h>  // for Sleep, GetLastError
-#include <errno.h>
+#include <fcntl.h>    // for _O_U16TEXT
 #include <io.h>
 #endif
 
-#include <bsl_algorithm.h>
-#include <bsl_iostream.h>
-#include <bsl_cstdlib.h>
-#include <bsl_c_stdio.h>
-#include <bsl_sstream.h>
-#include <bsl_vector.h>
-#include <bdede_charconvertutf16.h>
 
 using namespace BloombergLP;
 using namespace bsl;

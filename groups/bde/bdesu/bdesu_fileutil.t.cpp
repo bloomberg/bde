@@ -2,19 +2,20 @@
 #include <bdesu_fileutil.h>
 
 #include <bdesu_pathutil.h>
+
 #include <bdef_bind.h>
 #include <bdet_datetime.h>
 #include <bdetu_systemtime.h>
-
-#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
-#include <bsls_types.h>
-
-#include <bsl_cstdlib.h>
-#include <bsl_sstream.h>
-#include <bsl_map.h>
+#include <bsl_algorithm.h>
 #include <bsl_c_errno.h>
+#include <bsl_c_stdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
+#include <bsl_map.h>
+#include <bsl_sstream.h>
+#include <bsl_vector.h>
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #include <utime.h>
@@ -22,29 +23,15 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-// Needed for using 'stat64' on HP
-#ifdef BSLS_PLATFORM_OS_HPUX
-    #ifndef _LARGEFILE64_SOURCE
-        #define _LARGEFILE64_SOURCE 1
-    #endif
-#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#else // !BSLS_PLATFORM_OS_WINDOWS
+#else // BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>  // for Sleep, GetLastError
-#include <errno.h>
-#include <fcntl.h>
 #include <io.h>
 #endif
 
-#include <bsl_algorithm.h>
-#include <bsl_iostream.h>
-#include <bsl_cstdlib.h>
-#include <bsl_c_stdio.h>
-#include <bsl_sstream.h>
-#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -66,10 +53,13 @@ using namespace bsl;
 // [ 6] static Offset getFileSize(const bsl::string&);
 // [ 6] static Offset getFileSize(const char *);
 // [ 8] FD open(const char *p, bool writable, bool exist, bool append);
-// [10] int tryLock(FileDescriptor, bool )
+// [ 9] static Offset getFileSizeLimit()
+// [10] int tryLock(FileDescriptor, bool ) (Unix)
+// [11] int tryLock(FileDescriptor, bool ) (Windows)
 // [13] int sync(char *, int , bool )
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 7] CONCERN: findMatchingPaths incorrect on ibm 64-bit
 // [12] CONCERN: Open in append-mode behavior (particularly on windows)
 // [14] CONCERN: Unix File Permissions for 'open'
 // [15] CONCERN: Unix File Permissions for 'createDirectories'
