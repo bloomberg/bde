@@ -673,7 +673,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // The 'systemUser' class method returns the same 'MyUser' object and should
 // not be destroyed by its users:
 //..
-//  MyUser *MyTransactionManager::systemUser(bslma::Allocator *basicAllocator)
+//  MyUser *MyTransactionManager::systemUser(
+//                                      bslma::Allocator */* basicAllocator */)
 //  {
 //      static MyUser *systemUserSingleton;
 //      if (!systemUserSingleton) {
@@ -1243,97 +1244,102 @@ BSLS_IDENT("$Id$ $CSID$")
 //  assert(intWeakPtr2.expired());
 //  assert(!intWeakPtr2.acquireSharedPtr());
 //..
-///Example 2 - Breaking Cyclic Dependencies
-///- - - - - - - - - - - - - - - - - - - -
-// Weak pointers are frequently used to break cyclic dependencies among objects
-// that store references to each other via shared pointers.  Consider, for
-// example, a simplified broadcasting system that sends news alerts to users
-// based on user-selected keywords.  The user information is stored in the
-// 'NewsUser' class and the details of the news alert are stored in the
-// 'NewsAlert' class.  The class definitions for 'NewsUser' and 'NewsAlert' are
-// provided below (with any code not essential to this example elided):
+// Example 2 - Breaking cyclical dependencies
+// - - - - - - - - - - - - - - - - - - - - - -
+// Weak pointers are frequently used to break cyclical dependencies between
+// objects that store references to each other via a shared pointer.  Consider
+// for example a simplified news alert system that sends news alerts to users
+// based on keywords that they register for.  The user information is stored in
+// the 'User' class and the details of the news alert are stored in the 'Alert'
+// class.  The class definitions for 'User' and 'Alert' are provided below
+// (with any code not relevant to this example elided):
 //..
-//  class NewsAlert;
+//  class Alert;
 //
-//  class NewsUser {
+//  class User {
 //      // This class stores the user information required for listening to
 //      // alerts.
 //
-//      // DATA
-//      bsl::vector<bcema_SharedPtr<NewsAlert> > d_alerts; // list of alerts
-//                                                         // for which a user
-//                                                         // is registered
+//      bsl::vector<bsl::shared_ptr<Alert> > d_alerts;  // alerts user is
+//                                                      // registered for
 //
-//    public:
 //      // ...
 //
+//    public:
 //      // MANIPULATORS
-//      void addAlert(const bcema_SharedPtr<NewsAlert>& alertPtr)
+//      void addAlert(const bsl::shared_ptr<Alert>& alertPtr)
+//      {
 //          // Add the specified 'alertPtr' to the list of alerts being
 //          // monitored by this user.
-//      {
+//
 //          d_alerts.push_back(alertPtr);
 //      }
 //
+
 //      // ...
 //  };
 //..
-// Now we define the alert class, 'NewsAlert':
+// Now we define an alert class, 'Alert':
 //..
-//  class NewsAlert {
+//  class Alert {
 //      // This class stores the alert information required for sending
 //      // alerts.
 //
-//      // DATA
-//      bsl::vector<bcema_SharedPtr<NewsUser> > d_users;  // list of users
-//                                                        // who have
-//                                                        // registered for
-//                                                        // this alert
+//      bsl::vector<bsl::shared_ptr<User> > d_users;  // users registered
+//                                                    // for this alert
 //
 //    public:
-//      // ...
-//
 //      // MANIPULATORS
-//      void addUser(const bcema_SharedPtr<NewsUser>& userPtr)
+//      void addUser(const bsl::shared_ptr<User>& userPtr)
+//      {
 //          // Add the specified 'userPtr' to the list of users monitoring this
 //          // alert.
-//      {
+//
 //          d_users.push_back(userPtr);
 //      }
 //
 //      // ...
 //  };
+//
 //..
-// Note that the 'NewsUser' and 'NewsAlert' classes, as currently defined could
-// easily result in a memory leak under typical use due to a cyclic reference:
-//..
-//  bslma::TestAllocator ta;
-//  {
-//      bcema_SharedPtr<NewsUser> userPtr;
-//      userPtr.createInplace(&ta);
-//
-//      bcema_SharedPtr<NewsAlert> alertPtr;
-//      alertPtr.createInplace(&ta);
-//
-//      alertPtr->addUser(userPtr);
-//      userPtr->addAlert(alertPtr);
-//
-//      alertPtr.reset();
-//      userPtr.reset();
-//  }
-//
-//  // MEMORY LEAK !!
-//..
-// Even though we have released 'alertPtr' and 'userPtr', there still exists a
+// Even though we have released 'alertPtr' and 'userPtr' there still exists a
 // cyclic reference between the two objects, so none of the objects are
 // destroyed.
 //
-// We can break this cyclic dependency by modifying the alert class,
-// 'NewsAlert', to store a weak pointer, instead of a shared pointer, to a
-// 'NewsUser' object.  Below is the modified definition for the 'NewsAlert'
-// class:
+// We can break this cyclical dependency we define a modified alert class
+// 'ModifiedAlert' that stores a weak pointer to a 'ModifiedUser' object.
+// Below is the definition for the 'ModifiedUser' class which is identical to
+// the 'User' class, the only difference being that it stores shared pointer to
+// 'ModifiedAlert's instead of 'Alert's:
 //..
-//  class NewsAlert {
+//  class ModifiedAlert;
+//
+//  class ModifiedUser {
+//      // This class stores the user information required for listening to
+//      // alerts.
+//
+//      bsl::vector<bsl::shared_ptr<ModifiedAlert> > d_alerts;// alerts user is
+//                                                            // registered for
+//
+//      // ...
+//
+//    public:
+//      // MANIPULATORS
+//      void addAlert(const bsl::shared_ptr<ModifiedAlert>& alertPtr)
+//      {
+//          // Add the specified 'alertPtr' to the list of alerts being
+//          // monitored by this user.
+//
+//          d_alerts.push_back(alertPtr);
+//      }
+//
+
+//      // ...
+//  };
+//..
+// Now we define the 'ModifiedAlert' class:
+//..
+//  class ModifiedAlert {
 //      // This class stores the alert information required for sending
 //      // alerts.
 //
@@ -1341,171 +1347,155 @@ BSLS_IDENT("$Id$ $CSID$")
 // Note that the user is stored by a weak pointer instead of by a shared
 // pointer:
 //..
-//      // DATA
-//      bsl::vector<bcema_WeakPtr<NewsUser> > d_users; // list of users that
-//                                                     // have registered for
-//                                                     // this alert
+//      bsl::vector<bsl::weak_ptr<ModifiedUser> > d_users;  // users registered
+//                                                          // for this alert
 //
 //    public:
 //      // MANIPULATORS
-//      void addUser(const bcema_WeakPtr<NewsUser>& userPtr)
+//      void addUser(const bsl::weak_ptr<ModifiedUser>& userPtr)
+//      {
 //          // Add the specified 'userPtr' to the list of users monitoring this
 //          // alert.
-//      {
+//
 //          d_users.push_back(userPtr);
 //      }
 //
 //      // ...
 //  };
-//..
-// The use of 'NewsUser' and 'NewsAlert' objects no longer causes a memory
-// leak:
-//..
-//  bslma::TestAllocator ta;
-//  {
-//      bcema_SharedPtr<NewsAlert> alertPtr;
-//      alertPtr.createInplace(&ta);
 //
-//      bcema_SharedPtr<NewsUser> userPtr;
-//      userPtr.createInplace(&ta);
+// Usage example 3 - Caching example
+// - - - - - - - - - - - - - - - - -
+// Suppose we want to implement a peer to peer file sharing system that allows
+// users to search for files that match specific keywords.  A simplistic
+// version of such a system with code not relevant to the usage example elided
+// would have the following parts:
 //
-//      bcema_WeakPtr<NewsUser> userWeakPtr(userPtr);
-//
-//      alertPtr->addUser(userWeakPtr);
-//      userPtr->addAlert(alertPtr);
-//
-//      alertPtr.reset();
-//      userPtr.reset();
-//  }
-//
-//  // No memory leak now.
-//..
-// Now both the user and alert objects are correctly destroyed, and the memory
-// returned to the allocator after 'alertPtr' and 'userPtr' are reset.
-//
-///Example 3 - Caching
-///- - - - - - - - - -
-// Suppose we want to implement a peer-to-peer file-sharing system that allows
-// users to search for files that match certain keywords.  A peer-to-peer
-// file-sharing system connects remotely to similar file-sharing systems
-// (peers) and determines which files stored by those peers best match the
-// keywords specified by the user.
-//
-// Typically, such a system would connect to hundreds of peers to increase the
-// probability of finding files that match any keyword.  When a user initiates
-// a request with certain keywords the system sends the search request to
-// connected peers to find out which one of them contains the files that best
-// match the requested keywords.  But it is inefficient to send every file
-// search request to all connected peers.  So the system may cache a subset of
-// the connected peers, and based on their connection bandwidth, relevancy of
-// previous search results, etc., send the search requests only to those cached
-// peers.
-//
-// To show the implementation of such a system we will first define a 'Peer'
-// class that stores the information about a peer (with code not relevant to
-// the usage example elided):
+// a) A peer manager class that maintains a list of all connected peers and
+// updates the list based on incoming peer requests and disconnecting peers.
+// The following would be a simple interface for the Peer and PeerManager
+// classes:
 //..
 //  class Peer {
-//      // This class stores relevant information for a peer.
+//      // This class stores all the relevant information for a peer.
 //
 //      // ...
 //  };
-//..
-// We will now define a 'PeerManager' class that maintains the information
-// about all connected 'Peer's.  The 'PeerManager' class creates a 'Peer'
-// object when a new connection occurs, manages the lifetime of that object,
-// and eventually destroys it when the peer disconnects.  In addition, the
-// 'PeerManager' class needs to pass 'Peer' objects to other objects that
-// need to communicate with the 'Peer'.  Therefore, 'PeerManager' stores
-// a 'bcema_SharedPtr' to each 'Peer' object.  The following would be a simple
-// definition for the 'PeerManager' classes:
-//..
+//
 //  class PeerManager {
 //      // This class acts as a manager of peers and adds and removes peers
 //      // based on peer requests and disconnections.
 //
 //      // DATA
-//      bsl::map<int, bcema_SharedPtr<Peer> > d_peers; // list of all
-//                                                     // connected peers
+//..
+// The peer objects are stored by shared pointer to allow peers to be passed to
+// search results and still allow their asynchronous destruction when peers
+// disconnect.
+//..
+//      bsl::map<int, bsl::shared_ptr<Peer> > d_peers;
 //
 //      // ...
 //  };
 //..
-// We now define a 'PeerCache' class that stores a subset of the peers that are
-// the primary recipients of search requests.  The 'PeerCache' stores a 'Peer'
-// object via a 'bcema_WeakPtr' (as opposed to via a 'bcema_SharedPtr').  This
-// allows the cache to store a reference to a 'Peer' object without affecting
-// its lifetime and allowing it to be destroyed asynchronously on disconnection
-// by that 'Peer'.  For brevity, the population and flushing of this cache is
-// not shown:
+// b) A peer cache class that stores a subset of the peers that are used for
+// sending search requests.  The cache may select peers based on their
+// connection bandwidth, relevancy of previous search results, etc.  For
+// brevity the population and flushing of this cache is not shown:
 //..
 //  class PeerCache {
-//      // This class caches a subset of all peers that match certain criteria.
+//      // This class caches a subset of all peers that match certain criteria
+//      // including connection bandwidth, relevancy of previous search
+//      // results, etc.
 //
+//..
+// Note that the cached peers are stored as a weak pointer so as not to
+// interfere with the cleanup of Peer objects by the PeerManager if a Peer goes
+// down.
+//..
 //      // DATA
-//      bsl::list<bcema_WeakPtr<Peer> > d_cachedPeers;  // list of cached peers
+//      bsl::list<bsl::weak_ptr<Peer> > d_cachedPeers;
 //
 //    public:
 //      // TYPES
-//      typedef bsl::list<bcema_WeakPtr<Peer> >::const_iterator PeerConstIter;
+//      typedef bsl::list<bsl::weak_ptr<Peer> >::const_iterator PeerConstIter;
 //
 //      // ...
 //
 //      // ACCESSORS
-//      PeerConstIter begin() const
-//          // Return an iterator that refers to the first peer in the list of
-//          // peers stored by this peer cache.
-//      {
-//          return d_cachedPeers.begin();
-//      }
-//
-//      PeerConstIter end() const
-//          // Return an iterator that indicates the element one past the
-//          // last peer in the list of peers stored by this peer cache.
-//      {
-//          return d_cachedPeers.end();
-//      }
+//      PeerConstIter begin() const { return d_cachedPeers.begin(); }
+//      PeerConstIter end() const   { return d_cachedPeers.end(); }
 //  };
 //..
-// We now need to store the information representing a search result that is
-// returned to the user and allows the user to decide which search result to
-// select for downloading.  A search result would contain a 'Peer' object and
-// the filename stored by that 'Peer' that best matches the specified keywords.
-// For simplicity we store the 'Peer' information and a 'bsl::string' storing
-// the filename as a 'bsl::pair'.  Again, note that because we do not want
-// search result objects to control the lifetime of 'Peer' objects we use a
-// 'bcema_WeakPtr' to 'Peer':
-//..
-//  typedef bsl::pair<bcema_WeakPtr<Peer>, bsl::string> SearchResult;
-//      // 'SearchResult' is an alias for a search result.
-//..
-// Finally, we provide a search function that retrieves the search results for
-// a set of keywords by querying all peers in the 'PeerCache'.  The
-// implementation of the search function is provided below:
-//..
-//  PeerCache cachedPeers;
-//
-//  void search(bsl::vector<SearchResult>       *results,
-//              const bsl::vector<bsl::string>&  keywords)
-//  {
-//      for (PeerConstIter iter = cachedPeers.begin();
-//           iter != cachedPeers.end();
-//           ++iter) {
-//..
-// In the following, we check if the peer is still connected by acquiring a
-// shared pointer to the peer.  If the acquire operation succeeds, then we can
-// send the peer a request to return the filename best matching the specified
+// c) A search result class that stores a search result and encapsulates a peer
+// with the file name stored by the peer that best matches the specified
 // keywords:
 //..
-//          bcema_SharedPtr<Peer> peerSharedPtr = iter->acquireSharedPtr();
+//  class SearchResult {
+//      // This class provides a search result and encapsulates a particular
+//      // peer and filename combination that matches a specified set of
+//      // keywords.
+//
+//..
+// The peer is stored as a weak pointer because when the user decides to select
+// a particular file to download from this peer, the peer might have
+// disconnected.
+//..
+//      // DATA
+//      bsl::weak_ptr<Peer> d_peer;
+//      bsl::string         d_filename;
+//
+//    public:
+//      // CREATORS
+//      SearchResult(const bsl::weak_ptr<Peer>& peer,
+//                   const bsl::string&         filename)
+//      : d_peer(peer)
+//      , d_filename(filename)
+//      {
+//      }
+//
+//      // ...
+//
+//      // ACCESSORS
+//      const bsl::weak_ptr<Peer>& peer() const { return d_peer; }
+//      const bsl::string& filename() const { return d_filename; }
+//  };
+//..
+// d) A search function that takes a list of keywords and returns available
+// results by searching the cached peers:
+//..
+//  ;
+//
+//  void search(bsl::vector<SearchResult>       */* results */,
+//              const PeerCache&                 peerCache,
+//              const bsl::vector<bsl::string>&  /* keywords */)
+//  {
+//      for (PeerCache::PeerConstIter iter = peerCache.begin();
+//           iter != peerCache.end();
+//           ++iter) {
+//..
+// First we check if the peer is still connected by acquiring a shared pointer
+// to the peer.  If the acquire operation succeeds then we can send the peer a
+// request to send back the file best matching the specified keywords:
+//..
+//          bsl::shared_ptr<Peer> peerSharedPtr = iter->acquireSharedPtr();
 //          if (peerSharedPtr) {
 //
-//              // Search the peer for the file best matching the specified
-//              // keywords and, if a file is found, append the returned
-//              // 'SearchResult' object to 'result'.
+//              // Search the peer for file best matching the specified
+//              // keywords and if a file is found add the returned
+//              // SearchResult object to result.
 //
 //              // ...
 //          }
+//      }
+//  }
+//..
+// e) A download function that downloads a file selected by the user:
+//..
+//  void download(const SearchResult& result)
+//  {
+//      bsl::shared_ptr<Peer> peerSharedPtr = result.peer().acquireSharedPtr();
+//      if (peerSharedPtr) {
+//          // Download the result.filename() file from peer knowing that
+//          // the peer is still connected.
 //      }
 //  }
 //..

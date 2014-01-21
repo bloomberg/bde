@@ -155,7 +155,9 @@ BSLS_IDENT("$Id: $")
 //
 //      int asInt() const {
 //          return INT == d_type ?
-//              d_int : strtol(d_string.object().c_str(), 0, 0); }
+//                          d_int : static_cast<int>(
+//                                    strtol(d_string.object().c_str(), 0, 0));
+//  }
 //
 //      my_String asString() const {
 //          if (INT == d_type) {

@@ -1670,7 +1670,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with IsPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocations();
+        const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1683,7 +1683,7 @@ int main(int argc, char *argv[])
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
 
-        const int NUM_ALLOC2 = testAllocator.numAllocations();
+        const bsls::Types::Int64 NUM_ALLOC2 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1778,7 +1778,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with IsPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocations();
+        const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
@@ -1893,7 +1893,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\t...constructing pair with IsPair\n");
 
-        const int NUM_ALLOC1 = testAllocator.numAllocations();
+        const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
             my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;

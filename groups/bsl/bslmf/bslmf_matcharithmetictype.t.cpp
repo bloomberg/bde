@@ -130,6 +130,13 @@ void ArithmeticConveribility<TYPE>::implicitlyConvert()
     if (globalVerbose) {
         printf("%s\n", typeid(TYPE).name());
     }
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+    // This test algoruthm is based on the implicit conversion of the types
+    // that must cause the conversion warnings of compiler. Suppressing the
+    // conversion warnings.
 
     TYPE obj = TYPE();
     acceptObj(obj);
@@ -154,6 +161,10 @@ void ArithmeticConveribility<TYPE>::implicitlyConvert()
 
     const volatile TYPE cvObjRef = obj;
     acceptObj(cvObjRef);
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 }
 
                         // ========================

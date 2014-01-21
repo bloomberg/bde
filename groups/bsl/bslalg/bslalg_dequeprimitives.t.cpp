@@ -873,8 +873,8 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
             const char *const EXP   = DATA_9[ti].d_expected;
             const int         EB    = DATA_9[ti].d_eb;
 
-            ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
-            const int SIZE = std::strlen(SPEC);
+            ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
+            const int SIZE = static_cast<int>(std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -892,7 +892,7 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
                     bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Deque deque(SIZE, numBlocks, Z);
@@ -1049,8 +1049,8 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
             const char *const EXP   = DATA_8[ti].d_expected;
             const int         EE    = DATA_8[ti].d_ee;
 
-            ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
-            const int SIZE = std::strlen(SPEC);
+            ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
+            const int SIZE = static_cast<int>(std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -1068,7 +1068,7 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
                     bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Deque deque(SIZE, numBlocks, Z);
@@ -1222,8 +1222,8 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
             const char *const EXP   = DATA_7[ti].d_expected;
             const int         EB    = DATA_7[ti].d_eb;
 
-            ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
-            const int SIZE = std::strlen(SPEC);
+            ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
+            const int SIZE = static_cast<int>(std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -1241,7 +1241,7 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
                     bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Deque deque(SIZE, numBlocks, Z);
@@ -1398,8 +1398,8 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
             const char *const EXP   = DATA_6[ti].d_expected;
             const int         EE    = DATA_6[ti].d_ee;
 
-            ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
-            const int SIZE = std::strlen(SPEC);
+            ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
+            const int SIZE = static_cast<int>(std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -1417,7 +1417,7 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
                     bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Deque deque(SIZE, numBlocks, Z);
@@ -1548,8 +1548,8 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
             const char *const EXP   = DATA_5[ti].d_expected;
             const int         EB    = DATA_5[ti].d_eb;
 
-            ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
-            const int SIZE = std::strlen(SPEC);
+            ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
+            const int SIZE = static_cast<int>(std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -1566,7 +1566,7 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
                 if (exceptionSafetyFlag) {
                     bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Deque deque(SIZE, numBlocks, Z);
@@ -1692,8 +1692,8 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
             const char *const EXP  = DATA_4[ti].d_expected;
             const int         EE   = DATA_4[ti].d_ee;
 
-            ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
-            const int SIZE = std::strlen(SPEC);
+            ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
+            const int SIZE = static_cast<int>(std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -1711,7 +1711,7 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
                     bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Deque deque(SIZE, numBlocks, Z);
@@ -1909,8 +1909,8 @@ void testErase(bool exceptionSafetyFlag = false)
             const int         EE    = DATA_3[ti].d_ee;
             const int         EI    = DATA_3[ti].d_ei;
 
-            ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
-            const int SIZE = strlen(SPEC);
+            ASSERT(MAX_SIZE >= static_cast<int>(std::strlen(SPEC)));
+            const int SIZE = static_cast<int>(strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -1929,7 +1929,7 @@ void testErase(bool exceptionSafetyFlag = false)
                     bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Deque deque(SIZE, numBlocks, Z);
@@ -2055,7 +2055,7 @@ void testDestruct()
             const char *const EXP   = DATA_2[ti].d_expected;
             ASSERT((int)std::strlen(SPEC) < BLOCK_LENGTH * numBlocks);
 
-            const int SIZE = strlen(SPEC);
+            const int SIZE = static_cast<int>(std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "

@@ -463,7 +463,8 @@ int main(int argc, char *argv[])
             array.append(my_AllocatingClass(&allocator));
             array.append(my_AllocatingClass(&allocator));
 
-            int numBytes = Z.numBytesInUse();  const int& NUMBYTES = numBytes;
+            bsls::Types::Int64 numBytes = Z.numBytesInUse();
+            const bsls::Types::Int64& NUMBYTES = numBytes;
 
             // Force the reallocation in the array to fail.
             allocator.setAllocationLimit(1);

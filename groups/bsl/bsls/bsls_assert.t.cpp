@@ -339,7 +339,7 @@ void TestConfigurationMacros();
         short int d_x;
         short int d_y;
       public:
-        Kpoint(int x, int y);
+        Kpoint(short int x, short int y);
             // ...
             // The behavior is undefined unless '-1000 <= x <= 1000'
             // and '-1000 <= y <= 1000'.
@@ -355,7 +355,7 @@ void TestConfigurationMacros();
     // ...
 
     inline
-    Kpoint::Kpoint(int x, int y)
+    Kpoint::Kpoint(short int x, short int y)
     : d_x(x)
     , d_y(y)
     {

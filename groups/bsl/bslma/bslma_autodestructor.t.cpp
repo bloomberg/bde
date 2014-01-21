@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting usage example without exception.\n");
         {
             my_Array<my_AllocatingClass> array(INIT_SIZE, &ta);
-            const int INITBYTES = TA.numBytesInUse();
+            const bsls::Types::Int64 INITBYTES = TA.numBytesInUse();
 
             // First initialize the array to be the same as the usage example.
 
@@ -585,7 +585,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting usage example with exception.\n");
         {
             my_Array<my_AllocatingClass> array(INIT_SIZE, &ta);
-            const int INITBYTES = TA.numBytesInUse();
+            const bsls::Types::Int64 INITBYTES = TA.numBytesInUse();
 
             // First initialize the array to be the same as the usage example.
 

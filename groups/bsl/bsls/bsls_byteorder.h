@@ -118,7 +118,7 @@ BSLS_IDENT("$Id: $")
 //..
 // For example, to use the little-endian/big-endian to host-endian macros:
 //..
-//  short              x = 0xabcd;
+//  short              x = static_cast<short>(0xabcd);
 //  int                y = 0xabcdef12;
 //  bsls::Types::Int64 z = 0xabcdef1234567890LL;
 //

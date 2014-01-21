@@ -208,7 +208,7 @@ BSLS_IDENT("$Id: $")
 //      char **tmpSrc = srcArray.d_array_p;
 //      if (this == &srcArray) {
 //          // self-alias
-//          int size = srcLength * sizeof(char *);
+//          size_t size = srcLength * sizeof(char *);
 //          tmpSrc = (char **) d_allocator_p->allocate(size);
 //          memcpy(tmpSrc, d_array_p, size);
 //      }
@@ -283,7 +283,7 @@ BSLS_IDENT("$Id: $")
 //      char **tmpSrc = srcArray.d_array_p;
 //      if (this == &srcArray) {
 //          // self-alias
-//          int size = srcLength * sizeof(char *);
+//          size_t size = srcLength * sizeof(char *);
 //          tmpSrc = (char **) d_allocator_p->allocate(size);
 //          memcpy(tmpSrc, d_array_p, size);
 //      }

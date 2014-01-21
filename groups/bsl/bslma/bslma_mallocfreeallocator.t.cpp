@@ -88,15 +88,15 @@ static void aSsErT(bool b, const char *s, int i) {
 //                          GLOBALS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static  int  globalVeryVeryVerbose            = 0;
+static    int  globalVeryVeryVerbose            = 0;
 
-static  int  globalNewCalledCount             = 0;
-static  int  globalNewCalledCountIsEnabled    = 0;
-static  int  globalNewCalledLastArg           = 0;
+static    int  globalNewCalledCount             = 0;
+static    int  globalNewCalledCountIsEnabled    = 0;
+static size_t  globalNewCalledLastArg           = 0;
 
-static  int  globalDeleteCalledCount          = 0;
-static  int  globalDeleteCalledCountIsEnabled = 0;
-static void *globalDeleteCalledLastArg        = 0;
+static    int  globalDeleteCalledCount          = 0;
+static    int  globalDeleteCalledCountIsEnabled = 0;
+static   void *globalDeleteCalledLastArg        = 0;
 
 //==========================================================================
 //                 REDEFINED GLOBAL OPERATOR NEW AND DELETE

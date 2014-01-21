@@ -547,8 +547,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::vector<int> bucketSizes;
 //  bucketSizes.reserve(wordTally.bucket_count());
 //
-//  for (int idx = 0; idx < wordTally.bucket_count(); ++idx) {
-//     bucketSizes.push_back(wordTally.bucket_size(idx));
+//  for (size_t idx = 0; idx < wordTally.bucket_count(); ++idx) {
+//     bucketSizes.push_back(static_cast<int>(wordTally.bucket_size(idx)));
 //  }
 //
 //  assert(0 < bucketSizes.size());
@@ -563,14 +563,14 @@ BSLS_IDENT("$Id: $")
 // We can also count the number of empty buckets, and the number of buckets at
 // 'maxBucketSize'.
 //..
-//  int numEmptyBuckets = std::count(bucketSizes.begin(),
-//                                   bucketSizes.end(),
-//                                   0);
+//  int numEmptyBuckets = static_cast<int>(std::count(bucketSizes.begin(),
+//                                                    bucketSizes.end(),
+//                                                    0));
 //  printf("numEmptyBuckets  %4d\n", numEmptyBuckets);
 //
-//  int numMaxBuckets = std::count(bucketSizes.begin(),
-//                                 bucketSizes.end(),
-//                                 maxBucketSize);
+//  int numMaxBuckets = static_cast<int>(std::count(bucketSizes.begin(),
+//                                                  bucketSizes.end(),
+//                                                  maxBucketSize));
 //  printf("numMaxBuckets    %4d\n", numMaxBuckets);
 //..
 // which shows on standard output:
@@ -615,8 +615,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::vector<int> bucketSizes2;
 //  bucketSizes2.reserve(wordTally2.bucket_count());
 //
-//  for (int idx = 0; idx < wordTally2.bucket_count(); ++idx) {
-//     bucketSizes2.push_back(wordTally2.bucket_size(idx));
+//  for (size_t idx = 0; idx < wordTally2.bucket_count(); ++idx) {
+//     bucketSizes2.push_back(static_cast<int>(wordTally2.bucket_size(idx)));
 //  }
 //
 //  assert(0 < bucketSizes2.size());
@@ -624,14 +624,14 @@ BSLS_IDENT("$Id: $")
 //                                         bucketSizes2.end());
 //  printf("maxBucketSize2   %4d\n", maxBucketSize2);
 //
-//  int numEmptyBuckets2 = std::count(bucketSizes2.begin(),
-//                                    bucketSizes2.end(),
-//                                    0);
+//  int numEmptyBuckets2 = static_cast<int>(std::count(bucketSizes2.begin(),
+//                                          bucketSizes2.end(),
+//                                          0));
 //  printf("numEmptyBuckets2 %4d\n", numEmptyBuckets2);
 //
-//  int numMaxBuckets2 = std::count(bucketSizes2.begin(),
-//                                  bucketSizes2.end(),
-//                                  maxBucketSize2);
+//  int numMaxBuckets2 = static_cast<int>(std::count(bucketSizes2.begin(),
+//                                        bucketSizes2.end(),
+//                                        maxBucketSize2));
 //  printf("numMaxBuckets2   %4d\n", numMaxBuckets2);
 //..
 // Finally, we see on standard output:

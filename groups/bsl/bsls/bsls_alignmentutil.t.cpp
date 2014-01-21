@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < DATA_SIZE; ++i) {
                 const int         LINE    = DATA[i].d_lineNumber;
                 const char *const TYPE    = DATA[i].d_assertBuildType;
-                const int         RESULT  = DATA[i].d_expectedResult;
+                const char        RESULT  = DATA[i].d_expectedResult;
                 const void *const ADDRESS = DATA[i].d_address;
                 const int         ALIGN   = DATA[i].d_align;
 
@@ -702,7 +702,7 @@ int main(int argc, char *argv[])
                 int          d_lineNumber;
                 const char  *d_assertBuildType;
                 char         d_expectedResult;
-                std::size_t  d_input;
+                std::size_t  d_size;
                 int          d_expected;
             } const DATA[] = {
                 // LINE  TYPE  RESULT  SIZE  ALIGN
@@ -717,8 +717,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i < DATA_SIZE; ++i) {
                 const int         LINE   = DATA[i].d_lineNumber;
                 const char *const TYPE   = DATA[i].d_assertBuildType;
-                const int         RESULT = DATA[i].d_expectedResult;
-                const int         SIZE   = DATA[i].d_input;
+                const char        RESULT = DATA[i].d_expectedResult;
+                const std::size_t SIZE   = DATA[i].d_size;
                 const int         ALIGN  = DATA[i].d_expected;
 
                 if(veryVerbose) {

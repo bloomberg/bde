@@ -176,7 +176,7 @@ static void shortDelay(double           delayTime,
 {
     const double frac = delayTime * 4.7;
     const Int64 t0 = rawTimerFunction();
-    const Int64 tEnd = t0 + delayTime * 1e9;
+    const Int64 tEnd = t0 + static_cast<Int64>(delayTime * 1e9);
 
     while ((*rawTimerFunction)() < tEnd) {
         double x = delayTime / frac;    // expensive operation

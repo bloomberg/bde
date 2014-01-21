@@ -98,8 +98,8 @@ BSLS_IDENT("$Id: $")
 // Then, we declare a string of characterss we will use to initialize the
 // 'UsageType' objects in our array.
 //..
-//  const char *DATA = "Hello";
-//  const int   DATA_LEN = std::strlen(DATA);
+//  const char   *DATA = "Hello";
+//  const size_t  DATA_LEN = std::strlen(DATA);
 //..
 // Next, we verify that even right after exceptions have been thrown and
 // caught, no memory is outstanding:
@@ -157,7 +157,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, destroy & free our work and verify that no memory is leaked:
 //..
-//  for (int i = 0; i < DATA_LEN; ++i) {
+//  for (size_t i = 0; i < DATA_LEN; ++i) {
 //      array[i].~UsageType();
 //  }
 //  ta.deallocate(array);

@@ -200,7 +200,7 @@ class string {
 
     // DATA
     char            *d_value_p;      // 0 terminated character array
-    int              d_size;         // length of d_value_p
+    std::size_t      d_size;         // length of d_value_p
 
      // PRIVATE CLASS CONSTANTS
     static const char *EMPTY_STRING;
@@ -259,7 +259,7 @@ class string {
     }
 
     // ACCESSORS
-    int size() const
+    std::size_t size() const
     {
         return d_size;
     }

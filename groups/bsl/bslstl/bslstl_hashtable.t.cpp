@@ -257,7 +257,7 @@ using bslstl::CallableVariable;
 // [ 3] HashTable& gg(HashTable *object, const char *spec);
 // [ 2] insertElement(HashTable<K, H, E, A> *, const K::ValueType&)
 // [ 3] verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
-//*[  ] bool expectPoolToAllocate(int n)
+//*[  ] bool expectPoolToAllocate(size_t n)
 //*[  ] size_t predictNumBuckets(size_t length, float maxLoadFactor)
 //
 //*[  ] CONCERN: The type employs the expected size optimizations.
@@ -1635,9 +1635,12 @@ if (verbose) {
             MyPair<MySalesRecordContainer::ConstItrById,
                    MySalesRecordContainer::ConstItrById> result =
                                              msrc.findByCustomerId(customerId);
-            int count = bsl::distance(result.first, result.second);
+            bsl::iterator_traits<
+                MySalesRecordContainer::ConstItrById>::difference_type count =
+                                    bsl::distance(result.first, result.second);
+
 if (verbose) {
-            printf("customerId %d, count %d\n", customerId, count);
+            printf("customerId %d, count %ld\n", customerId, count);
 }
 
             for (MySalesRecordContainer::ConstItrById itr  = result.first,
@@ -1676,9 +1679,11 @@ if (verbose) {
             MyPair<MySalesRecordContainer::ConstItrById,
                    MySalesRecordContainer::ConstItrById> result =
                                                  msrc.findByVendorId(vendorId);
-            int count = bsl::distance(result.first, result.second);
+            bsl::iterator_traits<
+                MySalesRecordContainer::ConstItrById>::difference_type count =
+                                    bsl::distance(result.first, result.second);
 if (verbose) {
-            printf("vendorId %d, count %d\n", vendorId, count);
+            printf("vendorId %d, count %ld\n", vendorId, count);
 }
 
             for (MySalesRecordContainer::ConstItrById itr  = result.first,
@@ -4101,7 +4106,7 @@ bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
 namespace
 {
 
-bool expectPoolToAllocate(int n)
+bool expectPoolToAllocate(size_t n)
     // Return 'true' if the memory pool used by the container under test is
     // expected to allocate memory on the inserting the specified 'n'th
     // element, and 'false' otherwise.
@@ -4126,8 +4131,9 @@ size_t predictNumBuckets(size_t length, float maxLoadFactor)
         return 0;                                                     // RETURN
     }
 
-    if(1.0 / native_std::numeric_limits<size_t>::max() > maxLoadFactor) {
-        return native_std::numeric_limits<size_t>::max();             // RETURN
+    size_t maxSizeT = native_std::numeric_limits<size_t>::max();
+    if(1.0 / static_cast<double>(maxSizeT) > maxLoadFactor) {
+        return maxSizeT;                                              // RETURN
     }
 
     size_t result =  static_cast<size_t>(ceil(static_cast<double>(length) /
@@ -5313,7 +5319,7 @@ void testVerifyListContents(const COMPARATOR& compare)
             const TestValues  LIST_VALS(LIST_SPEC, &lva);
 
             Link *pRoot = 0;
-            for (int i = LIST_VALS.size(); i; /**/) {
+            for (size_t i = LIST_VALS.size(); i; /**/) {
                 Link *newNode = pool.createNode(LIST_VALS[--i]);
                 bslalg::BidirectionalLinkListUtil::insertLinkBeforeTarget(
                                                                      newNode,
@@ -5582,7 +5588,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
     for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
         const float    MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
-        const SizeType LENGTH = ti;
+        const size_t LENGTH = ti;
 
         for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
             const char CONFIG = *cfg;  // how we specify the allocator
@@ -5611,7 +5617,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 printf("\n\tTesting bootstrap constructor.\n");
             }
 
-            const size_t NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
+            const typename ObjMaker::SizeType NUM_BUCKETS =
+                            static_cast<typename ObjMaker::SizeType>(
+                                          predictNumBuckets(3*LENGTH, MAX_LF));
 
             Obj       *objPtr;
             ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
@@ -6151,7 +6159,11 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
                             --badLen;
                         }
 
-                        Obj mBadObj(HASH, EQUAL, badLen, 1.0f, objAlloc);
+                        Obj mBadObj(HASH,
+                                    EQUAL,
+                                    static_cast<SizeType>(badLen),
+                                    1.0f,
+                                    objAlloc);
                         int failCode = ggg(&mBadObj, SPEC, verbose);
                         ASSERTV(LINE, SPEC, LENGTH, badLen, failCode,
                                 -4 == failCode);
@@ -6159,7 +6171,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
                     oldLen = curLen;
                 }
 
-                const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+                const SizeType NUM_BUCKETS =
+                            static_cast<SizeType>(
+                                            predictNumBuckets(LENGTH, MAX_LF));
 
                 Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF, objAlloc);
                 const Obj& X = gg(&mX, SPEC);   // original spec
@@ -6226,7 +6240,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const int         INDEX  = DATA[ti].d_index;
             const size_t      LENGTH = strlen(SPEC);
 
-            Obj mX(HASH, EQUAL, LENGTH, 1.5f, objAlloc);
+            Obj mX(HASH, EQUAL, static_cast<SizeType>(LENGTH), 1.5f, objAlloc);
 
             if (LENGTH != oldLen) {
                 if (verbose) printf("\tof length " ZU ":\n", LENGTH);
@@ -6335,7 +6349,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
     if (verbose) { P(VALUE_TYPE_USES_ALLOCATOR); }
     if (verbose) { P(ALLOCATOR_IS_BSL_ALLOCATOR); }
 
-    const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
     typedef typename CallableVariable<    HASHER>::type     HASHER_TYPE;
@@ -6362,7 +6376,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
             }
 
             size_t oldLen = 0;
-            for (size_t ti = 0; ti != NUM_DATA ; ++ti) {
+            for (int ti = 0; ti != NUM_DATA ; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
                 const char *const SPEC   = DATA[ti].d_spec;
                 const char *const EXP_S  = DATA[ti].d_results;
@@ -6379,7 +6393,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                     oldLen = curLen;
                 }
 
-                const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+                const typename ObjMaker::SizeType NUM_BUCKETS =
+                                static_cast<typename ObjMaker::SizeType>(
+                                            predictNumBuckets(LENGTH, MAX_LF));
 
                 HASHER_TYPE     hash = HASH;
                 COMPARATOR_TYPE comp = EQUAL;
@@ -6521,8 +6537,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                     // infinite.
 
                     SizeType threshold = X.rehashThreshold();
-                    double thresholdLoadFactor = static_cast<double>(threshold)
-                                               / bucketCount;
+                    double thresholdLoadFactor =
+                                            static_cast<double>(threshold)
+                                            / static_cast<double>(bucketCount);
                     ASSERTV(threshold, bucketCount,
                             thresholdLoadFactor,   X.maxLoadFactor(),
                             thresholdLoadFactor <= X.maxLoadFactor());
@@ -6539,8 +6556,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                                native_std::numeric_limits<float>::infinity()) {
                         ++threshold;
                         double exceedLoadFactor =
-                                                 static_cast<double>(threshold)
-                                                                 / bucketCount;
+                                            static_cast<double>(threshold)
+                                            / static_cast<double>(bucketCount);
                         ASSERTV(threshold, bucketCount,
                                 X.maxLoadFactor(),  exceedLoadFactor,
                                 X.maxLoadFactor() < exceedLoadFactor);
@@ -6616,7 +6633,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
         if (veryVerbose) printf("\t'bucketAtIndex'\n");
         {
             Obj mX(HASH, EQUAL, 1, 1.0f, objAlloc);  const Obj& X = mX;
-            size_t numBuckets = X.numBuckets();
+            SizeType numBuckets = X.numBuckets();
             if (0 < numBuckets) { // always true, but needed for warnings
                 ASSERT_SAFE_PASS(X.bucketAtIndex(numBuckets - 1));
                 ASSERT_SAFE_FAIL(X.bucketAtIndex(numBuckets));
@@ -9151,7 +9168,7 @@ void mainTestCase1()
         // The call to 'setMaxLoadFactor' may try to allocate a lot of memory
         // and is known to throw 'bad_alloc' exceptions on AIX test runners.
         try {
-            mX.setMaxLoadFactor(9e-9);
+            mX.setMaxLoadFactor(9e-9f);
         }
         catch(const std::exception& e) {
             if (veryVeryVerbose) {
