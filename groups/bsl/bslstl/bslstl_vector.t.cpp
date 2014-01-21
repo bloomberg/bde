@@ -1273,14 +1273,16 @@ struct TestDriver {
         // Return, by value, a new vector corresponding to the specified
         // 'spec'.
 
-    static void stretch(Obj *object, int size, const TYPE& value = TYPE());
+    static void stretch(Obj         *object,
+                        std::size_t  size,
+                        const TYPE&  value = TYPE());
         // Using only primary manipulators, extend the length of the specified
         // 'object' by the specified size by adding copies of the specified
         // 'value'.  The resulting value is not specified.  The behavior is
         // undefined unless 0 <= size.
 
     static void stretchRemoveAll(Obj         *object,
-                                 int          size,
+                                 std::size_t  size,
                                  const TYPE&  value = TYPE());
         // Using only primary manipulators, extend the capacity of the
         // specified 'object' to (at least) the specified size by adding copies
@@ -1499,23 +1501,25 @@ Vector_Imp<TYPE>  TestDriver<TYPE,ALLOC>::gV(const char *spec)
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::stretch(Obj *object, int size, const TYPE& value)
+void TestDriver<TYPE,ALLOC>::stretch(Obj         *object,
+                                     std::size_t  size,
+                                     const TYPE&  value)
 {
     ASSERT(object);
-    ASSERT(0 <= size);
-    for (int i = 0; i < size; ++i) {
+    ASSERT(0 <= static_cast<int>(size));
+    for (std::size_t i = 0; i < size; ++i) {
         object->push_back(value);
     }
-    ASSERT(object->size() >= (std::size_t)size);
+    ASSERT(object->size() >= size);
 }
 
 template <class TYPE, class ALLOC>
 void TestDriver<TYPE,ALLOC>::stretchRemoveAll(Obj         *object,
-                                              int          size,
+                                              std::size_t  size,
                                               const TYPE&  value)
 {
     ASSERT(object);
-    ASSERT(0 <= size);
+    ASSERT(0 <= static_cast<int>(size));
     stretch(object, size, value);
     object->clear();
     ASSERT(0 == object->size());
@@ -1562,7 +1566,7 @@ void TestDriver<TYPE,ALLOC>::testCaseM1Range(const CONTAINER&)
     const int           NUM_VECTOR  = 300;
 
     const char         *SPECREF     = "ABCDE";
-    const int           SPECREF_LEN = strlen(SPECREF);
+    const size_t        SPECREF_LEN = strlen(SPECREF);
     char                SPEC[LENGTH + 1];
 
     for (int i = 0; i < LENGTH; ++i) {
@@ -3049,9 +3053,10 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                                      VALUES[(m + 1) % NUM_VALUES] == X[m]);
                     }
 
-                    const int TYPE_ALLOCS = TYPE_ALLOC && !TYPE_MOVEABLE
-                                          ? LENGTH - POS
-                                          : 0;
+                    const bsls::Types::Int64 TYPE_ALLOCS =
+                                                   TYPE_ALLOC && !TYPE_MOVEABLE
+                                                   ? LENGTH - POS
+                                                   : 0;
                     LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, POS,
                                  BB + TYPE_ALLOCS == AA);
                     LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, POS,
@@ -3136,7 +3141,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                 for (size_t k = j; k <= INIT_LENGTH; ++k) {
                     const size_t BEGIN_POS    = j;
                     const size_t END_POS      = k;
-                    const int    NUM_ELEMENTS = END_POS - BEGIN_POS;
+                    const int NUM_ELEMENTS    = static_cast<int>(
+                                                          END_POS - BEGIN_POS);
                     const size_t LENGTH       = INIT_LENGTH - NUM_ELEMENTS;
 
                     Obj mX(INIT_LENGTH, DEFAULT_VALUE, &testAllocator);
@@ -3190,7 +3196,8 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                               VALUES[(m + NUM_ELEMENTS) % NUM_VALUES] == X[m]);
                     }
 
-                    const int TYPE_ALLOCS = TYPE_ALLOC && !TYPE_MOVEABLE &&
+                    const bsls::Types::Int64 TYPE_ALLOCS =
+                                          TYPE_ALLOC && !TYPE_MOVEABLE &&
                                                                    NUM_ELEMENTS
                                           ? INIT_LENGTH - END_POS
                                           : 0;
@@ -3224,7 +3231,7 @@ void TestDriver<TYPE,ALLOC>::testCase18()
                 for (size_t k = j; k <= INIT_LENGTH; ++k) {
                     const size_t BEGIN_POS    = j;
                     const size_t END_POS      = k;
-                    const int    NUM_ELEMENTS = END_POS - BEGIN_POS;
+                    const size_t NUM_ELEMENTS = END_POS - BEGIN_POS;
                     const size_t LENGTH       = INIT_LENGTH - NUM_ELEMENTS;
 
                     if (veryVerbose) {
@@ -3549,10 +3556,12 @@ void TestDriver<TYPE,ALLOC>::testCase17()
 
                     const int REALLOC = X.capacity() > INIT_CAP;
 
-                    const int TYPE_ALLOCS = TYPE_ALLOC && !TYPE_MOVEABLE
+                    const bsls::Types::Int64 TYPE_ALLOCS =
+                                  TYPE_ALLOC && !TYPE_MOVEABLE
                                   ? (REALLOC ? INIT_LENGTH : INIT_LENGTH - POS)
                                   : 0;
-                    const int EXP_ALLOCS = REALLOC + TYPE_ALLOCS + TYPE_ALLOC;
+                    const bsls::Types::Int64 EXP_ALLOCS =
+                                            REALLOC + TYPE_ALLOCS + TYPE_ALLOC;
 
                     LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, TYPE_ALLOCS,
                                  BB + EXP_ALLOCS == AA);
@@ -3663,14 +3672,16 @@ void TestDriver<TYPE,ALLOC>::testCase17()
                         // operations or we get these really stupid warnings
                         // from g++.
 
-                        const int TYPE_ALLOCS = !TYPE_ALLOC || TYPE_MOVEABLE
+                        const bsls::Types::Int64 TYPE_ALLOCS =
+                                              !TYPE_ALLOC || TYPE_MOVEABLE
                                               ? 0
                                               : 0 == NUM_ELEMENTS
                                                 ? 0
                                                 : REALLOC ? INIT_LENGTH
                                                           : INIT_LENGTH - POS;
 
-                        const int EXP_ALLOCS  = REALLOC + TYPE_ALLOCS +
+                        const bsls::Types::Int64 EXP_ALLOCS  =
+                                                     REALLOC + TYPE_ALLOCS +
                                                      NUM_ELEMENTS * TYPE_ALLOC;
 
                         LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
@@ -4108,10 +4119,12 @@ void TestDriver<TYPE, ALLOC>::testCase17Variadic(int numOfArgs)
 
                     const int REALLOC = X.capacity() > INIT_CAP;
 
-                    const int TYPE_ALLOCS = TYPE_ALLOC && !TYPE_MOVEABLE
+                    const bsls::Types::Int64 TYPE_ALLOCS =
+                                  TYPE_ALLOC && !TYPE_MOVEABLE
                                   ? (REALLOC ? INIT_LENGTH : INIT_LENGTH - POS)
                                   : 0;
-                    const int EXP_ALLOCS = REALLOC + TYPE_ALLOCS + TYPE_ALLOC;
+                    const bsls::Types::Int64 EXP_ALLOCS =
+                                            REALLOC + TYPE_ALLOCS + TYPE_ALLOC;
 
                     LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, TYPE_ALLOCS,
                                  BB + EXP_ALLOCS == AA);
@@ -4261,7 +4274,7 @@ void TestDriver<TYPE, ALLOC>::testCase17Variadic(int numOfArgs)
                 LOOP_ASSERT(li, B + 1 + TYPE_ALLOC == A);
             }
             else if((li & (li - 1)) == 0) {
-                const int TYPE_ALLOC_MOVES =
+                const bsls::Types::Int64 TYPE_ALLOC_MOVES =
                                    TYPE_ALLOC * (1 + li * (1 - TYPE_MOVEABLE));
                 LOOP_ASSERT(li, BB + 1 + TYPE_ALLOC_MOVES == AA);
                 LOOP_ASSERT(li, B + 0 + TYPE_ALLOC == A);
@@ -4454,10 +4467,10 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
                 }
 
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
-                    const int     LINE         = U_DATA[ti].d_lineNum;
-                    const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
-                    const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
+                    const int    LINE         = U_DATA[ti].d_lineNum;
+                    const char  *SPEC         = U_DATA[ti].d_spec;
+                    const int    NUM_ELEMENTS = static_cast<int>(strlen(SPEC));
+                    const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
                     CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
 
@@ -4535,12 +4548,14 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
                             const int REALLOC = X.capacity() > INIT_CAP
                                               ? NUM_ALLOCS[NUM_ELEMENTS]
                                               : 0;
-                            const int TYPE_ALLOCS = NUM_ELEMENTS &&
+                            const bsls::Types::Int64 TYPE_ALLOCS =
+                                              NUM_ELEMENTS &&
                                                    TYPE_ALLOC && !TYPE_MOVEABLE
                                               ? (REALLOC ? INIT_LENGTH
                                                          : INIT_LENGTH - POS)
                                               : 0;
-                            const int EXP_ALLOCS  = REALLOC + TYPE_ALLOCS +
+                            const bsls::Types::Int64 EXP_ALLOCS  =
+                                                     REALLOC + TYPE_ALLOCS +
                                                      NUM_ELEMENTS * TYPE_ALLOC;
 
                             LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
@@ -4550,12 +4565,14 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
                                               NUM_ELEMENTS * TYPE_ALLOC <=  A);
                         } else {
                             const int REALLOC     = X.capacity() > INIT_CAP;
-                            const int TYPE_ALLOCS = NUM_ELEMENTS &&
+                            const bsls::Types::Int64 TYPE_ALLOCS =
+                                              NUM_ELEMENTS &&
                                                    TYPE_ALLOC && !TYPE_MOVEABLE
                                               ? (REALLOC ? INIT_LENGTH
                                                          : INIT_LENGTH - POS)
                                               : 0;
-                            const int EXP_ALLOCS  = REALLOC + TYPE_ALLOCS +
+                            const bsls::Types::Int64 EXP_ALLOCS  =
+                                                     REALLOC + TYPE_ALLOCS +
                                                      NUM_ELEMENTS * TYPE_ALLOC;
 
                             LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
@@ -4593,7 +4610,7 @@ void TestDriver<TYPE,ALLOC>::testCase17Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
                     CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
@@ -4888,7 +4905,7 @@ void TestDriver<TYPE,ALLOC>::testCase16()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
             const char   *SPEC   = DATA[ti].d_spec;
-            const size_t  LENGTH = strlen(SPEC);
+            const int     LENGTH = static_cast<int>(strlen(SPEC));
 
             Obj mX(&testAllocator);  const Obj& X = mX;
             mX = g(SPEC);
@@ -6197,8 +6214,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
                 }
                 else {
-                    const int TYPE_ALLOCS = TYPE_ALLOC *
-                                          (LENGTH + LENGTH * (1 + LENGTH) / 2);
+                    const bsls::Types::Int64 TYPE_ALLOCS =
+                             TYPE_ALLOC * (LENGTH + LENGTH * (1 + LENGTH) / 2);
                     LOOP2_ASSERT(LINE, ti, BB + 1 + TYPE_ALLOCS == AA);
                     LOOP2_ASSERT(LINE, ti,  B + 0               ==  A);
                 }
@@ -6259,8 +6276,8 @@ void TestDriver<TYPE,ALLOC>::testCase12()
                     // for the vector elements at each successive trial, plus
                     // one for the final trial which succeeds.
 
-                    const int TYPE_ALLOCS = TYPE_ALLOC *
-                                          (LENGTH + LENGTH * (1 + LENGTH) / 2);
+                    const bsls::Types::Int64 TYPE_ALLOCS =
+                             TYPE_ALLOC * (LENGTH + LENGTH * (1 + LENGTH) / 2);
                     LOOP2_ASSERT(LINE, ti, BB + 1 + TYPE_ALLOCS == AA);
                     LOOP2_ASSERT(LINE, ti,  B + 0               ==  A);
                 }
@@ -6482,7 +6499,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
                 LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
             }
             else if (INPUT_ITERATOR_TAG) {
-                const int TYPE_ALLOCS = TYPE_ALLOC * LENGTH;
+                const bsls::Types::Int64 TYPE_ALLOCS = TYPE_ALLOC * LENGTH;
                 if (TYPE_MOVEABLE) {
                     // Elements are create once, and then moved (no
                     // allocation), so 'TYPE_ALLOCS' is exactly the number of
@@ -6556,8 +6573,8 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
                 LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
             }
             else {
-                const int TYPE_ALLOCS = TYPE_ALLOC *
-                                          (LENGTH + LENGTH * (1 + LENGTH) / 2);
+                const bsls::Types::Int64 TYPE_ALLOCS =
+                             TYPE_ALLOC * (LENGTH + LENGTH * (1 + LENGTH) / 2);
                 if (INPUT_ITERATOR_TAG) {
                     LOOP2_ASSERT(LINE, ti, BB + 1 + TYPE_ALLOCS <= AA);
                     LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
@@ -6810,18 +6827,19 @@ void TestDriver<TYPE,ALLOC>::testCase9()
             int uOldLen = -1;
             for (int ui = 0; SPECS[ui]; ++ui) {
                 const char *const U_SPEC = SPECS[ui];
-                const size_t      uLen   = strlen(U_SPEC);
+                const int         uLen   = static_cast<int>(strlen(U_SPEC));
 
                 if (verbose) {
-                    printf("\tFor lhs objects of length " ZU ":\t", uLen);
+                    printf("\tFor lhs objects of length %d:\t", uLen);
                     P(U_SPEC);
                 }
 
-                LOOP_ASSERT(U_SPEC, uOldLen <= (int)uLen);
+                LOOP_ASSERT(U_SPEC, uOldLen <= uLen);
                 uOldLen = uLen;
 
                 const Obj UU = g(U_SPEC);  // control
-                LOOP_ASSERT(ui, uLen == UU.size());   // same lengths
+                // same lengths
+                LOOP_ASSERT(ui, uLen == static_cast<int>(UU.size()));
 
                 for (int vi = 0; SPECS[vi]; ++vi) {
                     const char *const V_SPEC = SPECS[vi];
@@ -6909,18 +6927,19 @@ void TestDriver<TYPE,ALLOC>::testCase9()
             int uOldLen = -1;
             for (int ui = 0; SPECS[ui]; ++ui) {
                 const char *const U_SPEC = SPECS[ui];
-                const size_t      uLen   = strlen(U_SPEC);
+                const int         uLen   = static_cast<int>(strlen(U_SPEC));
 
                 if (verbose) {
-                    printf("\tFor lhs objects of length " ZU ":\t", uLen);
+                    printf("\tFor lhs objects of length %d:\t", uLen);
                     P(U_SPEC);
                 }
 
-                LOOP_ASSERT(U_SPEC, uOldLen < (int)uLen);
+                LOOP_ASSERT(U_SPEC, uOldLen < uLen);
                 uOldLen = uLen;
 
                 const Obj UU = g(U_SPEC);  // control
-                LOOP_ASSERT(ui, uLen == UU.size()); // same lengths
+                // same lengths
+                LOOP_ASSERT(ui, uLen == static_cast<int>(UU.size()));
 
                 // int vOldLen = -1;
                 for (int vi = 0; SPECS[vi]; ++vi) {
@@ -7228,7 +7247,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
             }
 
             LOOP_ASSERT(SPEC, oldLen < (int)LENGTH); // strictly increasing
-            oldLen = LENGTH;
+            oldLen = static_cast<int>(LENGTH);
 
             // Create control object w.
             Obj mW; gg(&mW, SPEC);
@@ -7340,7 +7359,8 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
                     }
                     else {
-                        const int TYPE_ALLOCS = TYPE_ALLOC * X.size();
+                        const  bsls::Types::Int64 TYPE_ALLOCS =
+                                                        TYPE_ALLOC * X.size();
                         LOOP2_ASSERT(SPEC, N, BB + 1 + TYPE_ALLOCS == AA);
                         LOOP2_ASSERT(SPEC, N,  B + 1 + TYPE_ALLOCS ==  A);
                     }
@@ -7369,8 +7389,8 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         // by 1.  In all other conditions numBlocksInUse
                         // should remain the same.
 
-                        const int TYPE_ALLOC_MOVES = TYPE_ALLOC *
-                                                     (1 + oldSize * TYPE_MOVE);
+                        const bsls::Types::Int64 TYPE_ALLOC_MOVES =
+                                        TYPE_ALLOC * (1 + oldSize * TYPE_MOVE);
                         if (LENGTH == 0 && i == 1) {
                             LOOP3_ASSERT(SPEC, N, i,
                                          CC + 1 + TYPE_ALLOC_MOVES == DD);
@@ -7446,7 +7466,7 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         LOOP2_ASSERT(SPEC, N,  B + 0 ==  A);
                     }
                     else {
-                        const int TYPE_ALLOCS = TYPE_ALLOC *
+                        const bsls::Types::Int64 TYPE_ALLOCS = TYPE_ALLOC *
                                           (LENGTH + LENGTH * (1 + LENGTH) / 2);
                         LOOP4_ASSERT(SPEC, N, BB, AA,
                                      BB + 1 + TYPE_ALLOCS == AA);
@@ -7562,16 +7582,17 @@ void TestDriver<TYPE,ALLOC>::testCase6()
             for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
 
                 const char *const U_SPEC = SPECS[si];
-                const size_t    LENGTH = strlen(U_SPEC);
+                const int         LENGTH = static_cast<int>(strlen(U_SPEC));
 
                 Obj mU(ALLOCATOR[ai]); const Obj& U = gg(&mU, U_SPEC);
-                LOOP2_ASSERT(si, ai, LENGTH == U.size()); // same lengths
+                // same lengths
+                LOOP2_ASSERT(si, ai, LENGTH == static_cast<int>(U.size()));
 
-                if ((int)LENGTH != oldLen) {
+                if (LENGTH != oldLen) {
                     if (verbose)
-                        printf( "\tUsing lhs objects of length " ZU ".\n",
+                        printf( "\tUsing lhs objects of length %d.\n",
                                                                   LENGTH);
-                    LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);//non-decreasing
+                    LOOP_ASSERT(U_SPEC, oldLen <= LENGTH);//non-decreasing
                     oldLen = LENGTH;
                 }
 
@@ -7602,7 +7623,7 @@ void TestDriver<TYPE,ALLOC>::testCase6()
     if (verbose) printf("\nCompare each pair of similar values (u, ua, v, va)"
                         " in S X A X S X A after perturbing.\n");
     {
-        static const int EXTEND[] = {
+        static const std::size_t EXTEND[] = {
             0, 1, 2, 3, 4, 5, 7, 8, 9, 15
         };
 
@@ -7615,17 +7636,18 @@ void TestDriver<TYPE,ALLOC>::testCase6()
             for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
 
                 const char *const U_SPEC = SPECS[si];
-                const size_t    LENGTH = strlen(U_SPEC);
+                const int         LENGTH = static_cast<int>(strlen(U_SPEC));
 
                 Obj mU(ALLOCATOR[ai]); const Obj& U = mU;
                 gg(&mU, U_SPEC);
-                LOOP_ASSERT(si, LENGTH == U.size());  // same lengths
+                // same lengths
+                LOOP_ASSERT(si, LENGTH == static_cast<int>(U.size()));
 
-                if ((int)LENGTH != oldLen) {
+                if (LENGTH != oldLen) {
                     if (verbose)
-                        printf( "\tUsing lhs objects of length " ZU ".\n",
+                        printf( "\tUsing lhs objects of length %d.\n",
                                                                   LENGTH);
-                    LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);
+                    LOOP_ASSERT(U_SPEC, oldLen <= LENGTH);
                     oldLen = LENGTH;
                 }
 
@@ -7813,7 +7835,7 @@ void TestDriver<TYPE,ALLOC>::testCase4()
                 if ((int)LENGTH != oldLen) {
                     LOOP2_ASSERT(LINE, ai, oldLen <= (int)LENGTH);
                           // non-decreasing
-                    oldLen = LENGTH;
+                    oldLen = static_cast<int>(LENGTH);
                 }
 
                 if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
@@ -7835,7 +7857,7 @@ void TestDriver<TYPE,ALLOC>::testCase4()
                 }
 
                 // Check for perturbation.
-                static const int EXTEND[] = {
+                static const std::size_t EXTEND[] = {
                     0, 1, 2, 3, 4, 5, 7, 8, 9, 15
                 };
 
@@ -7898,7 +7920,7 @@ void TestDriver<TYPE,ALLOC>::testCase4()
                 if ((int)LENGTH != oldLen) {
                     LOOP2_ASSERT(LINE, ai, oldLen <= (int)LENGTH);
                           // non-decreasing
-                    oldLen = LENGTH;
+                    oldLen = static_cast<int>(LENGTH);
                 }
 
                 if (veryVerbose) printf( "\t\tSpec = \"%s\"\n", SPEC);
@@ -8165,13 +8187,13 @@ void TestDriver<TYPE,ALLOC>::testCase3()
             const int          LINE  = DATA[ti].d_lineNum;
             const char *const SPEC   = DATA[ti].d_spec_p;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = strlen(SPEC);
+            const int         LENGTH = static_cast<int>(strlen(SPEC));
 
             Obj mX(&testAllocator);
 
-            if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
-                // LOOP_ASSERT(LINE, oldLen <= (int)LENGTH);  // non-decreasing
+            if (LENGTH != oldLen) {
+                if (verbose) printf("\tof length %d:\n", LENGTH);
+                // LOOP_ASSERT(LINE, oldLen <= LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 
@@ -8417,7 +8439,8 @@ void TestDriver<TYPE,ALLOC>::testCase2()
                 LOOP_ASSERT(li, B + 1 + TYPE_ALLOC == A);
             }
             else if((li & (li - 1)) == 0) {
-                const int TYPE_ALLOC_MOVES = TYPE_ALLOC * (1 + li * TYPE_MOVE);
+                const bsls::Types::Int64 TYPE_ALLOC_MOVES =
+                                            TYPE_ALLOC * (1 + li * TYPE_MOVE);
                 LOOP_ASSERT(li, BB + 1 + TYPE_ALLOC_MOVES == AA);
                 LOOP_ASSERT(li, B + 0 + TYPE_ALLOC == A);
             }
@@ -8503,7 +8526,9 @@ void TestDriver<TYPE,ALLOC>::testCase2()
 
             if (veryVerbose) {
                 printf("\t\t\tBEFORE: ");
-                P_(BB); P_(B); int Cap = X.capacity();P_(Cap);P(X);
+                P_(BB); P_(B);
+                typename Obj::size_type Cap = X.capacity();
+                P_(Cap);P(X);
             }
 
             mX.clear();
@@ -8698,7 +8723,7 @@ void TestDriver<TYPE,ALLOC>::testCase1()
     ASSERT(0 == X1.size());
 
     if(veryVerbose){
-        int capacity = X1.capacity();
+        typename Obj::size_type capacity = X1.capacity();
         T_; T_;
         P(capacity);
     }
@@ -9175,6 +9200,8 @@ int main(int argc, char *argv[])
     veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
+
+    (void) veryVeryVeryVerbose; // Suppressing the "unused variable" warning
 
     // As part of our overall allocator testing strategy, we will create
     // three test allocators.

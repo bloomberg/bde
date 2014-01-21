@@ -85,10 +85,10 @@ inline void operator delete(void *, Placement) throw() { }
 
 class my_String
 {
-    int   d_len;
-    char *d_data;
+    size_t  d_len;
+    char   *d_data;
 
-    void set(const char* s, int len);
+    void set(const char* s, size_t len);
 
   public:
     my_String(const char* s);                                       // IMPLICIT
@@ -97,13 +97,13 @@ class my_String
     ~my_String();
 
     const char* c_str() const;
-    int length() const;
+    size_t length() const;
 };
 
 bool operator==(const my_String& s1, const my_String& s2);
 bool operator!=(const my_String& s1, const my_String& s2);
 
-void my_String::set(const char* s, int len)
+void my_String::set(const char* s, size_t len)
 {
     d_len = len;
     d_data = new char[len + 1];
@@ -142,7 +142,7 @@ const char* my_String::c_str() const
     return d_data;
 }
 
-int my_String::length() const
+size_t my_String::length() const
 {
     return d_len;
 }
@@ -289,7 +289,9 @@ struct my_Type
 
         int asInt() const {
             return INT == d_type ?
-                d_int : strtol(d_string.object().c_str(), 0, 0); }
+                            d_int : static_cast<int>(
+                                      strtol(d_string.object().c_str(), 0, 0));
+        }
 
         my_String asString() const {
             if (INT == d_type) {

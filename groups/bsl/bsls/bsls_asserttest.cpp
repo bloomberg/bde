@@ -169,7 +169,7 @@ bool extractComponentName(const char **componentName,
     }
 
     *componentName = cursor;
-    *length = end - cursor;
+    *length = static_cast<int>(end - cursor);
     return true;
 }
 

@@ -1850,7 +1850,7 @@ void TestDriver::testCase3(OutputRedirector                   *output,
                    expectedSize < BUFFER_SIZE);
             EXPECTED = s_expectedOutput;
         } else {
-            expectedSize = strlen(EXPECTED);
+            expectedSize = static_cast<int>(strlen(EXPECTED));
         }
 
         if (veryVerbose) {
@@ -3974,7 +3974,7 @@ int main(int argc, char *argv[])
             const char *testString = "This is good output";
 
             output.reset();
-            int stringLength = strlen(testString);
+            size_t stringLength = strlen(testString);
             for (int idx = 0; idx * stringLength < OUTPUT_BUFFER_SIZE; ++idx) {
                 printf("%s", testString);
             }
@@ -4293,9 +4293,18 @@ int main(int argc, char *argv[])
 
         ASSERT(data.target   == TARGET_ONES);
         ASSERT(data.sentinel == SENTINEL_ONES);
-
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+#endif
+        // The format specifier mismatches the actual variable type.
+        // The warning of '-Wformat' type is caused by such attempt.
+        // Suppressing the warning as the format mismatch is a part of the
+        // test logic.
         sscanf(INPUT, "%c", &data.target);
-
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
         // Test case 9 asserts 'data.target == 0', so here we assert the
         // opposite.
 
@@ -4309,9 +4318,18 @@ int main(int argc, char *argv[])
 
         ASSERT(data.target   == TARGET_ONES);
         ASSERT(data.sentinel == SENTINEL_ONES);
-
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+#endif
+        // The format specifier mismatches the actual variable type.
+        // The warning of '-Wformat' type is caused by such attempt.
+        // Suppressing the warning as the format mismatch is a part of the
+        // test logic.
         sscanf(INPUT, "%lld", &data.target);
-
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
         // Test case 9 asserts 'data.sentinel == SENTINEL_ONES', so here we
         // assert the opposite.
 

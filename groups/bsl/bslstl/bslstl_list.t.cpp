@@ -615,7 +615,7 @@ namespace std {
     template <>
     struct less<TestType> : binary_function<TestType, TestType, bool> {
         bool operator()(const TestType& a, const TestType& b) const {
-            ASSERT(("less<TestType> should not be called", 0));
+            ASSERT(!"less<TestType> should not be called");
             return a < b;
         }
     };
@@ -623,7 +623,7 @@ namespace std {
     template <>
     struct equal_to<TestType> : binary_function<TestType, TestType, bool> {
         bool operator()(const TestType& a, const TestType& b) const {
-            ASSERT(("equal_to<TestType> should not be called", 0));
+            ASSERT(!"equal_to<TestType> should not be called");
             return a == b;
         }
     };
@@ -1766,17 +1766,18 @@ struct TestDriver {
         // 'spec'.
 
     static bool checkIntegrity(const Obj& object, int length);
+    static bool checkIntegrity(const Obj& object, size_t length);
         // Check the integrity of the specified 'object' by verifying that
         // iterating over the list both forwards and backwards yields 'length'
         // positions and that 'object.size()' equals 'length'.  This simple
         // test should catch most instances of data structure corruption in a
         // doubly-linked-list implementation of list.
 
-    static int expectedBlocks(int n);
+    static Int64 expectedBlocks(Int64 n);
         // Return the number of blocks expected to be used by a list of length
         // 'n'.
 
-    static int deltaBlocks(int n);
+    static Int64 deltaBlocks(Int64 n);
         // Return the change in the number of blocks used by a list whose
         // length has changed by 'n' elements.  Note: 'n' may be negative.
 
@@ -2019,8 +2020,15 @@ bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, int length)
 }
 
 template <class TYPE, class ALLOC>
+bool TestDriver<TYPE,ALLOC>::checkIntegrity(const Obj& object, size_t length)
+{
+    ASSERT(length <= INT_MAX);
+    return checkIntegrity(object, static_cast<int>(length));          // RETURN
+}
+
+template <class TYPE, class ALLOC>
 inline
-int TestDriver<TYPE,ALLOC>::deltaBlocks(int n)
+Int64 TestDriver<TYPE,ALLOC>::deltaBlocks(Int64 n)
 {
     // One block per element plus one additional block per element if the
     // element uses the list's allocator ('SCOPED_ALLOC' == 1).
@@ -2029,7 +2037,7 @@ int TestDriver<TYPE,ALLOC>::deltaBlocks(int n)
 
 template <class TYPE, class ALLOC>
 inline
-int TestDriver<TYPE,ALLOC>::expectedBlocks(int n)
+Int64 TestDriver<TYPE,ALLOC>::expectedBlocks(Int64 n)
 {
     // One block for the sentinel node + block allocations.
     return 1 + deltaBlocks(n);
@@ -2139,7 +2147,7 @@ void TestDriver<TYPE,ALLOC>::testSort()
 
     for (int i = 0; i < NUM_SPECS; ++i) {
         const char* const S_SPEC = SPECS[i];  // Sorted spec.
-        const int LENGTH = strlen(S_SPEC);
+        const int LENGTH = static_cast<int>(strlen(S_SPEC));
         ASSERT(MAX_SPEC_LEN >= LENGTH);
 
         char spec[MAX_SPEC_LEN + 1];
@@ -2162,8 +2170,8 @@ void TestDriver<TYPE,ALLOC>::testSort()
             }
             save_iters[LENGTH] = xi;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
             const int CTORS_BEFORE = (numDefaultCtorCalls +
                                       numCharCtorCalls    +
                                       numCopyCtorCalls);
@@ -2172,8 +2180,8 @@ void TestDriver<TYPE,ALLOC>::testSort()
 
             mX.sort();
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
             const int CTORS_AFTER = (numDefaultCtorCalls +
                                      numCharCtorCalls    +
                                      numCopyCtorCalls);
@@ -2193,7 +2201,7 @@ void TestDriver<TYPE,ALLOC>::testSort()
 
                 // Find index of iterator in saved iterator array
                 const_iterator* p = find(save_iters, save_iters + LENGTH, xi);
-                int save_idx = p - save_iters;
+                long save_idx = p - save_iters;
                 LOOP2_ASSERT(SPEC, j, LENGTH >= save_idx);
 
                 // Verify stable sort.  Iterate through equivalent values and
@@ -2203,7 +2211,7 @@ void TestDriver<TYPE,ALLOC>::testSort()
                 // that no iterator appears more than once (which would
                 // represent a serious data structure corruption).
                 char val = SPEC[save_idx];
-                for (int k = save_idx; SPEC[k] == val; ++k, ++xi, ++j) {
+                for (long k = save_idx; SPEC[k] == val; ++k, ++xi, ++j) {
                     LOOP2_ASSERT(SPEC, k, xi == save_iters[k]);
                     save_iters[k] = X.end();  // Avoid matching iterator twice
                 } // end for k
@@ -2214,7 +2222,7 @@ void TestDriver<TYPE,ALLOC>::testSort()
     if (verbose) printf("\nTesting template<COMP> sort(COMP)\n");
 
     for (int i = 0; i < NUM_SPECS; ++i) {
-        const int LENGTH = strlen(SPECS[i]);
+        const int LENGTH = static_cast<int>(strlen(SPECS[i]));
         ASSERT(MAX_SPEC_LEN >= LENGTH);
 
         // Copy SPECS[i] in reverse order
@@ -2244,8 +2252,8 @@ void TestDriver<TYPE,ALLOC>::testSort()
             }
             save_iters[LENGTH] = xi;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
             const int CTORS_BEFORE = (numDefaultCtorCalls +
                                       numCharCtorCalls    +
                                       numCopyCtorCalls);
@@ -2260,8 +2268,8 @@ void TestDriver<TYPE,ALLOC>::testSort()
 
             if (veryVeryVeryVerbose) { printf("After: "); P(X); }
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
             const int CTORS_AFTER = (numDefaultCtorCalls +
                                      numCharCtorCalls    +
                                      numCopyCtorCalls);
@@ -2285,7 +2293,7 @@ void TestDriver<TYPE,ALLOC>::testSort()
 
                 // Find index of iterator in saved iterator array
                 const_iterator* p = find(save_iters, save_iters + LENGTH, xi);
-                int save_idx = p - save_iters;
+                ptrdiff_t save_idx = p - save_iters;
                 LOOP2_ASSERT(SPEC, j, LENGTH >= save_idx);
 
                 // Verify stable sort.  Iterate through equivalent values and
@@ -2295,7 +2303,7 @@ void TestDriver<TYPE,ALLOC>::testSort()
                 // that no iterator appears more than once (which would
                 // represent a serious data structure corruption).
                 char val = SPEC[save_idx];
-                for (int k = save_idx; SPEC[k] == val; ++k, ++xi, ++j) {
+                for (long k = save_idx; SPEC[k] == val; ++k, ++xi, ++j) {
                     LOOP2_ASSERT(SPEC, k, xi == save_iters[k]);
                     save_iters[k] = X.end();  // Avoid matching iterator twice
                 } // end for k
@@ -2325,8 +2333,8 @@ void TestDriver<TYPE,ALLOC>::testSort()
         }
         save_iters[EH_SPEC_LEN] = xi;
 
-        const int BB = testAllocator.numBlocksTotal();
-        const int B  = testAllocator.numBlocksInUse();
+        const Int64 BB = testAllocator.numBlocksTotal();
+        const Int64 B  = testAllocator.numBlocksInUse();
         const int CTORS_BEFORE = (numDefaultCtorCalls +
                                   numCharCtorCalls    +
                                   numCopyCtorCalls);
@@ -2344,7 +2352,7 @@ void TestDriver<TYPE,ALLOC>::testSort()
             caught_ex = true;
         }
         catch (...) {
-            LOOP_ASSERT(threshold, ("Caught unexpected exception", 0));
+            LOOP_ASSERT(threshold, !"Caught unexpected exception");
             caught_ex = true;
         }
 
@@ -2353,8 +2361,8 @@ void TestDriver<TYPE,ALLOC>::testSort()
             printf("Result: "); P(X);
         }
 
-        const int AA = testAllocator.numBlocksTotal();
-        const int A  = testAllocator.numBlocksInUse();
+        const Int64 AA = testAllocator.numBlocksTotal();
+        const Int64 A  = testAllocator.numBlocksInUse();
         const int CTORS_AFTER = (numDefaultCtorCalls +
                                  numCharCtorCalls    +
                                  numCopyCtorCalls);
@@ -2393,7 +2401,7 @@ void TestDriver<TYPE,ALLOC>::testSort()
         for (xi = X.begin(); xi != X.end(); ++xi) {
             // Find index of iterator in saved iterator array
             const_iterator* p = find(save_iters, save_iters + EH_SPEC_LEN, xi);
-            int save_idx = p - save_iters;
+            ptrdiff_t save_idx = p - save_iters;
             const char VAL = EH_SPEC[save_idx];
 
             LOOP_ASSERT(threshold, save_idx < EH_SPEC_LEN);
@@ -2486,7 +2494,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
             // combinations.  For more combinations (and a slower test),
             // extend 'MAX_ELEMENT' to 'G' or (max) 'H'.
             char max_elem_str[2] = { MAX_ELEMENT, 0 };
-            int i = strcspn(d_spec, max_elem_str) - 1;
+            int i = static_cast<int>(strcspn(d_spec, max_elem_str)) - 1;
 
             // If nothing was found, then 'd_spec' is all MAX_ELEMENTs.
             // Increment length and start over with all 'A's.
@@ -2500,7 +2508,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
 
             // d_spec[i] < MAX_ELEMENT.  Increment the element at 'i' and fill
             // the remainder of the spec with the same value.
-            char x = d_spec[i] + 1;
+            char x = static_cast<char>(d_spec[i] + 1);
             memset(d_spec + i, x, d_len - i);
             return *this;
         }
@@ -2546,8 +2554,8 @@ void TestDriver<TYPE,ALLOC>::testMerge()
             }
             yiters[yi] = Y.end();
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
             const int CTORS_BEFORE = (numDefaultCtorCalls +
                                       numCharCtorCalls    +
                                       numCopyCtorCalls);
@@ -2569,8 +2577,8 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 T_; printf("After: "); P_(X); P(Y);
             }
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
             const int CTORS_AFTER = (numDefaultCtorCalls +
                                      numCharCtorCalls    +
                                      numCopyCtorCalls);
@@ -2613,8 +2621,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 else {
                     // A stable merge requires that the iterator must match
                     // the next iterator on the save x or y list.
-                    LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
-                                 ("Invalid merge", 0));
+                    LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, !"Invalid merge");
                 }
             }
             // Test end iterators
@@ -2662,8 +2669,8 @@ void TestDriver<TYPE,ALLOC>::testMerge()
             }
             yiters[yi] = Y.end();
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
             const int CTORS_BEFORE = (numDefaultCtorCalls +
                                       numCharCtorCalls    +
                                       numCopyCtorCalls);
@@ -2685,8 +2692,8 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 T_; printf("After: "); P_(X); P(Y);
             }
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
             const int CTORS_AFTER = (numDefaultCtorCalls +
                                      numCharCtorCalls    +
                                      numCopyCtorCalls);
@@ -2729,8 +2736,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 else {
                     // A stable merge requires that the iterator must match
                     // the next iterator on the save x or y list.
-                    LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi,
-                                 ("Invalid merge", 0));
+                    LOOP4_ASSERT(X_SPEC, Y_SPEC, xi, yi, !"Invalid merge");
                 }
             }
             // Test end iterators
@@ -2779,8 +2785,8 @@ void TestDriver<TYPE,ALLOC>::testMerge()
             save_iters[MERGED_SPEC_LEN] = Y.end();
             LOOP_ASSERT(threshold, MERGED_SPEC_LEN == j);
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
             const int CTORS_BEFORE = (numDefaultCtorCalls +
                                       numCharCtorCalls    +
                                       numCopyCtorCalls);
@@ -2798,7 +2804,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 caught_ex = true;
             }
             catch (...) {
-                LOOP_ASSERT(threshold, ("Caught unexpected exception", 0));
+                LOOP_ASSERT(threshold, !"Caught unexpected exception");
                 caught_ex = true;
             }
 
@@ -2807,8 +2813,8 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 printf("Result: "); P_(X); P(Y);
             }
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
             const int CTORS_AFTER = (numDefaultCtorCalls +
                                      numCharCtorCalls    +
                                      numCopyCtorCalls);
@@ -2841,7 +2847,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 // Find index of iterator in saved iterator array
                 const_iterator* p = find(save_iters,
                                          save_iters + MERGED_SPEC_LEN, xi);
-                int save_idx = p - save_iters;
+                ptrdiff_t save_idx = p - save_iters;
                 const char VAL = (save_idx < X_SPEC_LEN) ?
                                   X_SPEC[save_idx] :
                                   Y_SPEC[save_idx - X_SPEC_LEN];
@@ -2860,7 +2866,7 @@ void TestDriver<TYPE,ALLOC>::testMerge()
                 // Find index of iterator in saved iterator array
                 const_iterator* p = find(save_iters,
                                          save_iters + MERGED_SPEC_LEN, yi);
-                int save_idx = p - save_iters;
+                ptrdiff_t save_idx = p - save_iters;
                 const char VAL = (save_idx < X_SPEC_LEN) ?
                                   X_SPEC[save_idx] :
                                   Y_SPEC[save_idx - X_SPEC_LEN];
@@ -3012,8 +3018,8 @@ void TestDriver<TYPE,ALLOC>::testUnique()
                 LOOP3_ASSERT(op, X, RES_EXP, (int) RES_EXP.size() == res_len);
                 save_iters[res_len] = X.end();
 
-                const int BB = objAllocator.numBlocksTotal();
-                const int B  = objAllocator.numBlocksInUse();
+                const Int64 BB = objAllocator.numBlocksTotal();
+                const Int64 B  = objAllocator.numBlocksInUse();
                 const int CTORS_BEFORE = (numDefaultCtorCalls +
                                           numCharCtorCalls    +
                                           numCopyCtorCalls);
@@ -3033,8 +3039,8 @@ void TestDriver<TYPE,ALLOC>::testUnique()
 
                 if (veryVeryVerbose) { printf("After: "); P(X); }
 
-                const int AA = objAllocator.numBlocksTotal();
-                const int A  = objAllocator.numBlocksInUse();
+                const Int64 AA = objAllocator.numBlocksTotal();
+                const Int64 A  = objAllocator.numBlocksInUse();
                 const int CTORS_AFTER = (numDefaultCtorCalls +
                                          numCharCtorCalls    +
                                          numCopyCtorCalls);
@@ -3156,7 +3162,7 @@ void TestDriver<TYPE,ALLOC>::testRemove()
 
         for (int i = 0; i < NUM_SPECS; ++i) {
             const char* const SPEC = SPECS[i];
-            const int         LEN  = std::strlen(SPEC);
+            const int         LEN  = static_cast<int>(std::strlen(SPEC));
 
             ASSERT(MAX_SPEC_LEN >= LEN);
 
@@ -3189,8 +3195,8 @@ void TestDriver<TYPE,ALLOC>::testRemove()
                 save_iters[res_len] = X.end();
                 res_spec[res_len] = '\0';
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int B  = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64 B  = testAllocator.numBlocksInUse();
                 const int CTORS_BEFORE = (numDefaultCtorCalls +
                                           numCharCtorCalls    +
                                           numCopyCtorCalls);
@@ -3206,8 +3212,8 @@ void TestDriver<TYPE,ALLOC>::testRemove()
 
                 if (veryVeryVerbose) { printf("After: "); P(X); }
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int A  = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64 A  = testAllocator.numBlocksInUse();
                 const int CTORS_AFTER = (numDefaultCtorCalls +
                                          numCharCtorCalls    +
                                          numCopyCtorCalls);
@@ -3314,9 +3320,9 @@ void TestDriver<TYPE,ALLOC>::testSplice()
 
         for (int i = 0; i < NUM_SPECS * NUM_SPECS; ++i) {
             const char* const X_SPEC = SPECS[i / NUM_SPECS ];
-            const int         X_LEN  = std::strlen(X_SPEC);
+            const int         X_LEN  = static_cast<int>(std::strlen(X_SPEC));
             const char* const Y_SPEC = SPECS[i % NUM_SPECS ];
-            const int         Y_LEN  = std::strlen(Y_SPEC);
+            const int         Y_LEN  = static_cast<int>(std::strlen(Y_SPEC));
 
             if (veryVerbose) { P_(X_SPEC); P(Y_SPEC); }
             LOOP_ASSERT(X_SPEC, X_LEN <= MAX_SPEC_LEN);
@@ -3402,8 +3408,8 @@ void TestDriver<TYPE,ALLOC>::testSplice()
                         }
                         AY_iters[Y_LEN - y_count] = BY_iters[Y_LEN];
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int B  = testAllocator.numBlocksInUse();
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64 B  = testAllocator.numBlocksInUse();
                         const int CTORS_BEFORE = (numDefaultCtorCalls +
                                                   numCharCtorCalls    +
                                                   numCopyCtorCalls);
@@ -3432,8 +3438,8 @@ void TestDriver<TYPE,ALLOC>::testSplice()
                             T_; T_; printf("After: "); P_(X); P(Y);
                         }
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int A  = testAllocator.numBlocksInUse();
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64 A  = testAllocator.numBlocksInUse();
                         const int CTORS_AFTER = (numDefaultCtorCalls +
                                                  numCharCtorCalls    +
                                                  numCopyCtorCalls);
@@ -3535,10 +3541,10 @@ void TestDriver<TYPE,ALLOC>::testReverse()
     const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
 
     for (int i = 0; i < NUM_DATA; ++i) {
-        const int   LINE            = DATA[i].d_line;
-        const char *SPEC_BEFORE     = DATA[i].d_spec_before;
-        const char *SPEC_AFTER      = DATA[i].d_spec_after;
-        const int   LENGTH          = strlen(SPEC_BEFORE);
+        const int     LINE            = DATA[i].d_line;
+        const char   *SPEC_BEFORE     = DATA[i].d_spec_before;
+        const char   *SPEC_AFTER      = DATA[i].d_spec_after;
+        const size_t  LENGTH          = strlen(SPEC_BEFORE);
 
         Obj mX(Z);
         const Obj& X = gg(&mX, SPEC_BEFORE);
@@ -3546,8 +3552,8 @@ void TestDriver<TYPE,ALLOC>::testReverse()
         Obj mExp;
         const Obj& EXP = gg(&mExp, SPEC_AFTER);
 
-        const int BB = testAllocator.numBlocksTotal();
-        const int B  = testAllocator.numBlocksInUse();
+        const Int64 BB = testAllocator.numBlocksTotal();
+        const Int64 B  = testAllocator.numBlocksInUse();
         const int CTORS_BEFORE = (numDefaultCtorCalls +
                                   numCharCtorCalls    +
                                   numCopyCtorCalls);
@@ -3556,8 +3562,8 @@ void TestDriver<TYPE,ALLOC>::testReverse()
 
         mX.reverse();
 
-        const int AA = testAllocator.numBlocksTotal();
-        const int A  = testAllocator.numBlocksInUse();
+        const Int64 AA = testAllocator.numBlocksTotal();
+        const Int64 A  = testAllocator.numBlocksInUse();
         const int CTORS_AFTER = (numDefaultCtorCalls +
                                  numCharCtorCalls    +
                                  numCopyCtorCalls);
@@ -3771,7 +3777,7 @@ void TestDriver<TYPE,ALLOC>::testSwap()
     const ALLOC Z(&testAllocator);
     const ALLOC Z2(&testAllocator2);
 
-    const int           MAX_LEN    = 15;
+    const size_t        MAX_LEN    = 15;
 
     static const struct {
         int         d_lineNum;  // source line number
@@ -3793,13 +3799,13 @@ void TestDriver<TYPE,ALLOC>::testSwap()
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int     XLINE   = DATA[ti].d_lineNum;
         const char   *XSPEC   = DATA[ti].d_spec;
-        const int     XLENGTH = strlen(XSPEC);
+        const size_t  XLENGTH = strlen(XSPEC);
         LOOP_ASSERT(XLINE, MAX_LEN >= XLENGTH);
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const int     YLINE   = DATA[tj].d_lineNum;
             const char   *YSPEC   = DATA[tj].d_spec;
-            const int     YLENGTH = strlen(YSPEC);
+            const size_t  YLENGTH = strlen(YSPEC);
             LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
 
             // Create two objects to be swapped.
@@ -3811,21 +3817,21 @@ void TestDriver<TYPE,ALLOC>::testSwap()
             const_iterator yiters[MAX_LEN + 1];
 
             const_iterator it = X.begin();
-            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+            for (size_t i = 0; i < XLENGTH + 1; ++i, ++it) {
                 xiters[i] = it;
             }
             it = Y.begin();
-            for (int i = 0; i < YLENGTH + 1; ++i, ++it) {
+            for (size_t i = 0; i < YLENGTH + 1; ++i, ++it) {
                 yiters[i] = it;
             }
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
 
             mX.swap(mY);  // Test here
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
 
             // Test the contents have swapped.  Allocator is unchanged.
             LOOP2_ASSERT(XLINE, YLINE, g(YSPEC) == X);
@@ -3838,11 +3844,11 @@ void TestDriver<TYPE,ALLOC>::testSwap()
             // implementation, but the standard does not require that the end
             // iterator be swapped.
             it = X.begin();
-            for (int i = 0; i < YLENGTH + 1; ++i, ++it) {
+            for (size_t i = 0; i < YLENGTH + 1; ++i, ++it) {
                 LOOP3_ASSERT(XLINE, YLINE, i, it == yiters[i]);
             }
             it = Y.begin();
-            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+            for (size_t i = 0; i < XLENGTH + 1; ++i, ++it) {
                 LOOP3_ASSERT(XLINE, YLINE, i, it == xiters[i]);
             }
 
@@ -3856,13 +3862,13 @@ void TestDriver<TYPE,ALLOC>::testSwap()
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int     XLINE   = DATA[ti].d_lineNum;
         const char   *XSPEC   = DATA[ti].d_spec;
-        const int     XLENGTH = strlen(XSPEC);
+        const size_t  XLENGTH = strlen(XSPEC);
         LOOP_ASSERT(XLINE, MAX_LEN >= XLENGTH);
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const int     YLINE   = DATA[tj].d_lineNum;
             const char   *YSPEC   = DATA[tj].d_spec;
-            const int     YLENGTH = strlen(YSPEC);
+            const size_t  YLENGTH = strlen(YSPEC);
             LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
 
             // Create two objects to be swapped.
@@ -3874,21 +3880,21 @@ void TestDriver<TYPE,ALLOC>::testSwap()
             const_iterator yiters[MAX_LEN + 1];
 
             const_iterator it = X.begin();
-            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+            for (size_t i = 0; i < XLENGTH + 1; ++i, ++it) {
                 xiters[i] = it;
             }
             it = Y.begin();
-            for (int i = 0; i < YLENGTH + 1; ++i, ++it) {
+            for (size_t i = 0; i < YLENGTH + 1; ++i, ++it) {
                 yiters[i] = it;
             }
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
 
             swap(mX, mY);  // Test here
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
 
             // Test the contents have swapped.  Allocator is unchanged.
             LOOP2_ASSERT(XLINE, YLINE, g(YSPEC) == X);
@@ -3901,11 +3907,11 @@ void TestDriver<TYPE,ALLOC>::testSwap()
             // implementation, but the standard does not require that the end
             // iterator be swapped.
             it = X.begin();
-            for (int i = 0; i < YLENGTH + 1; ++i, ++it) {
+            for (size_t i = 0; i < YLENGTH + 1; ++i, ++it) {
                 LOOP3_ASSERT(XLINE, YLINE, i, it == yiters[i]);
             }
             it = Y.begin();
-            for (int i = 0; i < XLENGTH + 1; ++i, ++it) {
+            for (size_t i = 0; i < XLENGTH + 1; ++i, ++it) {
                 LOOP3_ASSERT(XLINE, YLINE, i, it == xiters[i]);
             }
 
@@ -3919,13 +3925,13 @@ void TestDriver<TYPE,ALLOC>::testSwap()
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int     XLINE   = DATA[ti].d_lineNum;
         const char   *XSPEC   = DATA[ti].d_spec;
-        const int     XLENGTH = strlen(XSPEC);
+        const size_t  XLENGTH = strlen(XSPEC);
         LOOP_ASSERT(XLINE, MAX_LEN >= XLENGTH);
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const int     YLINE   = DATA[tj].d_lineNum;
             const char   *YSPEC   = DATA[tj].d_spec;
-            const int     YLENGTH = strlen(YSPEC);
+            const size_t  YLENGTH = strlen(YSPEC);
             LOOP_ASSERT(YLINE, MAX_LEN >= YLENGTH);
 
             // Create two objects to be swapped.
@@ -3936,20 +3942,20 @@ void TestDriver<TYPE,ALLOC>::testSwap()
                 ExceptionGuard<Obj> gx(&mX, X, XLINE);
                 ExceptionGuard<Obj> gy(&mY, Y, YLINE);
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int B  = testAllocator.numBlocksInUse();
-                const int BB2 = testAllocator2.numBlocksTotal();
-                const int B2  = testAllocator2.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64 B  = testAllocator.numBlocksInUse();
+                const Int64 BB2 = testAllocator2.numBlocksTotal();
+                const Int64 B2  = testAllocator2.numBlocksInUse();
 
                 mX.swap(mY);  // Test here
 
                 gx.release();
                 gy.release();
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int A  = testAllocator.numBlocksInUse();
-                const int AA2 = testAllocator2.numBlocksTotal();
-                const int A2  = testAllocator2.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64 A  = testAllocator.numBlocksInUse();
+                const Int64 AA2 = testAllocator2.numBlocksTotal();
+                const Int64 A2  = testAllocator2.numBlocksInUse();
 
                 // Test the contents have swapped.  Allocator is unchanged.
                 LOOP2_ASSERT(XLINE, YLINE, g(YSPEC) == X);
@@ -4047,7 +4053,7 @@ void TestDriver<TYPE,ALLOC>::testErase()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
             const char   *SPEC   = DATA[ti].d_spec;
-            const int     LENGTH = strlen(SPEC);
+            const int     LENGTH = static_cast<int>(strlen(SPEC));
 
             LOOP_ASSERT(LENGTH, LENGTH <= MAX_LEN);
 
@@ -4104,8 +4110,8 @@ void TestDriver<TYPE,ALLOC>::testErase()
                     const_iterator pos = orig_iters[posidx];
                     iterator ret;
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64 B  = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         T_; P_(SPEC); P_(posidx); P(n);
@@ -4133,8 +4139,8 @@ void TestDriver<TYPE,ALLOC>::testErase()
                     // Should never have an exception, so should always get
                     // here.
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64 A  = testAllocator.numBlocksInUse();
 
                     // Test important values
                     LOOP3_ASSERT(LINE, op, posidx,
@@ -4274,7 +4280,7 @@ void TestDriver<TYPE,ALLOC>::testInsert()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
             const char   *SPEC   = DATA[ti].d_spec;
-            const int     LENGTH = strlen(SPEC);
+            const int     LENGTH = static_cast<int>(strlen(SPEC));
 
             LOOP_ASSERT(LENGTH, LENGTH <= MAX_LEN);
 
@@ -4288,7 +4294,7 @@ void TestDriver<TYPE,ALLOC>::testInsert()
                 }
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     Obj mX(Z);
@@ -4319,7 +4325,7 @@ void TestDriver<TYPE,ALLOC>::testInsert()
                     iterator ret;
                     ExceptionGuard<Obj> guard(&mX, X, LINE);
 
-                    const int B = testAllocator.numBlocksInUse();
+                    const Int64 B = testAllocator.numBlocksInUse();
 
                     switch (op) {
                         case TEST_INSERT: {
@@ -4348,7 +4354,7 @@ void TestDriver<TYPE,ALLOC>::testInsert()
 
                     // If got here, then there was no exception
 
-                    const int A = testAllocator.numBlocksInUse();
+                    const Int64 A = testAllocator.numBlocksInUse();
 
                     // Test important values
                     LOOP3_ASSERT(LINE, op, posidx,
@@ -4421,7 +4427,8 @@ void TestDriver<TYPE,ALLOC>::testInsert()
         {
             list<IntWrapper, ALLOC> x;
             list<IntWrapper, ALLOC>& X = x;
-            size_t n = 2, v = 99;
+            size_t n = 2;
+            int v = 99;
 
             x.insert(X.begin(), n, v);
             ASSERT(X.size()  == n);
@@ -4568,7 +4575,7 @@ void TestDriver<TYPE,ALLOC>::testEmplace()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int     LINE   = DATA[ti].d_lineNum;
             const char   *SPEC   = DATA[ti].d_spec;
-            const int     LENGTH = strlen(SPEC);
+            const int     LENGTH = static_cast<int>(strlen(SPEC));
 
             LOOP_ASSERT(LENGTH, LENGTH <= MAX_LEN);
 
@@ -4584,7 +4591,7 @@ void TestDriver<TYPE,ALLOC>::testEmplace()
                 }
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     Obj mX(Z);
@@ -4619,8 +4626,8 @@ void TestDriver<TYPE,ALLOC>::testEmplace()
                     iterator ret;
                     ExceptionGuard<Obj> guard(&mX, X, LINE);
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int B  = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64 B  = testAllocator.numBlocksInUse();
 
                     switch (op) {
                         case TEST_EMPLACE_A0: {
@@ -4697,8 +4704,8 @@ void TestDriver<TYPE,ALLOC>::testEmplace()
 
                     // If got here, then there was no exception
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int A  = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64 A  = testAllocator.numBlocksInUse();
 
                     // Test important values
                     LOOP3_ASSERT(LINE, op, posidx,
@@ -4828,7 +4835,7 @@ void TestDriver<TYPE,ALLOC>::testInsertRange(const CONTAINER&)
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int     LINE   = DATA[ti].d_lineNum;
         const char   *SPEC   = DATA[ti].d_spec;
-        const int     LENGTH = strlen(SPEC);
+        const int     LENGTH = static_cast<int>(strlen(SPEC));
 
         LOOP_ASSERT(LENGTH, LENGTH <= MAX_LEN);
 
@@ -4843,7 +4850,7 @@ void TestDriver<TYPE,ALLOC>::testInsertRange(const CONTAINER&)
                 CONTAINER mU(U_SPEC);  const CONTAINER& U = mU;
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     Obj mX(Z);
@@ -4866,7 +4873,7 @@ void TestDriver<TYPE,ALLOC>::testInsertRange(const CONTAINER&)
                     iterator ret;
                     ExceptionGuard<Obj> guard(&mX, X, LINE);
 
-                    const int B = testAllocator.numBlocksInUse();
+                    const Int64 B = testAllocator.numBlocksInUse();
 
                     if (N > 1) {
                         // strong guarantee only for 0 or 1 insertions
@@ -4878,7 +4885,7 @@ void TestDriver<TYPE,ALLOC>::testInsertRange(const CONTAINER&)
 
                     // If got here, then there was no exception
 
-                    const int A = testAllocator.numBlocksInUse();
+                    const Int64 A = testAllocator.numBlocksInUse();
 
                     // Test important values
                     LOOP3_ASSERT(LINE, posidx, U_LINE,
@@ -5365,13 +5372,13 @@ void TestDriver<TYPE,ALLOC>::testResize()
 
         if (veryVerbose) { T_; P(SPEC); }
 
-        for (int newlen = 0; newlen < 20; ++newlen)
+        for (size_t newlen = 0; newlen < 20; ++newlen)
         {
-            const int NEWLEN = newlen;
+            const size_t NEWLEN = newlen;
             if (veryVerbose) { T_; T_; P(NEWLEN); }
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                const int AL = testAllocator.allocationLimit();
+                const Int64 AL = testAllocator.allocationLimit();
                 testAllocator.setAllocationLimit(-1);
 
                 Obj mX(Z);
@@ -5380,21 +5387,21 @@ void TestDriver<TYPE,ALLOC>::testResize()
 
                 testAllocator.setAllocationLimit(AL);
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int B  = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64 B  = testAllocator.numBlocksInUse();
 
                 mX.resize(NEWLEN);  // test here
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int A  = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64 A  = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     T_; T_; T_; P(X);
                 }
 
                 LOOP2_ASSERT(LINE, NEWLEN, checkIntegrity(X, NEWLEN));
-                LOOP2_ASSERT(LINE, NEWLEN, NEWLEN == (int) X.size());
-                if (NEWLEN <= (int) LENGTH) {
+                LOOP2_ASSERT(LINE, NEWLEN, NEWLEN == X.size());
+                if (NEWLEN <= LENGTH) {
                     LOOP2_ASSERT(LINE, NEWLEN, BB == AA);
                 }
                 else {
@@ -5407,12 +5414,12 @@ void TestDriver<TYPE,ALLOC>::testResize()
 
                 const_iterator xi = X.begin();
                 const_iterator yi = U.begin();
-                for (int j = 0;
-                     j < (int) LENGTH && j < NEWLEN;
+                for (size_t j = 0;
+                     j <  LENGTH && j < NEWLEN;
                      ++j, ++xi, ++yi) {
                     LOOP2_ASSERT(LINE, NEWLEN, *yi == *xi);
                 }
-                for (int j = LENGTH; j < NEWLEN; ++j, ++xi) {
+                for (size_t j = LENGTH; j < NEWLEN; ++j, ++xi) {
                     LOOP2_ASSERT(LINE, NEWLEN, DEFAULT_VALUE == *xi);
                 }
                 LOOP2_ASSERT(LINE, NEWLEN, xi == X.end());
@@ -5433,13 +5440,13 @@ void TestDriver<TYPE,ALLOC>::testResize()
 
         if (veryVerbose) { T_; P(SPEC); }
 
-        for (int newlen = 0; newlen < 20; ++newlen)
+        for (size_t newlen = 0; newlen < 20; ++newlen)
         {
-            const int NEWLEN = newlen;
+            const size_t NEWLEN = newlen;
             if (veryVerbose) { T_; T_; P(NEWLEN); }
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                const int AL = testAllocator.allocationLimit();
+                const Int64 AL = testAllocator.allocationLimit();
                 testAllocator.setAllocationLimit(-1);
 
                 Obj mX(Z);
@@ -5448,21 +5455,21 @@ void TestDriver<TYPE,ALLOC>::testResize()
 
                 testAllocator.setAllocationLimit(AL);
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int B  = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64 B  = testAllocator.numBlocksInUse();
 
                 mX.resize(NEWLEN, VALUE);  // test here
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int A  = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64 A  = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     T_; T_; T_; P(X);
                 }
 
                 LOOP2_ASSERT(LINE, NEWLEN, checkIntegrity(X, NEWLEN));
-                LOOP2_ASSERT(LINE, NEWLEN, NEWLEN == (int) X.size());
-                if (NEWLEN <= (int) LENGTH) {
+                LOOP2_ASSERT(LINE, NEWLEN, NEWLEN == X.size());
+                if (NEWLEN <=  LENGTH) {
                     LOOP2_ASSERT(LINE, NEWLEN, BB == AA);
                 }
                 else {
@@ -5475,12 +5482,12 @@ void TestDriver<TYPE,ALLOC>::testResize()
 
                 const_iterator xi = X.begin();
                 const_iterator yi = U.begin();
-                for (int j = 0;
-                     j < (int) LENGTH && j < NEWLEN;
+                for (size_t j = 0;
+                     j < LENGTH && j < NEWLEN;
                      ++j, ++xi, ++yi) {
                     LOOP2_ASSERT(LINE, NEWLEN, *yi == *xi);
                 }
-                for (int j = LENGTH; j < NEWLEN; ++j, ++xi) {
+                for (size_t j = LENGTH; j < NEWLEN; ++j, ++xi) {
                     LOOP2_ASSERT(LINE, NEWLEN, VALUE == *xi);
                 }
                 LOOP2_ASSERT(LINE, NEWLEN, xi == X.end());
@@ -5579,7 +5586,7 @@ void TestDriver<TYPE,ALLOC>::testAssign()
                     }
 
                     mX.assign(LENGTH, VALUE);
-                    const int A = testAllocator.numBlocksInUse();
+                    const Int64 A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         T_; T_; T_; P(X);
@@ -5622,7 +5629,7 @@ void TestDriver<TYPE,ALLOC>::testAssign()
                     }
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);
@@ -5631,7 +5638,7 @@ void TestDriver<TYPE,ALLOC>::testAssign()
                         testAllocator.setAllocationLimit(AL);
 
                         mX.assign(LENGTH, VALUE);  // test here
-                        const int A = testAllocator.numBlocksInUse();
+                        const Int64 A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             T_; T_; T_; P(X);
@@ -5775,7 +5782,7 @@ void TestDriver<TYPE,ALLOC>::testAssignRange(const CONTAINER&)
                 }
 
                 mX.assign(U.begin(), U.end());
-                const int A = testAllocator.numBlocksInUse();
+                const Int64 A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     T_; T_; T_; P(X);
@@ -5821,7 +5828,7 @@ void TestDriver<TYPE,ALLOC>::testAssignRange(const CONTAINER&)
                 Obj mY(g(SPEC)); const Obj& Y = mY;
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);  const Obj& X = mX;
@@ -5829,7 +5836,7 @@ void TestDriver<TYPE,ALLOC>::testAssignRange(const CONTAINER&)
                     testAllocator.setAllocationLimit(AL);
 
                     mX.assign(U.begin(), U.end());  // test here
-                    const int A = testAllocator.numBlocksInUse();
+                    const Int64 A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         T_; T_; T_; P(X);
@@ -5959,7 +5966,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, ALLOC() == X.get_allocator());
 
-                for (size_t j = 0; j < LENGTH; ++j) {
+                for (int j = 0; j < static_cast<int>(LENGTH); ++j) {
                     LOOP3_ASSERT(LINE, ti, j, DEFAULT_VALUE == nthElem(X,j));
                 }
             }
@@ -5988,7 +5995,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, ALLOC() == X.get_allocator());
 
-                for (size_t j = 0; j < LENGTH; ++j) {
+                for (int j = 0; j < static_cast<int>(LENGTH); ++j) {
                     LOOP3_ASSERT(LINE, ti, j, VALUE == nthElem(X,j));
                 }
             }
@@ -6008,14 +6015,14 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                     printf(" using "); P(VALUE);
                 }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
 
                 Obj mX(LENGTH, VALUE, AL);
                 const Obj& X = mX;
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     T_; T_; P(X);
@@ -6025,7 +6032,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
                 LOOP2_ASSERT(LINE, ti, AL == X.get_allocator());
 
-                for (size_t j = 0; j < LENGTH; ++j) {
+                for (int j = 0; j < static_cast<int>(LENGTH); ++j) {
                     LOOP3_ASSERT(LINE, ti, j, VALUE == nthElem(X,j));
                 }
 
@@ -6050,8 +6057,8 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                     printf(" using "); P(VALUE);
                 }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
@@ -6067,14 +6074,14 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                     LOOP2_ASSERT(LINE, ti, checkIntegrity(X, LENGTH));
                     LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
 
-                    for (size_t j = 0; j < LENGTH; ++j) {
+                    for (int j = 0; j < static_cast<int>(LENGTH); ++j) {
                         LOOP3_ASSERT(LINE, ti, j, VALUE == nthElem(X,j));
                     }
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) { printf("\t\tAFTER : "); P_(AA); P(A);}
 
@@ -6085,11 +6092,11 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                 // will be 'SUM(1 .. ALLOCS)', which is easily computed as
                 // 'ALLOCS * (ALLOCS+1) / 2'.
 
-                const int ALLOCS = expectedBlocks(LENGTH);
+                const Int64 ALLOCS = expectedBlocks(LENGTH);
 #ifdef BDE_BUILD_TARGET_EXC
-                const int TOTAL_ALLOCS = ALLOCS * (ALLOCS+1) / 2;
+                const Int64 TOTAL_ALLOCS = ALLOCS * (ALLOCS+1) / 2;
 #else
-                const int TOTAL_ALLOCS = ALLOCS;
+                const Int64 TOTAL_ALLOCS = ALLOCS;
 #endif
                 LOOP2_ASSERT(LINE, ti, BB + TOTAL_ALLOCS == AA);
                 LOOP2_ASSERT(LINE, ti,  B + 0            ==  A);
@@ -6111,7 +6118,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                 }
 
                 {
-                    const int TB = defaultAllocator_p->numBlocksInUse();
+                    const Int64 TB = defaultAllocator_p->numBlocksInUse();
                     ASSERT(0  == globalAllocator_p->numBlocksInUse());
                     ASSERT(0  == objectAllocator_p->numBlocksInUse());
 
@@ -6154,7 +6161,7 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
                 }
 
                 {
-                    const int TB = defaultAllocator_p->numBlocksInUse();
+                    const Int64 TB = defaultAllocator_p->numBlocksInUse();
                     ASSERT(0  == globalAllocator_p->numBlocksInUse());
                     ASSERT(0  == objectAllocator_p->numBlocksInUse());
 
@@ -6206,7 +6213,8 @@ void TestDriver<TYPE,ALLOC>::testConstructor()
             ASSERT(X.back()  == v);
         }
         {
-            size_t n = 2, v = 99;
+            size_t n = 2;
+            int v = 99;
             list<IntWrapper, ALLOC> x(n, v);
             list<IntWrapper, ALLOC>& X = x;
 
@@ -6349,14 +6357,14 @@ void TestDriver<TYPE,ALLOC>::testConstructorRange(const CONTAINER&)
 
             CONTAINER mU(SPEC);  const CONTAINER& U = mU;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int  B = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64  B = testAllocator.numBlocksInUse();
 
             ALLOC AL(&testAllocator);
             Obj mX(U.begin(), U.end(), AL); const Obj& X = mX;
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int  A = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64  A = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 T_; T_; P(X);
@@ -6390,8 +6398,8 @@ void TestDriver<TYPE,ALLOC>::testConstructorRange(const CONTAINER&)
             CONTAINER mU(SPEC);  const CONTAINER& U = mU;
             Obj mY(g(SPEC));     const Obj& Y = mY;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int  B = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64  B = testAllocator.numBlocksInUse();
 
             if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
@@ -6410,8 +6418,8 @@ void TestDriver<TYPE,ALLOC>::testConstructorRange(const CONTAINER&)
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int  A = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64  A = testAllocator.numBlocksInUse();
 
             if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
 
@@ -6422,11 +6430,11 @@ void TestDriver<TYPE,ALLOC>::testConstructorRange(const CONTAINER&)
             // will be 'SUM(1 .. ALLOCS)', which is easily computed as 'ALLOCS
             // * (ALLOCS+1) / 2'.
 
-            const int ALLOCS = expectedBlocks(LENGTH);
+            const Int64 ALLOCS = expectedBlocks(LENGTH);
 #ifdef BDE_BUILD_TARGET_EXC
-            const int TOTAL_ALLOCS = ALLOCS * (ALLOCS+1) / 2;
+            const Int64 TOTAL_ALLOCS = ALLOCS * (ALLOCS+1) / 2;
 #else
-            const int TOTAL_ALLOCS = ALLOCS;
+            const Int64 TOTAL_ALLOCS = ALLOCS;
 #endif
             LOOP2_ASSERT(LINE, ti, BB + TOTAL_ALLOCS == AA);
             LOOP2_ASSERT(LINE, ti, B + 0 == A);
@@ -6480,7 +6488,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bsl::true_type,
     if (verbose)
         printf("\nTesting that empty list allocates one block.\n");
     {
-        const int BB = testAllocator.numBlocksTotal();
+        const Int64 BB = testAllocator.numBlocksTotal();
         Obj mX(&testAllocator);
         LOOP2_ASSERT(t, a, BB + 1 == testAllocator.numBlocksTotal());
         LOOP2_ASSERT(t, a, 1 == testAllocator.numBlocksInUse());
@@ -6510,7 +6518,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bsl::true_type,
     if (verbose)
         printf("\nTesting passing allocator through to elements.\n");
 
-    const int DD = OtherAllocatorDefaultImp.numBlocksInUse();
+    const Int64 DD = OtherAllocatorDefaultImp.numBlocksInUse();
     if (bslma::UsesBslmaAllocator<TYPE>::value)
     {
         {
@@ -6598,7 +6606,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bsl::false_type,
     if (verbose)
         printf("\nTesting that empty list allocates one block.\n");
     {
-        const int BB = testAllocator.numBlocksTotal();
+        const Int64 BB = testAllocator.numBlocksTotal();
         Obj mX(objAllocator);
         LOOP2_ASSERT(t, a, BB + 1 == testAllocator.numBlocksTotal());
         LOOP2_ASSERT(t, a, 1 == testAllocator.numBlocksInUse());
@@ -6629,7 +6637,7 @@ void TestDriver<TYPE,ALLOC>::testAllocator(bsl::false_type,
     if (verbose)
        printf("\nTesting that allocator is not passed through to elements.\n");
 
-    const int DD = OtherAllocatorDefaultImp.numBlocksInUse();
+    const Int64 DD = OtherAllocatorDefaultImp.numBlocksInUse();
     if (bslma::UsesBslmaAllocator<TYPE>::value)
     {
         // Elements in container should use default allocator while the
@@ -6862,17 +6870,17 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                         const int NUM_DTOR_BEFORE = numDestructorCalls;
                         const size_t U_LEN_BEFORE = U.size();
 
-                        const int BB1 = testAllocator1.numBlocksTotal();
-                        const int B1  = testAllocator1.numBlocksInUse();
-                        const int BB2 = testAllocator2.numBlocksTotal();
-                        const int B2  = testAllocator2.numBlocksInUse();
+                        const Int64 BB1 = testAllocator1.numBlocksTotal();
+                        const Int64 B1  = testAllocator1.numBlocksInUse();
+                        const Int64 BB2 = testAllocator2.numBlocksTotal();
+                        const Int64 B2  = testAllocator2.numBlocksInUse();
 
                         mU = V; // test assignment here
 
-                        const int AA1 = testAllocator1.numBlocksTotal();
-                        const int A1  = testAllocator1.numBlocksInUse();
-                        const int AA2 = testAllocator2.numBlocksTotal();
-                        const int A2  = testAllocator2.numBlocksInUse();
+                        const Int64 AA1 = testAllocator1.numBlocksTotal();
+                        const Int64 A1  = testAllocator1.numBlocksInUse();
+                        const Int64 AA2 = testAllocator2.numBlocksTotal();
+                        const Int64 A2  = testAllocator2.numBlocksInUse();
 
                         // The assignment may construct as many as V.size()
                         // objects and may destroy as many as U.size()
@@ -6948,7 +6956,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                     // assignment operation, not for producing the initial
                     // objects.  Thus, we save the limit in AL and turn off
                     // the limit until we're ready to test assignment.
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator2.setAllocationLimit(-1);
 
                     ALLOC AL2(&testAllocator2);
@@ -6963,14 +6971,14 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                             printf("\t| "); P_(U); P(V);
                         }
 
-                        const int BB2 = testAllocator2.numBlocksTotal();
-                        const int B2  = testAllocator2.numBlocksInUse();
+                        const Int64 BB2 = testAllocator2.numBlocksTotal();
+                        const Int64 B2  = testAllocator2.numBlocksInUse();
 
                         testAllocator2.setAllocationLimit(AL);
                         mU = V; // test assignment here
 
-                        const int AA2 = testAllocator2.numBlocksTotal();
-                        const int A2  = testAllocator2.numBlocksInUse();
+                        const Int64 AA2 = testAllocator2.numBlocksTotal();
+                        const Int64 A2  = testAllocator2.numBlocksInUse();
 
                         LOOP2_ASSERT(U_SPEC, V_SPEC, checkIntegrity(U, vLen));
                         LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);
@@ -7020,7 +7028,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                 // assignment operation, not for producing the initial
                 // objects.  Thus, we save the limit in AL and turn off
                 // the limit until we're ready to test assignment.
-                const int AL = testAllocator.allocationLimit();
+                const Int64 AL = testAllocator.allocationLimit();
                 testAllocator2.setAllocationLimit(-1);
 
                 ALLOC AL2(&testAllocator2);
@@ -7032,7 +7040,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                 LOOP_ASSERT(SPEC, Y == Y);
                 LOOP_ASSERT(SPEC, X == Y);
 
-                const int B2 = testAllocator2.numBlocksInUse();
+                const Int64 B2 = testAllocator2.numBlocksInUse();
 
                 testAllocator2.setAllocationLimit(AL);
                 {
@@ -7040,7 +7048,7 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                     mY = Y; // test assignment here
                 }
 
-                const int A2 = testAllocator2.numBlocksInUse();
+                const Int64 A2 = testAllocator2.numBlocksInUse();
 
                 LOOP_ASSERT(SPEC, Y == Y);
                 LOOP_ASSERT(SPEC, X == Y);
@@ -7096,11 +7104,11 @@ void TestDriver<TYPE,ALLOC>::testGeneratorG()
             printf("\t g = "); dbg_print(g(SPEC)); printf("\n");
             printf("\tgg = "); dbg_print(X); printf("\n");
         }
-        const int TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
-        const int IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
+        const Int64 TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
+        const Int64 IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
         LOOP_ASSERT(ti, X == g(SPEC));
-        const int TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
-        const int IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
+        const Int64 TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
+        const Int64 IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
         LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
         LOOP_ASSERT(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
     }
@@ -7211,7 +7219,7 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
             }
 
             LOOP_ASSERT(SPEC, oldLen < (int)LENGTH); // strictly increasing
-            oldLen = LENGTH;
+            oldLen = static_cast<int>(LENGTH);
 
             // Create control object w.
             Obj mW; gg(&mW, SPEC);
@@ -7268,8 +7276,8 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
                     printf("\t\t\tInsert into created obj, "
                            "with test allocator:\n");
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
@@ -7277,8 +7285,8 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
 
                 Obj Y11(X, Z);
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
@@ -7288,13 +7296,13 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
                 LOOP_ASSERT(SPEC, BB + expectedBlocks(LENGTH) == AA);
                 LOOP_ASSERT(SPEC,  B + expectedBlocks(LENGTH) ==  A);
 
-                const int CC = testAllocator.numBlocksTotal();
-                const int  C = testAllocator.numBlocksInUse();
+                const Int64 CC = testAllocator.numBlocksTotal();
+                const Int64  C = testAllocator.numBlocksInUse();
 
                 Y11.push_back(VALUES[LENGTH % NUM_VALUES]);
 
-                const int DD = testAllocator.numBlocksTotal();
-                const int  D = testAllocator.numBlocksInUse();
+                const Int64 DD = testAllocator.numBlocksTotal();
+                const Int64  D = testAllocator.numBlocksInUse();
 
                 // Allocations should increase by one node block for the list.
                 // If TYPE uses an allocator, allocations should increase by
@@ -7316,8 +7324,8 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
 #ifdef BDE_BUILD_TARGET_EXC
             {   // Exception checking.
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
@@ -7337,8 +7345,8 @@ void TestDriver<TYPE,ALLOC>::testCopyCtor()
                     LOOP_ASSERT(SPEC, Y2.get_allocator() == X.get_allocator());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
@@ -7443,15 +7451,16 @@ void TestDriver<TYPE,ALLOC>::testEqualityOp()
         for (int ai = 0; ai < NUM_ALLOCATOR; ++ai) {
 
             const char *const U_SPEC = SPECS[si];
-            const size_t    LENGTH = strlen(U_SPEC);
+            const int         LENGTH = static_cast<int>(strlen(U_SPEC));
 
             Obj mU(ALLOCATOR[ai]); const Obj& U = gg(&mU, U_SPEC);
-            LOOP2_ASSERT(si, ai, LENGTH == U.size()); // same lengths
+            LOOP2_ASSERT(si, ai,
+                         LENGTH == static_cast<int>(U.size())); // same lengths
 
             if ((int)LENGTH != oldLen) {
                 if (verbose)
-                    printf("\tUsing lhs objects of length " ZU ".\n", LENGTH);
-                LOOP_ASSERT(U_SPEC, oldLen <= (int) LENGTH);  // non-decreasing
+                    printf("\tUsing lhs objects of length %d.\n", LENGTH);
+                LOOP_ASSERT(U_SPEC, oldLen <= LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 
@@ -7540,7 +7549,7 @@ void TestDriver<TYPE,ALLOC>::testBasicAccessors()
     const int           NUM_VALUES = getValues(&values);
     (void) NUM_VALUES;
 
-    const size_t MAX_LENGTH = 32;
+    const int MAX_LENGTH = 32;
 
     static const struct {
         int         d_lineNum;                   // source line number
@@ -7626,7 +7635,7 @@ void TestDriver<TYPE,ALLOC>::testBasicAccessors()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_lineNum;
             const char *const SPEC   = DATA[ti].d_spec_p;
-            const size_t      LENGTH = DATA[ti].d_length;
+            const int         LENGTH = DATA[ti].d_length;
             const char *const EXP    = DATA[ti].d_elements;
 
             ASSERT(LENGTH <= MAX_LENGTH);
@@ -7637,15 +7646,16 @@ void TestDriver<TYPE,ALLOC>::testBasicAccessors()
 
                 const Obj& X = gg(&mX, SPEC);    // canonical organization
 
-                LOOP2_ASSERT(ti, ai, LENGTH == X.size()); // same lengths
+                LOOP2_ASSERT(ti, ai,
+                         LENGTH == static_cast<int>(X.size())); // same lengths
                 LOOP2_ASSERT(ti, ai, (LENGTH == 0) == X.empty());
 
                 if (veryVerbose) {
-                    printf( "\ton objects of length " ZU ":\n", LENGTH);
+                    printf( "\ton objects of length %d:\n", LENGTH);
                 }
 
                 // non-decreasing
-                LOOP2_ASSERT(LINE, ai, oldLen <= (int)LENGTH);
+                LOOP2_ASSERT(LINE, ai, oldLen <= LENGTH);
                 oldLen = LENGTH;
 
                 if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
@@ -7654,7 +7664,7 @@ void TestDriver<TYPE,ALLOC>::testBasicAccessors()
                     T_; T_; T_; P(X);
                 }
 
-                size_t i;
+                int i;
                 iterator imX;
                 const_iterator iX;
                 for (i = 0, imX = mX.begin(), iX = X.begin(); i < LENGTH;
@@ -7706,7 +7716,7 @@ void TestDriver<TYPE,ALLOC>::testBasicAccessors()
 
                 // non-decreasing
                 LOOP2_ASSERT(LINE, ai, oldLen <= (int)LENGTH);
-                oldLen = LENGTH;
+                oldLen = static_cast<int>(LENGTH);
 
                 if (veryVerbose) printf( "\t\tSpec = \"%s\"\n", SPEC);
 
@@ -7928,7 +7938,7 @@ void TestDriver<TYPE,ALLOC>::testGeneratorGG()
             if ((int)LENGTH != oldLen) {
                 if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                 // LOOP_ASSERT(LINE, oldLen <= (int)LENGTH);  // non-decreasing
-                oldLen = LENGTH;
+                oldLen = static_cast<int>(LENGTH);
             }
 
             if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
@@ -8054,14 +8064,14 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
     if (verbose) printf("\t\tPassing in an allocator.\n");
     {
-        const int AA = testAllocator.numBlocksTotal();
-        const int A  = testAllocator.numBlocksInUse();
+        const Int64 AA = testAllocator.numBlocksTotal();
+        const Int64 A  = testAllocator.numBlocksInUse();
 
         ALLOC AL(&testAllocator);
         const Obj X(AL);
 
-        const int BB = testAllocator.numBlocksTotal();
-        const int B  = testAllocator.numBlocksInUse();
+        const Int64 BB = testAllocator.numBlocksTotal();
+        const Int64 B  = testAllocator.numBlocksInUse();
 
         if (veryVerbose) { T_; T_; P(X); }
         ASSERT(0 == X.size());
@@ -8154,8 +8164,8 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tBEFORE: ");
@@ -8165,8 +8175,8 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
             mX.push_back(VALUES[li % NUM_VALUES]);
             elemAddrs[li] = &X.back();
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\t AFTER: ");
@@ -8254,8 +8264,8 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tBEFORE: ");
@@ -8264,8 +8274,8 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
             mX.clear();
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tAFTER: ");
@@ -8278,8 +8288,8 @@ void TestDriver<TYPE,ALLOC>::testPrimaryManipulators()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int CC = testAllocator.numBlocksTotal();
-            const int C  = testAllocator.numBlocksInUse();
+            const Int64 CC = testAllocator.numBlocksTotal();
+            const Int64 C  = testAllocator.numBlocksInUse();
 
             if(veryVerbose){
                 printf("\t\t\tAFTER SECOND INSERT: ");

@@ -464,7 +464,7 @@ void testContainerHasData(const CONTAINER&                      x,
         bsl::pair<TestIterator, TestIterator> range =
                                 x.equal_range(keyForValue<CONTAINER>(data[i]));
         ASSERT(range.first == it);
-        for(int iterations = nCopies; --iterations; ++it) {
+        for(SizeType iterations = nCopies; --iterations; ++it) {
             ASSERT(*it == data[i]);
         }
         // Need one extra increment to reach past-the-range iterator.
@@ -500,9 +500,9 @@ void validateIteration(CONTAINER &c)
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
 
-    const int size = c.size();
+    const size_t size = c.size();
 
-    int counter = 0;
+    size_t counter = 0;
     for (iterator it = c.begin(); it != c.end(); ++it, ++counter) {}
     LOOP2_ASSERT(size, counter, size == counter);
 
@@ -549,7 +549,7 @@ void testBuckets(CONTAINER& mX)
     SizeType itemCount  = 0;
 
     for (unsigned i = 0; i != bucketCount; ++i ) {
-        const unsigned count = x.bucket_size(i);
+        const SizeType count = x.bucket_size(i);
         if (0 == count) {
             // if (veryVeryVerbose) cout << i << "\t(EMPTY)" << endl;
 
@@ -785,9 +785,9 @@ struct BoolArray {
 };
 
 template<class CONTAINER, class VALUES>
-int verifyContainer(const CONTAINER& container,
-                    const VALUES&    expectedValues,
-                    size_t           expectedSize)
+size_t verifyContainer(const CONTAINER& container,
+                       const VALUES&    expectedValues,
+                       size_t           expectedSize)
     // Verify the specified 'container' has the specified 'expectedSize' and
     // contains the same values as the array in the specified 'expectedValues'.
     // Return 0 if 'container' has the expected values, and a non-zero value
@@ -796,7 +796,7 @@ int verifyContainer(const CONTAINER& container,
     ASSERTV(expectedSize, container.size(), expectedSize == container.size());
 
     if(expectedSize != container.size()) {
-        return -1;                                                    // RETURN
+        return static_cast<size_t>(-1);                               // RETURN
     }
 
     // Check to avoid creating an array of length zero.
@@ -823,7 +823,7 @@ int verifyContainer(const CONTAINER& container,
     }
     ASSERTV(expectedSize, i, expectedSize == i);
     if (expectedSize != i) {
-        return -2;                                                    // RETURN
+        return static_cast<size_t>(-2);                               // RETURN
     }
 
     size_t missing = 0;
@@ -1206,7 +1206,7 @@ class TestDriver {
         // must be a valid iterator referring to the specified 'obj'.  Note
         // that 'obj.end() == it' is allowed.
 
-    static Iter getIterForIndex(const Obj& obj, int idx);
+    static Iter getIterForIndex(const Obj& obj, size_t idx);
         // Return the iterator relating to the specified 'obj' with specified
         // index 'idx'.  It is an error if 'idx >= obj.size()'.
 
@@ -1395,18 +1395,16 @@ int TestDriver<KEY, HASH, EQUAL, ALLOC>::getIndexForIter(const Obj& obj,
 template <class KEY, class HASH, class EQUAL, class ALLOC>
 typename bsl::unordered_set<KEY, HASH, EQUAL, ALLOC>::iterator
 TestDriver<KEY, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
-                                                     int        idx)
+                                                     size_t     idx)
 {
-    BSLS_ASSERT_OPT(idx >= 0);
-
-    if (idx > (int) obj.size()) {
-        ASSERTV(idx <= (int) obj.size());
+    if (idx > obj.size()) {
+        ASSERTV(idx <= obj.size());
 
         return obj.end();                                             // RETURN
     }
 
     Iter ret = obj.begin();
-    int i = 0;
+    size_t i = 0;
     for (; i < idx && obj.end() != ret; ++i) {
         ++ret;
     }
@@ -1905,9 +1903,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
             const size_t COUNT = X.bucket_count();
             const float  LOAD  = X.load_factor();
 
-            ASSERTV(LOAD, X.size() / (float) X.bucket_count(),
-                    nearlyEqual<double>(LOAD,
-                                        X.size() / (double) X.bucket_count()));
+            ASSERTV(LOAD,
+                    static_cast<float>(X.size())
+                                         / static_cast<float>(X.bucket_count()),
+                    nearlyEqual<double>(
+                        LOAD,
+                        static_cast<double>(X.size())
+                                      / static_cast<double>(X.bucket_count())));
             ASSERTV(1.0f == X.max_load_factor());
 
             int numPasses = 0;
@@ -1923,9 +1925,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
             ASSERTV(LOAD > X.load_factor());
 
             const float LOAD2 = X.load_factor();
-            ASSERTV(LOAD2, X.size() / (float) X.bucket_count(),
-                    nearlyEqual<double>(LOAD2,
-                                        X.size() / (double) X.bucket_count()));
+            ASSERTV(LOAD2,
+                    static_cast<float>(X.size())
+                                         / static_cast<float>(X.bucket_count()),
+                    nearlyEqual<double>(
+                        LOAD2,
+                        static_cast<double>(X.size())
+                                      / static_cast<double>(X.bucket_count())));
 
             ASSERTV(X == Y);
 
@@ -1953,8 +1959,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
 
                 const size_t BC = X.bucket_count();
                 ASSERTV(X.load_factor() <= X.max_load_factor());
-                ASSERTV(0.9999 * LENGTH / X.bucket_count() <
-                                                          X.max_load_factor());
+                ASSERTV(0.9999 * static_cast<double>(LENGTH)
+                                       / static_cast<double>(X.bucket_count()) <
+                        X.max_load_factor());
 
                 if (!TYPE_ALLOC) {
                     numPasses = 0;
@@ -5304,7 +5311,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
-            const int         LENGTH = strlen(DATA[ti].d_results);
+            const size_t      LENGTH = strlen(DATA[ti].d_results);
             const TestValues  EXP(DATA[ti].d_results);
 
             if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
@@ -5369,7 +5376,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 ASSERTV(LINE, SPEC, CONFIG, &oa == X.get_allocator());
-                ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
+                ASSERTV(LINE, SPEC, CONFIG, LENGTH == X.size());
 
                 ASSERT(0 == verifyContainer(X, EXP, LENGTH));
 
@@ -5549,13 +5556,13 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = strlen(SPEC);
+            const int         LENGTH = static_cast<int>(strlen(SPEC));
 
             Obj mX(&oa);
 
-            if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
-                 ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
+            if (LENGTH != oldLen) {
+                if (verbose) printf("\tof length %d:\n", LENGTH);
+                 ASSERTV(LINE, oldLen <= LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 

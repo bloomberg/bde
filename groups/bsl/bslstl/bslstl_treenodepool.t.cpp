@@ -820,7 +820,7 @@ void TestDriver<VALUE>::testCase5()
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE     = DATA[ti].d_line;
         const char *const SEQUENCE = DATA[ti].d_sequence;
-        const int         LENGTH   = strlen(SEQUENCE);
+        const size_t      LENGTH   = strlen(SEQUENCE);
 
         Stack usedBlocks;
         Stack freeBlocks;
@@ -832,7 +832,7 @@ void TestDriver<VALUE>::testCase5()
 
         Obj mX(&oa);
 
-        for (int tj = 0; tj < LENGTH; ++tj) {
+        for (size_t tj = 0; tj < LENGTH; ++tj) {
             bslma::TestAllocatorMonitor oam(&oa);
 
             if (SEQUENCE[tj] == 'A') {

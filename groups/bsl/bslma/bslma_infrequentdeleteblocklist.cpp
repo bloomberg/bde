@@ -34,7 +34,7 @@ void *InfrequentDeleteBlockList::allocate(int numBytes)
     // Add size of block header to 'numBytes', then round up to
     // the nearest multiple of 'MAX_ALIGNMENT'.
 
-    numBytes += sizeof(Block) - 1;
+    numBytes += static_cast<int>(sizeof(Block)) - 1;
     numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 
     Block *block = (Block *)d_allocator_p->allocate(numBytes);

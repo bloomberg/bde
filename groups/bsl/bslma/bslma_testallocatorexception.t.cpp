@@ -124,7 +124,7 @@ class my_ShortArray {
      // ...
 
     ~my_ShortArray();
-    void append(int value);
+    void append(short value);
     const short& operator[](int index) const { return d_array_p[index]; }
     int length() const { return d_length; }
     operator const short *() const { return d_array_p; }
@@ -140,7 +140,7 @@ my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 , d_length(0)
 , d_allocator_p(basicAllocator)
 {
-    int sz = d_size * sizeof *d_array_p;
+    size_t sz = d_size * sizeof *d_array_p;
     if (basicAllocator) {
         d_array_p = (short *) d_allocator_p->allocate(sz);
     }
@@ -164,7 +164,7 @@ my_ShortArray::~my_ShortArray()
     }
 }
 
-inline void my_ShortArray::append(int value)
+inline void my_ShortArray::append(short value)
 {
     if (d_length >= d_size) {
         increaseSize();
@@ -190,7 +190,7 @@ void reallocate(short            **array,
     ASSERT(length <= newSize);          // enforce class invariant
 
     short *tmp = *array;                // support exception neutrality
-    int sz = newSize * sizeof **array;
+    size_t sz = newSize * sizeof **array;
     if (basicAllocator) {
         *array = (short *) basicAllocator->allocate(sz);
     }

@@ -512,8 +512,8 @@ class my_String {
     // This is a simple implementation of a string object.
 
     char *d_string_p;
-    int d_length;
-    int d_size;
+    size_t d_length;
+    size_t d_size;
     bslma::Allocator *d_allocator_p;
 
   public:
@@ -521,7 +521,7 @@ class my_String {
     my_String(const my_String& original, bslma::Allocator *basicAllocator);
     ~my_String();
 
-    inline int length() const { return d_length; }
+    inline size_t length() const { return d_length; }
     inline operator const char *() const { return d_string_p; }
 };
 

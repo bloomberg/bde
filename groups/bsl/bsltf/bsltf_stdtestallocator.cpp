@@ -50,7 +50,7 @@ void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
 
 unsigned int StdTestAllocator_CommonUtil::maxSize(size_t elementSize)
 {
-    return UINT_MAX  / elementSize;
+    return static_cast<unsigned int>(UINT_MAX  / elementSize);
 }
 
                         // ----------------------

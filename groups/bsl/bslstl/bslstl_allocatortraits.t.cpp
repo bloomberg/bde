@@ -1348,12 +1348,12 @@ void testAllocateDeallocate(const char *name)
 
     if (verbose) printf("testing allocate(a, n) for %s\n", name);
     for (int i = 0; i < 2 * NUM_SIZES; ++i) {
-        const int N = SIZES[i % NUM_SIZES];
+        const size_t N = SIZES[i % NUM_SIZES];
         const bool useHint = i >= NUM_SIZES;  // Use hint for 2nd half
 
-        const int allocationsB = ta.numAllocations();
-        const int blocksInUseB = ta.numBlocksInUse();
-        const int bytesInUseB  = ta.numBytesInUse();
+        const bsls::Types::Int64 allocationsB = ta.numAllocations();
+        const bsls::Types::Int64 blocksInUseB = ta.numBlocksInUse();
+        const bsls::Types::Int64 bytesInUseB  = ta.numBytesInUse();
 
         const bsls::Types::Int64 blockSize = N * sizeof(value_type);
 
@@ -1387,11 +1387,11 @@ void testAllocateDeallocate(const char *name)
 
     if (verbose) printf("testing deallocate(a, p, n) for %s\n", name);
     for (int i = 0; i < 2 * NUM_SIZES; ++i) {
-        const int N = SIZES[i % NUM_SIZES];
+        const size_t N = SIZES[i % NUM_SIZES];
 
-        const int allocationsB = ta.numAllocations();
-        const int blocksInUseB = ta.numBlocksInUse();
-        const int bytesInUseB  = ta.numBytesInUse();
+        const bsls::Types::Int64 allocationsB = ta.numAllocations();
+        const bsls::Types::Int64 blocksInUseB = ta.numBlocksInUse();
+        const bsls::Types::Int64 bytesInUseB  = ta.numBytesInUse();
 
         const bsls::Types::Int64 blockSize = N * sizeof(value_type);
 

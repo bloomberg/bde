@@ -161,7 +161,7 @@ void TestAllocator::deallocate(void *address)
 
         // Set up local writable copy of password in buffer.
 
-        int size = strlen(password) + 1;
+        size_t size = strlen(password) + 1;
         char *buffer = (char *)allocator->allocate(size);
         memcpy(buffer, password, size);
 

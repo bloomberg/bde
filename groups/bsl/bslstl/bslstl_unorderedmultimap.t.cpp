@@ -1130,7 +1130,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
                 ASSERTV(X.load_factor() <= X.max_load_factor());
                 ASSERTV(nearlyEqual<double>(X.load_factor(),
-                                                      (double) X.size() / BC));
+                                            static_cast<double>(X.size())
+                                            / static_cast<double>(BC)));
 
                 if (LENGTH > 0) {
                     const float newLoadFactor = X.load_factor() / 2;
@@ -1171,7 +1172,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
                 const size_t BC = X.bucket_count();
                 ASSERTV(X.load_factor() <= X.max_load_factor());
-                ASSERTV(0.9999 * LENGTH / X.bucket_count() <
+                ASSERTV(0.9999
+                        * static_cast<double>(LENGTH)
+                          / static_cast<double>(X.bucket_count()) <
                                                           X.max_load_factor());
 
                 if (!TYPE_ALLOC) {
@@ -2608,7 +2611,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                         for (Iter it = mX.begin(); end != it; ++it) {
                             VALUE v = it->second;
                             typedef bsltf::TemplateTestFacility TTF;
-                            size_t id = TTF::getIdentifier(it->second);
+                            int id = TTF::getIdentifier(it->second);
                             ++id;
                             it->second = TTF::create<VALUE>(id);
 
@@ -2662,7 +2665,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase6()
                         for (Iter it = mX.begin(); end != it; ++it) {
                             VALUE v = it->second;
                             typedef bsltf::TemplateTestFacility TTF;
-                            size_t id = TTF::getIdentifier(it->second);
+                            int id = TTF::getIdentifier(it->second);
                             ++id;
                             it->second = TTF::create<VALUE>(id);
 
@@ -2959,9 +2962,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase4()
             LIter bEnd = mX.end(tj);
             for (LIter it = mX.begin(tj); bEnd != it; ++it, ++count) {
                 ASSERTV(it->first == it->second);
-                size_t id = bsltf::TemplateTestFacility::getIdentifier(
-                                                                    it->first);
-                size_t idB = id - 'A' + '0';
+                int id = bsltf::TemplateTestFacility::getIdentifier(it->first);
+                int idB = id - 'A' + '0';
                 it->second = bsltf::TemplateTestFacility::create<VALUE>(idB);
                 ASSERTV(VALUES[id - 'A'].second == it->second);
                 ASSERTV(it->first != it->second);
@@ -5239,7 +5241,7 @@ void testContainerHasData(const CONTAINER&                      x,
         bsl::pair<TestIterator, TestIterator> range =
                                 x.equal_range(keyForValue<CONTAINER>(data[i]));
         ASSERT(range.first == it);
-        for(int iterations = nCopies; --iterations; ++it) {
+        for(SizeType iterations = nCopies; --iterations; ++it) {
             ASSERT(*it == data[i]);
         }
         // Need one extra increment to reach past-the-range iterator.
@@ -5257,7 +5259,7 @@ void fillContainerWithData(CONTAINER&                            x,
 {
     typedef CONTAINER TestType;
 
-    int initialSize = x.size();
+    size_t initialSize = x.size();
     x.insert(data, data + size);
     ASSERT(x.size() == initialSize + size);
 
@@ -5274,10 +5276,11 @@ void validateIteration(CONTAINER &c)
 {
     typedef typename CONTAINER::iterator       iterator;
     typedef typename CONTAINER::const_iterator const_iterator;
+    typedef typename CONTAINER::size_type      SizeType;
 
-    const int size = c.size();
+    const SizeType size = c.size();
 
-    int counter = 0;
+    SizeType counter = 0;
     for (iterator it = c.begin(); it != c.end(); ++it, ++counter) {}
     ASSERT(size == counter);
 
@@ -5322,7 +5325,7 @@ void testBuckets(CONTAINER& mX)
     size_t itemCount  = 0;
 
     for (unsigned i = 0; i != bucketCount; ++i ) {
-        const unsigned count = x.bucket_size(i);
+        const size_t count = x.bucket_size(i);
         if (0 == count) {
             ASSERT(x.begin(i) == x.end(i));
             ASSERT(mX.begin(i) == mX.end(i));

@@ -397,17 +397,21 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
     class MyVector {
         // This is a simple container implementation for demonstration purposes
         // that is modeled after 'std::vector'.
-        T *d_storage;
-        size_t d_length;
 
-        // Copy operations are declared private and not defined.
+        // DATA
+        T           *d_storage;
+        std::size_t  d_length;
+
+        // NOT IMPLEMENTED
         MyVector(const MyVector&);
         MyVector& operator=(const MyVector&);
 
       public:
+        // CREATORS
         MyVector(const T& value, int n);
             // Create a 'MyVector' object having the specified 'n' copies of
-            // the specified 'value'.
+            // the specified 'value'.  The behavior is undefined unless
+            // '0 <= n'.
 
         template<class FORWARD_ITERATOR>
         MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
@@ -415,17 +419,24 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
                         !bsl::is_fundamental<FORWARD_ITERATOR>::value
                                                                  >::type * = 0)
             // Create a 'MyVector' object having the same sequence of values as
-            // found in range described by the iterators '[first, last)'.
-       {
-           d_length = 0;
-           for (FORWARD_ITERATOR cursor = first; cursor != last; ++cursor) {
-               ++d_length;
-           }
+            // found in the range described by the the specified iterators
+            // '[first, last)'.  The behavior is undefined unless 'first' and
+            // 'last' refer to a sequence of value of the (template parameter)
+            // type 'T' where 'first' is at a position at or before 'last'.
+            // Note that this function is currently defined inline to work
+            // around an issue with the Microsoft Visual Studio compiler.
 
-           d_storage = new T[d_length];
-           for (size_t i = 0; i != d_length; ++i) {
-              d_storage[i] = *first++;
-           }
+        {
+            d_length = 0;
+            for (FORWARD_ITERATOR cursor = first; cursor != last; ++cursor) {
+                 ++d_length;
+            }
+
+            d_storage = new T[d_length];
+            for (std::size_t i = 0; i != d_length; ++i) {
+                 d_storage[i] = *first;
+                 ++first;
+            }
         }
 
         ~MyVector();
@@ -433,12 +444,13 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
             // allocated memory.
 
         const T& operator[](int index) const;
-            // Return a reference with 'const' access to the element held by
-            // this container at the specified 'index'.
+            // Return a reference providing non-modifiable access to the
+            // element held by this container at the specified 'index'.
 
-        int size() const;
+        std::size_t size() const;
             // Return the number of elements held by this container.
     };
+
 //..
 // Note that there is no easy test for whether a type is an iterator, so we
 // assume any attempt to call a constructor with two arguments that are not
@@ -468,7 +480,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
     }
 
     template<class T>
-    int MyVector<T>::size() const
+    std::size_t MyVector<T>::size() const
     {
         return d_length;
     }

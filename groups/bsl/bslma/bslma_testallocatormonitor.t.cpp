@@ -165,7 +165,7 @@ typedef bslma::TestAllocatorMonitor Tam;
         // null-terminated ascii string attribute, 'description'.
 
         // DATA
-        int               d_capacity;      // available memory
+        size_t            d_capacity;      // available memory
         char             *d_description_p; // string data
         bslma::Allocator *d_allocator_p;   // held, not owned
 
@@ -227,7 +227,7 @@ typedef bslma::TestAllocatorMonitor Tam;
     {
         BSLS_ASSERT_SAFE(value);
 
-        int size = std::strlen(value) + 1;
+        size_t size = std::strlen(value) + 1;
         if (size > d_capacity) {
             char *newMemory = (char *) d_allocator_p->allocate(size);
             d_allocator_p->deallocate(d_description_p);

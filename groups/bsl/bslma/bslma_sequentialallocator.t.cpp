@@ -416,7 +416,9 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int SIZE = DATA[i];
                 void *p = sa.allocate(SIZE);
+                (void) p;   // suppress unused variable compiler warning
                 void *q = sp.allocate(SIZE);
+                (void) q;   // suppress unused variable compiler warning
                 LOOP_ASSERT(i, sequentialAllocatorTA.numBytesInUse()
                                           == sequentialPoolTA.numBytesInUse());
             }
@@ -454,12 +456,12 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
         bslma::SequentialAllocator sa(&ta);
 
-        int lastNumBytesInUse = ta.numBytesInUse();
+        bsls::Types::Int64 lastNumBytesInUse = ta.numBytesInUse();
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
             void *p = sa.allocate(SIZE);
-            const int numBytesInUse = ta.numBytesInUse();
+            const bsls::Types::Int64 numBytesInUse = ta.numBytesInUse();
             sa.deallocate(p);
             LOOP_ASSERT(i, numBytesInUse == ta.numBytesInUse());
             LOOP_ASSERT(i, lastNumBytesInUse <= ta.numBytesInUse());
@@ -536,8 +538,10 @@ int main(int argc, char *argv[])
                                           &sequentialAllocatorTA);
 
             void *p = sa.allocate(SIZE);
+            (void) p;   // suppress unused variable compiler warning
             LOOP_ASSERT(i, 0 == sequentialAllocatorTA.numBytesInUse());
             void *q = sa.allocate(SIZE);
+            (void) q;   // suppress unused variable compiler warning
             if (SIZE) {
                 LOOP_ASSERT(i, 0 < sequentialAllocatorTA.numBytesInUse());
             }

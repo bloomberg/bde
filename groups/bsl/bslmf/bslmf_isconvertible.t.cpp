@@ -82,7 +82,7 @@ void aSsErT(bool b, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 template <class TYPE>
-class ConvertibleTo {
+class ConvertibleToObj {
     // This class is convertible to 'TYPE'.
 
     // DATA
@@ -90,11 +90,37 @@ class ConvertibleTo {
 
   public:
     // CREATORS
-    ConvertibleTo();  // declared but not defined
+    ConvertibleToObj();  // declared but not defined
+
+    operator TYPE() const { return d_value; }
+};
+
+template <class TYPE>
+class ConvertibleToRef {
+    // This class is convertible to a reference to 'TYPE'.
+
+    // DATA
+    TYPE d_value;
+
+  public:
+    // CREATORS
+    ConvertibleToRef();  // declared but not defined
+
+    operator TYPE&() { return d_value; }
+};
+
+template <class TYPE>
+class ConvertibleToConstRef {
+    // This class is convertible to a const reference to 'TYPE'.
+
+    // DATA
+    TYPE d_value;
+
+  public:
+    // CREATORS
+    ConvertibleToConstRef();  // declared but not defined
 
     operator TYPE const&() const { return d_value; }
-    operator TYPE&() { return d_value; }
-    operator TYPE() const { return d_value; }
 };
 
 template <class TYPE>
@@ -356,10 +382,16 @@ int main(int argc, char *argv[])
         //:   type conversions via a user-defined class.
         //
         // Plan:
-        //   Instantiate 'bsl::is_convertible' with various fundamental type
-        //   combinations and verify that the 'value' member is initialized
+        //   Instantiate 'bsl::is_convertible' with combinations of a
+        //   user-defined class that is convertible to a fundamental type, 'T1', and
+        //   another fundamental type, 'T2', to which 'T1' is implicitly
+        //   convertible.  Verify that the 'value' member is initialized
         //   properly, and (manually) verify that no warning is generated for
-        //   conversions between floating-point types and integral types.
+        //   conversions between floating-point types and integral types.  For
+        //   each combination of 'T1', use three different
+        //   user-defined classes: one that provides conversion to an object of
+        //   type 'T1', one that provides conversion to a reference to 'T1' and
+        //   one that provides conversion to a const reference to 'T1'.
         //   (C-1)
         //
         // Testing:
@@ -371,18 +403,20 @@ int main(int argc, char *argv[])
                 "Testing GCC Warnings Suppression Via a User-Defined Class\n"
                 "=========================================================\n");
 
+        // Providing conversions from 'T' to 'T':
+
         // Conversion of basic types via two user-defined classes returns
         // 'false'.
 
         ASSERT(false == (bsl::is_convertible<ConvertibleFrom<int>,
-                                             ConvertibleTo<int> >::value));
+                                              ConvertibleToObj<int> >::value));
 
         // Test conversion of basic types via a user-defined class.
 
         ASSERT(true ==
-                   (bsl::is_convertible<ConvertibleTo<int>, float>::value));
+                   (bsl::is_convertible<ConvertibleToObj<int>, float>::value));
         ASSERT(true ==
-                   (bsl::is_convertible<ConvertibleTo<float>, int>::value));
+                   (bsl::is_convertible<ConvertibleToObj<float>, int>::value));
         ASSERT(true ==
                    (bsl::is_convertible<int, ConvertibleFrom<float> >::value));
         ASSERT(true ==
@@ -391,13 +425,13 @@ int main(int argc, char *argv[])
         // Test 'const' type conversions via a user-defined class.
 
         ASSERT(true ==
-                (bsl::is_convertible<ConvertibleTo<int>, const float>::value));
+             (bsl::is_convertible<ConvertibleToObj<int>, const float>::value));
         ASSERT(true ==
-                (bsl::is_convertible<ConvertibleTo<float>, const int>::value));
+             (bsl::is_convertible<ConvertibleToObj<float>, const int>::value));
         ASSERT(true ==
-                (bsl::is_convertible<ConvertibleTo<const float>, int>::value));
+             (bsl::is_convertible<ConvertibleToObj<const float>, int>::value));
         ASSERT(true ==
-                (bsl::is_convertible<ConvertibleTo<const int>, float>::value));
+             (bsl::is_convertible<ConvertibleToObj<const int>, float>::value));
         ASSERT(true ==
              (bsl::is_convertible<int, ConvertibleFrom<const float> >::value));
         ASSERT(true ==
@@ -410,13 +444,129 @@ int main(int argc, char *argv[])
         // Test 'volatile' type conversions via a user-defined class.
 
         ASSERT(true ==
-             (bsl::is_convertible<ConvertibleTo<int>, volatile float>::value));
+          (bsl::is_convertible<ConvertibleToObj<int>, volatile float>::value));
         ASSERT(true ==
-             (bsl::is_convertible<ConvertibleTo<float>, volatile int>::value));
+          (bsl::is_convertible<ConvertibleToObj<float>, volatile int>::value));
         ASSERT(true ==
-             (bsl::is_convertible<ConvertibleTo<volatile int>, float>::value));
+          (bsl::is_convertible<ConvertibleToObj<volatile int>, float>::value));
         ASSERT(true ==
-             (bsl::is_convertible<ConvertibleTo<volatile float>, int>::value));
+          (bsl::is_convertible<ConvertibleToObj<volatile float>, int>::value));
+        ASSERT(true ==
+          (bsl::is_convertible<int, ConvertibleFrom<volatile float> >::value));
+        ASSERT(true ==
+          (bsl::is_convertible<float, ConvertibleFrom<volatile int> >::value));
+        ASSERT(true ==
+          (bsl::is_convertible<volatile int, ConvertibleFrom<float> >::value));
+        ASSERT(true ==
+          (bsl::is_convertible<volatile float, ConvertibleFrom<int> >::value));
+
+        // Providing conversions from 'T' to 'T&':
+
+        // // Conversion of basic types via two user-defined classes returns
+        // 'false'.
+
+        ASSERT(false == (bsl::is_convertible<ConvertibleFrom<int>,
+                                              ConvertibleToRef<int> >::value));
+
+        // Test conversion of basic types via a user-defined class.
+
+        ASSERT(true ==
+                   (bsl::is_convertible<ConvertibleToRef<int>, float>::value));
+        ASSERT(true ==
+                   (bsl::is_convertible<ConvertibleToRef<float>, int>::value));
+        ASSERT(true ==
+                   (bsl::is_convertible<int, ConvertibleFrom<float> >::value));
+        ASSERT(true ==
+                   (bsl::is_convertible<float, ConvertibleFrom<int> >::value));
+
+        // Test 'const' type conversions via a user-defined class.
+
+        ASSERT(true ==
+             (bsl::is_convertible<ConvertibleToRef<int>, const float>::value));
+        ASSERT(true ==
+             (bsl::is_convertible<ConvertibleToRef<float>, const int>::value));
+        ASSERT(true ==
+             (bsl::is_convertible<ConvertibleToRef<const float>, int>::value));
+        ASSERT(true ==
+             (bsl::is_convertible<ConvertibleToRef<const int>, float>::value));
+        ASSERT(true ==
+             (bsl::is_convertible<int, ConvertibleFrom<const float> >::value));
+        ASSERT(true ==
+             (bsl::is_convertible<float, ConvertibleFrom<const int> >::value));
+        ASSERT(true ==
+             (bsl::is_convertible<const float, ConvertibleFrom<int> >::value));
+        ASSERT(true ==
+             (bsl::is_convertible<const int, ConvertibleFrom<float> >::value));
+
+        // Test 'volatile' type conversions via a user-defined class.
+
+        ASSERT(true ==
+          (bsl::is_convertible<ConvertibleToRef<int>, volatile float>::value));
+        ASSERT(true ==
+          (bsl::is_convertible<ConvertibleToRef<float>, volatile int>::value));
+        ASSERT(true ==
+          (bsl::is_convertible<ConvertibleToRef<volatile int>, float>::value));
+        ASSERT(true ==
+          (bsl::is_convertible<ConvertibleToRef<volatile float>, int>::value));
+        ASSERT(true ==
+          (bsl::is_convertible<int, ConvertibleFrom<volatile float> >::value));
+        ASSERT(true ==
+          (bsl::is_convertible<float, ConvertibleFrom<volatile int> >::value));
+        ASSERT(true ==
+          (bsl::is_convertible<volatile int, ConvertibleFrom<float> >::value));
+        ASSERT(true ==
+          (bsl::is_convertible<volatile float, ConvertibleFrom<int> >::value));
+
+        // Providing conversions from 'T' to 'const T&':
+
+        // Conversion of basic types via two user-defined classes returns
+        // 'false'.
+
+        ASSERT(false == (bsl::is_convertible<ConvertibleFrom<int>,
+                                         ConvertibleToConstRef<int> >::value));
+
+        // Test conversion of basic types via a user-defined class.
+
+        ASSERT(true ==
+              (bsl::is_convertible<ConvertibleToConstRef<int>, float>::value));
+        ASSERT(true ==
+              (bsl::is_convertible<ConvertibleToConstRef<float>, int>::value));
+        ASSERT(true ==
+                   (bsl::is_convertible<int, ConvertibleFrom<float> >::value));
+        ASSERT(true ==
+                   (bsl::is_convertible<float, ConvertibleFrom<int> >::value));
+
+        // Test 'const' type conversions via a user-defined class.
+
+        ASSERT(true == (bsl::is_convertible<ConvertibleToConstRef<int>,
+                                                         const float>::value));
+        ASSERT(true == (bsl::is_convertible<ConvertibleToConstRef<float>,
+                                                           const int>::value));
+        ASSERT(true == (bsl::is_convertible<ConvertibleToConstRef<const float>,
+                                                                 int>::value));
+        ASSERT(true == (bsl::is_convertible<ConvertibleToConstRef<const int>,
+                                                               float>::value));
+        ASSERT(true ==
+             (bsl::is_convertible<int, ConvertibleFrom<const float> >::value));
+        ASSERT(true ==
+             (bsl::is_convertible<float, ConvertibleFrom<const int> >::value));
+        ASSERT(true ==
+             (bsl::is_convertible<const float, ConvertibleFrom<int> >::value));
+        ASSERT(true ==
+             (bsl::is_convertible<const int, ConvertibleFrom<float> >::value));
+
+        // Test 'volatile' type conversions via a user-defined class.
+
+        ASSERT(true == (bsl::is_convertible<ConvertibleToConstRef<int>,
+                                                      volatile float>::value));
+        ASSERT(true == (bsl::is_convertible<ConvertibleToConstRef<float>,
+                                                        volatile int>::value));
+        ASSERT(true ==
+                      (bsl::is_convertible<ConvertibleToConstRef<volatile int>,
+                                                               float>::value));
+        ASSERT(true ==
+                    (bsl::is_convertible<ConvertibleToConstRef<volatile float>,
+                                                                 int>::value));
         ASSERT(true ==
           (bsl::is_convertible<int, ConvertibleFrom<volatile float> >::value));
         ASSERT(true ==

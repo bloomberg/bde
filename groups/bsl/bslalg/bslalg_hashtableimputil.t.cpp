@@ -581,7 +581,8 @@ bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
         return false;                                                 // RETURN
     }
 
-    if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
+    if (static_cast<double>(bucketArraySize()) * d_maxLoadFactor <
+                                                               d_numNodes + 1) {
         grow();
     }
 
