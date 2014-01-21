@@ -97,7 +97,7 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //      ~my_ShortArray();
-//      void append(short value);
+//      void append(int value);
 //      const short& operator[](int index) const { return d_array_p[index]; }
 //      int length() const { return d_length; }
 //  };
@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  void my_ShortArray::append(short value)
+//  void my_ShortArray::append(int value)
 //  {
 //      if (d_length >= d_size) {
 //          increaseSize();
@@ -252,7 +252,7 @@ class BufferAllocator : public Allocator {
     AlignmentStrategy  d_strategy;      // strategy to use for alignment
     int                d_cursor;        // position of the remaining free space
     char              *d_buffer_p;      // buffer for allocating memory
-    size_type          d_bufferSize;    // size of the buffer
+    int                d_bufferSize;    // size of the buffer
     AllocCallback      d_allocCallback; // function handling buffer overflow
 
     // NOT IMPLEMENTED
@@ -347,7 +347,7 @@ BufferAllocator::BufferAllocator(char          *buffer,
 : d_strategy(MAXIMUM_ALIGNMENT)
 , d_cursor(0)
 , d_buffer_p(buffer)
-, d_bufferSize(bufSize)
+, d_bufferSize(static_cast<int>(bufSize))
 , d_allocCallback(allocCallback)
 {
 }
@@ -360,7 +360,7 @@ BufferAllocator::BufferAllocator(char              *buffer,
 : d_strategy(strategy)
 , d_cursor(0)
 , d_buffer_p(buffer)
-, d_bufferSize(bufSize)
+, d_bufferSize(static_cast<int>(bufSize))
 , d_allocCallback(allocCallback)
 {
 }
