@@ -276,14 +276,6 @@ bdesu_FileUtilUtf8::open(const char                *pathName,
 {
     BSLS_ASSERT(pathName);
 
-    if (   e_FILE_OPEN     == openPolicy
-        && e_INIT_TRUNCATE == truncatePolicy
-        && (   e_IO_READ_ONLY   == ioPolicy
-            || e_IO_APPEND_ONLY == ioPolicy
-            || e_IO_READ_APPEND == ioPolicy)) {
-        return INVALID_FD;                                            // RETURN
-    }
-
     bool isTruncateMode = (truncatePolicy == e_INIT_TRUNCATE);
 
     DWORD accessMode  = 0;
@@ -907,14 +899,6 @@ bdesu_FileUtilUtf8::open(const char               *path,
                          enum FileIOPolicies       ioPolicy,
                          enum FileTruncatePolicies truncatePolicy)
 {
-    if (   e_FILE_OPEN     == openPolicy
-        && e_INIT_TRUNCATE == truncatePolicy
-        && (   e_IO_READ_ONLY   == ioPolicy
-            || e_IO_APPEND_ONLY == ioPolicy
-            || e_IO_READ_APPEND == ioPolicy)) {
-        return INVALID_FD;                                            // RETURN
-    }
-
     int oflag = 0;
     int extendedFlags = 0;
     bool useExtendedOpen = false;

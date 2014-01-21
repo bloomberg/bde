@@ -71,6 +71,21 @@ BDES_IDENT("$Id: $")
 //:   encodings, providing that the strings supplied to the methods are in the
 //:   same encoding as the underlying file system.
 //
+///Platform-Specific File Open Mode Caveats
+///----------------------------------------
+// The 'bdesu_FileUtilUtf8::open' method adds no guarantees for the validity of
+// combinations file open modes to those provided (if any) by the underlying
+// platform's methods for opening files.  In particular, on Windows platforms,
+// 'open' will fail with a combination of file open modes that requests
+// truncation of an existing file without providing permission to either create
+// a new file or overwrite the existing file.  The affected file open modes are
+// listed below and should be avoided in applications that are intended to
+// behave identically on both Windows and Posix platforms:
+//
+//: o e_FILE_OPEN, e_IO_READ_ONLY  , e_INIT_TRUNCATE
+//: o e_FILE_OPEN, e_IO_APPEND_ONLY, e_INIT_TRUNCATE
+//: o e_FILE_OPEN, e_IO_READ_APPEND, e_INIT_TRUNCATE
+//
 ///Usage
 ///-----
 ///Example 1: General Usage
