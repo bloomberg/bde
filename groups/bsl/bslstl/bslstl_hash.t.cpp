@@ -22,6 +22,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -669,7 +670,7 @@ int main(int argc, char *argv[])
         if (verbose) printf(
                  "\nCreate a test allocator and install it as the default.\n");
 
-        typedef int TYPE;
+        typedef signed char TYPE;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -680,20 +681,52 @@ int main(int argc, char *argv[])
             size_t     d_hashCode;
         } DATA[] = {
             // LINE    VALUE   HASHCODE
-            {  L_,     0,      bslalg::HashUtil::computeHash(TYPE( 0)) },
-            {  L_,     13,     bslalg::HashUtil::computeHash(TYPE(13)) },
-            {  L_,     42,     bslalg::HashUtil::computeHash(TYPE(42)) },
+            {  L_,     0,       0 },
+            {  L_,     5,       5 },
+            {  L_,     13,     13 },
+            {  L_,     42,     42 },
+            {  L_,     127,   127 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const hash<int> callHash = hash<int>();
-
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int     LINE      = DATA[i].d_line;
-            const int     VALUE     = DATA[i].d_value;
-            const size_t  HASHCODE  = DATA[i].d_hashCode;
+            const int         LINE      = DATA[i].d_line;
+            const signed char VALUE     = DATA[i].d_value;
+            const size_t      HASHCODE  = DATA[i].d_hashCode;
 
-            LOOP_ASSERT(LINE, callHash(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<unsigned char>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed char>()(VALUE) == HASHCODE);
+
+            LOOP_ASSERT(LINE, bsl::hash<wchar_t>()(VALUE) == HASHCODE);
+
+            LOOP_ASSERT(LINE, bsl::hash<unsigned short>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed short>()(VALUE) == HASHCODE);
+
+            LOOP_ASSERT(LINE, bsl::hash<unsigned int>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed int>()(VALUE) == HASHCODE);
+
+            LOOP_ASSERT(LINE, bsl::hash<unsigned long>()(VALUE) == HASHCODE);
+            LOOP_ASSERT(LINE, bsl::hash<signed long>()(VALUE) == HASHCODE);
+
+            if (sizeof (unsigned long long) <= sizeof (std::size_t))
+            {
+                LOOP_ASSERT(LINE, bsl::hash<unsigned long long>()(VALUE)
+                        == (unsigned long long) HASHCODE);
+                LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
+                        == (signed long long) HASHCODE);
+            }
+            else
+            {
+                LOOP_ASSERT(LINE, bsl::hash<unsigned long long>()(VALUE)
+                        == ((std::size_t)
+                                    ((unsigned long long) HASHCODE) ^
+                                   (((unsigned long long) HASHCODE) >> 32)));
+                LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
+                        == ((std::size_t)
+                                    ((signed long long) HASHCODE) ^
+                                   (((signed long long) HASHCODE) >> 32)));
+            }
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
@@ -837,16 +870,16 @@ int main(int argc, char *argv[])
 
         {
             hash<char> func;
-            ASSERT(bslalg::HashUtil::computeHash('A') == func('A'));
-            ASSERT(bslalg::HashUtil::computeHash('a') == func('a'));
-            ASSERT(bslalg::HashUtil::computeHash('Z') == func('Z'));
+            ASSERT('A' == func('A'));
+            ASSERT('a' == func('a'));
+            ASSERT('Z' == func('Z'));
         }
 
         {
             hash<const int> func;
-            ASSERT(bslalg::HashUtil::computeHash( 0) == func( 0));
-            ASSERT(bslalg::HashUtil::computeHash( 1) == func( 1));
-            ASSERT(bslalg::HashUtil::computeHash(42) == func(42));
+            ASSERT( 0 == func( 0));
+            ASSERT( 1 == func( 1));
+            ASSERT(42 == func(42));
         }
 
       } break;

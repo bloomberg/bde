@@ -126,12 +126,13 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
     // then throw the unexpected 'logic_error' on the first 'insert'.  We make
     // it a pre-condition of the function, as some callers have contextual
     // knowledge that the argument must be non-zero, and so avoid a redundant
-    // 'min' call.
+    // 'min' call.  The 'static_cast<double>' addresses warnings on 64-bit
+    // systems.  The truncation that occurs in such cases does not impact the
+    // final result, so we do not need any deeper analysis in such cases.
 
     size_t result = native_std::max(
-                          requestedBuckets,
-                          Impl::throwIfOverMax(static_cast<double>(minElements)
-                                               / maxLoadFactor));
+       requestedBuckets,
+       Impl::throwIfOverMax(static_cast<double>(minElements) / maxLoadFactor));
 
     result = nextPrime(result);  // throws if too large
 
