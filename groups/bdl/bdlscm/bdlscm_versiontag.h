@@ -48,16 +48,8 @@ BSLS_IDENT("$Id: $")
 #define BDL_VERSION_MAJOR     2
     // Provide the major version number of the current (latest) BDL release.
 
-#define BDL_VERSION_MINOR     16
+#define BDL_VERSION_MINOR     20
     // Provide the minor version number of the current (latest) BDL release.
-
-#ifndef BDL_VERSION_RELEASETYPE
-#define BDL_VERSION_RELEASETYPE        "_GIT_MASTER"
-#define BDL_VERSION_RELEASETYPE_SYMBOL  _GIT_MASTER
-#endif
-    // Provide the "type" of the release, indicating whether the libs were
-    // built for development, a particular beta, or for release.  A release
-    // build is indicated by _PROD and "_PROD".
 
 #define BDL_MAKE_VERSION(major, minor) ((major) * 10000 \
                                       + (minor) *   100)

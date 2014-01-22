@@ -48,6 +48,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_buildtarget.h>      // need to ensure consistent build options
 #endif
 
+#ifndef INCLUDED_BSLS_LINKCOERCION
+#include <bsls_linkcoercion.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -57,11 +61,11 @@ namespace BloombergLP {
 namespace bdlscm {
 
 struct Version {
-    static const char *d_ident;
-    static const char *d_what;
+    static const char *s_ident;
+    static const char *s_what;
 
-#define BDLSCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
-#define BDLSCM_CONCAT(a,b,c,d,e,f)  BDLSCM_CONCAT2(a,b,c,d,e,f)
+#define BDLSCM_CONCAT2(a,b,c,d,e) a ## b ## c ## d ## e
+#define BDLSCM_CONCAT(a,b,c,d,e)  BDLSCM_CONCAT2(a,b,c,d,e)
 
 // 'BDLSCM_D_VERSION' is a symbol whose name warns users of version mismatch
 // linking errors.  Note that the exact string "compiled_this_object" must be
@@ -69,17 +73,17 @@ struct Version {
 // warn users of mismatches.
 #define BDLSCM_D_VERSION BDLSCM_CONCAT(                \
                        d_version_BDL_,                 \
-                       BDL_VERSION_MAJOR, _,           \
+                       BDL_VERSION_MAJOR,              \
+                       _,                              \
                        BDL_VERSION_MINOR,              \
-                       BDL_VERSION_RELEASETYPE_SYMBOL, \
                        _compiled_this_object)
 
-    static const char *BDLSCM_D_VERSION;
+    static const char *BDLSCM_S_VERSION;
 
-    static const char *d_dependencies;
-    static const char *d_buildInfo;
-    static const char *d_timestamp;
-    static const char *d_sourceControlInfo;
+    static const char *s_dependencies;
+    static const char *s_buildInfo;
+    static const char *s_timestamp;
+    static const char *s_sourceControlInfo;
 
     static const char *version();
 };
@@ -87,22 +91,14 @@ struct Version {
 inline
 const char *Version::version()
 {
-    return BDLSCM_D_VERSION;
+    return BDLSCM_S_VERSION;
 }
 
 }  // close package namespace
 
-// Force linker to pull in this component's object file.
-
-#if defined(BSLS_PLATFORM_CMP_IBM)
-static const char **bdlscm_version_assertion =
-                                            &bdlscm::Version::BDLSCM_D_VERSION;
-#else
-namespace {
-    extern const char **const bdlscm_version_assertion =
-                                            &bdlscm::Version::BDLSCM_D_VERSION;
-}
-#endif
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
+                                          bdlscm_version_assertion,
+                                          bdlscm::Version::BDLSCM_S_VERSION);
 
 }  // close enterprise namespace
 
