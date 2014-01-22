@@ -2150,7 +2150,7 @@ class TestEqualityComparator {
     // of this class can be identified by an id passed on construction.
 
     // DATA
-    int            d_id;            // identifier for the functor
+    size_t         d_id;            // identifier for the functor
     mutable size_t d_count;         // number of times 'operator()' is called
     size_t         d_throwInterval; // throw after this many 'operator()' calls
 
@@ -2160,13 +2160,13 @@ class TestEqualityComparator {
     //                                                                 default;
         // Create a copy of the specified 'original'.
 
-    explicit TestEqualityComparator(int id = 0);
+    explicit TestEqualityComparator(size_t id = 0);
         // Create a 'TestEqualityComparator'.  Optionally, specify 'id' that
         // can be used to identify the object.
 
     // MANIPULATORS
-    void setId(int value);
-        // Set the 'id' of this object.
+    void setId(size_t value);
+        // Set the 'id' of this object to the specified 'value'.
 
     void setThrowInterval(size_t value);
         // Set the number of times 'operator()' may be called after throwing
@@ -2181,7 +2181,7 @@ class TestEqualityComparator {
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
 
-    int id() const;
+    size_t id() const;
         // Return the 'id' of this object.
 
     size_t count() const;
@@ -2229,7 +2229,7 @@ class TestHashFunctor {
     // of this class can be identified by an id passed on construction.
 
     // DATA
-    int            d_id;            // identifier for the functor
+    size_t         d_id;            // identifier for the functor
     mutable size_t d_count;         // number of times 'operator()' is called
     size_t         d_throwInterval; // throw after this many 'operator()' calls
 
@@ -2238,12 +2238,12 @@ class TestHashFunctor {
     //! TestHashFunctor(const TestHashFunctor& original) = default;
         // Create a copy of the specified 'original'.
 
-    explicit TestHashFunctor(int id = 0);
+    explicit TestHashFunctor(size_t id = 0);
         // Create a 'TestHashFunctor'.  Optionally, specify 'id' that can be
         // used to identify the object.
 
     // MANIPULATORS
-    void setId(int value);
+    void setId(size_t value);
         // Set the 'id' of this object to the specified value.  Note that the
         // 'id' contributes to the value produced by the 'operator()' method,
         // so the 'id' of a 'TestHashFunctor' should not be changed for
@@ -2262,7 +2262,7 @@ class TestHashFunctor {
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
 
-    int id() const;
+    size_t id() const;
         // Return the 'id' of this object.
 
     size_t count() const;
@@ -2867,12 +2867,12 @@ extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc);
 //       test support functions dealing with hash and comparator functors
 
 template <class HASHER>
-void setHasherState(HASHER *hasher, int id);
+void setHasherState(HASHER *hasher, size_t id);
     // This is a null function, that provides a common signature that may be
     // overloaded for specific hasher types that can support the idea of
     // setting a state value.
 
-void setHasherState(TestHashFunctor<int> *hasher, int id);
+void setHasherState(TestHashFunctor<int> *hasher, size_t id);
 
 template <class HASHER>
 bool isEqualHasher(const HASHER&, const HASHER&);
@@ -2895,13 +2895,13 @@ bool isEqualHasher(const TestHashFunctor<int>& lhs,
 
 
 template <class COMPARATOR>
-void setComparatorState(COMPARATOR *comparator, int id);
+void setComparatorState(COMPARATOR *comparator, size_t id);
     // This is a null function, that provides a common signature that may be
     // overloaded for specific comparator types that can support the idea of
     // setting a state value.
 
 template <class KEY>
-void setComparatorState(TestEqualityComparator<KEY> *comparator, int id);
+void setComparatorState(TestEqualityComparator<KEY> *comparator, size_t id);
 
 
 template <class COMPARATOR>
@@ -3170,7 +3170,7 @@ size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
 // CREATORS
 template <class TYPE>
 inline
-TestEqualityComparator<TYPE>::TestEqualityComparator(int id)
+TestEqualityComparator<TYPE>::TestEqualityComparator(size_t id)
 : d_id(id)
 , d_count(0)
 , d_throwInterval(0)
@@ -3180,7 +3180,7 @@ TestEqualityComparator<TYPE>::TestEqualityComparator(int id)
 // MANIPULATORS
 template <class TYPE>
 inline
-void TestEqualityComparator<TYPE>::setId(int value)
+void TestEqualityComparator<TYPE>::setId(size_t value)
 {
     d_id = value;
 }
@@ -3210,7 +3210,7 @@ bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
 
 template <class TYPE>
 inline
-int TestEqualityComparator<TYPE>::id() const
+size_t TestEqualityComparator<TYPE>::id() const
 {
     return d_id;
 }
@@ -3252,7 +3252,7 @@ bool operator!=(const TestEqualityComparator<TYPE>& lhs,
 // CREATORS
 template <class TYPE>
 inline
-TestHashFunctor<TYPE>::TestHashFunctor(int id)
+TestHashFunctor<TYPE>::TestHashFunctor(size_t id)
 : d_id(id)
 , d_count(0)
 , d_throwInterval()
@@ -3262,7 +3262,7 @@ TestHashFunctor<TYPE>::TestHashFunctor(int id)
 // MANIPULATORS
 template <class TYPE>
 inline
-void TestHashFunctor<TYPE>::setId(int value)
+void TestHashFunctor<TYPE>::setId(size_t value)
 {
     d_id = value;
 }
@@ -3290,7 +3290,7 @@ native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
 
 template <class TYPE>
 inline
-int TestHashFunctor<TYPE>::id() const
+size_t TestHashFunctor<TYPE>::id() const
 {
     return d_id;
 }
@@ -4019,14 +4019,14 @@ extractTestAllocator(bsltf::StdStatefulAllocator<TYPE, A, B, C, D>& alloc)
 
 template <class HASHER>
 inline
-void setHasherState(HASHER *hasher, int id)
+void setHasherState(HASHER *hasher, size_t id)
 {
     (void) hasher;
     (void) id;
 }
 
 inline
-void setHasherState(TestHashFunctor<int> *hasher, int id)
+void setHasherState(TestHashFunctor<int> *hasher, size_t id)
 {
     hasher->setId(id);
 }
@@ -4056,7 +4056,7 @@ bool isEqualHasher(const TestHashFunctor<int>& lhs,
 
 template <class COMPARATOR>
 inline
-void setComparatorState(COMPARATOR *comparator, int id)
+void setComparatorState(COMPARATOR *comparator, size_t id)
 {
     (void) comparator;
     (void) id;
@@ -4064,7 +4064,7 @@ void setComparatorState(COMPARATOR *comparator, int id)
 
 template <class KEY>
 inline
-void setComparatorState(TestEqualityComparator<KEY> *comparator, int id)
+void setComparatorState(TestEqualityComparator<KEY> *comparator, size_t id)
 {
     comparator->setId(id);
 }
@@ -4117,7 +4117,8 @@ bool expectPoolToAllocate(size_t n)
     return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
 }
 
-size_t predictNumBuckets(size_t length, float maxLoadFactor)
+template <class SIZE_TYPE>
+SIZE_TYPE predictNumBuckets(SIZE_TYPE length, float maxLoadFactor)
     // Return the minimum number of buckets necessary to support the specified
     // 'length' array of elements in a 'HashTable' having the specified
     // 'maxLoadFactor' without rehashing.  Note that typically the result will
@@ -4131,13 +4132,13 @@ size_t predictNumBuckets(size_t length, float maxLoadFactor)
         return 0;                                                     // RETURN
     }
 
-    size_t maxSizeT = native_std::numeric_limits<size_t>::max();
-    if(1.0 / static_cast<double>(maxSizeT) > maxLoadFactor) {
-        return maxSizeT;                                              // RETURN
+    if(1.0 / static_cast<double>(native_std::numeric_limits<SIZE_TYPE>::max())
+                                                             > maxLoadFactor) {
+        return native_std::numeric_limits<SIZE_TYPE>::max();          // RETURN
     }
 
-    size_t result =  static_cast<size_t>(ceil(static_cast<double>(length) /
-                                                               maxLoadFactor));
+    SIZE_TYPE result = static_cast<SIZE_TYPE>(ceil(static_cast<double>(length)
+                     / maxLoadFactor));
     return result ? result : 1;
 }
 
@@ -5528,7 +5529,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
     bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
     const TestValues VALUES(&tda);  // Contains 52 distinct increasing values.
-    const size_t MAX_LENGTH = 19;   // This should be sufficient to bootstrap.
+    const SizeType MAX_LENGTH = 19; // This should be sufficient to bootstrap.
 
     {
         // Reassert a global invariant, that should not be necessary to state,
@@ -5586,7 +5587,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
     if (verbose) printf("\nTesting with various allocator configurations.\n");
 
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
-    for (size_t ti = 0; ti < MAX_LENGTH; ++ti) {
+    for (SizeType ti = 0; ti < MAX_LENGTH; ++ti) {
         const float    MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
         const size_t LENGTH = ti;
 
@@ -5617,9 +5618,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
                 printf("\n\tTesting bootstrap constructor.\n");
             }
 
-            const typename ObjMaker::SizeType NUM_BUCKETS =
-                            static_cast<typename ObjMaker::SizeType>(
-                                          predictNumBuckets(3*LENGTH, MAX_LF));
+            const SizeType NUM_BUCKETS = predictNumBuckets(3*LENGTH, MAX_LF);
 
             Obj       *objPtr;
             ALLOCATOR  expAlloc = ObjMaker::makeObject(&objPtr,
@@ -6071,6 +6070,8 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
     //   verifyListContents(Link *, const COMPARATOR&, const VALUES&, size_t);
     // ------------------------------------------------------------------------
 
+    typedef typename Obj::SizeType         SizeType;
+
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
@@ -6128,21 +6129,22 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
                 T_ P(MAX_LF);
             }
 
-            size_t oldLen = 0;
+            SizeType oldLen = 0;
             for (size_t ti = 0; ti != NUM_DATA ; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
                 const char *const SPEC   = DATA[ti].d_spec;
                 const char *const EXP_S  = DATA[ti].d_results;
 
-                const size_t      LENGTH = strlen(EXP_S);
+                const SizeType   LENGTH = static_cast<SizeType>(strlen(EXP_S));
 
                 bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
                 const TestValues  EXP(EXP_S, &tda);
 
-                const size_t curLen = strlen(SPEC);
+                const SizeType curLen = static_cast<SizeType>(strlen(SPEC));
 
                 if (curLen != oldLen || !oldLen) {
-                    if (verbose) printf("\tof length " ZU ":\n", curLen);
+                    if (verbose) printf("\tof length " ZU ":\n",
+                                        static_cast<size_t>(curLen));
                     ASSERTV(LINE, oldLen <= curLen);  // non-decreasing
 
                     // Let us check for a fail code reported from 'ggg' for
@@ -6154,7 +6156,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
                         // should be too few to support the required number of
                         // elements.
 
-                        size_t badLen = oldLen / 2;
+                        SizeType badLen = oldLen / 2;
                         if (0 < badLen) {
                             --badLen;
                         }
@@ -6171,9 +6173,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
                     oldLen = curLen;
                 }
 
-                const SizeType NUM_BUCKETS =
-                            static_cast<SizeType>(
-                                            predictNumBuckets(LENGTH, MAX_LF));
+                const SizeType NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
                 Obj mX(HASH, EQUAL, NUM_BUCKETS, MAX_LF, objAlloc);
                 const Obj& X = gg(&mX, SPEC);   // original spec
@@ -6238,12 +6238,13 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = strlen(SPEC);
+            const SizeType    LENGTH = static_cast<SizeType>(strlen(SPEC));
 
             Obj mX(HASH, EQUAL, static_cast<SizeType>(LENGTH), 1.5f, objAlloc);
 
             if (LENGTH != oldLen) {
-                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
+                if (verbose) printf("\tof length " ZU ":\n",
+                                    static_cast<size_t>(LENGTH));
                 if (99 != oldLen) {  // i.e., not first pass
                     ASSERTV(LINE, oldLen,  LENGTH,
                                   oldLen < LENGTH);  // non-decreasing
@@ -6381,7 +6382,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                 const char *const SPEC   = DATA[ti].d_spec;
                 const char *const EXP_S  = DATA[ti].d_results;
 
-                const size_t      LENGTH = strlen(EXP_S);
+                const SizeType   LENGTH = static_cast<SizeType>(strlen(EXP_S));
 
                 bslma::TestAllocator tda("test values", veryVeryVeryVerbose);
                 const TestValues  EXP(EXP_S, &tda);
@@ -6393,9 +6394,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                     oldLen = curLen;
                 }
 
-                const typename ObjMaker::SizeType NUM_BUCKETS =
-                                static_cast<typename ObjMaker::SizeType>(
-                                            predictNumBuckets(LENGTH, MAX_LF));
+                const SizeType NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
                 HASHER_TYPE     hash = HASH;
                 COMPARATOR_TYPE comp = EQUAL;
@@ -6537,8 +6536,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                     // infinite.
 
                     SizeType threshold = X.rehashThreshold();
-                    double thresholdLoadFactor =
-                                            static_cast<double>(threshold)
+                    double thresholdLoadFactor = static_cast<double>(threshold)
                                             / static_cast<double>(bucketCount);
                     ASSERTV(threshold, bucketCount,
                             thresholdLoadFactor,   X.maxLoadFactor(),
@@ -6556,7 +6554,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase4()
                                native_std::numeric_limits<float>::infinity()) {
                         ++threshold;
                         double exceedLoadFactor =
-                                            static_cast<double>(threshold)
+                                              static_cast<double>(threshold)
                                             / static_cast<double>(bucketCount);
                         ASSERTV(threshold, bucketCount,
                                 X.maxLoadFactor(),  exceedLoadFactor,
@@ -7051,10 +7049,10 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase7()
                        "IDMLNEFHOPKGBCJA",
                       "OIQGDNPMLKBACHFEJ"
         };
-        const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
+        const size_t NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
         for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
-        for (int ti = 0; ti < NUM_SPECS; ++ti) {
+        for (size_t ti = 0; ti < NUM_SPECS; ++ti) {
             const float       MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[lfi];
             const char *const SPEC        = SPECS[ti];
 

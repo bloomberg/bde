@@ -4018,10 +4018,20 @@ typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketIndexForKey(
                                                       const KeyType& key) const
 {
+    typedef typename 
+       HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType SizeType;
+
+    // The following cast will not discard any useful bits, unless 'SizeType'
+    // is larger than 'size_t', as the bucket computation takes a mod on the
+    // supplied number of buckets.  We use the following 'BSLMF_ASSERT' to
+    // assert that assumption at compile time.
+
+    BSLMF_ASSERT(sizeof(SizeType) <= sizeof(size_t));
+
     size_t hashCode = this->d_parameters.hashCodeForKey(key);
-    return bslalg::HashTableImpUtil::computeBucketIndex(
-                                                   hashCode,
-                                                   d_anchor.bucketArraySize());
+    return static_cast<SizeType>(bslalg::HashTableImpUtil::computeBucketIndex(
+                                                  hashCode,
+                                                  d_anchor.bucketArraySize()));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
