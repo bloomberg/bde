@@ -1119,10 +1119,13 @@ std::size_t hash<long long>::operator()(long long x) const
     BSLMF_ASSERT(sizeof (long long) > sizeof (std::size_t));
 
     // The mangling algorithm won't work unless these conditions hold:
+
     BSLMF_ASSERT(sizeof (std::size_t) * 8 == 32);
     BSLMF_ASSERT(sizeof (long long) * 8 == 64);
+
     // Return a simple mangling of the 64-bits of 'x' to generate a 32-bit hash
     // value (xor the high and low 32 bits together).
+
     return static_cast<std::size_t>((x ^ (x >> 32)) & 0xFFFFFFFF);
 }
 
@@ -1132,10 +1135,13 @@ std::size_t hash<unsigned long long>::operator()(unsigned long long x) const
     BSLMF_ASSERT(sizeof (long long) > sizeof (std::size_t));
 
     // The mangling algorithm won't work unless these conditions hold:
+
     BSLMF_ASSERT(sizeof (std::size_t) * 8 == 32);
     BSLMF_ASSERT(sizeof (unsigned long long) * 8 == 64);
+
     // Return a simple mangling of the 64-bits of 'x' to generate a 32-bit hash
     // value (xor the high and low 32 bits together).
+
     return static_cast<std::size_t>((x ^ (x >> 32)) & 0xFFFFFFFF);
 }
 #endif
