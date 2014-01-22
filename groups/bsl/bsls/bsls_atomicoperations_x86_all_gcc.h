@@ -78,8 +78,6 @@ struct AtomicOperations_X86_ALL_GCC
 
     static int getInt(const AtomicTypes::Int *atomicInt);
 
-    static int getIntAcquire(const AtomicTypes::Int *atomicInt);
-
     static void setInt(AtomicTypes::Int *atomicInt, int value);
 
     static void setIntRelease(AtomicTypes::Int *atomicInt, int value);
@@ -120,33 +118,6 @@ struct AtomicOperations_X86_ALL_GCC
 inline
 int AtomicOperations_X86_ALL_GCC::
     getInt(const AtomicTypes::Int *atomicInt)
-{
-    int result;
-
-#ifdef __SSE2__
-    asm volatile (
-        "       mfence                  \n\t"
-        "       movl %[obj], %[res]     \n\t"
-
-                : [res] "=r" (result)
-                : [obj] "m"  (*atomicInt)
-                : "memory");
-#else
-    asm volatile (
-        "       lock addl $0, 0(%%esp)  \n\t"
-        "       movl %[obj], %[res]     \n\t"
-
-                : [res] "=r" (result)
-                : [obj] "m"  (*atomicInt)
-                : "memory", "cc");
-#endif
-
-    return result;
-}
-
-inline
-int AtomicOperations_X86_ALL_GCC::
-    getIntAcquire(const AtomicTypes::Int *atomicInt)
 {
     int result;
 
