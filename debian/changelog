@@ -1,3 +1,18 @@
+bsl-internal (2.20.0.0.bsl.freeze.2) unstable; urgency=low
+
+  * Bump changelog
+  * ff16483 [APPROVAL] pending/master/debian-rules-cp-default-internal-opts-drqs-48667615 to master
+  * 45ac40d [APPROVAL] OSS pending/master/remove-windows.h-include to master
+  * 8b4220d [APPROVAL] pending/master/remove-windows.h-include to master
+  * 6223a0e [APPROVAL] OSS review/move-gcc-pragmas-drqs-48661033 to master
+  * d4a818b [APPROVAL] review/move-gcc-pragmas-drqs-48661033 to master
+  * 7e18e0c [APPROVAL] OSS review/fix-bdls_testutil-tests-windows-drqs-48410889 to master
+  * 18500d4 [APPROVAL] review/fix-bdls_testutil-tests-windows-drqs-48410889 to master
+  * a5e7b96 [APPROVAL] OSS issue-109-update-contributing.md to master
+  * 8f86423 [APPROVAL] issue-109-update-contributing.md to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Wed, 22 Jan 2014 16:35:57 -0500
+
 bsl-internal (2.20.0.0.bsl.freeze) unstable; urgency=low
 
   * Bump changelog
