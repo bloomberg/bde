@@ -1,4 +1,4 @@
-bsl-internal (2.20.0.0.bsl-freeze) unstable; urgency=low
+bsl-internal (2.20.0.0.bsl.freeze) unstable; urgency=low
 
   * Bump changelog
   * 2b7f1d6 [APPROVAL] OSS fix-test-build to master
