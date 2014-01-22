@@ -117,9 +117,19 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-#ifndef INCLUDED_WINDOWS
-#include <windows.h>
-#define INCLUDED_WINDOWS
+#ifndef INCLUDED_INTSAFE
+#include <intsafe.h>
+#define INCLUDED_INTSAFE
+#endif
+
+#ifndef INCLUDED_WTYPES
+#include <WTypes.h>
+#define INCLUDED_WTYPES
+#endif
+
+#ifndef INCLUDED_WINBASE
+#include <WinBase.h>
+#define INCLUDED_WINBASE
 #endif
 
 #else
