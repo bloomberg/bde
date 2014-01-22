@@ -193,6 +193,7 @@ namespace {
 
 bool g_verbose;
 bool g_veryVerbose;
+bool g_veryVeryVerbose;
 bool g_veryVeryVeryVerbose;
 
 class MyTestObject;
@@ -517,14 +518,14 @@ int g_deleteCount = 0;
 
 static void countedNilDelete(void *, void*)
 {
-    static int& deleteCount = g_deleteCount;
+//    static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
 
 template<class TARGET_TYPE>
 static void templateNilDelete(TARGET_TYPE *, void*)
 {
-    static int& deleteCount = g_deleteCount;
+//    static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
 
@@ -1086,6 +1087,31 @@ void validateTestLoadArgs(int callLine,
     LOOP3_ASSERT(callLine, testLine, args->d_ta,     0 != args->d_ta);
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//                             ToVoid metafunction
+// The 'ToVoid' metafunction supports tests that need to use a 'void' pointer
+// representing a pointer to the test object, while also retaining the correct
+// cv-qualification.
+template <class TYPE>
+struct ToVoid {
+    typedef void type;
+};
+
+template <class TYPE>
+struct ToVoid<const TYPE> {
+    typedef const void type;
+};
+
+template <class TYPE>
+struct ToVoid<volatile TYPE> {
+    typedef volatile void type;
+};
+
+template <class TYPE>
+struct ToVoid<const volatile TYPE> {
+    typedef const volatile void type;
+};
+
 //=============================================================================
 //                          Target Object policies
 // A Target Object policy consist of two members:
@@ -1098,10 +1124,13 @@ void validateTestLoadArgs(int callLine,
 // notably for tests of 'bslma::ManagedPtr<void>'.
 //
 // List of available policies:
-struct Obase;
-struct OCbase;
-struct Oderiv;
-struct OCderiv;
+struct Obase;   // construct a base-class object
+struct OCbase;  // consturct a 'const' base object
+struct Oderiv;  // Construct a derived-class object
+struct OCderiv; // Construct a const derived object
+struct Ob1;     // Construct a left-base class object
+struct Ob2;     // Construct a right-base object
+struct Ocomp;   // Construct a complete object, derived from two base classes
 
 // Policy implementations
 struct Obase {
@@ -1149,9 +1178,20 @@ struct Ocomp {
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                             Factory Policies
 // List of available policies:
-struct Fbsl;
-struct Ftst;
-struct Fdflt;
+// The factory policy has a type alias named 'FactoryType' that gives the
+// static type of the factory supported by the policy - the dynamic type may
+// well be a class derived from the static type.
+// The 'factory' function is supplied with a test allocator, and returns a
+// pointer to the preferred allocator to use, which may be the supplied
+// allocator cast to the 'FactoryType', or might substitute some other
+// allocator entirely, such as the default allocator.
+// Two constants further describe how policy might be applied:
+// 'USE_DEFAULT' indicates that use of the factory will also imply use of the
+// default allocator.
+// TBD 'DELETER_USES_FACTORY' is important and needs better doc!
+struct Fbsl;    // factory is a 'bsl' allocator'
+struct Ftst;    // factory is a test allocator
+struct Fdflt;   // factory is the default allocator
 
 // Policy implementations
 struct Fbsl {
@@ -1192,6 +1232,9 @@ struct Fdflt {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //                             Deleter Policies
+// Deleter policies are class templates that co-ordinate an Object Policy with
+// a Factory Policy to produce the correct desctruction behavior for testing.
+//
 // List of available policies:
 template<class ObjectPolicy, class FactoryPolicy> struct DObjFac;
 template<class ObjectPolicy, class FactoryPolicy> struct DObjVoid;
@@ -1254,29 +1297,6 @@ struct DObjVoid {
     {
         return &doDelete;
     }
-};
-
-// The 'ToVoid' metafunction supports tests that need to use a 'void' pointer
-// representing a pointer to the test object, while also retaining the correct
-// cv-qualification.
-template <class TYPE>
-struct ToVoid {
-    typedef void type;
-};
-
-template <class TYPE>
-struct ToVoid<const TYPE> {
-    typedef const void type;
-};
-
-template <class TYPE>
-struct ToVoid<volatile TYPE> {
-    typedef volatile void type;
-};
-
-template <class TYPE>
-struct ToVoid<const volatile TYPE> {
-    typedef const volatile void type;
 };
 
 template<class ObjectPolicy, class FactoryPolicy>
@@ -1934,7 +1954,6 @@ void doLoadOnullFnullDnull(int callLine, int testLine, int index,
 
     const int expectedCount = args->d_deleteDelta;
 
-// A workaround for early GCC compilers
     args->d_p->load(0, 0, 0);
     args->d_deleteDelta = 0;
 
@@ -2041,6 +2060,22 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
     // goal.
     bool negativeTesting = !nullObject && nullFactory;
 
+#if !defined(BDE_BUILD_TARGET_EXC)
+    if (negativeTesting) {
+        if (g_veryVeryVerbose) printf(
+     "\t\t\t\t\tNegative testing disabled due to lack of exception support\n");
+        return;                                                       // RETURN
+    }
+#endif
+
+    if (g_veryVeryVerbose) {
+        printf("\t\t\t\t\tPerforming ");
+        if (negativeTesting) printf("(negative) ");
+        printf("test for 'load((");
+        printf(nullObject ? "0," : "obj,");
+        printf(nullFactory ? " 0)'\n" : " factory)'\n");
+    }
+
     // If we are negative-testing, we will create and destroy any target
     // object entirely within this function, so must track with a local counter
     // instead of the 'args' counter.
@@ -2083,23 +2118,13 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
         LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
     }
     else {
-#ifdef BDE_BUILD_TARGET_EXC
-        if (g_veryVerbose) printf("\tNegative testing null factory pointer\n");
+        bsls::AssertTestHandlerGuard guard;
 
-        {
-            bsls::AssertTestHandlerGuard guard;
+        ASSERT_SAFE_FAIL(args->d_p->load(pO, pF));
 
-            ASSERT_SAFE_FAIL(args->d_p->load(pO, pF));
+        pAlloc->deleteObject(pO);
 
-            pAlloc->deleteObject(pO);
-
-            LOOP_ASSERT(deleteCount,
-                        ObjectPolicy::DELETE_DELTA == deleteCount);
-        }
-#else
-        if (g_verbose) printf("\tNegative testing disabled due to lack of "
-                               "exception support\n");
-#endif
+        LOOP_ASSERT(deleteCount, ObjectPolicy::DELETE_DELTA == deleteCount);
     }
 
     // If we are feeling brave, verify that 'p.deleter' has the expected
@@ -2132,6 +2157,23 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
     // way to destroy the target object.  Pass a null deleter if that is the
     // goal.
     bool negativeTesting = !nullObject;
+
+#if !defined(BDE_BUILD_TARGET_EXC)
+    if (negativeTesting) {
+        if (g_veryVeryVerbose) printf(
+     "\t\t\t\t\tNegative testing disabled due to lack of exception support\n");
+        return;                                                       // RETURN
+    }
+#endif
+
+    if (g_veryVeryVerbose) {
+        printf("\t\t\t\t\tPerforming ");
+        if (negativeTesting) printf("(negative) ");
+        printf("test for 'load((");
+        printf(nullObject ? "0," : "obj,");
+        printf(nullFactory ? " 0" : " factory");
+        printf(", nullFn)'\n");
+    }
 
     // If we are negative-testing, we will create and destroy any target
     // object entirely within this function, so must track with a local counter
@@ -2170,23 +2212,13 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
         LOOP5_ASSERT(callLine, testLine, index, pO, ptr, pO == ptr);
     }
     else {
-#ifdef BDE_BUILD_TARGET_EXC
-        if (g_veryVerbose) printf("\tNegative testing null factory pointer\n");
+        bsls::AssertTestHandlerGuard guard;
 
-        {
-            bsls::AssertTestHandlerGuard guard;
+        ASSERT_SAFE_FAIL(args->d_p->load(pO, pF, nullFn));
+        ASSERT_SAFE_FAIL(args->d_p->load(pO,  0, nullFn));
 
-            ASSERT_SAFE_FAIL(args->d_p->load(pO, pF, nullFn));
-            ASSERT_SAFE_FAIL(args->d_p->load(pO,  0, nullFn));
-
-            pAlloc->deleteObject(pO);
-            LOOP_ASSERT(deleteCount,
-                        ObjectPolicy::DELETE_DELTA == deleteCount);
-        }
-#else
-        if (g_verbose) printf("\tNegative testing disabled due to lack of "
-                               "exception support\n");
-#endif
+        pAlloc->deleteObject(pO);
+        LOOP_ASSERT(deleteCount, ObjectPolicy::DELETE_DELTA == deleteCount);
     }
 }
 
@@ -2575,11 +2607,23 @@ void testLoadOps(int callLine,
     bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
                                          (*bslma::Default::defaultAllocator());
 
-    TestLoadArgs<TEST_TARGET> args = {};
+    // gcc insists on warning on empty aggregate initialization when
+    // trying to force zero-initialization.  This is a bad warning as
+    // the code functions correctly (and idiomatically) as intended,
+    // and the rewrite is distinctly inferior, creating and copying a
+    // temporary object that we hope the optimizer will eliminate.
+//    TestLoadArgs<TEST_TARGET> args = {};
+    TestLoadArgs<TEST_TARGET> args = TestLoadArgs<TEST_TARGET>();
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        if (g_veryVerbose) printf(
+               "\tTesting 'load' into object constructed by function no. %d\n",
+                                                                            i);
+
         for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
                                                                    ++configI) {
+            if (g_veryVerbose) printf("\t\tTesting config %d\n", configI);
+
             bslma::TestAllocatorMonitor gam(&ga);
             bslma::TestAllocatorMonitor dam(&da);
 
@@ -2610,8 +2654,16 @@ void testLoadOps(int callLine,
             }
 
             for (int j = 0; j != TEST_ARRAY_SIZE; ++j) {
+                if (g_veryVeryVerbose) {
+                    printf("\t\t\tInner-loop - testing function no. %d\n", j);
+                }
+
                 for (unsigned configJ = 0; configJ != TEST_ARRAY[j].configs();
                                                                    ++configJ) {
+                    if (g_veryVeryVerbose) {
+                        printf("\t\t\t\tInner-loop - config %d\n", configJ);
+                    }
+
                     bslma::TestAllocatorMonitor dam2(&da);
 
                     bslma::TestAllocator ta("TestLoad 2",
@@ -2717,7 +2769,13 @@ void testLoadAliasOps1(int callLine,
             bslma::TestAllocatorMonitor gam(&ga);
             bslma::TestAllocatorMonitor dam(&da);
 
-            TestLoadArgs<TEST_TARGET> args = {};
+            // gcc insists on warning on empty aggregate initialization when
+            // trying to force zero-initialization.  This is a bad warning as
+            // the code functions correctly (and idiomatically) as intended,
+            // and the rewrite is distinctly inferior, creating and copying a
+            // temporary object that we hope the optimizer will eliminate.
+//            TestLoadArgs<TEST_TARGET> args = {};
+            TestLoadArgs<TEST_TARGET> args = TestLoadArgs<TEST_TARGET>();
             args.d_useDefault = false;
             args.d_config = configI;
 
@@ -2829,7 +2887,13 @@ void testLoadAliasOps2(int callLine,
     bslma::TestAllocator& da = dynamic_cast<bslma::TestAllocator&>
                                          (*bslma::Default::defaultAllocator());
 
-    TestLoadArgs<TEST_TARGET> args = {};
+    // gcc insists on warning on empty aggregate initialization when
+    // trying to force zero-initialization.  This is a bad warning as
+    // the code functions correctly (and idiomatically) as intended,
+    // and the rewrite is distinctly inferior, creating and copying a
+    // temporary object that we hope the optimizer will eliminate.
+//    TestLoadArgs<TEST_TARGET> args = {};
+    TestLoadArgs<TEST_TARGET> args = TestLoadArgs<TEST_TARGET>();
 
     int aliasDeleterCount1 = 0;
     int aliasDeleterCount2 = 0;
@@ -2966,7 +3030,13 @@ void testLoadAliasOps3(int callLine,
             bslma::TestAllocatorMonitor gam(&ga);
             bslma::TestAllocatorMonitor dam(&da);
 
-            TestLoadArgs<TEST_TARGET> args = {};
+            // gcc insists on warning on empty aggregate initialization when
+            // trying to force zero-initialization.  This is a bad warning as
+            // the code functions correctly (and idiomatically) as intended,
+            // and the rewrite is distinctly inferior, creating and copying a
+            // temporary object that we hope the optimizer will eliminate.
+//            TestLoadArgs<TEST_TARGET> args = {};
+            TestLoadArgs<TEST_TARGET> args = TestLoadArgs<TEST_TARGET>();
             args.d_useDefault = false;
             args.d_config = 0;  // We need only test a fully defined pointer,
                                 // there are no concerns about null arguments.
@@ -6183,6 +6253,7 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
                    g_verbose = verbose;
                g_veryVerbose = veryVerbose;
+           g_veryVeryVerbose = veryVeryVerbose;
        g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -8415,7 +8486,7 @@ int main(int argc, char *argv[])
                             "\n------------------------\n");
 
         {
-            if (veryVerbose) printf(
+            if (verbose) printf(
                             "Testing bslma::ManagedPtr<MyTestObject>::load\n");
 
             testLoadOps(L_, TEST_POLICY_BASE_ARRAY);
@@ -8424,7 +8495,7 @@ int main(int argc, char *argv[])
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
-            if (veryVerbose) printf(
+            if (verbose) printf(
                       "Testing bslma::ManagedPtr<const MyTestObject>::load\n");
 
             testLoadOps(L_, TEST_POLICY_CONST_BASE_ARRAY);
@@ -8433,7 +8504,7 @@ int main(int argc, char *argv[])
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
-            if (veryVerbose) printf(
+            if (verbose) printf(
                          "Testing bslma::ManagedPtr<MyDerivedObject>::load\n");
 
             testLoadOps(L_, TEST_POLICY_DERIVED_ARRAY);
@@ -8442,7 +8513,7 @@ int main(int argc, char *argv[])
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
-            if (veryVerbose) printf("Testing bslma::ManagedPtr<void>::load\n");
+            if (verbose) printf("Testing bslma::ManagedPtr<void>::load\n");
 
             testLoadOps(L_, TEST_POLICY_VOID_ARRAY);
         }
@@ -8450,7 +8521,7 @@ int main(int argc, char *argv[])
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
-            if (veryVerbose) printf(
+            if (verbose) printf(
                               "Testing bslma::ManagedPtr<const void>::load\n");
 
             testLoadOps(L_, TEST_POLICY_CONST_VOID_ARRAY);
@@ -8459,7 +8530,7 @@ int main(int argc, char *argv[])
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #if defined(BSLMA_MANAGEDPTR_TESTVIRTUALINHERITANCE)
         {
-            if (veryVerbose) printf("Testing bslma::ManagedPtr<Base>::load\n");
+            if (verbose) printf("Testing bslma::ManagedPtr<Base>::load\n");
 
             testLoadOps(L_, TEST_POLICY_BASE0_ARRAY);
         }
@@ -8467,8 +8538,7 @@ int main(int argc, char *argv[])
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
-            if (veryVerbose) printf(
-                                   "Testing bslma::ManagedPtr<Base2>::load\n");
+            if (verbose) printf("Testing bslma::ManagedPtr<Base2>::load\n");
 
             testLoadOps(L_, TEST_POLICY_BASE2_ARRAY);
         }
