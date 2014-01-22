@@ -4023,7 +4023,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketIndexForKey(
 
     // The following cast will not discard any useful bits, unless 'SizeType'
     // is larger than 'size_t', as the bucket computation takes a mod on the
-    // supplied number of buckets.
+    // supplied number of buckets.  We use the following 'BSLMF_ASSERT' to
+    // assert that assumption at compile time.
+
+    BSLMF_ASSERT(sizeof(SizeType) <= sizeof(size_t));
 
     size_t hashCode = this->d_parameters.hashCodeForKey(key);
     return static_cast<SizeType>(bslalg::HashTableImpUtil::computeBucketIndex(
