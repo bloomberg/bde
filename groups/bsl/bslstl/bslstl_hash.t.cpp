@@ -16,6 +16,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -663,7 +664,7 @@ int main(int argc, char *argv[])
         if (verbose) printf(
                  "\nCreate a test allocator and install it as the default.\n");
 
-        typedef int TYPE;
+        typedef signed char TYPE;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -683,18 +684,15 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int     LINE      = DATA[i].d_line;
-            const int     VALUE     = DATA[i].d_value;
-            const size_t  HASHCODE  = DATA[i].d_hashCode;
+            const int         LINE      = DATA[i].d_line;
+            const signed char VALUE     = DATA[i].d_value;
+            const size_t      HASHCODE  = DATA[i].d_hashCode;
 
             LOOP_ASSERT(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
             LOOP_ASSERT(LINE, bsl::hash<unsigned char>()(VALUE) == HASHCODE);
             LOOP_ASSERT(LINE, bsl::hash<signed char>()(VALUE) == HASHCODE);
 
             LOOP_ASSERT(LINE, bsl::hash<wchar_t>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE,
-                             bsl::hash<unsigned wchar_t>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed wchar_t>()(VALUE) == HASHCODE);
 
             LOOP_ASSERT(LINE, bsl::hash<unsigned short>()(VALUE) == HASHCODE);
             LOOP_ASSERT(LINE, bsl::hash<signed short>()(VALUE) == HASHCODE);
