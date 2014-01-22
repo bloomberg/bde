@@ -3968,8 +3968,9 @@ void TestDriver<TYPE,ALLOC>::testSwap()
                 LOOP2_ASSERT(XLINE, YLINE, BB2+expectedBlocks(XLENGTH) == AA2);
 
                 // Blocks in use have effectively swapped
-                LOOP2_ASSERT(XLINE, YLINE,
-                             A - B   == deltaBlocks(YLENGTH - XLENGTH));
+                ptrdiff_t difference =
+                                     static_cast<ptrdiff_t>(YLENGTH - XLENGTH);
+                LOOP2_ASSERT(XLINE, YLINE, A - B   == deltaBlocks(difference));
                 LOOP2_ASSERT(XLINE, YLINE, A2 - B2 == -(A - B));
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         } // end for tj
@@ -5408,8 +5409,8 @@ void TestDriver<TYPE,ALLOC>::testResize()
                                  BB + deltaBlocks(NEWLEN - LENGTH) == AA);
                 }
 
-                LOOP2_ASSERT(LINE, NEWLEN,
-                             B + deltaBlocks(NEWLEN - LENGTH) == A);
+                ptrdiff_t difference = static_cast<ptrdiff_t>(NEWLEN - LENGTH);
+                LOOP2_ASSERT(LINE, NEWLEN, B + deltaBlocks(difference) == A);
 
                 const_iterator xi = X.begin();
                 const_iterator yi = U.begin();
@@ -5476,8 +5477,8 @@ void TestDriver<TYPE,ALLOC>::testResize()
                                  BB + deltaBlocks(NEWLEN - LENGTH) == AA);
                 }
 
-                LOOP2_ASSERT(LINE, NEWLEN,
-                             B + deltaBlocks(NEWLEN - LENGTH) == A);
+                ptrdiff_t difference = static_cast<ptrdiff_t>(NEWLEN - LENGTH);
+                LOOP2_ASSERT(LINE, NEWLEN, B + deltaBlocks(difference) == A);
 
                 const_iterator xi = X.begin();
                 const_iterator yi = U.begin();
@@ -6901,8 +6902,10 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                         LOOP2_ASSERT(U_SPEC, V_SPEC, B1  == A1 );
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
                                      BB2 + deltaBlocks(vLen) >= AA2);
+                        ptrdiff_t difference =
+                                           static_cast<ptrdiff_t>(vLen - uLen);
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
-                                     B2 + deltaBlocks(vLen-uLen) == A2);
+                                           B2 + deltaBlocks(difference) == A2);
                         for (const_iterator iu = U.begin(), iv = V.begin();
                              iu != U.end(); ++iu, ++iv) {
                             // Verify that U and V have no elements in common
@@ -6985,8 +6988,10 @@ void TestDriver<TYPE,ALLOC>::testAssignmentOp()
                         LOOP2_ASSERT(U_SPEC, V_SPEC,  V == U);
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
                                      BB2 + deltaBlocks(vLen) >= AA2);
+                        ptrdiff_t difference =
+                                             static_cast<ptrdiff_t>(vLen-uLen);
                         LOOP2_ASSERT(U_SPEC, V_SPEC,
-                                     B2 + deltaBlocks(vLen-uLen) == A2);
+                                           B2 + deltaBlocks(difference) == A2);
                     }
                     // 'mV' (and therefore 'V') now out of scope
                     LOOP2_ASSERT(U_SPEC, V_SPEC, VV == U);

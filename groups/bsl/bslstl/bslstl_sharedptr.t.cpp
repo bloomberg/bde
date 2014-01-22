@@ -4935,7 +4935,7 @@ int main(int argc, char *argv[])
                               0 == alignmentOffset);
 
                 void* repAddr = ta.lastAllocatedAddress();
-                typename bslma::TestAllocator::size_type repAllocSize =
+                bslma::TestAllocator::size_type repAllocSize =
                                                     ta.lastAllocatedNumBytes();
                 LOOP4_ASSERT(repAddr, repAllocSize, (void*) X.ptr(), size,
                              (char*) repAddr + repAllocSize >= X.ptr() + size);
