@@ -34,6 +34,7 @@ clean:
 producemake:
 	mkdir -p etc
 	cp $(BDE_TOOLS_ETC)/default.opts etc/
+	cp $(BDE_TOOLS_ETC)/default_internal.opts etc/
 ifeq ($(STATIC_FLAVORS),)
 	BDE_ROOT=. BDE_PATH=. PATH=$(PATH)                           \
 	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
