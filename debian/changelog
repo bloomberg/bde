@@ -1,3 +1,66 @@
+bsl-internal (2.20.0.0.bsl-freeze) unstable; urgency=low
+
+  * Bump changelog
+  * 2b7f1d6 [APPROVAL] OSS fix-test-build to master
+  * 3be2458 [APPROVAL] fix-test-build to master
+  * b45fe2a [APPROVAL] OSS pending/master/bump-versions-to-2.20 to master
+  * 908d41c [APPROVAL] pending/master/bump-versions-to-2.20 to master
+  * 64b2419 [APPROVAL] OSS pending/master/bsl-atomic-barriers-x86-drqs41779508 to master
+  * bbade1c [APPROVAL] pending/master/bsl-atomic-barriers-x86-drqs41779508 to master
+  * f7c89bc [APPROVAL] OSS dev/abeels/bsl-warnings-post-merge-fixes to master
+  * 22b9053 [APPROVAL] dev/abeels/bsl-warnings-post-merge-fixes to master
+  * 42826ea [APPROVAL] OSS pending/master/hash_optimize_by_identity-drqs-46166503 to master
+  * f9dc1d1 [APPROVAL] pending/master/hash_optimize_by_identity-drqs-46166503 to master
+  * 43d37b3 [APPROVAL] pending/master/cleanup_64bit_warnings_in_hashtable_drqs48504031 to master
+  * 9388487 [APPROVAL] INTERNAL warnings-merge-drqs-41944020 to master
+  * 74e0564 [APPROVAL] warnings-merge-drqs-41944020 to master
+  * c30a077 Merge d41944020_Wconversion_..._dev from vendevgit
+  * e3a5136 [APPROVAL] OSS review/bsl-arm-atomics-drqs40879968 to master
+  * 715f48d [APPROVAL] review/bsl-arm-atomics-drqs40879968 to master
+  * e18b36c [APPROVAL] OSS review/bsl-arm-atomics-default-opts-drqs-40879968 to master
+  * b1e1062 [APPROVAL] review/bsl-arm-atomics-default-opts-drqs-40879968 to master
+  * 07bd9f6 [APPROVAL] OSS review/add-copyright-notices-drqs-46743768 to master
+  * a721e48 [APPROVAL] review/add-copyright-notices-drqs-46743768 to master
+  * d5c53da [APPROVAL] OSS review/issue-104-fix-bufferallocator-example-drqs-47757222 to master
+  * 8bc5412 [APPROVAL] review/issue-104-fix-bufferallocator-example-drqs-47757222 to master
+  * ac6b42f [APPROVAL] OSS review/junit-test-results to master
+  * 5071fac [APPROVAL] review/junit-test-results to master
+  * a29ce97 bump version to 2.20, and update bdlscm to use s_ prefixes
+  * 6a560b7 [APPROVAL] OSS pending/bsls_bsllock-review-feedback-drqs-43874611 to master
+  * 91c94ba [APPROVAL] pending/bsls_bsllock-review-feedback-drqs-43874611 to master
+  * d55aea8 [APPROVAL] OSS pending/bslma_testallocator-thread-safe-drqs-43874611 to master
+  * 3930b14 [APPROVAL] pending/bslma_testallocator-thread-safe-drqs-43874611 to master
+  * 9db310c [APPROVAL] OSS review/make_util_to_throw_std_bad_alloc_drqs41875923 to master
+  * 859cb80 [APPROVAL] review/make_util_to_throw_std_bad_alloc_drqs41875923 to master
+  * 291bd27 [APPROVAL] INTERNAL review/remove_pointer_erroneously_removes_const_drqs44634746 to master
+  * 5b601ea [APPROVAL] review/remove_pointer_erroneously_removes_const_drqs44634746 to master
+  * 0662529 [APPROVAL] OSS review/fix_assertion_in_basic_string_drqs45056901 to master
+  * 7d10d60 [APPROVAL] review/fix_assertion_in_basic_string_drqs45056901 to master
+  * 0d4c3a6 [APPROVAL] OSS review/copyright-notice-change-drqs-45112642 to master
+  * 4148313 [APPROVAL] review/copyright-notice-change-drqs-45112642 to master
+  * ccff4f8 [APPROVAL] OSS review/bslscm_version_work_on_linux-drqs-45215500 to master
+  * 465e2f7 [APPROVAL] review/bslscm_version_work_on_linux-drqs-45215500 to master
+  * 01f6741 [APPROVAL] OSS review/bsl+stdhdrs.pub-file-update-drqs-46563829 to master
+  * acb7897 [APPROVAL] review/bsl+stdhdrs.pub-file-update-drqs-46563829 to master
+  * a37bd65 [APPROVAL] OSS enhance-bslstl_stringref-drqs45289717 to master
+  * 393ab4d [APPROVAL] enhance-bslstl_stringref-drqs45289717 to master
+  * 6ec7326 [APPROVAL] OSS review/dunix_requirement_drqs-46631049 to master
+  * 7642033 [APPROVAL] review/dunix_requirement_drqs-46631049 to master
+  * 8212d81 [APPROVAL] OSS review/bde-oss-drqs-46743768
+  * b7e11e3 use bsls_linkercoercion for version symbols
+  * 5d8f2c6 merge s/d_/s_/ change into version assert branch
+  * a573ae5 force bslscm_version assertion symbol in on Linux
+  * 4046c3d [APPROVAL] OSS fix-atomics-gcc-4.1.2-drqs44823996-master to master
+  * 8e37af7 [APPROVAL] fix-atomics-gcc-4.1.2-drqs44823996-master to master
+  * 5018304 [APPROVAL] OSS review/remove-repeated-macro-evaluation-issue-91 to master
+  * 6df33cf [APPROVAL] review/remove-repeated-macro-evaluation-issue-91 to master
+  * af28e69 [APPROVAL] OSS fix_bslma_managedptr_pairproxy_usage_drqs_44868895 to master
+  * 3aba9d9 [APPROVAL] fix_bslma_managedptr_pairproxy_usage_drqs_44868895 to master
+  * 6ac9c52 [APPROVAL] OSS pending/master/fix_bsl_plus_test_drivers_for_posix_hdrs_on_windows_drqs41591557 to master
+  * a4dea43 [APPROVAL] pending/master/fix_bsl_plus_test_drivers_for_posix_hdrs_on_windows_drqs41591557 to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Wed, 22 Jan 2014 01:47:31 -0500
+
 bsl-internal (2.19.0.0) unstable; urgency=low
 
   * Bump changelog
