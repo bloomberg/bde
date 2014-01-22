@@ -31,12 +31,14 @@ clean:
 
 # A few levels of hackery to keep producemake happy:
 #   o Copy default.opts into "etc" in the source tree
+#   o Copy default_internal.opts into "etc" in the source tree, if available
 #   o Add a line to default.opts adding the -I rules for /bb/include and
 #     /bb/include/stlport to USER_CXXFLAGS.
 #   o Copy all the bsl metadata from /bb/bdemeta/groups/ into groups/
 producemake:
 	mkdir -p etc
 	cp $(BDE_TOOLS_ETC)/default.opts etc/
+	cp $(BDE_TOOLS_ETC)/default_internal.opts etc/ || true
 	echo "* _ USER_CXXFLAGS = -I/bb/include -I/bb/include/stlport" >> etc/default.opts
 	rsync -a /bb/bdemeta/groups/ groups/
 	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
