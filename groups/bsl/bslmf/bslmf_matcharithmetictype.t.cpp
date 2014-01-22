@@ -124,16 +124,22 @@ struct ArithmeticConveribility
                         // struct ArithmeticConveribility
                         // ------------------------------
 
+// 'implicitlyConvert' necessarily triggers type conversion warnings on gcc.
+// These warnings are suppressed with a pragma.  Note that some versions of gcc
+// do not allow pragmas inside a function body.
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
 template <class TYPE>
 void ArithmeticConveribility<TYPE>::implicitlyConvert()
 {
     if (globalVerbose) {
         printf("%s\n", typeid(TYPE).name());
     }
-#ifdef BSLS_PLATFORM_CMP_GNU
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#endif
+
     // This test algoruthm is based on the implicit conversion of the types
     // that must cause the conversion warnings of compiler. Suppressing the
     // conversion warnings.
@@ -161,11 +167,11 @@ void ArithmeticConveribility<TYPE>::implicitlyConvert()
 
     const volatile TYPE cvObjRef = obj;
     acceptObj(cvObjRef);
+}
 
 #ifdef BSLS_PLATFORM_CMP_GNU
 #pragma GCC diagnostic pop
 #endif
-}
 
                         // ========================
                         // class MyConvertibleToInt
