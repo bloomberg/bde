@@ -2,6 +2,12 @@
 
 #include <bsls_atomicoperations_x64_all_gcc.h>
 
+#include <cstdlib>
+#include <iostream>
+
+#if defined(BSLS_PLATFORM_CPU_X86_64) \
+    && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))
+
 // For thread support
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -18,9 +24,6 @@ typedef pthread_t thread_t;
 #else 
     #include <sys/time.h>
 #endif
-
-#include <cstdlib>
-#include <iostream>
 
 using namespace BloombergLP;
 using namespace std;
@@ -272,6 +275,24 @@ int main(int argc, char *argv[])
         return -1;
     }
 }
+
+#else // BSLS_PLATFORM_CPU_X86_64 && 
+      // (BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG)
+
+
+int main(int argc, char *argv[])
+{
+    int test = argc > 1 ? atoi(argv[1]) : 0;
+
+    switch (test) { case 0:
+        return 0;
+      default:
+        return -1;
+    }
+}
+
+#endif // BSLS_PLATFORM_CPU_X86_64 && 
+       // (BSLS_PLATFORM_CMP_GNU || BSLS_PLATFORM_CMP_CLANG)
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg Finance L.P.
