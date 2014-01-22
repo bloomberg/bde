@@ -1393,9 +1393,19 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
-                BDLS_TESTUTIL_ASSERTV(I, J, K, L, M,
-                                      idx > LOOP_ITERATIONS);
+
+                // On AIX, the the printed line number from the
+                // 'BDLS_TESTUTIL_ASSERTV' macro is the line number of the
+                // first line of the call statement, even if the statement is
+                // split over multiple lines.  This behavior is different from
+                // the equivalent loop-assert alternative, which prints the
+                // last line of the statmenet.  The behavior of assertv and
+                // regular loop-assert is consistent on other platforms.  So
+                // here, we make sure that the call to 'BDLS_TESTUTIL_ASSERTV'
+                // fit on a single line to make sure that the output is the
+                // same on all platforms.
+                const int LINE = __LINE__ + 1;
+                BDLS_TESTUTIL_ASSERTV(I, J, K, L, M, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
                 ASSERT(output.load());
@@ -1488,9 +1498,8 @@ int main(int argc, char *argv[])
                 }
 
                 output.reset();
-                const int LINE = __LINE__ + 2;
-                BDLS_TESTUTIL_ASSERTV(I, J, K, L, M, N,
-                                      idx > LOOP_ITERATIONS);
+                const int LINE = __LINE__ + 1;
+                BDLS_TESTUTIL_ASSERTV(I, J, K, L, M, N, idx > LOOP_ITERATIONS);
                 REALLOOP2_ASSERT(testStatus, idx,
                                  testStatus == idx + 1);
                 ASSERT(output.load());
