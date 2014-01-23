@@ -2711,12 +2711,13 @@ shared_ptr<ELEMENT_TYPE> make_shared(ARGS&&... args);
 
 
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
-#if defined(BSLS_PLATFORM_CMP_GNU) // work-around for gcc variadic template bug
+#   if defined(BSLS_PLATFORM_CMP_GNU)
+    // work-around for gcc variadic template bug
 typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
                         shared_ptr<ELEMENT_TYPE> >::type
-#else
+#   else
 bsl::shared_ptr<ELEMENT_TYPE>
-#endif
+#   endif
 allocate_shared(ALLOC a, ARGS&&... args);
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
 shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *a, ARGS&&... args);
@@ -3589,23 +3590,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
 }
-#endif
 
-template <class ELEMENT_TYPE>
-template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
-inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE  *ptr,
-                                     const DELETER&    deleter,
-                                     ALLOCATOR        *basicAllocator)
-: d_ptr_p(ptr)
-{
-    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<COMPATIBLE_TYPE,
-                                                       DELETER> RepMaker;
-
-    d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
-}
-
-#if defined(AJM_THINKS_THIS_IS_NO_LONGER_NEEDED)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
 inline
