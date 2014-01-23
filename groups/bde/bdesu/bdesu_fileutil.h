@@ -325,12 +325,12 @@ struct bdesu_FileUtil {
 
     static int createDirectories(
             const bsl::string&  path,
-            bool                leafIsDirectory = false);
+            bool                isLeafDirectory = false);
     static int createDirectories(
             const char         *path,
-            bool                leafIsDirectory = false);
+            bool                isLeafDirectory = false);
         // Create any directories in 'path' which do not exist.  If the
-        // optionally specified 'leafIsDirectory' is 'true', then treat the
+        // optionally specified 'isLeafDirectory' is 'true', then treat the
         // last filename in the path as a directory and attempt to create it.
         // Otherwise, treat the last filename as a regular file and ignore it.
         // Return 0 on success, and a non-zero value if any needed directories
@@ -551,9 +551,9 @@ struct bdesu_FileUtil {
 // CLASS METHODS
 inline
 int bdesu_FileUtil::createDirectories(const bsl::string& path,
-                                      bool               leafIsDirectory)
+                                      bool               isLeafDirectory)
 {
-    return createDirectories(path.c_str(), leafIsDirectory);
+    return createDirectories(path.c_str(), isLeafDirectory);
 }
 
 inline

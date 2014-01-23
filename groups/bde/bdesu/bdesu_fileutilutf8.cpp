@@ -73,17 +73,17 @@ void invokeFindClose(HANDLE *handle, void *)
 }
 
 static inline
-bool WidePath(bsl::wstring* wide, const bsl::string& path)
-    // Copy the wide-string version of the specified 'path' to the specified
-    // 'wide' string and return true if successful, or false otherwise.
+bool widePath(bsl::wstring* result, const bsl::string& path)
+    // Copy the result-string version of the specified 'path' to the specified
+    // 'result' string and return 'true' if successful, or 'false' otherwise.
 {
-    BSLS_ASSERT_SAFE(wide);
+    BSLS_ASSERT_SAFE(result);
 
-    return bdede_CharConvertUtf16::utf8ToUtf16(wide, path.data()) == 0;
+    return bdede_CharConvertUtf16::utf8ToUtf16(result, path.data()) == 0;
 }
 
 static inline
-bool NarrowPath(bsl::string* narrow, const bsl::wstring& path)
+bool narrowPath(bsl::string* narrow, const bsl::wstring& path)
     // Copy the string version of the specified 'path' to the specified
     // 'narrow' string and return true if successful, or false otherwise.
 {
@@ -101,7 +101,7 @@ int makeDirectory(const char *path)
     bsl::wstring wide;
     BOOL         succeeded = 0;
 
-    if (WidePath(&wide, path)) {
+    if (widePath(&wide, path)) {
         succeeded = CreateDirectoryW(wide.c_str(), 0);
     }
 
@@ -118,7 +118,7 @@ int removeDirectory(const char *path)
     bsl::wstring wide;
     BOOL         succeeded = 0;
 
-    if (!WidePath(&wide, path)) {
+    if (!widePath(&wide, path)) {
         return -1;                                                    // RETURN
     }
 
@@ -152,7 +152,7 @@ int removeFile(const char *path)
     bsl::wstring wide;
     BOOL         succeeded = 0;
 
-    if (WidePath(&wide, path)) {
+    if (widePath(&wide, path)) {
         succeeded = DeleteFileW(wide.c_str());
     }
 
@@ -339,7 +339,7 @@ bdesu_FileUtilUtf8::open(const char                *pathName,
     bsl::wstring                       wide;
     bdesu_FileUtilUtf8::FileDescriptor fd = INVALID_FD;
 
-    if (WidePath(&wide, pathName)) {
+    if (widePath(&wide, pathName)) {
         fd = CreateFileW(
                     wide.c_str(),
                     accessMode,
@@ -491,7 +491,7 @@ int bdesu_FileUtilUtf8::sync(char *addr, int numBytes, bool) // 3rd arg is sync
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
+    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(addr) %
                      bdesu_MemoryUtil::pageSize());
 
 
@@ -519,7 +519,7 @@ int bdesu_FileUtilUtf8::tryLock(FileDescriptor fd, bool lockWrite)
                               0, 1, 0, &overlapped);
     return success ? 0
                    : ERROR_LOCK_VIOLATION == GetLastError()
-                     ? e_ERROR_LOCKING_CONFLICT
+                     ? k_ERROR_LOCKING_CONFLICT
                      : -1;
 }
 
@@ -545,7 +545,7 @@ int bdesu_FileUtilUtf8::move(const char *oldName, const char *newName)
     bsl::wstring newWide;
     BOOL         succeeded = 0;
 
-    if (WidePath(&oldWide, oldName) && WidePath(&newWide, newName)) {
+    if (widePath(&oldWide, oldName) && widePath(&newWide, newName)) {
         succeeded = MoveFileW(oldWide.c_str(), newWide.c_str());
     }
 
@@ -561,7 +561,7 @@ bool bdesu_FileUtilUtf8::exists(const char *pathName)
     bsl::wstring wide;
     DWORD        attributes = INVALID_FILE_ATTRIBUTES;
 
-    if (WidePath(&wide, pathName)) {
+    if (widePath(&wide, pathName)) {
         attributes = GetFileAttributesW(wide.c_str());
     }
 
@@ -582,7 +582,7 @@ int bdesu_FileUtilUtf8::getLastModificationTime(bdet_Datetime *time,
 
     bsl::wstring wide;
 
-    if (!WidePath(&wide, path)) {
+    if (!widePath(&wide, path)) {
         return -1;                                                    // RETURN
     }
 
@@ -688,7 +688,7 @@ void bdesu_FileUtilUtf8::visitPaths(
         bsl::wstring     widePattern;
         bsl::string      narrowName;
 
-        if (!WidePath(&widePattern, patternStr)) {
+        if (!widePath(&widePattern, patternStr)) {
             return;                                                   // RETURN
         }
 
@@ -706,7 +706,7 @@ void bdesu_FileUtilUtf8::visitPaths(
             static const bsl::string dot    = ".";
             static const bsl::string dotdot = "..";
 
-            if (!NarrowPath(&narrowName, findDataW.cFileName)) {
+            if (!narrowPath(&narrowName, findDataW.cFileName)) {
                 narrowName = dot;  // skip "can't happen" case
             }
 
@@ -715,7 +715,10 @@ void bdesu_FileUtilUtf8::visitPaths(
             }
             else if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath,
                                                                  narrowName)) {
-                // skip "can't happen" case
+                // skip "can't happen" case: 'findData.cFileName' will never be
+                // an absolute path.
+
+                BSLS_ASSERT(!"FindFirstFile returned an absolute path.");
             }
             else {
                 visitor(dirNamePath.c_str());
@@ -734,7 +737,7 @@ bool bdesu_FileUtilUtf8::isRegularFile(const char *path, bool)
     bsl::wstring wide;
     DWORD        stats;
 
-    if (!WidePath(&wide, path)) {
+    if (!widePath(&wide, path)) {
         return false;                                                 // RETURN
     }
 
@@ -751,7 +754,7 @@ bool bdesu_FileUtilUtf8::isDirectory(const char *path, bool)
     bsl::wstring wide;
     DWORD        stats;
 
-    if (!WidePath(&wide, path)) {
+    if (!widePath(&wide, path)) {
         return false;                                                 // RETURN
     }
 
@@ -769,7 +772,7 @@ bdesu_FileUtilUtf8::getAvailableSpace(const char *path)
     ULARGE_INTEGER avail;
     bsl::wstring   wide;
 
-    if (!WidePath(&wide, path)) {
+    if (!widePath(&wide, path)) {
         return -1;                                                    // RETURN
     }
 
@@ -835,7 +838,7 @@ bdesu_FileUtilUtf8::Offset bdesu_FileUtilUtf8::getFileSize(const char *path)
     bsl::wstring              wide;
     WIN32_FILE_ATTRIBUTE_DATA fileAttribute;
 
-    if (!WidePath(&wide, path)) {
+    if (!widePath(&wide, path)) {
         return -1;                                                    // RETURN
     }
 
@@ -844,8 +847,9 @@ bdesu_FileUtilUtf8::Offset bdesu_FileUtilUtf8::getFileSize(const char *path)
         return -1;                                                    // RETURN
     }
 
-    return (((bdesu_FileUtilUtf8::Offset)fileAttribute.nFileSizeHigh) << 32)
-           | fileAttribute.nFileSizeLow;
+    const bdesu_FileUtilUtf8::Offset highBits =
+          static_cast<bdesu_FileUtilUtf8::Offset>(fileAttribute.nFileSizeHigh);
+    return (highBits << 32) | fileAttribute.nFileSizeLow;
 }
 
 bdesu_FileUtilUtf8::Offset bdesu_FileUtilUtf8::getFileSizeLimit()
@@ -863,7 +867,7 @@ int bdesu_FileUtilUtf8::getWorkingDirectory(bsl::string *path)
     wchar_t buffer[BUFFER_SIZE];
 
     wchar_t *retval = _wgetcwd(buffer, BUFFER_SIZE);
-    if (retval == buffer && NarrowPath(path, bsl::wstring(buffer))) {
+    if (retval == buffer && narrowPath(path, bsl::wstring(buffer))) {
         //our contract requires an absolute path
 
         return bdesu_PathUtil::isRelative(*path);                     // RETURN
@@ -878,7 +882,7 @@ int bdesu_FileUtilUtf8::setWorkingDirectory(const char *path)
     bsl::wstring wide;
     int          status;
 
-    if (WidePath(&wide, path)) {
+    if (widePath(&wide, path)) {
         status = _wchdir(wide.c_str());
     }
     else {
@@ -1128,7 +1132,7 @@ int bdesu_FileUtilUtf8::sync(char *addr, int numBytes, bool sync)
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr) addr %
+    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(addr) %
                      bdesu_MemoryUtil::pageSize());
 
     int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
@@ -1145,7 +1149,7 @@ int bdesu_FileUtilUtf8::tryLock(FileDescriptor fd, bool lockWrite)
     int rc = localFcntlLock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK);
     return -1 != rc ? 0
                     : EAGAIN == errno || EACCES == errno
-                      ? e_ERROR_LOCKING_CONFLICT
+                      ? k_ERROR_LOCKING_CONFLICT
                       : -1;
 }
 
@@ -1461,7 +1465,7 @@ int bdesu_FileUtilUtf8::grow(FileDescriptor              fd,
         return 0;                                                     // RETURN
     }
     Offset res = seek(fd, size-1, e_SEEK_FROM_BEGINNING);
-    if (-1 == res || 1 != write(fd, static_cast<const void *>(""), 1))
+    if (-1 == res || 1 != write(fd, "", 1))
     {
         return -1;                                                    // RETURN
     }

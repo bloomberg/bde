@@ -7,17 +7,29 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a set of portable utilities for file system access.
+//@PURPOSE: Provide UTF-8-encoded methods for file system access.
 //
 //@CLASSES:
-//  bdesu_FileUtilUtf8: namespace for file system acess functions
+//  bdesu_FileUtilUtf8: namespace for UTF-8-encoded file system access methods
 //
 //@SEE_ALSO: bdesu_fileutil, bdesu_pathutil
 //
-//@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov)
+//@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov),
+// Hyman Rosen (hrosen4), Alexander Beels (abeels)
 //
-//@DESCRIPTION: This component provides a platform-independent interface to
-// filesystem utility methods.
+//@DESCRIPTION: This component provides a utf8-encoded platform-independent 
+// interface to filesystem utility methods.  Each function in the
+// 'bdesu_FileUtilUtf8' namespace is a thin wrapper on top of the operating
+// system's own file system access functions, providing a consistent and
+// unambiguous interface for handling files on all supported platforms.
+//
+// All methods in this component require that all file and path names be passed
+// as UTF-8-encoded strings.  Similarly, methods that return file and path
+// names return UTF-8-encoded strings.  Because this component has no direct
+// knowledge of the underlying file system's native encoding, these
+// requirements are *assumed* on Posix platforms, and *enforced* on Windows
+// platforms.  See the section "Platform-Specific File Name Encoding Caveats"
+// below.
 //
 ///Platform-Specific File Locking Caveats
 ///--------------------------------------
@@ -63,8 +75,8 @@ BDES_IDENT("$Id: $")
 //:   but are treated as different names by the file system.
 //:
 //: o On Posix, a file name or pattern supplied to methods of
-//:   'bdesu_FileUtilUtf8' as a 'char*' or 'bsl::string' type are assumed to be
-//:   encoded in UTF-8, and are passed unchanged to the underlying system file
+//:   'bdesu_FileUtilUtf8' as a 'char*' or 'bsl::string' type is assumed to be
+//:   encoded in UTF-8, and is passed unchanged to the underlying system file
 //:   APIs, which are assumed to be interfacing with a filesystem encoded in
 //:   UTF-8.  Because the file names and patterns are passed unchanged,
 //:   'bdesu_FileUtilUtf8' methods will work correctly on Posix with other
@@ -390,11 +402,11 @@ struct bdesu_FileUtilUtf8 {
     // becomes available on our standard Windows platforms.
 
     static int createDirectories(const bsl::string&  path,
-                                 bool                leafIsDirectory = false);
+                                 bool                isLeafDirectory = false);
     static int createDirectories(const char         *path,
-                                 bool                leafIsDirectory = false);
+                                 bool                isLeafDirectory = false);
         // Create any directories in 'path' which do not exist.  If the
-        // optionally specified 'leafIsDirectory' is 'true', then treat the
+        // optionally specified 'isLeafDirectory' is 'true', then treat the
         // last filename in the path as a directory and attempt to create it.
         // Otherwise, treat the last filename as a regular file and ignore it.
         // Return 0 on success, and a non-zero value if any needed directories
@@ -615,9 +627,9 @@ struct bdesu_FileUtilUtf8 {
 // CLASS METHODS
 inline
 int bdesu_FileUtilUtf8::createDirectories(const bsl::string& path,
-                                          bool               leafIsDirectory)
+                                          bool               isLeafDirectory)
 {
-    return createDirectories(path.c_str(), leafIsDirectory);
+    return createDirectories(path.c_str(), isLeafDirectory);
 }
 
 inline

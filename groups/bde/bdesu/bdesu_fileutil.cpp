@@ -374,7 +374,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr) addr %
+    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(addr) %
                      bdesu_MemoryUtil::pageSize());
 
 
@@ -527,7 +527,7 @@ void bdesu_FileUtil::visitPaths(
         // No special characters except possibly in the leaf.  This is the BASE
         // CASE.
 
-        bsl::string dirNamePath = dirName.c_str();
+        bsl::string dirNamePath = dirName;
 
         WIN32_FIND_DATA findData;
         HANDLE handle = FindFirstFile(patternStr, &findData);
@@ -543,7 +543,10 @@ void bdesu_FileUtil::visitPaths(
             }
             else if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath,
                                                          findData.cFileName)) {
-                // skip "can't happen" case
+                // skip "can't happen" case: 'findData.cFileName' will never be
+                // an absolute path.
+
+                BSLS_ASSERT(!"FindFirstFile returned an absolute path.");
             }
             else {
                 visitor(dirNamePath.c_str());
@@ -576,7 +579,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
     BSLS_ASSERT(path);
 
     ULARGE_INTEGER avail;
-    if (!GetDiskFreeSpaceEx(path, (PULARGE_INTEGER)&avail, NULL, NULL)) {
+    if (!GetDiskFreeSpaceEx(path, &avail, NULL, NULL)) {
         return -1;                                                    // RETURN
     }
     return static_cast<bdesu_FileUtil::Offset>(avail.QuadPart);
@@ -850,7 +853,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
+    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(addr) %
                      bdesu_MemoryUtil::pageSize());
 
     int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
@@ -1189,7 +1192,7 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
         return 0;                                                     // RETURN
     }
     Offset res = seek(fd, size-1, BDESU_SEEK_FROM_BEGINNING);
-    if (-1 == res || 1 != write(fd, static_cast<const void *>(""), 1))
+    if (-1 == res || 1 != write(fd, "", 1))
     {
         return -1;                                                    // RETURN
     }

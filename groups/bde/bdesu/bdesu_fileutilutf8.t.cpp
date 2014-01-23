@@ -199,7 +199,7 @@ void localForkExec(bsl::string command)
         // child process
 
         bsl::vector<char *>  argvec;
-        const char          *endp = &command[command.length()];
+        const char          *endp = command.data() + command.length();
 
         for (char *pc = &command[0]; pc < endp; ++pc) {
             argvec.push_back(pc);
@@ -210,7 +210,7 @@ void localForkExec(bsl::string command)
         }
         argvec.push_back(0);
 
-        execv(argvec[0], &argvec[0]);
+        execv(argvec[0], argvec.data());
     }
 #else
     STARTUPINFO sui;
@@ -1583,7 +1583,7 @@ int main(int argc, char *argv[])
             SetLastError(0);
             rc = Obj::tryLock(fdWrite, true);
             LOOP_ASSERT(rc, 0 != rc);
-            LOOP_ASSERT(rc, Obj::e_ERROR_LOCKING_CONFLICT == rc);
+            LOOP_ASSERT(rc, Obj::k_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(GetLastError());
             LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
 
@@ -1591,7 +1591,7 @@ int main(int argc, char *argv[])
             SetLastError(0);
             rc = Obj::tryLock(fdWrite, false);
             LOOP_ASSERT(rc, 0 != rc);
-            LOOP_ASSERT(rc, Obj::e_ERROR_LOCKING_CONFLICT == rc);
+            LOOP_ASSERT(rc, Obj::k_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(GetLastError());
             LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
 
@@ -1599,7 +1599,7 @@ int main(int argc, char *argv[])
             SetLastError(0);
             rc = Obj::tryLock(fdRead, true);
             LOOP_ASSERT(rc, 0 != rc);
-            LOOP_ASSERT(rc, Obj::e_ERROR_LOCKING_CONFLICT == rc);
+            LOOP_ASSERT(rc, Obj::k_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(GetLastError());
             LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
 
@@ -1789,7 +1789,7 @@ int main(int argc, char *argv[])
             errno = 0;
             rc = Obj::tryLock(fdWrite, true);
             ASSERT(0 != rc);
-            ASSERT(Obj::e_ERROR_LOCKING_CONFLICT == rc);
+            ASSERT(Obj::k_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 
@@ -1797,7 +1797,7 @@ int main(int argc, char *argv[])
             errno = 0;
             rc = Obj::tryLock(fdWrite, false);
             ASSERT(0 != rc);
-            ASSERT(Obj::e_ERROR_LOCKING_CONFLICT == rc);
+            ASSERT(Obj::k_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 
@@ -1805,7 +1805,7 @@ int main(int argc, char *argv[])
             errno = 0;
             rc = Obj::tryLock(fdRead, true);
             ASSERT(0 != rc);
-            ASSERT(Obj::e_ERROR_LOCKING_CONFLICT == rc);
+            ASSERT(Obj::k_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 

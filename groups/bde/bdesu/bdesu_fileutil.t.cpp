@@ -174,7 +174,7 @@ void localForkExec(bsl::string command)
         // child process
 
         bsl::vector<char *>  argvec;
-        const char          *endp = &command[command.length()];
+        const char          *endp = command.data() + command.length();
 
         for (char *pc = &command[0]; pc < endp; ++pc) {
             argvec.push_back(pc);
@@ -185,7 +185,7 @@ void localForkExec(bsl::string command)
         }
         argvec.push_back(0);
 
-        execv(argvec[0], &argvec[0]);
+        execv(argvec[0], argvec.data());
     }
 #else
     STARTUPINFO sui;
