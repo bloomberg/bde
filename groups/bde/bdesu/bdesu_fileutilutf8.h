@@ -86,7 +86,7 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 ///Example 1: General Usage
-///- - - - - - - - - - - - -
+/// - - - - - - - - - - - -
 // In this example, we start with a (relative) native path to a directory
 // containing log files:
 //..
@@ -136,7 +136,7 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 ///Example 2: Using 'bdesu_FileUtilUtf8::visitPaths'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bdesu_FileUtilUtf8::visitPaths' enables clients to define a functor to
 // operate on file paths that match a specified pattern.  In this example, we
 // create a function that can be used to filter out files that have a last

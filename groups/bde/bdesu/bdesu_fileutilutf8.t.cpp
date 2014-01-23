@@ -361,7 +361,7 @@ void NoOpAssertHandler(const char *, const char *, int)
 namespace UsageExample2 {
 
 ///Example 2: Using 'bdesu_FileUtilUtf8::visitPaths'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bdesu_FileUtilUtf8::visitPaths' enables clients to define a functor to
 // operate on file paths that match a specified pattern.  In this example, we
 // create a function that can be used to filter out files that have a last
@@ -534,7 +534,7 @@ int main(int argc, char *argv[])
         bdesu_FileUtilUtf8::remove("temp.1");
 
 ///Example 1: General Usage
-///- - - - - - - - - - - - -
+/// - - - - - - - - - - - -
 // In this example, we start with a (relative) native path to a directory
 // containing log files:
 //..
@@ -2231,8 +2231,7 @@ int main(int argc, char *argv[])
                           Obj::e_FILE_OPEN,
                           Obj::e_IO_READ_ONLY); // must exist
             LOOP_ASSERT(tmpFile, f != Obj::INVALID_FD);
-            ASSERT(sizeof(int) == Obj::read(
-                                                      f, &value, sizeof(int)));
+            ASSERT(sizeof(int) == Obj::read(f, &value, sizeof(int)));
             ASSERT(0 == Obj::close(f));
             ASSERT(0 == Obj::remove(tmpFile));
             LOOP2_ASSERT(i, value, i == value);
@@ -2269,7 +2268,7 @@ int main(int argc, char *argv[])
                           Obj::e_FILE_OPEN,
                           Obj::e_IO_READ_ONLY);
             ASSERT(f != Obj::INVALID_FD);
-            ASSERT(sizeof(int) == Obj::read( f, &value, sizeof(int)));
+            ASSERT(sizeof(int) == Obj::read(f, &value, sizeof(int)));
             ASSERT(0 == Obj::close(f));
             ASSERT(0 == Obj::remove(tmpFile, true));
             LOOP2_ASSERT(i, value, i == value);
@@ -2741,14 +2740,16 @@ int main(int argc, char *argv[])
                 {L_, CR,        RO,      TR,       false,   true },
                 {L_, CR,        RO,      TR,        true,  false },
                 {L_, OP,        RO,      TR,       false,  false },
-                {L_, OP,        RO,      TR,        true,  false },// exc
+                // Truncate without Write or Create disallowed:
+                {L_, OP,        RO,      TR,        true,  false },
                 {L_, OC,        RO,      TR,       false,   true },
                 {L_, OC,        RO,      TR,        true,   true },
 
                 {L_, CR,        AO,      TR,       false,   true },
                 {L_, CR,        AO,      TR,        true,  false },
                 {L_, OP,        AO,      TR,       false,  false },
-                {L_, OP,        AO,      TR,        true,  false },// exc
+                // Truncate without Write or Create disallowed:
+                {L_, OP,        AO,      TR,        true,  false },
                 {L_, OC,        AO,      TR,       false,   true },
                 {L_, OC,        AO,      TR,        true,   true },
 
@@ -2761,7 +2762,8 @@ int main(int argc, char *argv[])
 
                 {L_, CR,        RA,      TR,       false,   true },
                 {L_, CR,        RA,      TR,        true,  false },
-                {L_, OP,        RA,      TR,       false,  false },// exc
+                {L_, OP,        RA,      TR,       false,  false },
+                // Truncate without Write or Create disallowed:
                 {L_, OP,        RA,      TR,        true,  false },
                 {L_, OC,        RA,      TR,       false,   true },
                 {L_, OC,        RA,      TR,        true,   true },
@@ -3780,12 +3782,14 @@ int main(int argc, char *argv[])
                 {L_, OC,        WO,      TR,        true  },
 
                 {L_, CR,        RO,      TR,       false  },
-          //exc {L_, OP,        RO,      TR,        true  },
+                // Truncate without Write or Create disallowed:
+                // {L_, OP,        RO,      TR,        true  },
                 {L_, OC,        RO,      TR,       false  },
                 {L_, OC,        RO,      TR,        true  },
 
                 {L_, CR,        AO,      TR,       false  },
-          //exc {L_, OP,        AO,      TR,        true  },
+                // Truncate without Write or Create disallowed:
+                // {L_, OP,        AO,      TR,        true  },
                 {L_, OC,        AO,      TR,       false  },
                 {L_, OC,        AO,      TR,        true  },
 
@@ -3795,7 +3799,8 @@ int main(int argc, char *argv[])
                 {L_, OC,        RW,      TR,        true  },
 
                 {L_, CR,        RA,      TR,       false  },
-          //exc {L_, OP,        RA,      TR,        true  },
+                // Truncate without Write or Create disallowed:
+                // {L_, OP,        RA,      TR,        true  },
                 {L_, OC,        RA,      TR,       false  },
                 {L_, OC,        RA,      TR,        true  },
             };
@@ -3929,12 +3934,14 @@ int main(int argc, char *argv[])
                 {L_, OC,        WO,      TR,        true  },
 
                 {L_, CR,        RO,      TR,       false  },
-          //exc {L_, OP,        RO,      TR,        true  },
+                // Truncate without Write or Create disallowed:
+                // {L_, OP,        RO,      TR,        true  },
                 {L_, OC,        RO,      TR,       false  },
                 {L_, OC,        RO,      TR,        true  },
 
                 {L_, CR,        AO,      TR,       false  },
-          //exc {L_, OP,        AO,      TR,        true  },
+                // Truncate without Write or Create disallowed:
+                // {L_, OP,        AO,      TR,        true  },
                 {L_, OC,        AO,      TR,       false  },
                 {L_, OC,        AO,      TR,        true  },
 
@@ -3944,7 +3951,8 @@ int main(int argc, char *argv[])
                 {L_, OC,        RW,      TR,        true  },
 
                 {L_, CR,        RA,      TR,       false  },
-          //exc {L_, OP,        RA,      TR,        true  },
+                // Truncate without Write or Create disallowed:
+                // {L_, OP,        RA,      TR,        true  },
                 {L_, OC,        RA,      TR,       false  },
                 {L_, OC,        RA,      TR,        true  },
             };
@@ -4122,14 +4130,16 @@ int main(int argc, char *argv[])
                 {L_, CR,        RO,      TR,       false,   true },
                 {L_, CR,        RO,      TR,        true,  false },
                 {L_, OP,        RO,      TR,       false,  false },
-                {L_, OP,        RO,      TR,        true,  false },// exc
+                // Truncate without Write or Create disallowed:
+                {L_, OP,        RO,      TR,        true,  false },
                 {L_, OC,        RO,      TR,       false,   true },
                 {L_, OC,        RO,      TR,        true,   true },
 
                 {L_, CR,        AO,      TR,       false,   true },
                 {L_, CR,        AO,      TR,        true,  false },
                 {L_, OP,        AO,      TR,       false,  false },
-                {L_, OP,        AO,      TR,        true,  false },// exc
+                // Truncate without Write or Create disallowed:
+                {L_, OP,        AO,      TR,        true,  false },
                 {L_, OC,        AO,      TR,       false,   true },
                 {L_, OC,        AO,      TR,        true,   true },
 
@@ -4143,7 +4153,8 @@ int main(int argc, char *argv[])
                 {L_, CR,        RA,      TR,       false,   true },
                 {L_, CR,        RA,      TR,        true,  false },
                 {L_, OP,        RA,      TR,       false,  false },
-                {L_, OP,        RA,      TR,        true,  false },// exc
+                // Truncate without Write or Create disallowed:
+                {L_, OP,        RA,      TR,        true,  false },
                 {L_, OC,        RA,      TR,       false,   true },
                 {L_, OC,        RA,      TR,        true,   true },
             };
