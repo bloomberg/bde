@@ -1017,6 +1017,55 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
         return pos_type(-1);                                          // RETURN
     }
 
+    // Handle the trivial case where the client is doing a null seek just to
+    // find the position in the file.  It is important this be done as quickly
+    // as possible, preferably avoiding flushes, etc, so change the state of
+    // this streambuf as little as possible to deliver that answer.
+
+    if (CUR == dir && 0 == offset) {
+        bool     isTrivial;
+        off_type trivialOffset;
+
+        switch (d_mode) {
+          case BDESU_NULL_MODE: {
+            isTrivial     = true;
+            trivialOffset = 0;
+          } break;
+          case BDESU_INPUT_MODE: {
+            isTrivial     = true;
+
+            // If 'gptr()' and 'egptr()' point to anything, 'egptr()'
+            // corresponds to where the file ptr is, while 'gptr()' corresponds
+            // to where the client of this object perceives themself as being.
+
+            char_type *pc = gptr();
+            trivialOffset = pc ? -(egptr() - pc) : 0;
+          } break;
+          case BDESU_OUTPUT_MODE: {
+            isTrivial     = true;
+
+            // if 'pbase()' and 'pptr()' point to anything, 'pbase()'
+            // corresponds to where the tile file ptr was when the last write
+            // finished, and 'pptr()' corresponds to where the client of this
+            // object perceives themself as being.
+
+            char_type *pc = pptr();
+            trivialOffset = pc ? pc - pbase() : 0;
+          } break;
+          default: {
+            // BDESU_INPUT_PUTBACK_MODE
+            // BDESU_ERROR_MODE
+
+            isTrivial = false;
+          }
+        }
+
+        if (isTrivial) {
+            return pos_type(d_fileHandler.seek(0, CUR) + trivialOffset);
+                                                                      // RETURN
+        }
+    }
+
     // Note that 'seekInit' will flush the output buffer if we're in output
     // mode, and exit putback mode if we're in it, leaving us in either input
     // mode or null mode.
