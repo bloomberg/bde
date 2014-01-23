@@ -269,38 +269,38 @@ const bdesu_FileUtilUtf8::FileDescriptor bdesu_FileUtilUtf8::INVALID_FD =
                                                           INVALID_HANDLE_VALUE;
 
 bdesu_FileUtilUtf8::FileDescriptor
-bdesu_FileUtilUtf8::open(const char                *pathName,
-                         enum FileOpenPolicies      openPolicy,
-                         enum FileIOPolicies        ioPolicy,
-                         enum FileTruncatePolicies  truncatePolicy)
+bdesu_FileUtilUtf8::open(const char              *pathName,
+                         enum FileOpenPolicy      openPolicy,
+                         enum FileIOPolicy        ioPolicy,
+                         enum FileTruncatePolicy  truncatePolicy)
 {
     BSLS_ASSERT(pathName);
 
-    if (   e_FILE_OPEN     == openPolicy
-        && e_INIT_TRUNCATE == truncatePolicy
-        && (   e_IO_READ_ONLY   == ioPolicy
-            || e_IO_APPEND_ONLY == ioPolicy
-            || e_IO_READ_APPEND == ioPolicy)) {
+    if (   e_OPEN     == openPolicy
+        && e_TRUNCATE == truncatePolicy
+        && (   e_READ_ONLY   == ioPolicy
+            || e_APPEND_ONLY == ioPolicy
+            || e_READ_APPEND == ioPolicy)) {
         return INVALID_FD;                                            // RETURN
     }
 
-    bool isTruncateMode = (truncatePolicy == e_INIT_TRUNCATE);
+    bool isTruncateMode = (truncatePolicy == e_TRUNCATE);
 
     DWORD accessMode  = 0;
     switch (ioPolicy) {
-      case e_IO_READ_ONLY:
+      case e_READ_ONLY:
         accessMode = GENERIC_READ;
         break;
-      case e_IO_READ_WRITE:
+      case e_READ_WRITE:
         accessMode = GENERIC_READ | GENERIC_WRITE;
         break;
-      case e_IO_READ_APPEND:
+      case e_READ_APPEND:
         accessMode = GENERIC_READ | FILE_APPEND_DATA;
         break;
-      case e_IO_WRITE_ONLY:
+      case e_WRITE_ONLY:
         accessMode = GENERIC_WRITE;
         break;
-      case e_IO_APPEND_ONLY:
+      case e_APPEND_ONLY:
         accessMode = FILE_APPEND_DATA;
         break;
       default:
@@ -310,7 +310,7 @@ bdesu_FileUtilUtf8::open(const char                *pathName,
 
     DWORD creationInfo = 0;
     switch (openPolicy) {
-      case e_FILE_OPEN:
+      case e_OPEN:
         // Both fail if file does not exist.
 
         if (isTruncateMode) {
@@ -320,12 +320,12 @@ bdesu_FileUtilUtf8::open(const char                *pathName,
             creationInfo = OPEN_EXISTING;
         }
         break;
-      case e_FILE_CREATE:
+      case e_CREATE:
         // Fails if file exists.
 
         creationInfo = CREATE_NEW;
         break;
-      case e_FILE_OPEN_OR_CREATE:
+      case e_OPEN_OR_CREATE:
         // Both succeed with error code if file exists.
 
         if (isTruncateMode) {
@@ -906,38 +906,38 @@ int bdesu_FileUtilUtf8::setWorkingDirectory(const char *path)
 const bdesu_FileUtilUtf8::FileDescriptor bdesu_FileUtilUtf8::INVALID_FD = -1;
 
 bdesu_FileUtilUtf8::FileDescriptor
-bdesu_FileUtilUtf8::open(const char               *path,
-                         enum FileOpenPolicies     openPolicy,
-                         enum FileIOPolicies       ioPolicy,
-                         enum FileTruncatePolicies truncatePolicy)
+bdesu_FileUtilUtf8::open(const char              *path,
+                         enum FileOpenPolicy      openPolicy,
+                         enum FileIOPolicy        ioPolicy,
+                         enum FileTruncatePolicy  truncatePolicy)
 {
-    if (   e_FILE_OPEN     == openPolicy
-        && e_INIT_TRUNCATE == truncatePolicy
-        && (   e_IO_READ_ONLY   == ioPolicy
-            || e_IO_APPEND_ONLY == ioPolicy
-            || e_IO_READ_APPEND == ioPolicy)) {
+    if (   e_OPEN     == openPolicy
+        && e_TRUNCATE == truncatePolicy
+        && (   e_READ_ONLY   == ioPolicy
+            || e_APPEND_ONLY == ioPolicy
+            || e_READ_APPEND == ioPolicy)) {
         return INVALID_FD;                                            // RETURN
     }
 
     int oflag = 0;
     int extendedFlags = 0;
     bool useExtendedOpen = false;
-    bool isTruncateMode = (truncatePolicy == e_INIT_TRUNCATE);
+    bool isTruncateMode = (truncatePolicy == e_TRUNCATE);
 
     switch (ioPolicy) {
-      case e_IO_READ_ONLY:
+      case e_READ_ONLY:
         oflag = O_RDONLY;
         break;
-      case e_IO_READ_WRITE:
+      case e_READ_WRITE:
         oflag = O_RDWR;
         break;
-      case e_IO_READ_APPEND:
+      case e_READ_APPEND:
         oflag = O_RDWR | O_APPEND;
         break;
-      case e_IO_WRITE_ONLY:
+      case e_WRITE_ONLY:
         oflag = O_WRONLY;
         break;
-      case e_IO_APPEND_ONLY:
+      case e_APPEND_ONLY:
         oflag = O_WRONLY | O_APPEND;
         break;
       default:
@@ -946,18 +946,18 @@ bdesu_FileUtilUtf8::open(const char               *path,
     }
 
     switch (openPolicy) {
-      case e_FILE_OPEN:
+      case e_OPEN:
         if (isTruncateMode) {
             oflag |= O_TRUNC;
         }
         break;
-      case e_FILE_CREATE:
+      case e_CREATE:
         oflag |= O_CREAT | O_EXCL;
         useExtendedOpen = true;
         extendedFlags =
                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
         break;
-      case e_FILE_OPEN_OR_CREATE:
+      case e_OPEN_OR_CREATE:
         oflag |= O_CREAT;
         if (isTruncateMode) {
             oflag |= O_TRUNC;

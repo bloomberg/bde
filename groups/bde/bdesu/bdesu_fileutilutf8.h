@@ -35,38 +35,37 @@ BDES_IDENT("$Id: $")
 ///-------------------
 // The behavior of the 'open' method is governed by three sets of enumerations:
 //
-///Open/Create Policy: 'bdesu_FileUtilUtf8::FileOpenPolicies'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu_FileUtilUtf8::FileOpenPolicies' governs whether 'open' creates a new
+///Open/Create Policy: 'bdesu_FileUtilUtf8::FileOpenPolicy'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_FileUtilUtf8::FileOpenPolicy' governs whether 'open' creates a new
 // file or opens an existing one.  The following values are possible:
 //
-//: o e_FILE_OPEN          : Open an existing file.
+//: o e_OPEN          : Open an existing file.
 //:
-//: o e_FILE_CREATE        : Create a new file.
+//: o e_CREATE        : Create a new file.
 //:
-//: o e_FILE_OPEN_OR_CREATE: Open a file if it exists, and create a new file
-//:                          otherwise.
+//: o e_OPEN_OR_CREATE: Open a file if it exists, and create a new file
+//:                     otherwise.
 //
-///Input/Output Access Policy: 'bdesu_FileUtilUtf8::FileIOPolicies'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu_FileUtilUtf8::FileIOPolicies' governs what Input/Output operations
-// are allowed on a file after it is opened.  The following values are
+///Input/Output Access Policy: 'bdesu_FileUtilUtf8::FileIOPolicy'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_FileUtilUtf8::FileIOPolicy' governs what Input/Output operations are
+// allowed on a file after it is opened.  The following values are possible:
+//
+//: o e_READ_ONLY  : Allow reading only.
+//: o e_WRITE_ONLY : Allow writing only.
+//: o e_READ_WRITE : Allow both reading and writing.
+//: o e_APPEND_ONLY: Allow appending to end-of-file only.
+//: o e_READ_APPEND: Allow both reading and appending to end-of-file.
+//
+///Truncation Policy: 'bdesu_FileUtilUtf8::FileTruncatePolicy'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_FileUtilUtf8::FileTruncatePolicy' governs whether 'open' deletes the
+// existing contents of a file when it is opened.  The following values are
 // possible:
 //
-//: o e_IO_READ_ONLY  : Allow reading only.
-//: o e_IO_WRITE_ONLY : Allow writing only.
-//: o e_IO_READ_WRITE : Allow both reading and writing.
-//: o e_IO_APPEND_ONLY: Allow appending to end-of-file only.
-//: o e_IO_READ_APPEND: Allow both reading and appending to end-of-file.
-//
-///Truncation Policy: 'bdesu_FileUtilUtf8::FileTruncatePolicies'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu_FileUtilUtf8::FileTruncatePolicies' governs whether 'open' deletes
-// the existing contents of a file when it is opened.  The following values are
-// possible:
-//
-//: o e_INIT_TRUNCATE: Delete the file's contents.
-//: o e_INIT_KEEP    : Keep the file's contents.
+//: o e_TRUNCATE: Delete the file's contents.
+//: o e_KEEP    : Keep the file's contents.
 //
 ///Starting Points For 'seek'
 ///--------------------------
@@ -331,26 +330,26 @@ struct bdesu_FileUtilUtf8 {
         k_ERROR_LOCKING_CONFLICT = 1
     };
 
-    enum FileOpenPolicies {
-        e_FILE_OPEN,           // Open an existing file.
+    enum FileOpenPolicy {
+        e_OPEN,           // Open an existing file.
 
-        e_FILE_CREATE,         // Create a new file.
+        e_CREATE,         // Create a new file.
 
-        e_FILE_OPEN_OR_CREATE  // Open a file if it exists, and create a new
-                               // file otherwise.
+        e_OPEN_OR_CREATE  // Open a file if it exists, and create a new file
+                          // otherwise.
     };
 
-    enum FileIOPolicies {
-        e_IO_READ_ONLY,    // Allow reading only.
-        e_IO_WRITE_ONLY,   // Allow writing only.
-        e_IO_APPEND_ONLY,  // Allow appending to end-of-file only.
-        e_IO_READ_WRITE,   // Allow both reading and writing.
-        e_IO_READ_APPEND   // Allow both reading and appending to end-of-file.
+    enum FileIOPolicy {
+        e_READ_ONLY,    // Allow reading only.
+        e_WRITE_ONLY,   // Allow writing only.
+        e_APPEND_ONLY,  // Allow appending to end-of-file only.
+        e_READ_WRITE,   // Allow both reading and writing.
+        e_READ_APPEND   // Allow both reading and appending to end-of-file.
     };
 
-    enum FileTruncatePolicies {
-        e_INIT_TRUNCATE,  // Delete the file's contents on open.
-        e_INIT_KEEP       // Keep the file's contents.
+    enum FileTruncatePolicy {
+        e_TRUNCATE,  // Delete the file's contents on open.
+        e_KEEP       // Keep the file's contents.
     };
 
     // CLASS DATA
@@ -358,51 +357,51 @@ struct bdesu_FileUtilUtf8 {
 
     // CLASS METHODS
     static FileDescriptor open(
-                      const char                *path,
-                      enum FileOpenPolicies      openPolicy,
-                      enum FileIOPolicies        ioPolicy,
-                      enum FileTruncatePolicies  truncatePolicy = e_INIT_KEEP);
+                             const char              *path,
+                             enum FileOpenPolicy      openPolicy,
+                             enum FileIOPolicy        ioPolicy,
+                             enum FileTruncatePolicy  truncatePolicy = e_KEEP);
     static FileDescriptor open(
-                      const bsl::string&         path,
-                      enum FileOpenPolicies      openPolicy,
-                      enum FileIOPolicies        ioPolicy,
-                      enum FileTruncatePolicies  truncatePolicy = e_INIT_KEEP);
+                             const bsl::string&       path,
+                             enum FileOpenPolicy      openPolicy,
+                             enum FileIOPolicy        ioPolicy,
+                             enum FileTruncatePolicy  truncatePolicy = e_KEEP);
         // Open the file at the specified 'path', using the specified
         // 'openPolicy' to determine whether to open an existing file or create
         // a new file, and using the specified 'ioPolicy' to determine whether
         // the file will be opened for reading, writing, or both. Optionally
         // specify a 'truncatePolicy' to determine whether any contents of the
         // file will be deleted before 'open' returns.  If 'truncatePolicy' is
-        // not supplied, the value 'e_INIT_KEEP' will be used.  Return a valid
+        // not supplied, the value 'e_KEEP' will be used.  Return a valid
         // 'FileDesriptor' for the file on success, or 'INVALID_FD' otherwise.
-        // If 'openPolicy' is 'e_FILE_OPEN', the file will be opened if it
-        // exists, and 'open' will fail otherwise.  If 'openPolicy' is
-        // 'e_FILE_CREATE', and no file exists at 'path', a new file will be
-        // created, and 'open' will fail otherwise.  If 'openPolicy' is
-        // 'e_FILE_OPEN_OR_CREATE', the file will be opened if it exists, and a
-        // new file will be created otherwise.  If 'ioPolicy' is
-        // 'e_IO_READ_ONLY', the returned 'FileDescriptor' will allow only read
-        // operations on the file.  If 'ioPolicy' is 'e_IO_WRITE_ONLY' or
-        // 'e_IO_APPEND_ONLY', the returned 'FileDescriptor' will allow only
-        // write operations on the file.  If 'ioPolicy' is 'e_IO_READ_WRITE' or
-        // 'e_IO_READ_APPEND', the returned 'FileDescriptor' will allow both
-        // read and write operations on the file.  Additionally, if 'ioPolicy'
-        // is 'e_IO_APPEND_ONLY' or 'e_IO_READ_APPEND' all writes will be made
-        // to the end of the file ("append mode").  If 'truncatePolicy' is
-        // 'e_INIT_TRUNCATE', the file will have zero length when 'open'
-        // returns.  If 'truncatePolicy' is 'e_INIT_KEEP', the file will be
-        // opened with its existing contents, if any.  Note that when a file is
-        // opened in 'append' mode, all writes will go to the end of the file,
-        // even if there has been seeking on the file descriptor or another
-        // process has changed the length of the file, though append-mode
-        // writes are not guaranteed to be atomic.  Note that 'open' will fail
-        // to open a file with a 'truncatePolicy' of 'e_INIT_TRUNCATE' unless
-        // at least one of the following policies is specified for 'openPolicy'
+        // If 'openPolicy' is 'e_OPEN', the file will be opened if it exists,
+        // and 'open' will fail otherwise.  If 'openPolicy' is 'e_CREATE', and
+        // no file exists at 'path', a new file will be created, and 'open'
+        // will fail otherwise.  If 'openPolicy' is 'e_OPEN_OR_CREATE', the
+        // file will be opened if it exists, and a new file will be created
+        // otherwise.  If 'ioPolicy' is 'e_READ_ONLY', the returned
+        // 'FileDescriptor' will allow only read operations on the file.  If
+        // 'ioPolicy' is 'e_WRITE_ONLY' or 'e_APPEND_ONLY', the returned
+        // 'FileDescriptor' will allow only write operations on the file.  If
+        // 'ioPolicy' is 'e_READ_WRITE' or 'e_READ_APPEND', the returned
+        // 'FileDescriptor' will allow both read and write operations on the
+        // file.  Additionally, if 'ioPolicy' is 'e_APPEND_ONLY' or
+        // 'e_READ_APPEND' all writes will be made to the end of the file
+        // ("append mode").  If 'truncatePolicy' is 'e_TRUNCATE', the file will
+        // have zero length when 'open' returns.  If 'truncatePolicy' is
+        // 'e_KEEP', the file will be opened with its existing contents, if
+        // any.  Note that when a file is opened in 'append' mode, all writes
+        // will go to the end of the file, even if there has been seeking on
+        // the file descriptor or another process has changed the length of the
+        // file, though append-mode writes are not guaranteed to be atomic.
+        // Note that 'open' will fail to open a file with a 'truncatePolicy' of
+        // 'e_TRUNCATE' unless at least one of the following policies is
+        // specified for 'openPolicy'
         // or 'ioPolicy':
-        //: o 'e_FILE_CREATE'
-        //: o 'e_FILE_OPEN_OR_CREATE'
-        //: o 'e_IO_WRITE_ONLY
-        //: o 'e_IO_READ_WRITE'
+        //: o 'e_CREATE'
+        //: o 'e_OPEN_OR_CREATE'
+        //: o 'e_WRITE_ONLY
+        //: o 'e_READ_WRITE'
 
     static int close(FileDescriptor descriptor);
         // Close the specified 'descriptor'.  Return 0 on success and a
@@ -699,10 +698,10 @@ void bdesu_FileUtilUtf8::visitPaths(
 
 inline
 bdesu_FileUtilUtf8::FileDescriptor
-bdesu_FileUtilUtf8::open(const bsl::string&        path,
-                         enum FileOpenPolicies     openPolicy,
-                         enum FileIOPolicies       ioPolicy,
-                         enum FileTruncatePolicies truncatePolicy)
+bdesu_FileUtilUtf8::open(const bsl::string&      path,
+                         enum FileOpenPolicy     openPolicy,
+                         enum FileIOPolicy       ioPolicy,
+                         enum FileTruncatePolicy truncatePolicy)
 {
     return open(path.c_str(), openPolicy, ioPolicy, truncatePolicy);
 }

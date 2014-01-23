@@ -174,8 +174,8 @@ bool isForwardSlash (char t)
 void localTouch(const char *fileName)
 {
     Obj::FileDescriptor fd = Obj::open(fileName,
-                                       Obj::e_FILE_OPEN_OR_CREATE,
-                                       Obj::e_IO_READ_WRITE);
+                                       Obj::e_OPEN_OR_CREATE,
+                                       Obj::e_READ_WRITE);
     ASSERT(Obj::INVALID_FD != fd);
     // ASSERT(1 == Obj::write(fd, "x", 1));
 
@@ -259,8 +259,8 @@ inline
 void makeArbitraryFile(const char *path)
 {
     Obj::FileDescriptor fd = Obj::open(path,
-                                       Obj::e_FILE_OPEN_OR_CREATE,
-                                       Obj::e_IO_READ_WRITE);
+                                       Obj::e_OPEN_OR_CREATE,
+                                       Obj::e_READ_WRITE);
     ASSERT(Obj::INVALID_FD != fd);
     ASSERT(5 == Obj::write(fd, "hello", 5));
     ASSERT(0 == Obj::close(fd));
@@ -472,8 +472,8 @@ int main(int argc, char *argv[])
 
             bdesu_FileUtilUtf8::FileDescriptor fd
                          = bdesu_FileUtilUtf8::open(s.str(),
-                                                    Obj::e_FILE_OPEN_OR_CREATE,
-                                                    Obj::e_IO_READ_WRITE);
+                                                    Obj::e_OPEN_OR_CREATE,
+                                                    Obj::e_READ_WRITE);
             ASSERT(0 != fd);
 
             const char buffer[] = "testing";
@@ -589,9 +589,9 @@ int main(int argc, char *argv[])
 
         // create a new file
         bdesu_FileUtilUtf8::FileDescriptor fd = bdesu_FileUtilUtf8::open(
-                                                    "tempfile",
-                                                    Obj::e_FILE_OPEN_OR_CREATE,
-                                                    Obj::e_IO_READ_WRITE);
+                                                        "tempfile",.
+                                                        Obj::e_OPEN_OR_CREATE,.
+                                                        Obj::e_READ_WRITE);.
         ASSERT(fd != bdesu_FileUtilUtf8::INVALID_FD);
         // allocate a buffer with the size equal to memory page size and
         // fill with some data
@@ -731,8 +731,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_() cout << "Creating file: "; P(name) }
 
             Obj::FileDescriptor fd = Obj::open(name,
-                                               Obj::e_FILE_OPEN_OR_CREATE,
-                                               Obj::e_IO_READ_WRITE);
+                                               Obj::e_OPEN_OR_CREATE,
+                                               Obj::e_READ_WRITE);
 
             LOOP_ASSERT(fd, Obj::INVALID_FD != fd);
 
@@ -750,8 +750,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_() cout << "Creating file: "; P(name) }
 
             Obj::FileDescriptor fd = Obj::open(name,
-                                               Obj::e_FILE_OPEN_OR_CREATE,
-                                               Obj::e_IO_READ_WRITE);
+                                               Obj::e_OPEN_OR_CREATE,
+                                               Obj::e_READ_WRITE);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             LOOP2_ASSERT(fd, ni, (ni == NAME_ANSI) == (Obj::INVALID_FD == fd));
@@ -898,8 +898,8 @@ int main(int argc, char *argv[])
             const char *const NAME = NAMES[i];
 
             Obj::FileDescriptor fd = Obj::open(NAME,
-                                               Obj::e_FILE_OPEN_OR_CREATE,
-                                               Obj::e_IO_READ_WRITE);
+                                               Obj::e_OPEN_OR_CREATE,
+                                               Obj::e_READ_WRITE);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             LOOP2_ASSERT(fd, i, (NAME_ANSI == i) == (Obj::INVALID_FD == fd));
@@ -1061,8 +1061,8 @@ int main(int argc, char *argv[])
             (void) Obj::remove(testFile, false);
 
             FD fd = Obj::open(testFile,
-                               Obj::e_FILE_OPEN_OR_CREATE,
-                               Obj::e_IO_READ_WRITE);
+                              Obj::e_OPEN_OR_CREATE,
+                              Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != fd);
 
             const char *str = "To be or not to be\n";
@@ -1157,11 +1157,11 @@ int main(int argc, char *argv[])
         bsl::string testFileName(tempFileName());
         Obj::remove(testFileName);
         FD writeFd = Obj::open(testFileName,
-                               Obj::e_FILE_OPEN_OR_CREATE,
-                               Obj::e_IO_READ_WRITE);
+                               Obj::e_OPEN_OR_CREATE,
+                               Obj::e_READ_WRITE);
         FD readFd  = Obj::open(testFileName,
-                               Obj::e_FILE_OPEN,
-                               Obj::e_IO_READ_ONLY);
+                               Obj::e_OPEN,
+                               Obj::e_READ_ONLY);
 
         ASSERT(Obj::INVALID_FD != writeFd);
         ASSERT(Obj::INVALID_FD != readFd);
@@ -1285,8 +1285,8 @@ int main(int argc, char *argv[])
             // First, test with lseek on one file desc
 
             FD fd = Obj::open(testFile,
-                              Obj::e_FILE_OPEN_OR_CREATE,
-                              Obj::e_IO_READ_APPEND);      // append mode;
+                              Obj::e_OPEN_OR_CREATE,
+                              Obj::e_READ_APPEND);      // append mode;
             ASSERT(Obj::INVALID_FD != fd);
 
             int rc = Obj::write(fd, testString, SZ10);
@@ -1306,8 +1306,8 @@ int main(int argc, char *argv[])
             // process writes to the end of the file.
 
             FD fd2 = Obj::open(testFile,
-                               Obj::e_FILE_OPEN,
-                               Obj::e_IO_READ_WRITE);
+                               Obj::e_OPEN,
+                               Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != fd2);
 
             off = Obj::seek(fd2, 0, Obj::e_SEEK_FROM_END);
@@ -1369,8 +1369,8 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(fs, 4 * SZ10 == (fs = Obj::getFileSize(testFile)));
 
             FD fdChild = Obj::open(testFile,
-                                   Obj::e_FILE_OPEN,
-                                   Obj::e_IO_READ_WRITE);
+                                   Obj::e_OPEN,
+                                   Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != fdChild);
 
             Obj::Offset off = Obj::seek(fdChild, 0, Obj::e_SEEK_FROM_END);
@@ -1467,8 +1467,8 @@ int main(int argc, char *argv[])
             // 'fdWrite' for read and lock it for write.
 
             fdWrite = Obj::open(fileNameWrite,
-                                Obj::e_FILE_OPEN_OR_CREATE,
-                                Obj::e_IO_READ_WRITE);
+                                Obj::e_OPEN_OR_CREATE,
+                                Obj::e_READ_WRITE);
             LOOP_ASSERT(fdWrite, Obj::INVALID_FD != fdWrite);
             rc = Obj::write(fdWrite, "woof", 4);
             LOOP_ASSERT(rc, 4 == rc);
@@ -1476,14 +1476,14 @@ int main(int argc, char *argv[])
             rc = Obj::close(fdWrite);
             LOOP_ASSERT(rc, 0 == rc);
             fdWrite = Obj::open(fileNameWrite,
-                                Obj::e_FILE_OPEN,
-                                Obj::e_IO_READ_ONLY);
+                                Obj::e_OPEN,
+                                Obj::e_READ_ONLY);
             LOOP_ASSERT(fdWrite, Obj::INVALID_FD != fdWrite);
 #endif
 
             fdRead  = Obj::open(fileNameRead,
-                                Obj::e_FILE_OPEN_OR_CREATE,
-                                Obj::e_IO_READ_WRITE);
+                                Obj::e_OPEN_OR_CREATE,
+                                Obj::e_READ_WRITE);
             LOOP_ASSERT(fdRead, Obj::INVALID_FD != fdRead);
             rc = Obj::write(fdRead , "woof", 4);
             LOOP_ASSERT(rc, 4 == rc);
@@ -1491,8 +1491,8 @@ int main(int argc, char *argv[])
             rc = Obj::close(fdRead);
             LOOP_ASSERT(rc, 0 == rc);
             fdRead = Obj::open(fileNameRead,
-                               Obj::e_FILE_OPEN,
-                               Obj::e_IO_READ_ONLY);
+                               Obj::e_OPEN,
+                               Obj::e_READ_ONLY);
             LOOP_ASSERT(fdRead, Obj::INVALID_FD != fdRead);
 #endif
             rc = Obj::tryLock(fdWrite, true);
@@ -1566,13 +1566,13 @@ int main(int argc, char *argv[])
             // can't actually read from it.
 
             fdWrite = Obj::open(fileNameWrite,
-                                Obj::e_FILE_OPEN,
-                                Obj::e_IO_READ_WRITE);
+                                Obj::e_OPEN,
+                                Obj::e_READ_WRITE);
             LOOP_ASSERT(fdWrite, Obj::INVALID_FD != fdWrite);
 
             fdRead  = Obj::open(fileNameRead,
-                                Obj::e_FILE_OPEN,
-                                Obj::e_IO_READ_ONLY);
+                                Obj::e_OPEN,
+                                Obj::e_READ_ONLY);
             LOOP_ASSERT(fdRead, Obj::INVALID_FD != fdRead);
             bsl::memset(buf, 0, sizeof(buf));
             rc = Obj::read(fdRead,  buf, 4);
@@ -1622,8 +1622,8 @@ int main(int argc, char *argv[])
                 // succeeded.
 
                 FD fdSuccess = Obj::open(fileNameSuccess,
-                                         Obj::e_FILE_OPEN_OR_CREATE,
-                                         Obj::e_IO_READ_WRITE);
+                                         Obj::e_OPEN_OR_CREATE,
+                                         Obj::e_READ_WRITE);
                 Obj::close(fdSuccess);
             }
         }
@@ -1678,23 +1678,23 @@ int main(int argc, char *argv[])
             Obj::remove(fileNameSuccess);
 
             fdWrite = Obj::open(fileNameWrite,
-                                Obj::e_FILE_OPEN_OR_CREATE,
-                                Obj::e_IO_READ_WRITE);
+                                Obj::e_OPEN_OR_CREATE,
+                                Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != fdWrite);
             rc = Obj::write(fdWrite, "woof", 4);
             ASSERT(4 == rc);
 
             fdRead  = Obj::open(fileNameRead,
-                                Obj::e_FILE_OPEN_OR_CREATE,
-                                Obj::e_IO_READ_WRITE);
+                                Obj::e_OPEN_OR_CREATE,
+                                Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != fdRead);
             rc = Obj::write(fdRead , "woof", 4);
             ASSERT(4 == rc);
             rc = Obj::close(fdRead);
             ASSERT(0 == rc);
             fdRead  = Obj::open(fileNameRead,
-                                Obj::e_FILE_OPEN,
-                                Obj::e_IO_READ_ONLY);
+                                Obj::e_OPEN,
+                                Obj::e_READ_ONLY);
             ASSERT(Obj::INVALID_FD != fdRead);
 
             // Unix can only lock a writable file for write
@@ -1760,8 +1760,8 @@ int main(int argc, char *argv[])
             const bsl::string WOOF = "woof";
 
             fdWrite = Obj::open(fileNameWrite,
-                                Obj::e_FILE_OPEN,
-                                Obj::e_IO_READ_WRITE);
+                                Obj::e_OPEN,
+                                Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != fdWrite);
             bsl::memset(buf, 0, sizeof(buf));
             rc = Obj::read(fdWrite, buf, 4);
@@ -1772,8 +1772,8 @@ int main(int argc, char *argv[])
             // it for write later
 
             fdRead  = Obj::open(fileNameRead,
-                                Obj::e_FILE_OPEN,
-                                Obj::e_IO_READ_WRITE);
+                                Obj::e_OPEN,
+                                Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != fdRead);
             bsl::memset(buf, 0, sizeof(buf));
             rc = Obj::read(fdRead,  buf, 4);
@@ -1828,8 +1828,8 @@ int main(int argc, char *argv[])
                 // succeeded.
 
                 FD fdSuccess = Obj::open(fileNameSuccess,
-                                         Obj::e_FILE_OPEN_OR_CREATE,
-                                         Obj::e_IO_READ_WRITE);
+                                         Obj::e_OPEN_OR_CREATE,
+                                         Obj::e_READ_WRITE);
                 Obj::close(fdSuccess);
             }
         }
@@ -1885,8 +1885,8 @@ int main(int argc, char *argv[])
         if (verbose) { P(fileName) }
 
         Obj::FileDescriptor fd = Obj::open(fileName,
-                                           Obj::e_FILE_OPEN_OR_CREATE,
-                                           Obj::e_IO_READ_APPEND);
+                                           Obj::e_OPEN_OR_CREATE,
+                                           Obj::e_READ_APPEND);
         ASSERT(Obj::INVALID_FD != fd);
 
         Obj::write(fd, "A", 1);
@@ -1903,20 +1903,18 @@ int main(int argc, char *argv[])
 
         Obj::close(fd);
 
-        fd = Obj::open(fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_APPEND);
+        fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_APPEND);
         Obj::write(fd, "C", 1);
         Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
         ASSERT(3 == Obj::read(fd, result, sizeof result));
 
         Obj::close(fd);
 
-        fd = Obj::open(fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+        fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
         Obj::write(fd, "D", 1);
         Obj::close(fd);
 
-        fd = Obj::open(fileName,
-                       Obj::e_FILE_OPEN_OR_CREATE,
-                       Obj::e_IO_READ_ONLY);
+        fd = Obj::open(fileName, Obj::e_OPEN_OR_CREATE, Obj::e_READ_ONLY);
         ASSERT(3 == Obj::read(fd, result, sizeof result));
         Obj::close(fd);
 
@@ -1948,8 +1946,8 @@ int main(int argc, char *argv[])
             sprintf(name, "woof.a.%d", i);
             Obj::FileDescriptor fd =
                        Obj::open(name,
-                                 Obj::e_FILE_OPEN_OR_CREATE,
-                                 Obj::e_IO_READ_WRITE);
+                                 Obj::e_OPEN_OR_CREATE,
+                                 Obj::e_READ_WRITE);
             Obj::close(fd);
         }
 
@@ -1993,8 +1991,8 @@ int main(int argc, char *argv[])
         string fileName = tempFileName("tmp.getFileSizeTest");
         if (veryVerbose) P(fileName);
         Obj::FileDescriptor fd = Obj::open(fileName,
-                                           Obj::e_FILE_OPEN_OR_CREATE,
-                                           Obj::e_IO_READ_WRITE);
+                                           Obj::e_OPEN_OR_CREATE,
+                                           Obj::e_READ_WRITE);
         ASSERT(0 != fd);
 
         const char buffer[] = "testing";
@@ -2078,8 +2076,8 @@ int main(int argc, char *argv[])
 
             string fileName("../getFileSizeTest.txt");
             Obj::FileDescriptor fd = Obj::open(fileName,
-                                               Obj::e_FILE_OPEN_OR_CREATE,
-                                               Obj::e_IO_READ_WRITE);
+                                               Obj::e_OPEN_OR_CREATE,
+                                               Obj::e_READ_WRITE);
             ASSERT(0 != fd);
 
             const char buffer[] = "testing";
@@ -2173,8 +2171,8 @@ int main(int argc, char *argv[])
 
         string fileName = tempFileName();
         Obj::FileDescriptor fd = Obj::open(fileName,
-                                           Obj::e_FILE_OPEN_OR_CREATE,
-                                           Obj::e_IO_READ_WRITE);
+                                           Obj::e_OPEN_OR_CREATE,
+                                           Obj::e_READ_WRITE);
         ASSERT(Obj::INVALID_FD != fd);
 
         avail = Obj::getAvailableSpace(fd);
@@ -2210,8 +2208,8 @@ int main(int argc, char *argv[])
             // Create the file - place index into it.
 
             f = Obj::open(tmpFile,
-                          Obj::e_FILE_OPEN_OR_CREATE,
-                          Obj::e_IO_READ_WRITE);
+                          Obj::e_OPEN_OR_CREATE,
+                          Obj::e_READ_WRITE);
             LOOP_ASSERT(tmpFile, f != Obj::INVALID_FD);
             ASSERT(sizeof(int) == Obj::write(f, &i, sizeof(int)));
             ASSERT(0 == Obj::close(f));
@@ -2228,8 +2226,8 @@ int main(int argc, char *argv[])
             int value = -1;
             tmpFile[pos] = "123456789"[i];
             f = Obj::open(tmpFile,
-                          Obj::e_FILE_OPEN,
-                          Obj::e_IO_READ_ONLY); // must exist
+                          Obj::e_OPEN,
+                          Obj::e_READ_ONLY); // must exist
             LOOP_ASSERT(tmpFile, f != Obj::INVALID_FD);
             ASSERT(sizeof(int) == Obj::read(f, &value, sizeof(int)));
             ASSERT(0 == Obj::close(f));
@@ -2247,8 +2245,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == Obj::createDirectories(tmpFile, true));
             f = Obj::open(tmpFile + PS + "file",
-                          Obj::e_FILE_OPEN_OR_CREATE,
-                          Obj::e_IO_READ_WRITE);
+                          Obj::e_OPEN_OR_CREATE,
+                          Obj::e_READ_WRITE);
             ASSERT(f != Obj::INVALID_FD);
             ASSERT(sizeof(int) == Obj::write(f, &i, sizeof(int)));
             ASSERT(0 == Obj::close(f));
@@ -2265,8 +2263,8 @@ int main(int argc, char *argv[])
             int value = -1;
             tmpFile[pos] = "123456789"[i];
             f = Obj::open(tmpFile + PS + "file",
-                          Obj::e_FILE_OPEN,
-                          Obj::e_IO_READ_ONLY);
+                          Obj::e_OPEN,
+                          Obj::e_READ_ONLY);
             ASSERT(f != Obj::INVALID_FD);
             ASSERT(sizeof(int) == Obj::read(f, &value, sizeof(int)));
             ASSERT(0 == Obj::close(f));
@@ -2526,8 +2524,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_() T_() cout << "Creating file "; P(path) }
 
             Obj::FileDescriptor f = Obj::open(path,
-                                              Obj::e_FILE_OPEN_OR_CREATE,
-                                              Obj::e_IO_READ_WRITE);
+                                              Obj::e_OPEN_OR_CREATE,
+                                              Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != f);
             ASSERT(0 == Obj::close(f));
 
@@ -2556,8 +2554,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_() T_() cout << "Creating file "; P(path) }
 
             Obj::FileDescriptor f = Obj::open(path,
-                                              Obj::e_FILE_OPEN_OR_CREATE,
-                                              Obj::e_IO_READ_WRITE);
+                                              Obj::e_OPEN_OR_CREATE,
+                                              Obj::e_READ_WRITE);
             ASSERT(Obj::INVALID_FD != f);
             ASSERT(0 == Obj::close(f));
 
@@ -2672,24 +2670,24 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBoostrap, phase 1: 'open' file mode."
                           << endl;
         {
-            const Obj::FileOpenPolicies OP = Obj::e_FILE_OPEN;
-            const Obj::FileOpenPolicies CR = Obj::e_FILE_CREATE;
-            const Obj::FileOpenPolicies OC = Obj::e_FILE_OPEN_OR_CREATE;
+            const Obj::FileOpenPolicy OP = Obj::e_OPEN;
+            const Obj::FileOpenPolicy CR = Obj::e_CREATE;
+            const Obj::FileOpenPolicy OC = Obj::e_OPEN_OR_CREATE;
 
-            const Obj::FileIOPolicies RO = Obj::e_IO_READ_ONLY;
-            const Obj::FileIOPolicies WO = Obj::e_IO_WRITE_ONLY;
-            const Obj::FileIOPolicies AO = Obj::e_IO_APPEND_ONLY;
-            const Obj::FileIOPolicies RW = Obj::e_IO_READ_WRITE;
-            const Obj::FileIOPolicies RA = Obj::e_IO_READ_APPEND;
+            const Obj::FileIOPolicy RO = Obj::e_READ_ONLY;
+            const Obj::FileIOPolicy WO = Obj::e_WRITE_ONLY;
+            const Obj::FileIOPolicy AO = Obj::e_APPEND_ONLY;
+            const Obj::FileIOPolicy RW = Obj::e_READ_WRITE;
+            const Obj::FileIOPolicy RA = Obj::e_READ_APPEND;
 
-            const Obj::FileTruncatePolicies TR = Obj::e_INIT_TRUNCATE;
-            const Obj::FileTruncatePolicies KP = Obj::e_INIT_KEEP;
+            const Obj::FileTruncatePolicy TR = Obj::e_TRUNCATE;
+            const Obj::FileTruncatePolicy KP = Obj::e_KEEP;
 
             const struct DataRow {
                 int d_line;
-                Obj::FileOpenPolicies d_openPolicy;
-                Obj::FileIOPolicies d_ioPolicy;
-                Obj::FileTruncatePolicies d_initPolicy;
+                Obj::FileOpenPolicy d_openPolicy;
+                Obj::FileIOPolicy d_ioPolicy;
+                Obj::FileTruncatePolicy d_initPolicy;
                 bool d_exists;
                 bool d_success;
             } DATA[] = {
@@ -2779,11 +2777,11 @@ int main(int argc, char *argv[])
                 const bool                 EXISTS      = DATA[ti].d_exists;
                 const bool                 EXP_SUCCESS = DATA[ti].d_success;
 
-                const Obj::FileOpenPolicies     OPEN_POLICY
+                const Obj::FileOpenPolicy     OPEN_POLICY
                                                        = DATA[ti].d_openPolicy;
-                const Obj::FileIOPolicies       IO_POLICY
+                const Obj::FileIOPolicy       IO_POLICY
                                                        = DATA[ti].d_ioPolicy;
-                const Obj::FileTruncatePolicies INIT_POLICY
+                const Obj::FileTruncatePolicy INIT_POLICY
                                                        = DATA[ti].d_initPolicy;
 
                 if (veryVerbose) {
@@ -2800,16 +2798,16 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
 
                 // If this test expects 'fileName' to exist, it must be created
-                // using the (already-tested) 'e_FILE_CREATE' open mode.
+                // using the (already-tested) 'e_CREATE' open mode.
 
                 if (EXISTS) {
-                    // We cannot use the combination of 'e_FILE_CREATE' with
-                    // 'e_IO_WRITE_ONLY' until it has been tested.
+                    // We cannot use the combination of 'e_CREATE' with
+                    // 'e_WRITE_ONLY' until it has been tested.
 
                     LOOP_ASSERT(LINE, isCreateFileTested);
 
                     Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_WRITE_ONLY);
+                                   fileName, Obj::e_CREATE, Obj::e_WRITE_ONLY);
                     LOOP_ASSERT(LINE, Obj::INVALID_FD != fd);
 
                     Obj::close(fd);
@@ -2836,7 +2834,7 @@ int main(int argc, char *argv[])
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
                 switch (IO_POLICY) {
-                  case Obj::e_IO_READ_ONLY: {
+                  case Obj::e_READ_ONLY: {
                     int flags = fcntl(fd, F_GETFL);
                     LOOP2_ASSERT(LINE, IO_POLICY,
                                                O_RDONLY == (flags & O_RDONLY));
@@ -2844,7 +2842,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_APPEND));
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_RDWR));
                   } break;
-                  case Obj::e_IO_WRITE_ONLY: {
+                  case Obj::e_WRITE_ONLY: {
                     int flags = fcntl(fd, F_GETFL);
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_RDONLY));
                     LOOP2_ASSERT(LINE, IO_POLICY,
@@ -2852,7 +2850,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_APPEND));
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_RDWR));
                   } break;
-                  case Obj::e_IO_APPEND_ONLY: {
+                  case Obj::e_APPEND_ONLY: {
                     int flags = fcntl(fd, F_GETFL);
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_RDONLY));
                     LOOP2_ASSERT(LINE, IO_POLICY,
@@ -2861,14 +2859,14 @@ int main(int argc, char *argv[])
                                                O_APPEND == (flags & O_APPEND));
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_RDWR));
                   } break;
-                  case Obj::e_IO_READ_WRITE: {
+                  case Obj::e_READ_WRITE: {
                     int flags = fcntl(fd, F_GETFL);
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_RDONLY));
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_WRONLY));
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_APPEND));
                     LOOP2_ASSERT(LINE, IO_POLICY, O_RDWR == (flags & O_RDWR));
                   } break;
-                  case Obj::e_IO_READ_APPEND: {
+                  case Obj::e_READ_APPEND: {
                     int flags = fcntl(fd, F_GETFL);
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_RDONLY));
                     LOOP2_ASSERT(LINE, IO_POLICY, 0 == (flags & O_WRONLY));
@@ -2882,8 +2880,8 @@ int main(int argc, char *argv[])
                 }
 #endif
 
-                if (   Obj::e_FILE_CREATE   == OPEN_POLICY
-                    && Obj::e_IO_WRITE_ONLY == IO_POLICY  ) {
+                if (   Obj::e_CREATE     == OPEN_POLICY
+                    && Obj::e_WRITE_ONLY == IO_POLICY  ) {
                     isCreateFileTested = true;
                 }
 
@@ -2903,7 +2901,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
             Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
             LOOP_ASSERT(fileName, Obj::INVALID_FD != fd);
 
             const char blockA[]   = { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
@@ -2916,14 +2914,14 @@ int main(int argc, char *argv[])
             char buffer[k_READ_BUFFER_SIZE];
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-            // e_IO_READ_WRITE supports writing
+            // e_READ_WRITE supports writing
 
             ASSERT(0 == lseek(fd, 0, SEEK_END));
             ASSERT(numBytesA == write(fd, blockA, numBytesA));
             ASSERT(numBytesA == lseek(fd, 0, SEEK_CUR));
             ASSERT(numBytesA == lseek(fd, 0, SEEK_END));
 
-            // e_IO_READ_WRITE supports reading
+            // e_READ_WRITE supports reading
 
             ASSERT(0 == lseek(fd, 0, SEEK_SET));
             memset(buffer, 0, k_READ_BUFFER_SIZE);
@@ -2933,7 +2931,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(blockA, buffer,
                                        0 == memcmp(blockA, buffer, numBytesA));
 
-            // e_IO_READ_WRITE write is not append
+            // e_READ_WRITE write is not append
 
             ASSERT(0 == lseek(fd, 0, SEEK_SET));
             ASSERT(numBytesB == write(fd, blockB, numBytesB));
@@ -2941,7 +2939,7 @@ int main(int argc, char *argv[])
             ASSERT(numBytesB == lseek(fd, 0, SEEK_CUR));
             ASSERT(numBytesA == lseek(fd, 0, SEEK_END));
 #else
-            // e_IO_READ_WRITE supports writing
+            // e_READ_WRITE supports writing
 
             ASSERT(0 == SetFilePointer(fd, 0, NULL, FILE_END));
             DWORD numBytes;
@@ -2950,7 +2948,7 @@ int main(int argc, char *argv[])
             ASSERT(numBytesA == SetFilePointer(fd, 0, NULL, FILE_CURRENT));
             ASSERT(numBytesA == SetFilePointer(fd, 0, NULL, FILE_END));
 
-            // e_IO_READ_WRITE supports reading
+            // e_READ_WRITE supports reading
 
             ASSERT(0 == SetFilePointer(fd, 0, NULL, FILE_BEGIN));
             memset(buffer, 0, k_READ_BUFFER_SIZE);
@@ -2959,7 +2957,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(blockA, buffer,
                                        0 == memcmp(blockA, buffer, numBytesA));
 
-            // e_IO_READ_WRITE write is not append
+            // e_READ_WRITE write is not append
 
             ASSERT(0 == SetFilePointer(fd, 0, NULL, FILE_BEGIN));
             ASSERT(WriteFile(fd, blockB, numBytesB, &numBytes, NULL));
@@ -3005,7 +3003,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(lengths[i], fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 LOOP_ASSERT(lengths[i], Obj::INVALID_FD != fd);
 
                 int bytesWritten = Obj::write(fd, blockA, lengths[i]);
@@ -3036,7 +3034,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 Obj::write(fd, blockA, numBytesA);
@@ -3057,7 +3055,7 @@ int main(int argc, char *argv[])
                 // A: Read amount requested.
 
                 Obj::FileDescriptor fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                                     fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 LOOP_ASSERT(lengths[i], Obj::INVALID_FD != fd);
 
                 int bytesRead = Obj::read(fd, buffer, lengths[i]);
@@ -3078,7 +3076,7 @@ int main(int argc, char *argv[])
                 // B: Read until file is exhausted.
 
                 Obj::FileDescriptor fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                                     fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 int bytesRead = Obj::read(fd, buffer, numBytesA + 1);
@@ -3114,7 +3112,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 Obj::write(fd, blockA, numBytesA);
@@ -3123,8 +3121,7 @@ int main(int argc, char *argv[])
 
                 //   Re-open file and write data.
 
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 int bytesWritten = Obj::write(fd, blockB, numBytesB);
@@ -3134,8 +3131,7 @@ int main(int argc, char *argv[])
 
                 //   Confirm data is written to start of file.
 
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 memset(buffer, 0, numBytesB);
@@ -3163,7 +3159,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(lengths[i], fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 LOOP_ASSERT(lengths[i], Obj::INVALID_FD != fd);
 
                 int bytesWritten = Obj::write(fd, blockA, lengths[i]);
@@ -3179,8 +3175,7 @@ int main(int argc, char *argv[])
 
                 //   Confirm marker is in expected location.
 
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 memset(buffer, 0, sizeof(buffer));
@@ -3213,7 +3208,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 Obj::write(fd, blockA, numBytesA);
@@ -3226,7 +3221,7 @@ int main(int argc, char *argv[])
 
                 //   Re-open file and read data of varying sizes
                 Obj::FileDescriptor fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                                     fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 LOOP_ASSERT(lengths[i], Obj::INVALID_FD != fd);
 
                 int bytesRead = Obj::read(fd, buffer, lengths[i]);
@@ -3246,8 +3241,7 @@ int main(int argc, char *argv[])
                 //   Re-open file and read until near end of file.
 
                 int fileSize = static_cast<int>(Obj::getFileSize(fileName));
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 LOOP_ASSERT(lengths[i], Obj::INVALID_FD != fd);
 
                 bytesRead = Obj::read(fd, buffer, fileSize - lengths[i]);
@@ -3297,7 +3291,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 Obj::write(fd, blockA, numBytesA);
@@ -3308,8 +3302,7 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(lengths[i], fileName, Obj::exists(fileName));
 
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 LOOP_ASSERT(lengths[i], Obj::INVALID_FD != fd);
 
                 int bytesWritten = Obj::write(fd, blockA, lengths[i]);
@@ -3349,7 +3342,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 Obj::write(fd, blockA, numBytesA);
@@ -3360,8 +3353,7 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(lengths[i], fileName, Obj::exists(fileName));
 
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 LOOP_ASSERT(lengths[i], Obj::INVALID_FD != fd);
 
                 int bytesRead = Obj::read(fd, buffer, lengths[i]);
@@ -3376,8 +3368,7 @@ int main(int argc, char *argv[])
 
                 //  Confirm that write began at end position of read.
 
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 LOOP_ASSERT(lengths[i], Obj::INVALID_FD != fd);
 
                 memset(buffer, 0, sizeof(buffer));
@@ -3404,7 +3395,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 bsls::AssertFailureHandlerGuard hG(
@@ -3449,13 +3440,13 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 // Confirm that position starts at 0.
 
                 Obj::Offset position =
-                                Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
+                                    Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
                 LOOP_ASSERT(position, 0 == position);
 
                 // Confirm that seek to begin succeeds -> 0.
@@ -3494,7 +3485,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 Obj::write(fd, blockA, numBytesA);
@@ -3503,30 +3494,28 @@ int main(int argc, char *argv[])
 
                 //   Re-open file and seek.
 
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 // Confirm that position starts at 0.
                 Obj::Offset position =
-                                Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
+                                    Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
                 LOOP_ASSERT(position, 0 == position);
 
                 for (int i = 0; i < numLengths; ++i) {
                     // Confirm that seek from end succeeds -> N.
 
-                    position = Obj::seek(fd, lengths[i],
-                                                     Obj::e_SEEK_FROM_END);
+                    position = Obj::seek(fd, lengths[i], Obj::e_SEEK_FROM_END);
                     LOOP_ASSERT(position, numBytesA + lengths[i] == position);
 
                     position = Obj::seek(fd, -lengths[i],
-                                                     Obj::e_SEEK_FROM_END);
+                                                         Obj::e_SEEK_FROM_END);
                     LOOP_ASSERT(position, numBytesA - lengths[i] == position);
 
                     // Confirm that seek from begin succeeds -> N.
 
                     position = Obj::seek(fd, lengths[i],
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                                                   Obj::e_SEEK_FROM_BEGINNING);
                     LOOP_ASSERT(position, lengths[i] == position);
 
                     // Confirm that seek from current succeeds -> N + M.
@@ -3535,26 +3524,24 @@ int main(int argc, char *argv[])
                     for (int j = 0; j < lengths[i]; ++j) {
                         // Seek forward
 
-                        position = Obj::seek(fd, j,
-                                                 Obj::e_SEEK_FROM_CURRENT);
+                        position = Obj::seek(fd, j, Obj::e_SEEK_FROM_CURRENT);
                         LOOP_ASSERT(position, origin + j == position);
 
                         // Reset to 'lengths[i]'.
 
                         position = Obj::seek(fd, lengths[i],
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                                                   Obj::e_SEEK_FROM_BEGINNING);
                         LOOP_ASSERT(position, lengths[i] == position);
 
                         // Seek backward
 
-                        position = Obj::seek(fd, -j,
-                                                 Obj::e_SEEK_FROM_CURRENT);
+                        position = Obj::seek(fd, -j, Obj::e_SEEK_FROM_CURRENT);
                         LOOP_ASSERT(position, origin - j == position);
 
                         // Reset to 'lengths[i]'.
 
                         position = Obj::seek(fd, lengths[i],
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                                                   Obj::e_SEEK_FROM_BEGINNING);
                         LOOP_ASSERT(position, lengths[i] == position);
                     }
                 }
@@ -3575,7 +3562,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                 Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 Obj::write(fd, blockA, numBytesA);
@@ -3584,8 +3571,7 @@ int main(int argc, char *argv[])
 
                 //   Re-open file and seek.
 
-                fd = Obj::open(
-                             fileName, Obj::e_FILE_OPEN, Obj::e_IO_READ_WRITE);
+                fd = Obj::open(fileName, Obj::e_OPEN, Obj::e_READ_WRITE);
                 ASSERT(Obj::INVALID_FD != fd);
 
                 for (int i = 0; i < numLengths; ++i) {
@@ -3593,7 +3579,7 @@ int main(int argc, char *argv[])
                     // (0, 1, N).
 
                     Obj::Offset position = Obj::seek(fd, lengths[i],
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                                                   Obj::e_SEEK_FROM_BEGINNING);
                     LOOP_ASSERT(position, lengths[i] == position);
 
                     memset(buffer, 0, sizeof(buffer));
@@ -3603,8 +3589,7 @@ int main(int argc, char *argv[])
 
                     // Confirm that read get 0 bytes if beyond end of file.
 
-                    position = Obj::seek(fd, lengths[i],
-                                                     Obj::e_SEEK_FROM_END);
+                    position = Obj::seek(fd, lengths[i], Obj::e_SEEK_FROM_END);
                     LOOP2_ASSERT(lengths[i], position,
                                            numBytesA + lengths[i] == position);
 
@@ -3614,8 +3599,7 @@ int main(int argc, char *argv[])
 
                     // Confirm that position after read is reported by "tell"
 
-                    position = Obj::seek(fd, 0,
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                    position = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
                     LOOP2_ASSERT(lengths[i], position, 0 == position);
 
                     bytesRead = Obj::read(fd, buffer, lengths[i]);
@@ -3644,7 +3628,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
                     Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                     ASSERT(Obj::INVALID_FD != fd);
 
                     Obj::write(fd, blockA, numBytesA);
@@ -3653,14 +3637,14 @@ int main(int argc, char *argv[])
                     // (0, 1, N).
 
                     Obj::Offset position = Obj::seek(fd, lengths[i],
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                                                   Obj::e_SEEK_FROM_BEGINNING);
                     LOOP_ASSERT(position, lengths[i] == position);
 
                     int bytesWritten = Obj::write(fd, blockB, 1);
                     LOOP2_ASSERT(lengths[i], bytesWritten, 1 == bytesWritten);
 
                     position = Obj::seek(fd, lengths[i],
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                                                   Obj::e_SEEK_FROM_BEGINNING);
                     LOOP_ASSERT(position, lengths[i] == position);
 
                     memset(buffer, 0, sizeof(buffer));
@@ -3670,14 +3654,12 @@ int main(int argc, char *argv[])
 
                     // Reset overwritten content
 
-                    position = Obj::seek(fd, 0,
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                    position = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
                     LOOP_ASSERT(position, 0 == position);
 
                     Obj::write(fd, blockA, numBytesA);
 
-                    position = Obj::seek(fd, 0,
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                    position = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
 
                     memset(buffer, 0, sizeof(buffer));
                     bytesRead = Obj::read(fd, buffer, numBytesA);
@@ -3689,8 +3671,7 @@ int main(int argc, char *argv[])
                     // Confirm that write fails if seek point is beyond end of
                     // file.
 
-                    position = Obj::seek(fd, lengths[i],
-                                                     Obj::e_SEEK_FROM_END);
+                    position = Obj::seek(fd, lengths[i], Obj::e_SEEK_FROM_END);
                     LOOP2_ASSERT(lengths[i], position,
                                            numBytesA + lengths[i] == position);
 
@@ -3698,7 +3679,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(lengths[i], bytesWritten, 1 == bytesWritten);
 
                     position = Obj::seek( fd, numBytesA + lengths[i],
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                                                   Obj::e_SEEK_FROM_BEGINNING);
                     LOOP_ASSERT(position, numBytesA + lengths[i] == position);
 
                     memset(buffer, 0, sizeof(buffer));
@@ -3708,8 +3689,7 @@ int main(int argc, char *argv[])
 
                     // Confirm that position after write is reported by "tell"
 
-                    position = Obj::seek(fd, 0,
-                                               Obj::e_SEEK_FROM_BEGINNING);
+                    position = Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING);
                     LOOP2_ASSERT(lengths[i], position, 0 == position);
 
                     bytesWritten = Obj::write(fd, blockB, lengths[i]);
@@ -3729,24 +3709,24 @@ int main(int argc, char *argv[])
                         "\nBoostrap, phase 5: 'open' with truncation."
                           << endl;
         {
-            const Obj::FileOpenPolicies OP = Obj::e_FILE_OPEN;
-            const Obj::FileOpenPolicies CR = Obj::e_FILE_CREATE;
-            const Obj::FileOpenPolicies OC = Obj::e_FILE_OPEN_OR_CREATE;
+            const Obj::FileOpenPolicy OP = Obj::e_OPEN;
+            const Obj::FileOpenPolicy CR = Obj::e_CREATE;
+            const Obj::FileOpenPolicy OC = Obj::e_OPEN_OR_CREATE;
 
-            const Obj::FileIOPolicies RO = Obj::e_IO_READ_ONLY;
-            const Obj::FileIOPolicies WO = Obj::e_IO_WRITE_ONLY;
-            const Obj::FileIOPolicies AO = Obj::e_IO_APPEND_ONLY;
-            const Obj::FileIOPolicies RW = Obj::e_IO_READ_WRITE;
-            const Obj::FileIOPolicies RA = Obj::e_IO_READ_APPEND;
+            const Obj::FileIOPolicy RO = Obj::e_READ_ONLY;
+            const Obj::FileIOPolicy WO = Obj::e_WRITE_ONLY;
+            const Obj::FileIOPolicy AO = Obj::e_APPEND_ONLY;
+            const Obj::FileIOPolicy RW = Obj::e_READ_WRITE;
+            const Obj::FileIOPolicy RA = Obj::e_READ_APPEND;
 
-            const Obj::FileTruncatePolicies TR = Obj::e_INIT_TRUNCATE;
-            const Obj::FileTruncatePolicies KP = Obj::e_INIT_KEEP;
+            const Obj::FileTruncatePolicy TR = Obj::e_TRUNCATE;
+            const Obj::FileTruncatePolicy KP = Obj::e_KEEP;
 
             const struct DataRow {
                 int d_line;
-                Obj::FileOpenPolicies d_openPolicy;
-                Obj::FileIOPolicies d_ioPolicy;
-                Obj::FileTruncatePolicies d_initPolicy;
+                Obj::FileOpenPolicy d_openPolicy;
+                Obj::FileIOPolicy d_ioPolicy;
+                Obj::FileTruncatePolicy d_initPolicy;
                 bool d_exists;
             } DATA[] = {
                 //LN openPolicy ioPolicy initPolicy exists
@@ -3812,11 +3792,11 @@ int main(int argc, char *argv[])
                 const int                       LINE   = DATA[ti].d_line;
                 const bool                      EXISTS = DATA[ti].d_exists;
 
-                const Obj::FileOpenPolicies     OPEN_POLICY
+                const Obj::FileOpenPolicy     OPEN_POLICY
                                                        = DATA[ti].d_openPolicy;
-                const Obj::FileIOPolicies       IO_POLICY
+                const Obj::FileIOPolicy       IO_POLICY
                                                        = DATA[ti].d_ioPolicy;
-                const Obj::FileTruncatePolicies INIT_POLICY
+                const Obj::FileTruncatePolicy INIT_POLICY
                                                        = DATA[ti].d_initPolicy;
 
                 if (veryVerbose) {
@@ -3833,11 +3813,11 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
 
                 // If this test expects 'fileName' to exist, it must be created
-                // using the (already-tested) 'e_FILE_CREATE' open mode.
+                // using the (already-tested) 'e_CREATE' open mode.
 
                 if (EXISTS) {
                     Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                     LOOP_ASSERT(LINE, Obj::INVALID_FD != fd);
                     LOOP_ASSERT(LINE, 1 == Obj::write(fd, " ", 1));
 
@@ -3860,13 +3840,13 @@ int main(int argc, char *argv[])
 
                 // Test truncation
 
-                if (!EXISTS || Obj::e_INIT_TRUNCATE == INIT_POLICY) {
+                if (!EXISTS || Obj::e_TRUNCATE == INIT_POLICY) {
                     LOOP_ASSERT(LINE, 0 ==
-                                   Obj::seek(fd, 0, Obj::e_SEEK_FROM_END));
+                                       Obj::seek(fd, 0, Obj::e_SEEK_FROM_END));
                 }
-                else if (Obj::e_INIT_KEEP == INIT_POLICY) {
+                else if (Obj::e_KEEP == INIT_POLICY) {
                     LOOP_ASSERT(LINE, 0 !=
-                                   Obj::seek(fd, 0, Obj::e_SEEK_FROM_END));
+                                       Obj::seek(fd, 0, Obj::e_SEEK_FROM_END));
                 }
                 else {
                     LOOP_ASSERT(LINE, false);
@@ -3881,24 +3861,24 @@ int main(int argc, char *argv[])
                             "\nBoostrap, phase 6: 'open' with append."
                           << endl;
         {
-            const Obj::FileOpenPolicies OP = Obj::e_FILE_OPEN;
-            const Obj::FileOpenPolicies CR = Obj::e_FILE_CREATE;
-            const Obj::FileOpenPolicies OC = Obj::e_FILE_OPEN_OR_CREATE;
+            const Obj::FileOpenPolicy OP = Obj::e_OPEN;
+            const Obj::FileOpenPolicy CR = Obj::e_CREATE;
+            const Obj::FileOpenPolicy OC = Obj::e_OPEN_OR_CREATE;
 
-            const Obj::FileIOPolicies RO = Obj::e_IO_READ_ONLY;
-            const Obj::FileIOPolicies WO = Obj::e_IO_WRITE_ONLY;
-            const Obj::FileIOPolicies AO = Obj::e_IO_APPEND_ONLY;
-            const Obj::FileIOPolicies RW = Obj::e_IO_READ_WRITE;
-            const Obj::FileIOPolicies RA = Obj::e_IO_READ_APPEND;
+            const Obj::FileIOPolicy RO = Obj::e_READ_ONLY;
+            const Obj::FileIOPolicy WO = Obj::e_WRITE_ONLY;
+            const Obj::FileIOPolicy AO = Obj::e_APPEND_ONLY;
+            const Obj::FileIOPolicy RW = Obj::e_READ_WRITE;
+            const Obj::FileIOPolicy RA = Obj::e_READ_APPEND;
 
-            const Obj::FileTruncatePolicies TR = Obj::e_INIT_TRUNCATE;
-            const Obj::FileTruncatePolicies KP = Obj::e_INIT_KEEP;
+            const Obj::FileTruncatePolicy TR = Obj::e_TRUNCATE;
+            const Obj::FileTruncatePolicy KP = Obj::e_KEEP;
 
             const struct DataRow {
                 int d_line;
-                Obj::FileOpenPolicies d_openPolicy;
-                Obj::FileIOPolicies d_ioPolicy;
-                Obj::FileTruncatePolicies d_initPolicy;
+                Obj::FileOpenPolicy d_openPolicy;
+                Obj::FileIOPolicy d_ioPolicy;
+                Obj::FileTruncatePolicy d_initPolicy;
                 bool d_exists;
             } DATA[] = {
                 //LN openPolicy ioPolicy initPolicy exists
@@ -3969,11 +3949,11 @@ int main(int argc, char *argv[])
                 const int                       LINE   = DATA[ti].d_line;
                 const bool                      EXISTS = DATA[ti].d_exists;
 
-                const Obj::FileOpenPolicies     OPEN_POLICY
+                const Obj::FileOpenPolicy     OPEN_POLICY
                                                        = DATA[ti].d_openPolicy;
-                const Obj::FileIOPolicies       IO_POLICY
+                const Obj::FileIOPolicy       IO_POLICY
                                                        = DATA[ti].d_ioPolicy;
-                const Obj::FileTruncatePolicies INIT_POLICY
+                const Obj::FileTruncatePolicy INIT_POLICY
                                                        = DATA[ti].d_initPolicy;
 
                 if (veryVerbose) {
@@ -3990,11 +3970,11 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
 
                 // If this test expects 'fileName' to exist, it must be created
-                // using the (already-tested) 'e_FILE_CREATE' open mode.
+                // using the (already-tested) 'e_CREATE' open mode.
 
                 if (EXISTS) {
                     Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_READ_WRITE);
+                                   fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                     LOOP_ASSERT(LINE, Obj::INVALID_FD != fd);
                     LOOP_ASSERT(LINE, 1 == Obj::write(fd, " ", 1));
 
@@ -4017,39 +3997,39 @@ int main(int argc, char *argv[])
 
                 // Test append
 
-                if (Obj::e_IO_WRITE_ONLY  == IO_POLICY ||
-                    Obj::e_IO_READ_WRITE  == IO_POLICY) {
+                if (Obj::e_WRITE_ONLY  == IO_POLICY ||
+                    Obj::e_READ_WRITE  == IO_POLICY) {
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, numBytesA ==
                                             Obj::write(fd, blockA, numBytesA));
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, numBytesB ==
                                             Obj::write(fd, blockB, numBytesB));
 
                     LOOP_ASSERT(LINE, numBytesB ==
-                               Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
+                                   Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
                 }
-                else if (Obj::e_IO_APPEND_ONLY == IO_POLICY ||
-                         Obj::e_IO_READ_APPEND == IO_POLICY) {
+                else if (Obj::e_APPEND_ONLY == IO_POLICY ||
+                         Obj::e_READ_APPEND == IO_POLICY) {
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, numBytesA ==
                                             Obj::write(fd, blockA, numBytesA));
                     Obj::Offset endpoint =
-                                    Obj::seek(fd, 0, Obj::e_SEEK_FROM_END);
+                                        Obj::seek(fd, 0, Obj::e_SEEK_FROM_END);
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, numBytesB ==
                             Obj::write(fd, blockB, numBytesB));
 
                     LOOP_ASSERT(LINE, endpoint + numBytesB ==
-                               Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
+                                   Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
                 }
                 else {
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, 0 > Obj::write(fd, blockA, numBytesA));
                 }
 
@@ -4062,24 +4042,24 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nFull test of enum-based four-argument open"
                           << endl;
         {
-            const Obj::FileOpenPolicies OP = Obj::e_FILE_OPEN;
-            const Obj::FileOpenPolicies CR = Obj::e_FILE_CREATE;
-            const Obj::FileOpenPolicies OC = Obj::e_FILE_OPEN_OR_CREATE;
+            const Obj::FileOpenPolicy OP = Obj::e_OPEN;
+            const Obj::FileOpenPolicy CR = Obj::e_CREATE;
+            const Obj::FileOpenPolicy OC = Obj::e_OPEN_OR_CREATE;
 
-            const Obj::FileIOPolicies RO = Obj::e_IO_READ_ONLY;
-            const Obj::FileIOPolicies WO = Obj::e_IO_WRITE_ONLY;
-            const Obj::FileIOPolicies AO = Obj::e_IO_APPEND_ONLY;
-            const Obj::FileIOPolicies RW = Obj::e_IO_READ_WRITE;
-            const Obj::FileIOPolicies RA = Obj::e_IO_READ_APPEND;
+            const Obj::FileIOPolicy RO = Obj::e_READ_ONLY;
+            const Obj::FileIOPolicy WO = Obj::e_WRITE_ONLY;
+            const Obj::FileIOPolicy AO = Obj::e_APPEND_ONLY;
+            const Obj::FileIOPolicy RW = Obj::e_READ_WRITE;
+            const Obj::FileIOPolicy RA = Obj::e_READ_APPEND;
 
-            const Obj::FileTruncatePolicies TR = Obj::e_INIT_TRUNCATE;
-            const Obj::FileTruncatePolicies KP = Obj::e_INIT_KEEP;
+            const Obj::FileTruncatePolicy TR = Obj::e_TRUNCATE;
+            const Obj::FileTruncatePolicy KP = Obj::e_KEEP;
 
             const struct DataRow {
                 int d_line;
-                Obj::FileOpenPolicies d_openPolicy;
-                Obj::FileIOPolicies d_ioPolicy;
-                Obj::FileTruncatePolicies d_initPolicy;
+                Obj::FileOpenPolicy d_openPolicy;
+                Obj::FileIOPolicy d_ioPolicy;
+                Obj::FileTruncatePolicy d_initPolicy;
                 bool d_exists;
                 bool d_success;
             } DATA[] = {
@@ -4175,11 +4155,11 @@ int main(int argc, char *argv[])
                 const bool                 EXISTS      = DATA[ti].d_exists;
                 const bool                 EXP_SUCCESS = DATA[ti].d_success;
 
-                const Obj::FileOpenPolicies     OPEN_POLICY
+                const Obj::FileOpenPolicy     OPEN_POLICY
                                                        = DATA[ti].d_openPolicy;
-                const Obj::FileIOPolicies       IO_POLICY
+                const Obj::FileIOPolicy       IO_POLICY
                                                        = DATA[ti].d_ioPolicy;
-                const Obj::FileTruncatePolicies INIT_POLICY
+                const Obj::FileTruncatePolicy INIT_POLICY
                                                        = DATA[ti].d_initPolicy;
 
                 if (verbose) {
@@ -4196,16 +4176,16 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, fileName, !Obj::exists(fileName));
 
                 // If this test expects 'fileName' to exist, it must be created
-                // using the (already-tested) 'e_FILE_CREATE' open mode.
+                // using the (already-tested) 'e_CREATE' open mode.
 
                 if (EXISTS) {
-                    // We cannot use the combination of 'e_FILE_CREATE' with
-                    // 'e_IO_WRITE_ONLY' until it has been tested.
+                    // We cannot use the combination of 'e_CREATE' with
+                    // 'e_WRITE_ONLY' until it has been tested.
 
                     LOOP_ASSERT(LINE, isCreateFileTested);
 
                     Obj::FileDescriptor fd = Obj::open(
-                           fileName, Obj::e_FILE_CREATE, Obj::e_IO_WRITE_ONLY);
+                                   fileName, Obj::e_CREATE, Obj::e_WRITE_ONLY);
                     LOOP_ASSERT(LINE, Obj::INVALID_FD != fd);
                     LOOP_ASSERT(LINE, 1 == Obj::write(fd, " ", 1));
 
@@ -4232,17 +4212,17 @@ int main(int argc, char *argv[])
                 // We expect to start at offset 0
 
                 LOOP_ASSERT(LINE, 0 == Obj::seek(fd, 0,
-                                                Obj::e_SEEK_FROM_CURRENT));
+                                                    Obj::e_SEEK_FROM_CURRENT));
 
                 // Test truncation
 
-                if (!EXISTS || Obj::e_INIT_TRUNCATE == INIT_POLICY) {
+                if (!EXISTS || Obj::e_TRUNCATE == INIT_POLICY) {
                     LOOP_ASSERT(LINE, 0 ==
-                                   Obj::seek(fd, 0, Obj::e_SEEK_FROM_END));
+                                       Obj::seek(fd, 0, Obj::e_SEEK_FROM_END));
                 }
-                else if (Obj::e_INIT_KEEP == INIT_POLICY) {
+                else if (Obj::e_KEEP == INIT_POLICY) {
                     LOOP_ASSERT(LINE, 0 !=
-                                   Obj::seek(fd, 0, Obj::e_SEEK_FROM_END));
+                                       Obj::seek(fd, 0, Obj::e_SEEK_FROM_END));
                 }
                 else {
                     LOOP_ASSERT(LINE, false);
@@ -4250,63 +4230,63 @@ int main(int argc, char *argv[])
 
                 // Test writing
 
-                if (Obj::e_IO_WRITE_ONLY  == IO_POLICY ||
-                    Obj::e_IO_READ_WRITE  == IO_POLICY) {
+                if (Obj::e_WRITE_ONLY  == IO_POLICY ||
+                    Obj::e_READ_WRITE  == IO_POLICY) {
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, numBytesA ==
                                             Obj::write(fd, blockA, numBytesA));
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, numBytesB ==
                                             Obj::write(fd, blockB, numBytesB));
 
                     LOOP_ASSERT(LINE, numBytesB ==
-                               Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
+                                   Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
                 }
-                else if (Obj::e_IO_APPEND_ONLY == IO_POLICY ||
-                         Obj::e_IO_READ_APPEND == IO_POLICY) {
+                else if (Obj::e_APPEND_ONLY == IO_POLICY ||
+                         Obj::e_READ_APPEND == IO_POLICY) {
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, numBytesA ==
                                             Obj::write(fd, blockA, numBytesA));
                     Obj::Offset endpoint =
-                                    Obj::seek(fd, 0, Obj::e_SEEK_FROM_END);
+                                        Obj::seek(fd, 0, Obj::e_SEEK_FROM_END);
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, numBytesB ==
-                            Obj::write(fd, blockB, numBytesB));
+                                            Obj::write(fd, blockB, numBytesB));
 
                     LOOP_ASSERT(LINE, endpoint + numBytesB ==
-                               Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
+                                   Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT));
                 }
                 else {
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, 0 > Obj::write(fd, blockA, numBytesA));
                 }
 
                 // Test reading
 
-                if (   Obj::e_IO_READ_ONLY   == IO_POLICY
-                    || Obj::e_IO_READ_WRITE  == IO_POLICY
-                    || Obj::e_IO_READ_APPEND == IO_POLICY) {
+                if (   Obj::e_READ_ONLY   == IO_POLICY
+                    || Obj::e_READ_WRITE  == IO_POLICY
+                    || Obj::e_READ_APPEND == IO_POLICY) {
                     // Seek to prepared read location.
 
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, 0 <= Obj::read(fd, buffer, 1));
                 }
                 else {
                     // Seek to prepared read location.
 
                     LOOP_ASSERT(LINE, 0 ==
-                             Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
+                                 Obj::seek(fd, 0, Obj::e_SEEK_FROM_BEGINNING));
                     LOOP_ASSERT(LINE, 0 > Obj::read(fd, buffer, 1));
                 }
 
-                if (   Obj::e_FILE_CREATE   == OPEN_POLICY
-                    && Obj::e_IO_WRITE_ONLY == IO_POLICY) {
+                if (   Obj::e_CREATE     == OPEN_POLICY
+                    && Obj::e_WRITE_ONLY == IO_POLICY) {
                     isCreateFileTested = true;
                 }
 
@@ -4407,8 +4387,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 == Obj::remove(logPath.c_str(), true));
                 }
                 Obj::FileDescriptor f = Obj::open(logPath.c_str(),
-                                                  Obj::e_FILE_OPEN_OR_CREATE,
-                                                  Obj::e_IO_READ_WRITE);
+                                                  Obj::e_OPEN_OR_CREATE,
+                                                  Obj::e_READ_WRITE);
                 LOOP_ASSERT(logPath, f != Obj::INVALID_FD);
 
                 filenameBuffer[filenameLength++] = '\n';
@@ -4524,8 +4504,8 @@ int main(int argc, char *argv[])
         static const char* foo = "/tmp/blahblah.tmp";
         Obj::remove(foo);
         Obj::FileDescriptor fd = Obj::open(foo,
-                                           Obj::e_FILE_OPEN_OR_CREATE,
-                                           Obj::e_IO_READ_WRITE);
+                                           Obj::e_OPEN_OR_CREATE,
+                                           Obj::e_READ_WRITE);
         int pageSize = bdesu_MemoryUtil::pageSize();
         Obj::grow(fd, pageSize);
         int *p;
@@ -4544,8 +4524,8 @@ int main(int argc, char *argv[])
 #if 0
         Obj::FileDescriptor fd =  // /bb/data is Bloomberg-specific
                        Obj::open("/bb/data/tmp/blahblah.tmp",
-                                 Obj::e_FILE_OPEN_OR_CREATE,
-                                 Obj::e_IO_READ_WRITE);
+                                 Obj::e_OPEN_OR_CREATE,
+                                 Obj::e_READ_WRITE);
         int pageSize = Obj::pageSize();
         int nPages = 1024*1024*1024 / pageSize;
         int rc = Obj::grow(fd, nPages * pageSize, argc > 2);
@@ -4600,8 +4580,8 @@ int main(int argc, char *argv[])
 
         const char *fileName = "tmpFiveGig.txt";
         Util::FileDescriptor fd = Util::open(fileName,
-                                             Obj::e_FILE_OPEN_OR_CREATE,
-                                             Obj::e_IO_READ_WRITE);
+                                             Obj::e_OPEN_OR_CREATE,
+                                             Obj::e_READ_WRITE);
         ASSERT(Util::INVALID_FD != fd);
 
         for (;;) {
@@ -4626,9 +4606,8 @@ int main(int argc, char *argv[])
             }
         }
         ASSERT(fiveGig == bytesWritten);
-        ASSERT(Util::seek(fd, 0, Util::e_SEEK_FROM_CURRENT) ==
-                                                                 bytesWritten);
-        ASSERT(Util::seek(fd, 0, Util::e_SEEK_FROM_END) ==   bytesWritten);
+        ASSERT(Util::seek(fd, 0, Util::e_SEEK_FROM_CURRENT) == bytesWritten);
+        ASSERT(Util::seek(fd, 0, Util::e_SEEK_FROM_END)     == bytesWritten);
 
         cout << "Writing done\n";
 
