@@ -1037,9 +1037,11 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
             // If 'gptr()' and 'egptr()' point to anything, 'egptr()'
             // corresponds to where the file ptr is, while 'gptr()' corresponds
             // to where the client of this object perceives themself as being.
+            // If one is null, both will be, and in that case we want
+            // 'trivialOffset' to be 0.
 
-            char_type *pc = gptr();
-            trivialOffset = pc ? -(egptr() - pc) : 0;
+            trivialOffset = -(egptr() - gptr());
+            BSLS_ASSERT_SAFE(trivialOffset <= 0);
           } break;
           case BDESU_OUTPUT_MODE: {
             isTrivial     = true;
@@ -1047,10 +1049,11 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
             // if 'pbase()' and 'pptr()' point to anything, 'pbase()'
             // corresponds to where the tile file ptr was when the last write
             // finished, and 'pptr()' corresponds to where the client of this
-            // object perceives themself as being.
+            // object perceives themself as being.  If one is null, both will
+            // be, and in that case we want 'trivialOffset' to be 0.
 
-            char_type *pc = pptr();
-            trivialOffset = pc ? pc - pbase() : 0;
+            trivialOffset = pptr() - pbase();
+            BSLS_ASSERT_SAFE(trivialOffset >= 0);
           } break;
           default: {
             // BDESU_INPUT_PUTBACK_MODE
