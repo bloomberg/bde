@@ -528,6 +528,7 @@ unix-AIX-*-*-xlc-        _   DEF_CXXFLAGS    = -qxflag=UnwindTypedefInClassDecl
 !! unix-AIX-*-*-xlc-11.1  dbg     DBG_CXXFLAGS    = -qxflag=v6align -g -qalias=noansi -qxflag=inlinewithdebug:stepOverInline -qlanglvl=staticstoreoverlinkage -Q -qxflag=noautoinline
 !! unix-AIX-*-*-xlc-10.1 opt     OPT_CXXFLAGS    = -O -DNDEBUG -qalias=noansi -qlanglvl=staticstoreoverlinkage
 !! unix-AIX-*-*-xlc-11.1 opt     OPT_CXXFLAGS    = -O -DNDEBUG -qalias=noansi -qlanglvl=staticstoreoverlinkage
+unix-AIX-*-*-xlc-11.2    opt     OPT_CXXFLAGS    = -qmaxmem=-1
 
 !! unix-AIX-*-*-xlc  _   XLC_PATH   = xlc
 !! unix-AIX-*-*-xlc  mt  XLC_PATH   = xlc_r
@@ -594,6 +595,7 @@ unix-SunOS-*-*-gcc  _  CXX = -ftemplate-depth-150
 unix-               _   CXXLINK     = $(CXX)
 unix-               _   CLINK   = $(CXXLINK)
 windows-                _   CXXLINK     = $(RETRY_ON_SIGNAL) link /nologo /incremental:no /subsystem:console /machine:ix86 ws2_32.lib
+!! windows-*-amd64-*-*  _   CXXLINK     = $(RETRY_ON_SIGNAL) link /nologo /incremental:no /subsystem:console /machine:X64 ws2_32.lib
 windows-                _   CLINK   = $(CXXLINK)
 
 unix            _   F77     = f77

@@ -97,6 +97,7 @@ class Options(object):
     '''Parser for the BDE build opts files.'''
 
     OPT_INLINE_COMMAND_RE = re.compile(r'\\"`([^`]+)`\\"')
+    OPT_INLINE_COMMAND_RE2 = re.compile(r'\$\(shell([^\)]+)\)')
 
     class Option:
         '''Empty class representing the option value.
@@ -110,7 +111,13 @@ class Options(object):
     def want_option(self, option):
         '''Find out if option matches the current platform.'''
 
-        ignore_keys = ('RETRY', 'RETRY_ON_EXIT', 'RETRY_ON_SIGNAL', 'SET_TMPDIR')
+        ignore_keys = ('XLC_INTERNAL_PREFIX1',
+                       'XLC_INTERNAL_PREFIX2',
+                       'AIX_GCC_PREFIX',
+                       'SUN_CC_INTERNAL_PREFIX',
+                       'SUN_GCC_INTERNAL_PREFIX',
+                       'LINUX_GCC_PREFIX',
+                       'WINDOWS_CC_PREFIX')
 
         if option.key in ignore_keys:
             return False;
@@ -130,6 +137,11 @@ class Options(object):
                 v = option.value
                 cmd_out = ctx.cmd_and_log(mc.group(1)).rstrip()
                 option.value = v[:mc.start(1) - 3] + '"' + cmd_out + '"'+ v[mc.end(1) + 3:]
+
+            mc2 = Options.OPT_INLINE_COMMAND_RE2.match(option.value)
+            if mc2:
+                cmd_out = ctx.cmd_and_log(mc2.group(1).split()).rstrip()
+                option.value = cmd_out
 
             if option.modifier == '--':
                 # prepend
@@ -152,7 +164,6 @@ class Options(object):
                     self.options[option.key] += ' ' + option.value
                 else:
                     self.options[option.key] = option.value
-
 
         if debug_opt_keys:
             if option.key in debug_opt_keys:
@@ -244,6 +255,12 @@ class Uplid(object):
         uplid = cls(os_type, os_name, cpu_type, os_ver, comp_type, comp_ver)
 
         return uplid
+
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__) and self.uplid == other.uplid)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __str__(self):
          attrs = ['os_type', 'os_name', 'cpu_type', 'os_ver', 'comp_type', 'comp_ver']

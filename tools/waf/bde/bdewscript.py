@@ -7,25 +7,28 @@ from bdewafconfigure import BdeWafConfigure
 from bdewafbuild import BdeWafBuild
 from bdeoptions import Uplid, Ufid
 
-from waflib import Context
-from waflib import Utils
+from waflib import Context, Utils, Logs
 
 def options(ctx):
     ctx.load('bdeunittest', tooldir = os.path.join('tools', 'waf', 'bde'))
+
+    from waflib.Tools.compiler_c import c_compiler
+    c_compiler['win32'] = ['msvc']
+    c_compiler['linux'] = ['gcc']
+    c_compiler['darwin'] = ['gcc']
+    ctx.load('compiler_c')
 
     from waflib.Tools.compiler_cxx import cxx_compiler
     cxx_compiler['win32'] = ['msvc']
     cxx_compiler['linux'] = ['g++']
     cxx_compiler['darwin'] = ['g++']
-
     ctx.load('compiler_cxx')
-
-    platform = Utils.unversioned_sys_platform()
 
     ctx.load('msvs')
     ctx.load('xcode')
 
     _add_commandline_options(ctx)
+
 
 def configure(ctx):
     ctx.load('bdeunittest', tooldir = os.path.join('tools', 'waf', 'bde'))
@@ -39,26 +42,35 @@ def configure(ctx):
         else:
             ctx.options.msvc_targets = 'x86'
 
+    matching_comps = { 'g++': 'gcc',
+                       'clang++': 'clang',
+                       'CC': 'cc',
+                       'xlC_r': 'xlc_r' }
 
-    bde_configure = BdeWafConfigure(ctx)
-    bde_configure.load_metadata()
-    bde_configure.configure_external_libs(ufid)
+    if 'CXX' in os.environ and 'CC' not in os.environ:
+        cxx_path = os.environ['CXX']
+        (head_cxx, tail_cxx) = os.path.split(cxx_path)
 
+        if tail_cxx in matching_comps:
+            os.environ['CC'] = os.path.join(head_cxx, matching_comps[tail_cxx])
+
+    ctx.load('compiler_c')
+    cc_ver = ctx.env.CC_VERSION
+    cc_name = ctx.env.COMPILER_CC
     ctx.load('compiler_cxx')
+    cxx_ver = ctx.env.CC_VERSION
+    cxx_name = ctx.env.COMPILER_CXX
+
+    if cxx_name in matching_comps:
+        if matching_comps[cxx_name] != cc_name:
+            ctx.fatal('C compiler and C++ compiler must match. Expected c compiler: %s' % matching_comps[cxx_name])
+        if cc_ver != cxx_ver:
+            ctx.fatal('C compiler and C++ compiler must be the same version. '
+                      'C compiler version: %s, C++ compiler version: %s' % (cc_ver, cxx_ver))
+
     uplid = _make_uplid_from_context(ctx)
-
-    ctx.msg('os_type', uplid.uplid['os_type'])
-    ctx.msg('os_name', uplid.uplid['os_name'])
-    ctx.msg('cpu_type', uplid.uplid['cpu_type'])
-    ctx.msg('os_ver', uplid.uplid['os_ver'])
-    ctx.msg('comp_type', uplid.uplid['comp_type'])
-    ctx.msg('comp_ver', uplid.uplid['comp_ver'])
-    ctx.msg('uplid', uplid)
-    ctx.msg('ufid', '_'.join(ufid.ufid))
-    ctx.msg('prefix', ctx.options.prefix)
-
-    bde_configure.configure_options(uplid)
-    bde_configure.save()
+    bde_configure = BdeWafConfigure(ctx)
+    bde_configure.configure(uplid, ufid)
 
 
 def build(ctx):
@@ -98,7 +110,6 @@ def _make_ufid_from_options(opts):
             if attr in ufid_map[opt]:
                 ufid.append(ufid_map[opt][attr])
 
-
     # always use mt
     ufid.append('mt')
 
@@ -137,6 +148,16 @@ def _make_uplid_from_context(ctx):
                   os_ver,
                   cxx,
                   cxx_version)
+
+    env_uplid_str = os.getenv('BDE_WAF_UPLID')
+    if env_uplid_str:
+        env_uplid = Uplid.from_platform_str(env_uplid_str)
+
+        if uplid != env_uplid:
+            Logs.warn(("The identified uplid, '%s', is different from the environment variable BDE_WAF_UPLID. "
+                       "The uplid has been overwritten to match BDE_WAF_UPLID, '%s'.") % (uplid, env_uplid))
+            uplid = env_uplid
+
     return uplid
 
 
@@ -172,6 +193,7 @@ def _sanitize_comp(ctx, comp):
         return comp
 
     return (cpu_type, 'gcc', 'clang')
+
 
 def _get_linux_comp(ctx):
     cpu_type = os.uname()[4]
@@ -274,6 +296,18 @@ def _add_commandline_options(ctx):
             grp.add_option(*opt_strings, **opt[1])
 
     add_opts(configure_group, configure_opts)
+
+    # Set the upper bound of the default number of jobs to 24
+    jobs = ctx.parser.get_option('-j').default
+    if jobs > 24:
+        jobs = 24
+        ctx.parser.remove_option('-j')
+        ctx.parser.add_option('-j', '--jobs',
+                              dest='jobs',
+                              default=jobs,
+                              type='int',
+                              help='amount of parallel jobs (%r)' % jobs)
+
 
 # ----------------------------------------------------------------------------
 # Copyright (C) 2013-2014 Bloomberg Finance L.P.
