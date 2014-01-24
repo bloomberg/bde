@@ -24,8 +24,6 @@ def options(ctx):
     cxx_compiler['darwin'] = ['g++']
     ctx.load('compiler_cxx')
 
-    platform = Utils.unversioned_sys_platform()
-
     ctx.load('msvs')
     ctx.load('xcode')
 
@@ -157,7 +155,7 @@ def _make_uplid_from_context(ctx):
 
         if uplid != env_uplid:
             Logs.warn(("The identified uplid, '%s', is different from the environment variable BDE_WAF_UPLID. "
-                       "Override the uplid to match BDE_WAF_UPLID, '%s'.") % (uplid, env_uplid))
+                       "The uplid has been overwritten to match BDE_WAF_UPLID, '%s'.") % (uplid, env_uplid))
             uplid = env_uplid
 
     return uplid

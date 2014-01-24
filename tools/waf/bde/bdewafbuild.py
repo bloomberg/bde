@@ -7,32 +7,6 @@ import bdeunittest
 from waflib.TaskGen import feature, after_method, before_method
 from waflib import Errors, Utils, Options, Task, Logs
 
-
-@feature('c')
-@after_method('propagate_uselib_vars')
-@before_method('apply_incpaths')
-def append_custom_cincludes(self):
-    """
-    """
-    if hasattr(self, 'cincludes'):
-        self.env.INCLUDES.extend(self.cincludes)
-
-    if hasattr(self, 'cust_libpaths'):
-        self.env.STLIBPATH.extend(self.cust_libpaths)
-
-@feature('cxx')
-@after_method('propagate_uselib_vars')
-@before_method('apply_incpaths')
-def append_custom_cxxincludes(self):
-    """
-    """
-    if hasattr(self, 'cxxincludes'):
-        self.env.INCLUDES.extend(self.cxxincludes)
-
-
-    if hasattr(self, 'cust_libpaths'):
-        self.env.STLIBPATH.extend(self.cust_libpaths)
-
 class BdeWafBuild(object):
 
     def __init__(self, ctx):
@@ -332,6 +306,28 @@ class BdeWafBuild(object):
             self.ctx.add_post_fun(bdeunittest.summary)
 
 
+@feature('c')
+@after_method('propagate_uselib_vars')
+@before_method('apply_incpaths')
+def append_custom_cincludes(self):
+    if hasattr(self, 'cincludes'):
+        self.env.INCLUDES.extend(self.cincludes)
+
+    if hasattr(self, 'cust_libpaths'):
+        self.env.STLIBPATH.extend(self.cust_libpaths)
+
+@feature('cxx')
+@after_method('propagate_uselib_vars')
+@before_method('apply_incpaths')
+def append_custom_cxxincludes(self):
+    if hasattr(self, 'cxxincludes'):
+        self.env.INCLUDES.extend(self.cxxincludes)
+
+
+    if hasattr(self, 'cust_libpaths'):
+        self.env.STLIBPATH.extend(self.cust_libpaths)
+
+
 @feature('*')
 @before_method('process_rule')
 def post_the_other(self):
@@ -471,7 +467,7 @@ def make_pc(self):
 
 class bdepc(Task.Task):
 
-    # replacement parameters: prefix, name, description, version, requires.private, name, libs, cflags
+    # replacement parameters: prefix, group_name, name, description, version, requires.private, name, libs, cflags
     PKGCONFIG_TEMPLATE = '''prefix=%s
 libdir=${prefix}/lib
 includedir=${prefix}/include/%s
