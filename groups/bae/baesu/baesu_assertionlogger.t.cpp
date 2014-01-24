@@ -1,4 +1,10 @@
 // baesu_AssertionLogger.t.cpp                                        -*-C++-*-
+
+// Force assertion in string to trigger.
+#define BDE_BUILD_TARGET_SAFE_2
+#define BDE_BUILD_TARGET_SAFE
+#define BDE_BUILD_TARGET_OPT
+
 #include <baesu_assertionlogger.h>
 
 #include <bael_loggermanager.h>
@@ -221,8 +227,12 @@ void protect_the_subsystem()
 // trace can be merged against the executable program to determine the location
 // of the error.
 //..
-// Assertion failed: (*this)[this->d_length] == CHAR_TYPE()...
-// 0x804f45a 0x804c72e 0x804c775 0x804c990 0x6e7e9c 0x804c351
+    // [ [ ... baesu_assertionlogger.cpp 55 Assertion.Failure 32 
+    // Assertion failed: (*this)[this->d_length] == CHAR_TYPE(),
+    // file .../bslstl_string.h, line 3407
+    // For stack trace, run 'showfunc.tsk <your_program_binary>
+    //    0x805d831 0x804f8cc 0x804e3f9 ...
+    // ]  { } ]
 //..
 
 // ============================================================================
@@ -378,10 +388,10 @@ int main(int argc, char *argv[])
                                   baesu_AssertionLogger::defaultLogSeverity());
         LOOP_ASSERT(to.numPublishedRecords(), 2 == to.numPublishedRecords());
 
-        SeverityCB<bael_Severity::BAEL_FATAL> fatalCb;
-        SeverityCB<bael_Severity::BAEL_WARN>  warnCb;
-        baesu_AssertionLogger::LogSeverityCallback  cb;
-        void                                   *cl;
+        SeverityCB<bael_Severity::BAEL_FATAL>        fatalCb;
+        SeverityCB<bael_Severity::BAEL_WARN>         warnCb;
+        baesu_AssertionLogger::LogSeverityCallback   cb;
+        void                                        *cl;
 
         if (veryVerbose) { T_ cout << "Using severity callback" << endl; }
         baesu_AssertionLogger::setLogSeverityCallback(fatalCb.callback, &cb);

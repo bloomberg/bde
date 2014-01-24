@@ -94,7 +94,7 @@ BDES_IDENT("$Id: $")
 //      // If this crashes, you're fired!
 //  {
 //      // lots of code...
-//      bsl:;string s;
+//      bsl::string s;
 //      getLateSummerDate(&s);
 //      // lots more code...
 //  }
@@ -116,8 +116,12 @@ BDES_IDENT("$Id: $")
 // trace can be merged against the executable program to determine the location
 // of the error.
 //..
-//  // Assertion failed: (*this)[this->d_length] == CHAR_TYPE()...
-//  // 0x804f45a 0x804c72e 0x804c775 0x804c990 0x6e7e9c 0x804c351
+//  // [ [ ... baesu_assertionlogger.cpp 55 Assertion.Failure 32 
+//  // Assertion failed: (*this)[this->d_length] == CHAR_TYPE(),
+//  // file .../bslstl_string.h, line 3407
+//  // For stack trace, run 'showfunc.tsk <your_program_binary>
+//  //    0x805d831 0x804f8cc 0x804e3f9 ...
+//  // ]  { } ]
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -126,10 +130,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BAEL_SEVERITY
 #include <bael_severity.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
-#include <bsls_atomicoperations.h>
 #endif
 
 namespace BloombergLP {

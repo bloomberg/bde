@@ -6,6 +6,7 @@ BDES_IDENT_RCSID(baesu_assertionlogger_cpp,"$Id$ $CSID$")
 
 #include <bael_log.h>
 #include <baesu_stacktraceutil.h>
+#include <bsls_atomicoperations.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
