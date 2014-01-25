@@ -104,10 +104,10 @@ using namespace BloombergLP;
 using bslstl::CallableVariable;
 
 // ============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                  Overview
+//                                  --------
 // The component under test is a value semantic container class template, whose
 // elements are indexed by key, and duplicate key values are permitted.  The
 // purpose of the component is to support implementing the four standard
@@ -284,7 +284,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -1801,7 +1801,7 @@ typedef bslalg::HashTableImpUtil     ImpUtil;
 typedef bslalg::BidirectionalLink    Link;
 
 //=============================================================================
-//                           HELPER CLASSES FOR TESTING
+//                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace bsl
@@ -1999,6 +1999,8 @@ namespace bslstl {
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void debugprint(
         const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t);
+    // Print the value of the specified 'HashTable' 't' in a format suitable
+    // for reading for debug purposes.
 }  // close namespace BloombergLP::bslstl
 
 namespace bsltf {
@@ -2135,12 +2137,12 @@ class GroupedHasher : private HASHER {
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-                       // ============================
-                       // class TestEqualityComparator
-                       // ============================
+                       // ================================
+                       // class ThrowingEqualityComparator
+                       // ================================
 
 template <class TYPE>
-class TestEqualityComparator {
+class ThrowingEqualityComparator {
     // This test class provides a mechanism that defines a function-call
     // operator that compares two objects of the parameterized 'TYPE'.  The
     // function-call operator is implemented with integer comparison using
@@ -2156,12 +2158,12 @@ class TestEqualityComparator {
 
   public:
     // CREATORS
-    //! TestEqualityComparator(const TestEqualityComparator& original) =
+    //! ThrowingEqualityComparator(const ThrowingEqualityComparator& original) =
     //                                                                 default;
         // Create a copy of the specified 'original'.
 
-    explicit TestEqualityComparator(size_t id = 0);
-        // Create a 'TestEqualityComparator'.  Optionally, specify 'id' that
+    explicit ThrowingEqualityComparator(size_t id = 0);
+        // Create a 'ThrowingEqualityComparator'.  Optionally, specify 'id' that
         // can be used to identify the object.
 
     // MANIPULATORS
@@ -2181,11 +2183,11 @@ class TestEqualityComparator {
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
 
-    size_t id() const;
-        // Return the 'id' of this object.
-
     size_t count() const;
         // Return the number of times 'operator()' is called.
+
+    size_t id() const;
+        // Return the 'id' of this object.
 
     size_t throwInterval() const;
         // Return the number of times 'operator()' may be called after throwing
@@ -2194,39 +2196,33 @@ class TestEqualityComparator {
 };
 
 template <class TYPE>
-bool operator==(const TestEqualityComparator<TYPE>& lhs,
-                const TestEqualityComparator<TYPE>& rhs);
-    // Return 'true' if the specificed 'lhs' and 'rhs' have the same value,
-    // and 'false' otherwise.  Two 'TestEqualityComparator' functors have the
+bool operator==(const ThrowingEqualityComparator<TYPE>& lhs,
+                const ThrowingEqualityComparator<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' have the same value,
+    // and 'false' otherwise.  Two 'ThrowingEqualityComparator' functors have the
     // same value if they have the same 'id'.
 
 template <class TYPE>
-bool operator!=(const TestEqualityComparator<TYPE>& lhs,
-                const TestEqualityComparator<TYPE>& rhs);
-    // Return 'true' if the specificed 'lhs' and 'rhs' do not have the same
-    // value, and 'false' otherwise.  Two 'TestEqualityComparator' functors do
+bool operator!=(const ThrowingEqualityComparator<TYPE>& lhs,
+                const ThrowingEqualityComparator<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' do not have the same
+    // value, and 'false' otherwise.  Two 'ThrowingEqualityComparator' functors do
     // not have the same value if they do not have the same 'id'.
 
-                       // =====================
-                       // class TestHashFunctor
-                       // =====================
+                       // =========================
+                       // class ThrowingHashFunctor
+                       // =========================
 
 template <class TYPE>
-class TestHashFunctor {
-    // This value-semantic class adapts a class meeting the C++11 'Hash'
-    // requirements (C++11 [hash.requirements], 17.6.3.4) with an additional
-    // 'mixer' attribute, that constitutes the value of this class, and is
-    // used to mutate the value returned from the adapted hasher when calling
-    // 'operator()'.  Note that this class privately inherits from the empty
-    // base class 'bsl::hash' in order to exploit a compiler optimization.
-
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getIdentifier'.  The function-call operator also
-    // increments a counter used to keep track the method call count.  Object
-    // of this class can be identified by an id passed on construction.
+class ThrowingHashFunctor {
+    // This value-semantic class meets the C++11 'Hash' requirements (C++11
+    // [hash.requirements], 17.6.3.4) with an overload for 'operator()' that
+    // can be configured at runtime to throw exceptions after a user-supplied
+    // number of function calls.  It can also be configured to never throw, and
+    // merely count the number of invokations of the function call operator.
+    // Note that this functor relies on "logical" rather than "physical"
+    // 'const' behavior, as it must count the number of times a
+    // 'const'-qualified function is invoked.
 
     // DATA
     size_t         d_id;            // identifier for the functor
@@ -2235,19 +2231,21 @@ class TestHashFunctor {
 
   public:
     // CREATORS
-    //! TestHashFunctor(const TestHashFunctor& original) = default;
+    //! ThrowingHashFunctor(const ThrowingHashFunctor& original) = default;
         // Create a copy of the specified 'original'.
 
-    explicit TestHashFunctor(size_t id = 0);
-        // Create a 'TestHashFunctor'.  Optionally, specify 'id' that can be
+    explicit ThrowingHashFunctor(size_t id = 0);
+        // Create a 'ThrowingHashFunctor'.  Optionally, specify 'id' that can be
         // used to identify the object.
 
     // MANIPULATORS
     void setId(size_t value);
         // Set the 'id' of this object to the specified value.  Note that the
         // 'id' contributes to the value produced by the 'operator()' method,
-        // so the 'id' of a 'TestHashFunctor' should not be changed for
+        // so the 'id' of a 'ThrowingHashFunctor' should not be changed for
         // functors that are installed in 'HashTable' objects.
+        // TBD document behavior is 'value' is less than the number of times
+        // 'operator()' has already been called.
 
     void setThrowInterval(size_t value);
         // Set the number of times 'operator()' may be called after throwing
@@ -2258,15 +2256,15 @@ class TestHashFunctor {
     // ACCESSORS
     native_std::size_t operator() (const TYPE& obj) const;
         // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
-        // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
-
-    size_t id() const;
-        // Return the 'id' of this object.
+        // called.   Return a hash value for the specified 'obj'.  The behavior
+        // is undefined unless 'obj' is a value supplied by the BSL template
+        // test faciliy.
 
     size_t count() const;
         // Return the number of times 'operator()' is called.
+
+    size_t id() const;
+        // Return the 'id' of this object.
 
     size_t throwInterval() const;
         // Return the number of times 'operator()' may be called after throwing
@@ -2275,17 +2273,17 @@ class TestHashFunctor {
 };
 
 template <class TYPE>
-bool operator==(const TestHashFunctor<TYPE>& lhs,
-                const TestHashFunctor<TYPE>& rhs);
-    // Return 'true' if the specificed 'lhs' and 'rhs' have the same value,
-    // and 'false' otherwise.  Two 'TestHashFunctor' functors have the same
+bool operator==(const ThrowingHashFunctor<TYPE>& lhs,
+                const ThrowingHashFunctor<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.  Two 'ThrowingHashFunctor' functors have the same
     // value if they have the same 'id'.
 
 template <class TYPE>
-bool operator!=(const TestHashFunctor<TYPE>& lhs,
-                const TestHashFunctor<TYPE>& rhs);
-    // Return 'true' if the specificed 'lhs' and 'rhs' do not have the same
-    // value, and 'false' otherwise.  Two 'TestHashFunctor' functors do not
+bool operator!=(const ThrowingHashFunctor<TYPE>& lhs,
+                const ThrowingHashFunctor<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' do not have the same
+    // value, and 'false' otherwise.  Two 'ThrowingHashFunctor' functors do not
     // have the same value if they do not have the same 'id'.
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2309,7 +2307,8 @@ class TestFacilityHasher : private HASHER { // exploit empty base
 
     // ACCESSORS
     native_std::size_t operator() (const KEY& k) const;
-        // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
+        // Return a hash code for the specified 'k' using the wrapped functor
+        // of (template paramaeter) type 'HASHER' supplied at construction.
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2330,7 +2329,8 @@ class TestConvertibleValueHasher : private TestFacilityHasher<KEY, HASHER> {
     // ACCESSORS
     native_std::size_t operator()(const bsltf::ConvertibleValueWrapper<KEY>& k)
                                                                          const;
-        // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
+        // Return a hash code for the specified 'k' using the wrapped functor
+        // of (template paramaeter) type 'HASHER' supplied at construction.
 };
 
                        // ====================================
@@ -2346,7 +2346,9 @@ class TestConvertibleValueComparator {
     bsltf::EvilBooleanType operator()(
                            const bsltf::ConvertibleValueWrapper<KEY>& a,
                            const bsltf::ConvertibleValueWrapper<KEY>& b) const;
-        // Return a hash code for the specified 'k' using the wrapped 'HASHER'.
+        // Return a value convertible to 'true' if the specified 'a' has the
+        // same value as the specified 'b', and a value convertible to 'false'
+        // otherwise..
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2360,9 +2362,9 @@ class GenericComparator {
     // ACCESSORS
     template <class ARG1_TYPE, class ARG2_TYPE>
     bsltf::EvilBooleanType operator() (ARG1_TYPE& arg1, ARG2_TYPE& arg2);
-        // Return 'true' if 'arg1' has the same value as 'arg2', for some
-        // unspecified definition that defaults to 'operator==', but may use
-        // some other functionality.
+        // Return 'true' if the specified 'arg1' has the same value as the
+        // specified 'arg2', for some unspecified definition that defaults to
+        // 'operator==', but may use some other functionality.
 };
 
                        // ===================
@@ -2378,7 +2380,7 @@ class GenericHasher {
     // ACCESSORS
     template <class KEY>
     native_std::size_t operator() (KEY& k);
-    // Return a hash code for the specified 'k'.
+        // Return a hash code for the specified 'k'.
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2392,10 +2394,10 @@ class ModifiableComparator {
   public:
     // ACCESSORS
     bsltf::EvilBooleanType operator() (KEY& arg1, KEY& arg2);
-        // Return 'true' if 'arg1' has the same value as 'arg2', for some
-        // unspecified definition that defaults to 'operator==', but may use
-        // some other functionality for 'KEY' types that do not support this
-        // operator.
+        // Return a value convertible to 'true' if the specified 'arg1' has the
+        // same value as the specified 'arg2', for some unspecified definition
+        // that defaults to 'operator==', but may use some other functionality
+        // for 'KEY' types that do not support this operator.
 };
 
                        // ======================
@@ -2411,7 +2413,7 @@ class ModifiableHasher {
   public:
     // ACCESSORS
     native_std::size_t operator() (KEY& k);
-    // Return a hash code for the specified 'k'.
+        // Return a hash code for the specified 'k'.
 };
 
 
@@ -2489,9 +2491,9 @@ struct FunctionPointerPolicies {
     typedef size_t HashFunction(const KEY&);
     typedef bool   ComparisonFunction(const KEY&, const KEY&);
 
-    static size_t hash(const KEY& k);
-
     static bool compare(const KEY& lhs, const KEY& rhs);
+
+    static size_t hash(const KEY& k);
 };
 
                        // ========================
@@ -2503,6 +2505,8 @@ struct MakeCallableEntity {
     typedef CALLABLE CallableEntityType;
 
     static CallableEntityType make();
+        // Return a default-constructed object of the (template parameter) type
+        // 'CALLABLE'.
 };
 
 template <class CALLABLE>
@@ -2510,6 +2514,11 @@ struct MakeCallableEntity<CALLABLE&> {
     typedef CALLABLE& CallableEntityType;
 
     static CallableEntityType make();
+        // Return a reference to a  default-constructed object of the (template
+        // parameter) type 'CALLABLE'.  Note that this is will be a reference
+        // to a singleton object; any modifications made to that object will
+        // be reflected in references to previous and subsequent calls to this
+        // function.
 };
 
 template <class FUNCTOR, bool ENABLE_SWAP>
@@ -2517,6 +2526,11 @@ struct MakeCallableEntity<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> > {
     typedef bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> CallableEntityType;
 
     static CallableEntityType make();
+        // Return a funtor wrapping a default-constructed object of the
+        // (template parameter) type 'FUNCTOR'.  The adapter overloads all
+        // operations other than the function-call operator in a most awkward
+        // way, and is swappable if and only if (the template parameter)
+        // 'ENABLE_SWAP' is 'true'.
 };
 
 template <class KEY>
@@ -2525,6 +2539,8 @@ struct MakeCallableEntity<size_t (*)(const KEY&)> {
     typedef FunctionType *CallableEntityType;
 
     static CallableEntityType make();
+        // Return the address of a function that can compute hash values for
+        // objects of the (template parameter) type 'KEY'.
 };
 
 template <class KEY>
@@ -2533,6 +2549,8 @@ struct MakeCallableEntity<bool (*)(const KEY&, const KEY&)> {
     typedef FunctionType *CallableEntityType;
 
     static CallableEntityType make();
+        // Return the address of a function that can compare two objects of the
+        // (template parameter) type 'KEY' for equality.
 };
 
 template <class RESULT, class ARG>
@@ -2541,6 +2559,8 @@ struct MakeCallableEntity<RESULT(&)(ARG)> {
     typedef FunctionType& CallableEntityType;
 
     static CallableEntityType make();
+        // Return a reference to a function that can compute hash values for
+        // objects of the (template parameter) type 'KEY'.
 };
 
 template <class RESULT, class ARG1, class ARG2>
@@ -2549,6 +2569,8 @@ struct MakeCallableEntity<RESULT(&)(ARG1, ARG2)> {
     typedef FunctionType& CallableEntityType;
 
     static CallableEntityType make();
+        // Return a reference to a function that can compare two objects of the
+        // (template parameter) type 'KEY' for equality.
 };
 
 template <class RESULT, class ARG>
@@ -2556,6 +2578,8 @@ struct MakeCallableEntity<RESULT(ARG)> {
     typedef RESULT CallableEntityType(ARG);
 
     static CallableEntityType& make();
+        // Return a reference to a function that can compute hash values for
+        // objects of the (template parameter) type 'KEY'.
 };
 
 template <class RESULT, class ARG1, class ARG2>
@@ -2563,6 +2587,8 @@ struct MakeCallableEntity<RESULT(ARG1, ARG2)> {
     typedef RESULT CallableEntityType(ARG1, ARG2);
 
     static CallableEntityType& make();
+        // Return a reference to a function that can compute hash values for
+        // objects of the (template parameter) type 'KEY'.
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2644,30 +2670,26 @@ struct ObjectMaker {
 
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>   Obj;
 
-    static const char * specForBootstrapTests() { return "abc"; }
-    static const char * specForCopyTests()      { return "abcd"; }
-    static const char * specForDefaultTests()   { return "abcd"; }
-
     static
     AllocatorType makeObject(Obj                  **objPtr,
                              char                   config,
                              bslma::Allocator      *fa, //"footprint" allocator
                              bslma::TestAllocator  *objectAllocator);
-    // construct a 'HashTable' object at the specified 'obj' address using the
-    // allocator determined by the specified 'config', and passing the
-    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
-    // to the constructor.  Return an allocator object that will compare equal
-    // to the allocator that is expected to be used to construct the
-    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
-    // used to construct the 'HashTable' object according to the specified
-    // 'config':
-    //..
-    //  config   allocator
-    //  'a'      use the specified 'objectAllocator'
-    //  'b'      use the default supplied by the constructor
-    //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator
-    //..
+        // Construct a 'HashTable' object at the specified 'objPtr' address
+        // using the allocator determined by the specified 'config', and
+        // passing the specified 'hash', 'compare', 'initialBuckets' and
+        // 'initialMaxLoadFactor' to the constructor.  Return an allocator
+        // object that will compare equal to the allocator that is expected to
+        // be used to construct the 'HashTable' object.  The specified
+        // 'objectAllocator' may, or may not, be used to construct the
+        // 'HashTable' object according to the specified 'config':
+        //..
+        //  config  allocator
+        //  'a'     use the specified 'objectAllocator'
+        //  'b'     use the default supplied by the constructor
+        //  'c'     explicitly pass a null pointer of type 'bslma::Allocator *'
+        //  'd'     explicitly pass the default allocator
+        //..
 
     static
     AllocatorType makeObject(Obj                  **objPtr,
@@ -2678,21 +2700,25 @@ struct ObjectMaker {
                              const COMPARATOR&      compare,
                              SizeType               initialBuckets,
                              float                  initialMaxLoadFactor);
-    // construct a 'HashTable' object at the specified 'obj' address using the
-    // allocator determined by the specified 'config', and passing the
-    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
-    // to the constructor.  Return an allocator object that will compare equal
-    // to the allocator that is expected to be used to construct the
-    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
-    // used to construct the 'HashTable' object according to the specified
-    // 'config':
-    //..
-    //  config   allocator
-    //  'a'      use the specified 'objectAllocator'
-    //  'b'      use the default supplied by the constructor
-    //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator
-    //..
+        // Construct a 'HashTable' object at the specified 'objPtr' address
+        // using the allocator determined by the specified 'config', and
+        // passing the specified 'hash', 'compare', 'initialBuckets' and
+        // 'initialMaxLoadFactor' to the constructor.  Return an allocator
+        // object that will compare equal to the allocator that is expected to
+        // be used to construct the 'HashTable' object.  The specified
+        // 'objectAllocator' may, or may not, be used to construct the
+        // 'HashTable' object according to the specified 'config':
+        //..
+        //  config  allocator
+        //  'a'     use the specified 'objectAllocator'
+        //  'b'     use the default supplied by the constructor
+        //  'c'     explicitly pass a null pointer of type 'bslma::Allocator *'
+        //  'd'     explicitly pass the default allocator
+        //..
+
+    static const char * specForBootstrapTests() { return "abc"; }
+    static const char * specForCopyTests()      { return "abcd"; }
+    static const char * specForDefaultTests()   { return "abcd"; }
 };
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR>
@@ -2710,30 +2736,26 @@ struct ObjectMaker<KEY_CONFIG,
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, AllocatorType>
                                                                            Obj;
 
-    static const char * specForBootstrapTests() { return "abc"; }
-    static const char * specForCopyTests()      { return "abcd"; }
-    static const char * specForDefaultTests()   { return "abcd"; }
-
     static
     AllocatorType makeObject(Obj                 **objPtr,
                              char                  config,
                              bslma::Allocator     *fa, // "footprint" allocator
                              bslma::TestAllocator *objectAllocator);
-    // construct a 'HashTable' object at the specified 'obj' address using the
-    // allocator determined by the specified 'config', and passing the
-    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
-    // to the constructor.  Return an allocator object that will compare equal
-    // to the allocator that is expected to be used to construct the
-    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
-    // used to construct the 'HashTable' object according to the specified
-    // 'config':
-    //..
-    //  config   allocator
-    //  'a'      use the specified 'objectAllocator'
-    //  'b'      use the default supplied by the constructor
-    //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator
-    //..
+        // Construct a 'HashTable' object at the specified 'objPtr' address
+        // using the allocator determined by the specified 'config', and
+        // passing the specified 'hash', 'compare', 'initialBuckets' and
+        // 'initialMaxLoadFactor' to the constructor.  Return an allocator
+        // object that will compare equal to the allocator that is expected to
+        // be used to construct the 'HashTable' object.  The specified
+        // 'objectAllocator' may, or may not, be used to construct the
+        // 'HashTable' object according to the specified 'config':
+        //..
+        //  config  allocator
+        //  'a'     use the specified 'objectAllocator'
+        //  'b'     use the default supplied by the constructor
+        //  'c'     explicitly pass a null pointer of type 'bslma::Allocator *'
+        //  'd'     explicitly pass the default allocator
+        //..
 
     static
     AllocatorType makeObject(Obj                  **objPtr,
@@ -2744,21 +2766,25 @@ struct ObjectMaker<KEY_CONFIG,
                              const COMPARATOR&      compare,
                              SizeType               initialBuckets,
                              float                  initialMaxLoadFactor);
-    // construct a 'HashTable' object at the specified 'obj' address using the
-    // allocator determined by the specified 'config', and passing the
-    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
-    // to the constructor.  Return an allocator object that will compare equal
-    // to the allocator that is expected to be used to construct the
-    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
-    // used to construct the 'HashTable' object according to the specified
-    // 'config':
-    //..
-    //  config   allocator
-    //  'a'      use the specified 'objectAllocator'
-    //  'b'      use the default supplied by the constructor
-    //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator
-    //..
+        // Construct a 'HashTable' object at the specified 'objPtr' address
+        // using the allocator determined by the specified 'config', and
+        // passing the specified 'hash', 'compare', 'initialBuckets' and
+        // 'initialMaxLoadFactor' to the constructor.  Return an allocator
+        // object that will compare equal to the allocator that is expected to
+        // be used to construct the 'HashTable' object.  The specified
+        // 'objectAllocator' may, or may not, be used to construct the
+        // 'HashTable' object according to the specified 'config':
+        //..
+        //  config  allocator
+        //  'a'     use the specified 'objectAllocator'
+        //  'b'     use the default supplied by the constructor
+        //  'c'     explicitly pass a null pointer of type 'bslma::Allocator *'
+        //  'd'     explicitly pass the default allocator
+        //..
+
+    static const char * specForBootstrapTests() { return "abc"; }
+    static const char * specForCopyTests()      { return "abcd"; }
+    static const char * specForDefaultTests()   { return "abcd"; }
 };
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR,
@@ -2780,30 +2806,26 @@ struct ObjectMaker<
     typedef bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, AllocatorType>
                                                                            Obj;
 
-    static const char * specForBootstrapTests() { return "ab"; }
-    static const char * specForCopyTests()      { return "ab"; }
-    static const char * specForDefaultTests()   { return "ab"; }
-
     static
     AllocatorType makeObject(Obj                 **objPtr,
                              char                  config,
                              bslma::Allocator     *fa, // "footprint" allocator
                              bslma::TestAllocator *objectAllocator);
-    // construct a 'HashTable' object at the specified 'obj' address using the
-    // allocator determined by the specified 'config', and passing the
-    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
-    // to the constructor.  Return an allocator object that will compare equal
-    // to the allocator that is expected to be used to construct the
-    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
-    // used to construct the 'HashTable' object according to the specified
-    // 'config':
-    //..
-    //  config   allocator
-    //  'a'      use the specified 'objectAllocator'
-    //  'b'      use the default supplied by the constructor
-    //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator
-    //..
+        // Construct a 'HashTable' object at the specified 'objPtr' address
+        // using the allocator determined by the specified 'config', and
+        // passing the specified 'hash', 'compare', 'initialBuckets' and
+        // 'initialMaxLoadFactor' to the constructor.  Return an allocator
+        // object that will compare equal to the allocator that is expected to
+        // be used to construct the 'HashTable' object.  The specified
+        // 'objectAllocator' may, or may not, be used to construct the
+        // 'HashTable' object according to the specified 'config':
+        //..
+        //  config  allocator
+        //  'a'     use the specified 'objectAllocator'
+        //  'b'     use the default supplied by the constructor
+        //  'c'     explicitly pass a null pointer of type 'bslma::Allocator *'
+        //  'd'     explicitly pass the default allocator
+        //..
 
     static
     AllocatorType makeObject(Obj                  **objPtr,
@@ -2814,21 +2836,25 @@ struct ObjectMaker<
                              const COMPARATOR&      compare,
                              SizeType               initialBuckets,
                              float                  initialMaxLoadFactor);
-    // construct a 'HashTable' object at the specified 'obj' address using the
-    // allocator determined by the specified 'config', and passing the
-    // specified 'hash', 'compare', 'initialBuckets' and 'initialMaxLoadFactor'
-    // to the constructor.  Return an allocator object that will compare equal
-    // to the allocator that is expected to be used to construct the
-    // 'HashTable' object.  The specified 'objectAllocator' may, or may not, be
-    // used to construct the 'HashTable' object according to the specified
-    // 'config':
-    //..
-    //  config   allocator
-    //  'a'      use the specified 'objectAllocator'
-    //  'b'      use the default supplied by the constructor
-    //  'c'      explicitly pass a null pointer of type 'bslma::Allocator *'
-    //  'd'      explicitly pass the default allocator
-    //..
+        // Construct a 'HashTable' object at the specified 'objPtr' address
+        // using the allocator determined by the specified 'config', and
+        // passing the specified 'hash', 'compare', 'initialBuckets' and
+        // 'initialMaxLoadFactor' to the constructor.  Return an allocator
+        // object that will compare equal to the allocator that is expected to
+        // be used to construct the 'HashTable' object.  The specified
+        // 'objectAllocator' may, or may not, be used to construct the
+        // 'HashTable' object according to the specified 'config':
+        //..
+        //  config  allocator
+        //  'a'     use the specified 'objectAllocator'
+        //  'b'     use the default supplied by the constructor
+        //  'c'     explicitly pass a null pointer of type 'bslma::Allocator *'
+        //  'd'     explicitly pass the default allocator
+        //..
+
+    static const char * specForBootstrapTests() { return "ab"; }
+    static const char * specForCopyTests()      { return "ab"; }
+    static const char * specForDefaultTests()   { return "ab"; }
 };
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2872,7 +2898,7 @@ void setHasherState(HASHER *hasher, size_t id);
     // overloaded for specific hasher types that can support the idea of
     // setting a state value.
 
-void setHasherState(TestHashFunctor<int> *hasher, size_t id);
+void setHasherState(ThrowingHashFunctor<int> *hasher, size_t id);
 
 template <class HASHER>
 bool isEqualHasher(const HASHER&, const HASHER&);
@@ -2888,8 +2914,8 @@ bool isEqualHasher(RESULT (*const &a)(ARGUMENT),
     // avoid ambiguities on the IBM XLC compiler.
 
 
-bool isEqualHasher(const TestHashFunctor<int>& lhs,
-                   const TestHashFunctor<int>& rhs);
+bool isEqualHasher(const ThrowingHashFunctor<int>& lhs,
+                   const ThrowingHashFunctor<int>& rhs);
     // Provide an overloaded function to compare hash functors.  Return
     // 'lhs == rhs'.
 
@@ -2901,7 +2927,7 @@ void setComparatorState(COMPARATOR *comparator, size_t id);
     // setting a state value.
 
 template <class KEY>
-void setComparatorState(TestEqualityComparator<KEY> *comparator, size_t id);
+void setComparatorState(ThrowingEqualityComparator<KEY> *comparator, size_t id);
 
 
 template <class COMPARATOR>
@@ -2920,8 +2946,8 @@ bool isEqualComparator(RESULT (*const &a)(ARG1, ARG2),
     // to avoid ambiguities on the IBM XLC compiler.
 
 template <class KEY>
-bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
-                       const TestEqualityComparator<KEY>& rhs);
+bool isEqualComparator(const ThrowingEqualityComparator<KEY>& lhs,
+                       const ThrowingEqualityComparator<KEY>& rhs);
     // Provide an overloaded function to compare comparators.  Return
     // 'lhs == rhs'.
 
@@ -3164,13 +3190,13 @@ size_t GroupedHasher<TYPE, HASHER, GROUP_SIZE>::operator() (const TYPE& value)
 }
 
                        // ----------------------------
-                       // class TestEqualityComparator
+                       // class ThrowingEqualityComparator
                        // ----------------------------
 
 // CREATORS
 template <class TYPE>
 inline
-TestEqualityComparator<TYPE>::TestEqualityComparator(size_t id)
+ThrowingEqualityComparator<TYPE>::ThrowingEqualityComparator(size_t id)
 : d_id(id)
 , d_count(0)
 , d_throwInterval(0)
@@ -3180,14 +3206,14 @@ TestEqualityComparator<TYPE>::TestEqualityComparator(size_t id)
 // MANIPULATORS
 template <class TYPE>
 inline
-void TestEqualityComparator<TYPE>::setId(size_t value)
+void ThrowingEqualityComparator<TYPE>::setId(size_t value)
 {
     d_id = value;
 }
 
 template <class TYPE>
 inline
-void TestEqualityComparator<TYPE>::setThrowInterval(size_t value)
+void ThrowingEqualityComparator<TYPE>::setThrowInterval(size_t value)
 {
     d_throwInterval = value;
 }
@@ -3195,7 +3221,7 @@ void TestEqualityComparator<TYPE>::setThrowInterval(size_t value)
 // ACCESSORS
 template <class TYPE>
 inline
-bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
+bool ThrowingEqualityComparator<TYPE>::operator() (const TYPE& lhs,
                                                const TYPE& rhs) const
 {
     ++d_count;
@@ -3210,49 +3236,49 @@ bool TestEqualityComparator<TYPE>::operator() (const TYPE& lhs,
 
 template <class TYPE>
 inline
-size_t TestEqualityComparator<TYPE>::id() const
-{
-    return d_id;
-}
-
-template <class TYPE>
-inline
-size_t TestEqualityComparator<TYPE>::count() const
+size_t ThrowingEqualityComparator<TYPE>::count() const
 {
     return d_count;
 }
 
 template <class TYPE>
 inline
-size_t TestEqualityComparator<TYPE>::throwInterval() const
+size_t ThrowingEqualityComparator<TYPE>::id() const
+{
+    return d_id;
+}
+
+template <class TYPE>
+inline
+size_t ThrowingEqualityComparator<TYPE>::throwInterval() const
 {
     return d_throwInterval;
 }
 
 template <class TYPE>
 inline
-bool operator==(const TestEqualityComparator<TYPE>& lhs,
-                const TestEqualityComparator<TYPE>& rhs)
+bool operator==(const ThrowingEqualityComparator<TYPE>& lhs,
+                const ThrowingEqualityComparator<TYPE>& rhs)
 {
     return lhs.id() == rhs.id();
 }
 
 template <class TYPE>
 inline
-bool operator!=(const TestEqualityComparator<TYPE>& lhs,
-                const TestEqualityComparator<TYPE>& rhs)
+bool operator!=(const ThrowingEqualityComparator<TYPE>& lhs,
+                const ThrowingEqualityComparator<TYPE>& rhs)
 {
     return lhs.id() != rhs.id();
 }
 
                        // ---------------------
-                       // class TestHashFunctor
+                       // class ThrowingHashFunctor
                        // ---------------------
 
 // CREATORS
 template <class TYPE>
 inline
-TestHashFunctor<TYPE>::TestHashFunctor(size_t id)
+ThrowingHashFunctor<TYPE>::ThrowingHashFunctor(size_t id)
 : d_id(id)
 , d_count(0)
 , d_throwInterval()
@@ -3262,14 +3288,14 @@ TestHashFunctor<TYPE>::TestHashFunctor(size_t id)
 // MANIPULATORS
 template <class TYPE>
 inline
-void TestHashFunctor<TYPE>::setId(size_t value)
+void ThrowingHashFunctor<TYPE>::setId(size_t value)
 {
     d_id = value;
 }
 
 template <class TYPE>
 inline
-void TestHashFunctor<TYPE>::setThrowInterval(size_t value)
+void ThrowingHashFunctor<TYPE>::setThrowInterval(size_t value)
 {
     d_throwInterval = value;
 }
@@ -3277,7 +3303,7 @@ void TestHashFunctor<TYPE>::setThrowInterval(size_t value)
 // ACCESSORS
 template <class TYPE>
 inline
-native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
+native_std::size_t ThrowingHashFunctor<TYPE>::operator() (const TYPE& obj) const
 {
     ++d_count;
 
@@ -3290,37 +3316,37 @@ native_std::size_t TestHashFunctor<TYPE>::operator() (const TYPE& obj) const
 
 template <class TYPE>
 inline
-size_t TestHashFunctor<TYPE>::id() const
+size_t ThrowingHashFunctor<TYPE>::id() const
 {
     return d_id;
 }
 
 template <class TYPE>
 inline
-size_t TestHashFunctor<TYPE>::count() const
+size_t ThrowingHashFunctor<TYPE>::count() const
 {
     return d_count;
 }
 
 template <class TYPE>
 inline
-size_t TestHashFunctor<TYPE>::throwInterval() const
+size_t ThrowingHashFunctor<TYPE>::throwInterval() const
 {
     return d_throwInterval;
 }
 
 template <class TYPE>
 inline
-bool operator==(const TestHashFunctor<TYPE>& lhs,
-                const TestHashFunctor<TYPE>& rhs)
+bool operator==(const ThrowingHashFunctor<TYPE>& lhs,
+                const ThrowingHashFunctor<TYPE>& rhs)
 {
     return lhs.id() != rhs.id();
 }
 
 template <class TYPE>
 inline
-bool operator!=(const TestHashFunctor<TYPE>& lhs,
-                const TestHashFunctor<TYPE>& rhs)
+bool operator!=(const ThrowingHashFunctor<TYPE>& lhs,
+                const ThrowingHashFunctor<TYPE>& rhs)
 {
     return lhs.id() != rhs.id();
 }
@@ -3481,6 +3507,15 @@ MakeCallableEntity<CALLABLE>::make()
     return CALLABLE();
 }
 
+template <class CALLABLE>
+inline
+typename MakeCallableEntity<CALLABLE &>::CallableEntityType
+MakeCallableEntity<CALLABLE &>::make()
+{
+    static CALLABLE sharedCallable = MakeCallableEntity<CALLABLE>::make();
+    return sharedCallable;
+}
+
 template <class FUNCTOR, bool ENABLE_SWAP>
 inline
 typename MakeCallableEntity<bsltf::DegenerateFunctor<FUNCTOR, ENABLE_SWAP> >::
@@ -3506,15 +3541,6 @@ typename
 MakeCallableEntity<bool (*)(const KEY&, const KEY&)>::make()
 {
     return &FunctionPointerPolicies<KEY>::compare;
-}
-
-template <class CALLABLE>
-inline
-typename MakeCallableEntity<CALLABLE &>::CallableEntityType
-MakeCallableEntity<CALLABLE &>::make()
-{
-    static CALLABLE sharedCallable = MakeCallableEntity<CALLABLE>::make();
-    return sharedCallable;
 }
 
 template <class RESULT, class ARG>
@@ -3748,7 +3774,7 @@ makeObject(Obj                  **objPtr,
           return AllocatorType(bslma::Default::allocator());          // RETURN
       } break;
       case 'c': {
-          *objPtr = new (*fa) Obj((bslma::Allocator *)0);
+          *objPtr = new (*fa) Obj(static_cast<bslma::Allocator *>(0));
           return AllocatorType(bslma::Default::allocator());          // RETURN
       } break;
       case 'd': {
@@ -3810,7 +3836,7 @@ makeObject(Obj                  **objPtr,
                                   compare,
                                   initialBuckets,
                                   initialMaxLoadFactor,
-                                  (bslma::Allocator *)0);
+                                  static_cast<bslma::Allocator *>(0));
           return AllocatorType(bslma::Default::allocator());          // RETURN
       } break;
       case 'd': {
@@ -3976,10 +4002,9 @@ template <class ALLOCATOR>
 inline
 bslma::TestAllocator *
 extractTestAllocator(ALLOCATOR&)
+    // Return a null pointer value.  Note that in general, there is no way to
+    // extract a test allocator from a generic allocator type.
 {
-    // In general, there is no way to extract a test allocator from an unknown
-    // allocator type.
-
     return 0;
 }
 
@@ -3987,10 +4012,10 @@ template <class TYPE>
 inline
 bslma::TestAllocator *
 extractTestAllocator(bsl::allocator<TYPE>& alloc)
+    // Return that address of the test allocator wrapped by the specified
+    // 'alloc', and a null pointer value if 'alloc' does not wrap a
+    // 'bslma::TestAllocator'.
 {
-    // If a BDE 'bsl::allocator' is wrapping a test allocator, it can be found
-    // by 'dynamic_cast'ing the underlying 'mechanism'.
-
     return dynamic_cast<bslma::TestAllocator *>(alloc.mechanism());
 }
 
@@ -3998,6 +4023,10 @@ template <class TYPE>
 inline
 bslma::TestAllocator *
 extractTestAllocator(bsltf::StdTestAllocator<TYPE>&)
+    // Return that address of the test allocator wrapped by the standard test
+    // allocator singleton, and a null pointer value if the standard test
+    // allocator singleton 'alloc' does not currently wrap a
+    // 'bslma::TestAllocator'.
 {
     // All 'bsltf::StdTestAllocator's share the same allocator, which is set by
     // the 'bsltf::StdTestAllocatorConfiguration' utility.  We can determine if
@@ -4026,7 +4055,7 @@ void setHasherState(HASHER *hasher, size_t id)
 }
 
 inline
-void setHasherState(TestHashFunctor<int> *hasher, size_t id)
+void setHasherState(ThrowingHashFunctor<int> *hasher, size_t id)
 {
     hasher->setId(id);
 }
@@ -4047,8 +4076,8 @@ bool isEqualHasher(RESULT (*const &a)(ARGUMENT),
 }
 
 inline
-bool isEqualHasher(const TestHashFunctor<int>& lhs,
-                   const TestHashFunctor<int>& rhs)
+bool isEqualHasher(const ThrowingHashFunctor<int>& lhs,
+                   const ThrowingHashFunctor<int>& rhs)
 {
     return lhs == rhs;
 }
@@ -4064,7 +4093,7 @@ void setComparatorState(COMPARATOR *comparator, size_t id)
 
 template <class KEY>
 inline
-void setComparatorState(TestEqualityComparator<KEY> *comparator, size_t id)
+void setComparatorState(ThrowingEqualityComparator<KEY> *comparator, size_t id)
 {
     comparator->setId(id);
 }
@@ -4087,8 +4116,8 @@ bool isEqualComparator(RESULT (*const &a)(ARG1, ARG2),
 
 template <class KEY>
 inline
-bool isEqualComparator(const TestEqualityComparator<KEY>& lhs,
-                       const TestEqualityComparator<KEY>& rhs)
+bool isEqualComparator(const ThrowingEqualityComparator<KEY>& lhs,
+                       const ThrowingEqualityComparator<KEY>& rhs)
 {
     return lhs == rhs;
 }
@@ -4289,7 +4318,7 @@ Link* insertElement(
 }  // close unnamed namespace
 
 // ============================================================================
-//                         TEST DRIVER HARNESS
+//                          TEST DRIVER HARNESS
 // ----------------------------------------------------------------------------
 
 #if !defined(BSLS_PLATFORM_CMP_CLANG)
@@ -4621,8 +4650,8 @@ template <class ELEMENT>
 struct TestDriver_StatefulConfiguation
      : TestDriver_ForwardTestCasesByConfiguation<
            TestDriver< BasicKeyConfig<ELEMENT>
-                     , TestHashFunctor<ELEMENT>
-                     , TestEqualityComparator<ELEMENT>
+                     , ThrowingHashFunctor<ELEMENT>
+                     , ThrowingEqualityComparator<ELEMENT>
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
@@ -4673,7 +4702,7 @@ struct TestDriver_DegenerateConfiguation
            TestDriver< BasicKeyConfig<ELEMENT>
                      , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT> >
                      , bsltf::DegenerateFunctor<
-                                              TestEqualityComparator<ELEMENT> >
+                                              ThrowingEqualityComparator<ELEMENT> >
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
@@ -4691,7 +4720,7 @@ struct TestDriver_DegenerateConfiguationWithNoSwap
                      , bsltf::DegenerateFunctor<TestFacilityHasher<ELEMENT>,
                                                 false>
                      , bsltf::DegenerateFunctor<
-                                               TestEqualityComparator<ELEMENT>,
+                                               ThrowingEqualityComparator<ELEMENT>,
                                                false>
                      , ::bsl::allocator<ELEMENT>
                      >
@@ -5046,6 +5075,10 @@ class TestDriver {
     // "ABC"        Insert three values corresponding to A, B and C.
     //-------------------------------------------------------------------------
 
+    static Obj& gg(Obj *object, const char *spec);
+        // Return, by reference, the specified object with its value adjusted
+        // according to the specified 'spec'.
+
     static int ggg(Obj *object, const char *spec, bool verbose = true);
         // Configure the specified 'object' according to the specified 'spec',
         // using only the primary manipulator function 'insert' and white-box
@@ -5055,10 +5088,6 @@ class TestDriver {
         // values lower than '-1' indicate some error other than parsing the
         // 'spec' string.  Note that this function is used to implement 'gg' as
         // well as allow for verification of syntax error detection.
-
-    static Obj& gg(Obj *object, const char *spec);
-        // Return, by reference, the specified object with its value adjusted
-        // according to the specified 'spec'.
 
   public:
     // TEST CASES
@@ -5154,6 +5183,16 @@ TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
 }
 
 //- - - - - - - - - - - - - TEST CASE IMPLEMENTATIONS - - - - - - - - - - - - -
+bool exchange(bool &value, bool newValue)
+    // Return the original specified 'value', and set 'value' to the specified
+    // 'newValue'.  Note that this function is a specific implementation of a
+    // standard C++11 template, intended to eliminate use of the deprecated
+    // post-increment operator on 'bool'.
+{
+    bool result = value;
+    value = newValue;
+    return result;
+}
 
 template<class KEY_CONFIG, class COMPARATOR>
 void testVerifyListContents(const COMPARATOR& compare)
@@ -5202,7 +5241,7 @@ void testVerifyListContents(const COMPARATOR& compare)
     // ------------------------------------------------------------------------
 
     static bool alreadyTested = false;
-    if (alreadyTested++) {
+    if (exchange(alreadyTested, true)) {
         // This function may be invoked many times, but each instantiation need
         // only run the first time.
 
@@ -5561,7 +5600,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
         bsltf::StdTestAllocatorConfigurationGuard dummyGuard(&dummy);
         ALLOCATOR dummyAlloc = MakeAllocator<ALLOCATOR>::make(&dummy);
 
-        Link *inserted = insertElement((Obj *)0, VALUES[0]);
+        Link *inserted = insertElement(static_cast<Obj *>(0), VALUES[0]);
         ASSERT(0 == inserted);
 
         Obj mX(HASH, COMPARE, 0, 1.0f, dummyAlloc);
@@ -5710,7 +5749,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             if (0 < LENGTH) {
                 if (veryVerbose) printf(
                        "\t\tOn an object of initial length " ZU ".\n",
-                       (size_t) LENGTH);
+                       static_cast<size_t>(LENGTH));
 
                 ASSERTV(MAX_LF, LENGTH, CONFIG,
                         oa->numBlocksTotal(),   oa->numBlocksInUse(),
@@ -5788,7 +5827,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
             if (0 < LENGTH) {
                 if (veryVerbose) printf(
                        "\t\tOn an object of initial length " ZU ".\n",
-                       (size_t) LENGTH);
+                       static_cast<size_t>(LENGTH));
 
                 for (SizeType tj = 0; tj < LENGTH - 1; ++tj) {
                     Link *RESULT = insertElement(&mX, VALUES[tj]);
@@ -9033,7 +9072,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
 }
 
 //=============================================================================
-//                        TEST CASE DISPATCH FUNCTIONS
+//                      TEST CASE DISPATCH FUNCTIONS
 //-----------------------------------------------------------------------------
 // In order to reduce the complexity of the 'switch' statement in 'main' that
 // was getting to large for some compilers to handle, we have migrated the
