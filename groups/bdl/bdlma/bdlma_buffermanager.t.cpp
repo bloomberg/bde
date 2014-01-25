@@ -1686,14 +1686,14 @@ int main(int argc, char *argv[])
 
             addr = mV.allocate(ALLOC_SIZE2);
             LOOP2_ASSERT(&buffer[ALLOC_SIZE1 + NAT_OFFSET], addr,
-                         &buffer[ALLOC_SIZE2] == addr);
+                         &buffer[ALLOC_SIZE1 + NAT_OFFSET] == addr);
 
             addr = mW.allocate(ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);
 
             addr = mW.allocate(ALLOC_SIZE2);
             LOOP2_ASSERT(&buffer[ALLOC_SIZE1 + NAT_OFFSET], addr,
-                         &buffer[ALLOC_SIZE2] == addr);
+                         &buffer[ALLOC_SIZE1 + NAT_OFFSET] == addr);
 
             addr = mX.allocate(ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[MAX_OFFSET1], addr,
@@ -1743,14 +1743,14 @@ int main(int argc, char *argv[])
 
             addr = mV.allocate(ALLOC_SIZE2);
             LOOP2_ASSERT(&buffer[ALLOC_SIZE1 + NAT_OFFSET], addr,
-                         &buffer[ALLOC_SIZE2] == addr);
+                         &buffer[ALLOC_SIZE1 + NAT_OFFSET] == addr);
 
             addr = mW.allocate(ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[0], addr, &buffer[0] == addr);
 
             addr = mW.allocate(ALLOC_SIZE2);
             LOOP2_ASSERT(&buffer[ALLOC_SIZE1 + NAT_OFFSET], addr,
-                         &buffer[ALLOC_SIZE2] == addr);
+                         &buffer[ALLOC_SIZE1 + NAT_OFFSET] == addr);
 
             addr = mX.allocate(ALLOC_SIZE1);
             LOOP2_ASSERT(&buffer[MAX_OFFSET1], addr,
