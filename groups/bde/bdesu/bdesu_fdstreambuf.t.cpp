@@ -606,14 +606,14 @@ int main(int argc, char *argv[])
 
         for (int isText = 0; isText < IS_WINDOWS + 1; ++isText) {
             const int eLineLength1 = lineLength1 + isText;;
-            const int eLineLength2 = lineLength2 + 2 * isText;
             const int eLineLength3 = lineLength3 + isText;
             const int eLineLength4 = lineLength4 + 2 * isText;
 
             // We start by selecting a file name for our (temporary) file.
 
             char fileNameBuffer[100];
-            bsl::sprintf(fileNameBuffer, fileNameTemplate, "15",getProcessId());
+            bsl::sprintf(fileNameBuffer, fileNameTemplate, "15",
+                                                               getProcessId());
 
             if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
@@ -635,8 +635,8 @@ int main(int argc, char *argv[])
 
                 Obj sb(fd, true, true, !isText, &ta);
 
-                // Impose a very small buffer, so that buffer overflow code will
-                // frequently be exercised.
+                // Impose a very small buffer, so that buffer overflow code
+                // will frequently be exercised.
 
                 char sbBuf[10 * 1000];
                 sb.pubsetbuf(sbBuf, bufSizes[ti]);
@@ -687,8 +687,8 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(eLineLength1, eLineLength4, nullSeek(L_, &sb),
                              eLineLength1 + eLineLength4 == nullSeek(L_, &sb));
                 LOOP3_ASSERT(eLineLength1, eLineLength4,
-                                                     FileUtil::seek(fd, 0, CUR),
-                     eLineLength1 + eLineLength4 == FileUtil::seek(fd, 0, CUR));
+                                                    FileUtil::seek(fd, 0, CUR),
+                    eLineLength1 + eLineLength4 == FileUtil::seek(fd, 0, CUR));
 
                 bsl::memset(buf, 0, sizeof(buf));
                 int sts = sb.sgetn(buf, lineLength3);
