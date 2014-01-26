@@ -604,198 +604,201 @@ int main(int argc, char *argv[])
         enum { IS_WINDOWS = 0 };
 #endif
 
-        const int eLineLength1 = lineLength1 + IS_WINDOWS;
-        const int eLineLength2 = lineLength2 + 2 * IS_WINDOWS;
-        const int eLineLength3 = lineLength3 + IS_WINDOWS;
-        const int eLineLength4 = lineLength4 + 2 * IS_WINDOWS;
+        for (int isText = 0; isText < IS_WINDOWS + 1; ++isText) {
+            const int eLineLength1 = lineLength1 + isText;;
+            const int eLineLength2 = lineLength2 + 2 * isText;
+            const int eLineLength3 = lineLength3 + isText;
+            const int eLineLength4 = lineLength4 + 2 * isText;
 
-        // We start by selecting a file name for our (temporary) file.
+            // We start by selecting a file name for our (temporary) file.
 
-        char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, "15", getProcessId());
+            char fileNameBuffer[100];
+            bsl::sprintf(fileNameBuffer, fileNameTemplate, "15",getProcessId());
 
-        if (verbose) cout << "Filename: " << fileNameBuffer << endl;
+            if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
-        // Next, Create the file and open a file descriptor to it.  The boolean
-        // flags indicate that the file is writable, and not previously
-        // existing (and therefore must be created).
+            // Next, Create the file and open a file descriptor to it.  The
+            // boolean flags indicate that the file is writable, and not
+            // previously existing (and therefore must be created).
 
-        int bufSizes[] = { 16, 21, 28, 37, 50, 64, 128, 4096 };
-        enum { NUM_BUF_SIZES = sizeof bufSizes / sizeof *bufSizes };
-        BSLMF_ASSERT(NUM_BUF_SIZES > 5);
+            int bufSizes[] = { 16, 21, 28, 37, 50, 64, 128, 4096 };
+            enum { NUM_BUF_SIZES = sizeof bufSizes / sizeof *bufSizes };
+            BSLMF_ASSERT(NUM_BUF_SIZES > 5);
 
-        for (int ti = 0; ti < NUM_BUF_SIZES; ++ti) {
-            bdesu_FileUtil::remove(fileNameBuffer);
+            for (int ti = 0; ti < NUM_BUF_SIZES; ++ti) {
+                bdesu_FileUtil::remove(fileNameBuffer);
 
-            FdType fd = bdesu_FileUtil::open(fileNameBuffer,
-                                             true,
-                                             false);
-            ASSERT(-1 != (int) fd);
+                FdType fd = bdesu_FileUtil::open(fileNameBuffer,
+                                                 true,
+                                                 false);
+                ASSERT(-1 != (int) fd);
 
-            Obj sb(fd, true, true, true, &ta);
+                Obj sb(fd, true, true, !isText, &ta);
 
-            // Impose a very small buffer, so that buffer overflow code will
-            // frequently be exercised.
+                // Impose a very small buffer, so that buffer overflow code will
+                // frequently be exercised.
 
-            char sbBuf[10 * 1000];
-            sb.pubsetbuf(sbBuf, bufSizes[ti]);
+                char sbBuf[10 * 1000];
+                sb.pubsetbuf(sbBuf, bufSizes[ti]);
 
-            ASSERT(lineLength1 == sb.sputn(line1, lineLength1));
+                ASSERT(lineLength1 == sb.sputn(line1, lineLength1));
 
-            // P-4
+                // P-4
 
-            ASSERT(eLineLength1 == nullSeek(L_, &sb));
-            ASSERT(eLineLength1 == FileUtil::seek(fd, 0, CUR));
+                ASSERT(eLineLength1 == nullSeek(L_, &sb));
+                ASSERT(eLineLength1 == FileUtil::seek(fd, 0, CUR));
 
-            ASSERT(lineLength2 == sb.sputn(line2, lineLength2));
-            ASSERT(lineLength3 == sb.sputn(line3, lineLength3));
+                ASSERT(lineLength2 == sb.sputn(line2, lineLength2));
+                ASSERT(lineLength3 == sb.sputn(line3, lineLength3));
 
-            ASSERT(0 == sb.pubseekpos(0));
+                ASSERT(0 == sb.pubseekpos(0));
 
-            char buf[1000];
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength1 == sb.sgetn(buf, lineLength1));
-            ASSERT(0 == bsl::strcmp(line1, buf));
+                char buf[1000];
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength1 == sb.sgetn(buf, lineLength1));
+                ASSERT(0 == bsl::strcmp(line1, buf));
 
-            // P-1
+                // P-1
 
-            ASSERT(eLineLength1 == nullSeek(L_, &sb));
+                ASSERT(eLineLength1 == nullSeek(L_, &sb));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength2 == sb.sgetn(buf, lineLength2));
-            ASSERT(0 == bsl::strcmp(line2, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength2 == sb.sgetn(buf, lineLength2));
+                ASSERT(0 == bsl::strcmp(line2, buf));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength3 == sb.sgetn(buf, lineLength3));
-            ASSERT(0 == bsl::strcmp(line3, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength3 == sb.sgetn(buf, lineLength3));
+                ASSERT(0 == bsl::strcmp(line3, buf));
 
-            ASSERT(0 == sb.pubseekpos(0));
+                ASSERT(0 == sb.pubseekpos(0));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength1 == sb.sgetn(buf, lineLength1));
-            ASSERT(0 == bsl::strcmp(line1, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength1 == sb.sgetn(buf, lineLength1));
+                ASSERT(0 == bsl::strcmp(line1, buf));
 
-            // P-2
+                // P-2
 
-            ASSERT(eLineLength1 == nullSeek(L_, &sb));
+                ASSERT(eLineLength1 == nullSeek(L_, &sb));
 
-            ASSERT(lineLength4 == sb.sputn(line4, lineLength4));
+                ASSERT(lineLength4 == sb.sputn(line4, lineLength4));
 
-            // P-5
+                // P-5
 
-            LOOP3_ASSERT(eLineLength1, eLineLength4, nullSeek(L_, &sb),
-                         eLineLength1 + eLineLength4 == nullSeek(L_, &sb));
-            LOOP3_ASSERT(eLineLength1, eLineLength4,FileUtil::seek(fd, 0, CUR),
-                    eLineLength1 + eLineLength4 == FileUtil::seek(fd, 0, CUR));
+                LOOP3_ASSERT(eLineLength1, eLineLength4, nullSeek(L_, &sb),
+                             eLineLength1 + eLineLength4 == nullSeek(L_, &sb));
+                LOOP3_ASSERT(eLineLength1, eLineLength4,
+                                                     FileUtil::seek(fd, 0, CUR),
+                     eLineLength1 + eLineLength4 == FileUtil::seek(fd, 0, CUR));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            int sts = sb.sgetn(buf, lineLength3);
-            LOOP2_ASSERT(lineLength3, sts, lineLength3 == sts);
-            ASSERT(0 == bsl::strcmp(line3, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                int sts = sb.sgetn(buf, lineLength3);
+                LOOP2_ASSERT(lineLength3, sts, lineLength3 == sts);
+                ASSERT(0 == bsl::strcmp(line3, buf));
 
-            // P-3
+                // P-3
 
-            ASSERT(eLineLength1 + eLineLength4 + eLineLength3 ==
+                ASSERT(eLineLength1 + eLineLength4 + eLineLength3 ==
                                                             nullSeek(L_, &sb));
 
-            ASSERT(0 == sb.pubseekpos(0));
+                ASSERT(0 == sb.pubseekpos(0));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength1 == sb.sgetn(buf, lineLength1));
-            ASSERT(0 == bsl::strcmp(line1, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength1 == sb.sgetn(buf, lineLength1));
+                ASSERT(0 == bsl::strcmp(line1, buf));
 
-            ASSERT(eLineLength1 == nullSeek(L_, &sb));
+                ASSERT(eLineLength1 == nullSeek(L_, &sb));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength4 == sb.sgetn(buf, lineLength4));
-            ASSERT(0 == bsl::strcmp(line4, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength4 == sb.sgetn(buf, lineLength4));
+                ASSERT(0 == bsl::strcmp(line4, buf));
 
-            // C-3
+                // C-3
 
-            ASSERT(eLineLength1 + eLineLength4 == nullSeek(L_, &sb));
+                ASSERT(eLineLength1 + eLineLength4 == nullSeek(L_, &sb));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength3 == sb.sgetn(buf, lineLength3));
-            ASSERT(0 == bsl::strcmp(line3, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength3 == sb.sgetn(buf, lineLength3));
+                ASSERT(0 == bsl::strcmp(line3, buf));
 
-            ASSERT(eLineLength1 + eLineLength4 + eLineLength3 ==
+                ASSERT(eLineLength1 + eLineLength4 + eLineLength3 ==
                                                             nullSeek(L_, &sb));
 
-            ASSERT(0 == sb.pubseekpos(0));
+                ASSERT(0 == sb.pubseekpos(0));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength1 + lineLength4 + lineLength3
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength1 + lineLength4 + lineLength3
                     == sb.sgetn(buf, lineLength1 + lineLength4 + lineLength3));
-            ASSERT(bsl::string(line1) + line4 + line3 == buf);
+                ASSERT(bsl::string(line1) + line4 + line3 == buf);
 
-            ASSERT(eLineLength1 + eLineLength4 + eLineLength3 ==
+                ASSERT(eLineLength1 + eLineLength4 + eLineLength3 ==
                                                             nullSeek(L_, &sb));
 
-            ASSERT(0 == sb.pubseekpos(0));
+                ASSERT(0 == sb.pubseekpos(0));
 
-            // P-8
+                // P-8
 
-            ASSERT(0 == nullSeek(L_, &sb));
+                ASSERT(0 == nullSeek(L_, &sb));
 
-            ASSERT(lineLength3 == sb.sputn(line3, lineLength3));
+                ASSERT(lineLength3 == sb.sputn(line3, lineLength3));
 
-            ASSERT(eLineLength3 == nullSeek(L_, &sb));
+                ASSERT(eLineLength3 == nullSeek(L_, &sb));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength4 == sb.sgetn(buf, lineLength4));
-            LOOP2_ASSERT(line4, buf, 0 == bsl::strcmp(line4, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength4 == sb.sgetn(buf, lineLength4));
+                LOOP2_ASSERT(line4, buf, 0 == bsl::strcmp(line4, buf));
 
-            ASSERT(eLineLength3 + eLineLength4 == nullSeek(L_, &sb));
+                ASSERT(eLineLength3 + eLineLength4 == nullSeek(L_, &sb));
 
-            ASSERT(lineLength1 == sb.sputn(line1, lineLength1));
+                ASSERT(lineLength1 == sb.sputn(line1, lineLength1));
 
-            // P-6
+                // P-6
 
-            ASSERT(eLineLength3 + eLineLength4 + eLineLength1 ==
+                ASSERT(eLineLength3 + eLineLength4 + eLineLength1 ==
                                                             nullSeek(L_, &sb));
 
-            ASSERT(100 == sb.pubseekpos(100));
+                ASSERT(100 == sb.pubseekpos(100));
 
-            // P-9
+                // P-9
 
-            ASSERT(100 == sb.pubseekoff(  0, bsl::ios_base::cur));
-            ASSERT( 80 == sb.pubseekoff(-20, bsl::ios_base::cur));
-            ASSERT( 80 == sb.pubseekoff(  0, bsl::ios_base::cur));
-            ASSERT( 60 == sb.pubseekoff(-20, bsl::ios_base::cur));
+                ASSERT(100 == sb.pubseekoff(  0, bsl::ios_base::cur));
+                ASSERT( 80 == sb.pubseekoff(-20, bsl::ios_base::cur));
+                ASSERT( 80 == sb.pubseekoff(  0, bsl::ios_base::cur));
+                ASSERT( 60 == sb.pubseekoff(-20, bsl::ios_base::cur));
 
-            ASSERT(0 == sb.pubseekpos(0));
+                ASSERT(0 == sb.pubseekpos(0));
 
-            // P-7
+                // P-7
 
-            ASSERT(0 == nullSeek(L_, &sb));
+                ASSERT(0 == nullSeek(L_, &sb));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength3 == sb.sgetn(buf, lineLength3));
-            ASSERT(0 == bsl::strcmp(line3, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength3 == sb.sgetn(buf, lineLength3));
+                ASSERT(0 == bsl::strcmp(line3, buf));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength4 == sb.sgetn(buf, lineLength4));
-            LOOP2_ASSERT(line4, buf, 0 == bsl::strcmp(line4, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength4 == sb.sgetn(buf, lineLength4));
+                LOOP2_ASSERT(line4, buf, 0 == bsl::strcmp(line4, buf));
 
-            bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(lineLength1 == sb.sgetn(buf, lineLength1));
-            ASSERT(0 == bsl::strcmp(line1, buf));
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lineLength1 == sb.sgetn(buf, lineLength1));
+                ASSERT(0 == bsl::strcmp(line1, buf));
 
-            ASSERT(0 == sb.pubseekpos(0));
-            ASSERT(0 == nullSeek(L_, &sb));
+                ASSERT(0 == sb.pubseekpos(0));
+                ASSERT(0 == nullSeek(L_, &sb));
 
-            ASSERT(lineLength3 + lineLength4 + lineLength1
+                ASSERT(lineLength3 + lineLength4 + lineLength1
                     == sb.sgetn(buf, lineLength3 + lineLength4 + lineLength1));
-            ASSERT(bsl::string(line3) + line4 + line1 == buf);
+                ASSERT(bsl::string(line3) + line4 + line1 == buf);
 
-            ASSERT(eLineLength3 + eLineLength4 + eLineLength1 ==
+                ASSERT(eLineLength3 + eLineLength4 + eLineLength1 ==
                                                             nullSeek(L_, &sb));
 
-            sb.clear();
+                sb.clear();
 
-            // clean up
+                // clean up
 
-            bdesu_FileUtil::remove(fileNameBuffer);
+                bdesu_FileUtil::remove(fileNameBuffer);
+            }
         }
       } break;
       case 14: {
