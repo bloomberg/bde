@@ -1021,7 +1021,8 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
     // seek to find out our position.
 
     if (CUR == dir && 0 == offset && BDESU_OUTPUT_MODE == d_mode) {
-        bsl::streamoff trivialAdjust = d_fileHandler.getOffset(pbase(), pptr());
+        bsl::streamoff trivialAdjust = d_fileHandler.getOffset(pbase(),
+                                                               pptr());
         return pos_type(d_fileHandler.seek(0, CUR) + trivialAdjust);  // RETURN
     }
 
