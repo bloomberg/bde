@@ -608,7 +608,27 @@ class btemt_SessionPoolSessionIterator {
                            // =======================
 
 class btemt_SessionPool {
-    // This class provides a session manager.
+    // This class provides a mechanism for establishing and managing network
+    // connections.  A session pool can be configured at construction by
+    // passing in a 'btemt_ChannelPoolConfiguration' object and allows the
+    // establishment of both server sessions via the 'listen' method and client
+    // sessions via the 'connect' method.  The connection initiation methods
+    // take a 'btemt_SessionFactory' object that allows users to return a
+    // 'btemt_Session' object that the session pool stores as a reference for
+    // the connection.  During the allocation of the 'btemt_Session' object
+    // clients are provided an 'btemt_AsyncChannel' that they can use for
+    // exchanging data with the other endpoint in the connection.  An existing
+    // socket can be imported into a session pool and this will create a
+    // session enabled both for read and for write.  All of the callbacks
+    // invoked by session pool are run in a number of threads created at start
+    // up.  Session pool ensures that callback methods of a particular
+    // connection are always invoked on the same thread so users dont have to
+    // synchroninze data associated with a particular connection.  Session pool
+    // can be started or stopped via the 'start' and 'stop' methods
+    // respectively.  Once started and until stopped, the session pool
+    // dispatches incoming and outgoing connections, messages, and other
+    // session functions to the processing threads.  Once stopped, the channel
+    // pool can be started again and the channels will resume their operations.
 
   public:
     // PUBLIC TYPES

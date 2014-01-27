@@ -575,7 +575,13 @@ btemt_SessionPool::~btemt_SessionPool()
 // MANIPULATORS
 int btemt_SessionPool::start()
 {
-    BSLS_ASSERT(!d_channelPool_p);
+    if (d_channelPool_p) {
+
+        // Channel pool was previously created and then 'stop'ed.  Restart the
+        // object by calling 'start' again.
+
+        return d_channelPool_p->start();                              // RETURN
+    }
 
     btemt_ChannelPool::ChannelStateChangeCallback channelStateFunctor(
                bdef_MemFnUtil::memFn(&btemt_SessionPool::channelStateCb, this),
