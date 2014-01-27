@@ -141,7 +141,7 @@ BSLS_IDENT("$Id: $")
 //      my::FilePath usrbin("/usr/local/bin", &maa);
 //
 //      assert(&maa == usrbin.getAllocator());
-//      assert(ma == maa.getAdaptedAllocator());
+//      assert(ma == maa.adaptedAllocator());
 //
 //      return 0;
 //  }
@@ -227,7 +227,7 @@ class AllocatorAdaptor_Imp : public Allocator {
         // allocator object and has not already been deallocated.
 
     // ACCESSORS
-    STL_ALLOC getAdaptedAllocator() const;
+    STL_ALLOC adaptedAllocator() const;
 };
 
                         // ===============================
@@ -248,6 +248,8 @@ class AllocatorAdaptor : public
     // STL-style allocator template parameter.  A pointer to an object of this
     // class can thus be used with any component that uses BDE-style memory
     // allocation.
+
+    typedef typename STL_ALLOC::template rebind<char>::other ReboundSTLAlloc;
 
     // Not assignable
     AllocatorAdaptor& operator=(const AllocatorAdaptor&); // = delete
@@ -307,7 +309,7 @@ void *bslma::AllocatorAdaptor_Imp<STL_ALLOC>::allocate(size_type size)
 
     // Compute number of 'MaxAlignedType' objects needed to make up 'size'
     // bytes plus an extra one to hold the size.
-    size_type n = (size + sizeof(MaxAlignedType) - 1) / sizeof(MaxAlignedType);
+    size_type n = 1 + (size+sizeof(MaxAlignedType)-1) / sizeof(MaxAlignedType);
     MaxAlignedType* p = d_stlAllocator.allocate(n);
     *reinterpret_cast<size_type*>(p) = n;
     return ++p;
@@ -325,7 +327,7 @@ void bslma::AllocatorAdaptor_Imp<STL_ALLOC>::deallocate(void *address)
 
 // ACCESSORS
 template <class STL_ALLOC>
-STL_ALLOC bslma::AllocatorAdaptor_Imp<STL_ALLOC>::getAdaptedAllocator() const
+STL_ALLOC bslma::AllocatorAdaptor_Imp<STL_ALLOC>::adaptedAllocator() const
 {
     return d_stlAllocator;
 }
@@ -346,7 +348,7 @@ bslma::AllocatorAdaptor<STL_ALLOC>::AllocatorAdaptor() // = default
 template <class STL_ALLOC>
 inline
 bslma::AllocatorAdaptor<STL_ALLOC>::AllocatorAdaptor(const STL_ALLOC& stla)
-  : bslma::AllocatorAdaptor_Imp<STL_ALLOC>(stla)
+  : bslma::AllocatorAdaptor_Imp<ReboundSTLAlloc>(stla)
 {
 }
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES

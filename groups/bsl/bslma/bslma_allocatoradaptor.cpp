@@ -3,6 +3,7 @@
 #include <bslma_allocatoradaptor.h>
 
 #ifdef TEST
+#include <bslma_testallocator.h>
 #include <bslma_default.h>
 #endif
 

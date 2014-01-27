@@ -2,6 +2,10 @@
 
 #include "bslma_allocatoradaptor.h"
 
+#include <bslma_testallocator.h>
+#include <bsls_alignment.h>
+
+#include <new>
 #include <cstdio>
 #include <cstdlib>
 #include <climits>
@@ -230,11 +234,89 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         my::FilePath usrbin("/usr/local/bin", &maa);
   
         ASSERT(&maa == usrbin.getAllocator());
-        ASSERT(ma == maa.getAdaptedAllocator());
+        ASSERT(ma == maa.adaptedAllocator());
   
         return 0;
     }
 //..
+
+//=============================================================================
+//                              TEST CLASSES
+//-----------------------------------------------------------------------------
+
+template <class TYPE>
+class STLAllocator
+{
+    bslma::TestAllocator *d_mechanism;
+
+public:
+    typedef TYPE        value_type;
+    typedef TYPE       *pointer;
+    typedef const TYPE *const_pointer;
+    typedef unsigned    size_type;
+    typedef int         difference_type;
+  
+    template <class U>
+    struct rebind {
+        typedef STLAllocator<U> other;
+    };
+  
+    explicit STLAllocator(bslma::TestAllocator *ta) : d_mechanism(ta) { }
+
+    template <class U>
+    STLAllocator(const STLAllocator<U>& other)
+        : d_mechanism(other.mechanism()) { }
+
+    TYPE *allocate(std::size_t n, void* = 0 /* nullptr */) {
+        return (TYPE*) d_mechanism->allocate(n * sizeof(TYPE));
+    }
+
+    void deallocate(TYPE *p, std::size_t) { d_mechanism->deallocate(p); }
+
+    static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
+  
+    void construct(pointer p, const TYPE& value)
+        { new((void *)p) TYPE(value); }
+  
+    void destroy(pointer p) { p->~TYPE(); }
+
+    bslma::TestAllocator *mechanism() const { return d_mechanism; }
+};
+
+template <class T, class U>
+inline
+bool operator==(const STLAllocator<T>& a, const STLAllocator<U>& b)
+{
+    return a.mechanism() == b.mechanism();
+}
+
+template <class T, class U>
+inline
+bool operator!=(const STLAllocator<T>& a, const STLAllocator<U>& b)
+{
+    return a.mechanism() != b.mechanism();
+}
+
+class TestObj
+{
+    static const int k_STUFF_SIZE =
+        sizeof(bsls::AlignmentUtil::MaxAlignedType) / sizeof(unsigned);
+    unsigned d_stuff[k_STUFF_SIZE];
+
+public:
+    TestObj() {
+        for (int i = 0; i < k_STUFF_SIZE; ++i) {
+            d_stuff[i] = 0x600dF00d;
+        }
+    }
+
+    ~TestObj() {
+        for (int i = 0; i < k_STUFF_SIZE; ++i) {
+            d_stuff[i] = 0xDeadBeaf;
+        }
+    }
+};
+
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -250,9 +332,9 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
-        // BREATHING/USAGE TEST
+        // USAGE TEST
         //
         // Concerns:
         //
@@ -266,6 +348,32 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         usageExample1();
+
+      } break;
+
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+
+        bslma::TestAllocator ta;
+        STLAllocator<double> stla(&ta);
+        bslma::AllocatorAdaptor<STLAllocator<short> > adaptor(stla);
+        ASSERT(stla == adaptor.adaptedAllocator());
+        ASSERT(0 == ta.numBlocksInUse());
+        ASSERT(0 == ta.numBytesInUse());
+        void *p = adaptor.allocate(sizeof(TestObj));
+        ASSERT(1 == ta.numBlocksInUse());
+        ASSERT(sizeof(TestObj) <= ta.numBytesInUse());
+        ASSERT(ta.numBytesInUse() <=
+               sizeof(TestObj) + sizeof(bsls::AlignmentUtil::MaxAlignedType));
+        TestObj *tp = ::new(p) TestObj;
+        tp->~TestObj();
+        adaptor.deallocate(p);
+        ASSERT(0 == ta.numBlocksInUse());
 
       } break;
 
