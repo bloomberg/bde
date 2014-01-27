@@ -884,29 +884,42 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
     switch (opCode) {
 
       case e_MOVE_CONSTRUCT: {
-          // There is no point to optimizing this operation for bitwise
-          // moveable types.  If the type is trivially moveable, then the move
-          // operation below will do it trivially.
-          FUNC &srcFunc =
-              *static_cast<FUNC*>(const_cast<void*>(input.asPtr()));
+          // Move-construct function object.  There is no point to optimizing
+          // this operation for bitwise moveable types.  If the type is
+          // trivially moveable, then the move operation below will do it
+          // trivially.  Do not call constructor if functor is an empty class,
+          // as it might try to do something silly like zeroing itself out.
+          if (k_FUNC_SIZE) {
+              FUNC &srcFunc =
+                  *static_cast<FUNC*>(const_cast<void*>(input.asPtr()));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-          return ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
+              return ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
 #else
-          return ::new (wrappedFunc_p) FUNC(srcFunc);
+              return ::new (wrappedFunc_p) FUNC(srcFunc);
 #endif
+          }
       } break;
 
       case e_COPY_CONSTRUCT: {
-          // There is no point to optimizing this operation for bitwise
-          // copyable types.  If the type is trivially copyiable, then the copy
-          // operation below will do it trivially.
-          const FUNC &srcFunc = *static_cast<const FUNC*>(input.asPtr());
-          return ::new (wrappedFunc_p) FUNC(srcFunc);
+          // Copy-construct function object.  There is no point to optimizing
+          // this operation for bitwise copyable types.  If the type is
+          // trivially copyiable, then the copy operation below will do it
+          // trivially.  Do not call constructor if functor is an empty class,
+          // as it might try to do something silly like zeroing itself out.
+          if (k_FUNC_SIZE) {
+              const FUNC &srcFunc = *static_cast<const FUNC*>(input.asPtr());
+              return ::new (wrappedFunc_p) FUNC(srcFunc);
+          }
       } break;
 
       case e_DESTROY: {
-          reinterpret_cast<FUNC&>(wrappedFunc_p).~FUNC();
+          // Call destructor for functor.  Do not call destructor if
+          // functor is an empty class, as it might try to do something
+          // silly like zeroing itself out.
+          if (k_FUNC_SIZE) {
+              reinterpret_cast<FUNC*>(wrappedFunc_p)->~FUNC();
+          }
 
           // Return size of destroyed function object
           return k_FUNC_SIZE;
@@ -1230,36 +1243,37 @@ template <class RET, class... ARGS>
 template<class FUNC>
 bsl::function<RET(ARGS...)>::function(FUNC func)
 {
-    void *function_p =
-        initRep(sizeof(FUNC), bslma::Default::defaultAllocator(),
-                integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
-
-    // Construct function object in designated location
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    ::new(function_p) FUNC(std::move(func));
-#else
-    ::new(function_p) FUNC(func);
-#endif
-
-    d_funcManager_p = &functionManager<FUNC>;
-
     typedef typename bslmf::SelectTrait<FUNC,
                                         bslmf::IsFunctionPointer,
                                         bslmf::IsMemberFunctionPointer,
-                                        FitsInplace>::Type TraitSelection;
+                                        FitsInplace>::Type FuncSelection;
 
-    d_invoker_p = getInvoker(func, TraitSelection());
+    d_invoker_p = getInvoker(func, FuncSelection());
+
+    std::size_t funcSize = d_invoker_p ? Function_ObjSize<FUNC>::VALUE : 0;
+
+    initRep(funcSize, bslma::Default::defaultAllocator(),
+            integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
+
+    if (d_invoker_p) {
+        d_funcManager_p = &functionManager<FUNC>;
+        d_funcManager_p(e_MOVE_CONSTRUCT, this, &func);
+    }
+    else {
+        // Empty 'func' object
+        d_funcManager_p = NULL;
+    }
 }
 
 template <class RET, class... ARGS>
 template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 {
-    typedef Function_AllocTraits<ALLOC> Traits;
-    initRep(0, typename Traits::Type(alloc), typename Traits::Category());
-
     d_funcManager_p = NULL;
     d_invoker_p     = NULL;
+
+    typedef Function_AllocTraits<ALLOC> Traits;
+    initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
 
 template <class RET, class... ARGS>
@@ -1267,11 +1281,11 @@ template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
                                       nullptr_t)
 {
-    typedef Function_AllocTraits<ALLOC> Traits;
-    initRep(0, typename Traits::Type(alloc), typename Traits::Category());
-
     d_funcManager_p = NULL;
     d_invoker_p     = NULL;
+
+    typedef Function_AllocTraits<ALLOC> Traits;
+    initRep(0, typename Traits::Type(alloc), typename Traits::Category());
 }
 
 template <class RET, class... ARGS>
@@ -1289,7 +1303,26 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       FUNC         func)
 {
-    // TBD
+    typedef Function_AllocTraits<ALLOC> AllocTraits;
+    typedef typename bslmf::SelectTrait<FUNC,
+                                        bslmf::IsFunctionPointer,
+                                        bslmf::IsMemberFunctionPointer,
+                                        FitsInplace>::Type FuncSelection;
+
+    d_invoker_p = getInvoker(func, FuncSelection());
+
+    std::size_t funcSize = d_invoker_p ? Function_ObjSize<FUNC>::VALUE : 0;
+    initRep(funcSize, typename AllocTraits::Type(alloc),
+            typename AllocTraits::Category());
+
+    if (d_invoker_p) {
+        d_funcManager_p = &functionManager<FUNC>;
+        d_funcManager_p(e_MOVE_CONSTRUCT, this, &func);
+    }
+    else {
+        // Empty 'func' object
+        d_funcManager_p = NULL;
+    }
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1317,6 +1350,7 @@ bsl::function<RET(ARGS...)>::~function()
     // Assert class invariants
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT(d_allocManager_p);
+    BSLS_ASSERT(d_invoker_p || ! d_funcManager_p);
 
     // Integral function size cast to pointer type.
     PtrOrSize_t funcSize;

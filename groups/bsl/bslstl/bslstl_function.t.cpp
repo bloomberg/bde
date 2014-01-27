@@ -9,6 +9,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 using namespace BloombergLP;
 using namespace std;
@@ -325,7 +326,19 @@ struct EmptyFunctor
 
     enum { IS_STATELESS = true };
 
-    explicit EmptyFunctor(int /* ignored */ = 0) { }
+    explicit EmptyFunctor(int /* ignored */ = 0)
+        // Constructor writes '0xee' over its memory.  Even an empty class has
+        // a footprint and any code that optimizes the object away must be
+        // careful not to overwrite arbitrary memory by calling the "empty"
+        // constructor.
+        { std::memset(this, 0xee, sizeof(*this)); }
+
+    ~EmptyFunctor()
+        // Destructor writes '0xbb' over its memory.  Even an empty class has
+        // a footprint and any code that optimizes the object away must be
+        // careful not to overwrite arbitrary memory by calling the "empty"
+        // destructor.
+        { std::memset(this, 0xbb, sizeof(*this)); }
 
 #define OP_PAREN(n)                                                           \
     int operator()(const IntWrapper& iw, BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) \
@@ -364,6 +377,7 @@ public:
     enum { IS_STATELESS = false };
 
     explicit SmallFunctor(int v) : d_value(v) { }
+    ~SmallFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
 #define OP_PAREN(n)                                                           \
     int operator()(const IntWrapper& iw, BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) \
@@ -401,7 +415,10 @@ class MediumFunctor : public SmallFunctor
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor)];
     
 public:
-    explicit MediumFunctor(int v) : SmallFunctor(v) { }
+    explicit MediumFunctor(int v) : SmallFunctor(v)
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+
+    ~MediumFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
     friend bool operator==(const MediumFunctor& a, const MediumFunctor& b)
         { return a.value() == b.value(); }
@@ -417,7 +434,10 @@ class LargeFunctor : public SmallFunctor
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor) + 1];
     
 public:
-    explicit LargeFunctor(int v) : SmallFunctor(v) { }
+    explicit LargeFunctor(int v) : SmallFunctor(v)
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+
+    ~LargeFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
     friend bool operator==(const LargeFunctor& a, const LargeFunctor& b)
         { return a.value() == b.value(); }
@@ -614,7 +634,7 @@ inline bool isNullPtrImp(const T& p, bsl::true_type /* is pointer */) {
 }
 
 template <class T>
-inline bool isNullPtrImp(const T& p, bsl::false_type /* is pointer */) {
+inline bool isNullPtrImp(const T&, bsl::false_type /* is pointer */) {
     return false;
 }
 
@@ -877,6 +897,111 @@ void testFunctor(const char *prototypeStr)
     ASSERT(ftor.value() == initState);      // Original is unchanged
 }
 
+template <class ALLOC>
+struct CheckAlloc
+{
+    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+    static const std::size_t k_SIZE = (bsl::is_empty<ALLOC>::value ?
+                                       0 : sizeof(Adaptor));
+    static const std::size_t k_MAX_OVERHEAD =
+        2 * sizeof(bsls::AlignmentUtil::MaxAlignedType);
+    static bool sameAlloc(const ALLOC& a, bslma::Allocator *b) {
+        Adaptor *adaptor = dynamic_cast<Adaptor*>(b);
+        return adaptor != NULL && a == adaptor->adaptedAllocator();
+    }
+};
+
+template <class T>
+struct CheckAlloc<bsl::allocator<T> >
+{
+    static const std::size_t k_SIZE = 0;
+    static const std::size_t k_MAX_OVERHEAD = 0;
+    static bool sameAlloc(const bsl::allocator<T>& a, bslma::Allocator *b) {
+        return a.mechanism() == b;
+    }
+};
+
+template <class BA>
+struct CheckAlloc<BA*>
+{
+    static const std::size_t k_SIZE = 0;
+    static const std::size_t k_MAX_OVERHEAD = 0;
+    static bool sameAlloc(bslma::Allocator *a, bslma::Allocator *b) {
+        return a == b;
+    }
+};
+    
+enum WhatIsInplace {
+    e_INPLACE_BOTH,      // Both function and allocator are in place
+    e_INPLACE_FUNC_ONLY, // Function is in place, allocator is out of place
+    e_OUTOFPLACE_BOTH    // Both function and allocator are out of place
+};
+
+template <class ALLOC, class FUNC>
+void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *funcType)
+{
+    if (veryVeryVerbose) printf("\tFUNC type is %s\n", funcType);
+
+    typedef bsl::function<int(IntWrapper,int)> Obj;
+
+    bool isEmpty = isNullPtr(func);
+
+    const std::size_t funcSize = (bsl::is_empty<FUNC>::value ? 0 :
+                                         isEmpty                    ? 0 :
+                                         sizeof(FUNC));
+    const std::size_t allocSize = CheckAlloc<ALLOC>::k_SIZE;
+    const std::size_t maxOverhead = CheckAlloc<ALLOC>::k_MAX_OVERHEAD;
+
+    bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
+
+    int numBlocksUsed, minBytesUsed, maxBytesUsed;
+    
+    switch (inplace) {
+      case e_INPLACE_BOTH: {
+        ASSERT(funcSize + allocSize <= sizeof(SmallObjectBuffer));
+        numBlocksUsed = 0;
+        minBytesUsed = 0;
+        maxBytesUsed = 0;
+      } break;
+
+      case e_INPLACE_FUNC_ONLY: {
+        ASSERT(funcSize <= sizeof(SmallObjectBuffer));
+        ASSERT(funcSize + allocSize > sizeof(SmallObjectBuffer));
+        numBlocksUsed = 1;
+        minBytesUsed = allocSize;
+        maxBytesUsed = minBytesUsed + maxOverhead;
+      } break;
+
+      case e_OUTOFPLACE_BOTH: {
+        ASSERT(funcSize > sizeof(SmallObjectBuffer));
+        numBlocksUsed = 1;
+        minBytesUsed = funcSize + allocSize;
+        maxBytesUsed = minBytesUsed + maxOverhead;
+      } break;
+    } // end switch
+
+    bslma::TestAllocator ta;
+    globalAllocMonitor.reset();
+    {
+        ALLOC alloc(&ta);
+        Obj f(bsl::allocator_arg, alloc, func);
+        ASSERT(isEmpty == !f);
+        ASSERT(CheckAlloc<ALLOC>::sameAlloc(alloc, f.allocator()));
+        if (f) {
+            ASSERT(typeid(func) == f.target_type());
+            ASSERT(f.target<FUNC>());
+            ASSERT(f.target<FUNC>() && func == *f.target<FUNC>());
+            ASSERT(0x4005 == f(IntWrapper(0x4000), 5));
+        }
+        ASSERT(numBlocksUsed == ta.numBlocksInUse());
+        ASSERT(minBytesUsed <= ta.numBytesInUse() &&
+               ta.numBytesInUse() <= maxBytesUsed);
+        ASSERT(globalAllocMonitor.isInUseSame());
+    }
+    ASSERT(0 == ta.numBlocksInUse());
+    ASSERT(globalAllocMonitor.isInUseSame());
+}
+
 //=============================================================================
 //                  USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -903,10 +1028,206 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // CONSTRUCTOR function(allocator_arg_t, const ALLOC& alloc, FUNC func)
         //
-        // Note: Invocation is only to ensure that that the function was
-        // constructed succesfuly.  It is not necessary to thoroughly test all
-        // argument-list combinations.
+        // Concerns:
+        //: 1 Constructing a 'function' using this constructor yields an empty
+        //:   'function' object if 'func' is a null pointer to function or
+        //:   null pointer to member function.
+        //: 2 Constructing a 'function' using this constructor yields an
+        //:   invocable 'function' if 'func' is not a null pointer.  Note that
+        //:   invocation is only to ensure that that the function was
+        //:   constructed succesfully.  It is not necessary to thoroughly test
+        //:   all argument-list combinations.
+        //: 3 The 'target_type()' accessor will return 'type_id(FUNC)' and the
+        //:   'target<FUNC>()' accessor will return a pointer to a function
+        //:   that compares equal to 'func'.
+        //: 4 If 'alloc' is a pointer to a 'bslma::Allocator' object, then the
+        //:   'allocator' accessor will return that pointer.
+        //: 5 If 'alloc' is a 'bsl::allocator' object, then the 'allocator'
+        //:   accessor will return 'alloc.mechanism()'.
+        //: 6 If 'alloc' is an STL-style allocator with no state, then the
+        //:   'allocator' accessor will return a pointer to an object of type
+        //:   'bslma::AllocatorAdaptor<ALLOC>'.  That same pointer will be
+        //:   returned by any 'function' created with that allocator type.
+        //: 7 If 'alloc' is an STL-style allocator with state, then the
+        //:   'allocator' accessor will return a pointer to an object of type
+        //:   'bslma::AllocatorAdaptor<ALLOC>' which wraps a copy of 'alloc'.
+        //: 8 If 'alloc' is other than an STL-style allocator with state and
+        //:   'FUNC' fits in the small object buffer, no memory is allocated
+        //:   by this constructor.
+        //: 9 If 'alloc' is other than an STL-style allocator with state and
+        //:   'FUNC' does not fit in the small object buffer, one block of
+        //:   memory of sufficient size to hold 'FUNC' is allocated from the
+        //:   allocator by this constructor.
+        //: 10 If 'alloc' is an STL-style allocator such that the allocator
+        //:   adaptor and 'FUNC' both fit within the small object buffer, then
+        //:   no memory is allocated by this constructor.
+        //: 11 If 'alloc' is an STL-style allocator such that the allocator
+        //:   adaptor and 'FUNC' do not both fit within the small object
+        //:   buffer, then one block of memory is allocated from 'alloc'
+        //:   itself.
+        //: 12 In step 8, if 'FUNC' by itself fits within the small object
+        //:   buffer, then the allocated memory is only large enough to hold
+        //:   the allocator adaptor.
+        //: 13 In step 8, if 'FUNC' by itself does not fit within the small
+        //:   object buffer, then the allocated memory is large enough to hold
+        //:   both 'func' and the allocator adaptor.
+        //: 14 If memory is allocated, the destructor frees it.
+        //: 15 The above concerns apply to 'func' arguments of type pointer to
+        //:   function, pointer to member function, or functor types of
+        //:   various sizes.
+        //
+        // Plan:
+        //: 1 For concern 1, construct 'function' objects using a null pointer
+        //:   to function and a null pointer to member function and verify
+        //:   that each returns false when converted to a Boolean value.
+        //: 2 For concern 2, invoke every non-empty 'function' constructed by
+        //:   this test and verify that it produces the expected results.
+        //: 3 For concern 3, verify, for each 'function' constructed, that
+        //:   'tareget_type' and 'target<FUNC>' return the expected values.
+        //: 4 For concern 4, construct a 'function' object with the address of
+        //:   a 'bslma:TestAllocator'.  Verify that 'allocator' returns the
+        //:   address of the test allocator.
+        //: 5 For concern 5, construct a 'bsl::allocator' wrapping a test
+        //:   allocator.  Construct a 'function' object with the
+        //:   'bsl::allocator' object.  Verify that 'allocator' returns the
+        //:   address of the test allocator (i.e., the 'mechanism()' of the
+        //:   'bsl::allocator'.
+        //: 6 For concern 6, define a stateless STL-style allocator class and
+        //:   use an instance of that class to construct a 'function' object.
+        //:   Verify that 'allocator' returns a pointer that can dynamically
+        //:   cast to a 'bslma::AllocatorAdaptor' wrapping the STL-style
+        //:   allocator.  Verify that multiple 'function' objects instantiated
+        //:   with multiple instantiations of the same STL-style allocator
+        //:   return the same result from calling the 'allocator' method.
+        //: 7 For concern 7, define a stateful STL-style allocator class and
+        //:   use an instance of that class to construct a 'function' object.
+        //:   Verify that 'allocator' returns a pointer that can dynamically
+        //:   cast to a 'bslma::AllocatorAdaptor' wrapping the STL-style
+        //:   allocator and that the allocator wrapped by the adaptor is equal
+        //:   to the original STL-style allocator.
+        //: 8 For concern 8, test the results of steps 2-4 to verify that when
+        //:   'func' fits into the small object buffer, no memory is allocated
+        //:   either from the global allocator or from the allocator used to
+        //:   construct the 'function' object.
+        //: 9 For concern 9, test the results of steps 2-4 to verify that when
+        //:   'func' does not fit into the small object buffer, one block of
+        //:   memory of sufficient size to hold 'FUNC' is allocated from the
+        //:   allocator.
+        //: 10 For concern 10, perform step 7 using alloctors of various sizes
+        //:   from very small to one where, combined with 'FUNC', barely fits
+        //:   within the small object buffer and verify, in each case, that no
+        //:   memory is allocated either from the global allocator or from the
+        //:   allocator used to construct the 'function' object.
+        //: 11 For concern 11, perform step 7 using allocators of various
+        //:   sizes which, combined with 'FUNC', do not fit in the small
+        //:   object buffer and verify that exactly one block was allocated
+        //:   from the allocator used to construct the 'function' and that no
+        //:   memory was allocated from the global allocator.
+        //: 12 For concern 12, look at the memory allocation from step 11 and
+        //:   verify that, when 'FUNC' fits within the small object buffer,
+        //:   that the allocated memory is only large enough to hold the
+        //:   allocator adaptor.
+        //: 13 For concern 13, look at the memory allocation from step 11 and
+        //:   verify that, when 'FUNC' does not fit within the small object
+        //:   buffer, that the allocated memory is large enough to hold both
+        //:   'FUNC' and the allocator adaptor.
+        //: 14 For concern 14, check at the end of each step, when the
+        //:   'function' object is destroyed, that all memory is returned to
+        //:   the allocator.
+        //: 15 For concern 15, wrap the common parts of the above steps into a
+        //:   function template, 'testFuncWithAlloc', which takes 'ALLOC' and
+        //:   'FUNC' template parameters.  Instantiate this template with each
+        //:   of the allocator types described in the previous step in
+        //:   combination with each of the following invokable types: pointer
+        //:   to function, pointer to member function, and functor types of
+        //:   various sizes.
+        //
+        // Testing
+        //      function(allocator_arg_t, const ALLOC& alloc, FUNC func);
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONSTRUCTOR function(allocator_arg_t, "
+                            "const ALLOC& alloc, FUNC func)"
+                            "\n======================================"
+                            "==============================\n");
+
+        // Functors
+        int (*nullFuncPtr)(IntWrapper, int) = 0;
+        int (IntWrapper::*nullMemFuncPtr)(int) const = 0;
+
+#define TEST(A, f, E) testFuncWithAlloc<A>(f, E, #f)
+
+        if (veryVerbose) std::printf("Using bslma::TestAllocator*\n");
+        TEST(bslma::TestAllocator *,   nullFuncPtr,       e_INPLACE_BOTH);
+        TEST(bslma::TestAllocator *,   nullMemFuncPtr,    e_INPLACE_BOTH);
+        TEST(bslma::TestAllocator *,   simpleFunc,        e_INPLACE_BOTH);
+        TEST(bslma::TestAllocator *,   &IntWrapper::add1, e_INPLACE_BOTH);
+        TEST(bslma::TestAllocator *,   EmptyFunctor(),    e_INPLACE_BOTH);
+        TEST(bslma::TestAllocator *,   SmallFunctor(0),   e_INPLACE_BOTH);
+        TEST(bslma::TestAllocator *,   MediumFunctor(0),  e_INPLACE_BOTH);
+        TEST(bslma::TestAllocator *,   LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+        
+        if (veryVerbose) std::printf("Using bsl::allocator\n");
+        TEST(bsl::allocator<char>,     nullFuncPtr,       e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>,     nullMemFuncPtr,    e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>,     simpleFunc,        e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>,     &IntWrapper::add1, e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>,     EmptyFunctor(),    e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>,     SmallFunctor(0),   e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>,     MediumFunctor(0),  e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>,     LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+
+        if (veryVerbose) std::printf("Using EmptySTLAllocator\n");
+        TEST(EmptySTLAllocator<char>,  nullFuncPtr,       e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char>,  nullMemFuncPtr,    e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char>,  simpleFunc,        e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char>,  &IntWrapper::add1, e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char>,  EmptyFunctor(),    e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char>,  SmallFunctor(0),   e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char>,  MediumFunctor(0),  e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char>,  LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+
+        if (veryVerbose) std::printf("Using TinySTLAllocator\n");
+        TEST(TinySTLAllocator<char>,   nullFuncPtr,       e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>,   nullMemFuncPtr,    e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>,   simpleFunc,        e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>,   &IntWrapper::add1, e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>,   EmptyFunctor(),    e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>,   SmallFunctor(0),   e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>,   MediumFunctor(0),  e_INPLACE_FUNC_ONLY);
+        TEST(TinySTLAllocator<char>,   LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+
+        if (veryVerbose) std::printf("Using SmallSTLAllocator\n");
+        TEST(SmallSTLAllocator<char>,  nullFuncPtr,       e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char>,  nullMemFuncPtr,    e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char>,  simpleFunc,        e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char>,  &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
+        TEST(SmallSTLAllocator<char>,  EmptyFunctor(),    e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char>,  SmallFunctor(0),   e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char>,  MediumFunctor(0),  e_INPLACE_FUNC_ONLY);
+        TEST(SmallSTLAllocator<char>,  LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+
+        if (veryVerbose) std::printf("Using MediumSTLAllocator\n");
+        TEST(MediumSTLAllocator<char>, nullFuncPtr,       e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, nullMemFuncPtr,    e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, simpleFunc,        e_INPLACE_FUNC_ONLY);
+        TEST(MediumSTLAllocator<char>, &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
+        TEST(MediumSTLAllocator<char>, EmptyFunctor(),    e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, SmallFunctor(0),   e_INPLACE_FUNC_ONLY);
+        TEST(MediumSTLAllocator<char>, MediumFunctor(0),  e_INPLACE_FUNC_ONLY);
+        TEST(MediumSTLAllocator<char>, LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+
+        if (veryVerbose) std::printf("Using LargeSTLAllocator\n");
+        TEST(LargeSTLAllocator<char>,  nullFuncPtr,       e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char>,  nullMemFuncPtr,    e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char>,  simpleFunc,        e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char>,  &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char>,  EmptyFunctor(),    e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char>,  SmallFunctor(0),   e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char>,  MediumFunctor(0),  e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char>,  LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+
+#undef TEST
 
       } break;
 
@@ -915,7 +1236,7 @@ int main(int argc, char *argv[])
         // CONSTRUCTOR function(allocator_arg_t, const ALLOC& alloc)
         //
         // Concerns:
-        //: 1 Constructing an 'function' using this constructor yields an
+        //: 1 Constructing a 'function' using this constructor yields an
         //:   empty 'function' object.
         //: 2 If 'alloc' is a pointer to a 'bslma::Allocator' object, then the
         //:   'allocator' accessor will return that pointer.
@@ -1076,7 +1397,7 @@ int main(int argc, char *argv[])
             bslma::Allocator *erasedAlloc = f.allocator();
             Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
             ASSERT(adaptor);
-            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -1086,7 +1407,7 @@ int main(int argc, char *argv[])
             erasedAlloc = f.allocator();
             adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
             ASSERT(adaptor);
-            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
         }
@@ -1105,7 +1426,7 @@ int main(int argc, char *argv[])
             bslma::Allocator *erasedAlloc = f.allocator();
             Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
             ASSERT(adaptor);
-            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -1115,7 +1436,7 @@ int main(int argc, char *argv[])
             erasedAlloc = f.allocator();
             adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
             ASSERT(adaptor);
-            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
         }
@@ -1134,7 +1455,7 @@ int main(int argc, char *argv[])
             bslma::Allocator *erasedAlloc = f.allocator();
             Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
             ASSERT(adaptor);
-            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -1144,7 +1465,7 @@ int main(int argc, char *argv[])
             erasedAlloc = f.allocator();
             adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
             ASSERT(adaptor);
-            ASSERT(adaptor->getAdaptedAllocator() == alloc);
+            ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
         }
@@ -1165,7 +1486,7 @@ int main(int argc, char *argv[])
                 bslma::Allocator *erasedAlloc = f.allocator();
                 Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
                 ASSERT(adaptor);
-                ASSERT(adaptor->getAdaptedAllocator() == alloc);
+                ASSERT(adaptor->adaptedAllocator() == alloc);
                 ASSERT(1 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
 
@@ -1175,7 +1496,7 @@ int main(int argc, char *argv[])
                 erasedAlloc = f.allocator();
                 adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
                 ASSERT(adaptor);
-                ASSERT(adaptor->getAdaptedAllocator() == alloc);
+                ASSERT(adaptor->adaptedAllocator() == alloc);
                 ASSERT(2 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
             }
