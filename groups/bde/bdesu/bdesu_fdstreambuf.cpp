@@ -1021,9 +1021,9 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
     // seek to find out our position.
 
     if (CUR == dir && 0 == offset && BDESU_OUTPUT_MODE == d_mode) {
-        bsl::streamoff trivialAdjust = d_fileHandler.getOffset(pbase(),
-                                                               pptr());
-        return pos_type(d_fileHandler.seek(0, CUR) + trivialAdjust);  // RETURN
+        const bsl::streamoff outDiskAdjust = d_fileHandler.getOffset(pbase(),
+                                                                     pptr());
+        return pos_type(d_fileHandler.seek(0, CUR) + outDiskAdjust);  // RETURN
     }
 
     // Note that 'seekInit' will flush the output buffer if we're in output
@@ -1062,16 +1062,17 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
         // area.  Note that since we're in mapped mode, we know no translation
         // between 'n' and '\r\n' is taking place.
 
-        bsl::streamoff adjust = egptr() - gptr();
+        const bsl::streamoff mapAdjust = egptr() - gptr();
 
         if (0 == offset) {
             // We're just returning our current position, so we don't want to
             // exit input mode or shift the file pointer.
 
-            return pos_type(d_fileHandler.seek(0, CUR) - adjust);     // RETURN
+            return pos_type(d_fileHandler.seek(0, CUR) - mapAdjust);  // RETURN
         }
 
-        return seekReturn(d_fileHandler.seek(offset - adjust, CUR));  // RETURN
+        return seekReturn(d_fileHandler.seek(offset - mapAdjust, CUR));
+                                                                      // RETURN
     }
 
     // This object is not in mmap mode, it's in read mode.  This gets tricky,
@@ -1080,15 +1081,16 @@ bdesu_FdStreamBuf::seekoff(off_type               offset,
     // the end of the input buffer, which takes the translation of '\n's to
     // '\r\n's is into account.
 
-    bsl::streamoff diskAdjust = d_fileHandler.getOffset(gptr(), egptr());
+    const bsl::streamoff inDiskAdjust = d_fileHandler.getOffset(gptr(),
+                                                                egptr());
     if (0 == offset) {
         // We have only to return our current position, so it's not necessary
         // to exit input mode or change our file position.
 
-        return pos_type(d_fileHandler.seek(0, CUR) - diskAdjust);     // RETURN
+        return pos_type(d_fileHandler.seek(0, CUR) - inDiskAdjust);   // RETURN
     }
 
-    return seekReturn(d_fileHandler.seek(offset - diskAdjust, CUR));
+    return seekReturn(d_fileHandler.seek(offset - inDiskAdjust, CUR));
 }
 
 bsl::streambuf::pos_type
