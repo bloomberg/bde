@@ -598,9 +598,9 @@ int main(int argc, char *argv[])
                           << "=====================" << endl;
 
         enum {
-            CHAR  = bdem_ElemType::BDEM_CHAR,
-            SHORT = bdem_ElemType::BDEM_SHORT,
-            INT   = bdem_ElemType::BDEM_INT
+            CHAR_TYPE  = bdem_ElemType::BDEM_CHAR,
+            SHORT_TYPE = bdem_ElemType::BDEM_SHORT,
+            INT_TYPE   = bdem_ElemType::BDEM_INT
         };
 
         // First, create an empty row layout:
@@ -609,45 +609,45 @@ int main(int argc, char *argv[])
 
         // Add some elements to our layout by appending to the end:
 
-        m.append(typesLookupTable[CHAR]);
-        ASSERT( 1    == m.length());
-        ASSERT(CHAR  == m[0].attributes()->d_elemEnum);
-        ASSERT( 0    == m[0].offset());
-        ASSERT( 1    == m.totalOffset());
+        m.append(typesLookupTable[CHAR_TYPE]);
+        ASSERT( 1        == m.length());
+        ASSERT(CHAR_TYPE == m[0].attributes()->d_elemEnum);
+        ASSERT( 0        == m[0].offset());
+        ASSERT( 1        == m.totalOffset());
 
-        m.append(typesLookupTable[INT]);
-        ASSERT( 2    == m.length());
-        ASSERT(INT   == m[1].attributes()->d_elemEnum);
-        ASSERT( 4    == m[1].offset());
-        ASSERT( 8    == m.totalOffset());
+        m.append(typesLookupTable[INT_TYPE]);
+        ASSERT( 2       == m.length());
+        ASSERT(INT_TYPE == m[1].attributes()->d_elemEnum);
+        ASSERT( 4       == m[1].offset());
+        ASSERT( 8       == m.totalOffset());
 
-        m.append(typesLookupTable[INT]);
-        ASSERT( 3    == m.length());
-        ASSERT(INT   == m[2].attributes()->d_elemEnum);
-        ASSERT( 8    == m[2].offset());
-        ASSERT(12    == m.totalOffset());
+        m.append(typesLookupTable[INT_TYPE]);
+        ASSERT( 3       == m.length());
+        ASSERT(INT_TYPE == m[2].attributes()->d_elemEnum);
+        ASSERT( 8       == m[2].offset());
+        ASSERT(12       == m.totalOffset());
 
-        m.append(typesLookupTable[SHORT]);
-        ASSERT( 4    == m.length());
-        ASSERT(SHORT == m[3].attributes()->d_elemEnum);
-        ASSERT(12    == m[3].offset());
-        ASSERT(14    == m.totalOffset());
+        m.append(typesLookupTable[SHORT_TYPE]);
+        ASSERT( 4         == m.length());
+        ASSERT(SHORT_TYPE == m[3].attributes()->d_elemEnum);
+        ASSERT(12         == m[3].offset());
+        ASSERT(14         == m.totalOffset());
 
         // Note we can insert in the middle.  While according to the indexes,
         // the new element is in the middle of the list, while according to the
         // offsets it was added onto the end.
 
-        m.insert(2, typesLookupTable[SHORT]);
-        ASSERT( 5    == m.length());
-        ASSERT(SHORT == m[2].attributes()->d_elemEnum);
-        ASSERT(14    == m[2].offset());
-        ASSERT(16    == m.totalOffset());
+        m.insert(2, typesLookupTable[SHORT_TYPE]);
+        ASSERT( 5         == m.length());
+        ASSERT(SHORT_TYPE == m[2].attributes()->d_elemEnum);
+        ASSERT(14         == m[2].offset());
+        ASSERT(16         == m.totalOffset());
 
-        ASSERT(CHAR  == m[0].attributes()->d_elemEnum);
-        ASSERT(INT   == m[1].attributes()->d_elemEnum);
-        ASSERT(SHORT == m[2].attributes()->d_elemEnum);
-        ASSERT(INT   == m[3].attributes()->d_elemEnum);
-        ASSERT(SHORT == m[4].attributes()->d_elemEnum);
+        ASSERT(CHAR_TYPE  == m[0].attributes()->d_elemEnum);
+        ASSERT(INT_TYPE   == m[1].attributes()->d_elemEnum);
+        ASSERT(SHORT_TYPE == m[2].attributes()->d_elemEnum);
+        ASSERT(INT_TYPE   == m[3].attributes()->d_elemEnum);
+        ASSERT(SHORT_TYPE == m[4].attributes()->d_elemEnum);
 
         // Let's print out the layout, which will give us "<TYPE> <OFFSET>"
         // pairs separated by '\n's:
@@ -662,12 +662,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == strcmp(EXP1, buf));
         ASSERT(16 == m.totalOffset());
 
-        m.remove(1);    // Remove element 1, which is of type 'INT'.
+        m.remove(1);    // Remove element 1, which is of type 'INT_TYPE'.
 
         ASSERT( 4 == m.length());       // one shorter
         ASSERT(16 == m.totalOffset());  // unchanged
 
-        // Print out the layout, showing that that 'INT' is now gone, and that
+        // Print out the layout, showing that that 'INT_TYPE' is now gone, and that
         // the offsets of all the other elements are unchanged:
 
         memset(buf, 0xff, sizeof buf);        out.seekp(0);

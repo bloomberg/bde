@@ -7060,6 +7060,9 @@ if (veryVerbose)
             ASSERT(0 > X.recordIndex("bar"));
         }
 
+#ifdef OUT  // OUT is #define'd in a windows header
+#undef OUT
+#endif		
         if (verbose)
             bsl::cout << "\nTesting 'enumerationIndex' and 'enumerationName'"
                       << bsl::endl;

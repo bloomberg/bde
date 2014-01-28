@@ -75,7 +75,7 @@ int bteso_IPv4Address::machineIndependentInetPtonIPv4(int        *addr,
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     *addr = inet_addr(address);
-    if (addr != -1) {
+    if (addr != reinterpret_cast<int *>(-1)) {
         return 1;                                                     // RETURN
     }
     else {

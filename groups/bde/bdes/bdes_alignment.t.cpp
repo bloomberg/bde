@@ -2,7 +2,8 @@
 
 #include <bdes_alignment.h>
 
-#include <bsls_platform.h>  // for testing only
+#include <bsls_platform.h>
+#include <bsls_alignmentutil.h>
 
 #include <bsl_cstddef.h>     // offsetof() macro
 #include <bsl_cstdlib.h>     // atoi ()
