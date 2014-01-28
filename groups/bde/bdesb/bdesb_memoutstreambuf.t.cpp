@@ -476,6 +476,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting seekoff from beginning and end."
                           << endl;
 
+#ifdef IN // 'IN' and 'OUT'  are #define'd in a windows header
+#undef IN
+#undef OUT
+#endif
         const int OUT = bsl::ios_base::out;
         const int IN  = bsl::ios_base::in;
         const int CUR = bsl::ios_base::cur;

@@ -132,6 +132,10 @@ static int veryVeryVerbose = 0;
 // Abbreviation for baexml_ErrorInfo
 typedef baexml_ErrorInfo Obj;
 
+#ifdef NO_ERROR // 'NO_ERROR' is #define'd in a windows header
+#undef NO_ERROR
+#endif
+
 // Abbreviations for severities.
 const Obj::Severity NO_ERROR    = Obj::BAEXML_NO_ERROR;
 const Obj::Severity WARNING     = Obj::BAEXML_WARNING;

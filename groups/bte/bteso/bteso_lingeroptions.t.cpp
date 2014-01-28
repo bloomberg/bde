@@ -26,7 +26,9 @@
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <sys/socket.h>
 #else
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winsock2.h>
 #endif
 
 using namespace BloombergLP;

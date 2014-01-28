@@ -821,10 +821,9 @@ int main(int argc, char *argv[])
                 Desc desc1(0, false, "A");
                 tz.addTransition(MIN_DATETIME, desc1);
 
-                const int DIFFERENCE =
-                                 toOffsetInMilliseconds(DIFFERENCES[i]) / 1000;
+                const int DIFF = toOffsetInMilliseconds(DIFFERENCES[i])/1000;
 
-                Desc desc2(DIFFERENCE, false, "B");
+                Desc desc2(DIFF, false, "B");
                 tz.addTransition(TRANS_TIME_T, desc2);
 
                 // Create two local times, the first, 'PRE_TRANSITION',
@@ -854,10 +853,10 @@ int main(int argc, char *argv[])
 
                 bdet_Datetime PRE_TRANSITION(TRANS_TIME);
                 bdet_Datetime POST_TRANSITION(TRANS_TIME);
-                POST_TRANSITION.addSeconds(DIFFERENCE);
+                POST_TRANSITION.addSeconds(DIFF);
 
                 // Note that if 'PRE_TRANSITION > POST_TRANSITION' (i.e.,
-                // 'DIFFERENCE < 0') then the range of local times between
+                // 'DIFF < 0') then the range of local times between
                 // PRE_TRANSITION and POST_TRANSITIONS are ambiguous,
                 // otherwise they are invalid.
                 bdet_Datetime minTime = PRE_TRANSITION < POST_TRANSITION
@@ -868,7 +867,7 @@ int main(int argc, char *argv[])
                                         : POST_TRANSITION;
 
                 if (veryVeryVerbose) {
-                    P_(DIFFERENCES[i]);
+                    P_(DIFF);
                     P_(PRE_TRANSITION);
                     P(POST_TRANSITION);
                 }
@@ -911,7 +910,7 @@ int main(int argc, char *argv[])
                                    TZ.findTransitionForUtcTime(utcTime));
                             ASSERT(*EXP == resultIt1->descriptor());
                         }
-                        else if (DIFFERENCE < 0) {
+                        else if (DIFF < 0) {
                             ASSERT(A         == resultValidity);
                             ASSERT(resultIt1 != resultIt2);
                             TzIt next = resultIt1; ++next;
@@ -934,7 +933,7 @@ int main(int argc, char *argv[])
                                    TZ.findTransitionForUtcTime(utcTime2));
                         }
                         else {
-                            BSLS_ASSERT(DIFFERENCE > 0);
+                            BSLS_ASSERT(DIFF > 0);
 
                             ASSERT(I         == resultValidity);
                             ASSERT(resultIt1 != resultIt2);

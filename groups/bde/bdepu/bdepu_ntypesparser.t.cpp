@@ -211,6 +211,10 @@ TYPE myabs(const TYPE& x)
     return x < 0 ? -x : x;
 }
 
+#ifdef near  // near is #define'd in windows headers
+#undef near
+#endif
+
 template <typename TYPE>
 bool near(const TYPE& lhs, const TYPE& rhs)
 {

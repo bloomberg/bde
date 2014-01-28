@@ -3321,6 +3321,9 @@ int main(int argc, char *argv[])
                     mN.selection().makeNull();
                 }
 
+#ifdef IN  // Windows headers #define IN
+#undef IN
+#endif
                 const ChoiceArrayItem& I  = X.item();
                 const ChoiceArrayItem& IN = N.item();
 
