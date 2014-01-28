@@ -1,278 +1,280 @@
-// bdesu_fileutilutf8.h                                               -*-C++-*-
-#ifndef INCLUDED_BDESU_FILEUTILUTF8
-#define INCLUDED_BDESU_FILEUTILUTF8
+// bdesu_filesystemutil.h                                             -*-C++-*-
+#ifndef INCLUDED_BDESU_FILESYSTEMUTIL
+#define INCLUDED_BDESU_FILESYSTEMUTIL
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide UTF-8-encoded methods for file system access.
+//@purpose: provide methods for file system access.
 //
-//@CLASSES:
-//  bdesu_FileUtilUtf8: namespace for UTF-8-encoded file system access methods
+//@classes:
+//  bdesu_filesystemutil: namespace for file system access methods
 //
-//@SEE_ALSO: bdesu_fileutil, bdesu_pathutil
+//@see_also: bdesu_fileutil, bdesu_pathutil
 //
-//@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov),
-// Hyman Rosen (hrosen4), Alexander Beels (abeels)
+//@author: andrei basov (abasov), oleg semenov (osemenov),
+// hyman rosen (hrosen4), alexander beels (abeels)
 //
-//@DESCRIPTION: This component provides a utf8-encoded platform-independent
-// interface to filesystem utility methods.  Each function in the
-// 'bdesu_FileUtilUtf8' namespace is a thin wrapper on top of the operating
+//@description: this component provides a utf8-encoded platform-independent
+// interface to filesystem utility methods.  each function in the
+// 'bdesu_filesystemutil' namespace is a thin wrapper on top of the operating
 // system's own file system access functions, providing a consistent and
 // unambiguous interface for handling files on all supported platforms.
 //
-// All methods in this component require that all file and path names be passed
-// as UTF-8-encoded strings.  Similarly, methods that return file and path
-// names return UTF-8-encoded strings.  Because this component has no direct
+// all methods in this component require that all file and path names be passed
+// as utf-8-encoded strings.  similarly, methods that return file and path
+// names return utf-8-encoded strings.  because this component has no direct
 // knowledge of the underlying file system's native encoding, these
-// requirements are *assumed* on Posix platforms, and *enforced* on Windows
-// platforms.  See the section "Platform-Specific File Name Encoding Caveats"
+// requirements are *assumed* on posix platforms, and *enforced* on windows
+// platforms.  see the section "platform-specific file name encoding caveats"
 // below.
 //
-///Policies For 'open'
+///policies for 'open'
 ///-------------------
-// The behavior of the 'open' method is governed by three sets of enumerations:
+// the behavior of the 'open' method is governed by three sets of enumerations:
 //
-///Open/Create Policy: 'bdesu_FileUtilUtf8::FileOpenPolicy'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu_FileUtilUtf8::FileOpenPolicy' governs whether 'open' creates a new
-// file or opens an existing one.  The following values are possible:
+///open/create policy: 'bdesu_filesystemutil::fileopenpolicy'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_filesystemutil::fileopenpolicy' governs whether 'open' creates a new
+// file or opens an existing one.  the following values are possible:
 //
-//: o e_OPEN          : Open an existing file.
+//: o e_open          : open an existing file.
 //:
-//: o e_CREATE        : Create a new file.
+//: o e_create        : create a new file.
 //:
-//: o e_OPEN_OR_CREATE: Open a file if it exists, and create a new file
+//: o e_open_or_create: open a file if it exists, and create a new file
 //:                     otherwise.
 //
-///Input/Output Access Policy: 'bdesu_FileUtilUtf8::FileIOPolicy'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu_FileUtilUtf8::FileIOPolicy' governs what Input/Output operations are
-// allowed on a file after it is opened.  The following values are possible:
-//
-//: o e_READ_ONLY  : Allow reading only.
-//: o e_WRITE_ONLY : Allow writing only.
-//: o e_READ_WRITE : Allow both reading and writing.
-//: o e_APPEND_ONLY: Allow appending to end-of-file only.
-//: o e_READ_APPEND: Allow both reading and appending to end-of-file.
-//
-///Truncation Policy: 'bdesu_FileUtilUtf8::FileTruncatePolicy'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu_FileUtilUtf8::FileTruncatePolicy' governs whether 'open' deletes the
-// existing contents of a file when it is opened.  The following values are
+///input/output access policy: 'bdesu_filesystemutil::fileiopolicy'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_filesystemutil::fileiopolicy' governs what input/output operations
+// are allowed on a file after it is opened.  the following values are
 // possible:
 //
-//: o e_TRUNCATE: Delete the file's contents.
-//: o e_KEEP    : Keep the file's contents.
+//: o e_read_only  : allow reading only.
+//: o e_write_only : allow writing only.
+//: o e_read_write : allow both reading and writing.
+//: o e_append_only: allow appending to end-of-file only.
+//: o e_read_append: allow both reading and appending to end-of-file.
 //
-///Starting Points For 'seek'
+///truncation policy: 'bdesu_filesystemutil::filetruncatepolicy'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_filesystemutil::filetruncatepolicy' governs whether 'open' deletes
+// the existing contents of a file when it is opened.  the following values are
+// possible:
+//
+//: o e_truncate: delete the file's contents.
+//: o e_keep    : keep the file's contents.
+//
+///starting points for 'seek'
 ///--------------------------
-// The behavior of the 'seek' method is governed by an enumeration that
+// the behavior of the 'seek' method is governed by an enumeration that
 // determines the point from which the seek operation starts:
 //
-//: o e_SEEK_FROM_BEGINNING: Seek from the beginning of the file.
-//: o e_SEEK_FROM_CURRENT  : Seek from the current position in the file.
-//: o e_SEEK_FROM_END      : Seek from the end of the file.
+//: o e_seek_from_beginning: seek from the beginning of the file.
+//: o e_seek_from_current  : seek from the current position in the file.
+//: o e_seek_from_end      : seek from the end of the file.
 //
-///Platform-Specific File Locking Caveats
+///platform-specific file locking caveats
 ///--------------------------------------
-// Locking has the following caveats for the following operating systems:
+// locking has the following caveats for the following operating systems:
 //:
-//: o On Posix, closing a file releases all locks on all file descriptors
-//:   referring to that file within the current process.  [Doc 1] [Doc 2]
+//: o on posix, closing a file releases all locks on all file descriptors
+//:   referring to that file within the current process.  [doc 1] [doc 2]
 //:
-//: o On Posix, the child of a fork does not inherit the locks of the parent
-//:   process.  [Doc 1] [Doc 2]
+//: o on posix, the child of a fork does not inherit the locks of the parent
+//:   process.  [doc 1] [doc 2]
 //:
-//: o On at least some flavors of Unix, you can't lock a file for writing using
+//: o on at least some flavors of unix, you can't lock a file for writing using
 //:   a file descriptor opened in read-only mode.
 //
-///Platform-Specific Atomicity Caveats
+///platform-specific atomicity caveats
 ///-----------------------------------
-// The 'bdesu_FileUtilUtf8::read' and 'bdesu_FileUtilUtf8::write' methods add
-// no atomicity guarantees for reading and writing to those provided (if any)
-// by the underlying platform's methods for reading and writing (see
-// 'http://lwn.net/Articles/180387/').
+// the 'bdesu_filesystemutil::read' and 'bdesu_filesystemutil::write' methods
+// add no atomicity guarantees for reading and writing to those provided (if
+// any) by the underlying platform's methods for reading and writing (see
+// 'http://lwn.net/articles/180387/').
 //
-///Platform-Specific File Name Encoding Caveats
+///platform-specific file name encoding caveats
 ///--------------------------------------------
-// File-name encodings have the following caveats for the following operating
+// file-name encodings have the following caveats for the following operating
 // systems:
 //
-//: o On Windows, methods of 'bdesu_FileUtilUtf8' that take a file or directory
-//:   name or pattern as a 'char*' or 'bsl::string' type assume that the name
-//:   is encoded in UTF-8.  The routines attempt to convert the name to a
-//:   UTF-16 'wchar_t' string via 'bdede_CharConvertUtf16::utf8ToUtf16', and if
-//:   the conversion succeeds, call the Windows wide-character 'W' APIs with
-//:   the UTF-16 name.  If the conversion fails, the methods fail.  Similarly,
-//:   file searches returning file names call the Windows wide-character 'W'
-//:   APIs and convert the resulting UTF-16 names to UTF-8.
+//: o on windows, methods of 'bdesu_filesystemutil' that take a file or
+//:   directory name or pattern as a 'char*' or 'bsl::string' type assume that
+//:   the name is encoded in utf-8. the routines attempt to convert the name to
+//:   a utf-16 'wchar_t' string via 'bdede_charconvertutf16::utf8toutf16', and
+//:   if the conversion succeeds, call the windows wide-character 'w' apis with
+//:   the utf-16 name. if the conversion fails, the methods fail. similarly,
+//:   file searches returning file names call the windows wide-character 'w'
+//:   apis and convert the resulting utf-16 names to utf-8.
 //:
-//:   Narrow-character file names in other encodings, containing characters
+//:   narrow-character file names in other encodings, containing characters
 //:   with values in the range 128 - 255, will likely result in files being
 //:   created with names that appear garbled.
 //:
-//:   Neither 'utf8ToUtf16' nor the Windows 'W' APIs do any normalization of
-//:   the UTF-16 strings resulting from UTF-8 conversion, and it is therefore
+//:   neither 'utf8toutf16' nor the windows 'w' apis do any normalization of
+//:   the utf-16 strings resulting from utf-8 conversion, and it is therefore
 //:   possible to have sets of file names which display as identical strings
 //:   but are treated as different names by the file system.
 //:
-//: o On Posix, a file name or pattern supplied to methods of
-//:   'bdesu_FileUtilUtf8' as a 'char*' or 'bsl::string' type is assumed to be
-//:   encoded in UTF-8, and is passed unchanged to the underlying system file
-//:   APIs, which are assumed to be interfacing with a filesystem encoded in
-//:   UTF-8.  Because the file names and patterns are passed unchanged,
-//:   'bdesu_FileUtilUtf8' methods will work correctly on Posix with other
+//: o on posix, a file name or pattern supplied to methods of
+//:   'bdesu_filesystemutil' as a 'char*' or 'bsl::string' type is assumed to
+//:   be encoded in utf-8, and is passed unchanged to the underlying system
+//:   file apis, which are assumed to be interfacing with a filesystem encoded
+//:   in utf-8. because the file names and patterns are passed unchanged,
+//:   'bdesu_filesystemutil' methods will work correctly on posix with other
 //:   encodings, providing that the strings supplied to the methods are in the
 //:   same encoding as the underlying file system.
 //
-///File Truncation Caveats
+///file truncation caveats
 ///-----------------------
-// In order to provide consistent behavior across both POSIX and Windows
+// in order to provide consistent behavior across both posix and windows
 // platforms, when the 'open' method is called file truncation is allowed only
-// if the client requests an 'openPolicy' containing the word 'CREATE' and/or
-// an 'ioPolicy' containing the word 'WRITE'.
+// if the client requests an 'openpolicy' containing the word 'create' and/or
+// an 'iopolicy' containing the word 'write'.
 //
-///Usage
+///usage
 ///-----
-///Example 1: General Usage
+///example 1: general usage
 /// - - - - - - - - - - - -
-// In this example, we start with a (relative) native path to a directory
+// in this example, we start with a (relative) native path to a directory
 // containing log files:
 //..
-//  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//    bsl::string logPath = "temp.1\\logs";
+//  #ifdef bsls_platform_os_windows
+//    bsl::string logpath = "temp.1\\logs";
 //  #else
-//    bsl::string logPath = "temp.1/logs";
+//    bsl::string logpath = "temp.1/logs";
 //  #endif
 //..
-// Suppose that we want to separate files into "old" and "new" subdirectories
-// on the basis of modification time.  We will provide paths representing these
+// suppose that we want to separate files into "old" and "new" subdirectories
+// on the basis of modification time.  we will provide paths representing these
 // locations, and create the directories if they do not exist:
 //..
-//  bsl::string oldPath(logPath), newPath(logPath);
-//  bdesu_PathUtil::appendRaw(&oldPath, "old");
-//  bdesu_PathUtil::appendRaw(&newPath, "new");
-//  int rc = bdesu_FileUtilUtf8::createDirectories(oldPath.c_str(), true);
+//  bsl::string oldpath(logpath), newpath(logpath);
+//  bdesu_pathutil::appendraw(&oldpath, "old");
+//  bdesu_pathutil::appendraw(&newpath, "new");
+//  int rc = bdesu_filesystemutil::createdirectories(oldpath.c_str(), true);
 //  assert(0 == rc);
-//  rc = bdesu_FileUtilUtf8::createDirectories(newPath.c_str(), true);
+//  rc = bdesu_filesystemutil::createdirectories(newpath.c_str(), true);
 //  assert(0 == rc);
 //..
-// We know that all of our log files match the pattern "*.log", so let's search
+// we know that all of our log files match the pattern "*.log", so let's search
 // for all such files in the log directory:
 //..
-//  bdesu_PathUtil::appendRaw(&logPath, "*.log");
-//  bsl::vector<bsl::string> logFiles;
-//  bdesu_FileUtilUtf8::findMatchingPaths(&logFiles, logPath.c_str());
+//  bdesu_pathutil::appendraw(&logpath, "*.log");
+//  bsl::vector<bsl::string> logfiles;
+//  bdesu_filesystemutil::findmatchingpaths(&logfiles, logpath.c_str());
 //..
-// Now for each of these files, we will get the modification time.  Files that
+// now for each of these files, we will get the modification time.  files that
 // are older than 2 days will be moved to "old", and the rest will be moved to
 // "new":
 //..
-//  bdet_Datetime modTime;
-//  bsl::string   fileName;
-//  for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
-//                                                it != logFiles.end(); ++it) {
-//    assert(0 == bdesu_FileUtilUtf8::getLastModificationTime(&modTime, *it));
-//    assert(0 == bdesu_PathUtil::getLeaf(&fileName, *it));
-//    bsl::string *whichDirectory =
-//                2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
-//                ? &oldPath
-//                : &newPath;
-//    bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
-//    assert(0 == bdesu_FileUtilUtf8::move(it->c_str(),
-//                                         whichDirectory->c_str()));
-//    bdesu_PathUtil::popLeaf(whichDirectory);
+//  bdet_datetime modtime;
+//  bsl::string   filename;
+//  for (bsl::vector<bsl::string>::iterator it = logfiles.begin();
+//                                                it != logfiles.end(); ++it) {
+//    assert(0 == bdesu_filesystemutil::getlastmodificationtime(&modtime,
+//                                                              *it));
+//    assert(0 == bdesu_pathutil::getleaf(&filename, *it));
+//    bsl::string *whichdirectory =
+//                2 < (bdetu_systemtime::nowasdatetime() - modtime).totaldays()
+//                ? &oldpath
+//                : &newpath;
+//    bdesu_pathutil::appendraw(whichdirectory, filename.c_str());
+//    assert(0 == bdesu_filesystemutil::move(it->c_str(),
+//                                           whichdirectory->c_str()));
+//    bdesu_pathutil::popleaf(whichdirectory);
 //  }
 //..
-///Example 2: Using 'bdesu_FileUtilUtf8::visitPaths'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu_FileUtilUtf8::visitPaths' enables clients to define a functor to
-// operate on file paths that match a specified pattern.  In this example, we
+///example 2: using 'bdesu_filesystemutil::visitpaths'
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_filesystemutil::visitpaths' enables clients to define a functor to
+// operate on file paths that match a specified pattern.  in this example, we
 // create a function that can be used to filter out files that have a last
 // modified time within a particular time frame.
 //
-// First we define our filtering function:
+// first we define our filtering function:
 //..
-//  void getFilesWithinTimeframe(bsl::vector<bsl::string> *vector,
+//  void getfileswithintimeframe(bsl::vector<bsl::string> *vector,
 //                               const char               *item,
-//                               const bdet_Datetime&      start,
-//                               const bdet_Datetime&      end)
+//                               const bdet_datetime&      start,
+//                               const bdet_datetime&      end)
 //  {
-//      bdet_Datetime datetime;
-//      int ret = bdesu_FileUtilUtf8::getLastModificationTime(&datetime,
-//                                                             item);
+//      bdet_datetime datetime;
+//      int ret = bdesu_filesystemutil::getlastmodificationtime(&datetime,
+//                                                               item);
 //
 //      if (ret) {
-//          return;                                                   // RETURN
+//          return;                                                   // return
 //      }
 //
 //      if (datetime < start || datetime > end) {
-//          return;                                                   // RETURN
+//          return;                                                   // return
 //      }
 //
 //      vector->push_back(item);
 //  }
 //..
-// Then, with the help of 'bdesu_FileUtilUtf8::visitPaths' and
-// 'bdef_BindUtil::bind', we create a function for finding all file paths that
+// then, with the help of 'bdesu_filesystemutil::visitpaths' and
+// 'bdef_bindutil::bind', we create a function for finding all file paths that
 // match a specified pattern and have a last modified time within a specified
-// start and end time (both specified as a 'bdet_Datetime'):
+// start and end time (both specified as a 'bdet_datetime'):
 //..
-//  void findMatchingFilesInTimeframe(bsl::vector<bsl::string> *result,
+//  void findmatchingfilesintimeframe(bsl::vector<bsl::string> *result,
 //                                    const char               *pattern,
-//                                    const bdet_Datetime&      start,
-//                                    const bdet_Datetime&      end)
+//                                    const bdet_datetime&      start,
+//                                    const bdet_datetime&      end)
 //  {
 //      result->clear();
-//      bdesu_FileUtilUtf8::visitPaths(
+//      bdesu_filesystemutil::visitpaths(
 //                                pattern,
-//                                bdef_BindUtil::bind(&getFilesWithinTimeframe,
+//                                bdef_bindutil::bind(&getfileswithintimeframe,
 //                                                    result,
-//                                                    bdef_PlaceHolders::_1,
+//                                                    bdef_placeholders::_1,
 //                                                    start,
 //                                                    end));
 //  }
 //..
 
-#ifndef INCLUDED_BDESCM_VERSION
+#ifndef included_bdescm_version
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDESU_MEMORYUTIL
+#ifndef included_bdesu_memoryutil
 #include <bdesu_memoryutil.h>
 #endif
 
-#ifndef INCLUDED_BDEF_FUNCTION
+#ifndef included_bdef_function
 #include <bdef_function.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
+#ifndef included_bsls_assert
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
+#ifndef included_bsls_platform
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSL_STRING
+#ifndef included_bsl_string
 #include <bsl_string.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
+#ifndef included_bsl_vector
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
+#ifndef included_bsl_cstddef
 #include <bsl_cstddef.h>
 #endif
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-#ifndef INCLUDED_SYS_TYPES
+#ifndef bsls_platform_os_windows
+#ifndef included_sys_types
 #include <sys/types.h>
-#define INCLUDED_SYS_TYPES
+#define included_sys_types
 #endif
 #endif
 
@@ -280,11 +282,11 @@ namespace BloombergLP {
 
 class bdet_Datetime;
 
-                         // =========================
-                         // struct bdesu_FileUtilUtf8
-                         // =========================
+                        // ===========================
+                        // struct bdesu_FilesystemUtil
+                        // ===========================
 
-struct bdesu_FileUtilUtf8 {
+struct bdesu_FilesystemUtil {
     // The static methods of this structure provide platform-independent
     // mechanisms for file system access.
 
@@ -676,20 +678,20 @@ struct bdesu_FileUtilUtf8 {
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                         // -------------------------
-                         // struct bdesu_FileUtilUtf8
-                         // -------------------------
+                        // ---------------------------
+                        // struct bdesu_FilesystemUtil
+                        // ---------------------------
 
 // CLASS METHODS
 inline
-int bdesu_FileUtilUtf8::createDirectories(const bsl::string& path,
-                                          bool               isLeafDirectory)
+int bdesu_FilesystemUtil::createDirectories(const bsl::string& path,
+                                            bool               isLeafDirectory)
 {
     return createDirectories(path.c_str(), isLeafDirectory);
 }
 
 inline
-void bdesu_FileUtilUtf8::visitPaths(
+void bdesu_FilesystemUtil::visitPaths(
                        const bsl::string&                              pattern,
                        const bdef_Function<void(*)(const char *path)>& visitor)
 {
@@ -697,38 +699,38 @@ void bdesu_FileUtilUtf8::visitPaths(
 }
 
 inline
-bdesu_FileUtilUtf8::FileDescriptor
-bdesu_FileUtilUtf8::open(const bsl::string&      path,
-                         enum FileOpenPolicy     openPolicy,
-                         enum FileIOPolicy       ioPolicy,
-                         enum FileTruncatePolicy truncatePolicy)
+bdesu_FilesystemUtil::FileDescriptor
+bdesu_FilesystemUtil::open(const bsl::string&      path,
+                           enum FileOpenPolicy     openPolicy,
+                           enum FileIOPolicy       ioPolicy,
+                           enum FileTruncatePolicy truncatePolicy)
 {
     return open(path.c_str(), openPolicy, ioPolicy, truncatePolicy);
 }
 
 inline
-bool bdesu_FileUtilUtf8::exists(const bsl::string& path)
+bool bdesu_FilesystemUtil::exists(const bsl::string& path)
 {
     return exists(path.c_str());
 }
 
 inline
-bool bdesu_FileUtilUtf8::isRegularFile(const bsl::string& path,
-                                       bool               followLinks)
+bool bdesu_FilesystemUtil::isRegularFile(const bsl::string& path,
+                                         bool               followLinks)
 {
     return isRegularFile(path.c_str(), followLinks);
 }
 
 inline
-bool bdesu_FileUtilUtf8::isDirectory(const bsl::string& path,
-                                     bool               followLinks)
+bool bdesu_FilesystemUtil::isDirectory(const bsl::string& path,
+                                       bool               followLinks)
 {
     return isDirectory(path.c_str(), followLinks);
 }
 
 inline
-int bdesu_FileUtilUtf8::getLastModificationTime(bdet_Datetime      *time,
-                                                const bsl::string&  path)
+int bdesu_FilesystemUtil::getLastModificationTime(bdet_Datetime      *time,
+                                                  const bsl::string&  path)
 {
     BSLS_ASSERT_SAFE(time);
 
@@ -736,39 +738,39 @@ int bdesu_FileUtilUtf8::getLastModificationTime(bdet_Datetime      *time,
 }
 
 inline
-int bdesu_FileUtilUtf8::remove(const bsl::string& path, bool recursive)
+int bdesu_FilesystemUtil::remove(const bsl::string& path, bool recursive)
 {
     return remove(path.c_str(), recursive);
 }
 
 inline
-int bdesu_FileUtilUtf8::rollFileChain(const bsl::string& path, int maxSuffix)
+int bdesu_FilesystemUtil::rollFileChain(const bsl::string& path, int maxSuffix)
 {
     return rollFileChain(path.c_str(), maxSuffix);
 }
 
 inline
-int bdesu_FileUtilUtf8::move(const bsl::string& oldPath,
-                             const bsl::string& newPath)
+int bdesu_FilesystemUtil::move(const bsl::string& oldPath,
+                               const bsl::string& newPath)
 {
     return move(oldPath.c_str(), newPath.c_str());
 }
 
 inline
-int bdesu_FileUtilUtf8::setWorkingDirectory(const bsl::string& path)
+int bdesu_FilesystemUtil::setWorkingDirectory(const bsl::string& path)
 {
     return setWorkingDirectory(path.c_str());
 }
 
 inline
-bdesu_FileUtilUtf8::Offset bdesu_FileUtilUtf8::getFileSize(
+bdesu_FilesystemUtil::Offset bdesu_FilesystemUtil::getFileSize(
                                                        const bsl::string& path)
 {
     return getFileSize(path.c_str());
 }
 
 inline
-bdesu_FileUtilUtf8::Offset bdesu_FileUtilUtf8::getAvailableSpace(
+bdesu_FilesystemUtil::Offset bdesu_FilesystemUtil::getAvailableSpace(
                                                        const bsl::string& path)
 {
     return getAvailableSpace(path.c_str());

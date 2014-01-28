@@ -1,5 +1,5 @@
-// bdesu_fileutilutf8.t.cpp                                           -*-C++-*-
-#include <bdesu_fileutilutf8.h>
+// bdesu_filesystemutil.t.cpp                                           -*-C++-*-
+#include <bdesu_filesystemutil.h>
 
 #include <bdesu_pathutil.h>
 
@@ -154,7 +154,7 @@ static const size_t NUM_VALID_NAMES = NUM_NAMES;
 //                  GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdesu_FileUtilUtf8 Obj;
+typedef bdesu_FilesystemUtil Obj;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 inline
@@ -275,7 +275,7 @@ bsl::string tempFileName(const char *fnTemplate = 0, int nocheck = 0)
     bsl::string result;
 
     if (!fnTemplate) {
-        fnTemplate = "bdesu_fileutilutf8.test";
+        fnTemplate = "bdesu_filesystemutil.test";
     }
 
     (void) nocheck;  // Avoid warning.
@@ -360,9 +360,9 @@ void NoOpAssertHandler(const char *, const char *, int)
 
 namespace UsageExample2 {
 
-///Example 2: Using 'bdesu_FileUtilUtf8::visitPaths'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// 'bdesu_FileUtilUtf8::visitPaths' enables clients to define a functor to
+///Example 2: Using 'bdesu_FilesystemUtil::visitPaths'
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bdesu_FilesystemUtil::visitPaths' enables clients to define a functor to
 // operate on file paths that match a specified pattern.  In this example, we
 // create a function that can be used to filter out files that have a last
 // modified time within a particular time frame.
@@ -375,8 +375,8 @@ namespace UsageExample2 {
                                  const bdet_Datetime&      end)
     {
         bdet_Datetime datetime;
-        int ret = bdesu_FileUtilUtf8::getLastModificationTime(&datetime,
-                                                               item);
+        int ret = bdesu_FilesystemUtil::getLastModificationTime(&datetime,
+                                                                 item);
 
         if (ret) {
             return;                                                   // RETURN
@@ -389,7 +389,7 @@ namespace UsageExample2 {
         vector->push_back(item);
     }
 //..
-// Then, with the help of 'bdesu_FileUtilUtf8::visitPaths' and
+// Then, with the help of 'bdesu_FilesystemUtil::visitPaths' and
 // 'bdef_BindUtil::bind', we create a function for finding all file paths that
 // match a specified pattern and have a last modified time within a specified
 // start and end time (both specified as a 'bdet_Datetime'):
@@ -400,7 +400,7 @@ namespace UsageExample2 {
                                       const bdet_Datetime&      end)
     {
         result->clear();
-        bdesu_FileUtilUtf8::visitPaths(
+        bdesu_FilesystemUtil::visitPaths(
                                   pattern,
                                   bdef_BindUtil::bind(&getFilesWithinTimeframe,
                                                       result,
@@ -450,14 +450,14 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdesu_FileUtilUtf8::remove("temp.2", true);
+        bdesu_FilesystemUtil::remove("temp.2", true);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         bsl::string logPath =  "temp.2\\logs2\\";
 #else
         bsl::string logPath =  "temp.2/logs2/";
 #endif
 
-        ASSERT(0 == bdesu_FileUtilUtf8::createDirectories(logPath.c_str(),
+        ASSERT(0 == bdesu_FilesystemUtil::createDirectories(logPath.c_str(),
                                                           true));
         const int TESTSIZE = 10;
         bdet_Datetime modTime[TESTSIZE];
@@ -470,17 +470,17 @@ int main(int argc, char *argv[])
                 cout << "Creating file: " << s.str() << endl;
             }
 
-            bdesu_FileUtilUtf8::FileDescriptor fd
-                         = bdesu_FileUtilUtf8::open(s.str(),
-                                                    Obj::e_OPEN_OR_CREATE,
-                                                    Obj::e_READ_WRITE);
+            bdesu_FilesystemUtil::FileDescriptor fd
+                         = bdesu_FilesystemUtil::open(s.str(),
+                                                      Obj::e_OPEN_OR_CREATE,
+                                                      Obj::e_READ_WRITE);
             ASSERT(0 != fd);
 
             const char buffer[] = "testing";
             int bytes           = sizeof buffer;
 
-            bdesu_FileUtilUtf8::write(fd, buffer, bytes);
-            bdesu_FileUtilUtf8::close(fd);
+            bdesu_FilesystemUtil::write(fd, buffer, bytes);
+            bdesu_FilesystemUtil::close(fd);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             Sleep(1000);  // 'Sleep' is in milliseconds on Windows.
@@ -488,7 +488,8 @@ int main(int argc, char *argv[])
             sleep(1);
 #endif
 
-            bdesu_FileUtilUtf8::getLastModificationTime(&modTime[i], s.str());
+            bdesu_FilesystemUtil::getLastModificationTime(&modTime[i],
+                                                           s.str());
             if (veryVerbose) {
                 cout << "\tLast modification time: " << modTime[i] << endl;
             }
@@ -512,7 +513,7 @@ int main(int argc, char *argv[])
 
         ASSERT(results.size() == END - START + 1);
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdesu_FileUtilUtf8::remove(logPath.c_str(), true));
+        ASSERT(0 == bdesu_FilesystemUtil::remove(logPath.c_str(), true));
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -531,7 +532,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdesu_FileUtilUtf8::remove("temp.1");
+        bdesu_FilesystemUtil::remove("temp.1");
 
 ///Example 1: General Usage
 /// - - - - - - - - - - - -
@@ -551,9 +552,9 @@ int main(int argc, char *argv[])
     bsl::string oldPath(logPath), newPath(logPath);
     bdesu_PathUtil::appendRaw(&oldPath, "old");
     bdesu_PathUtil::appendRaw(&newPath, "new");
-    int rc = bdesu_FileUtilUtf8::createDirectories(oldPath.c_str(), true);
+    int rc = bdesu_FilesystemUtil::createDirectories(oldPath.c_str(), true);
     ASSERT(0 == rc);
-    rc = bdesu_FileUtilUtf8::createDirectories(newPath.c_str(), true);
+    rc = bdesu_FilesystemUtil::createDirectories(newPath.c_str(), true);
     ASSERT(0 == rc);
 //..
 // We know that all of our log files match the pattern "*.log", so let's search
@@ -561,7 +562,7 @@ int main(int argc, char *argv[])
 //..
     bdesu_PathUtil::appendRaw(&logPath, "*.log");
     bsl::vector<bsl::string> logFiles;
-    bdesu_FileUtilUtf8::findMatchingPaths(&logFiles, logPath.c_str());
+    bdesu_FilesystemUtil::findMatchingPaths(&logFiles, logPath.c_str());
 //..
 // Now for each of these files, we will get the modification time.  Files that
 // are older than 2 days will be moved to "old", and the rest will be moved to
@@ -571,15 +572,16 @@ int main(int argc, char *argv[])
     bsl::string   fileName;
     for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
                                                   it != logFiles.end(); ++it) {
-      ASSERT(0 == bdesu_FileUtilUtf8::getLastModificationTime(&modTime, *it));
+      ASSERT(0 == bdesu_FilesystemUtil::getLastModificationTime(&modTime,
+                                                                *it));
       ASSERT(0 == bdesu_PathUtil::getLeaf(&fileName, *it));
       bsl::string *whichDirectory =
                   2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
                   ? &oldPath
                   : &newPath;
       bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
-      ASSERT(0 == bdesu_FileUtilUtf8::move(it->c_str(),
-                                           whichDirectory->c_str()));
+      ASSERT(0 == bdesu_FilesystemUtil::move(it->c_str(),
+                                             whichDirectory->c_str()));
       bdesu_PathUtil::popLeaf(whichDirectory);
     }
 //..
@@ -588,27 +590,28 @@ int main(int argc, char *argv[])
         // file i/o
 
         // create a new file
-        bdesu_FileUtilUtf8::FileDescriptor fd = bdesu_FileUtilUtf8::open(
-                                                        "tempfile",.
-                                                        Obj::e_OPEN_OR_CREATE,.
-                                                        Obj::e_READ_WRITE);.
-        ASSERT(fd != bdesu_FileUtilUtf8::INVALID_FD);
+        bdesu_FilesystemUtil::FileDescriptor fd = bdesu_FilesystemUtil::open(
+                                                         "tempfile",.
+                                                         Obj::e_OPEN_OR_CREATE,.
+                                                         Obj::e_READ_WRITE);.
+        ASSERT(fd != bdesu_FilesystemUtil::INVALID_FD);
         // allocate a buffer with the size equal to memory page size and
         // fill with some data
-        int size = bdesu_FileUtilUtf8::pageSize();
+        int size = bdesu_FilesystemUtil::pageSize();
         char* buf = new char[size];
         for(int i=0; i<size; ++i) {
             buf[i] = i & 0xFF;
         }
 
         // write data to the file
-        bdesu_FileUtilUtf8::seek(fd, size, bdesu_FileUtilUtf8::FROM_BEGINNING);
-        int rc = bdesu_FileUtilUtf8::write(fd, buf, size);
+        bdesu_FilesystemUtil::seek(fd, size,
+                                         bdesu_FilesystemUtil::FROM_BEGINNING);
+        int rc = bdesu_FilesystemUtil::write(fd, buf, size);
         ASSERT(rc == size);
 
         // map the data page into memory
         char* data;
-        rc = bdesu_FileUtilUtf8::map(fd, (void**)&data, 0, size, true);
+        rc = bdesu_FilesystemUtil::map(fd, (void**)&data, 0, size, true);
         ASSERT(0 == rc);
 
         // verify the data is equal to what we have written
@@ -616,17 +619,17 @@ int main(int argc, char *argv[])
         ASSERT(0 == memcmp(buf, data, size));
 
         // unmap the page, delete the buffer and close the file
-        rc = bdesu_FileUtilUtf8::unmap(data, size);
+        rc = bdesu_FilesystemUtil::unmap(data, size);
         ASSERT(0 == rc);
         delete[] buf;
-        bdesu_FileUtilUtf8::close(fd);
+        bdesu_FilesystemUtil::close(fd);
 #endif
 
         // NOT IN USAGE EXAMPLE: CLEAN UP
 
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdesu_FileUtilUtf8::remove(logPath.c_str(), true));
+        ASSERT(0 == bdesu_FilesystemUtil::remove(logPath.c_str(), true));
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -641,7 +644,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 We can convert from wchar_t to utf-8 filenames and then back
         //:   again, getting back the original wchar_t name.  Note that this
-        //:   does not test 'bdesu_FileUtilUtf8' functionality, but is
+        //:   does not test 'bdesu_FilesystemUtil' functionality, but is
         //:   necessary for further testing.
         //:
         //: 2 We can create files using the utf-8 names.
@@ -657,9 +660,9 @@ int main(int argc, char *argv[])
         //: 2 Create each of the files using its utf-8 name, write to it, and
         //:   close it, checking for failures.  (C-2)
         //:
-        //: 3 Use 'bdesu_FileUtilUtf8::findMatchingPaths' to look up the names
-        //:   we just created and verify that the returned names are the full
-        //:   set of utf-8 names we created.  (C-3)
+        //: 3 Use 'bdesu_FilesystemUtil::findMatchingPaths' to look up the
+        //:   names we just created and verify that the returned names are the
+        //:   full set of utf-8 names we created.  (C-3)
         //:
         //: 4 In Windows, use the wchar_t path lookup function to look up each
         //:   wchar_t name and verify that it is the correct name. (C-4)
@@ -967,7 +970,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing 'createDirectories'\n";
         {
             const bsl::string& testBaseDir = tempFileName(
-                                           "tmp.bdesu_fileutilutf8_16.mkdir1");
+                                         "tmp.bdesu_filesystemutil_16.mkdir1");
             bsl::string fullPath = testBaseDir;
             bdesu_PathUtil::appendRaw(&fullPath, "dir2");
 
@@ -1055,7 +1058,7 @@ int main(int argc, char *argv[])
             typedef Obj::FileDescriptor FD;
 
             const bsl::string& testFile = tempFileName(
-                                         "tmp.bdesu_fileutilutf8_15.open.txt");
+                                       "tmp.bdesu_filesystemutil_15.open.txt");
             if (veryVerbose) P(testFile);
 
             (void) Obj::remove(testFile, false);
@@ -1262,7 +1265,7 @@ int main(int argc, char *argv[])
 
         typedef Obj::FileDescriptor FD;
 
-        const char *testFile = "tmp.bdesu_fileutilutf8_13.append.txt.";
+        const char *testFile = "tmp.bdesu_filesystemutil_13.append.txt";
         const char *tag1     = "tmp.bdesu_fileUtil_13.tag.1.txt";
         const char *success  = "tmp.bdesu_fileUtil_13.success.txt";
 
@@ -1657,9 +1660,10 @@ int main(int argc, char *argv[])
         // It is important not to use 'tempFileName' here because otherwise
         // the parent and child will have different file names.
 
-        bsl::string fileNameWrite   = "tmp.bdesu_fileutilutf8_11.write.txt";
-        bsl::string fileNameRead    = "tmp.bdesu_fileutilutf8_11.read.txt";
-        bsl::string fileNameSuccess = "tmp.bdesu_fileutilutf8_11.success.txt";
+        bsl::string fileNameWrite   = "tmp.bdesu_filesystemutil_11.write.txt";
+        bsl::string fileNameRead    = "tmp.bdesu_filesystemutil_11.read.txt";
+        bsl::string fileNameSuccess =
+                                     "tmp.bdesu_filesystemutil_11.success.txt";
 
         if (veryVerbose) {
             P_(fileNameWrite);    P_(fileNameRead);    P(fileNameSuccess);
@@ -1925,7 +1929,7 @@ int main(int argc, char *argv[])
         // SIMPLE MATCHING TEST
         //
         // Concerns:
-        // Unix "glob()", which is called by bdesu_FileUtilUtf8::visitPaths,
+        // Unix "glob()", which is called by bdesu_FilesystemUtil::visitPaths,
         // is failing on ibm 64 bit, unfortunately the test driver has not
         // detected or reproduced this error.  This test case is an attempt to
         // get this test driver reproducing the problem.
@@ -4358,10 +4362,10 @@ int main(int argc, char *argv[])
 
             char filenameBuffer[k_FILENAME_BUFFER_SIZE];
 
-            // TBD: When SetFileInformationByHandle() is available, then
-            // we should write a setModificationTime() method and use it
-            // here (see bdesu_fileutilutf8.h).  Until then, we use utime() on
-            // POSIX directly and we do not attempt to "touch" Windows files.
+            // TBD: When SetFileInformationByHandle() is available, then we
+            // should write a setModificationTime() method and use it here (see
+            // bdesu_filesystemutil.h).  Until then, we use utime() on POSIX
+            // directly and we do not attempt to "touch" Windows files.
 
             enum {
                 NUM_TOTAL_FILES = 10,
@@ -4377,8 +4381,8 @@ int main(int argc, char *argv[])
                 bool isOld = i < NUM_OLD_FILES;
 
                 int filenameLength = sprintf(filenameBuffer,
-                        "fileutilutf8%02d_%c.log", i,
-                        isOld ? 'o' : 'n');
+                                             "filesystemutil%02d_%c.log", i,
+                                             isOld ? 'o' : 'n');
 
                 ASSERT(0 == bdesu_PathUtil::appendIfValid(&logPath,
                             filenameBuffer));
@@ -4535,7 +4539,7 @@ int main(int argc, char *argv[])
         printf("file size = %d\n", fileSize);
         if (!rc) {
             for(int i=0; i<nPages; i++) {
-                bdesu_FileUtilUtf8Mapping fm =
+                bdesu_FilesystemUtilMapping fm =
                                     Obj::map(fd, i * pageSize, pageSize, true);
                 memset(fm.addr(), 2, pageSize);
                 Obj::unmap(fm, pageSize);
@@ -4555,7 +4559,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "SIMPLE 5G FILE TEST CASE\n"
                              "========================\n";
 
-        typedef bdesu_FileUtilUtf8 Util;
+        typedef bdesu_FilesystemUtil Util;
 
 #if 1
         const bsls::Types::Int64 fiveGig = 5LL * 1000LL * 1000LL * 1000LL;
