@@ -10296,7 +10296,7 @@ bsl::ostream& Employee::print(
 //-----------------------------------------------------------------------------
 
 // The following snippets of code illustrate the usage of this component.
-// Suppose we have an XML schema inside a file called 'xsdfile.xsd':
+// Suppose we have an XML schema inside a file named 'employee.xsd':
 //..
 //  <?xml version='1.0' encoding='UTF-8'?>
 //  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
@@ -10319,67 +10319,63 @@ bsl::ostream& Employee::print(
 //              <xs:element name='age'         type='xs:int'/>
 //          </xs:sequence>
 //      </xs:complexType>
-//
 //  </xs:schema>
 //..
-// Using the 'bde_xsdcc.pl' tool, we can generate C++ classes for this schema:
+// Using the 'bas_codegen.pl' tool, we generate C++ classes for this schema as
+// follows:
 //..
-//  $ bde_xsdcc.pl -g h -g cpp -p test xsdfile.xsd
+//  $ bas_codegen.pl -m msg -p test employee.xsd
 //..
 // This tool will generate the header and implementation files for the
-// 'test_address' and 'test_employee' components in the current directory.
+// 'test_messages' components in the current directory.
 //
 // Now suppose we wanted to encode information about a particular employee
 // using XML encoding to the standard output, using the 'PRETTY' option for
 // formatting the output.  The following function will do this:
 //..
-//  #include <test_employee.h>
+//  #include <test_messages.h>
 //
 //  #include <baexml_encoder.h>
 //  #include <baexml_encodingstyle.h>
 //
-//  #include <iostream>
+//  #include <bsl_iostream.h>
+//  #include <bsl_sstream.h>
 //
 //  using namespace BloombergLP;
-//
-void usageExample()
-{
-    test::Employee bob;
 
-    bob.name()                 = "Bob";
-    bob.homeAddress().street() = "Some Street";
-    bob.homeAddress().city()   = "Some City";
-    bob.homeAddress().state()  = "Some State";
-    bob.age()                  = 21;
+    void usageExample()
+    {
+        test::Employee bob;
+  
+        bob.name()                 = "Bob";
+        bob.homeAddress().street() = "Some Street";
+        bob.homeAddress().city()   = "Some City";
+        bob.homeAddress().state()  = "Some State";
+        bob.age()                  = 21;
+  
+        baexml_EncoderOptions options;
+        options.setEncodingStyle(baexml_EncodingStyle::BAEXML_PRETTY);
+  
+        baexml_Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
+  
+        const bsl::string EXPECTED_OUTPUT =
+         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+         "<Employee xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+         "    <name>Bob</name>\n"
+         "    <homeAddress>\n"
+         "        <street>Some Street</street>\n"
+         "        <city>Some City</city>\n"
+         "        <state>Some State</state>\n"
+         "    </homeAddress>\n"
+         "    <age>21</age>\n"
+         "</Employee>\n";
 
-    bsl::stringstream ss;
+        bsl::ostringstream os;
+        const int rc = encoder.encodeToStream(os, bob);
 
-    baexml_EncoderOptions options;
-    options.setEncodingStyle(baexml_EncodingStyle::BAEXML_PRETTY);
-
-    baexml_Encoder encoder(&options, 0, 0);
-    int rc = encoder.encodeToStream(ss, bob);
-
-    ASSERT(0 == rc);
-
-    if (veryVerbose) {
-        bsl::cout << ss.str();
+        ASSERT(0 == rc);
+        ASSERT(EXPECTED_OUTPUT == os.str());
     }
-}
-//..
-// When this function is invoked, the following text will be printed to the
-// standard output:
-//..
-//  <?xml version="1.0" encoding="UTF-8" ?>
-//  <Employee>
-//      <name>Bob</name>
-//      <homeAddress>
-//          <street>Some Street</street>
-//          <city>Some City</city>
-//          <state>Some State</state>
-//      </homeAddress>
-//      <age>21</age>
-//  </Employee>
 //..
 
 //=============================================================================
