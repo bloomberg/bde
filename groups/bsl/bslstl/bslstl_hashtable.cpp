@@ -133,12 +133,12 @@ bslma::Allocator *HashTable_ImpDetails::incidentalAllocator()
 }
 
 size_t HashTable_ImpDetails::nextPrime(size_t n)
-{   // An abbreviated list of prime numbers in the domain of 32-bit
-    // unsigned integers.  Essentially, a subset where each successive
-    // element is the next prime after doubling.
-    // Note that at least one of these numbers was mis-computed and
-    // undershoots, messing up the doubling pattern, not critical while the
-    // code remains proof-of-concept code.
+{
+    // An abbreviated list of prime numbers in the domain of 32-bit unsigned
+    // integers.  Essentially, a subset where each successive element is the
+    // next prime after doubling.  Note that at least one of these numbers was
+    // mis-computed and undershoots, messing up the doubling pattern, not
+    // critical while the code remains proof-of-concept code.
 
     static const size_t s_primes[] = { 2, 5, 13, 29, 61,
         127, 257, 521, 1049, 2099, 4201, 8419, 16843, 33703, 67409, 134837,

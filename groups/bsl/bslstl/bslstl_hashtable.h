@@ -47,9 +47,9 @@ BSLS_IDENT("$Id: $")
 //  static KeyType& extractKey(ValueType& value);
 //      // Return a reference to the key for the specified 'value'.
 //..
-// This alternative signature is necessary to support the rare case that a
-// hash function or comparator used to configure the 'HashTable' template below
-// take their arguments by non-const reference.  This is subject to additional
+// This alternative signature is necessary to support the rare case that a hash
+// function or comparator used to configure the 'HashTable' template below take
+// their arguments by non-const reference.  This is subject to additional
 // constraints that these functions may not modify the passed arguments, and is
 // inherently a fragile interface and not recommended.  It is supported only
 // for C++ Standard conformance.
@@ -103,8 +103,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Exception Safety
 ///----------------
-// The operations of a 'HashTable' provide the strong exception guarantee
-// (see {'bsldoc_glossary')) except in the presence of a hash-functor or
+// The operations of a 'HashTable' provide the strong exception guarantee (see
+// {'bsldoc_glossary')) except in the presence of a hash-functor or
 // equality-comparator that throws exceptions.  If either the hash-function or
 // equality-comparator throws an exception from a non-const method, 'HashTable'
 // provides only the basic exception guarantee, and the operation will leave
@@ -115,8 +115,8 @@ BSLS_IDENT("$Id: $")
 // This implementation of a hash-table uses a single bidirectional list, to
 // hold all the elements stored in the container, and the elements in this list
 // are indexed by a dynamic array of buckets, each of which holds a pointer to
-// the first and last element in the linked-list whose adjusted hash-values
-// are equal to that bucket's index.
+// the first and last element in the linked-list whose adjusted hash-values are
+// equal to that bucket's index.
 //
 // As we do not cache the hashed value, if any hash function throws we will
 // either do nothing and allow the exception to propagate, or, if some change
@@ -1656,8 +1656,8 @@ class HashTable_HashWrapper {
         // type.
 
     const FUNCTOR& functor() const;
-        // Return a reference providing non-modifiable access to the
-        // hash functor wrapped by this object.
+        // Return a reference providing non-modifiable access to the hash
+        // functor wrapped by this object.
 };
 
 template <class FUNCTOR>
@@ -1692,8 +1692,8 @@ class HashTable_HashWrapper<const FUNCTOR> {
         // type.
 
     const FUNCTOR& functor() const;
-        // Return a reference providing non-modifiable access to the
-        // hash functor wrapped by this object.
+        // Return a reference providing non-modifiable access to the hash
+        // functor wrapped by this object.
 };
 
 template <class FUNCTOR>
@@ -1704,8 +1704,8 @@ class HashTable_HashWrapper<FUNCTOR &> {
     // template specialization also handles 'const FUNCTOR&' references.  In
     // order to correctly parse with the reference-binding rules, we drop the
     // 'const' in front of many of the references to 'FUNCTOR' seen in the
-    // primary template definition.  Note that this type has a reference
-    // data member, so is not default constructible, assignable or swappable.
+    // primary template definition.  Note that this type has a reference data
+    // member, so is not default constructible, assignable or swappable.
 
   private:
     FUNCTOR& d_functor;
@@ -1724,8 +1724,8 @@ class HashTable_HashWrapper<FUNCTOR &> {
         // type.
 
     FUNCTOR& functor() const;
-        // Return a reference providing non-modifiable access to the
-        // hash functor wrapped by this object.
+        // Return a reference providing non-modifiable access to the hash
+        // functor wrapped by this object.
 };
 
 template <class FUNCTOR>
@@ -1741,8 +1741,8 @@ void swap(HashTable_HashWrapper<FUNCTOR> &a,
 template <class FUNCTOR>
 class HashTable_ComparatorWrapper {
     // This class provides a wrapper around a functor that can compare two
-    // values and return a 'bool', so that the function call operator is
-    // always declared as 'const' qualified.
+    // values and return a 'bool', so that the function call operator is always
+    // declared as 'const' qualified.
     //
     // TBD Provide an optimization for the case of an empty base functor, where
     //     we can safely const_cast want calling the base class operator.
@@ -1772,8 +1772,8 @@ class HashTable_ComparatorWrapper {
         // typically be deduced as a 'const' type.
 
     const FUNCTOR& functor() const;
-        // Return a reference providing non-modifiable access to the
-        // hash functor wrapped by this object.
+        // Return a reference providing non-modifiable access to the hash
+        // functor wrapped by this object.
 };
 
 template <class FUNCTOR>
@@ -1809,8 +1809,8 @@ class HashTable_ComparatorWrapper<const FUNCTOR> {
 
 
     const FUNCTOR& functor() const;
-        // Return a reference providing non-modifiable access to the
-        // hash functor wrapped by this object.
+        // Return a reference providing non-modifiable access to the hash
+        // functor wrapped by this object.
 };
 
 template <class FUNCTOR>
@@ -1821,8 +1821,8 @@ class HashTable_ComparatorWrapper<FUNCTOR &> {
     // template specialization also handles 'const FUNCTOR&' references.  In
     // order to correctly parse with the reference-binding rules, we drop the
     // 'const' in front of many of the references to 'FUNCTOR' seen in the
-    // primary template definition.  Note that this type has a reference
-    // data member, so is not default constructible, assignable or swappable.
+    // primary template definition.  Note that this type has a reference data
+    // member, so is not default constructible, assignable or swappable.
 
   private:
     FUNCTOR& d_functor;
@@ -1841,8 +1841,8 @@ class HashTable_ComparatorWrapper<FUNCTOR &> {
         // typically be deduced as a 'const' type.
 
     FUNCTOR& functor() const;
-        // Return a reference providing non-modifiable access to the
-        // hash functor wrapped by this object.
+        // Return a reference providing non-modifiable access to the hash
+        // functor wrapped by this object.
 };
 
 template <class FUNCTOR>
@@ -1861,14 +1861,14 @@ class HashTable {
     // an unordered sequence of (possibly duplicate) elements, that can be
     // rapidly accessed using their key, with the constraint on the container
     // that elements whose keys compare equal according to the specified
-    // 'COMPARATOR' will be stored in a stable, contiguous sequence within
-    // the container.  The value type and key type of the elements maintained
-    // by a 'HashTable' are determined by aliases provided through the
-    // (template parameter) type 'KEY_CONFIG'.  Elements in a 'HashTable' are
-    // stored in "nodes" that are allocated using an allocator of the specified
+    // 'COMPARATOR' will be stored in a stable, contiguous sequence within the
+    // container.  The value type and key type of the elements maintained by a
+    // 'HashTable' are determined by aliases provided through the (template
+    // parameter) type 'KEY_CONFIG'.  Elements in a 'HashTable' are stored in
+    // "nodes" that are allocated using an allocator of the specified
     // 'ALLOCATOR' type (rebound to the node type), and elements are
-    // constructed directly in the node using the allocator as described in
-    // the C++11 standard under the allocator-aware container requirements in
+    // constructed directly in the node using the allocator as described in the
+    // C++11 standard under the allocator-aware container requirements in
     // ([container.requirements.general], C++11 23.2.1).  The (template
     // parameter) types 'HASHER' and 'COMPARATOR' shall be copy-constructible
     // function-objects.  'HASHER' shall support a function call operator
@@ -1890,8 +1890,8 @@ class HashTable {
     // where the definition of the called function defines an equivalence
     // relationship on keys that is both reflexive and transitive.  The
     // 'HASHER' and 'COMPARATOR' attributes of this class are further
-    // constrained, such for any two objects whose keys compare equal by
-    // the comparator, shall produce the same value from the hasher.
+    // constrained, such for any two objects whose keys compare equal by the
+    // comparator, shall produce the same value from the hasher.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -2024,8 +2024,8 @@ class HashTable {
 
         // MANIPULATORS
         NodeFactory& nodeFactory()
-            // Return a modifiable reference to the 'nodeFactory' owned by
-            // this object.
+            // Return a modifiable reference to the 'nodeFactory' owned by this
+            // object.
         {
             return d_nodeFactory;
         }
@@ -2135,10 +2135,9 @@ class HashTable {
         // the 'maxLoadFactor', and index the copied list into that new array
         // of hash buckets.  This hash table then takes ownership of the list
         // and bucket array.  Note that this method is intended to be called
-        // from copy constructors, which will have assigned some initial
-        // values for the 'size' and other attributes that may not be
-        // consistent with the class invariants until after this method is
-        // called.
+        // from copy constructors, which will have assigned some initial values
+        // for the 'size' and other attributes that may not be consistent with
+        // the class invariants until after this method is called.
 
     void quickSwapExchangeAllocators(HashTable *other);
         // Efficiently exchange the value, functors, and allocator of this
@@ -2165,9 +2164,9 @@ class HashTable {
         // Erase all the nodes in this table, and deallocate their memory via
         // the supplied node factory.  Destroy the array of buckets owned by
         // this table.  If 'd_anchor.bucketAddress()' is the default (static)
-        // bucket address ('HashTable_ImpDetails::defaultBucketAddress'), as
-        // it is for a default constructed hashtable, then the bucket array is
-        // not destroyed.
+        // bucket address ('HashTable_ImpDetails::defaultBucketAddress'), as it
+        // is for a default constructed hashtable, then the bucket array is not
+        // destroyed.
 
     void removeAllImp();
         // Erase all the nodes in this table and deallocate their memory via
@@ -2224,9 +2223,9 @@ class HashTable {
               SizeType          initialNumBuckets,
               float             initialMaxLoadFactor,
               const ALLOCATOR&  allocator = ALLOCATOR());
-        // Create an empty hash-table using the specified 'hash' and
-        // 'compare' functors to organize elements in the table, which will
-        // initially have at least the specified 'initialNumBuckets' and a
+        // Create an empty hash-table using the specified 'hash' and 'compare'
+        // functors to organize elements in the table, which will initially
+        // have at least the specified 'initialNumBuckets' and a
         // 'maxLoadFactor' of 'initialMaxLoadFactor'.  Optionally specify an
         // 'allocator' used to supply memory.  If 'allocator' is not supplied,
         // a default-constructed object of the (template parameter) type
@@ -2293,10 +2292,9 @@ class HashTable {
         // table's 'comparator') then insert 'value' immediately before the
         // first element having the same key.  Additional buckets will be
         // allocated, as needed, to preserve the invariant
-        // 'loadFactor <= maxLoadFactor'.  If this function tries to
-        // allocate a number of buckets larger than can be represented by this
-        // hash table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.
+        // 'loadFactor <= maxLoadFactor'.  If this function tries to allocate a
+        // number of buckets larger than can be represented by this hash
+        // table's 'SizeType', a 'std::length_error' exception will be thrown.
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insert(const SOURCE_TYPE&         value,
@@ -2307,11 +2305,11 @@ class HashTable {
         // 'value' then 'value' will be inserted immediately preceding 'hint'
         // in the list of this hash table.  Additional buckets will be
         // allocated, as needed, to preserve the invariant
-        // 'loadFactor <= maxLoadFactor'.  If this function tries to
-        // allocate a number of buckets larger than can be represented by this
-        // hash table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.  The behavior is undefined unless 'hint' points to a node
-        // in this hash table.
+        // 'loadFactor <= maxLoadFactor'.  If this function tries to allocate a
+        // number of buckets larger than can be represented by this hash
+        // table's 'SizeType', a 'std::length_error' exception will be thrown.
+        // The behavior is undefined unless 'hint' points to a node in this
+        // hash table.
 
     template <class SOURCE_TYPE>
     bslalg::BidirectionalLink *insertIfMissing(
@@ -2331,32 +2329,30 @@ class HashTable {
         // return the first such element (from the contiguous sequence of
         // elements having a matching key).  Additional buckets will be
         // allocated, as needed, to preserve the invariant
-        // 'loadFactor <= maxLoadFactor'.  If this function tries to
-        // allocate a number of buckets larger than can be represented by this
-        // hash table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.
+        // 'loadFactor <= maxLoadFactor'.  If this function tries to allocate a
+        // number of buckets larger than can be represented by this hash
+        // table's 'SizeType', a 'std::length_error' exception will be thrown.
 
     bslalg::BidirectionalLink *insertIfMissing(const KeyType& key);
         // Return the address of a link holding an element whose key has the
         // same value as the specified 'key' (according to this hash-table's
-        // 'comparator'), and, if no such link exists, insert a new link
-        // having a default value with a key that is the same as 'key'.  If
-        // this hash-table contains more than one element with the supplied
-        // 'key', return the first such element (from the contiguous sequence
-        // of elements having a matching key).  Additional buckets will be
+        // 'comparator'), and, if no such link exists, insert a new link having
+        // a default value with a key that is the same as 'key'.  If this
+        // hash-table contains more than one element with the supplied 'key',
+        // return the first such element (from the contiguous sequence of
+        // elements having a matching key).  Additional buckets will be
         // allocated, as needed, to preserve the invariant
-        // 'loadFactor <= maxLoadFactor'.  If this function tries to
-        // allocate a number of buckets larger than can be represented by this
-        // hash table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.
+        // 'loadFactor <= maxLoadFactor'.  If this function tries to allocate a
+        // number of buckets larger than can be represented by this hash
+        // table's 'SizeType', a 'std::length_error' exception will be thrown.
 
     void rehashForNumBuckets(SizeType newNumBuckets);
         // Re-organize this hash-table to have at least the specified
         // 'newNumBuckets', preserving the invariant
-        // 'loadFactor <= maxLoadFactor'.  If this function tries to
-        // allocate a number of buckets larger than can be represented by this
-        // hash table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.  This operation provides the strong exception guarantee (see
+        // 'loadFactor <= maxLoadFactor'.  If this function tries to allocate a
+        // number of buckets larger than can be represented by this hash
+        // table's 'SizeType', a 'std::length_error' exception will be thrown.
+        // This operation provides the strong exception guarantee (see
         // {'bsldoc_glossary'}) unless the 'hasher' throws, in which case this
         // operation provides the basic exception guarantee, leaving the
         // hash-table in a valid, but otherwise unspecified (and potentially
@@ -2397,8 +2393,8 @@ class HashTable {
         // allocate at least enough buckets to re-establish the invariant
         // 'loadFactor <= maxLoadFactor'.  If this function tries to allocate a
         // number of buckets larger than can be represented by this hash
-        // table's 'SizeType', a 'std::length_error' exception will be
-        // thrown.  The behavior is undefined unless '0 < maxLoadFactor'.
+        // table's 'SizeType', a 'std::length_error' exception will be thrown.
+        // The behavior is undefined unless '0 < maxLoadFactor'.
 
     void swap(HashTable& other);
         // Exchange the value of this object, its 'comparator' functor, its
@@ -2448,21 +2444,21 @@ class HashTable {
 
     bslalg::BidirectionalLink *find(const KeyType& key) const;
         // Return the address of a link whose key has the same value as the
-        // specified 'key' (according to this hash-table's 'comparator'), and
-        // a null pointer value if no such link exists.  If this hash-table
+        // specified 'key' (according to this hash-table's 'comparator'), and a
+        // null pointer value if no such link exists.  If this hash-table
         // contains more than one element having the supplied 'key', return the
         // first such element (from the contiguous sequence of elements having
         // the same key).
 
     bslalg::BidirectionalLink *findEndOfRange(
                                        bslalg::BidirectionalLink *first) const;
-        // Return the address of the first node after any nodes holding a
-        // value having the same key as the specified 'first' node (according
-        // to this hash-table's 'comparator'), and a null pointer value if all
-        // nodes following 'first' hold values with the same key as 'first'.
-        // The behavior is undefined unless 'first' is a link in this hash-
-        // table.  Note that this hash-table ensures all elements having the
-        // same key form a contiguous sequence.
+        // Return the address of the first node after any nodes holding a value
+        // having the same key as the specified 'first' node (according to this
+        // hash-table's 'comparator'), and a null pointer value if all nodes
+        // following 'first' hold values with the same key as 'first'.  The
+        // behavior is undefined unless 'first' is a link in this hash- table.
+        // Note that this hash-table ensures all elements having the same key
+        // form a contiguous sequence.
 
     void findRange(bslalg::BidirectionalLink **first,
                    bslalg::BidirectionalLink **last,
@@ -2470,21 +2466,33 @@ class HashTable {
         // Load into the specified 'first' and 'last' pointers the respective
         // addresses of the first and last link (in the list of elements owned
         // by this hash table) where the contained elements have a key that
-        // compares equal to the specified 'key' using the 'comparator' of
-        // this hash-table, and null pointers values if there are no elements
+        // compares equal to the specified 'key' using the 'comparator' of this
+        // hash-table, and null pointers values if there are no elements
         // matching 'key'.  Note that the output values will form a closed
         // range, where both 'first' and 'last' point to links satisfying the
-        // predicate (rather than a semi-open range where 'last' would point
-        // to the element following the range).  Also note that this
-        // hash-table ensures all elements having the same key form a
-        // contiguous sequence.
+        // predicate (rather than a semi-open range where 'last' would point to
+        // the element following the range).  Also note that this hash-table
+        // ensures all elements having the same key form a contiguous sequence.
 
     bool hasSameValue(const HashTable& other) const;
-        // TBD Imp detail for 'operator==' to be documented shortly
+        // Return 'true' if the specified 'other' has the same value as this
+        // object, and 'false' otherwise.  Two 'HashTable' objects have the
+        // same value if they have the same number of elements, and for every
+        // subset of elements in this object having keys that compare equal
+        // (according to that hash table's 'comparator'), a corresponding
+        // subset of elements exists in the 'other' object, having the same
+        // number of elements, where, for some permutation of the subset in
+        // this object, every element in that subset compares equal (using
+        // 'operator==') to the corresponding element in the 'other' subset.
+        // This method requires that the 'ValueType' of the parameterized
+        // 'KEY_CONFIG' be "equality-comparable" (see {Requirements on
+        // 'KEY_CONFIG'}).  The behavior is undefined unless both the 'hasher'
+        // and 'comparator' of this object and the 'other' return the same
+        // value for every valid input.
 
     const HASHER& hasher() const;
-        // Return a reference providing non-modifiable access to the
-        // hash functor used by this hash-table.
+        // Return a reference providing non-modifiable access to the hash
+        // functor used by this hash-table.
 
     float loadFactor() const;
         // Return the current load factor for this table.  The load factor is
@@ -2538,9 +2546,9 @@ void swap(HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& x,
     // propagate on swap, otherwise this operation will typically pay the cost
     // of two copy constructors, which may in turn throw.  If the allocators
     // are the same or propagate, then this method provides the no-throw
-    // exception-safety guarantee unless the 'swap' function of the hasher
-    // or comparator throw.  Otherwise this method offers only the basic
-    // exception safety guarantee.
+    // exception-safety guarantee unless the 'swap' function of the hasher or
+    // comparator throw.  Otherwise this method offers only the basic exception
+    // safety guarantee.
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bool operator==(
@@ -2549,16 +2557,15 @@ bool operator==(
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'HashTable' objects have the same
     // value if they have the same number of elements, and for every subset of
-    // elements in 'lhs' having keys that compare equal (according to that
-    // hash table's 'comparator'), a corresponding subset of elements exists
-    // in 'rhs', having the same number of elements, where, for some
-    // permutation of the 'lhs' subset, every element in that subset compares
-    // equal (using 'operator==') to the corresponding element in the 'rhs'
-    // subset.  This method requires that the 'ValueType' of the parameterized
-    // 'KEY_CONFIG' be "equality-comparable" (see {Requirements on
-    // 'KEY_CONFIG'}).  The behavior is undefined unless both the 'hasher' and
-    // 'comparator' of 'lhs' and 'rhs' return the same value for every valid
-    // input.
+    // elements in 'lhs' having keys that compare equal (according to that hash
+    // table's 'comparator'), a corresponding subset of elements exists in
+    // 'rhs', having the same number of elements, where, for some permutation
+    // of the 'lhs' subset, every element in that subset compares equal (using
+    // 'operator==') to the corresponding element in the 'rhs' subset.  This
+    // method requires that the 'ValueType' of the parameterized 'KEY_CONFIG'
+    // be "equality-comparable" (see {Requirements on 'KEY_CONFIG'}).  The
+    // behavior is undefined unless both the 'hasher' and 'comparator' of 'lhs'
+    // and 'rhs' return the same value for every valid input.
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 bool operator!=(
@@ -2620,10 +2627,10 @@ template <class FACTORY>
 class HashTable_NodeProctor {
     // This class implements a proctor that, unless its 'release' method has
     // previously been invoked, automatically deallocates a managed list of
-    // nodes upon destruction by recursively invoking the 'deleteNode'
-    // method of a supplied factory on each node.  The (template parameter)
-    // type 'FACTORY' shall be provide a member function that can be called as
-    // if it had the following signature:
+    // nodes upon destruction by recursively invoking the 'deleteNode' method
+    // of a supplied factory on each node.  The (template parameter) type
+    // 'FACTORY' shall be provide a member function that can be called as if it
+    // had the following signature:
     //..
     //  void deleteNode(bslalg::BidirectionalLink *node);
     //..
@@ -2670,9 +2677,8 @@ struct HashTable_ImpDetails {
 
     // CLASS METHODS
     static bslalg::HashTableBucket *defaultBucketAddress();
-        // Return the address of a statically initialized empty bucket that
-        // can be shared as the (un-owned) bucket array by all empty hash
-        // tables.
+        // Return the address of a statically initialized empty bucket that can
+        // be shared as the (un-owned) bucket array by all empty hash tables.
 
     static size_t growBucketsForLoadFactor(size_t *capacity,
                                            size_t  minElements,
@@ -2725,11 +2731,11 @@ struct HashTable_Util {
     template <class TYPE>
     static void assertNotNullPointer(TYPE * & ptr);
         // Assert that the passed argument is not a null pointer value.  Note
-        // that this utility is necessary as the 'HashTable' class template
-        // may be instantiated with function pointers for the hasher or
-        // comparator policies, but there is no easy way to assert in general
-        // that the value of a generic type passed to a function is a null
-        // pointer value.
+        // that this utility is necessary as the 'HashTable' class template may
+        // be instantiated with function pointers for the hasher or comparator
+        // policies, but there is no easy way to assert in general that the
+        // value of a generic type passed to a function is a null pointer
+        // value.
 
     template<class ALLOCATOR>
     static void initAnchor(bslalg::HashTableAnchor *anchor,
@@ -3090,12 +3096,12 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
         bsls::BslExceptionUtil::throwBadAlloc();
     }
 
-    // Conversion to exactly the correct type resolves compiler warnings.
-    // The assertions above are a loose safety check that this conversion
-    // can never overflow - which would require an allocator using a
-    // 'size_type' larger than 'std::size_t', with the requirement that a
-    // standard conforming allocator must use a 'size_type' that is a built-in
-    // unsigned integer type.
+    // Conversion to exactly the correct type resolves compiler warnings.  The
+    // assertions above are a loose safety check that this conversion can never
+    // overflow - which would require an allocator using a 'size_type' larger
+    // than 'std::size_t', with the requirement that a standard conforming
+    // allocator must use a 'size_type' that is a built-in unsigned integer
+    // type.
 
     const SizeType newArraySize = static_cast<SizeType>(bucketArraySize);
 
@@ -3343,12 +3349,12 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
 rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
 {
     class Proctor {
-        // An object of this proctor class guarantees that, if an exception
-        // is thrown by a user-supplied hash functor, the container remains in
-        // a valid, usable (but unspecified) state.  In fact, that state will
-        // be an empty, as there is no reliable way to re-index a bucket array
-        // if the hash functor is throwing, and the array is potentially
-        // corrupted following a failed ImpUtil::rehash call.
+        // An object of this proctor class guarantees that, if an exception is
+        // thrown by a user-supplied hash functor, the container remains in a
+        // valid, usable (but unspecified) state.  In fact, that state will be
+        // an empty, as there is no reliable way to re-index a bucket array if
+        // the hash functor is throwing, and the array is potentially corrupted
+        // following a failed ImpUtil::rehash call.
 
       private:
         HashTable               *d_this;
@@ -3408,10 +3414,10 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    // Now that 'anchor' is not default constructible, we take a copy of
-    // the anchor in the table.  Would it be better for 'initAnchor' to
-    // be replaced with a 'createArrayOfEmptyBuckets' function, and we use
-    // the result to construct the 'newAnchor'?
+    // Now that 'anchor' is not default constructible, we take a copy of the
+    // anchor in the table.  Would it be better for 'initAnchor' to be replaced
+    // with a 'createArrayOfEmptyBuckets' function, and we use the result to
+    // construct the 'newAnchor'?
 
     bslalg::HashTableAnchor newAnchor(0, 0, 0);
     HashTable_Util::initAnchor(&newAnchor,
@@ -3541,8 +3547,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insert(
     }
 
     // Create a node having the new 'value' we want to insert into the table.
-    // We can extract the 'key' from this value without accidentally creating
-    // a temporary (using the default allocator for any dynamic memory).
+    // We can extract the 'key' from this value without accidentally creating a
+    // temporary (using the default allocator for any dynamic memory).
 
     bslalg::BidirectionalLink *newNode =
                                   d_parameters.nodeFactory().createNode(value);
@@ -3743,8 +3749,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::rehashForNumBuckets(
                                                         SizeType newNumBuckets)
 {
     if (newNumBuckets > this->numBuckets()) {
-        // Compute a "good" number of buckets, e.g., pick a prime number
-        // from a sorted array of exponentially increasing primes.
+        // Compute a "good" number of buckets, e.g., pick a prime number from a
+        // sorted array of exponentially increasing primes.
 
         size_t capacity;
         SizeType numBuckets = static_cast<SizeType>(
@@ -3806,8 +3812,8 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::reserveForNumElements(
 
     d_parameters.nodeFactory().reserveNodes(numElements);
     if (numElements > d_capacity) {
-        // Compute a "good" number of buckets, e.g., pick a prime number
-        // from a sorted array of exponentially increasing primes.
+        // Compute a "good" number of buckets, e.g., pick a prime number from a
+        // sorted array of exponentially increasing primes.
 
         size_t capacity;
         SizeType numBuckets = static_cast<SizeType>(
@@ -3890,7 +3896,7 @@ typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketIndexForKey(
                                                       const KeyType& key) const
 {
-    typedef typename 
+    typedef typename
        HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType SizeType;
 
     // The following cast will not discard any useful bits, unless 'SizeType'
@@ -3994,7 +4000,7 @@ bool
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
                                                   const HashTable& other) const
 {
-    // The template bloat of this function can be significantly reduced
+    // The template bloat of this function can be significantly reduced.
     // What matters is that the two hash tables:
     // i/   are the same size
     // ii/  have lists that are permutations of each other according to the
@@ -4052,10 +4058,10 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
             return false;   // different length subsequences          // RETURN
         }
 
-        // Efficiently compare identical prefixes: O(N) if sequences
-        // have the same elements in the same order.  Note that comparison of
-        // values in nodes is tested using 'operator==' and not the
-        // key-equality comparator stored in the hash table.
+        // Efficiently compare identical prefixes: O(N) if sequences have the
+        // same elements in the same order.  Note that comparison of values in
+        // nodes is tested using 'operator==' and not the key-equality
+        // comparator stored in the hash table.
 
         while (cursor != endRange &&
                  (ImpUtil::extractValue<KEY_CONFIG>(cursor) ==
@@ -4072,16 +4078,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasSameValue(
 
         // Now comes the harder part of validating one subsequence is a
         // permutation of another, by counting elements that compare equal
-        // using the equality operator, 'operator=='.
-        // Note that lhs code could be simplified for hash-tables with unique
-        // keys, as we can omit the counting-scan, and merely test for any
-        // match within the 'other' range.  Trade off the ease of a single
-        // well-tested code path, vs. the importance of an efficient operator==
-        // for hash containers.  lhs is currently the only place the table
-        // would care about uniqueness, and risk different table types for
-        // unique vs. multi-containers.  Note again that comparison of values
-        // in nodes is tested using 'operator==' and not the key-equality
-        // comparator stored in the hash tables.
+        // using the equality operator, 'operator=='.  Note that lhs code could
+        // be simplified for hash-tables with unique keys, as we can omit the
+        // counting-scan, and merely test for any match within the 'other'
+        // range.  Trade off the ease of a single well-tested code path, vs.
+        // the importance of an efficient operator== for hash containers.  lhs
+        // is currently the only place the table would care about uniqueness,
+        // and risk different table types for unique vs. multi-containers.
+        // Note again that comparison of values in nodes is tested using
+        // 'operator==' and not the key-equality comparator stored in the hash
+        // tables.
 
         for (bslalg::BidirectionalLink *marker = cursor;
              marker != endRange;
