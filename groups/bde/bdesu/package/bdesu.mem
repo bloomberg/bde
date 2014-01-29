@@ -1,6 +1,6 @@
 bdesu_fdstreambuf
 bdesu_fileutil
-bdesu_fileutilutf8
+bdesu_filesystemutil
 bdesu_memoryutil
 bdesu_osutil
 bdesu_pathutil
