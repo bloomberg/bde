@@ -98,11 +98,11 @@ bdesb_MemOutStreamBuf::seekpos(bdesb_MemOutStreamBuf::pos_type position,
 bsl::streamsize bdesb_MemOutStreamBuf::xsputn(const char_type *source,
                                               bsl::streamsize  numChars)
 {
-    BSLMF_ASSERT((bsl::streamsize) -1 < 0);     // verifying 'length' and
-                                                // 'numChars' are signed.
+    BSLMF_ASSERT(bsl::numeric_limits<bsl::streamsize>::is_signed);
 
-    BSLS_ASSERT_OPT(numChars >= 0);
-    BSLS_ASSERT_OPT(INT_MAX - length() >= numChars);
+    BSLS_ASSERT(0 <= numChars);
+    BSLS_ASSERT(static_cast<bsls::Types::Int64>(numChars) + length() <= 
+                INT_MAX);
 
     const int newLength = length() + numChars;
     if (newLength > capacity()) {
