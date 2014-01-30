@@ -1,3 +1,10 @@
+bde-core (2.20.0.2) unstable; urgency=low
+
+  * Bump changelog
+  * 1640c1f [APPROVAL] pending/master/add-back-bdetu-transitive-include-drqs-48980359 to releases/2.20.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 30 Jan 2014 17:09:05 -0500
+
 bde-core (2.20.0.1) unstable; urgency=low
 
   * Bump changelog
