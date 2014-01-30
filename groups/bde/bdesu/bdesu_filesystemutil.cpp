@@ -30,16 +30,16 @@ BDES_IDENT_RCSID(bdesu_filesystemutil_cpp,"$Id$ $CSID$")
 #else // !BSLS_PLATFORM_OS_WINDOWS
 
 #include <bsl_c_errno.h>
-#include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/mman.h>
-#include <fcntl.h>
 #include <glob.h>
 #ifndef _POSIX_PTHREAD_SEMANTICS
 #define _POSIX_PTHREAD_SEMANTICS
 #endif
 #include <bsl_c_limits.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <dirent.h>
 #include <utime.h> // for testing only ... for now
 #include <sys/uio.h>

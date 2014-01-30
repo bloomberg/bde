@@ -19,13 +19,13 @@
 #include <bsl_vector.h>
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-#include <fcntl.h>
-#include <utime.h>
-#include <unistd.h>
-#include <sys/socket.h>
 #include <sys/un.h>
-#include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <utime.h>
+#include <fcntl.h>
+#include <sys/socket.h>
 #include <sys/wait.h>
 
 #else // BSLS_PLATFORM_OS_WINDOWS
