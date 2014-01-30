@@ -54,6 +54,14 @@ BDES_IDENT("$Id: $")
 #define BDE_VERSION_MINOR     20
     // Provide the minor version number of the current (latest) BDE release.
 
+#ifndef BDE_VERSION_RELEASETYPE
+#define BDE_VERSION_RELEASETYPE        "_UNSPECIFIED"
+#define BDE_VERSION_RELEASETYPE_SYMBOL  _UNSPECIFIED
+#endif
+    // This symbol used to indicate the "type" of the release (e.g., "_PROD" vs
+    // "_BETA").  However, it created release management challenges, and is now
+    // deprecated (and unspecified).
+
 #define BDE_MAKE_VERSION(major, minor) ((major) * 10000 \
                                       + (minor) *   100)
     // Construct a composite version number in the range '[ 0 .. 999900 ]' from
