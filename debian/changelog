@@ -1,3 +1,11 @@
+bde-core (2.20.0.1) unstable; urgency=low
+
+  * Bump changelog
+  * copy default_internal.opts if available
+
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 30 Jan 2014 15:09:46 -0500
+
 bde-core (2.20.0.0) unstable; urgency=low
 
   * Bump changelog
