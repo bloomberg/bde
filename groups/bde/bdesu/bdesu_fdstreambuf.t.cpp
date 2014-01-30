@@ -202,6 +202,28 @@ int digits(bsls::Types::Int64 n)
 
 }  // close unnamed namespace
 
+static Obj::pos_type nullSeek(int line, Obj *sb, bool checkSeek)
+    // Do a null seek, making sure that
+{
+    enum { CUR = FileUtil::BDESU_SEEK_FROM_CURRENT };
+
+    Obj::pos_type ret1 =     sb->pubseekoff(0,      bsl::ios_base::cur);
+
+    if (checkSeek) {
+        int delta = ret1 ? -1 : 1;
+        (void)               sb->pubseekoff( delta, bsl::ios_base::cur);
+        Obj::pos_type ret2 = sb->pubseekoff(-delta, bsl::ios_base::cur);
+
+        LOOP3_ASSERT(line, ret1, ret2, ret1 == ret2);
+    }
+
+    return ret1;
+}
+
+static Obj  *nullSeekFdStreamBuf;
+static bool  nullSeekCheckSeek;
+#define NULL_SEEK()    nullSeek(L_, nullSeekFdStreamBuf, nullSeekCheckSeek)
+
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -236,7 +258,7 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING STREAMBUF USAGE EXAMPLE
         //
@@ -395,7 +417,7 @@ int main(int argc, char *argv[])
 
         bdesu_FileUtil::remove(fileNameBuffer);
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING STREAM USAGE EXAMPLE
         //
@@ -532,6 +554,252 @@ int main(int argc, char *argv[])
         // And finally, we clean up:
 
         bdesu_FileUtil::remove(fileNameBuffer);
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING NULL SEEKS
+        //
+        // Concerns:
+        //: 1 That null seeks accurately return the position as perceived by
+        //:   the 'FdStreambuf' client.
+        //: 2 That null seeks don't interfere with the proper functioning of
+        //    the component.
+        //
+        // Plan:
+        // Take the 'alternate reads and writes test' case 13, and pepper it
+        // with lots of null seeks, and see if concerns 1 and 2 are met in the
+        // following situations:
+        //: 1 Null seek after a read, before another read.
+        //: 2 Null seek after a read, before a write.
+        //: 3 Null seek after a read, before a seek.
+        //: 4 Null seek after a write, before another write.
+        //: 5 Null seek after a write, before a read.
+        //: 6 Null seek after a write, before a seek.
+        //: 7 Null seek after a seek, before a read.
+        //: 8 Null seek after a seek, before a write.
+        //: 9 Null seek after a seek, before a seek.
+        // Also vary the buffer size of the streambuf to inflict different
+        // types of overflow error.  Reads will usually go through mmap so
+        // will be less affected by buffer size than writes.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING NULL SEEKS\n"
+                             "==================\n";
+
+        enum { CUR = FileUtil::BDESU_SEEK_FROM_CURRENT };
+
+        const char line1[] = "To be or not to be, that is the question.\n";
+        const char line2[] =
+                           "There are more things in heaven and earth,\n"
+                           "Horatio, than are dreamt of in your philosophy.\n";
+        const char line3[] = "Wherever you go, there you are.  B Banzai\n";
+        const char line4[] =
+                        "This line is exactly as long as line 2,\n"
+                        "and I mean EXACTLY, counting the chars EXACTLY ...\n";
+
+        const int lLen1 = sizeof(line1) - 1;
+        const int lLen2 = sizeof(line2) - 1;
+        const int lLen3 = sizeof(line3) - 1;
+        const int lLen4 = sizeof(line4) - 1;
+
+        ASSERT(lLen1 == lLen3);
+        ASSERT(lLen2 == lLen4);
+
+        for (int ti = 0; ti < 4; ++ti) {
+            int isText        = !!(ti & 1);
+            nullSeekCheckSeek = !!(ti & 2);
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+            if (isText) continue;
+#endif
+
+            const int eLen1 = lLen1 + isText;
+            const int eLen3 = lLen3 + isText;
+            const int eLen4 = lLen4 + 2 * isText;
+
+            // We start by selecting a file name for our (temporary) file.
+
+            char fileNameBuffer[100];
+            bsl::sprintf(fileNameBuffer, fileNameTemplate, "15",
+                                                               getProcessId());
+
+            if (verbose) cout << "Filename: " << fileNameBuffer << endl;
+
+            // Next, Create the file and open a file descriptor to it.  The
+            // boolean flags indicate that the file is writable, and not
+            // previously existing (and therefore must be created).
+
+            int bufSizes[] = { 16, 19, 20, 21, 22,  28, 37, 50, 64, 4096 };
+            enum { NUM_BUF_SIZES = sizeof bufSizes / sizeof *bufSizes };
+            BSLMF_ASSERT(NUM_BUF_SIZES > 5);
+
+            for (int tj = 0; tj < NUM_BUF_SIZES; ++tj) {
+                bdesu_FileUtil::remove(fileNameBuffer);
+
+                FdType fd = bdesu_FileUtil::open(fileNameBuffer,
+                                                 true,
+                                                 false);
+                ASSERT(-1 != (int) fd);
+
+                Obj sb(fd, true, true, !isText, &ta);
+                nullSeekFdStreamBuf = &sb;
+
+                // Impose a very small buffer, so that buffer overflow code
+                // will frequently be exercised.
+
+                char sbBuf[10 * 1000];
+                sb.pubsetbuf(sbBuf, bufSizes[tj]);
+
+                ASSERT(lLen1 == sb.sputn(line1, lLen1));
+
+                // P-4
+
+                ASSERT(eLen1 == NULL_SEEK());
+
+                ASSERT(lLen2 == sb.sputn(line2, lLen2));
+                ASSERT(lLen3 == sb.sputn(line3, lLen3));
+
+                ASSERT(0 == sb.pubseekpos(0));
+
+                char buf[1000];
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen1 == sb.sgetn(buf, lLen1));
+                ASSERT(0 == bsl::strcmp(line1, buf));
+
+                // P-1
+
+                ASSERT(eLen1 == NULL_SEEK());
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen2 == sb.sgetn(buf, lLen2));
+                ASSERT(0 == bsl::strcmp(line2, buf));
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen3 == sb.sgetn(buf, lLen3));
+                ASSERT(0 == bsl::strcmp(line3, buf));
+
+                ASSERT(0 == sb.pubseekpos(0));
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen1 == sb.sgetn(buf, lLen1));
+                ASSERT(0 == bsl::strcmp(line1, buf));
+
+                // P-2
+
+                ASSERT(eLen1 == NULL_SEEK());
+
+                ASSERT(lLen4 == sb.sputn(line4, lLen4));
+
+                // P-5
+
+                LOOP3_ASSERT(eLen1, eLen4, NULL_SEEK(),
+                                                 eLen1 + eLen4 == NULL_SEEK());
+
+                bsl::memset(buf, 0, sizeof(buf));
+                int sts = sb.sgetn(buf, lLen3);
+                LOOP2_ASSERT(lLen3, sts, lLen3 == sts);
+                ASSERT(0 == bsl::strcmp(line3, buf));
+
+                // P-3
+
+                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+
+                ASSERT(0 == sb.pubseekpos(0));
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen1 == sb.sgetn(buf, lLen1));
+                ASSERT(0 == bsl::strcmp(line1, buf));
+
+                ASSERT(eLen1 == NULL_SEEK());
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen4 == sb.sgetn(buf, lLen4));
+                ASSERT(0 == bsl::strcmp(line4, buf));
+
+                // C-3
+
+                ASSERT(eLen1 + eLen4 == NULL_SEEK());
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen3 == sb.sgetn(buf, lLen3));
+                ASSERT(0 == bsl::strcmp(line3, buf));
+
+                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+
+                ASSERT(0 == sb.pubseekpos(0));
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen1 + lLen4 + lLen3
+                                      == sb.sgetn(buf, lLen1 + lLen4 + lLen3));
+                ASSERT(bsl::string(line1) + line4 + line3 == buf);
+
+                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+
+                ASSERT(0 == sb.pubseekpos(0));
+
+                // P-8
+
+                ASSERT(0 == NULL_SEEK());
+
+                ASSERT(lLen3 == sb.sputn(line3, lLen3));
+
+                ASSERT(eLen3 == NULL_SEEK());
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen4 == sb.sgetn(buf, lLen4));
+                LOOP2_ASSERT(line4, buf, 0 == bsl::strcmp(line4, buf));
+
+                ASSERT(eLen3 + eLen4 == NULL_SEEK());
+
+                ASSERT(lLen1 == sb.sputn(line1, lLen1));
+
+                // P-6
+
+                ASSERT(eLen3 + eLen4 + eLen1 == NULL_SEEK());
+
+                ASSERT(100 == sb.pubseekpos(100));
+
+                // P-9
+
+                ASSERT(100 == sb.pubseekoff(  0, bsl::ios_base::cur));
+                ASSERT( 80 == sb.pubseekoff(-20, bsl::ios_base::cur));
+                ASSERT( 80 == sb.pubseekoff(  0, bsl::ios_base::cur));
+                ASSERT( 60 == sb.pubseekoff(-20, bsl::ios_base::cur));
+
+                ASSERT(0 == sb.pubseekpos(0));
+
+                // P-7
+
+                ASSERT(0 == NULL_SEEK());
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen3 == sb.sgetn(buf, lLen3));
+                ASSERT(0 == bsl::strcmp(line3, buf));
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen4 == sb.sgetn(buf, lLen4));
+                LOOP2_ASSERT(line4, buf, 0 == bsl::strcmp(line4, buf));
+
+                bsl::memset(buf, 0, sizeof(buf));
+                ASSERT(lLen1 == sb.sgetn(buf, lLen1));
+                ASSERT(0 == bsl::strcmp(line1, buf));
+
+                ASSERT(0 == sb.pubseekpos(0));
+                ASSERT(0 == NULL_SEEK());
+
+                ASSERT(lLen3 + lLen4 + lLen1
+                                      == sb.sgetn(buf, lLen3 + lLen4 + lLen1));
+                ASSERT(bsl::string(line3) + line4 + line1 == buf);
+
+                ASSERT(eLen3 + eLen4 + eLen1 == NULL_SEEK());
+
+                sb.clear();
+
+                // clean up
+
+                bdesu_FileUtil::remove(fileNameBuffer);
+            }
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -744,8 +1012,8 @@ int main(int argc, char *argv[])
         //   the data shows up as expected.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING STREAMBUF USAGE EXAMPLE\n"
-                             "===============================\n";
+        if (verbose) cout << "TESTING ALTERNATE READS AND WRITES\n"
+                             "==================================\n";
 
         const char line1[] = "To be or not to be, that is the question.\n";
         const char line2[] =
@@ -785,6 +1053,9 @@ int main(int argc, char *argv[])
         ASSERT(-1 != (int) fd);
 
         Obj sb(fd, true, true, true, &ta);
+
+        char sbBuf[16];
+        sb.pubsetbuf(sbBuf, sizeof(sbBuf));
 
         ASSERT(lineLength1 == sb.sputn(line1, lineLength1));
         ASSERT(lineLength2 == sb.sputn(line2, lineLength2));
@@ -1267,7 +1538,7 @@ int main(int argc, char *argv[])
             jump -= 0x800;
 
             int dest;
-            while (dest = offset + jump, dest < 0 || dest >= FILE_SIZE) {
+            while ((dest = offset + jump, dest < 0 || dest >= FILE_SIZE)) {
                 jump /= 2;
             }
 
@@ -1313,7 +1584,7 @@ int main(int argc, char *argv[])
             int jump = (r & 0x4000) ? (r & 0x1fff) : -(r & 0x1fff);
 
             int dest;
-            while (dest = offset + jump, dest < 0 || dest >= FILE_SIZE) {
+            while ((dest = offset + jump, dest < 0 || dest >= FILE_SIZE)) {
                 jump /= 2;
             }
 
@@ -2722,9 +2993,10 @@ int main(int argc, char *argv[])
 
         seedRandChar(0x12345678);
 
-        char bufToWrite[1 << 16];
-        Int64 *first8Bytes = (Int64 *) &bufToWrite;
-        const int sz = sizeof(bufToWrite);
+        Int64 rawBufToWrite[(1 << 16) / sizeof(Int64)];
+        char *bufToWrite = (char *) rawBufToWrite;
+        Int64 *first8Bytes = rawBufToWrite;
+        const int sz = sizeof(rawBufToWrite);
         for (char *pc = bufToWrite; pc < bufToWrite + sz; ++pc) {
             *pc = randChar();
         }
