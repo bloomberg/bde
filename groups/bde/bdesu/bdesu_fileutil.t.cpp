@@ -1,6 +1,7 @@
 // bdesu_fileutil.t.cpp                                               -*-C++-*-
 #include <bdesu_fileutil.h>
 
+#include <bdesu_memoryutil.h>
 #include <bdesu_pathutil.h>
 
 #include <bdef_bind.h>

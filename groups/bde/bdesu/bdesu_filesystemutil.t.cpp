@@ -1,6 +1,7 @@
 // bdesu_filesystemutil.t.cpp                                         -*-C++-*-
 #include <bdesu_filesystemutil.h>
 
+#include <bdesu_memoryutil.h>
 #include <bdesu_pathutil.h>
 
 #include <bdede_charconvertutf16.h>
@@ -4512,7 +4513,7 @@ int main(int argc, char *argv[])
                                            Obj::e_OPEN_OR_CREATE,
                                            Obj::e_READ_WRITE);
         int pageSize = bdesu_MemoryUtil::pageSize();
-        Obj::grow(fd, pageSize);
+        Obj::growFile(fd, pageSize);
         int *p;
         ASSERT(0 == Obj::map(fd, (void**)&p, 0, pageSize,
                                    bdesu_MemoryUtil::BDESU_ACCESS_READ_WRITE));
@@ -4533,8 +4534,8 @@ int main(int argc, char *argv[])
                                  Obj::e_READ_WRITE);
         int pageSize = Obj::pageSize();
         int nPages = 1024*1024*1024 / pageSize;
-        int rc = Obj::grow(fd, nPages * pageSize, argc > 2);
-        printf("grow(fd, %d, %d) rc=%d\n",
+        int rc = Obj::growFile(fd, nPages * pageSize, argc > 2);
+        printf("growFile(fd, %d, %d) rc=%d\n",
                nPages * pageSize, (int)(argc>2), rc);
         int fileSize = Obj::seek(fd, 0, SEEK_END);
         printf("file size = %d\n", fileSize);

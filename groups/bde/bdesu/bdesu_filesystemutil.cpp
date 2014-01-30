@@ -4,6 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesu_filesystemutil_cpp,"$Id$ $CSID$")
 
+#include <bdesu_memoryutil.h>
 #include <bdesu_pathutil.h>
 
 #include <bdef_bind.h>
@@ -93,9 +94,9 @@ bool wideToNarrow(bsl::string *result, const bsl::wstring& path)
     // narrow string and return 'true' if successful, or 'false' otherwise.  If
     // conversion is unsuccessful, the contents of 'result' are undefined.
 {
-    BSLS_ASSERT_SAFE(narrow);
+    BSLS_ASSERT_SAFE(result);
 
-    return 0 == bdede_CharConvertUtf16::utf16ToUtf8(narrow, path.c_str());
+    return 0 == bdede_CharConvertUtf16::utf16ToUtf8(result, path.c_str());
 }
 
 static inline
@@ -1083,7 +1084,7 @@ int bdesu_FilesystemUtil::remove(const char *path, bool recursive)
 
          struct dirent& entry = entryHolder.d_entry;
          struct dirent *entry_p;
-         struct stat dummy;
+         struct stat64 dummy;
          int rc;
          do {
             rc = readdir_r(dir, &entry, &entry_p);
@@ -1096,7 +1097,7 @@ int bdesu_FilesystemUtil::remove(const char *path, bool recursive)
             }
 
             bdesu_PathUtil::appendRaw(&workingPath, entry.d_name);
-            if (0 == lstat(workingPath.c_str(), &dummy) &&
+            if (0 == lstat64(workingPath.c_str(), &dummy) &&
                 0 != remove(workingPath.c_str(), true)) {
                return -1;                                             // RETURN
             }
@@ -1483,10 +1484,10 @@ void bdesu_FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,
                                    result, bdef_PlaceHolders::_1));
 }
 
-int bdesu_FilesystemUtil::grow(FileDescriptor                descriptor,
-                               bdesu_FilesystemUtil::Offset  size,
-                               bool                          reserve,
-                               bsl::size_t                   bufferSize)
+int bdesu_FilesystemUtil::growFile(FileDescriptor                descriptor,
+                                   bdesu_FilesystemUtil::Offset  size,
+                                   bool                          reserve,
+                                   bsl::size_t                   bufferSize)
 {
     bslma::Allocator *allocator_p = bslma::Default::defaultAllocator();
     Offset currentSize = seek(descriptor, 0, e_SEEK_FROM_END);

@@ -4,6 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 
+#include <bdesu_memoryutil.h>
 #include <bdesu_pathutil.h>
 
 #include <bdef_bind.h>
@@ -759,7 +760,7 @@ int bdesu_FileUtil::remove(const char *path, bool recursive)
 
          struct dirent& entry = entryHolder.d_entry;
          struct dirent *entry_p;
-         struct stat dummy;
+         struct stat64 dummy;
          int rc;
          do {
             rc = readdir_r(dir, &entry, &entry_p);
@@ -772,7 +773,7 @@ int bdesu_FileUtil::remove(const char *path, bool recursive)
             }
 
             bdesu_PathUtil::appendRaw(&workingPath, entry.d_name);
-            if (0 == lstat(workingPath.c_str(), &dummy) &&
+            if (0 == lstat64(workingPath.c_str(), &dummy) &&
                 0 != remove(workingPath.c_str(), true)) {
                return -1;                                             // RETURN
             }
