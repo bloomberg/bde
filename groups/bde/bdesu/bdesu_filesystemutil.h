@@ -17,18 +17,27 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov),
 // Hyman Rosen (hrosen4), Alexander Beels (abeels)
 //
-//@DESCRIPTION: This component provides a UTF-8-encoded platform-independent
-// interface to filesystem utility methods.  Each function in the
-// 'bdesu_FilesystemUtil' namespace is a thin wrapper on top of the operating
-// system's own filesystem access functions, providing a consistent and
-// unambiguous interface for handling files on all supported platforms.
+//@DESCRIPTION: This component provides a platform-independent interface to
+// filesystem utility methods, supporting multi-language file and path names.
+// Each method in the 'bdesu_FilesystemUtil' namespace is a thin wrapper on top
+// of the operating system's own filesystem access functions, providing a
+// consistent and unambiguous interface for handling files on all supported
+// platforms.
 //
-// All methods in this component require that all file and path names be passed
-// as UTF-8-encoded strings.  Similarly, methods that return file and path
-// names return UTF-8-encoded strings.  Because this component has no direct
-// knowledge of the underlying filesystem's native encoding, these requirements
-// are *assumed* on Posix platforms, and *enforced* on Windows platforms.  See
-// the section "Platform-Specific File Name Encoding Caveats" below.
+// Note that this component is designed to replace 'bdesu_fileutil', which does
+// not support multi-language file and path names on Windows, and has limited
+// semantics for the 'open' method.
+//
+// Methods in this component can be used to manipulate files with any name in
+// any language on all supported platforms.  To provide such support, the
+// following restrictions are applied to file names and patterns passed to
+// methods of this component:  On Windows, all file names and patterns must
+// be passed as UTF-8-encoded strings; file search results will similarly be
+// encoded as UTF-8.  On Posix, file names and patterns may be passed in any
+// encoding, but all processes accessing a given file must encode its name in
+// the same encoding.  On modern Posix installations, this effectively means
+// that file names and patterns should be encoded in UTF-8, just as on Windows.
+// See the section "Platform-Specific File Name Encoding Caveats" below.
 //
 ///Policies for 'open'
 ///-------------------
@@ -112,22 +121,24 @@ BDES_IDENT("$Id: $")
 //:
 //:   Narrow-character file names in other encodings, containing characters
 //:   with values in the range 128 - 255, will likely result in files being
-//:   created with names that appear garbled if the conversion form UTF-8 to
+//:   created with names that appear garbled if the conversion from UTF-8 to
 //:   UTF-16 happens to succeed.
 //:
 //:   Neither 'utf8ToUtf16' nor the Windows 'W' APIs do any normalization of
 //:   the UTF-16 strings resulting from UTF-8 conversion, and it is therefore
-//:   possible to have sets of file names which display as identical strings
-//:   but are treated as different names by the filesystem.
+//:   possible to have sets of file names that have the same visual
+//:   representation but are treated as different names by the filesystem.
 //:
 //: o On Posix, a file name or pattern supplied to methods of
-//:   'bdesu_FilesystemUtil' as a 'char*' or 'bsl::string' type is assumed to
-//:   be encoded in UTF-8, and is passed unchanged to the underlying system
-//:   file APIs, which are assumed to be interfacing with a filesystem encoded
-//:   in UTF-8.  Because the file names and patterns are passed unchanged,
-//:   'bdesu_FilesystemUtil' methods will work correctly on Posix with other
-//:   encodings, provided that the strings supplied to the methods are in the
-//:   same encoding as the underlying filesystem.
+//:   'bdesu_FilesystemUtil' as a 'char*' or 'bsl::string' type is passed
+//:   unchanged to the underlying system file APIs.  Because the file names and
+//:   patterns are passed unchanged, 'bdesu_FilesystemUtil' methods will work
+//:   correctly on Posix with any encoding, but will *interoperate* only with
+//:   processes that use the same encoding as the current process.
+//:
+//: o For compatibility with most modern Posix installs, and consistency with
+//:   this component's Windows API, best practice is to encode all file names
+//:   and patterns in UTF-8.
 //
 ///File Truncation Caveats
 ///-----------------------
@@ -499,11 +510,11 @@ struct bdesu_FilesystemUtil {
     // becomes available on our standard Windows platforms.
 
     static int createDirectories(
-                             const bsl::string&  path,
-                             bool                isLeafDirectoryFlag = false);
+                              const bsl::string&  path,
+                              bool                isLeafDirectoryFlag = false);
     static int createDirectories(
-                             const char         *path,
-                             bool                isLeafDirectoryFlag = false);
+                              const char         *path,
+                              bool                isLeafDirectoryFlag = false);
         // Create any directories in 'path' which do not exist.  If the
         // optionally specified 'isLeafDirectoryFlag' is 'true', then treat the
         // last filename in the path as a directory and attempt to create it.
