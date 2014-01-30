@@ -5911,7 +5911,7 @@ namespace USAGE_EXAMPLES {
     class CountedFactory {
         // DATA
         int               d_count;
-        bslma::Allocator *d_allocator;
+        bslma::Allocator *d_allocator_p;
 
       private:
         // NOT IMPLEMENTED
@@ -5957,7 +5957,7 @@ namespace USAGE_EXAMPLES {
 //..
     CountedFactory::CountedFactory(bslma::Allocator *alloc)
     : d_count(0)
-    , d_allocator(bslma::Default::allocator(alloc))
+    , d_allocator_p(bslma::Default::allocator(alloc))
     {
     }
 
@@ -5969,7 +5969,7 @@ namespace USAGE_EXAMPLES {
     template <class TYPE>
     TYPE *CountedFactory::createObject()
     {
-        TYPE *result = new(*d_allocator)TYPE;
+        TYPE *result = new(*d_allocator_p)TYPE;
         ++d_count;
         return result;
     }
@@ -5977,7 +5977,7 @@ namespace USAGE_EXAMPLES {
     template <class TYPE>
     void CountedFactory::deleteObject(const TYPE *object)
     {
-        d_allocator->deleteObject(object);
+        d_allocator_p->deleteObject(object);
         --d_count;
     }
 
