@@ -230,12 +230,11 @@ const char *bdeu_String::strstr(const char *string,
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= stringLen);
     BSLS_ASSERT(0 <= subStringLen);
+    BSLS_ASSERT(0 == subStringLen || subString);
 
     if (0 == subStringLen) {
         return string;                                                // RETURN
     }
-
-    BSLS_ASSERT(subString);
 
     if (stringLen < subStringLen) {
         return 0;                                                     // RETURN
@@ -260,12 +259,11 @@ const char *bdeu_String::strstrCaseless(const char *string,
     BSLS_ASSERT(string);
     BSLS_ASSERT(0 <= stringLen);
     BSLS_ASSERT(0 <= subStringLen);
+    BSLS_ASSERT(0 == subStringLen || subString);
 
     if (0 == subStringLen) {
         return string;                                                // RETURN
     }
-
-    BSLS_ASSERT(subString);
 
     if (stringLen < subStringLen) {
         return 0;                                                     // RETURN
