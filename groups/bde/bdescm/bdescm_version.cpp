@@ -15,8 +15,7 @@ namespace BloombergLP {
 
 #define BDESCM_VERSION_STRING "BLP_LIB_BDE_BDE_" STRINGIFY(BDE_VERSION_MAJOR) \
                                              "." STRINGIFY(BDE_VERSION_MINOR) \
-                                             "." STRINGIFY(BDE_VERSION_PATCH) \
-                                             BDE_VERSION_RELEASETYPE
+                                             "." STRINGIFY(BDE_VERSION_PATCH)
 
 const char *bdescm_Version::s_ident = "$Id: " BDESCM_VERSION_STRING " $";
 const char *bdescm_Version::s_what  = "@(#)" BDESCM_VERSION_STRING;
