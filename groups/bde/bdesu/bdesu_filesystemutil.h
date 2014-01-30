@@ -190,7 +190,7 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 ///Example 2: Using 'bdesu_FilesystemUtil::visitPaths'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // 'bdesu_FilesystemUtil::visitPaths' enables clients to define a functor to
 // operate on file paths that match a specified pattern.  In this example, we
 // create a function that can be used to filter out files that have a last
@@ -286,49 +286,97 @@ struct bdesu_FilesystemUtil {
 
     // TYPES
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    typedef void    *HANDLE;
-    typedef __int64  Offset;
-#elif defined(BSLS_PLATFORM_OS_FREEBSD) \
-   || defined(BSLS_PLATFORM_OS_DARWIN)  \
-   || defined(BSLS_PLATFORM_OS_CYGWIN)
-    // 'off_t' is 64-bit on Darwin/FreeBSD/cygwin (even when running 32-bit),
-    // so they do not have an 'off64_t' type.
-    typedef int   Handle;
-    typedef off_t Offset;
-#else
-    typedef int     Handle;
-    typedef off64_t Offset;
-#endif
+    typedef void *HANDLE;
+        // 'HANDLE' is a stand-in for the Windows API 'HANDLE' type, to allow
+        // us to avoid including 'windows.h' in this header.  'HANDLE' should
+        // not be used by client code.
 
     typedef HANDLE FileDescriptor;
+        // 'FileDescriptor' is an alias for the underlying file system's native
+        // file descriptor / file handle type.
 
-    static const Offset OFFSET_MAX =  9223372036854775807;
-    static const Offset OFFSET_MIN = -9223372036854775807 - 1;
+    typedef __int64 Offset;
+        // 'Offset' is an alias for a signed value, representing the offset of
+        // a location within a file.
+
+    static const Offset k_OFFSET_MAX = _I64_MAX;  // maximum representable
+                                                  // file offset value
+
+    static const Offset k_OFFSET_MIN = _I64_MIN;  // minimum representable file
+                                                  // offset value
+
+#else
+    typedef int     FileDescriptor;
+        // 'FileDescriptor' is an alias for the underlying file system's native
+        // file descriptor / file handle type.
+
+#if defined(BSLS_PLATFORM_OS_FREEBSD) \
+ || defined(BSLS_PLATFORM_OS_DARWIN)  \
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
+    // 'off_t' is 64-bit on Darwin/FreeBSD/cygwin (even when running 32-bit),
+    // so they do not have an 'off64_t' type.
+
+    typedef off_t Offset;
+        // 'Offset' is an alias for a signed value, representing the offset of
+        // a location within a file.
+#else
+    typedef off64_t Offset;
+        // 'Offset' is an alias for a signed value, representing the offset of
+        // a location within a file.
+#endif
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
+    static const Offset k_OFFSET_MAX =  (9223372036854775807L);
+        // maximum representable file offset value
+
+    static const Offset k_OFFSET_MIN = (-9223372036854775807L-1);
+        // minimum representable file offset value
+#else
+    static const Offset k_OFFSET_MAX =  (9223372036854775807LL);
+        // maximum representable file offset value
+
+    static const Offset k_OFFSET_MIN = (-9223372036854775807LL-1);
+        // minimum representable file offset value
+#endif
+
+#endif
 
     enum Whence {
+        // Enumeration used to distinguish among different starting points for
+        // a seek operation.
+
         e_SEEK_FROM_BEGINNING = 0,  // Seek from beginning of file.
         e_SEEK_FROM_CURRENT   = 1,  // Seek from current position.
         e_SEEK_FROM_END       = 2   // Seek from end of file.
     };
 
     enum {
-        k_DEFAULT_FILE_GROWTH_INCREMENT = 65536
+        k_DEFAULT_FILE_GROWTH_INCREMENT = 65536  // default block size by which 
+                                                 // to grow files
     };
 
     enum {
-        k_ERROR_LOCKING_CONFLICT = 1
+        k_ERROR_LOCKING_CONFLICT = 1  // value representing a failure to obtain 
+                                      // a lock on a file
     };
 
     enum FileOpenPolicy {
-        e_OPEN,           // Open an existing file.
+        // Enumeration used to determine whether 'open' should open an existing
+        // file, or create a new file.
 
-        e_CREATE,         // Create a new file.
+        e_OPEN,           // Open a file if it exists, and fail otherwise.
+
+        e_CREATE,         // Create a new file, and fail if the file already 
+                          // exists.
 
         e_OPEN_OR_CREATE  // Open a file if it exists, and create a new file
                           // otherwise.
     };
 
     enum FileIOPolicy {
+        // Enumeration used to distinguish between different sets of actions
+        // permitted on an open file descriptor.
+
         e_READ_ONLY,    // Allow reading only.
         e_WRITE_ONLY,   // Allow writing only.
         e_APPEND_ONLY,  // Allow appending to end-of-file only.
@@ -337,24 +385,29 @@ struct bdesu_FilesystemUtil {
     };
 
     enum FileTruncatePolicy {
+        // Enumeration used to distinguish between different ways to handle the
+        // contents, if any, of an existing file immediately upon opening the 
+        // file.
+
         e_TRUNCATE,  // Delete the file's contents on open.
         e_KEEP       // Keep the file's contents.
     };
 
     // CLASS DATA
-    static const FileDescriptor INVALID_FD;
+    static const FileDescriptor k_INVALID_FD;  // 'FileDescriptor' value 
+                                               // respresenting no file, used
+                                               // as the error return for
+                                               // 'open'
 
     // CLASS METHODS
-    static FileDescriptor open(
-                             const char         *path,
-                             FileOpenPolicy      openPolicy,
-                             FileIOPolicy        ioPolicy,
-                             FileTruncatePolicy  truncatePolicy =  e_KEEP);
-    static FileDescriptor open(
-                             const bsl::string& path,
-                             FileOpenPolicy     openPolicy,
-                             FileIOPolicy       ioPolicy,
-                             FileTruncatePolicy truncatePolicy = e_KEEP);
+    static FileDescriptor open(const char         *path,
+                               FileOpenPolicy      openPolicy,
+                               FileIOPolicy        ioPolicy,
+                               FileTruncatePolicy  truncatePolicy =  e_KEEP);
+    static FileDescriptor open(const bsl::string& path,
+                               FileOpenPolicy     openPolicy,
+                               FileIOPolicy       ioPolicy,
+                               FileTruncatePolicy truncatePolicy = e_KEEP);
         // Open the file at the specified 'path', using the specified
         // 'openPolicy' to determine whether to open an existing file or create
         // a new file, and using the specified 'ioPolicy' to determine whether
@@ -362,19 +415,19 @@ struct bdesu_FilesystemUtil {
         // specify a 'truncatePolicy' to determine whether any contents of the
         // file will be deleted before 'open' returns.  If 'truncatePolicy' is
         // not supplied, the value 'e_KEEP' will be used.  Return a valid
-        // 'FileDesriptor' for the file on success, or 'INVALID_FD' otherwise.
-        // If 'openPolicy' is 'e_OPEN', the file will be opened if it exists,
-        // and 'open' will fail otherwise.  If 'openPolicy' is 'e_CREATE', and
-        // no file exists at 'path', a new file will be created, and 'open'
-        // will fail otherwise.  If 'openPolicy' is 'e_OPEN_OR_CREATE', the
-        // file will be opened if it exists, and a new file will be created
-        // otherwise.  If 'ioPolicy' is 'e_READ_ONLY', the returned
-        // 'FileDescriptor' will allow only read operations on the file.  If
-        // 'ioPolicy' is 'e_WRITE_ONLY' or 'e_APPEND_ONLY', the returned
-        // 'FileDescriptor' will allow only write operations on the file.  If
-        // 'ioPolicy' is 'e_READ_WRITE' or 'e_READ_APPEND', the returned
-        // 'FileDescriptor' will allow both read and write operations on the
-        // file.  Additionally, if 'ioPolicy' is 'e_APPEND_ONLY' or
+        // 'FileDesriptor' for the file on success, or 'k_INVALID_FD'
+        // otherwise.  If 'openPolicy' is 'e_OPEN', the file will be opened if
+        // it exists, and 'open' will fail otherwise.  If 'openPolicy' is
+        // 'e_CREATE', and no file exists at 'path', a new file will be
+        // created, and 'open' will fail otherwise.  If 'openPolicy' is
+        // 'e_OPEN_OR_CREATE', the file will be opened if it exists, and a new
+        // file will be created otherwise.  If 'ioPolicy' is 'e_READ_ONLY', the
+        // returned 'FileDescriptor' will allow only read operations on the
+        // file.  If 'ioPolicy' is 'e_WRITE_ONLY' or 'e_APPEND_ONLY', the
+        // returned 'FileDescriptor' will allow only write operations on the
+        // file.  If 'ioPolicy' is 'e_READ_WRITE' or 'e_READ_APPEND', the
+        // returned 'FileDescriptor' will allow both read and write operations
+        // on the file.  Additionally, if 'ioPolicy' is 'e_APPEND_ONLY' or
         // 'e_READ_APPEND' all writes will be made to the end of the file
         // ("append mode").  If 'truncatePolicy' is 'e_TRUNCATE', the file will
         // have zero length when 'open' returns.  If 'truncatePolicy' is
@@ -385,8 +438,7 @@ struct bdesu_FilesystemUtil {
         // file, though append-mode writes are not guaranteed to be atomic.
         // Note that 'open' will fail to open a file with a 'truncatePolicy' of
         // 'e_TRUNCATE' unless at least one of the following policies is
-        // specified for 'openPolicy'
-        // or 'ioPolicy':
+        // specified for 'openPolicy' or 'ioPolicy':
         //: o 'e_CREATE'
         //: o 'e_OPEN_OR_CREATE'
         //: o 'e_WRITE_ONLY
@@ -513,10 +565,10 @@ struct bdesu_FilesystemUtil {
         // points.
 
     static Offset getFileSizeLimit();
-        // Return the file size limit for this process, 'OFFSET_MAX' if no
+        // Return the file size limit for this process, 'k_OFFSET_MAX' if no
         // limit is set, or a negative value if an error occurs.  Note that
         // if you are doing any calculations involving the returned value, it
-        // is recommended to check for 'OFFSET_MAX' specifically to avoid
+        // is recommended to check for 'k_OFFSET_MAX' specifically to avoid
         // integer overflow in your calculations.
 
     static int lock(FileDescriptor descriptor, bool lockWriteFlag);

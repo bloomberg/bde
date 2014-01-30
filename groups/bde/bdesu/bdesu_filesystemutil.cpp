@@ -271,7 +271,7 @@ int removeFile(const char *path)
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
-const bdesu_FilesystemUtil::FileDescriptor bdesu_FilesystemUtil::INVALID_FD =
+const bdesu_FilesystemUtil::FileDescriptor bdesu_FilesystemUtil::k_INVALID_FD =
                                                           INVALID_HANDLE_VALUE;
 
 bdesu_FilesystemUtil::FileDescriptor
@@ -287,7 +287,7 @@ bdesu_FilesystemUtil::open(const char              *pathName,
         && (   e_READ_ONLY   == ioPolicy
             || e_APPEND_ONLY == ioPolicy
             || e_READ_APPEND == ioPolicy)) {
-        return INVALID_FD;                                            // RETURN
+        return k_INVALID_FD;                                            // RETURN
     }
 
     bool isTruncateMode = (e_TRUNCATE == truncatePolicy);
@@ -351,7 +351,7 @@ bdesu_FilesystemUtil::open(const char              *pathName,
     // behavior for open (DRQS 30568749).
 
     bsl::wstring                         wide;
-    bdesu_FilesystemUtil::FileDescriptor descriptor = INVALID_FD;
+    bdesu_FilesystemUtil::FileDescriptor descriptor = k_INVALID_FD;
 
     if (narrowToWide(&wide, pathName)) {
         descriptor = CreateFileW(
@@ -881,14 +881,14 @@ bdesu_FilesystemUtil::Offset bdesu_FilesystemUtil::getFileSizeLimit()
 {
     // TBD
 
-    return OFFSET_MAX;
+    return k_OFFSET_MAX;
 }
 
 int bdesu_FilesystemUtil::getWorkingDirectory(bsl::string *path)
 {
     BSLS_ASSERT(path);
 
-    enum {BUFFER_SIZE = 4096};
+    enum { BUFFER_SIZE = 4096 };
     wchar_t buffer[BUFFER_SIZE];
 
     wchar_t *retval = _wgetcwd(buffer, BUFFER_SIZE);
@@ -921,7 +921,7 @@ int bdesu_FilesystemUtil::setWorkingDirectory(const char *path)
 // unix specific implementation
 
 const bdesu_FilesystemUtil::FileDescriptor
-                                         bdesu_FilesystemUtil::INVALID_FD = -1;
+                                         bdesu_FilesystemUtil::k_INVALID_FD = -1;
 
 bdesu_FilesystemUtil::FileDescriptor
 bdesu_FilesystemUtil::open(const char              *path,
@@ -934,7 +934,7 @@ bdesu_FilesystemUtil::open(const char              *path,
         && (   e_READ_ONLY   == ioPolicy
             || e_APPEND_ONLY == ioPolicy
             || e_READ_APPEND == ioPolicy)) {
-        return INVALID_FD;                                            // RETURN
+        return k_INVALID_FD;                                            // RETURN
     }
 
     int oflag = 0;
@@ -1378,14 +1378,14 @@ bdesu_FilesystemUtil::Offset bdesu_FilesystemUtil::getFileSizeLimit()
     // so 'rl.rlim_cur' may have a larger value than can be represented by
     // an 'Offset'.
 
-    rlMax.rlim_cur = OFFSET_MAX;
+    rlMax.rlim_cur = k_OFFSET_MAX;
     rlInf.rlim_cur = RLIM_INFINITY;
 
     if (rc) {
         return -1;                                                    // RETURN
     }
     else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
-        return OFFSET_MAX;                                            // RETURN
+        return k_OFFSET_MAX;                                            // RETURN
     }
     else {
         return rl.rlim_cur;                                           // RETURN
