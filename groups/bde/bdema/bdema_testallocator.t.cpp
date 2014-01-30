@@ -885,7 +885,7 @@ int main(int argc, char *argv[])
             "          IN USE\t0\t0\n"
             "             MAX\t0\t0\n"
             "           TOTAL\t0\t0\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
             ;
@@ -918,10 +918,10 @@ int main(int argc, char *argv[])
             "          IN USE\t9\t105\n"
             "             MAX\t9\t105\n"
             "           TOTAL\t9\t105\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
-            " Indices of Outstanding Memory Allocation:\n"
+            " Indices of Outstanding Memory Allocations:\n"
             " 0\t1\t2\t3\t4\t5\t6\t7\t\n"
             " 8\t\n "
             ;
@@ -965,10 +965,10 @@ int main(int argc, char *argv[])
             "          IN USE\t4\t90\n"
             "             MAX\t5\t101\n"
             "           TOTAL\t6\t111\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
-            " Indices of Outstanding Memory Allocation:\n"
+            " Indices of Outstanding Memory Allocations:\n"
             " 0\t1\t3\t5\t\n "
             ;
 
@@ -1001,7 +1001,7 @@ int main(int argc, char *argv[])
             "          IN USE\t0\t0\n"
             "             MAX\t2\t70\n"
             "           TOTAL\t2\t70\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
             ;
@@ -1141,10 +1141,10 @@ int main(int argc, char *argv[])
             "          IN USE\t3\t60\n"
             "             MAX\t4\t91\n"
             "           TOTAL\t5\t101\n"
-            "  NUM MISMATCHES\t0\n"
+            "      MISMATCHES\t0\n"
             "   BOUNDS ERRORS\t0\n"
             "--------------------------------------------------\n"
-            " Indices of Outstanding Memory Allocation:\n"
+            " Indices of Outstanding Memory Allocations:\n"
             " 1\t2\t4\t\n "
             ;
 
