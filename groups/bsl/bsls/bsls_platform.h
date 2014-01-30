@@ -415,12 +415,6 @@ struct bsls_Platform_Assert;
     #define _SECURE_SCL 0
     #endif
 
-    // Macro to reduce what is included by 'windows.h'.
-
-    #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-    #endif
-
     // Do not define 'min' and 'max' as macros in the Windows headers.
 
     #ifndef NOMINMAX
