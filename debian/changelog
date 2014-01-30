@@ -1,3 +1,18 @@
+bsl-internal (2.20.0.1) unstable; urgency=low
+
+  * Bump changelog
+  * 017deea [APPROVAL] OSS pending/master/remove-leanandmean-drqs48897179 to master
+  * 7934825 [APPROVAL] pending/master/remove-leanandmean-drqs48897179 to master
+  * 1b07f0e [APPROVAL] OSS pending/master/d_allocator-missing-_p-drqs-43984816 to master
+  * 9f3ac2f [APPROVAL] pending/master/d_allocator-missing-_p-drqs-43984816 to master
+  * f567d63 [APPROVAL] OSS pending/bdl-fixes-drqs-48513817 to master
+  * 5f5de5c [APPROVAL] pending/bdl-fixes-drqs-48513817 to master
+  * ab39609 [APPROVAL] OSS pending/master/remove-windows.h-include2 to master
+  * 5a03fea [APPROVAL] pending/master/remove-windows.h-include2 to master
+  * acfa60d [APPROVAL] pending/master/waf-build-support-bde-bb-drqs-48413481 to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 30 Jan 2014 12:37:38 -0500
+
 bsl-internal (2.20.0.0.bsl.freeze.2) unstable; urgency=low
 
   * Bump changelog
