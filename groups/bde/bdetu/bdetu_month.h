@@ -86,6 +86,12 @@ BDES_IDENT("$Id: $")
 #include <bdet_date.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifndef INCLUDED_BDET_MONTH
+#include <bdet_month.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BDET_MONTHOFYEAR
 #include <bdet_monthofyear.h>
 #endif
