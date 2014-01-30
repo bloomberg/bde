@@ -95,8 +95,8 @@ typedef bdeu_String Util;
 //                             MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -207,21 +207,16 @@ int main(int argc, char *argv[]) {
         //  4) Nothing happens when '*begin == *end'.
         //
         // Plan:
-        //  To address concerns 1 and 2, we enumerate through different lengths
-        //  of substrings (0 to 2) and match them against different lengths of
-        //  original strings (0 to substring length + 2).  The case of both the
-        //  substrings and the original strings are also permuted.  The
-        //  resulting address returned from the 'strstr' and
-        //  'strstrCaseless' is compared against the expected offset from the
-        //  original string to make sure concerns 1 and 2 are addressed.
+        //   Pass the end points of a variety of strings covering all 4
+        //   concerns.  In each case, observe where the end points wind up and
+        //   confirm they are as expected.
         //
-        // Testing:
-        //  void skipLeadingTrailing(const char **begin, const char **end)
+        // Testing
+        //   void skipLeadingTrailing(const char **begin, const char **end);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'strstr' and 'strstrCaseless" << endl
-                          << "====================================" << endl;
+        if (verbose) cout << "TESTING 'skipLeadingTrailing'\n"
+                             "=============================\n";
 
         static const struct {
             const int   d_lineNumber;  // line number
@@ -374,10 +369,10 @@ int main(int argc, char *argv[]) {
             //                                                   RESULTCASELESS
 
             //Substring length 0, caseless
-            { L_,   "",       0,         "",         0,            0,      0},
-            { L_,   "a",      1,         "",         0,            0,      0},
-            { L_,   "ab",     2,         "",         0,            0,      0},
-            { L_,   "abc",    3,         "",         0,            0,      0},
+            { L_,   "",       0,          0,         0,            0,      0},
+            { L_,   "a",      1,          0,         0,            0,      0},
+            { L_,   "ab",     2,          0,         0,            0,      0},
+            { L_,   "abc",    3,          0,         0,            0,      0},
 
             //Substring length 0, case sensitive
             { L_,   "A",      1,         "",         0,            0,      0},
@@ -603,7 +598,7 @@ int main(int argc, char *argv[]) {
                     T_; T_; P(RESULTCASELESS);
                     T_; T_; bsl::cout << "STRING + RESULTCASELESS: "
                                       << bsl::hex
-                                      << (const void*) (STRING + RESULTCASELESS)
+                                      << (const void*) (STRING+RESULTCASELESS)
                                       << bsl::endl;
                     T_; T_; bsl::cout << "STRSTRCASELESSRESULT: "
                                       << bsl::hex
@@ -751,7 +746,7 @@ int main(int argc, char *argv[]) {
             "1234567890abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+-=`{}|[]\\\t\n ",
         0};
 
-        for(int i = 0; STRINGS[i]; ++i) {
+        for (int i = 0; STRINGS[i]; ++i) {
             int LEN  = bsl::strlen(STRINGS[i]);
             for (int l = 0; l < 2 * LEN; ++l) {
                 LOOP2_ASSERT(i, l,
