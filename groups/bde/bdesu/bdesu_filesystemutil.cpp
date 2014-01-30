@@ -1,4 +1,4 @@
-// bdesu_filesystemutil.cpp                                             -*-C++-*-
+// bdesu_filesystemutil.cpp                                           -*-C++-*-
 #include <bdesu_filesystemutil.h>
 
 #include <bdes_ident.h>
@@ -287,7 +287,7 @@ bdesu_FilesystemUtil::open(const char              *pathName,
         && (   e_READ_ONLY   == ioPolicy
             || e_APPEND_ONLY == ioPolicy
             || e_READ_APPEND == ioPolicy)) {
-        return k_INVALID_FD;                                            // RETURN
+        return k_INVALID_FD;                                          // RETURN
     }
 
     bool isTruncateMode = (e_TRUNCATE == truncatePolicy);
@@ -921,7 +921,7 @@ int bdesu_FilesystemUtil::setWorkingDirectory(const char *path)
 // unix specific implementation
 
 const bdesu_FilesystemUtil::FileDescriptor
-                                         bdesu_FilesystemUtil::k_INVALID_FD = -1;
+                                       bdesu_FilesystemUtil::k_INVALID_FD = -1;
 
 bdesu_FilesystemUtil::FileDescriptor
 bdesu_FilesystemUtil::open(const char              *path,
@@ -934,7 +934,7 @@ bdesu_FilesystemUtil::open(const char              *path,
         && (   e_READ_ONLY   == ioPolicy
             || e_APPEND_ONLY == ioPolicy
             || e_READ_APPEND == ioPolicy)) {
-        return k_INVALID_FD;                                            // RETURN
+        return k_INVALID_FD;                                          // RETURN
     }
 
     int oflag = 0;
@@ -1385,7 +1385,7 @@ bdesu_FilesystemUtil::Offset bdesu_FilesystemUtil::getFileSizeLimit()
         return -1;                                                    // RETURN
     }
     else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
-        return k_OFFSET_MAX;                                            // RETURN
+        return k_OFFSET_MAX;                                          // RETURN
     }
     else {
         return rl.rlim_cur;                                           // RETURN

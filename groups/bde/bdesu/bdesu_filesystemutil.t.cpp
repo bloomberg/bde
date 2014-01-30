@@ -1,4 +1,4 @@
-// bdesu_filesystemutil.t.cpp                                           -*-C++-*-
+// bdesu_filesystemutil.t.cpp                                         -*-C++-*-
 #include <bdesu_filesystemutil.h>
 
 #include <bdesu_pathutil.h>
@@ -757,7 +757,8 @@ int main(int argc, char *argv[])
                                                Obj::e_READ_WRITE);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            LOOP2_ASSERT(fd, ni, (ni == NAME_ANSI) == (Obj::k_INVALID_FD == fd));
+            LOOP2_ASSERT(fd, ni,
+                               (ni == NAME_ANSI) == (Obj::k_INVALID_FD == fd));
 #else
             LOOP_ASSERT(fd, Obj::k_INVALID_FD != fd);
 #endif
@@ -4204,7 +4205,7 @@ int main(int argc, char *argv[])
                 Obj::FileDescriptor fd = Obj::open(
                                 fileName, OPEN_POLICY, IO_POLICY, INIT_POLICY);
                 LOOP3_ASSERT(LINE, EXP_SUCCESS, fd,
-                                       EXP_SUCCESS == (Obj::k_INVALID_FD != fd));
+                                     EXP_SUCCESS == (Obj::k_INVALID_FD != fd));
 
                 if (Obj::k_INVALID_FD == fd) {
                     // Expected failure.  We can do no more testing with an

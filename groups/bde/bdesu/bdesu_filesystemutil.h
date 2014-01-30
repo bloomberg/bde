@@ -362,12 +362,12 @@ struct bdesu_FilesystemUtil {
     };
 
     enum {
-        k_DEFAULT_FILE_GROWTH_INCREMENT = 65536  // default block size by which 
+        k_DEFAULT_FILE_GROWTH_INCREMENT = 65536  // default block size by which
                                                  // to grow files
     };
 
     enum {
-        k_ERROR_LOCKING_CONFLICT = 1  // value representing a failure to obtain 
+        k_ERROR_LOCKING_CONFLICT = 1  // value representing a failure to obtain
                                       // a lock on a file
     };
 
@@ -377,7 +377,7 @@ struct bdesu_FilesystemUtil {
 
         e_OPEN,           // Open a file if it exists, and fail otherwise.
 
-        e_CREATE,         // Create a new file, and fail if the file already 
+        e_CREATE,         // Create a new file, and fail if the file already
                           // exists.
 
         e_OPEN_OR_CREATE  // Open a file if it exists, and create a new file
@@ -397,7 +397,7 @@ struct bdesu_FilesystemUtil {
 
     enum FileTruncatePolicy {
         // Enumeration used to distinguish between different ways to handle the
-        // contents, if any, of an existing file immediately upon opening the 
+        // contents, if any, of an existing file immediately upon opening the
         // file.
 
         e_TRUNCATE,  // Delete the file's contents on open.
@@ -405,7 +405,7 @@ struct bdesu_FilesystemUtil {
     };
 
     // CLASS DATA
-    static const FileDescriptor k_INVALID_FD;  // 'FileDescriptor' value 
+    static const FileDescriptor k_INVALID_FD;  // 'FileDescriptor' value
                                                // respresenting no file, used
                                                // as the error return for
                                                // 'open'
