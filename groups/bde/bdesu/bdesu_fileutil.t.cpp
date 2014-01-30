@@ -1320,7 +1320,7 @@ int main(int argc, char *argv[])
             ASSERT(4 == rc);
             ASSERT(WOOF == buf);
 
-#if defined(BSLS_PLATFORM_OS_HPUX) || defined(BSLS_PLATFORM_OS_AIX)
+#if defined(BSLS_PLATFORM_OS_AIX)
             enum { COLLIDE = EACCES };
 #else
             enum { COLLIDE = EAGAIN };

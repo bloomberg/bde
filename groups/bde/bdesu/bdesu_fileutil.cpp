@@ -7,9 +7,12 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <bdesu_pathutil.h>
 
 #include <bdef_bind.h>
+#include <bdef_placeholder.h>
 #include <bdema_managedptr.h>
 #include <bdetu_epoch.h>
 #include <bdetu_systemtime.h> // for testing only
+#include <bslma_allocator.h>
+#include <bslma_default.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsl_algorithm.h>
@@ -21,6 +24,8 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <io.h>
 #include <direct.h>
 #undef MIN
+#define getcwd _getcwd
+#define chdir _chdir
 #define snprintf _snprintf
 
 #else // !BSLS_PLATFORM_OS_WINDOWS
@@ -168,7 +173,7 @@ int makeDirectory(const char *path)
 {
     BSLS_ASSERT_SAFE(path);
 
-    // Permissions of created dir will by 'drwxrwxrwx', anded with '~umask'.
+    // Permissions of created dir will be 'drwxrwxrwx', ANDed with '~umask'.
 
     enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
                    S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
@@ -543,7 +548,7 @@ void bdesu_FileUtil::visitPaths(
             }
             else if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath,
                                                          findData.cFileName)) {
-                // skip "can't happen" case: 'findData.cFileName' will never be
+                // Skip "can't happen" case: 'findData.cFileName' will never be
                 // an absolute path.
 
                 BSLS_ASSERT(!"FindFirstFile returned an absolute path.");
@@ -672,10 +677,6 @@ bdesu_FileUtil::open(const char *path,
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
         return ::open(  path, oflag);                                 // RETURN
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-        // In 64-bit mode, HP-UX defines 'open64' to be 'open', which triggers
-        // a lookup failure here (since this class has members named 'open').
-        return ::open64(path, oflag);                                 // RETURN
 #else
         return open64(  path, oflag);                                 // RETURN
 #endif
@@ -684,9 +685,6 @@ bdesu_FileUtil::open(const char *path,
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
     return ::open(  path, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    return ::open64(path, oflag | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 #else
     return open64(  path, oflag | O_CREAT | O_TRUNC,
@@ -1035,7 +1033,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
 bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_HPUX)    || defined(BSLS_PLATFORM_OS_CYGWIN)
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
     struct rlimit rl, rlMax, rlInf;
     int rc = getrlimit(RLIMIT_FSIZE, &rl);
 #else
