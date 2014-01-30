@@ -236,7 +236,7 @@ int makeDirectory(const char *path)
 {
     BSLS_ASSERT_SAFE(path);
 
-    // Permissions of created dir will by 'drwxrwxrwx', anded with '~umask'.
+    // Permissions of created dir will be 'drwxrwxrwx', ANDed with '~umask'.
 
     enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
                    S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
@@ -266,9 +266,9 @@ int removeFile(const char *path)
 
 }  // close unnamed namespace
 
-                           // ---------------------
-                           // struct FilesystemUtil
-                           // ---------------------
+                           // ---------------------------
+                           // struct bdesu_FilesystemUtil
+                           // ---------------------------
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
@@ -276,10 +276,10 @@ const bdesu_FilesystemUtil::FileDescriptor bdesu_FilesystemUtil::k_INVALID_FD =
                                                           INVALID_HANDLE_VALUE;
 
 bdesu_FilesystemUtil::FileDescriptor
-bdesu_FilesystemUtil::open(const char              *pathName,
-                           enum FileOpenPolicy      openPolicy,
-                           enum FileIOPolicy        ioPolicy,
-                           enum FileTruncatePolicy  truncatePolicy)
+bdesu_FilesystemUtil::open(const char         *pathName,
+                           FileOpenPolicy      openPolicy,
+                           FileIOPolicy        ioPolicy,
+                           FileTruncatePolicy  truncatePolicy)
 {
     BSLS_ASSERT(pathName);
 
@@ -643,11 +643,11 @@ void bdesu_FilesystemUtil::visitPaths(
                         const char                                 *patternStr,
                         const bdef_Function<void(*)(const char*)>&  visitor)
 {
-    // Windows FindFirstFileW() function only looks at pattern characters ('*'
+    // Windows 'FindFirstFileW' function only looks at pattern characters ('*'
     // and '?') in the leaf element of the path.  Therefore we must first
     // resolve all special characters in the non-leaf portion of the path
     // recursively before resolving the leaf portion.  Also, unlike glob(), the
-    // name returned by FindFirstFileW() is *just* the leaf.  Resolving the
+    // name returned by 'FindFirstFileW' is *just* the leaf.  Resolving the
     // handle into a full path is not available pre-Vista.
 
     BSLS_ASSERT(patternStr);
@@ -925,10 +925,10 @@ const bdesu_FilesystemUtil::FileDescriptor
                                        bdesu_FilesystemUtil::k_INVALID_FD = -1;
 
 bdesu_FilesystemUtil::FileDescriptor
-bdesu_FilesystemUtil::open(const char              *path,
-                           enum FileOpenPolicy      openPolicy,
-                           enum FileIOPolicy        ioPolicy,
-                           enum FileTruncatePolicy  truncatePolicy)
+bdesu_FilesystemUtil::open(const char         *path,
+                           FileOpenPolicy      openPolicy,
+                           FileIOPolicy        ioPolicy,
+                           FileTruncatePolicy  truncatePolicy)
 {
     if (   e_OPEN     == openPolicy
         && e_TRUNCATE == truncatePolicy

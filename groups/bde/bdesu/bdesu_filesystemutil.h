@@ -414,11 +414,11 @@ struct bdesu_FilesystemUtil {
     static FileDescriptor open(const char         *path,
                                FileOpenPolicy      openPolicy,
                                FileIOPolicy        ioPolicy,
-                               FileTruncatePolicy  truncatePolicy =  e_KEEP);
-    static FileDescriptor open(const bsl::string& path,
-                               FileOpenPolicy     openPolicy,
-                               FileIOPolicy       ioPolicy,
-                               FileTruncatePolicy truncatePolicy = e_KEEP);
+                               FileTruncatePolicy  truncatePolicy = e_KEEP);
+    static FileDescriptor open(const bsl::string&  path,
+                               FileOpenPolicy      openPolicy,
+                               FileIOPolicy        ioPolicy,
+                               FileTruncatePolicy  truncatePolicy = e_KEEP);
         // Open the file at the specified 'path', using the specified
         // 'openPolicy' to determine whether to open an existing file or create
         // a new file, and using the specified 'ioPolicy' to determine whether
@@ -756,10 +756,10 @@ void bdesu_FilesystemUtil::visitPaths(
 
 inline
 bdesu_FilesystemUtil::FileDescriptor
-bdesu_FilesystemUtil::open(const bsl::string&      path,
-                           enum FileOpenPolicy     openPolicy,
-                           enum FileIOPolicy       ioPolicy,
-                           enum FileTruncatePolicy truncatePolicy)
+bdesu_FilesystemUtil::open(const bsl::string& path,
+                           FileOpenPolicy     openPolicy,
+                           FileIOPolicy       ioPolicy,
+                           FileTruncatePolicy truncatePolicy)
 {
     return open(path.c_str(), openPolicy, ioPolicy, truncatePolicy);
 }
