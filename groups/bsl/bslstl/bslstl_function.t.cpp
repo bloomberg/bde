@@ -981,9 +981,9 @@ enum WhatIsInplace {
 };
 
 template <class ALLOC, class FUNC>
-void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *funcType)
+void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
 {
-    if (veryVeryVerbose) printf("\tFUNC type is %s\n", funcType);
+    if (veryVeryVerbose) printf("\tALLOC is %s\n", allocName);
 
     typedef bsl::function<int(IntWrapper,int)> Obj;
 
@@ -1276,7 +1276,7 @@ int main(int argc, char *argv[])
 
 #define TEST(A, f) testCopyCtor<A>(f, #A)
 
-        if (veryVerbose) std::printf("FUNC = nullFuncPtr\n");
+        if (veryVerbose) std::printf("FUNC is nullFuncPtr\n");
         TEST(bslma::TestAllocator *,   nullFuncPtr          );
         TEST(bsl::allocator<char>,     nullFuncPtr          );
         TEST(EmptySTLAllocator<char>,  nullFuncPtr          );
@@ -1285,7 +1285,7 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, nullFuncPtr          );
         TEST(LargeSTLAllocator<char>,  nullFuncPtr          );
 
-        if (veryVerbose) std::printf("FUNC = nullMemFuncPtr\n");
+        if (veryVerbose) std::printf("FUNC is nullMemFuncPtr\n");
         TEST(bslma::TestAllocator *,   nullMemFuncPtr       );
         TEST(bsl::allocator<char>,     nullMemFuncPtr       );
         TEST(EmptySTLAllocator<char>,  nullMemFuncPtr       );
@@ -1294,7 +1294,7 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, nullMemFuncPtr       );
         TEST(LargeSTLAllocator<char>,  nullMemFuncPtr       );
 
-        if (veryVerbose) std::printf("FUNC = simpleFunc\n");
+        if (veryVerbose) std::printf("FUNC is simpleFunc\n");
         TEST(bslma::TestAllocator *,   simpleFunc           );
         TEST(bsl::allocator<char>,     simpleFunc           );
         TEST(EmptySTLAllocator<char>,  simpleFunc           );
@@ -1303,7 +1303,7 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, simpleFunc           );
         TEST(LargeSTLAllocator<char>,  simpleFunc           );
 
-        if (veryVerbose) std::printf("FUNC = &IntWrapper::add1\n");
+        if (veryVerbose) std::printf("FUNC is &IntWrapper::add1\n");
         TEST(bslma::TestAllocator *,   &IntWrapper::add1    );
         TEST(bsl::allocator<char>,     &IntWrapper::add1    );
         TEST(EmptySTLAllocator<char>,  &IntWrapper::add1    );
@@ -1312,7 +1312,7 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, &IntWrapper::add1    );
         TEST(LargeSTLAllocator<char>,  &IntWrapper::add1    );
 
-        if (veryVerbose) std::printf("FUNC = EmptyFunctor()\n");
+        if (veryVerbose) std::printf("FUNC is EmptyFunctor()\n");
         TEST(bslma::TestAllocator *,   EmptyFunctor()       );
         TEST(bsl::allocator<char>,     EmptyFunctor()       );
         TEST(EmptySTLAllocator<char>,  EmptyFunctor()       );
@@ -1321,7 +1321,7 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, EmptyFunctor()       );
         TEST(LargeSTLAllocator<char>,  EmptyFunctor()       );
 
-        if (veryVerbose) std::printf("FUNC = SmallFunctor(0x2000)\n");
+        if (veryVerbose) std::printf("FUNC is SmallFunctor(0x2000)\n");
         TEST(bslma::TestAllocator *,   SmallFunctor(0x2000) );
         TEST(bsl::allocator<char>,     SmallFunctor(0x2000) );
         TEST(EmptySTLAllocator<char>,  SmallFunctor(0x2000) );
@@ -1330,7 +1330,7 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, SmallFunctor(0x2000) );
         TEST(LargeSTLAllocator<char>,  SmallFunctor(0x2000) );
 
-        if (veryVerbose) std::printf("FUNC = MediumFunctor(0x4000)\n");
+        if (veryVerbose) std::printf("FUNC is MediumFunctor(0x4000)\n");
         TEST(bslma::TestAllocator *,   MediumFunctor(0x4000));
         TEST(bsl::allocator<char>,     MediumFunctor(0x4000));
         TEST(EmptySTLAllocator<char>,  MediumFunctor(0x4000));
@@ -1339,7 +1339,7 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, MediumFunctor(0x4000));
         TEST(LargeSTLAllocator<char>,  MediumFunctor(0x4000));
 
-        if (veryVerbose) std::printf("FUNC = LargeFunctor(0x6000)\n");
+        if (veryVerbose) std::printf("FUNC is LargeFunctor(0x6000)\n");
         TEST(bslma::TestAllocator *,   LargeFunctor(0x6000) );
         TEST(bsl::allocator<char>,     LargeFunctor(0x6000) );
         TEST(EmptySTLAllocator<char>,  LargeFunctor(0x6000) );
@@ -1483,77 +1483,79 @@ int main(int argc, char *argv[])
         int (*nullFuncPtr)(IntWrapper, int) = 0;
         int (IntWrapper::*nullMemFuncPtr)(int) const = 0;
 
-#define TEST(A, f, E) testFuncWithAlloc<A>(f, E, #f)
+#define TEST(A, f, E) testFuncWithAlloc<A>(f, E, #A)
 
-        if (veryVerbose) std::printf("Using bslma::TestAllocator*\n");
-        TEST(bslma::TestAllocator *,   nullFuncPtr,       e_INPLACE_BOTH);
-        TEST(bslma::TestAllocator *,   nullMemFuncPtr,    e_INPLACE_BOTH);
-        TEST(bslma::TestAllocator *,   simpleFunc,        e_INPLACE_BOTH);
-        TEST(bslma::TestAllocator *,   &IntWrapper::add1, e_INPLACE_BOTH);
-        TEST(bslma::TestAllocator *,   EmptyFunctor(),    e_INPLACE_BOTH);
-        TEST(bslma::TestAllocator *,   SmallFunctor(0),   e_INPLACE_BOTH);
-        TEST(bslma::TestAllocator *,   MediumFunctor(0),  e_INPLACE_BOTH);
-        TEST(bslma::TestAllocator *,   LargeFunctor(0),   e_OUTOFPLACE_BOTH);
-        
-        if (veryVerbose) std::printf("Using bsl::allocator\n");
-        TEST(bsl::allocator<char>,     nullFuncPtr,       e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>,     nullMemFuncPtr,    e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>,     simpleFunc,        e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>,     &IntWrapper::add1, e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>,     EmptyFunctor(),    e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>,     SmallFunctor(0),   e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>,     MediumFunctor(0),  e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>,     LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+        if (veryVerbose) std::printf("FUNC is nullFuncPtr\n");
+        TEST(bslma::TestAllocator *  , nullFuncPtr      , e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , nullFuncPtr      , e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , nullFuncPtr      , e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , nullFuncPtr      , e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , nullFuncPtr      , e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, nullFuncPtr      , e_INPLACE_BOTH);
+        TEST(LargeSTLAllocator<char> , nullFuncPtr      , e_INPLACE_FUNC_ONLY);
 
-        if (veryVerbose) std::printf("Using EmptySTLAllocator\n");
-        TEST(EmptySTLAllocator<char>,  nullFuncPtr,       e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char>,  nullMemFuncPtr,    e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char>,  simpleFunc,        e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char>,  &IntWrapper::add1, e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char>,  EmptyFunctor(),    e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char>,  SmallFunctor(0),   e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char>,  MediumFunctor(0),  e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char>,  LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+        if (veryVerbose) std::printf("FUNC is nullMemFuncPtr\n");
+        TEST(bslma::TestAllocator *  , nullMemFuncPtr   , e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , nullMemFuncPtr   , e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , nullMemFuncPtr   , e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , nullMemFuncPtr   , e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , nullMemFuncPtr   , e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, nullMemFuncPtr   , e_INPLACE_BOTH);
+        TEST(LargeSTLAllocator<char> , nullMemFuncPtr   , e_INPLACE_FUNC_ONLY);
 
-        if (veryVerbose) std::printf("Using TinySTLAllocator\n");
-        TEST(TinySTLAllocator<char>,   nullFuncPtr,       e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>,   nullMemFuncPtr,    e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>,   simpleFunc,        e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>,   &IntWrapper::add1, e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>,   EmptyFunctor(),    e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>,   SmallFunctor(0),   e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>,   MediumFunctor(0),  e_INPLACE_FUNC_ONLY);
-        TEST(TinySTLAllocator<char>,   LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+        if (veryVerbose) std::printf("FUNC is simpleFunc\n");
+        TEST(bslma::TestAllocator *  , simpleFunc       , e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , simpleFunc       , e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , simpleFunc       , e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , simpleFunc       , e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , simpleFunc       , e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, simpleFunc       , e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char> , simpleFunc       , e_INPLACE_FUNC_ONLY);
 
-        if (veryVerbose) std::printf("Using SmallSTLAllocator\n");
-        TEST(SmallSTLAllocator<char>,  nullFuncPtr,       e_INPLACE_BOTH);
-        TEST(SmallSTLAllocator<char>,  nullMemFuncPtr,    e_INPLACE_BOTH);
-        TEST(SmallSTLAllocator<char>,  simpleFunc,        e_INPLACE_BOTH);
-        TEST(SmallSTLAllocator<char>,  &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char>,  EmptyFunctor(),    e_INPLACE_BOTH);
-        TEST(SmallSTLAllocator<char>,  SmallFunctor(0),   e_INPLACE_BOTH);
-        TEST(SmallSTLAllocator<char>,  MediumFunctor(0),  e_INPLACE_FUNC_ONLY);
-        TEST(SmallSTLAllocator<char>,  LargeFunctor(0),   e_OUTOFPLACE_BOTH);
-
-        if (veryVerbose) std::printf("Using MediumSTLAllocator\n");
-        TEST(MediumSTLAllocator<char>, nullFuncPtr,       e_INPLACE_BOTH);
-        TEST(MediumSTLAllocator<char>, nullMemFuncPtr,    e_INPLACE_BOTH);
-        TEST(MediumSTLAllocator<char>, simpleFunc,        e_INPLACE_FUNC_ONLY);
+        if (veryVerbose) std::printf("FUNC is &IntWrapper::add1\n");
+        TEST(bslma::TestAllocator *  , &IntWrapper::add1, e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , &IntWrapper::add1, e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , &IntWrapper::add1, e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , &IntWrapper::add1, e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
         TEST(MediumSTLAllocator<char>, &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, EmptyFunctor(),    e_INPLACE_BOTH);
-        TEST(MediumSTLAllocator<char>, SmallFunctor(0),   e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, MediumFunctor(0),  e_INPLACE_FUNC_ONLY);
-        TEST(MediumSTLAllocator<char>, LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+        TEST(LargeSTLAllocator<char> , &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
 
-        if (veryVerbose) std::printf("Using LargeSTLAllocator\n");
-        TEST(LargeSTLAllocator<char>,  nullFuncPtr,       e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char>,  nullMemFuncPtr,    e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char>,  simpleFunc,        e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char>,  &IntWrapper::add1, e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char>,  EmptyFunctor(),    e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char>,  SmallFunctor(0),   e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char>,  MediumFunctor(0),  e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char>,  LargeFunctor(0),   e_OUTOFPLACE_BOTH);
+        if (veryVerbose) std::printf("FUNC is EmptyFunctor()\n");
+        TEST(bslma::TestAllocator *  , EmptyFunctor()   , e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , EmptyFunctor()   , e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , EmptyFunctor()   , e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , EmptyFunctor()   , e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , EmptyFunctor()   , e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, EmptyFunctor()   , e_INPLACE_BOTH);
+        TEST(LargeSTLAllocator<char> , EmptyFunctor()   , e_INPLACE_FUNC_ONLY);
+
+        if (veryVerbose) std::printf("FUNC is SmallFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , SmallFunctor(0)  , e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , SmallFunctor(0)  , e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , SmallFunctor(0)  , e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , SmallFunctor(0)  , e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , SmallFunctor(0)  , e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char> , SmallFunctor(0)  , e_INPLACE_FUNC_ONLY);
+
+        if (veryVerbose) std::printf("FUNC is MediumFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , MediumFunctor(0) , e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , MediumFunctor(0) , e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , MediumFunctor(0) , e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
+        TEST(SmallSTLAllocator<char> , MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
+        TEST(MediumSTLAllocator<char>, MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char> , MediumFunctor(0) , e_INPLACE_FUNC_ONLY);
+
+        if (veryVerbose) std::printf("FUNC is LargeFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        TEST(bsl::allocator<char>    , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+        TEST(LargeSTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
 
 #undef TEST
 
