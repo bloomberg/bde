@@ -18,7 +18,7 @@ using namespace BloombergLP;
 using std::swap;
 
 // ============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
@@ -81,7 +81,7 @@ using std::swap;
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -99,7 +99,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -138,7 +138,7 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                      GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bslma::ManagedPtrDeleter Obj;
@@ -176,7 +176,7 @@ class StatefulFactory
 template <class T>
 T *StatefulFactory<T>::create()
 {
-    if (!d_empty) { return 0; }
+    if (!d_empty) { return 0; }                                       // RETURN
 
     d_empty = false;
     return &d_data;
@@ -190,7 +190,7 @@ void StatefulFactory<T>::destroy(T *object) const
 }
 
 // ============================================================================
-//                     GLOBAL FUNCTIONS FOR TESTING
+//                      GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
 void destroyWithNoFactory(void * object, void *)
@@ -238,7 +238,7 @@ void debugprint(const ManagedPtrDeleter& obj)
 }  // close namespace BloombergLP
 
 // ============================================================================
-//                   GLOBAL CONSTANTS USED FOR TESTING
+//                      GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
 
 // Define DEFAULT DATA used by test cases 3, 7, 8, 9, and 10

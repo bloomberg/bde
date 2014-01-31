@@ -122,6 +122,9 @@ class ManagedPtrDeleter {
         // that this trivial copy-assignment operator's definition is compiler
         // generated.
 
+    void clear();
+        // Reset this 'ManagedPtrDeleter' to its uninitialized state.
+
     void set(void *object, void *factory, Deleter deleter);
         // Set this 'ManagedPtrDeleter' to refer to the object and factory
         // instance located at the specified 'object' and 'factory' memory
@@ -129,9 +132,6 @@ class ManagedPtrDeleter {
         // undefined unless 'deleter' is either 0, or points to a function
         // whose behavior is also defined if called once with 'object' and
         // 'factory' as arguments.
-
-    void clear();
-        // Reset this 'ManagedPtrDeleter' to its uninitialized state.
 
     // ACCESSORS
     void deleteManagedObject() const;
@@ -163,7 +163,7 @@ bool operator!=(const ManagedPtrDeleter& lhs, const ManagedPtrDeleter& rhs);
     // 'object', 'factory' and 'deleter' attributes are not the same.
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                        // -----------------------
@@ -191,6 +191,14 @@ ManagedPtrDeleter::ManagedPtrDeleter(void    *object,
 
 // MANIPULATORS
 inline
+void ManagedPtrDeleter::clear()
+{
+    d_object_p  = 0;
+    d_factory_p = 0;
+    d_deleter   = 0;
+}
+
+inline
 void ManagedPtrDeleter::set(void *object, void *factory, Deleter deleter)
 {
     d_object_p  = object;
@@ -198,6 +206,7 @@ void ManagedPtrDeleter::set(void *object, void *factory, Deleter deleter)
     d_deleter   = deleter;
 }
 
+// ACCESSORS
 inline
 void ManagedPtrDeleter::deleteManagedObject() const
 {
@@ -207,18 +216,10 @@ void ManagedPtrDeleter::deleteManagedObject() const
 }
 
 inline
-void ManagedPtrDeleter::clear()
+ManagedPtrDeleter::Deleter
+ManagedPtrDeleter::deleter() const
 {
-    d_object_p  = 0;
-    d_factory_p = 0;
-    d_deleter   = 0;
-}
-
-// ACCESSORS
-inline
-void *ManagedPtrDeleter::object() const
-{
-    return d_object_p;
+    return d_deleter;
 }
 
 inline
@@ -228,10 +229,9 @@ void *ManagedPtrDeleter::factory() const
 }
 
 inline
-ManagedPtrDeleter::Deleter
-ManagedPtrDeleter::deleter() const
+void *ManagedPtrDeleter::object() const
 {
-    return d_deleter;
+    return d_object_p;
 }
 
 }  // close package namespace
