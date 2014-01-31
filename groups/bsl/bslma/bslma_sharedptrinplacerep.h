@@ -203,9 +203,9 @@ class SharedPtrInplaceRep : public SharedPtrRep {
     // DATA
     Allocator *d_allocator_p; // memory allocator (held, not owned)
 
-    TYPE       d_instance;    // beginning of the in-place buffer
-                              // note that this must be last in this layout to
-                              // allow for the possibility of creating in-place
+    TYPE       d_instance;    // Beginning of the in-place buffer.  Note that
+                              // this must be last in this layout to allow for
+                              // the possibility of creating in-place
                               // uninitialized buffer, where it is possible to
                               // access memory beyond the 'd_instance'
                               // footprint (refer to 'bsl::share_ptr::
@@ -407,9 +407,12 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 #endif
 
     // MANIPULATORS
-    TYPE *ptr();
-        // Return the address of the modifiable (in-place) object referred to
-        // by this representation object.
+    virtual void disposeObject();
+        // Destroy the object being referred to by this representation.  This
+        // method is automatically invoked by 'releaseRef' when the number of
+        // shared references reaches zero and should not be explicitly invoked
+        // otherwise.  Note that this function calls the destructor for the
+        // shared object, but does not deallocate its footprint.
 
     virtual void disposeRep();
         // Deallocate the memory associated with this representation object
@@ -421,17 +424,15 @@ class SharedPtrInplaceRep : public SharedPtrRep {
         // for this representation.  Note that this 'disposeRep' method
         // effectively serves as the representation object's destructor.
 
-    virtual void disposeObject();
-        // Destroy the object being referred to by this representation.  This
-        // method is automatically invoked by 'releaseRef' when the number of
-        // shared references reaches zero and should not be explicitly invoked
-        // otherwise.  Note that this function calls the destructor for the
-        // shared object, but does not deallocate its footprint.
-
     void *getDeleter(const std::type_info& type);
-        // Return a null pointer.  Note that an in-place representation for a
-        // shared pointer can never store a user-supplied deleter, as there is
-        // no function that might try to create one.
+        // Return a null pointer.  Note that the specified 'type' is not used
+        // as an in-place representation for a shared pointer can never store a
+        // user-supplied deleter (there is no function that might try to create
+        // one).
+
+    TYPE *ptr();
+        // Return the address of the modifiable (in-place) object referred to
+        // by this representation object.
 
     // ACCESSORS
     virtual void *originalPtr() const;
@@ -440,7 +441,7 @@ class SharedPtrInplaceRep : public SharedPtrRep {
 };
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
                       // -------------------------
@@ -467,7 +468,7 @@ SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator      *basicAllocator,
 , d_instance(args...)
 {
 }
-# endif  
+# endif
 #else
 template <class TYPE>
 inline
@@ -713,16 +714,16 @@ SharedPtrInplaceRep<TYPE>::~SharedPtrInplaceRep()
 // MANIPULATORS
 template <class TYPE>
 inline
-void SharedPtrInplaceRep<TYPE>::disposeRep()
+void SharedPtrInplaceRep<TYPE>::disposeObject()
 {
-    d_allocator_p->deallocate(this);
+    d_instance.~TYPE();
 }
 
 template <class TYPE>
 inline
-void SharedPtrInplaceRep<TYPE>::disposeObject()
+void SharedPtrInplaceRep<TYPE>::disposeRep()
 {
-    d_instance.~TYPE();
+    d_allocator_p->deallocate(this);
 }
 
 template <class TYPE>

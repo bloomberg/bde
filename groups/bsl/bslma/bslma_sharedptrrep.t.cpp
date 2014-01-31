@@ -19,7 +19,7 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
@@ -49,7 +49,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                        STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -66,7 +66,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                     STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -116,33 +116,34 @@ typedef bslma::SharedPtrRep Obj;
 typedef MyTestImplementation TObj;
 
 //=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//             GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
                          // ==========================
                          // class MyTestImplementation
                          // ==========================
 
-class MyTestImplementation : public bslma::SharedPtrRep{
+class MyTestImplementation : public bslma::SharedPtrRep {
     // This class provides an implementation for 'bslma::SharedPtrRep' so that
     // it can be initialized and tested.
 
     // DATA
     int d_numRepDisposed;
     int d_numObjectDisposed;
+
   public:
     // CREATORS
     MyTestImplementation();
 
-    // ACCESSORS
-    bool getNumRepDisposed();
-    bool getNumObjectDisposed();
-    virtual void *originalPtr() const;
-
     // MANIPULATORS
-    virtual void disposeRep();
     virtual void disposeObject();
+    virtual void disposeRep();
     virtual void *getDeleter(const std::type_info& type);
+
+    // ACCESSORS
+    bool getNumObjectDisposed();
+    bool getNumRepDisposed();
+    virtual void *originalPtr() const;
 };
 
                          // --------------------------
@@ -156,31 +157,7 @@ MyTestImplementation::MyTestImplementation()
 {
 }
 
-bool MyTestImplementation::getNumRepDisposed()
-{
-    return d_numRepDisposed;
-}
-
-// ACCESSORS
-bool MyTestImplementation::getNumObjectDisposed()
-{
-    return d_numObjectDisposed;
-}
-
-void *MyTestImplementation::originalPtr() const
-{
-   return NULL;
-}
-
 // MANIPULATORS
-void MyTestImplementation::disposeRep()
-{
-    // The implementation of this method allows verification on whether
-    // 'disposeRep' is called or not.
-
-    ++d_numRepDisposed;
-}
-
 void MyTestImplementation::disposeObject()
 {
     // The implementation of this method allows verification on whether
@@ -189,9 +166,33 @@ void MyTestImplementation::disposeObject()
     ++d_numObjectDisposed;
 }
 
+void MyTestImplementation::disposeRep()
+{
+    // The implementation of this method allows verification on whether
+    // 'disposeRep' is called or not.
+
+    ++d_numRepDisposed;
+}
+
 void *MyTestImplementation::getDeleter(const std::type_info& /*type*/)
 {
     return 0;
+}
+
+// ACCESSORS
+bool MyTestImplementation::getNumObjectDisposed()
+{
+    return d_numObjectDisposed;
+}
+
+bool MyTestImplementation::getNumRepDisposed()
+{
+    return d_numRepDisposed;
+}
+
+void *MyTestImplementation::originalPtr() const
+{
+   return NULL;
 }
 
 #if 0  // TBD Need an appropriately levelized usage example

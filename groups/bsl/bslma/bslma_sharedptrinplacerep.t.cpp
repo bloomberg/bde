@@ -18,10 +18,10 @@ using namespace BloombergLP;
 //using namespace bsl;  // automatically added by script
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
+//                                  Overview
+//                                  --------
 // This test driver tests the functionality of the in-place shared pointer
 // representation.
 //-----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -72,7 +72,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -111,7 +111,7 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                 GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 // 'MyTestObject' CLASS HIERARCHY (defined below)
@@ -128,7 +128,7 @@ typedef bslma::SharedPtrInplaceRep<MyInplaceTestObject> TCObj;
 typedef MyTestObject TObj;
 
 //=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
                              // ==================
@@ -151,8 +151,8 @@ class MyTestObject {
     virtual ~MyTestObject();
 
     // ACCESSORS
-    volatile int *deleteCounter() const;
     volatile int *copyCounter() const;
+    volatile int *deleteCounter() const;
 };
 
                              // ------------------
@@ -179,28 +179,28 @@ MyTestObject::~MyTestObject()
 }
 
 // ACCESSORS
-volatile int* MyTestObject::deleteCounter() const
-{
-    return d_deleteCounter_p;
-}
-
 volatile int* MyTestObject::copyCounter() const
 {
     return d_copyCounter_p;
 }
 
-                         // =========================
-                         // class MyInplaceTestObject
-                         // =========================
+volatile int* MyTestObject::deleteCounter() const
+{
+    return d_deleteCounter_p;
+}
+
+                         // ====================
+                         // class MyTestArg<int>
+                         // ====================
 
 template <int N>
 class MyTestArg {
-    // This class template declares a separate type for each paramaterizing 'N'
-    // that wraps an integer value and provides implicit conversion to and from
-    // 'int'.  Its main purpose is that having separate types allows to
-    // distinguish them in function interface, thereby avoiding ambiguities or
-    // accidental switching of arguments in the implementation of in-place
-    // constructors.
+    // This class template declares a separate type for each template parameter
+    // value 'N', that wraps an integer value and provides implicit conversion
+    // to and from 'int'.  Its main purpose is that having separate types for
+    // testing enables distinguishing them when calling through a function
+    // template interface, thereby avoiding ambiguities or accidental switching
+    // of arguments in the implementation of in-place constructors.
 
     // DATA
     int d_value;
@@ -233,6 +233,10 @@ typedef MyTestArg<14> MyTestArg14;
     // Define fourteen test argument types 'MyTestArg1..14' to be used with the
     // in-place constructors of 'MyInplaceTestObject'.
 
+                         // =========================
+                         // class MyInplaceTestObject
+                         // =========================
+
 class MyInplaceTestObject {
     // This class provides a test object used to check that the arguments
     // passed for creating a shared pointer with an in-place representation are
@@ -257,129 +261,287 @@ class MyInplaceTestObject {
 
   public:
     // CREATORS
-    MyInplaceTestObject() {}
+    MyInplaceTestObject();
+    explicit MyInplaceTestObject(MyTestArg1 a1);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10, MyTestArg11 a11);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
+                        MyTestArg13 a13);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
+                        MyTestArg13 a13, MyTestArg14 a14);
+        // Create a 'MyInplaceTestObject' by intializing the data members
+        // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and unitializing any
+        // remaining data members with their default value (-1).
 
-    explicit MyInplaceTestObject(MyTestArg1 a1) : d_a1(a1) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2)
-        : d_a1(a1), d_a2(a2) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3)
-        : d_a1(a1), d_a2(a2), d_a3(a3) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6,
-                        MyTestArg7 a7)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6,
-                        MyTestArg7 a7, MyTestArg8 a8)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6,
-                        MyTestArg7 a7, MyTestArg8 a8,
-                        MyTestArg9 a9)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6,
-                        MyTestArg7 a7, MyTestArg8 a8,
-                        MyTestArg9 a9, MyTestArg10 a10)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10) {}
-
-    MyInplaceTestObject(MyTestArg1  a1, MyTestArg2  a2,
-                        MyTestArg3  a3, MyTestArg4  a4,
-                        MyTestArg5  a5, MyTestArg6  a6,
-                        MyTestArg7  a7, MyTestArg8  a8,
-                        MyTestArg9  a9, MyTestArg10 a10,
-                        MyTestArg11 a11)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
-        , d_a11(a11) {}
-
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                        MyTestArg3  a3,  MyTestArg4  a4,
-                        MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,
-                        MyTestArg9  a9,  MyTestArg10 a10,
-                        MyTestArg11 a11, MyTestArg12 a12)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
-        , d_a11(a11), d_a12(a12) {}
-
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                        MyTestArg3  a3,  MyTestArg4  a4,
-                        MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,
-                        MyTestArg9  a9,  MyTestArg10 a10,
-                        MyTestArg11 a11, MyTestArg12 a12,
-                        MyTestArg13 a13)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
-        , d_a11(a11), d_a12(a12), d_a13(a13) {}
-
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                        MyTestArg3  a3,  MyTestArg4  a4,
-                        MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,
-                        MyTestArg9  a9,  MyTestArg10 a10,
-                        MyTestArg11 a11, MyTestArg12 a12,
-                        MyTestArg13 a13, MyTestArg14 a14)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
-        , d_a11(a11), d_a12(a12), d_a13(a13), d_a14(a14) {}
-    ~MyInplaceTestObject() { ++s_numDeletes; };
+    ~MyInplaceTestObject();
+        // Increment the count of calls to this destructor, and destroy this
+        // object.
 
     // ACCESSORS
-    bool operator == (MyInplaceTestObject const& rhs) const
-    {
-        return d_a1  == rhs.d_a1  &&
-               d_a1  == rhs.d_a1  &&
-               d_a2  == rhs.d_a2  &&
-               d_a3  == rhs.d_a3  &&
-               d_a4  == rhs.d_a4  &&
-               d_a5  == rhs.d_a5  &&
-               d_a6  == rhs.d_a6  &&
-               d_a7  == rhs.d_a7  &&
-               d_a8  == rhs.d_a8  &&
-               d_a9  == rhs.d_a9  &&
-               d_a10 == rhs.d_a10 &&
-               d_a11 == rhs.d_a11 &&
-               d_a12 == rhs.d_a12 &&
-               d_a13 == rhs.d_a13 &&
-               d_a14 == rhs.d_a14;
-    }
+    bool operator==(const MyInplaceTestObject& rhs) const;
+        // Return 'true' if the specified 'rhs' has the same value as this
+        // object, and 'false' otherwise.  Two 'MyInplaceTestObject' objects
+        // have the same value if each of their corresponding data members
+        // 'd1'..'d14' have the same value.
 
-    int getNumDeletes() { return s_numDeletes; }
+    static int getNumDeletes();
+        // Return the number of times an object of this type has been
+        // destroyed.
 };
 
+                         // -------------------------
+                         // class MyInplaceTestObject
+                         // -------------------------
+
 int MyInplaceTestObject::s_numDeletes = 0;
+
+// CREATORS
+MyInplaceTestObject::MyInplaceTestObject()
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1)
+: d_a1(a1)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2)
+: d_a1(a1)
+, d_a2(a2)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6,
+                                         MyTestArg7 a7)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6,
+                                         MyTestArg7 a7, MyTestArg8 a8)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6,
+                                         MyTestArg7 a7, MyTestArg8 a8,
+                                         MyTestArg9 a9)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6,
+                                         MyTestArg7 a7, MyTestArg8 a8,
+                                         MyTestArg9 a9, MyTestArg10 a10)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1, MyTestArg2  a2,
+                                         MyTestArg3  a3, MyTestArg4  a4,
+                                         MyTestArg5  a5, MyTestArg6  a6,
+                                         MyTestArg7  a7, MyTestArg8  a8,
+                                         MyTestArg9  a9, MyTestArg10 a10,
+                                         MyTestArg11 a11)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+, d_a11(a11)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
+                                         MyTestArg3  a3,  MyTestArg4  a4,
+                                         MyTestArg5  a5,  MyTestArg6  a6,
+                                         MyTestArg7  a7,  MyTestArg8  a8,
+                                         MyTestArg9  a9,  MyTestArg10 a10,
+                                         MyTestArg11 a11, MyTestArg12 a12)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+, d_a11(a11)
+, d_a12(a12)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
+                                         MyTestArg3  a3,  MyTestArg4  a4,
+                                         MyTestArg5  a5,  MyTestArg6  a6,
+                                         MyTestArg7  a7,  MyTestArg8  a8,
+                                         MyTestArg9  a9,  MyTestArg10 a10,
+                                         MyTestArg11 a11, MyTestArg12 a12,
+                                         MyTestArg13 a13)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+, d_a11(a11)
+, d_a12(a12)
+, d_a13(a13)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
+                                         MyTestArg3  a3,  MyTestArg4  a4,
+                                         MyTestArg5  a5,  MyTestArg6  a6,
+                                         MyTestArg7  a7,  MyTestArg8  a8,
+                                         MyTestArg9  a9,  MyTestArg10 a10,
+                                         MyTestArg11 a11, MyTestArg12 a12,
+                                         MyTestArg13 a13, MyTestArg14 a14)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+, d_a11(a11)
+, d_a12(a12)
+, d_a13(a13)
+, d_a14(a14)
+{
+}
+
+inline
+MyInplaceTestObject::~MyInplaceTestObject()
+{
+    ++s_numDeletes;
+}
+
 
 #if 0  // TBD Need an appropriately levelized usage example
                               // ================

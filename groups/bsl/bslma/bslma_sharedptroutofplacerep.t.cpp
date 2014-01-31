@@ -20,7 +20,7 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
@@ -45,7 +45,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -64,7 +64,7 @@ void aSsErT(bool b, const char *s, int i)
 //# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -116,7 +116,7 @@ typedef MyTestObject TObj;
 typedef void (*DeleteFunction)(MyTestObject *);
 
 //=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
                          // ==================
@@ -221,6 +221,7 @@ template <>
 struct UsesBslmaAllocator<MyAllocTestDeleter> : bsl::true_type {};
 }  // close namespace bslma
 }  // close namespace BloombergLP
+
                           // ------------------------
                           // class MyAllocTestDeleter
                           // ------------------------
@@ -724,7 +725,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
             ASSERT(x.ptr() ==  t);
-            ASSERT(x.originalPtr() == (void*) t);
+            ASSERT(x.originalPtr() == static_cast<void *>(t));
 
             x.disposeObject();
             ASSERT(++numDeallocations == ta.numDeallocations());
@@ -752,7 +753,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
             ASSERT(x.ptr() ==  t);
-            ASSERT(x.originalPtr() == (void*) t);
+            ASSERT(x.originalPtr() == static_cast<void *>(t));
 
             x.acquireRef();
             ASSERT(2 == X.numReferences());
