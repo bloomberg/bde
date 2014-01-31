@@ -28,10 +28,10 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
+//                                  Overview
+//                                  --------
 // This test driver tests the functionality of the in-place shared pointer
 // representation.
 //-----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -68,7 +68,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -127,7 +127,7 @@ typedef bslstl::SharedPtrAllocateInplaceRep<MyInplaceTestObject,
 typedef MyTestObject TObj;
 
 //=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
                              // ==================
@@ -150,8 +150,8 @@ class MyTestObject {
     virtual ~MyTestObject();
 
     // ACCESSORS
-    volatile int *deleteCounter() const;
     volatile int *copyCounter() const;
+    volatile int *deleteCounter() const;
 };
 
                              // ------------------

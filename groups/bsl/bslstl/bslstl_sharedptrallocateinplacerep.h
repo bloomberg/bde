@@ -120,11 +120,11 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
         // has been successfully constructed.
 
     // MANIPULATORS
-    TYPE *ptr();
-        // Return the address of the modifiable shared object to which this
-        // object refers.  Note that in order to return a pointer to a
-        // modifiable object, this function cannot be 'const' qualified as the
-        // referenced object is stored internally as a data member.
+    virtual void disposeObject();
+        // Destroy the object being referred to by this representation.  This
+        // method is automatically invoked by 'releaseRef' when the number of
+        // shared references reaches zero and should not be explicitly invoked
+        // otherwise.
 
     virtual void disposeRep();
         // Destroy this representation object and deallocate the associated
@@ -136,17 +136,17 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
         // 'disposeRep' method effectively serves as the representation
         // object's destructor.
 
-    virtual void disposeObject();
-        // Destroy the object being referred to by this representation.  This
-        // method is automatically invoked by 'releaseRef' when the number of
-        // shared references reaches zero and should not be explicitly invoked
-        // otherwise.
-
-    void *getDeleter(const std::type_info& /*type*/);
+    void *getDeleter(const std::type_info& type);
         // Return a null pointer.  The specified 'type' is not used.  Note that
         // an in-place representation for a shared pointer can never store a
         // user-supplied deleter, as there is no function that might try to
         // create one.
+
+    TYPE *ptr();
+        // Return the address of the modifiable shared object to which this
+        // object refers.  Note that in order to return a pointer to a
+        // modifiable object, this function cannot be 'const' qualified as the
+        // referenced object is stored internally as a data member.
 
     // ACCESSORS
     virtual void *originalPtr() const;
@@ -156,12 +156,24 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
 
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
                   // ---------------------------------
                   // class SharedPtrAllocateInplaceRep
                   // ---------------------------------
+
+// CLASS METHODS
+template <class TYPE, class ALLOCATOR>
+SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR> *
+SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::makeRep(
+                                               ReboundAllocator basicAllocator)
+{
+    SharedPtrAllocateInplaceRep *rep_p =
+                                    ReboundTraits::allocate(basicAllocator, 1);
+    new(rep_p) SharedPtrAllocateInplaceRep(basicAllocator);
+    return rep_p;
+}
 
 // CREATORS
 template <class TYPE, class ALLOCATOR>
@@ -184,18 +196,18 @@ SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::
 
 // MANIPULATORS
 template <class TYPE, class ALLOCATOR>
+void SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::disposeObject()
+{
+    ReboundTraits::destroy(d_allocator, ptr());
+}
+
+template <class TYPE, class ALLOCATOR>
 inline
 void SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::disposeRep()
 {
     ReboundAllocator alloc(d_allocator);
     this->d_allocator.~ReboundAllocator();
     alloc.deallocate(this, 1);
-}
-
-template <class TYPE, class ALLOCATOR>
-void SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::disposeObject()
-{
-    ReboundTraits::destroy(d_allocator, ptr());
 }
 
 template <class TYPE, class ALLOCATOR>
@@ -221,17 +233,6 @@ SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::originalPtr() const
 {
     return const_cast<void *>(static_cast<const void *>(
                          reinterpret_cast<const TYPE *>(d_instance.buffer())));
-}
-
-template <class TYPE, class ALLOCATOR>
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR> *
-SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::makeRep(
-                                               ReboundAllocator basicAllocator)
-{
-    SharedPtrAllocateInplaceRep *rep_p =
-                                    ReboundTraits::allocate(basicAllocator, 1);
-    new(rep_p) SharedPtrAllocateInplaceRep(basicAllocator);
-    return rep_p;
 }
 
 }  // close namespace bslstl

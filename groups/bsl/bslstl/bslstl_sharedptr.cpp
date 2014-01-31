@@ -49,8 +49,8 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
 
     // We have alignment concerns here: there are no alignment issues with
     // 'bsl::shared_ptrRep', but the buffer address (i.e., the address of
-    // 'd_instance' in the 'bsl::shared_ptrInplaceRep' object) must be at
-    // least *naturally* *aligned* to 'bufferSize'.  (See 'bslma' package
+    // 'd_instance' in the 'bsl::shared_ptrInplaceRep' object) must be at least
+    // *naturally* *aligned* to 'bufferSize'.  (See 'bslma' package
     // documentation for a definition of natural alignment.)  We achieve this
     // in the simplest way by always maximally aligning the returned pointer.
 
@@ -65,7 +65,7 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
 
     Rep *rep = new (basicAllocator->allocate(repSize)) Rep(basicAllocator);
 
-    return bsl::shared_ptr<char>((char *)rep->ptr(), rep);
+    return bsl::shared_ptr<char>(reinterpret_cast<char *>(rep->ptr()), rep);
 }
 
 }  // close namespace bslstl

@@ -38,10 +38,10 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
-//                              Overview
-//                              --------
+//                                  Overview
+//                                  --------
 // This test driver tests the functionality of a complex mechanism with pointer
 // semantics.  It is somewhat thorough but still incomplete: among the untested
 // concerns:
@@ -349,7 +349,7 @@ using namespace BloombergLP;
 // [  ] void TestDriver::doNotDelete(TYPE *);
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -367,7 +367,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -406,7 +406,7 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
-//                  USAGE EXAMPLES
+//                              USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
 namespace NAMESPACE_USAGE_EXAMPLE_1 {
@@ -439,12 +439,12 @@ namespace NAMESPACE_USAGE_EXAMPLE_1 {
         }
 
         // MANIPULATORS
-        void setName(const bsl::string& name) { d_name = name; }
         void setId(int id) { d_id = id; }
+        void setName(const bsl::string& name) { d_name = name; }
 
         // ACCESSORS
-        const bsl::string& name() const { return d_name; }
         int id() const { return d_id; }
+        const bsl::string& name() const { return d_name; }
     };
 //..
 // The 'createUser' utility function (below) creates a 'MyUser' object using
@@ -1011,11 +1011,10 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 // Now we define an alert class, 'Alert':
 //..
     class Alert {
-        // This class stores the alert information required for sending
-        // alerts.
+        // This class stores the alert information required for sending alerts.
 
-        bsl::vector<bsl::shared_ptr<User> > d_users;  // users registered
-                                                      // for this alert
+        bsl::vector<bsl::shared_ptr<User> > d_users;  // users registered for
+                                                      // this alert
 
       public:
         // MANIPULATORS
@@ -1069,8 +1068,7 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 // Now we define the 'ModifiedAlert' class:
 //..
     class ModifiedAlert {
-        // This class stores the alert information required for sending
-        // alerts.
+        // This class stores the alert information required for sending alerts.
 
 //..
 // Note that the user is stored by a weak pointer instead of by a shared
@@ -1184,8 +1182,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
         // ...
 
         // ACCESSORS
-        const bsl::weak_ptr<Peer>& peer() const { return d_peer; }
         const bsl::string& filename() const { return d_filename; }
+        const bsl::weak_ptr<Peer>& peer() const { return d_peer; }
     };
 //..
 // d) A search function that takes a list of keywords and returns available
@@ -1223,8 +1221,8 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
     {
         bsl::shared_ptr<Peer> peerSharedPtr = result.peer().acquireSharedPtr();
         if (peerSharedPtr) {
-            // Download the result.filename() file from peer knowing that
-            // the peer is still connected.
+            // Download the result.filename() file from peer knowing that the
+            // peer is still connected.
         }
     }
 //..
@@ -1263,7 +1261,7 @@ typedef bsl::shared_ptr<MyInplaceTestObject> TCObj;
 typedef MyTestObject TObj;
 
 //=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
 void myTestDeleterFunction(MyTestObject *);
@@ -1283,14 +1281,14 @@ const bsl::shared_ptr<int> ptr2(&y, bslstl::SharedPtrNilDeleter(), &g_alloc16);
 const bsl::shared_ptr<double>
                            ptr3(&z, bslstl::SharedPtrNilDeleter(), &g_alloc16);
 
-bsl::shared_ptr<int> ptrNilFun()
-{
-    return ptrNil;
-}
-
 bsl::shared_ptr<int> ptr1Fun()
 {
     return ptr1;
+}
+
+bsl::shared_ptr<int> ptrNilFun()
+{
+    return ptrNil;
 }
 
 }  // close namespace NAMESPACE_TEST_CASE_16
@@ -1336,8 +1334,8 @@ class MyTestObject : public MyTestBaseObject {
     virtual ~MyTestObject();
 
     // ACCESSORS
-    volatile bsls::Types::Int64 *deleteCounter() const;
     volatile bsls::Types::Int64 *copyCounter() const;
+    volatile bsls::Types::Int64 *deleteCounter() const;
 };
 
                          // =========================
@@ -1386,10 +1384,10 @@ template <int N>
 class MyTestArg {
     // This class template declares a separate type for each template parameter
     // value 'N', that wraps an integer value and provides implicit conversion
-    // to and from 'int'.  Its main purpose is that having separate types
-    // allows to distinguish them in function interface, thereby avoiding
-    // ambiguities or accidental switching of arguments in the implementation
-    // of in-place constructors.
+    // to and from 'int'.  Its main purpose is that having separate types for
+    // testing enables distinguishing them when calling through a function
+    // template interface, thereby avoiding ambiguities or accidental switching
+    // of arguments in the implementation of in-place constructors.
 
     // DATA
     int d_value;
@@ -1431,10 +1429,6 @@ class MyInplaceTestObject {
     // passed for creating a shared pointer with an in-place representation are
     // of the correct types and values.
 
-    // This class provides a test object used to check that the arguments
-    // passed for creating a shared pointer with an in-place representation are
-    // of the correct types and values.
-
     // DATA
     MyTestArg1  d_a1;
     MyTestArg2  d_a2;
@@ -1454,130 +1448,312 @@ class MyInplaceTestObject {
 
   public:
     // CREATORS
-    MyInplaceTestObject() {}
+    MyInplaceTestObject();
+    explicit MyInplaceTestObject(MyTestArg1 a1);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10, MyTestArg11 a11);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
+                        MyTestArg13 a13);
+    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
+                        MyTestArg13 a13, MyTestArg14 a14);
+        // Create a 'MyInplaceTestObject' by intializing the data members
+        // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and unitializing any
+        // remaining data members with their default value (-1).
 
-    explicit MyInplaceTestObject(MyTestArg1 a1) : d_a1(a1) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2)
-        : d_a1(a1), d_a2(a2) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3)
-        : d_a1(a1), d_a2(a2), d_a3(a3) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6,
-                        MyTestArg7 a7)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6,
-                        MyTestArg7 a7, MyTestArg8 a8)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6,
-                        MyTestArg7 a7, MyTestArg8 a8,
-                        MyTestArg9 a9)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9) {}
-
-    MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                        MyTestArg3 a3, MyTestArg4 a4,
-                        MyTestArg5 a5, MyTestArg6 a6,
-                        MyTestArg7 a7, MyTestArg8 a8,
-                        MyTestArg9 a9, MyTestArg10 a10)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10) {}
-
-    MyInplaceTestObject(MyTestArg1  a1, MyTestArg2  a2,
-                        MyTestArg3  a3, MyTestArg4  a4,
-                        MyTestArg5  a5, MyTestArg6  a6,
-                        MyTestArg7  a7, MyTestArg8  a8,
-                        MyTestArg9  a9, MyTestArg10 a10,
-                        MyTestArg11 a11)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
-        , d_a11(a11) {}
-
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                        MyTestArg3  a3,  MyTestArg4  a4,
-                        MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,
-                        MyTestArg9  a9,  MyTestArg10 a10,
-                        MyTestArg11 a11, MyTestArg12 a12)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
-        , d_a11(a11), d_a12(a12) {}
-
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                        MyTestArg3  a3,  MyTestArg4  a4,
-                        MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,
-                        MyTestArg9  a9,  MyTestArg10 a10,
-                        MyTestArg11 a11, MyTestArg12 a12,
-                        MyTestArg13 a13)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
-        , d_a11(a11), d_a12(a12), d_a13(a13) {}
-
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                        MyTestArg3  a3,  MyTestArg4  a4,
-                        MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,
-                        MyTestArg9  a9,  MyTestArg10 a10,
-                        MyTestArg11 a11, MyTestArg12 a12,
-                        MyTestArg13 a13, MyTestArg14 a14)
-        : d_a1(a1), d_a2(a2), d_a3(a3), d_a4(a4), d_a5(a5)
-        , d_a6(a6), d_a7(a7), d_a8(a8), d_a9(a9), d_a10(a10)
-        , d_a11(a11), d_a12(a12), d_a13(a13), d_a14(a14) {}
-
-    ~MyInplaceTestObject() { ++s_numDeletes; };
+    ~MyInplaceTestObject();
+        // Increment the count of calls to this destructor, and destroy this
+        // object.
 
     // ACCESSORS
-    bool operator == (const MyInplaceTestObject& rhs) const
-    {
-        return d_a1  == rhs.d_a1  &&
-               d_a1  == rhs.d_a1  &&
-               d_a2  == rhs.d_a2  &&
-               d_a3  == rhs.d_a3  &&
-               d_a4  == rhs.d_a4  &&
-               d_a5  == rhs.d_a5  &&
-               d_a6  == rhs.d_a6  &&
-               d_a7  == rhs.d_a7  &&
-               d_a8  == rhs.d_a8  &&
-               d_a9  == rhs.d_a9  &&
-               d_a10 == rhs.d_a10 &&
-               d_a11 == rhs.d_a11 &&
-               d_a12 == rhs.d_a12 &&
-               d_a13 == rhs.d_a13 &&
-               d_a14 == rhs.d_a14;
-    }
+    bool operator==(const MyInplaceTestObject& rhs) const;
+        // Return 'true' if the specified 'rhs' has the same value as this
+        // object, and 'false' otherwise.  Two 'MyInplaceTestObject' objects
+        // have the same value if each of their corresponding data members
+        // 'd1'..'d14' have the same value.
 
-    int getNumDeletes() { return s_numDeletes; }
+    static int getNumDeletes();
+        // Return the number of times an object of this type has been
+        // destroyed.
 };
 
+                         // -------------------------
+                         // class MyInplaceTestObject
+                         // -------------------------
+
 int MyInplaceTestObject::s_numDeletes = 0;
+
+// CREATORS
+MyInplaceTestObject::MyInplaceTestObject()
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1)
+: d_a1(a1)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2)
+: d_a1(a1)
+, d_a2(a2)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6,
+                                         MyTestArg7 a7)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6,
+                                         MyTestArg7 a7, MyTestArg8 a8)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6,
+                                         MyTestArg7 a7, MyTestArg8 a8,
+                                         MyTestArg9 a9)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+                                         MyTestArg3 a3, MyTestArg4 a4,
+                                         MyTestArg5 a5, MyTestArg6 a6,
+                                         MyTestArg7 a7, MyTestArg8 a8,
+                                         MyTestArg9 a9, MyTestArg10 a10)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1, MyTestArg2  a2,
+                                         MyTestArg3  a3, MyTestArg4  a4,
+                                         MyTestArg5  a5, MyTestArg6  a6,
+                                         MyTestArg7  a7, MyTestArg8  a8,
+                                         MyTestArg9  a9, MyTestArg10 a10,
+                                         MyTestArg11 a11)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+, d_a11(a11)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
+                                         MyTestArg3  a3,  MyTestArg4  a4,
+                                         MyTestArg5  a5,  MyTestArg6  a6,
+                                         MyTestArg7  a7,  MyTestArg8  a8,
+                                         MyTestArg9  a9,  MyTestArg10 a10,
+                                         MyTestArg11 a11, MyTestArg12 a12)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+, d_a11(a11)
+, d_a12(a12)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
+                                         MyTestArg3  a3,  MyTestArg4  a4,
+                                         MyTestArg5  a5,  MyTestArg6  a6,
+                                         MyTestArg7  a7,  MyTestArg8  a8,
+                                         MyTestArg9  a9,  MyTestArg10 a10,
+                                         MyTestArg11 a11, MyTestArg12 a12,
+                                         MyTestArg13 a13)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+, d_a11(a11)
+, d_a12(a12)
+, d_a13(a13)
+{
+}
+
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
+                                         MyTestArg3  a3,  MyTestArg4  a4,
+                                         MyTestArg5  a5,  MyTestArg6  a6,
+                                         MyTestArg7  a7,  MyTestArg8  a8,
+                                         MyTestArg9  a9,  MyTestArg10 a10,
+                                         MyTestArg11 a11, MyTestArg12 a12,
+                                         MyTestArg13 a13, MyTestArg14 a14)
+: d_a1(a1)
+, d_a2(a2)
+, d_a3(a3)
+, d_a4(a4)
+, d_a5(a5)
+, d_a6(a6)
+, d_a7(a7)
+, d_a8(a8)
+, d_a9(a9)
+, d_a10(a10)
+, d_a11(a11)
+, d_a12(a12)
+, d_a13(a13)
+, d_a14(a14)
+{
+}
+
+inline
+MyInplaceTestObject::~MyInplaceTestObject()
+{
+    ++s_numDeletes;
+}
+
+// ACCESSORS
+bool MyInplaceTestObject::operator==(const MyInplaceTestObject& rhs) const
+{
+    return d_a1  == rhs.d_a1  &&
+           d_a1  == rhs.d_a1  &&
+           d_a2  == rhs.d_a2  &&
+           d_a3  == rhs.d_a3  &&
+           d_a4  == rhs.d_a4  &&
+           d_a5  == rhs.d_a5  &&
+           d_a6  == rhs.d_a6  &&
+           d_a7  == rhs.d_a7  &&
+           d_a8  == rhs.d_a8  &&
+           d_a9  == rhs.d_a9  &&
+           d_a10 == rhs.d_a10 &&
+           d_a11 == rhs.d_a11 &&
+           d_a12 == rhs.d_a12 &&
+           d_a13 == rhs.d_a13 &&
+           d_a14 == rhs.d_a14;
+}
+
+int MyInplaceTestObject::getNumDeletes()
+{
+    return s_numDeletes;
+}
+
 
                        // *** TEST DELETERS SECTION ***
 
@@ -1712,11 +1888,11 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
         // Destroy this test shared ptr rep object.
 
     // MANIPULATORS
-    virtual void disposeRep();
-        // Release this representation.
-
     virtual void disposeObject();
         // Release the value stored by this representation.
+
+    virtual void disposeRep();
+        // Release this representation.
 
     virtual void *getDeleter(const std::type_info&) { return 0; }
         // Return a pointer to the deleter stored by the derived representation
@@ -1727,14 +1903,14 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
     virtual void *originalPtr() const;
         // Return the original pointer stored by this representation.
 
-    TYPE *ptr() const;
-        // Return the data pointer stored by this representation.
+    int disposeObjectCount() const;
+        // Return the number of time 'releaseValue' was called.
 
     int disposeRepCount() const;
         // Return the number of time 'release' was called.
 
-    int disposeObjectCount() const;
-        // Return the number of time 'releaseValue' was called.
+    TYPE *ptr() const;
+        // Return the data pointer stored by this representation.
 };
 
 template <class POINTER>
@@ -1822,8 +1998,8 @@ MyTestObjectFactory::MyTestObjectFactory()
 {
 }
 
-MyTestObjectFactory::MyTestObjectFactory(bslma::Allocator* /*basicAllocator*/)
-: d_allocator_p(bslma::Default::allocator(d_allocator_p))
+MyTestObjectFactory::MyTestObjectFactory(bslma::Allocator* basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
@@ -1973,7 +2149,7 @@ template <class TYPE>
 inline
 void *TestSharedPtrRep<TYPE>::originalPtr() const
 {
-    return (void *) d_dataPtr_p;
+    return static_cast<void *>(d_dataPtr_p);
 }
 
 template <class TYPE>
@@ -1998,7 +2174,7 @@ int TestSharedPtrRep<TYPE>::disposeObjectCount() const
 }
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
                          // ------------------------
@@ -2049,7 +2225,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     }
     timer.stop();
     printf("Creating %d owned objects in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2072,7 +2248,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     }
     timer.stop();
     printf("Copy-constructing %d owned objects in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE - 1,
+           static_cast<int>(BIG_VECTOR_SIZE - 1),
            timer.elapsedTime(),
            timer.elapsedTime() / (BIG_VECTOR_SIZE-1));
     if (verbose) {
@@ -2087,11 +2263,11 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     numBytes = ta.numBytesInUse();
     timer.start();
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-        ((bslma::Allocator *)&ta)->deleteObject(mZ[i]);
+        static_cast<bslma::Allocator *>(&ta)->deleteObject(mZ[i]);
     }
     timer.stop();
     printf("Destroying %d owned objects in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2107,7 +2283,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
         mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
     }
-    printf("Rehydrated %d owned objects\n", (int)BIG_VECTOR_SIZE);
+    printf("Rehydrated %d owned objects\n", static_cast<int>(BIG_VECTOR_SIZE));
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -2124,10 +2300,10 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
 
     mX.resize(BIG_VECTOR_SIZE);
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-        // We first destroy the contents of mX in order to be able to
-        // recreate them in place.  Using push_back instead would involve
-        // an additional creation (for a temporary) and copy construction
-        // into the vector, which is not what we intend to measure.
+        // We first destroy the contents of mX in order to be able to recreate
+        // them in place.  Using push_back instead would involve an additional
+        // creation (for a temporary) and copy construction into the vector,
+        // which is not what we intend to measure.
 
         (&mX[i])->~POINTER();
     }
@@ -2137,15 +2313,15 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     numBytes = ta.numBytesInUse();
     timer.start();
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
-        // If this code throws an exception, then the remaining elements
-        // will be destroyed twice, once above and another time with the
-        // destruction of mX.  But that is OK since they are empty.
+        // If this code throws an exception, then the remaining elements will
+        // be destroyed twice, once above and another time with the destruction
+        // of mX.  But that is OK since they are empty.
 
         new(&mX[i]) POINTER(Z[i], &ta);
     }
     timer.stop();
     printf("Creating %d distinct shared pointers in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2165,7 +2341,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     }
     timer.stop();
     printf("Destroying %d distinct shared pointers in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2182,7 +2358,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
         mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
     }
-    printf("Rehydrated %d owned objects\n", (int)BIG_VECTOR_SIZE);
+    printf("Rehydrated %d owned objects\n", static_cast<int>(BIG_VECTOR_SIZE));
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -2203,7 +2379,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         timer.stop();
         printf(
            "Creating %d copies of the same shared pointer in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
         if (verbose) {
@@ -2224,7 +2400,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     }
     timer.stop();
     printf("Destroying %d times the same shared pointer in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2234,8 +2410,8 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
                               deleteCounter);
     }
 
-    // Note:  Z[0] is now dangling, and X contains only empty shared
-    // pointers.  Rehydrate, but with empty shared pointers!
+    // Note:  Z[0] is now dangling, and X contains only empty shared pointers.
+    // Rehydrate, but with empty shared pointers!
     deleteCounter = copyCounter = 0;
     numAlloc = ta.numAllocations();
     numBytes = ta.numBytesInUse();
@@ -2244,7 +2420,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         new(&mX[i]) POINTER();
     }
     printf("Rehydrated 1 owned object and %d empty shared pointers\n",
-            (int)BIG_VECTOR_SIZE);
+            static_cast<int>(BIG_VECTOR_SIZE));
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -2265,7 +2441,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     }
     timer.stop();
     printf("Creating %d distinct in-place shared pointers in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2286,7 +2462,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     timer.stop();
     printf(
          "Destroying %d distinct in-place shared pointers in %gs (%gs each)\n",
-         (int)BIG_VECTOR_SIZE,
+         static_cast<int>(BIG_VECTOR_SIZE),
          timer.elapsedTime(),
          timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2312,7 +2488,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         timer.stop();
         printf("Creating %d aliases of the same shared pointer in %gs"
                " (%gs each)\n",
-               (int)BIG_VECTOR_SIZE,
+               static_cast<int>(BIG_VECTOR_SIZE),
                timer.elapsedTime(),
                timer.elapsedTime() / BIG_VECTOR_SIZE);
         if (verbose) {
@@ -2334,7 +2510,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     timer.stop();
     printf("Destroying %d aliases of the same shared pointer in %gs"
            " (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2344,8 +2520,8 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
                               deleteCounter);
     }
 
-    // Note:  Z[0] is now dangling, and X contains only empty shared
-    // pointers.  Rehydrate!
+    // Note:  Z[0] is now dangling, and X contains only empty shared pointers.
+    // Rehydrate!
     deleteCounter = copyCounter = 0;
     numAlloc = ta.numAllocations();
     numBytes = ta.numBytesInUse();
@@ -2354,7 +2530,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
         new(&mX[i]) POINTER(Z[i], &ta);
     }
     printf("Rehydrated 1 owned object and %d shared pointers\n",
-           (int)BIG_VECTOR_SIZE);
+           static_cast<int>(BIG_VECTOR_SIZE));
     if (verbose) {
         printPerformanceStats(ta.numAllocations() - numAlloc,
                               ta.numBytesInUse() - numBytes,
@@ -2380,7 +2556,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     }
     timer.stop();
     printf("Assigning %d distinct shared pointers in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE + 1,
+           static_cast<int>(BIG_VECTOR_SIZE + 1),
            timer.elapsedTime(),
            timer.elapsedTime() / (BIG_VECTOR_SIZE+1));
     if (verbose) {
@@ -2403,7 +2579,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     }
     timer.stop();
     printf("Assigning %d times the same shared pointer in %gs (%gs each)\n",
-           (int)BIG_VECTOR_SIZE,
+           static_cast<int>(BIG_VECTOR_SIZE),
            timer.elapsedTime(),
            timer.elapsedTime() / BIG_VECTOR_SIZE);
     if (verbose) {
@@ -2421,7 +2597,7 @@ void PerformanceTester<POINTER>::test(bool verbose, bool allocVerbose)
     for (int i = 0; i < BIG_VECTOR_SIZE; ++i) {
         mZ[i] = new(ta) TObj(&deleteCounter, &copyCounter);
     }
-    printf("Rehydrated %d owned objects\n", (int)BIG_VECTOR_SIZE);
+    printf("Rehydrated %d owned objects\n", static_cast<int>(BIG_VECTOR_SIZE));
 
     // -------------------------------------------------------------------
     printf("\nPooling out-of-place representations."
@@ -2445,7 +2621,7 @@ class ManagedPtrTestDeleter {
 
     void deleteObject(T* obj)
     {
-        ASSERT((int)(0 == d_providedObj));
+        ASSERT(static_cast<bool>(0 == d_providedObj));
         d_providedObj = obj;
     }
 
@@ -2467,14 +2643,14 @@ class SelfReference
 
   public:
     // MANIPULATORS
-    void setData(bsl::shared_ptr<SelfReference>& value) { d_dataPtr = value; }
     void release() { d_dataPtr.reset(); }
+    void setData(bsl::shared_ptr<SelfReference>& value) { d_dataPtr = value; }
 };
 
 
 std::auto_ptr<MyTestObject> makeAuto()
 {
-    return std::auto_ptr<TObj>((TObj*)0);
+    return std::auto_ptr<TObj>(static_cast<TObj *>(0));
 }
 
 std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
@@ -2485,7 +2661,7 @@ std::auto_ptr<MyTestObject> makeAuto(bsls::Types::Int64 *counter)
 }
 
 //=============================================================================
-//                           TEST CASE TEMPLATES
+//                          TEST CASE TEMPLATES
 //-----------------------------------------------------------------------------
 
 namespace TestDriver {
@@ -2889,8 +3065,7 @@ int main(int argc, char *argv[])
 // Example 2 - Breaking cyclical dependencies
 // - - - - - - - - - - - - - - - - - - - - - -
 //..
-// Note that the 'User' and 'Alert' classes could typically be used as
-// follows:
+// Note that the 'User' and 'Alert' classes could typically be used as follows:
 //..
         bslma::TestAllocator ta("Example 2");
         {
@@ -2935,16 +3110,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE (weak_ptr)
         //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.  This usage
-        //   test also happens to exhaustively test the entire component
-        //   and is thus the only test in the suite.
+        //   compile, link, and run on all platforms as shown.  This usage test
+        //   also happens to exhaustively test the entire component and is thus
+        //   the only test in the suite.
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
         //   comment characters, and replace 'assert' with 'ASSERT'.
         //   Test each enumeration type by assigning a variable the value
-        //   of each enumeration constant and verifying that the integral
-        //   value of the variable after assignment is as expected.
+        //   of each enumeration constant and verifying that the integral value
+        //   of the variable after assignment is as expected.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -3000,8 +3175,8 @@ int main(int argc, char *argv[])
     ASSERT(!intWeakPtr2.expired());
 //..
 // We now 'release' all shared references to the 'int'.  This causes the weak
-// pointer to be 'expired' and any attempt to get a shared pointer from it
-// will return an empty shared pointer:
+// pointer to be 'expired' and any attempt to get a shared pointer from it will
+// return an empty shared pointer:
 //..
     intPtr.reset();
     intPtr2.reset();
@@ -5595,7 +5770,7 @@ int main(int argc, char *argv[])
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
 
-            x.load((TObj*)0);
+            x.load(static_cast<TObj *>(0));
 
             ASSERT(0 == numDeletes);
             ASSERT(numAllocations == ta.numAllocations());
@@ -5872,15 +6047,18 @@ int main(int argc, char *argv[])
                 void* repAddr = ta.lastAllocatedAddress();
                 bslma::TestAllocator::size_type repAllocSize =
                                                     ta.lastAllocatedNumBytes();
-                LOOP4_ASSERT(repAddr, repAllocSize, (void*) X.ptr(), size,
-                             (char*) repAddr + repAllocSize >= X.ptr() + size);
+                LOOP4_ASSERT(repAddr,
+                             repAllocSize,
+                             static_cast<void *>(X.ptr()),
+                             size,
+                 static_cast<char*>(repAddr) + repAllocSize >= X.ptr() + size);
 
                 if (veryVerbose) {
                     P_(size);
                     P_(ta.numAllocations());
                     P(ta.lastAllocatedNumBytes());
                     P_(alignment);
-                    P((void *)X.ptr());
+                    P((static_cast<void *>(X.ptr())));
                     P(bsls::AlignmentUtil::calculateAlignmentOffset(X.ptr(),
                                                                alignment));
                 }
@@ -6297,7 +6475,7 @@ int main(int argc, char *argv[])
             ASSERT(2 == X.numReferences());
             ASSERT(2 == Y.numReferences());
 
-            y.loadAlias(X, (double*)0);
+            y.loadAlias(X, static_cast<double *>(0));
             ASSERT(0 == Y.ptr());
             ASSERT(0 == Y.numReferences());
             ASSERT(0 == numDeletes);
@@ -6456,7 +6634,7 @@ int main(int argc, char *argv[])
             ASSERT(0 != X.ptr());
             ASSERT(1 == X.numReferences());
 
-            bsl::shared_ptr<double> y(X, (double *)0);
+            bsl::shared_ptr<double> y(X, static_cast<double *>(0));
             const bsl::shared_ptr<double>& Y=y;
 
             ASSERT(0 == Y.ptr());
@@ -6497,7 +6675,7 @@ int main(int argc, char *argv[])
         numDefaultAllocations   = defaultAllocator.numAllocations();
         {
             Obj x; const Obj& X=x;
-            x.load((TObj*)0);
+            x.load(static_cast<TObj *>(0));
             ASSERT(0 == X.ptr());
             ASSERT(1 == X.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
@@ -6508,7 +6686,7 @@ int main(int argc, char *argv[])
                                           defaultAllocator.numDeallocations());
 
             Obj y; const Obj& Y=y;
-            y.load((TObj*)0, &ta);
+            y.load(static_cast<TObj *>(0), &ta);
             ASSERT(0 == Y.ptr());
             ASSERT(1 == Y.numReferences());
             ASSERT(++numAllocations == ta.numAllocations());
@@ -6518,7 +6696,7 @@ int main(int argc, char *argv[])
                                           defaultAllocator.numDeallocations());
 
             Obj z; const Obj& Z=z;
-            z.load((TObj*)0, &ta, &ta);
+            z.load(static_cast<TObj *>(0), &ta, &ta);
             ASSERT(0 == Z.ptr());
             ASSERT(1 == Z.numReferences());
             ASSERT(++numAllocations == ta.numAllocations());
@@ -6552,7 +6730,7 @@ int main(int argc, char *argv[])
                                           defaultAllocator.numDeallocations());
             ASSERT(0 == numDeletes);
 
-            x.load((TObj*)0);
+            x.load(static_cast<TObj *>(0));
             ASSERT(1 == numDeletes);
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(++numDeallocations == ta.numDeallocations());
@@ -6575,7 +6753,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             ASSERT(0 == numDeletes);
-            y.load((TObj*)0, &ta);
+            y.load(static_cast<TObj *>(0), &ta);
             ASSERT(1 == numDeletes);
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(++numDeallocations == ta.numDeallocations());
@@ -6591,7 +6769,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
             numDeallocations = ta.numDeallocations();
             ASSERT(0 == numDeletes);
-            z.load((TObj*)0, &ta, &ta);
+            z.load(static_cast<TObj *>(0), &ta, &ta);
             ASSERT(1 == numDeletes);
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(++numDeallocations == ta.numDeallocations());
@@ -7347,7 +7525,7 @@ int main(int argc, char *argv[])
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            Obj w((TObj*)0); const Obj& W = w;  // Rep with default allocator
+            Obj w(static_cast<TObj *>(0)); const Obj& W = w;  // Rep with default allocator
             ASSERT(0 == W.ptr());
             ASSERT(1 == W.numReferences());
 
@@ -7355,12 +7533,12 @@ int main(int argc, char *argv[])
             ASSERT(++numDefaultAllocations ==
                                             defaultAllocator.numAllocations());
 
-            Obj x((TObj*)0, &ta); const Obj& X = x;
+            Obj x(static_cast<TObj *>(0), &ta); const Obj& X = x;
             ASSERT(0 == X.ptr());
             ASSERT(1 == X.numReferences());
             ASSERT(++numAllocations == ta.numAllocations());
 
-            Obj z((TObj*)0, &ta, &ta); const Obj& Z = z;
+            Obj z(static_cast<TObj *>(0), &ta, &ta); const Obj& Z = z;
             ASSERT(0 == Z.ptr());
             ASSERT(1 == Z.numReferences());
             ASSERT(++numAllocations == ta.numAllocations());
@@ -7453,8 +7631,8 @@ int main(int argc, char *argv[])
         // The auto_ptr constructors are explicit, so we do *not* test for
         // copy-initialization: 'Obj x = makeAuto(&numDeletes);'.  In fact it
         // appears to be impossible to support this syntax, even if we wanted
-        // to, due to the language implying an extra user-defined conversion
-        // in the chain compared to using the same technique that 'auto_ptr'
+        // to, due to the language implying an extra user-defined conversion in
+        // the chain compared to using the same technique that 'auto_ptr'
         // itself uses.
 
         if (verbose)
@@ -8014,7 +8192,7 @@ int main(int argc, char *argv[])
             ASSERT(p == X.get());
             ASSERT(0 != X.rep());
             ASSERT(1 == X.rep()->numReferences());
-            ASSERT((void *) p == X.rep()->originalPtr());
+            ASSERT(static_cast<void *>(p) == X.rep()->originalPtr());
             ASSERT(1 == X.use_count());
             ASSERT(true == X.unique());
             ASSERT(false != X);
@@ -8046,7 +8224,7 @@ int main(int argc, char *argv[])
             ASSERT(p == X.get());
             ASSERT(0 != X.rep());
             ASSERT(1 == X.rep()->numReferences());
-            ASSERT((void *) p == X.rep()->originalPtr());
+            ASSERT(static_cast<void *>(p) == X.rep()->originalPtr());
             ASSERT(1 == X.use_count());
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
             ASSERT(p == X.ptr());
@@ -8194,7 +8372,9 @@ int main(int argc, char *argv[])
         {
             TObj *p = new TObj(&numDeletes);
 
-            Obj x1(p, &myTestDeleterFunction, (bslma::Allocator *)0);
+            Obj x1( p,
+                   &myTestDeleterFunction,
+                    static_cast<bslma::Allocator *>(0));
             const Obj &X1 = x1;
             (void) X1;  // Suppress 'unused variable' warning.
 

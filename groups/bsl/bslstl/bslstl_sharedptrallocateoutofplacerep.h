@@ -273,6 +273,12 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
         // pointed to by 'ptr'.
 
     // MANIPULATORS
+    virtual void disposeObject();
+        // Destroy the object being referred to by this representation.  This
+        // method is automatically invoked by 'releaseRef' when the number of
+        // shared references reaches zero and should not be explicitly invoked
+        // otherwise.
+
     virtual void disposeRep();
         // Destroy this representation object and deallocate the associated
         // memory.  This method is automatically invoked by 'releaseRef' and
@@ -282,12 +288,6 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
         // has already been called for this representation.  Note that this
         // 'disposeRep' method effectively serves as the representation
         // object's destructor.
-
-    virtual void disposeObject();
-        // Destroy the object being referred to by this representation.  This
-        // method is automatically invoked by 'releaseRef' when the number of
-        // shared references reaches zero and should not be explicitly invoked
-        // otherwise.
 
     virtual void *getDeleter(const std::type_info& type);
         // Return a pointer to the deleter stored by the derived representation
@@ -346,12 +346,35 @@ struct SharedPtrAllocateOutofplaceRep_InitGuard {
 };
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
 
                   // ------------------------------------
                   // class SharedPtrAllocateOutofplaceRep
                   // ------------------------------------
+
+// CLASS METHODS
+template <class TYPE, class DELETER, class ALLOCATOR>
+SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR> *
+SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::makeOutofplaceRep(
+                                              TYPE             *ptr,
+                                              const DELETER&    deleter,
+                                              const ALLOCATOR&  basicAllocator)
+{
+    SharedPtrAllocateOutofplaceRep_InitGuard<TYPE, DELETER> guard(ptr, deleter);
+
+    typedef
+     typename ALLOCATOR::template rebind<SharedPtrAllocateOutofplaceRep>::other
+                                                              ReboundAllocator;
+
+    ReboundAllocator alloc(basicAllocator);
+    SharedPtrAllocateOutofplaceRep *rep = alloc.allocate(1);
+    new (rep) SharedPtrAllocateOutofplaceRep(ptr, deleter, basicAllocator);
+
+    guard.release();
+
+    return rep;
+}
 
 // CREATORS
 template <class TYPE, class DELETER, class ALLOCATOR>
@@ -376,25 +399,11 @@ SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::
 
 // MANIPULATORS
 template <class TYPE, class DELETER, class ALLOCATOR>
-SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR> *
-SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::makeOutofplaceRep(
-                                              TYPE             *ptr,
-                                              const DELETER&    deleter,
-                                              const ALLOCATOR&  basicAllocator)
+inline
+void SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::disposeObject()
 {
-    SharedPtrAllocateOutofplaceRep_InitGuard<TYPE, DELETER> guard(ptr, deleter);
-
-    typedef
-     typename ALLOCATOR::template rebind<SharedPtrAllocateOutofplaceRep>::other
-                                                              ReboundAllocator;
-
-    ReboundAllocator alloc(basicAllocator);
-    SharedPtrAllocateOutofplaceRep *rep = alloc.allocate(1);
-    new (rep) SharedPtrAllocateOutofplaceRep(ptr, deleter, basicAllocator);
-
-    guard.release();
-
-    return rep;
+    d_deleter(d_ptr_p);
+    d_ptr_p = 0;
 }
 
 template <class TYPE, class DELETER, class ALLOCATOR>
@@ -420,13 +429,6 @@ void SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::disposeRep()
     this->SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::
                                              ~SharedPtrAllocateOutofplaceRep();
     alloc.deallocate(this, 1);
-}
-
-template <class TYPE, class DELETER, class ALLOCATOR>
-void SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::disposeObject()
-{
-    d_deleter(d_ptr_p);
-    d_ptr_p = 0;
 }
 
 template <class TYPE, class DELETER, class ALLOCATOR>

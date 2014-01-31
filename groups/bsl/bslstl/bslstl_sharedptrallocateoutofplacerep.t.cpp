@@ -22,7 +22,7 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
@@ -44,7 +44,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -63,7 +63,7 @@ void aSsErT(bool b, const char *s, int i)
 //# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -110,11 +110,12 @@ class MyTestObject;
 class MyAllocTestDeleter;
 
 //=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//              GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
 template <class TYPE>
 void deleterFunction(TYPE *ptr)
+    // Delete the specified 'ptr', using 'delete ptr'.
 {
     delete ptr;
 }
@@ -129,6 +130,7 @@ struct BasicDeleter {
     // to the function call operator.
 
     void operator()(TYPE *ptr) const
+        // Delete the specified 'ptr', using 'delete ptr'.
     {
         delete ptr;
     }
@@ -151,22 +153,42 @@ private:
     int d_count;
 
 public:
-    StatefulDeleter() : d_count() {}
+    // CREATORS
+    StatefulDeleter();
+        // Create a 'StatefulDeleter' object having a 'count' of 0.
 
     // MANIPULATORS
-
     template <class TYPE>
-    void operator()(TYPE *ptr)
-    {
-        ++d_count;
-        delete ptr;
-    }
+    void operator()(TYPE *ptr);
+        // Delete the specified 'ptr' (using 'delete ptr') and increment the
+        // stored 'count' of calls to this function.
 
     // ACCESSORS
-    int count() const { return d_count; }
+    int count() const;
+        // Return the number of time that 'operator()' has been called on this
+        // object.
 };
 
 
+// CREATORS
+StatefulDeleter::StatefulDeleter()
+: d_count()
+{
+}
+
+// MANIPULATORS
+template <class TYPE>
+void StatefulDeleter::operator()(TYPE *ptr)
+{
+    ++d_count;
+    delete ptr;
+}
+
+// ACCESSORS
+int StatefulDeleter::count() const
+{
+    return d_count;
+}
                          // ==================
                          // class MyTestObject
                          // ==================
@@ -404,8 +426,15 @@ bdet_Datetime *MySharedDatetime::ptr() const {
 }
 #endif
 
+                              // ==================
+                              // class StdAllocator
+                              // ==================
+
 template <class TYPE>
 class StdAllocator {
+    // This class template conforms to the requirements of an allocator, as
+    // specified in section 17.6.3.5 ([allocator.requirements]) of the ISO
+    // C++11 standard.
 
   public:
     template <class OTHER>
@@ -413,21 +442,65 @@ class StdAllocator {
         typedef StdAllocator<OTHER> other;
     };
 
-    StdAllocator() {}
+    // CREATORS
+    StdAllocator();
+        // Create a 'StdAllocator' object.
+
+    // StdAllocator(const StdAllocator<OTHER>& other) = default;
+        // Create a 'StdAllocator' object from the specified 'other', using the
+        // implicitly generated trivial copy constructor.  Note that as
+        // 'StdAllocator' is an empty class, the 'other' object is not used.
+
     template <class OTHER>
-    StdAllocator(const StdAllocator<OTHER>&) {}
+    StdAllocator(const StdAllocator<OTHER>& other);
+        // Create a 'StdAllocator' object from the specified 'other'.  Note
+        // that as 'StdAllocator' is an empty class, the 'other' object is not
+        // used.
 
-    TYPE *allocate(size_t numObjects)
-    {
-        return static_cast<TYPE *>(malloc(numObjects * sizeof(TYPE)));
-    }
+    // ~StdAllocator() = default;
+        // Destroy this object.
 
-    void deallocate(TYPE *ptr, size_t numObjects)
-    {
-        free(ptr);
-    }
+    // MANIPULATORS
+    TYPE *allocate(size_t numObjects);
+        // Allocate a contiguous block of memory large enough to hold the
+        // specified 'numObjects' of (template parameter) 'TYPE' using the C
+        // function 'malloc', and return the address of that block.
+
+    void deallocate(TYPE *ptr, size_t numObjects);
 };
 
+                              // ------------------
+                              // class StdAllocator
+                              // ------------------
+
+// CREATORS
+template <class TYPE>
+inline
+StdAllocator<TYPE>::StdAllocator()
+{
+}
+
+template <class TYPE>
+template <class OTHER>
+inline
+StdAllocator<TYPE>::StdAllocator(const StdAllocator<OTHER>& /*other*/)
+{
+}
+
+// MANIPULATORS
+template <class TYPE>
+inline
+TYPE *StdAllocator<TYPE>::allocate(size_t numObjects)
+{
+    return static_cast<TYPE *>(malloc(numObjects * sizeof(TYPE)));
+}
+
+template <class TYPE>
+inline
+void StdAllocator<TYPE>::deallocate(TYPE *ptr, size_t numObjects)
+{
+    free(ptr);
+}
 
 // TYPEDEFS
 typedef MyTestObject TObj;
@@ -838,7 +911,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
             ASSERT(x.ptr() ==  t);
-            ASSERT(x.originalPtr() == (void*) t);
+            ASSERT(x.originalPtr() == static_cast<void *>(t));
 
             x.disposeObject();
 #if 0
@@ -882,7 +955,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == X.numReferences());
             ASSERT(0 == X.numWeakReferences());
             ASSERT(x.ptr() ==  t);
-            ASSERT(x.originalPtr() == (void*) t);
+            ASSERT(x.originalPtr() == static_cast<void *>(t));
 
             x.acquireRef();
             ASSERT(2 == X.numReferences());
