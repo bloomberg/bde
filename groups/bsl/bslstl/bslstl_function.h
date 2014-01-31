@@ -432,6 +432,9 @@ class Function_Rep {
 
 public:
     // ACCESSORS
+    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
+    template<class T> T* target() BSLS_NOTHROW_SPEC;
+    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
     bslma::Allocator *allocator() const;
 };
 
@@ -535,53 +538,6 @@ class function<RET(ARGS...)> :
     // template parameters that specify a function prototype; the primary
     // template (taking an arbitrary template parameter) is not defined.
 
-    // Invoker Variants:
-    //   empty
-    //   function pointer
-    //   member-function pointer
-    //   functor
-
-    // Manager quantities:
-    //   Size of function rep (Used during cloning)
-    //   Alignment of function rep (Used during cloning)
-    //   Size of allocator (0 for unowned) (NOT Used during cloning)
-    //   Alignment of allocator (1 for unowned) (NOT Used during cloning)
-    // Manager variants
-    //   Dimension 0: Invoker variant (Template parameter)
-    //     empty
-    //     function pointer
-    //     member-function pointer
-    //     functor
-    //   Dimension 1: Allocator ownership
-    //     Does not own allocator (treat allocator size as 0)
-    //     Owns allocator (type-erased allocator)
-    //   Dimension 2: Inplace allocation
-    //     Function and allocator fit in-place
-    //     Function and allocator do not fit in-place
-    //
-
-    // Cloning of functor and allocator:
-    //   During initial construction:
-    //     no cloning
-    //   During move construction
-    //     no cloning
-    //   During extended move construction
-    //     Clone rhs functor
-    //     No allocator clone
-    //   During copy construction
-    //     Clone rhs functor
-    //     No allocator clone
-    //   During extended copy construction
-    //     Clone rhs functor
-    //     No allocator clone
-    //   During move assignment
-    //     Clone rhs functor
-    //     Clone lhs allocator (into new block)
-    //   During copy assignment
-    //     Clone rhs functor
-    //     Clone lhs allocator (into new block)
-    //
-
     typedef RET Invoker(const Function_Rep* rep,
                         typename bslmf::ForwardingType<ARGS>::Type... args);
 
@@ -666,17 +622,16 @@ public:
     void swap(function&) BSLS_NOTHROW_SPEC;
     template<class FUNC, class ALLOC> void assign(FUNC&&, const ALLOC&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    explicit  // Explicit conversion available only with C++11
-#endif
-    operator bool() const BSLS_NOTHROW_SPEC;
-
     RET operator()(ARGS...) const;
 
     // ACCESSORS
-    const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
-    template<class T> T* target() BSLS_NOTHROW_SPEC;
-    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+    explicit  // Explicit conversion available only with C++11
+    operator bool() const BSLS_NOTHROW_SPEC;
+#else
+    operator bool() const BSLS_NOTHROW_SPEC;
+#endif
+
 };
 
 // FREE FUNCTIONS
@@ -1099,6 +1054,24 @@ void bsl::Function_Rep::copyRep(const Function_Rep&                   other,
     d_funcManager_p(e_COPY_CONSTRUCT, this, otherFunction_p);
 }
 
+template<class T>
+T* bsl::Function_Rep::target() BSLS_NOTHROW_SPEC
+{
+    if ((! d_funcManager_p) || target_type() != typeid(T)) {
+        return NULL;
+    }
+
+    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
+    return static_cast<T*>(const_cast<void*>(target.asPtr()));
+}
+
+template<class T>
+inline
+const T* bsl::Function_Rep::target() const BSLS_NOTHROW_SPEC
+{
+    return const_cast<Function_Rep*>(this)->target<T>();
+}
+
 inline
 bslma::Allocator *bsl::Function_Rep::allocator() const
 {
@@ -1448,14 +1421,6 @@ void bsl::function<RET(ARGS...)>::assign(FUNC&&, const ALLOC&)
 }
 
 template <class RET, class... ARGS>
-bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
-{
-    // If there is an invoker, then this function is non-empty (return true);
-    // otherwise it is empty (return false).
-    return d_invoker_p;
-}
-
-template <class RET, class... ARGS>
 RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 {
     if (d_invoker_p) {
@@ -1466,38 +1431,17 @@ RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
     }
 }
 
-template <class RET, class... ARGS>
-const std::type_info&
-bsl::function<RET(ARGS...)>::target_type() const BSLS_NOTHROW_SPEC
-{
-    if (! *this) {
-        return typeid(void);
-    }
-
-    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
-                                      const_cast<function*>(this),
-                                      PtrOrSize_t());
-    return *static_cast<const std::type_info*>(ret.asPtr());
-}
+// ACCESSORS
 
 template <class RET, class... ARGS>
-template<class T>
-T* bsl::function<RET(ARGS...)>::target() BSLS_NOTHROW_SPEC
+inline
+bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 {
-    if ((! *this) || target_type() != typeid(T)) {
-        return NULL;
-    }
-
-    PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
-    return static_cast<T*>(const_cast<void*>(target.asPtr()));
+    // If there is an invoker, then this function is non-empty (return true);
+    // otherwise it is empty (return false).
+    return d_invoker_p;
 }
 
-template <class RET, class... ARGS>
-template<class T>
-const T* bsl::function<RET(ARGS...)>::target() const BSLS_NOTHROW_SPEC
-{
-    return const_cast<function*>(this)->target<T>();
-}
 
 // FREE FUNCTIONS
 template <class RET, class... ARGS>

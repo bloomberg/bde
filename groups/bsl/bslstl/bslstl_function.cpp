@@ -35,6 +35,19 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
     return PtrOrSize_t();
 }
 
+const std::type_info&
+bsl::Function_Rep::target_type() const BSLS_NOTHROW_SPEC
+{
+    if (! d_funcManager_p) {
+        return typeid(void);
+    }
+
+    PtrOrSize_t ret = d_funcManager_p(e_GET_TYPE_ID,
+                                      const_cast<Function_Rep*>(this),
+                                      PtrOrSize_t());
+    return *static_cast<const std::type_info*>(ret.asPtr());
+}
+
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.
 //
