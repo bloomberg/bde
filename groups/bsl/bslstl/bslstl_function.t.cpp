@@ -6,6 +6,7 @@
 #include <bslmf_removeconst.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_defaultallocatorguard.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -32,22 +33,23 @@ using namespace bsl;
 // assigned to.  A wrapped functor can also be modified in the process of
 // being invoked.  As an immutable type, the only primitive manipulators are
 // the constructors and assignment operators.  The primitive accessors are
-// 'operator bool', the invocation operators, and the 'allocator' function.
-// Black-box testing consists of constructing 'function' objects with a
-// variety of invocables and testing the invocation works correctly and that
-// 'operator bool' and 'allocator' functions return the expected values.  The
-// biggest complication in this testing is verifying the large number of
-// combinations of invocables and invocatoin prototypes (0 to 20 arguments,
-// with and without return types).
+// 'operator bool', the invocation operators, the 'allocator' function, and
+// the 'target' and 'target_type' functions.  Black-box testing consists of
+// constructing 'function' objects with a variety of invocables and testing
+// that invocation works correctly and that 'operator bool' and the other
+// accessors return the expected values.  The biggest complication in this
+// testing is verifying the large number of combinations of invocables and
+// invocation prototypes (0 to 20 arguments, with and without return types).
 //
 // White-box testing looks at the memory allocation pattern. Both the
-// invocable and the allocator are type erased and stored in allocated
-// memory.  The implementation uses the small-object optimization to store one
-// or both of these type-erased objects in the footprint of the 'function'
-// object itself.  The allocation pattern is complicated by the fact that on
-// copy construction and assignment, the invocable is copied but the allocator
-// is not. Thus, whether or not the small-object optimization is applied to
-// the allocator can be different in the original object vs. the copy.
+// invocable and the allocator are type erased and stored in allocated memory.
+// The implementation uses the small-object optimization to store one or both
+// of these type-erased objects in the footprint of the 'function' object
+// itself, when possible.  The allocation pattern is complicated by the fact
+// that on copy construction and assignment, the invocable is copied but the
+// allocator is not. Thus, whether or not the small-object optimization is
+// applied to the allocator can be different in the original object vs. the
+// copy.
 //
 //-----------------------------------------------------------------------------
 
@@ -516,6 +518,47 @@ bool operator!=(const EmptySTLAllocator<TYPE1>&,
     return false;
 }
 
+// Test allocator used by all instances of 'EmptySTLAllocator2'
+bslma::TestAllocator *emptySTLAlloc2Source = NULL;
+
+template <class TYPE>
+class EmptySTLAllocator2 : public STLAllocatorBase<TYPE, EmptySTLAllocator2>
+{
+    // 'EmptySTLAllocator' but uses a different 'emptySTLAllocSource' and so
+    // avoid conflicts.
+
+public:
+    explicit EmptySTLAllocator2(bslma::TestAllocator *ta)
+        { emptySTLAlloc2Source = ta; }
+
+    template <class U>
+    EmptySTLAllocator2(const EmptySTLAllocator2<U>&) { }
+
+    TYPE *allocate(std::size_t n, void* = 0 /* nullptr */) {
+        return (TYPE*) emptySTLAlloc2Source->allocate(n * sizeof(TYPE));
+    }
+  
+    void deallocate(TYPE *p, std::size_t) {
+        emptySTLAlloc2Source->deallocate(p);
+    }
+};
+
+template <class TYPE1, class TYPE2>
+inline
+bool operator==(const EmptySTLAllocator2<TYPE1>&,
+                const EmptySTLAllocator2<TYPE2>&)
+{
+    return true;
+}
+
+template <class TYPE1, class TYPE2>
+inline
+bool operator!=(const EmptySTLAllocator2<TYPE1>&,
+                const EmptySTLAllocator2<TYPE2>&)
+{
+    return false;
+}
+
 template <class TYPE>
 class StatefulAllocatorBase
 {
@@ -954,7 +997,7 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *funcType)
 
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
-    int numBlocksUsed, minBytesUsed, maxBytesUsed;
+    bsls::Types::Int64 numBlocksUsed, minBytesUsed, maxBytesUsed;
     
     switch (inplace) {
       case e_INPLACE_BOTH: {
@@ -1002,6 +1045,131 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *funcType)
     ASSERT(globalAllocMonitor.isInUseSame());
 }
 
+template <class ALLOC, class FUNC>
+void testCopyCtorWithAlloc(FUNC        func,
+                           const bsl::function<int(IntWrapper,int)>& original,
+                           const char *originalAllocName,
+                           const char *copyAllocName)
+{
+    if (veryVeryVerbose)
+        printf("\tAlloc: orig = %s, copy = %s\n", originalAllocName,
+               copyAllocName);
+
+    typedef bsl::function<int(IntWrapper,int)> Obj;
+
+    bool copyAllocNone = (0 == std::strcmp(copyAllocName, "none"));
+
+    bsls::Types::Int64 numBlocksUsed, numBytesUsed;
+
+    bslma::TestAllocator copyTa;
+    ALLOC copyAlloc(&copyTa);
+
+    // Re-create 'original' using 'copyAlloc' so that we can measure memory
+    // usage.
+    {
+        Obj original2(bsl::allocator_arg, copyAlloc, func);
+        numBlocksUsed = copyTa.numBlocksInUse();
+        numBytesUsed = copyTa.numBytesInUse();
+    }
+    ASSERT(copyTa.numBlocksInUse() == 0);
+    ASSERT(copyTa.numBytesInUse()  == 0);
+
+    bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
+
+    // Copy-construct 'original' into 'copy' using extended copy contructor.
+    {
+        // We want to select one of two constructors at run time, so instead
+        // of declaring a 'function' object directly, we create a buffer that
+        // can hold a 'function' object and construct the 'function' later
+        // using the desired constructor.
+        union {
+            char                                d_bytes[sizeof(Obj)];
+            bsls::AlignmentUtil::MaxAlignedType d_align;
+        } copyBuf;
+
+        if (copyAllocNone) {
+            // copyAllocName is "none".  Choose normal copy constructor with
+            // no allocator, but install 'copyTa' as the allocator indirectly
+            // by setting the default allocator.
+            bslma::DefaultAllocatorGuard guard(&copyTa);
+            ::new(copyBuf.d_bytes) Obj(original);
+        }
+        else {
+            // Use extended copy constructor.
+            ::new(copyBuf.d_bytes) Obj(bsl::allocator_arg, copyAlloc,
+                                       original);
+        }
+
+        // 'copyBuf' now hold the copy-constructed 'function'.
+        Obj& copy = *reinterpret_cast<Obj*>(copyBuf.d_bytes);
+        
+        ASSERT(copy.target_type() == original.target_type());
+        ASSERT(CheckAlloc<ALLOC>::sameAlloc(copyAlloc, copy.allocator()));
+        ASSERT(! copy == ! original)
+
+        if (copy) {
+
+            // Check for faithful copy of functor
+            ASSERT(*copy.target<FUNC>() == *original.target<FUNC>());
+            ASSERT(copy.target<FUNC>() != original.target<FUNC>());
+
+            // Invoke
+            ASSERT(copy(IntWrapper(0x4000), 9) ==
+                   original(IntWrapper(0x4000), 9));
+
+            // Invocation performed identical operations on original and on
+            // copy.  Check that equality relationship was not disturbed.
+            ASSERT(*copy.target<FUNC>() == *original.target<FUNC>());
+        }
+
+        ASSERT(copyTa.numBlocksInUse() == numBlocksUsed);
+        ASSERT(copyTa.numBytesInUse()  == numBytesUsed);
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        copy.~Obj();
+    }
+    ASSERT(copyTa.numBlocksInUse() == 0);
+    ASSERT(copyTa.numBytesInUse()  == 0);
+    ASSERT(globalAllocMonitor.isInUseSame());
+}
+
+template <class ORIGINAL_ALLOC, class FUNC>
+void testCopyCtor(FUNC func, const char *originalAllocName)
+{
+    typedef bsl::function<int(IntWrapper,int)> Obj;
+
+    // Construct the original 'function'
+    bslma::TestAllocator originalTa;
+    ORIGINAL_ALLOC originalAlloc(&originalTa);
+    Obj original(bsl::allocator_arg, originalAlloc, func);
+
+    // Snapshot allocator to ensure that nothing else is allocated from here.
+    bslma::TestAllocatorMonitor originalAllocMonitor(&originalTa);
+
+#define TEST(A)                                                               \
+    testCopyCtorWithAlloc<A>(func, original, originalAllocName, #A)
+
+    // Special case, if allocator for copy is named "none", then
+    // 'testCopyCtorWithAlloc' uses the normal copy constructor instead of the
+    // allocator-extended copy constructor.
+    testCopyCtorWithAlloc<bslma::Allocator *>(func, original,
+                                              originalAllocName, "none");
+
+    // Test with different allocator types for copy
+    TEST(bslma::TestAllocator *  );
+    TEST(bsl::allocator<char>    );
+    TEST(EmptySTLAllocator2<char>);
+    TEST(TinySTLAllocator<char>  );
+    TEST(SmallSTLAllocator<char> );
+    TEST(MediumSTLAllocator<char>);
+    TEST(LargeSTLAllocator<char> );
+
+    ASSERT(originalAllocMonitor.isInUseSame());
+
+#undef TEST
+
+}
+
 //=============================================================================
 //                  USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -1023,6 +1191,166 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+
+      case 9: {
+        // --------------------------------------------------------------------
+        // COPY CONSTRUCTORS
+        //
+        // Concerns:
+        //: 1 Copying an empty 'function' object (with either the copy
+        //:   constructor or allocator-extended copy constructor) yields an
+        //:   empty 'function' object.
+        //: 2 Copying a non-empty 'function' yields a non-empty 'function'
+        //:   object.
+        //: 3 The 'target_type' and 'target' attributes of the original
+        //:   'function' match the corresponding attributes of the copy.
+        //: 4 If the original 'function' can be invoked, the its can also be
+        //:   invoked and will yield the same results.
+        //: 5 If the copy constructor is invoked (without an allocator), then
+        //:   the copy will use the value of
+        //:   'bslma::Default::defaultAllocator()' at the time of the copy.
+        //: 6 If the allocator-extended copy constructor is invoked
+        //:   argument, then the copy will use the specified allocator.
+        //: 7 The memory allocated by this constructor is the same as if the
+        //:   copy were created like the original, except using the specified
+        //:   allocator (or default allocator if none specified).
+        //: 8 The above concerns apply to 'func' arguments of type pointer to
+        //:   function, pointer to member function, or functor types of
+        //:   various sizes.
+        //: 9 The above concerns apply to allocators arguments which are
+        //:   pointers to type derived from 'bslma::Allocator',
+        //:   'bsl::allocator' instantiations, stateless STL-style allocators,
+        //:   and stateful STL-style allocators of various sizes.  The
+        //:   original and copy can use different allocators.
+        //
+        // Plan:
+        //: 1 For concern 1 copy an empty 'function' using both the copy
+        //:   constructor and extended copy constructor and verify that the
+        //:   result in each case is an empty 'function'.
+        //: 2 For concern 2 copy a non-empty function and verify that the
+        //:   result is not empty.
+        //: 3 For concern 3, for all 'function' objects copied in this test,
+        //:   verify that the 'target_type' of the original compares equal to
+        //:   the 'target_type' of the copy.  For non-empty 'function'
+        //:   objects, also verify that the 'target' attributes of the
+        //:   original and the copy point to objects that compare equal to
+        //:   each other.
+        //: 4 For concern 4, invoke each non-empty copy and verify that the
+        //:   result is the same as invoking the original.
+        //: 5 For concern 5, copy-construct a 'function' and verify that
+        //:   invoking 'allocator()' on the copy returns
+        //:   'bslma::Default::defaultAllocator()'.  Change the default
+        //:   allocator temporarily and verify that 'allocator()' still
+        //:   returns the default allocator at the time of the copy.
+        //: 6 For concern 6, use the extended copy constructor and verify that
+        //:   the allocator for the copy matches the allocator passed into the
+        //:   constructor (as was done for the previous test case).
+        //: 7 For concern 7, construct a function object 'f1' using a specific
+        //:   'func' argument and allocator 'a1'.  Construct a seconf function
+        //:   object 'f1' using the same 'func' argument and an allocator
+        //:   'a2'.  Using the extended copy constructor, create a copy of
+        //:   'f1' using allocator 'a2'.  Verify that the memory allocations
+        //:   during this construction match those in constructing 'f2'.
+        //: 8 For concerns 8 and 9, package all of the previous plan steps
+        //:   into a function template 'testCopyCtor', instantiated with a
+        //:   functor and allocator.  This test template will create an
+        //:   original 'function' object using the passed-in functor and
+        //:   allocator and copy it with the copy constructor and with several
+        //:   invocations of the extended copy constructor, using allocators
+        //:   of all of the types described in concern 9.  Invoke
+        //:   'testCopyCtor' with many combinations of functor and allocator
+        //:   types so that every category combination is represented.
+        //
+        // Testing:
+        //      function(const function& other);
+        //      function(allocator_arg_t, const ALLOC& alloc,
+        //               const function& other);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCOPY CONSTRUCTORS"
+                            "\n=================\n");
+
+        // Null functors
+        int (*nullFuncPtr)(IntWrapper, int) = 0;
+        int (IntWrapper::*nullMemFuncPtr)(int) const = 0;
+
+#define TEST(A, f) testCopyCtor<A>(f, #A)
+
+        if (veryVerbose) std::printf("FUNC = nullFuncPtr\n");
+        TEST(bslma::TestAllocator *,   nullFuncPtr          );
+        TEST(bsl::allocator<char>,     nullFuncPtr          );
+        TEST(EmptySTLAllocator<char>,  nullFuncPtr          );
+        TEST(TinySTLAllocator<char>,   nullFuncPtr          );
+        TEST(SmallSTLAllocator<char>,  nullFuncPtr          );
+        TEST(MediumSTLAllocator<char>, nullFuncPtr          );
+        TEST(LargeSTLAllocator<char>,  nullFuncPtr          );
+
+        if (veryVerbose) std::printf("FUNC = nullMemFuncPtr\n");
+        TEST(bslma::TestAllocator *,   nullMemFuncPtr       );
+        TEST(bsl::allocator<char>,     nullMemFuncPtr       );
+        TEST(EmptySTLAllocator<char>,  nullMemFuncPtr       );
+        TEST(TinySTLAllocator<char>,   nullMemFuncPtr       );
+        TEST(SmallSTLAllocator<char>,  nullMemFuncPtr       );
+        TEST(MediumSTLAllocator<char>, nullMemFuncPtr       );
+        TEST(LargeSTLAllocator<char>,  nullMemFuncPtr       );
+
+        if (veryVerbose) std::printf("FUNC = simpleFunc\n");
+        TEST(bslma::TestAllocator *,   simpleFunc           );
+        TEST(bsl::allocator<char>,     simpleFunc           );
+        TEST(EmptySTLAllocator<char>,  simpleFunc           );
+        TEST(TinySTLAllocator<char>,   simpleFunc           );
+        TEST(SmallSTLAllocator<char>,  simpleFunc           );
+        TEST(MediumSTLAllocator<char>, simpleFunc           );
+        TEST(LargeSTLAllocator<char>,  simpleFunc           );
+
+        if (veryVerbose) std::printf("FUNC = &IntWrapper::add1\n");
+        TEST(bslma::TestAllocator *,   &IntWrapper::add1    );
+        TEST(bsl::allocator<char>,     &IntWrapper::add1    );
+        TEST(EmptySTLAllocator<char>,  &IntWrapper::add1    );
+        TEST(TinySTLAllocator<char>,   &IntWrapper::add1    );
+        TEST(SmallSTLAllocator<char>,  &IntWrapper::add1    );
+        TEST(MediumSTLAllocator<char>, &IntWrapper::add1    );
+        TEST(LargeSTLAllocator<char>,  &IntWrapper::add1    );
+
+        if (veryVerbose) std::printf("FUNC = EmptyFunctor()\n");
+        TEST(bslma::TestAllocator *,   EmptyFunctor()       );
+        TEST(bsl::allocator<char>,     EmptyFunctor()       );
+        TEST(EmptySTLAllocator<char>,  EmptyFunctor()       );
+        TEST(TinySTLAllocator<char>,   EmptyFunctor()       );
+        TEST(SmallSTLAllocator<char>,  EmptyFunctor()       );
+        TEST(MediumSTLAllocator<char>, EmptyFunctor()       );
+        TEST(LargeSTLAllocator<char>,  EmptyFunctor()       );
+
+        if (veryVerbose) std::printf("FUNC = SmallFunctor(0x2000)\n");
+        TEST(bslma::TestAllocator *,   SmallFunctor(0x2000) );
+        TEST(bsl::allocator<char>,     SmallFunctor(0x2000) );
+        TEST(EmptySTLAllocator<char>,  SmallFunctor(0x2000) );
+        TEST(TinySTLAllocator<char>,   SmallFunctor(0x2000) );
+        TEST(SmallSTLAllocator<char>,  SmallFunctor(0x2000) );
+        TEST(MediumSTLAllocator<char>, SmallFunctor(0x2000) );
+        TEST(LargeSTLAllocator<char>,  SmallFunctor(0x2000) );
+
+        if (veryVerbose) std::printf("FUNC = MediumFunctor(0x4000)\n");
+        TEST(bslma::TestAllocator *,   MediumFunctor(0x4000));
+        TEST(bsl::allocator<char>,     MediumFunctor(0x4000));
+        TEST(EmptySTLAllocator<char>,  MediumFunctor(0x4000));
+        TEST(TinySTLAllocator<char>,   MediumFunctor(0x4000));
+        TEST(SmallSTLAllocator<char>,  MediumFunctor(0x4000));
+        TEST(MediumSTLAllocator<char>, MediumFunctor(0x4000));
+        TEST(LargeSTLAllocator<char>,  MediumFunctor(0x4000));
+
+        if (veryVerbose) std::printf("FUNC = LargeFunctor(0x6000)\n");
+        TEST(bslma::TestAllocator *,   LargeFunctor(0x6000) );
+        TEST(bsl::allocator<char>,     LargeFunctor(0x6000) );
+        TEST(EmptySTLAllocator<char>,  LargeFunctor(0x6000) );
+        TEST(TinySTLAllocator<char>,   LargeFunctor(0x6000) );
+        TEST(SmallSTLAllocator<char>,  LargeFunctor(0x6000) );
+        TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
+        TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
+
+#undef TEST
+
+      } break;
 
       case 8: {
         // --------------------------------------------------------------------
@@ -1151,7 +1479,7 @@ int main(int argc, char *argv[])
                             "\n======================================"
                             "==============================\n");
 
-        // Functors
+        // Null functors
         int (*nullFuncPtr)(IntWrapper, int) = 0;
         int (IntWrapper::*nullMemFuncPtr)(int) const = 0;
 

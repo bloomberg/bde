@@ -1236,7 +1236,21 @@ bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function(const function& other)
 {
-    // TBD
+    d_funcManager_p = other.d_funcManager_p;
+    d_invoker_p     = other.d_invoker_p;
+
+    std::size_t funcSize = d_funcManager_p ?
+        d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
+
+    initRep(funcSize, bslma::Default::defaultAllocator(),
+            integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
+
+    if (d_funcManager_p) {
+        PtrOrSize_t source = d_funcManager_p(e_GET_TARGET,
+                                             const_cast<function*>(&other),
+                                             PtrOrSize_t());
+        d_funcManager_p(e_COPY_CONSTRUCT, this, source);
+    }
 }
 
 template <class RET, class... ARGS>
@@ -1294,7 +1308,22 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC&    alloc,
                                       const function& other)
 {
-    // TBD
+    d_funcManager_p = other.d_funcManager_p;
+    d_invoker_p     = other.d_invoker_p;
+
+    std::size_t funcSize = d_funcManager_p ?
+        d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
+
+    typedef Function_AllocTraits<ALLOC> Traits;
+    initRep(funcSize,
+            typename Traits::Type(alloc), typename Traits::Category());
+
+    if (d_funcManager_p) {
+        PtrOrSize_t source = d_funcManager_p(e_GET_TARGET,
+                                             const_cast<function*>(&other),
+                                             PtrOrSize_t());
+        d_funcManager_p(e_COPY_CONSTRUCT, this, source);
+    }
 }
 
 template <class RET, class... ARGS>
