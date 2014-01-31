@@ -30327,7 +30327,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -30499,6 +30499,66 @@ int main(int argc, char *argv[])
     ASSERT(EXP_OUTPUT == os.str());
     }
 //..
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING FLUSH AT THE END OF THE ENCODING
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING FLUSH AT THE END OF THE ENCODING"
+                               << "\n========================================"
+                               << bsl::endl;
+
+        if (verbose) cout << "\nUsing MySequence with PRETTY style." << endl;
+        {
+            typedef test::Employee Type;
+
+            Type mX;  const Type& X = mX;
+
+            mX.name() = "Bob";
+            mX.homeAddress().street() = "Some Street";
+            mX.homeAddress().city()   = "Some City";
+            mX.homeAddress().state()  = "Some State";
+            mX.age() = 30;
+
+            const bsl::string EXPECTED_RESULT = 
+                                          "{\n"
+                                          "  \"name\" : \"Bob\",\n"
+                                          "  \"homeAddress\" : {\n"
+                                          "    \"street\" : \"Some Street\",\n"
+                                          "    \"city\" : \"Some City\",\n"
+                                          "    \"state\" : \"Some State\"\n"
+                                          "  },\n"
+                                          "  \"age\" : 30\n"
+                                          "}\n";
+
+            bcema_PooledBlobBufferFactory factory(5);
+            bcema_Blob                    blob(&factory);
+            bcesb_OutBlobStreamBuf        bs(&blob);
+
+            baejsn_EncoderOptions options;
+            options.setEncodingStyle(baejsn_EncoderOptions::BAEJSN_PRETTY);
+            options.setInitialIndentLevel(0);
+            options.setSpacesPerLevel(2);
+
+            baejsn_Encoder encoder;
+            int rc = encoder.encode(&bs, X, options);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT.size(), blob.length(),
+                         EXPECTED_RESULT.size() == blob.length());
+
+//             for (bsl::size_t i = 0; i < EXPECTED_RESULT.size(); ++i) {
+//                 LOOP2_ASSERT(EXPECTED_RESULT[i], *blob.buffer(i).data(),
+//                              EXPECTED_RESULT[i] == *blob.buffer(i).data());
+//             }
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------

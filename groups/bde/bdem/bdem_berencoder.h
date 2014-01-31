@@ -691,6 +691,9 @@ int bdem_BerEncoder::encode(bsl::streambuf *streamBuf, const TYPE& value)
     }
 
     d_streamBuf = 0;
+
+    streambuf->pubsync();
+
     return rc;
 }
 
