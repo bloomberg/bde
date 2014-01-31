@@ -14,15 +14,15 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
-//                             ---------
+//                                  TEST PLAN
+//                                  ---------
 // [ 3] void deleter(obj, factory)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] Test machinery
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -38,7 +38,7 @@ void aSsErT(bool b, const char *s, int i)
 }
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -70,7 +70,7 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
-//                         HELPER CLASSES FOR TESTING
+//                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 class MyTestObject {
@@ -88,18 +88,25 @@ class MyTestObject {
   public:
     // CREATORS
     explicit MyTestObject(int *counter);
+        // Create a 'MyTestObject' using the specified 'counter' to record when
+        // this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
-    // MyTestObject(MyTestObject const& orig);
-    // MyTestObject operator=(MyTestObject const& orig);
+    // MyTestObject(const MyTestObject& orig);
+    // MyTestObject operator=(const MyTestObject& orig);
 
     virtual ~MyTestObject();
         // Destroy this object.
 
     // ACCESSORS
-    int *valuePtr(int index = 0) const;
-
     volatile int *deleteCounter() const;
+        // Return the address of the counter used to track when this object's
+        // destructor is run.
+
+    int *valuePtr(int index = 0) const;
+        // Return the address of the value associated with the optionally
+        // specified 'index', and the address of the first such object if no
+        // 'index' is specified.
 };
 
 MyTestObject::MyTestObject(int *counter)
@@ -113,17 +120,17 @@ MyTestObject::~MyTestObject()
     ++(*d_deleteCounter_p);
 }
 
+volatile int* MyTestObject::deleteCounter() const
+{
+    return d_deleteCounter_p;
+}
+
 inline
 int *MyTestObject::valuePtr(int index) const
 {
     BSLS_ASSERT_SAFE(2 > index);
 
     return d_value + index;
-}
-
-volatile int* MyTestObject::deleteCounter() const
-{
-    return d_deleteCounter_p;
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -141,12 +148,16 @@ class CountedStackDeleter
   public:
     // CREATORS
     explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
+        // Create a 'CountedStackDeleter' using the specified 'counter' to
+        // record when this object is invoked as a deleter.
 
     //! ~CountedStackDeleter();
         // Destroy this object.
 
     // ACCESSORS
     volatile int *deleteCounter() const { return d_deleteCounter_p; }
+        // Return the address of the counter used to track when this object is
+        // invoked as a deleter.
 
     void deleteObject(void *) const
     {
@@ -159,7 +170,7 @@ class CountedStackDeleter
 }  // close unnamed namespace
 
 //=============================================================================
-//                  TEST PROGRAM
+//                              TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {

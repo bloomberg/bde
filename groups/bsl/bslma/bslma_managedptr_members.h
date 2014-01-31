@@ -139,23 +139,23 @@ class ManagedPtr_Members {
         // be exchanged, other than 'pointer' shall be null.
 
     // ACCESSORS
+    const ManagedPtrDeleter& deleter() const;
+        // Return the 'ManagedPtrDeleter' object that should be used to destroy
+        // the currently managed object, if any.  Behavior is undefined unless
+        // 'pointer' is not null.
+
+    void *pointer() const;
+        // Return a pointer to the currently managed object.
+
     void runDeleter() const;
         // Destroy the currently managed object(if any).  Note that calling
         // this method twice without assigning a new pointer to manage will
         // produce undefined behavior, unless this object's current deleter
         // specifically supports such usage.
-
-    void *pointer() const;
-        // Return a pointer to the currently managed object.
-
-    const ManagedPtrDeleter& deleter() const;
-        // Return the 'ManagedPtrDeleter' object that should be used to destroy
-        // the currently managed object, if any.  Behavior is undefined unless
-        // 'pointer' is not null.
 };
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                     // ------------------------
@@ -200,12 +200,13 @@ void ManagedPtr_Members::setAliasPtr(void *ptr)
     d_obj_p = ptr;
 }
 
+// ACCESSORS
 inline
-void ManagedPtr_Members::runDeleter() const
+const ManagedPtrDeleter& ManagedPtr_Members::deleter() const
 {
-    if (d_obj_p) {
-        d_deleter.deleteManagedObject();
-    }
+    BSLS_ASSERT_SAFE(d_obj_p);
+
+    return d_deleter;
 }
 
 inline
@@ -215,11 +216,11 @@ void *ManagedPtr_Members::pointer() const
 }
 
 inline
-const ManagedPtrDeleter& ManagedPtr_Members::deleter() const
+void ManagedPtr_Members::runDeleter() const
 {
-    BSLS_ASSERT_SAFE(d_obj_p);
-
-    return d_deleter;
+    if (d_obj_p) {
+        d_deleter.deleteManagedObject();
+    }
 }
 
 }  // close package namespace

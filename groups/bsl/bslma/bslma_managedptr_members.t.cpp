@@ -16,8 +16,8 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
-//                             ---------
+//                                  TEST PLAN
+//                                  ---------
 // [ 3] ManagedPtr_Members();
 // [ 4] ManagedPtr_Members(ManagedPtr_Members& other);
 // [ 4] ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
@@ -37,7 +37,7 @@ using namespace BloombergLP;
 // [ 2] Test machinery
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 int testStatus = 0;
 
@@ -53,7 +53,7 @@ void aSsErT(bool b, const char *s, int i)
 }
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -85,7 +85,7 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
-//                               TEST APPARATUS
+//                              TEST APPARATUS
 // ----------------------------------------------------------------------------
 
 //=============================================================================
@@ -96,7 +96,7 @@ class MyTestObject;
 class MyDerivedObject;
 
 //=============================================================================
-//                         HELPER CLASSES FOR TESTING
+//                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 class MyTestObject {
@@ -114,20 +114,28 @@ class MyTestObject {
   public:
     // CREATORS
     explicit MyTestObject(int *counter);
+        // Create a 'MyTestObject' using the specified 'counter' to record when
+        // this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
-    // MyTestObject(MyTestObject const& orig);
-    // MyTestObject operator=(MyTestObject const& orig);
+    // MyTestObject(const MyTestObject& orig);
+    // MyTestObject operator=(const MyTestObject& orig);
 
     virtual ~MyTestObject();
         // Destroy this object.
 
     // ACCESSORS
-    int *valuePtr(int index = 0) const;
-
     volatile int *deleteCounter() const;
+        // Return the address of the counter used to track when this object's
+        // destructor is run.
+
+    int *valuePtr(int index = 0) const;
+        // Return the address of the value associated with the optionally
+        // specified 'index', and the address of the first such object if no
+        // 'index' is specified.
 };
 
+// CREATORS
 MyTestObject::MyTestObject(int *counter)
 : d_deleteCounter_p(counter)
 , d_value()
@@ -139,17 +147,18 @@ MyTestObject::~MyTestObject()
     ++(*d_deleteCounter_p);
 }
 
+// ACCESSORS
+volatile int* MyTestObject::deleteCounter() const
+{
+    return d_deleteCounter_p;
+}
+
 inline
 int *MyTestObject::valuePtr(int index) const
 {
     BSLS_ASSERT_SAFE(2 > index);
 
     return d_value + index;
-}
-
-volatile int* MyTestObject::deleteCounter() const
-{
-    return d_deleteCounter_p;
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -163,7 +172,12 @@ class MyDerivedObject : public MyTestObject
   public:
     // CREATORS
     explicit MyDerivedObject(int *counter);
-    // Use compiler-generated copy
+        // Create a 'MyDerivedObject' using the specified 'counter' to record
+        // when this object's destructor is run.
+
+    // Use compiler-generated copy constructor and assignment operator
+    // MyDerivedObject(const MyDerivedObject& orig);
+    // MyDerivedObject operator=(const MyDerivedObject& orig);
 
     ~MyDerivedObject();
         // Increment the stored reference to a counter by 100, then destroy
@@ -193,7 +207,12 @@ class MySecondDerivedObject : public MyTestObject
   public:
     // CREATORS
     explicit MySecondDerivedObject(int *counter);
-    // Use compiler-generated copy
+        // Create a 'MySecondDerivedObject' using the specified 'counter' to
+        // record when this object's destructor is run.
+
+    // Use compiler-generated copy constructor and assignment operator
+    // MySecondDerivedObject(const MySecondDerivedObject& orig);
+    // MySecondDerivedObject operator=(const MySecondDerivedObject& orig);
 
     ~MySecondDerivedObject();
         // Increment the stored reference to a counter by 10000, then destroy
@@ -227,14 +246,20 @@ class CountedStackDeleter
   public:
     // CREATORS
     explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
+        // Create a 'CountedStackDeleter' using the specified 'counter' to
+        // record when this object is invoked as a deleter.
 
     //! ~CountedStackDeleter();
         // Destroy this object.
 
     // ACCESSORS
     volatile int *deleteCounter() const { return d_deleteCounter_p; }
+        // Return the address of the counter used to track when this object is
+        // invoked as a deleter.
 
     void deleteObject(void *) const
+        // Increment the stored reference to a counter to indicate that this
+        // method has been called.
     {
         ++*d_deleteCounter_p;
     }
@@ -247,6 +272,7 @@ class CountedStackDeleter
 int g_deleteCount = 0;
 
 static void countedNilDelete(void *, void*)
+    // Increment the global delete counterer 'g_deleteCount'.
 {
     static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
@@ -257,6 +283,8 @@ static void countedNilDelete(void *, void*)
 //-----------------------------------------------------------------------------
 
 static void doNothingDeleter(void *object, void *)
+    // The behavior is undefined unless the specified 'object' pointer is not
+    // null.  Otherwise, this function has no effect.
 {
     ASSERT(object);
 }
@@ -264,7 +292,7 @@ static void doNothingDeleter(void *object, void *)
 }  // close unnamed namespace
 
 //=============================================================================
-//                  TEST PROGRAM
+//                              TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
