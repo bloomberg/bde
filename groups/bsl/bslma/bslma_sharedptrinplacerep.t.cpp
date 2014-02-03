@@ -542,6 +542,25 @@ MyInplaceTestObject::~MyInplaceTestObject()
     ++s_numDeletes;
 }
 
+inline
+bool MyInplaceTestObject::operator==(MyInplaceTestObject const& rhs) const
+{
+    return d_a1  == rhs.d_a1  &&
+           d_a1  == rhs.d_a1  &&
+           d_a2  == rhs.d_a2  &&
+           d_a3  == rhs.d_a3  &&
+           d_a4  == rhs.d_a4  &&
+           d_a5  == rhs.d_a5  &&
+           d_a6  == rhs.d_a6  &&
+           d_a7  == rhs.d_a7  &&
+           d_a8  == rhs.d_a8  &&
+           d_a9  == rhs.d_a9  &&
+           d_a10 == rhs.d_a10 &&
+           d_a11 == rhs.d_a11 &&
+           d_a12 == rhs.d_a12 &&
+           d_a13 == rhs.d_a13 &&
+           d_a14 == rhs.d_a14;
+}
 
 #if 0  // TBD Need an appropriately levelized usage example
                               // ================
