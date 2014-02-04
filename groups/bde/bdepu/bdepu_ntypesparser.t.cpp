@@ -3239,9 +3239,13 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(LINE, overshoot, 0 == overshoot);
                         LOOP_ASSERT(LINE, LENGTH == result.size());
                         LOOP_ASSERT(LINE,
-                                    LENGTH < 1 || (!BloombergLP::bdeimp_Fuzzy::compare(result[0], MATCH_0)));
+                                    LENGTH < 1 || (
+                                        !BloombergLP::bdeimp_Fuzzy::compare(
+                                                         result[0], MATCH_0)));
                         LOOP_ASSERT(LINE,
-                                    LENGTH < 2 || (!BloombergLP::bdeimp_Fuzzy::compare(result[1], MATCH_1)));
+                                    LENGTH < 2 || (
+                                        !BloombergLP::bdeimp_Fuzzy::compare(
+                                                         result[1], MATCH_1)));
                     }
                 }
 
@@ -3260,9 +3264,13 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(LINE, overshoot, 0 == overshoot);
                         LOOP_ASSERT(LINE, LENGTH == result.size());
                         LOOP_ASSERT(LINE,
-                                    LENGTH < 1 || (!BloombergLP::bdeimp_Fuzzy::compare(result[0], MATCH_0)));
+                                    LENGTH < 1 || (
+                                        !BloombergLP::bdeimp_Fuzzy::compare(
+                                                         result[0], MATCH_0)));
                         LOOP_ASSERT(LINE,
-                                    LENGTH < 2 || (!BloombergLP::bdeimp_Fuzzy::compare(result[1], MATCH_1)));
+                                    LENGTH < 2 || (
+                                        !BloombergLP::bdeimp_Fuzzy::compare(
+                                                         result[1], MATCH_1)));
                     }
                 }
             }
