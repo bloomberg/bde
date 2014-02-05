@@ -1081,12 +1081,14 @@ static void countedNilDelete(void *, void*)
     ++g_deleteCount;
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template<class TARGET_TYPE>
 static void templateNilDelete(TARGET_TYPE *, void*)
 {
 //    static int& deleteCount = g_deleteCount;
     ++g_deleteCount;
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1227,6 +1229,7 @@ static void doNothingDeleter(void *object, void *)
     ASSERT(object);
 }
 
+#if 0
 static void myTestDeleter(TObj *object, bslma::TestAllocator *allocator)
 {
     allocator->deleteObject(object);
@@ -1234,6 +1237,17 @@ static void myTestDeleter(TObj *object, bslma::TestAllocator *allocator)
         printf("myTestDeleter called\n");
     }
 }
+#else
+static void myTestDeleter(void *object, void *allocator)
+    // parameters type-erased for use as a managed pointer deleter
+{
+    static_cast<bslma::TestAllocator *>(allocator)->deleteObject(
+                                                  static_cast<TObj *>(object));
+    if (g_verbose) {
+        printf("myTestDeleter called\n");
+    }
+}
+#endif
 
 static bslma::ManagedPtr<MyDerivedObject>
 returnDerivedPtr(int *numDels, bslma::TestAllocator *allocator)
@@ -1902,13 +1916,19 @@ struct Fdflt {
 //  'D' for Deleter po
 //  'Obj' or 'Void' to indicate if the object type is preserved in the deleter
 //  'Fac' or 'Void' to indicate if the factory type is preserved in the deleter
+//
+// Note that use of any polilcy other than that for passing all parameters to
+// the deleter function as 'void *' is deprecated.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template<class OBJECT_POLICY, class FACTORY_POLICY> struct DObjFac;
 template<class OBJECT_POLICY, class FACTORY_POLICY> struct DObjVoid;
 template<class OBJECT_POLICY, class FACTORY_POLICY> struct DVoidFac;
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 template<class OBJECT_POLICY, class FACTORY_POLICY> struct DVoidVoid;
 
 // Policy implementations
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template<class OBJECT_POLICY, class FACTORY_POLICY>
 struct DObjFac {
     // This class implements the deleter policy for a deleter function
@@ -2031,6 +2051,7 @@ struct DVoidFac {
         }
     }
 };
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template<class OBJECT_POLICY, class FACTORY_POLICY>
 struct DVoidVoid {
@@ -4512,6 +4533,7 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
     // 'void (*)(void *, void *)', starting with deleters that type-erase the
     // 'object' type, but have a strongly typed 'factory' argument.  Such
@@ -4779,6 +4801,7 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
 
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 
     // negative tests for deleters look for a null pointer lvalue.
@@ -4914,6 +4937,7 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
     // 'void (*)(void *, void *)', starting with deleters that type-erase the
     // 'object' type, but have a strongly typed 'factory' argument.  Such
@@ -5181,6 +5205,7 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
 
     //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 
     // negative tests for deleters look for a null pointer lvalue.
@@ -5316,6 +5341,7 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
     // 'void (*)(void *, void *)', starting with deleters that type-erase the
     // 'object' type, but have a strongly typed 'factory' argument.  Such
@@ -5583,6 +5609,7 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
 
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 
     // negative tests for deleters look for a null pointer lvalue.
@@ -5647,8 +5674,10 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     TestPolicy<void>( Ocomp(), Ftst(), DVoidVoid< Ocomp, Ftst >() ),
     TestPolicy<void>( Ocomp(), Fbsl(), DVoidVoid< Ocomp, Fbsl >() ),
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     TestPolicy<void>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<void>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // deleter tests
     TestPolicy<void>( NullPolicy(), NullPolicy(), NullPolicy() ),
@@ -5738,6 +5767,7 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
     // 'void (*)(void *, void *)', starting with deleters that type-erase the
     // 'object' type, but have a strongly typed 'factory' argument.  Such
@@ -6005,7 +6035,7 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
 
     //TestPolicy<void>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //TestPolicy<void>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
-
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
@@ -6063,8 +6093,10 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 
     TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     TestPolicy<const void>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     TestPolicy<const void>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<const void>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #if 0
     TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ob1,     Fbsl >() ),
@@ -6161,6 +6193,7 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Next we test the deprecated support for deleters other than
     // 'void (*)(void *, void *)', starting with deleters that type-erase the
     // 'object' type, but have a strongly typed 'factory' argument.  Such
@@ -6427,7 +6460,7 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 
     //TestPolicy<const void>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
     //TestPolicy<const void>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
-
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
@@ -6472,8 +6505,10 @@ static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
     // deleter tests
     TestPolicy<Base>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     TestPolicy<Base>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     TestPolicy<Base>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<Base>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 #endif
 
@@ -6503,8 +6538,10 @@ static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
     // deleter tests
     TestPolicy<Base2>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     TestPolicy<Base2>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     TestPolicy<Base2>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<Base2>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 }  // close unnamed namespace
@@ -6559,7 +6596,9 @@ int main(int argc, char *argv[])
         // Concerns
         //   Suppling a cookie of type 'void *' and a deletion functor of type
         //   void deleter(DERIVED_TYPE *, void *) supplies the correct cookie
-        //   to the deletion functor.
+        //   to the deletion functor.  Note that this test for deprecated
+        //   functionality will become redundant and ultimately vanish, as the
+        //   deprecated functionality is removed.
         //
         // Plan:
         //   Replicated the .
@@ -6571,6 +6610,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nDRQS 30670366"
                             "\n-------------\n");
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         {
             int cookie = 100;
             bslma::ManagedPtr<int> test(&cookie,
@@ -6582,6 +6622,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<int> test;
             test.load(&cookie, static_cast<void *>(&cookie), &testDeleter);
         }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -7983,6 +8024,7 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) printf("\tTest bslma::ManagedPtr(ELEMENT_TYPE *ptr,"
                              " bsl::nullptr_t,"
                              " void(*)(ELEMENT_TYPE *, void*));\n");
@@ -7997,6 +8039,7 @@ int main(int argc, char *argv[])
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
         LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -8397,6 +8440,10 @@ int main(int argc, char *argv[])
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// TBD Double check that the non-deprecated form is tested, otherwise correct
+// this test to use non-deprecatd functions.
+
         if (verbose) printf(
        "\tTest accessors on simple object using both a factory and deleter\n");
 
@@ -8469,6 +8516,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
         LOOP_ASSERT(numDeletes, 1 == numDeletes);
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
