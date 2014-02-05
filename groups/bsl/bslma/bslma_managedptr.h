@@ -714,6 +714,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_unspecifiedbool.h>
 #endif
 
+
 namespace BloombergLP {
 
 namespace bslma {
@@ -1003,6 +1004,7 @@ class ManagedPtr {
         // is already managed by another object, or if
         // '0 == deleter && 0 != ptr'.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <class MANAGED_TYPE, class MANAGED_BASE>
     ManagedPtr(MANAGED_TYPE *ptr,
                void         *cookie,
@@ -1060,6 +1062,7 @@ class ManagedPtr {
         // Note that this function is *deprecated* as it relies on undefined
         // compiler behavior for its implementation (that luckily performs as
         // required on every platform supported by BDE).
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     ~ManagedPtr();
         // Destroy this managed pointer object.  Destroy the object managed by
@@ -1545,6 +1548,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr,
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE, class MANAGED_BASE>
 inline
@@ -1592,6 +1596,7 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(
 
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class TARGET_TYPE>
 inline
@@ -1647,21 +1652,6 @@ void ManagedPtr<TARGET_TYPE>::loadImp(MANAGED_TYPE *ptr,
     d_members.setAliasPtr(stripBasePointerType(ptr));
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class TARGET_TYPE>
-template <class MANAGED_TYPE, class COOKIE_TYPE>
-inline
-void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
-                                   COOKIE_TYPE  *cookie,
-                                   DeleterFunc   deleter)
-{
-    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-
-    this->loadImp(ptr, static_cast<void *>(cookie), deleter);
-}
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
@@ -1698,6 +1688,19 @@ void ManagedPtr<TARGET_TYPE>::load(bsl::nullptr_t, FACTORY_TYPE *)
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+template <class TARGET_TYPE>
+template <class MANAGED_TYPE, class COOKIE_TYPE>
+inline
+void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
+                                   COOKIE_TYPE  *cookie,
+                                   DeleterFunc   deleter)
+{
+    BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::value));
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+
+    this->loadImp(ptr, static_cast<void *>(cookie), deleter);
+}
+
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE, class MANAGED_BASE>
 inline
