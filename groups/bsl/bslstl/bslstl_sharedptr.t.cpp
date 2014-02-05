@@ -5171,6 +5171,7 @@ int main(int argc, char *argv[])
             impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
             impl.incrementRefs(1);
             LOOP_ASSERT(impl.numReferences(), 2 == impl.numReferences());
 
@@ -5212,6 +5213,7 @@ int main(int argc, char *argv[])
             impl.releaseRef();
             impl.releaseRef();
             LOOP_ASSERT(impl.numReferences(), 1 == impl.numReferences());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             impl.releaseRef();
             //da->deallocate(implPtr);
