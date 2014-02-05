@@ -183,7 +183,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 #ifndef INCLUDED_UTILITY
-#include <utility>  // for 'std::forward'
+//#include <utility>  // for 'std::forward'
 #define INCLUDED_UTILITY
 #endif
 

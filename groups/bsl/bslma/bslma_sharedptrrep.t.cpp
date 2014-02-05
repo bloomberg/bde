@@ -492,6 +492,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'incrementRefs'"
                             "\n=======================\n");
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         {
             TObj t;
             Obj& x = t;
@@ -523,6 +524,7 @@ int main(int argc, char *argv[])
             x.incrementRefs(3);
             ASSERT(10 == X.numReferences());
         }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 7: {
         // --------------------------------------------------------------------
