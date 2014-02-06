@@ -177,15 +177,19 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
 #define INCLUDED_TYPEINFO
 #endif
 
-#ifndef INCLUDED_UTILITY
+//#ifndef INCLUDED_UTILITY
 //#include <utility>  // for 'std::forward'
-#define INCLUDED_UTILITY
-#endif
+//#define INCLUDED_UTILITY
+//#endif
 
 namespace BloombergLP {
 namespace bslma {
@@ -456,7 +460,7 @@ template <class... ARGS>
 SharedPtrInplaceRep<TYPE>::SharedPtrInplaceRep(Allocator *basicAllocator,
                                                ARGS&&...  args)
 : d_allocator_p(basicAllocator)
-, d_instance(::std::forward<ARGS>(args)...)
+, d_instance(bsls::Util::forward<ARGS>(args)...)
 {
 }
 # else
