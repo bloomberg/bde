@@ -1638,6 +1638,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_unspecifiedbool.h>
 #endif
 
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>               // 'std::size_t', 'std::ptrdiff_t'
 #define INCLUDED_CSTDDEF
@@ -3969,7 +3973,7 @@ shared_ptr<ELEMENT_TYPE>::createInplace(
 
     basicAllocator = BloombergLP::bslma::Default::allocator(basicAllocator);
     Rep *rep = new (*basicAllocator) Rep(basicAllocator,
-                                         ::native_std::forward<ARGS>(args)...);
+                              BloombergLP::bsls::Util::forward<ARGS>(args)...);
     SelfType(rep->ptr(), rep).swap(*this);
 }
 # else
@@ -5014,7 +5018,7 @@ bsl::shared_ptr<ELEMENT_TYPE> bsl::make_shared(ARGS&&... args)
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
     BloombergLP::bslalg::ScalarPrimitives::construct(
                                             rep_p->ptr(),
-                                          ::native_std::forward<ARGS>(args)...,
+                               BloombergLP::bsls::Util::forward<ARGS>(args)...,
                                             basicAllocator);
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
@@ -5036,7 +5040,7 @@ bsl::allocate_shared(ALLOC a, ARGS&&... args)
     bsl::allocator_traits<ALLOC>::construct(
                                            a,
                                            rep_p->ptr(),
-                                         ::native_std::forward<ARGS>(args)...);
+                              BloombergLP::bsls::Util::forward<ARGS>(args)...);
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
 }
@@ -5051,7 +5055,7 @@ bsl::shared_ptr<ELEMENT_TYPE> bsl::allocate_shared(ALLOC *a, ARGS&&... args)
     BloombergLP::bslstl::SharedPtr_RepProctor proctor(rep_p);
     BloombergLP::bslalg::ScalarPrimitives::construct(
                                             rep_p->ptr(),
-                                          ::native_std::forward<ARGS>(args)...,
+                               BloombergLP::bsls::Util::forward<ARGS>(args)...,
                                             a);
     proctor.release();
     return shared_ptr<ELEMENT_TYPE>(rep_p->ptr(), rep_p);
