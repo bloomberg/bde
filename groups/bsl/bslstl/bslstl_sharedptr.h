@@ -1578,6 +1578,14 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_addlvaluereference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ADDPOINTER
+#include <bslmf_addpointer.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
 #endif
@@ -1588,6 +1596,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
@@ -3619,9 +3631,20 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE  *ptr,
                                      typename ALLOCATOR::value_type *)
 : d_ptr_p(ptr)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // This is not quite C++11 'decay' as we do not need to worry about array
+    // types, and do not want to remove reference or cv-qualification from
+    // DELETER otherwise.
+    typedef typename bsl::conditional<bsl::is_function<DELETER>::value,
+                                      typename bsl::add_pointer<DELETER>::type,
+                                      DELETER>::type DeleterType;
+#else
+    typedef DELETER DeleterType;
+#endif
+
     typedef
     BloombergLP::bslstl::SharedPtrAllocateOutofplaceRep<COMPATIBLE_TYPE,
-                                                        DELETER,
+                                                        DeleterType,
                                                         ALLOCATOR> RepMaker;
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, deleter, basicAllocator);
