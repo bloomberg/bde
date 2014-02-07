@@ -1357,7 +1357,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Using the array-driven approach, for a fixed timezone, invoke the
         //:   call back method on both sides of the boundaries of daylight
-        //:   savings time for a year.  Confirm that the expected values are
+        //:   saving time for a year.  Confirm that the expected values are
         //:   returned throughout, and that the static members are updated when
         //:   times transition into and out of daylight saving time.  Also
         //:   confirm the same behavior when the series of datetimes are used
@@ -1403,7 +1403,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nCheck daylight savings transitions" << endl;
+        if (verbose) cout << "\nCheck daylight saving transitions" << endl;
         {
             bdet_Datetime newYearsDay(2013,  1,  1, 0);
             int status = Util::configure("America/New_York", newYearsDay);
@@ -2216,7 +2216,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Use a stopwatch mechanism to measure the time needed to
         //:   iteratively request the local time offset at the UTC datetime
-        //:   corresponding to the start of daylight savings time in New York,
+        //:   corresponding to the start of daylight saving time in New York,
         //:   a cache-miss, which resets the cache.  Then, request the result
         //:   for the UTC time set in P-1, another cache-miss.  The number of
         // requests is determined by a command-line parameter.
