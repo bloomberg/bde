@@ -303,6 +303,12 @@ class Function_Rep {
 
       , e_GET_TYPE_ID
             // Return a pointer to the 'type_info' for the object in 'rep'.
+
+      , e_INIT_REP
+            // (Allocator manager only) initialize 'rep' using the 'input'
+            // allocator.  Requires that 'input' point to an object of the
+            // manager's 'ALLOC' type and that 'rep->d_funcManager_p' is
+            // already set.
     };
 
     enum AllocCategory {
@@ -386,6 +392,27 @@ class Function_Rep {
     template <class ALLOC>
     void *initRep(std::size_t funcSize, const ALLOC& alloc,
                   integral_constant<AllocCategory, e_ERASED_STATELESS_ALLOC>);
+        // Initialize this object's 'd_objbuf', 'd_allocator_p', and
+        // 'd_allocManager_p' fields, allocating (if necessary) enough storage
+        // to hold a function object of the specified 'funcSize' and holding a
+        // copy of 'alloc'.  If the function and allocator fit within
+        // 'd_objbuf', then no memory is allocated.  The actual wrapped
+        // function object is not initialized, nor is 'd_funcManager_p' set.
+
+    bool equalAlloc(bslma::Allocator* alloc,
+                    integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>) const;
+    template <class T>
+    bool equalAlloc(const bsl::allocator<T>& alloc,
+                    integral_constant<AllocCategory, e_BSL_ALLOCATOR>) const;
+    template <class ALLOC>
+    bool equalAlloc(const ALLOC& alloc,
+              integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>) const;
+    template <class ALLOC>
+    bool equalAlloc(const ALLOC& alloc,
+              integral_constant<AllocCategory,e_ERASED_STATELESS_ALLOC>) const;
+        // Return true if the specified 'alloc' can be used to free memory
+        // from the allocator stored in this object and vice versa, and false
+        // otherwise.
 
     template <class ALLOC, AllocCategory ATP>
     void copyRep(const Function_Rep&                   other,
@@ -462,7 +489,7 @@ struct Function_MemFuncInvokeImp {
         // If 'OBJ_ARG_TYPE' is a non-const rvalue, then it will have been
         // forwarded as a const reference, instead.  In order to call a
         // potentially non-const member function on it, we must cast the
-        // reference back to a the original type.  The 'const_cast', below,
+        // reference back to the original type.  The 'const_cast', below,
         // will have no effect unless 'OBJ_ARG_TYPE' is a non-const rvalue.
         typedef typename bsl::add_lvalue_reference<OBJ_ARG_TYPE>::type ObjTp;
         return (const_cast<ObjTp>(obj).*f)(args...);
@@ -577,6 +604,11 @@ class function<RET(ARGS...)> :
     template <class FUNC>
     static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS>::Type...);
+
+    template <class ALLOC>
+    void copyInit(const ALLOC& alloc, const function& other);
+
+    void moveInit(function& other);
 
 public:
     // PUBLIC TYPES
@@ -884,6 +916,10 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       case e_GET_TARGET:  return wrappedFunc_p;
       case e_GET_TYPE_ID: return &typeid(FUNC);
 
+      case e_INIT_REP: {
+          BSLS_ASSERT(0 && "Opcode not implemented for function manager");
+      } break;
+
     } // end switch
 
     return PtrOrSize_t();
@@ -929,7 +965,23 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
 
       case e_GET_SIZE:    return sizeof(Adaptor);
       case e_GET_TARGET:  return rep->d_allocator_p;
-      case e_GET_TYPE_ID: return &typeid(ALLOC);
+      case e_GET_TYPE_ID: return &typeid(Adaptor);
+
+      case e_INIT_REP: {
+          const bslma::Allocator *inputAlloc =
+              static_cast<const bslma::Allocator *>(input.asPtr());
+          const Adaptor *inputAdaptor =
+              dynamic_cast<const Adaptor*>(inputAlloc);
+          BSLS_ASSERT(inputAdaptor);
+
+          std::size_t funcSize = rep->d_funcManager_p ?
+              rep->d_funcManager_p(e_GET_SIZE, rep, PtrOrSize_t()).asSize_t() :
+              0;
+
+          rep->initRep(funcSize, inputAdaptor->adaptedAllocator(),
+                  integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>());
+
+      } break;
     } // end switch
 
     return PtrOrSize_t();
@@ -1021,6 +1073,7 @@ void *bsl::Function_Rep::initRep(std::size_t funcSize, const ALLOC& alloc,
 }
 
 template <class ALLOC>
+inline
 void *bsl::Function_Rep::initRep(std::size_t funcSize, const ALLOC& alloc,
                     integral_constant<AllocCategory, e_ERASED_STATELESS_ALLOC>)
 {
@@ -1032,6 +1085,54 @@ void *bsl::Function_Rep::initRep(std::size_t funcSize, const ALLOC& alloc,
                    integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 }
 
+inline
+bool bsl::Function_Rep::equalAlloc(bslma::Allocator* alloc,
+                     integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>) const
+{
+    return alloc == d_allocator_p;
+}
+
+template <class T>
+inline
+bool bsl::Function_Rep::equalAlloc(const bsl::allocator<T>& alloc,
+                       integral_constant<AllocCategory, e_BSL_ALLOCATOR>) const
+{
+    return alloc.mechanism() == d_allocator_p;
+}
+
+template <class ALLOC>
+bool bsl::Function_Rep::equalAlloc(const ALLOC&,
+              integral_constant<AllocCategory,e_ERASED_STATELESS_ALLOC>)  const
+{
+    BSLMF_ASSERT((is_same<typename ALLOC::value_type, char>::value));
+
+    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+
+    // If the our allocator has the same type as the adapted stateless
+    // allocator, then they are assumed equal.
+    return NULL != dynamic_cast<Adaptor*>(d_allocator_p);
+}
+
+template <class ALLOC>
+bool bsl::Function_Rep::equalAlloc(const ALLOC& alloc,
+               integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>) const
+{
+    BSLMF_ASSERT((is_same<typename ALLOC::value_type, char>::value));
+
+    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+
+    // Try to cast our allocator into the same type as the adapted 'ALLOC'.
+    Adaptor *thisAdaptor = dynamic_cast<Adaptor*>(d_allocator_p);
+
+    if (! thisAdaptor) {
+        // Different type.  Cannot compare equal.
+        return false;
+    }
+
+    // Compare the wrapped STL allocator to 'alloc'.
+    return thisAdaptor->adaptedAllocator() == alloc;
+}
+
 template <class ALLOC, bsl::Function_Rep::AllocCategory ATP>
 void bsl::Function_Rep::copyRep(const Function_Rep&                   other,
                                 const ALLOC&                          alloc,
@@ -1041,9 +1142,9 @@ void bsl::Function_Rep::copyRep(const Function_Rep&                   other,
 
     // Compute function size.
     std::size_t funcSize =
-        other.d_funcManager_p(e_GET_SIZE, this, NULL).asSize_t();
+        other.d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t();
 
-    void *function_p = initRep(funcSize, alloc, atp);
+    initRep(funcSize, alloc, atp);
 
     void *otherFunction_p = (funcSize <= sizeof(InplaceBuffer) ?
                              &other.d_objbuf : other.d_objbuf.d_object_p);
@@ -1185,6 +1286,75 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
     return &outofplaceFunctorInvoker<FUNC>;
 }
 
+template <class RET, class... ARGS>
+template <class ALLOC>
+void bsl::function<RET(ARGS...)>::copyInit(const ALLOC&    alloc,
+                                           const function& other)
+{
+    d_funcManager_p = other.d_funcManager_p;
+    d_invoker_p     = other.d_invoker_p;
+
+    std::size_t funcSize = d_funcManager_p ?
+        d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
+
+    typedef Function_AllocTraits<ALLOC> Traits;
+    initRep(funcSize,
+            typename Traits::Type(alloc), typename Traits::Category());
+
+    if (d_funcManager_p) {
+        PtrOrSize_t source = d_funcManager_p(e_GET_TARGET,
+                                             const_cast<function*>(&other),
+                                             PtrOrSize_t());
+        d_funcManager_p(e_COPY_CONSTRUCT, this, source);
+    }
+}
+
+template <class RET, class... ARGS>
+void bsl::function<RET(ARGS...)>::moveInit(function& other)
+{
+    // This function is called only when it is known that '*this' will get
+    // its allocator from 'other'.
+
+    d_funcManager_p = other.d_funcManager_p;
+    d_invoker_p     = other.d_invoker_p;
+
+    if (d_funcManager_p) {
+        std::size_t funcSize = d_funcManager_p(e_GET_SIZE, &other,
+                                               PtrOrSize_t()).asSize_t();
+
+        if (funcSize <= sizeof(InplaceBuffer)) {
+            // Function is inplace.
+
+            // Initialize the rep using other's allocator.
+            other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
+
+            // Move-construct function
+            PtrOrSize_t source =
+                d_funcManager_p(e_GET_TARGET,
+                                const_cast<function*>(&other),
+                                PtrOrSize_t());
+            d_funcManager_p(e_MOVE_CONSTRUCT, this, source);
+        }
+        else {
+            // Function is not inplace.
+            // Just move the pointers from other.
+            d_objbuf.d_object_p = other.d_objbuf.d_object_p;
+            d_allocManager_p    = other.d_allocManager_p;
+            d_allocator_p       = other.d_allocator_p;
+
+            // Now re-initialize 'other' as an empty object
+            other.d_funcManager_p = NULL;
+            other.d_invoker_p     = NULL;
+            d_allocManager_p(e_INIT_REP, &other, d_allocator_p);
+        }
+    }
+    else {
+        // Moving an empty 'function' object.
+        // Initialize just the allocator portion of the result
+        other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
+    }
+}
+
 // CREATORS
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
@@ -1207,23 +1377,10 @@ bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 }
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>::function(const function& other)
 {
-    d_funcManager_p = other.d_funcManager_p;
-    d_invoker_p     = other.d_invoker_p;
-
-    std::size_t funcSize = d_funcManager_p ?
-        d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
-
-    initRep(funcSize, bslma::Default::defaultAllocator(),
-            integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
-
-    if (d_funcManager_p) {
-        PtrOrSize_t source = d_funcManager_p(e_GET_TARGET,
-                                             const_cast<function*>(&other),
-                                             PtrOrSize_t());
-        d_funcManager_p(e_COPY_CONSTRUCT, this, source);
-    }
+    copyInit(bslma::Default::defaultAllocator(), other);
 }
 
 template <class RET, class... ARGS>
@@ -1277,26 +1434,12 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
 
 template <class RET, class... ARGS>
 template<class ALLOC>
+inline
 bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC&    alloc,
                                       const function& other)
 {
-    d_funcManager_p = other.d_funcManager_p;
-    d_invoker_p     = other.d_invoker_p;
-
-    std::size_t funcSize = d_funcManager_p ?
-        d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
-
-    typedef Function_AllocTraits<ALLOC> Traits;
-    initRep(funcSize,
-            typename Traits::Type(alloc), typename Traits::Category());
-
-    if (d_funcManager_p) {
-        PtrOrSize_t source = d_funcManager_p(e_GET_TARGET,
-                                             const_cast<function*>(&other),
-                                             PtrOrSize_t());
-        d_funcManager_p(e_COPY_CONSTRUCT, this, source);
-    }
+    copyInit(alloc, other);
 }
 
 template <class RET, class... ARGS>
@@ -1332,7 +1475,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function(function&& other)
 {
-    // TBD
+    moveInit(other);
 }
 
 template <class RET, class... ARGS>
@@ -1341,7 +1484,13 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC& alloc,
                                       function&&   other)
 {
-    // TBD
+    typedef Function_AllocTraits<ALLOC> AllocTraits;
+
+    if (other.equalAlloc(alloc, typename AllocTraits::Category())) {
+        moveInit(other);
+    }
+    else
+        copyInit(typename AllocTraits::Type(alloc), other);
 }
 
 #endif //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES

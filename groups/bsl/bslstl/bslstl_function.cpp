@@ -30,6 +30,20 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
       case e_GET_SIZE:    return PtrOrSize_t();
       case e_GET_TARGET:  return rep->d_allocator_p;
       case e_GET_TYPE_ID: return &typeid(bslma::Allocator);
+
+      case e_INIT_REP: {
+          bslma::Allocator *inputAlloc = static_cast<bslma::Allocator *>(
+              const_cast<void *>(input.asPtr()));
+
+          std::size_t funcSize = rep->d_funcManager_p ?
+              rep->d_funcManager_p(e_GET_SIZE, rep, PtrOrSize_t()).asSize_t() :
+              0;
+
+          rep->initRep(funcSize, inputAlloc,
+                       integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
+
+      } break;
+
     } // end switch
 
     return PtrOrSize_t();
