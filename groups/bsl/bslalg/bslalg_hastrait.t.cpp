@@ -1,9 +1,22 @@
 // bslalg_hastrait.t.cpp                                              -*-C++-*-
-
 #include <bslalg_hastrait.h>
-#include <bslalg_typetraits.h>
+
+#include <bslalg_typetraitbitwisecopyable.h>               // for testing only
+#include <bslalg_typetraitbitwiseequalitycomparable.h>     // for testing only
+#include <bslalg_typetraitbitwisemoveable.h>               // for testing only
+#include <bslalg_typetraithaspointersemantics.h>           // for testing only
+#include <bslalg_typetraithasstliterators.h>               // for testing only
+#include <bslalg_typetraithastrivialdefaultconstructor.h>  // for testing only
+#include <bslalg_typetraitpair.h>                          // for testing only
+#include <bslalg_typetraitusesbslmaallocator.h>            // for testing only
 
 #include <bslma_testallocator.h>
+
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
+#include <bslmf_nestedtraitdeclaration.h>
+
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
@@ -18,15 +31,15 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// 'bslalg::HasTrait' is tested in a similar fashion to 'bslalg_TypeTraits'.
-// In fact, 'bslalg_TypeTraits' has a replicate of 'bslalg::HasTrait' within
+// 'bslalg_hastrait' is tested in a similar fashion to 'bslalg_typetraits'.
+// In fact, 'bslalg_typetraits' has a replicate of 'bslalg::HasTrait' within
 // its test driver.  This is because the effects of applying a trait to a class
 // can only be tested by an observer that attempts to use or look at the
 // traits, which is precisely what 'bslalg::HasTrait' does.
 //
 // Therefore, this component will have the exact same test driver as
-// 'bslalg_TypeTraits', but with the private 'HasTrait' class within
-// 'bslalg_TypeTraits' removed to test the true implementation of
+// 'bslalg_typetraits', but with the private 'HasTrait' class within
+// 'bslalg_typetraits's test driver removed to test the true implementation of
 // 'bslalg::HasTrait'.
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
@@ -148,17 +161,17 @@ struct Identity
 
 // Test that 'traitBits<TYPE>()' returns the value 'TRAIT_BITS' for every
 // combination of cv-qualified 'TYPE' and reference to 'TYPE'.
-#define TRAIT_TEST(TYPE, TRAIT_BITS) {                                 \
-    typedef Identity<TYPE >::Type Type;                                \
-    typedef Type const          cType;                                 \
-    typedef Type volatile       vType;                                 \
-    typedef Type const volatile cvType;                                \
-    static const char *TypeName = #TYPE;                               \
-    static const unsigned traits = traitBits<  Type>();                \
+#define TRAIT_TEST(TYPE, TRAIT_BITS) {                                   \
+    typedef Identity<TYPE >::Type Type;                                  \
+    typedef Type const          cType;                                   \
+    typedef Type volatile       vType;                                   \
+    typedef Type const volatile cvType;                                  \
+    static const char *TypeName = #TYPE;                                 \
+    static const unsigned traits = traitBits<  Type>();                  \
     LOOP2_ASSERT(TypeName, traits, traitBits<  Type>() == (TRAIT_BITS)); \
-    LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);     \
-    LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);     \
-    LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);     \
+    LOOP2_ASSERT(TypeName, traits, traitBits< cType>() == traits);       \
+    LOOP2_ASSERT(TypeName, traits, traitBits< vType>() == traits);       \
+    LOOP2_ASSERT(TypeName, traits, traitBits<cvType>() == traits);       \
 }
 
 //=============================================================================
@@ -187,11 +200,11 @@ struct UsesBslmaAllocator<my_Class1> : bsl::true_type { };
 template <class T>
 struct my_Class2
 {
-    // Class template that has nested type traits
-    BSLALG_DECLARE_NESTED_TRAITS3(my_Class2,
-                                bslalg::TypeTraitBitwiseCopyable,
-                                bslalg::TypeTraitBitwiseMoveable,
-                                bslalg::TypeTraitHasTrivialDefaultConstructor);
+    // Class template that has nested type traits.
+    BSLMF_NESTED_TRAIT_DECLARATION(my_Class2, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_Class2, bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_Class2,
+                                   bsl::is_trivially_default_constructible);
 };
 
 struct my_Class4

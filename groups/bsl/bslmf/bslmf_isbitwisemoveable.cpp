@@ -1,9 +1,10 @@
 // bslmf_isbitwisemoveable.cpp                                        -*-C++-*-
-
 #include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslmf_nestedtraitdeclaration.h>    // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg Finance L.P.

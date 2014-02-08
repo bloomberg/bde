@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO:
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //

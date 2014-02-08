@@ -202,8 +202,8 @@ class MyAllocTestDeleter {
     void             *d_someMemory;
 
   public:
-//    BSLALG_DECLARE_NESTED_TRAITS(MyAllocTestDeleter,
-//                                 bslalg::TypeTraitUsesBslmaAllocator);
+//    BSLMF_NESTED_TRAIT_DECLARATION(MyAllocTestDeleter,
+//                                   bslma::UsesBslmaAllocator);
 
   public:
     // CREATORS
