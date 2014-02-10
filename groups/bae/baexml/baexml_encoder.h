@@ -976,7 +976,7 @@ int baexml_Encoder::encode(bsl::streambuf *buffer, const TYPE& object)
 
     const int rc = encode(formatter, object);
 
-//     buffer->pubsync();
+    buffer->pubsync();
 
     return rc;
 }

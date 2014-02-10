@@ -10404,7 +10404,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -10421,52 +10421,6 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of Test." << endl;
-      } break;
-      case 14: {
-        // --------------------------------------------------------------------
-        // TESTING FLUSH AT THE END OF THE ENCODING
-        //
-        // Concerns:
-        //
-        // Plan:
-        //
-        // Testing:
-        //
-        // --------------------------------------------------------------------
-
-        if (verbose) bsl::cout << "\nTESTING FLUSH AT THE END OF THE ENCODING"
-                               << "\n========================================"
-                               << bsl::endl;
-
-        if (verbose) cout << "\nUsing MySequence with PRETTY style." << endl;
-        {
-            typedef test::MySequence Type;
-
-            Type mX;  const Type& X = mX;
-
-            mX.attribute1() = 434;
-            mX.attribute2() = "test string";
-
-            const bsl::string EXPECTED_RESULT =
-                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequence" XSI ">\n"
-                                "    <Attribute1>434</Attribute1>\n"
-                                "    <Attribute2>test string</Attribute2>\n"
-                                "</MySequence>\n";
-
-            bcema_PooledBlobBufferFactory factory(1);
-            bcema_Blob                    blob(&factory);
-            bcesb_OutBlobStreamBuf        bs(&blob);
-
-            EncoderOptions options;
-            options.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
-
-            baexml_Encoder encoder(&options, 0, 0);
-            int rc = encoder.encode(&bs, X);
-            LOOP_ASSERT(rc, 0 == rc);
-            LOOP2_ASSERT(EXPECTED_RESULT.size(), blob.length(),
-                         EXPECTED_RESULT.size() == blob.length());
-        }
       } break;
       case 13: {
         // --------------------------------------------------------------------
