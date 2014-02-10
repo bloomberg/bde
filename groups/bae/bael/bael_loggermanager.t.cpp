@@ -180,9 +180,9 @@ using namespace bdef_PlaceHolders;
 // [20] TESTING CONCURRENT ACCESS TO 'bael_LoggerManager::setCategory'
 // [21] TESTING CONCURRENT ACCESS TO primary 'initSingleton'
 // [22] TESTING CONCURRENT ACCESS TO 'bael_LoggerManager::lookupCategory'
-// [29] USAGE EXAMPLE #1
-// [30] USAGE EXAMPLE #2
-// [31] USAGE EXAMPLE #4
+// [31] USAGE EXAMPLE #1
+// [32] USAGE EXAMPLE #2
+// [33] USAGE EXAMPLE #4
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -370,6 +370,25 @@ void logInformation(bael_Logger *logger,
     logger->logMessage(category, severity, record);
 }
 }  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_32
+
+// ============================================================================
+//                         CASE 30 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+namespace BAEL_LOGGERMANAGER_TEST_CASE_30 {
+enum {
+    NUM_THREADS = 20 // number of threads
+};
+bael_LoggerManager *manager;
+bdef_Function<void (*)(int *, int *, int *, int *, const char *)> callback;
+
+extern "C" {
+    void *workerThread30(void *arg)
+    {
+        manager->setDefaultThresholdLevelsCallback(&callback);
+        return 0;
+    }
+}  // extern "C"
+}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_30
 
 // ============================================================================
 //                         CASE 29 RELATED ENTITIES
@@ -826,7 +845,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #4
         //
@@ -871,7 +890,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #2
         //
@@ -953,7 +972,7 @@ int main(int argc, char *argv[])
         ASSERT(  50 == cat3->triggerAllLevel());
 
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #1
         //
@@ -1009,6 +1028,43 @@ int main(int argc, char *argv[])
             cout << observer.lastPublishedRecord() << endl;
         }
 
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING CONCURRENT ACCESS TO
+        // 'bael_LoggerManager::setDefaultThresholdLevelsCallback':
+        //   Verify Concurrent access to 'setDefaultThresholdLevelsCallback'.
+        //
+        // Concerns:
+        // That multiple threads can safely invoke
+        // 'setDefaultThresholdLevelsCallback' with the same callback argument.
+        //
+        // Plan:
+        // Create several threads, each of which invoke
+        // 'setDefaultThresholdLevelsCallback' with the same callback argument.
+        //
+        // Testing:
+        //   void setDefaultThresholdLevelsCallback(Dtc *cb);
+        // --------------------------------------------------------------------
+        if (verbose) {
+            cout << endl
+                 << "TESTING CONCURRENT ACCESS TO "
+                 << "'bael_LoggerManager::setDefaultThresholdLevelsCallback'"
+                 << endl
+                 << "============================="
+                 << "======================================================="
+                 << endl;
+        }
+
+        using namespace BAEL_LOGGERMANAGER_TEST_CASE_30;
+
+        bael_DefaultObserver observer(cout);
+        bael_LoggerManagerConfiguration configuration;
+        bael_LoggerManagerScopedGuard guard(&observer, configuration);
+        manager = &Obj::singleton();
+        callback = &inheritThresholdLevels;
+
+        executeInParallel(NUM_THREADS, workerThread30);
       } break;
       case 29: {
         // --------------------------------------------------------------------
