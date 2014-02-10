@@ -12,7 +12,6 @@
 #include <bdem_table.h>
 
 #include <bcem_aggregate.h>
-
 #include <bcema_sharedptr.h>
 
 #include <bdeu_printmethods.h>  // for printing vector
