@@ -751,7 +751,7 @@ int baejsn_Encoder::encode(bsl::streambuf               *streamBuf,
         encoderImpl.closeDocument();
     }
 
-//     streamBuf->pubsync();
+    streamBuf->pubsync();
 
     return rc;
 }
