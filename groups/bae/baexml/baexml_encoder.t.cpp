@@ -13,11 +13,6 @@
 
 #include <bcem_aggregate.h>
 
-#include <bcema_blob.h>
-#include <bcesb_blobstreambuf.h>
-#include <bcema_blobutil.h>
-#include <bcema_pooledblobbufferfactory.h>
-
 #include <bcema_sharedptr.h>
 
 #include <bdeu_printmethods.h>  // for printing vector
