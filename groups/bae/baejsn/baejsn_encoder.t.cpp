@@ -30553,11 +30553,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT.size(), blob.length(),
                          EXPECTED_RESULT.size() == blob.length());
-
-//             for (bsl::size_t i = 0; i < EXPECTED_RESULT.size(); ++i) {
-//                 LOOP2_ASSERT(EXPECTED_RESULT[i], *blob.buffer(i).data(),
-//                              EXPECTED_RESULT[i] == *blob.buffer(i).data());
-//             }
         }
       } break;
       case 15: {
