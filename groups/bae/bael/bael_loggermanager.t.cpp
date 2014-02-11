@@ -372,25 +372,6 @@ void logInformation(bael_Logger *logger,
 }  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_32
 
 // ============================================================================
-//                         CASE 30 RELATED ENTITIES
-// ----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_30 {
-enum {
-    NUM_THREADS = 20 // number of threads
-};
-bael_LoggerManager *manager;
-bdef_Function<void (*)(int *, int *, int *, int *, const char *)> callback;
-
-extern "C" {
-    void *workerThread30(void *arg)
-    {
-        manager->setDefaultThresholdLevelsCallback(&callback);
-        return 0;
-    }
-}  // extern "C"
-}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_30
-
-// ============================================================================
 //                         CASE 29 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 namespace BAEL_LOGGERMANAGER_TEST_CASE_29 {
@@ -790,6 +771,52 @@ void myPopulator(bdem_List *list, const bdem_Schema& schema)
     list->theModifiableInt(0) = globalFactorialArgument;
 }
 
+// ============================================================================
+//                         CASE 30 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+namespace BAEL_LOGGERMANAGER_TEST_CASE_30 {
+enum {
+    NUM_THREADS = 4 // number of threads
+};
+bael_LoggerManager *manager;
+bdef_Function<void (*)(int *, int *, int *, int *, const char *)> function;
+bcemt_Barrier barrier(NUM_THREADS + 1);
+bcemt_Condition condition;
+
+void callback(int *r, int *p, int *t, int *a, const char *c)
+    // Wait for all the setting threads to be ready to set the callback, invoke
+    // the 'inheritThresholdLevels' method on the specified 'r', 'p', 't', 'a',
+    // and 'c', and then time out waiting for the setting threads to finish.
+    // (They can't, because a lock is held until this function returns.)
+{
+    barrier.wait();
+    inheritThresholdLevels(r, p, t, a, c);
+    bcemt_Mutex m;
+    bcemt_LockGuard<bcemt_Mutex> guard(&m);
+    ASSERT(-1 == condition.timedWait(&m, bdetu_SystemTime::now() + 3));
+}
+
+void *setCategory(void *)
+    // Call 'setCategory' in order to invoke the 'callback' method above.
+{
+    manager->setCategory("joe");
+    return 0;
+}
+
+extern "C" {
+    void *workerThread30(void *)
+        // Wait for all threads to be ready, then attempt to set the callback
+        // and signal completion.  The thread waiting for the signal will time
+        // out, because the setter mutex is locked by that thread.
+    {
+        barrier.wait();
+        manager->setDefaultThresholdLevelsCallback(&function);
+        condition.signal();
+        return 0;
+    }
+}  // extern "C"
+}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_30
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -1062,9 +1089,12 @@ int main(int argc, char *argv[])
         bael_LoggerManagerConfiguration configuration;
         bael_LoggerManagerScopedGuard guard(&observer, configuration);
         manager = &Obj::singleton();
-        callback = &inheritThresholdLevels;
-
+        function = &callback;
+        manager->setDefaultThresholdLevelsCallback(&function);
+        bcemt_ThreadUtil::Handle handle;
+        bcemt_ThreadUtil::create(&handle, setCategory, 0);
         executeInParallel(NUM_THREADS, workerThread30);
+        bcemt_ThreadUtil::join(handle);
       } break;
       case 29: {
         // --------------------------------------------------------------------
