@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Implement atomic operations using gcc '__atomic_*' intrinsics.
 //
 //@CLASSES:
-//  bsls::AtomicOperations_ALL_ALL_GCCintrinsics: gcc '__atomic_*' instrinsics
+//  bsls::AtomicOperations_ALL_ALL_GCCIntrinsics: gcc '__atomic_*' instrinsics
 //
 //@DESCRIPTION: This component provides classes necessary to implement
 // atomics in 32bit/64bit mode using GCC and clang compiler intrinsics.
@@ -35,15 +35,15 @@ namespace BloombergLP {
 
 namespace bsls {
 
-struct AtomicOperations_ALL_ALL_GCCintrinsics;
-typedef AtomicOperations_ALL_ALL_GCCintrinsics  AtomicOperations_Imp;
+struct AtomicOperations_ALL_ALL_GCCIntrinsics;
+typedef AtomicOperations_ALL_ALL_GCCIntrinsics  AtomicOperations_Imp;
 
       // ================================================================
-      // struct Atomic_TypeTraits<AtomicOperations_ALL_ALL_GCCintrinsics>
+      // struct Atomic_TypeTraits<AtomicOperations_ALL_ALL_GCCIntrinsics>
       // ================================================================
 
 template <>
-struct Atomic_TypeTraits<AtomicOperations_ALL_ALL_GCCintrinsics>
+struct Atomic_TypeTraits<AtomicOperations_ALL_ALL_GCCIntrinsics>
 {
     struct __attribute__((__aligned__(sizeof(int)))) Int
     {
@@ -62,17 +62,17 @@ struct Atomic_TypeTraits<AtomicOperations_ALL_ALL_GCCintrinsics>
 };
 
                // =============================================
-               // struct AtomicOperations_ALL_ALL_GCCintrinsics
+               // struct AtomicOperations_ALL_ALL_GCCIntrinsics
                // =============================================
 
-struct AtomicOperations_ALL_ALL_GCCintrinsics
+struct AtomicOperations_ALL_ALL_GCCIntrinsics
   #ifdef BSLS_PLATFORM_CPU_64_BIT
-    : AtomicOperations_Default64<AtomicOperations_ALL_ALL_GCCintrinsics>
+    : AtomicOperations_Default64<AtomicOperations_ALL_ALL_GCCIntrinsics>
   #else
-    : AtomicOperations_Default32<AtomicOperations_ALL_ALL_GCCintrinsics>
+    : AtomicOperations_Default32<AtomicOperations_ALL_ALL_GCCIntrinsics>
   #endif
 {
-    typedef Atomic_TypeTraits<AtomicOperations_ALL_ALL_GCCintrinsics>
+    typedef Atomic_TypeTraits<AtomicOperations_ALL_ALL_GCCIntrinsics>
             AtomicTypes;
 
     typedef char AtomicInt_SizeCheck[sizeof(int) == 4 ? 1 : -1];
@@ -160,60 +160,60 @@ struct AtomicOperations_ALL_ALL_GCCintrinsics
 // ===========================================================================
 
                // ---------------------------------------------
-               // struct AtomicOperations_ALL_ALL_GCCintrinsics
+               // struct AtomicOperations_ALL_ALL_GCCIntrinsics
                // ---------------------------------------------
 
 inline
-void AtomicOperations_ALL_ALL_GCCintrinsics::
+void AtomicOperations_ALL_ALL_GCCIntrinsics::
     initInt(AtomicTypes::Int *atomicInt, int value)
 {
     __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELAXED);
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     getInt(const AtomicTypes::Int *atomicInt)
 {
     return __atomic_load_n(&atomicInt->d_value, __ATOMIC_SEQ_CST);
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     getIntAcquire(const AtomicTypes::Int *atomicInt)
 {
     return __atomic_load_n(&atomicInt->d_value, __ATOMIC_ACQUIRE);
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     getIntRelaxed(const AtomicTypes::Int *atomicInt)
 {
     return __atomic_load_n(&atomicInt->d_value, __ATOMIC_RELAXED);
 }
 
 inline
-void AtomicOperations_ALL_ALL_GCCintrinsics::
+void AtomicOperations_ALL_ALL_GCCIntrinsics::
     setInt(AtomicTypes::Int *atomicInt, int value)
 {
     __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_SEQ_CST);
 }
 
 inline
-void AtomicOperations_ALL_ALL_GCCintrinsics::
+void AtomicOperations_ALL_ALL_GCCIntrinsics::
     setIntRelease(AtomicTypes::Int *atomicInt, int value)
 {
     __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELEASE);
 }
 
 inline
-void AtomicOperations_ALL_ALL_GCCintrinsics::
+void AtomicOperations_ALL_ALL_GCCIntrinsics::
     setIntRelaxed(AtomicTypes::Int *atomicInt, int value)
 {
     __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELAXED);
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     swapInt(AtomicTypes::Int *atomicInt, int swapValue)
 {
     return
@@ -221,7 +221,7 @@ int AtomicOperations_ALL_ALL_GCCintrinsics::
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     swapIntAcqRel(AtomicTypes::Int *atomicInt, int swapValue)
 {
     return
@@ -229,7 +229,7 @@ int AtomicOperations_ALL_ALL_GCCintrinsics::
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     testAndSwapInt(AtomicTypes::Int *atomicInt,
                    int               compareValue,
                    int               swapValue)
@@ -240,7 +240,7 @@ int AtomicOperations_ALL_ALL_GCCintrinsics::
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     testAndSwapIntAcqRel(AtomicTypes::Int *atomicInt,
                          int               compareValue,
                          int               swapValue)
@@ -251,77 +251,77 @@ int AtomicOperations_ALL_ALL_GCCintrinsics::
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     addIntNv(AtomicTypes::Int *atomicInt, int value)
 {
     return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_SEQ_CST);
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     addIntNvAcqRel(AtomicTypes::Int *atomicInt, int value)
 {
     return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_ACQ_REL);
 }
 
 inline
-int AtomicOperations_ALL_ALL_GCCintrinsics::
+int AtomicOperations_ALL_ALL_GCCIntrinsics::
     addIntNvRelaxed(AtomicTypes::Int *atomicInt, int value)
 {
     return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_RELAXED);
 }
 
 inline
-void AtomicOperations_ALL_ALL_GCCintrinsics::
+void AtomicOperations_ALL_ALL_GCCIntrinsics::
     initInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELAXED);
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     getInt64(const AtomicTypes::Int64 *atomicInt)
 {
     return __atomic_load_n(&atomicInt->d_value, __ATOMIC_SEQ_CST);
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     getInt64Acquire(const AtomicTypes::Int64 *atomicInt)
 {
     return __atomic_load_n(&atomicInt->d_value, __ATOMIC_ACQUIRE);
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     getInt64Relaxed(const AtomicTypes::Int64 *atomicInt)
 {
     return __atomic_load_n(&atomicInt->d_value, __ATOMIC_RELAXED);
 }
 
 inline
-void AtomicOperations_ALL_ALL_GCCintrinsics::
+void AtomicOperations_ALL_ALL_GCCIntrinsics::
     setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_SEQ_CST);
 }
 
 inline
-void AtomicOperations_ALL_ALL_GCCintrinsics::
+void AtomicOperations_ALL_ALL_GCCIntrinsics::
     setInt64Release(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELEASE);
 }
 
 inline
-void AtomicOperations_ALL_ALL_GCCintrinsics::
+void AtomicOperations_ALL_ALL_GCCIntrinsics::
     setInt64Relaxed(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     __atomic_store_n(&atomicInt->d_value, value, __ATOMIC_RELAXED);
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     swapInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 swapValue)
 {
     return
@@ -329,7 +329,7 @@ Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     swapInt64AcqRel(AtomicTypes::Int64 *atomicInt, Types::Int64 swapValue)
 {
     return
@@ -337,7 +337,7 @@ Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
                      Types::Int64        compareValue,
                      Types::Int64        swapValue)
@@ -348,7 +348,7 @@ Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     testAndSwapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
                            Types::Int64        compareValue,
                            Types::Int64        swapValue)
@@ -359,21 +359,21 @@ Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     addInt64Nv(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_SEQ_CST);
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_ACQ_REL);
 }
 
 inline
-Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
+Types::Int64 AtomicOperations_ALL_ALL_GCCIntrinsics::
     addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     return __atomic_add_fetch(&atomicInt->d_value, value, __ATOMIC_RELAXED);
