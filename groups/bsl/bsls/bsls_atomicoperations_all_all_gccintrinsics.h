@@ -99,12 +99,12 @@ struct AtomicOperations_ALL_ALL_GCCintrinsics
     static int swapIntAcqRel(AtomicTypes::Int *atomicInt, int swapValue);
 
     static int testAndSwapInt(AtomicTypes::Int *atomicInt,
-                              int compareValue,
-                              int swapValue);
+                              int               compareValue,
+                              int               swapValue);
 
     static int testAndSwapIntAcqRel(AtomicTypes::Int *atomicInt,
-                                    int compareValue,
-                                    int swapValue);
+                                    int               compareValue,
+                                    int               swapValue);
 
     static int addIntNv(AtomicTypes::Int *atomicInt, int value);
 
@@ -125,33 +125,34 @@ struct AtomicOperations_ALL_ALL_GCCintrinsics
     static void setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value);
 
     static void setInt64Release(AtomicTypes::Int64 *atomicInt,
-                                Types::Int64 value);
+                                Types::Int64        value);
 
     static void setInt64Relaxed(AtomicTypes::Int64 *atomicInt,
-                                Types::Int64 value);
+                                Types::Int64        value);
 
     static Types::Int64 swapInt64(AtomicTypes::Int64  *atomicInt,
-                                  Types::Int64 swapValue);
+                                  Types::Int64         swapValue);
 
     static Types::Int64 swapInt64AcqRel(AtomicTypes::Int64  *atomicInt,
-                                        Types::Int64 swapValue);
+                                        Types::Int64         swapValue);
 
     static Types::Int64 testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
-                                         Types::Int64 compareValue,
-                                         Types::Int64 swapValue);
+                                         Types::Int64        compareValue,
+                                         Types::Int64        swapValue);
 
-    static Types::Int64 testAndSwapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
-                                               Types::Int64 compareValue,
-                                               Types::Int64 swapValue);
+    static Types::Int64 testAndSwapInt64AcqRel(
+        AtomicTypes::Int64 *atomicInt,
+        Types::Int64        compareValue,
+        Types::Int64        swapValue);
 
     static Types::Int64 addInt64Nv(AtomicTypes::Int64 *atomicInt,
-                                   Types::Int64 value);
+                                   Types::Int64        value);
 
     static Types::Int64 addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt,
-                                         Types::Int64 value);
+                                         Types::Int64        value);
 
     static Types::Int64 addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
-                                          Types::Int64 value);
+                                          Types::Int64        value);
 };
 
 // ===========================================================================
@@ -230,7 +231,8 @@ int AtomicOperations_ALL_ALL_GCCintrinsics::
 inline
 int AtomicOperations_ALL_ALL_GCCintrinsics::
     testAndSwapInt(AtomicTypes::Int *atomicInt,
-                   int compareValue, int swapValue)
+                   int               compareValue,
+                   int               swapValue)
 {
     __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
                                 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
@@ -240,7 +242,8 @@ int AtomicOperations_ALL_ALL_GCCintrinsics::
 inline
 int AtomicOperations_ALL_ALL_GCCintrinsics::
     testAndSwapIntAcqRel(AtomicTypes::Int *atomicInt,
-                         int compareValue, int swapValue)
+                         int               compareValue,
+                         int               swapValue)
 {
     __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
                                 0, __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);
@@ -336,7 +339,8 @@ Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
 inline
 Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
     testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
-                     Types::Int64 compareValue, Types::Int64 swapValue)
+                     Types::Int64        compareValue,
+                     Types::Int64        swapValue)
 {
     __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
                                 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
@@ -346,7 +350,8 @@ Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
 inline
 Types::Int64 AtomicOperations_ALL_ALL_GCCintrinsics::
     testAndSwapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
-                           Types::Int64 compareValue, Types::Int64 swapValue)
+                           Types::Int64        compareValue,
+                           Types::Int64        swapValue)
 {
     __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
                                 0, __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);
