@@ -50,14 +50,16 @@ using bsl::endl;
 // MANIPULATORS
 // [ 9] void reset(bsl::streambuf &streamBuf);
 // [12] void resetStreamBufGetPointer();
+// [13] void setAllowStandAloneValues(bool value);
 // [ 3] int advanceToNextToken();
 //
 // ACCESSORS
 // [ 3] TokenType tokenType() const;
+// [13] bool allowStandAloneValues() const;
 // [ 3] int value(bslstl::StringRef *data) const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -228,7 +230,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -359,6 +361,288 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == address["state"].asString());
     ASSERT(10022           == address["zipcode"].asInt());
 //..
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'setAllowStandAloneValues' and 'allowStandAloneValues'
+        //
+        // Concerns:
+        //: 1 'allowStandAloneValues' returns 'true' by default.
+        //:
+        //: 2 'setAllowStandAloneValues' method sets the
+        //:   'allowStandAloneValues' option to the specified value.
+        //:
+        //: 3 'allowStandAloneValues' method returns the correct value of the
+        //:   'allowStandAloneValues' option.
+        //:
+        //: 4 If 'allowStandAloneValues' option is 'false' then only JSON
+        //:   objects and arrays are accepted as top-level elements.
+        //:
+        //: 5 If 'allowStandAloneValues' option is 'true' then JSON objects,
+        //:   arrays, and values are accepted as top-level elements.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, specify a set of distinct
+        //:   rows consisting of input text, the value of the
+        //:   'allowStandAloneValues' option, the expected token type after
+        //:   invoking 'advanceToNextToken', and the expected value.
+        //:
+        //: 2 For each row in the table, construct a 'baejsn_Tokenizer', 'mX',
+        //:   with the values in that row.
+        //:
+        //: 3 Confirm that the 'allowStandAloneValues' setter and getter
+        //:   functions works as expected.
+        //:
+        //: 4 Confirm that the if 'allowStandAloneValues' value is 'true' then
+        //:   stand-alone values are correctly tokenized else only object and
+        //:   array values are tokenized.
+        //
+        // Testing:
+        //   void setAllowStandAloneValues(bool value);
+        //   bool allowStandAloneValues() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'allowStandAloneValues' option" << endl
+                          << "======================================" << endl;
+
+        const struct {
+            int             d_line;
+            const char     *d_text_p;
+            bool            d_allowStandAloneValues;
+            bool            d_validFlag;
+            Obj::TokenType  d_expTokenType;
+            const char     *d_value_p;
+        } DATA[] = {
+            {
+                L_,
+                "12",
+                false,
+                false,
+                Obj::BAEJSN_ERROR,
+                ""
+            },
+            {
+                L_,
+                "12",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "12"
+            },
+            {
+                L_,
+                "true",
+                false,
+                false,
+                Obj::BAEJSN_ERROR,
+                ""
+            },
+            {
+                L_,
+                "true",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "true"
+            },
+            {
+                L_,
+                "\"true\"",
+                false,
+                false,
+                Obj::BAEJSN_ERROR,
+                ""
+            },
+            {
+                L_,
+                "\"true\"",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "\"true\""
+            },
+            {
+                L_,
+                "Michael",
+                false,
+                false,
+                Obj::BAEJSN_ERROR,
+                ""
+            },
+            {
+                L_,
+                "Michael",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "Michael"
+            },
+            {
+                L_,
+                "\"Michael\"",
+                false,
+                false,
+                Obj::BAEJSN_ERROR,
+                ""
+            },
+            {
+                L_,
+                "\"Michael\"",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "\"Michael\""
+            },
+            {
+                L_,
+                "\"Mic\\\"hael\"",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "\"Mic\\\"hael\""
+            },
+            {
+                L_,
+                "\"Mic\\\"hael\\\"\"",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "\"Mic\\\"hael\\\"\""
+            },
+            {
+                L_,
+                "\"Mic\\\"hael\\\\\\\"\"",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "\"Mic\\\"hael\\\\\\\"\""
+            },
+            {
+                L_,
+                "\"Mic\\\"\"",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "\"Mic\\\"\""
+            },
+            {
+                L_,
+                "null",
+                false,
+                false,
+                Obj::BAEJSN_ERROR,
+                ""
+            },
+            {
+                L_,
+                "null",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "null"
+            },
+            {
+                L_,
+                "\"null\"",
+                false,
+                false,
+                Obj::BAEJSN_ERROR,
+                ""
+            },
+            {
+                L_,
+                "\"null\"",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "\"null\""
+            },
+            {
+                L_,
+                "Michael",
+                true,
+                true,
+                Obj::BAEJSN_ELEMENT_VALUE,
+                "Michael"
+            },
+            {
+                L_,
+                "{ \"name\" : \"Michael\" }",
+                true,
+                true,
+                Obj::BAEJSN_START_OBJECT,
+                "{"
+            },
+            {
+                L_,
+                "{ \"name\" : \"Michael\" }",
+                false,
+                true,
+                Obj::BAEJSN_START_OBJECT,
+                "{"
+            },
+            {
+                L_,
+                "[ \"12\" ]",
+                true,
+                true,
+                Obj::BAEJSN_START_ARRAY,
+                "["
+            },
+            {
+                L_,
+                "[ \"12\" ]",
+                false,
+                true,
+                Obj::BAEJSN_START_ARRAY,
+                "["
+            },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ ti) {
+            const int            LINE      = DATA[ti].d_line;
+            const string         TEXT      = DATA[ti].d_text_p;
+            const bool           ALLOW_STAND_ALONE_VALUES
+                                           = DATA[ti].d_allowStandAloneValues;
+            const bool           IS_VALID  = DATA[ti].d_validFlag;
+            const Obj::TokenType EXP_TOKEN = DATA[ti].d_expTokenType;
+            const string         EXP_VALUE = DATA[ti].d_value_p;
+
+            bsl::istringstream iss(TEXT);
+
+            if (veryVerbose) {
+                P(LINE) P(TEXT) P(IS_VALID)
+                P(EXP_TOKEN) P(EXP_VALUE)
+            }
+
+            Obj mX;  const Obj& X = mX;
+            ASSERTV(X.tokenType(), Obj::BAEJSN_BEGIN == X.tokenType());
+            ASSERTV(X.allowStandAloneValues(),
+                    true == X.allowStandAloneValues());
+
+            mX.reset(iss.rdbuf());
+
+            mX.setAllowStandAloneValues(ALLOW_STAND_ALONE_VALUES);
+            ASSERTV(X.allowStandAloneValues(), ALLOW_STAND_ALONE_VALUES,
+                    ALLOW_STAND_ALONE_VALUES == X.allowStandAloneValues());
+
+            if (IS_VALID) {
+                ASSERTV(LINE, 0 == mX.advanceToNextToken());
+                ASSERTV(LINE, X.tokenType(), EXP_TOKEN,
+                        EXP_TOKEN == X.tokenType());
+
+                if (Obj::BAEJSN_ELEMENT_VALUE == EXP_TOKEN) {
+                    bslstl::StringRef value;
+                    ASSERTV(LINE, 0 == X.value(&value));
+                    ASSERTV(LINE, value, EXP_VALUE, value == EXP_VALUE);
+                }
+            }
+            else {
+                ASSERTV(LINE, 0 != mX.advanceToNextToken());
+            }
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -674,7 +958,7 @@ int main(int argc, char *argv[])
                 osb.pubsync();
 
                 bcesb_InBlobStreamBuf isb(osb.data());
-                
+
                 confirmStreamBufReset(&isb,
                                       LINE,
                                       NADV,
