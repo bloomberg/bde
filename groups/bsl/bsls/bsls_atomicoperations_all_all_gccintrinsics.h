@@ -7,13 +7,13 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide implementations of atomic operations for recent gcc, clang
+//@PURPOSE: Implement atomic operations using gcc '__atomic_*' intrinsics.
 //
 //@CLASSES:
-//  bsls::AtomicOperations_ALL_ALL_GCCintrinsics: atomics for recent gcc, clang
+//  bsls::AtomicOperations_ALL_ALL_GCCintrinsics: gcc '__atomic_*' instrinsics
 //
 //@DESCRIPTION: This component provides classes necessary to implement
-// atomics in 32bit/64bit mode with GCC and clang compiler intrinsics.
+// atomics in 32bit/64bit mode using GCC and clang compiler intrinsics.
 // The classes are for private use only.  See 'bsls_atomicoperations'
 // and 'bsls_atomic' for the public interface to atomics.
 
