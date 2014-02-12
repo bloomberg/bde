@@ -232,7 +232,7 @@ int AtomicOperations_CXX11_ALL_GCC::
                    int compareValue, int swapValue)
 {
     __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
-                                0, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED);
+                                0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
     return compareValue;
 }
 
@@ -242,7 +242,7 @@ int AtomicOperations_CXX11_ALL_GCC::
                          int compareValue, int swapValue)
 {
     __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
-                                0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED);
+                                0, __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);
     return compareValue;
 }
 
@@ -338,7 +338,7 @@ Types::Int64 AtomicOperations_CXX11_ALL_GCC::
                      Types::Int64 compareValue, Types::Int64 swapValue)
 {
     __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
-                                0, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED);
+                                0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
     return compareValue;
 }
 
@@ -348,7 +348,7 @@ Types::Int64 AtomicOperations_CXX11_ALL_GCC::
                            Types::Int64 compareValue, Types::Int64 swapValue)
 {
     __atomic_compare_exchange_n(&atomicInt->d_value, &compareValue, swapValue,
-                                0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED);
+                                0, __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE);
     return compareValue;
 }
 
