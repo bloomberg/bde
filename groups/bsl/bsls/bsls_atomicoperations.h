@@ -691,7 +691,8 @@ BSLS_IDENT("$Id: $")
  || (!defined(BSLS_PLATFORM_CMP_CLANG)                                        \
      && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40700)
 
-#   include <bsls_atomicoperations_CXX11_all_gcc.h>  // LLVM 3.1+ and GCC 4.7+
+    // LLVM 3.1+ and GCC 4.7+
+#   include <bsls_atomicoperations_all_all_gccintrinsics.h>
 
 #elif defined(BSLS_PLATFORM_CPU_X86)
 

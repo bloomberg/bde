@@ -1,22 +1,13 @@
-// bsls_atomicoperations_CXX11_all_gcc.t.cpp                          -*-C++-*-
+// bsls_atomicoperations_all_all_gccintrinsics.cpp                    -*-C++-*-
 
-#include <bsls_atomicoperations_CXX11_all_gcc.h>
+#include <bsls_atomicoperations_all_all_gccintrinsics.h>
 
-#include <cstdlib>
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
 
-using namespace BloombergLP;
-using namespace std;
+namespace BloombergLP {
 
-int main(int argc, char *argv[])
-{
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-
-    switch (test) { case 0:
-        return 0;
-      default:
-        return -1;
-    }
-}
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg L.P.
