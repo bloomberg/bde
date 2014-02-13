@@ -139,8 +139,8 @@ class BdeWafBuild(object):
                  cxxflags        = cxxflags,
                  cxxincludes     = cxxincludes,
                  linkflags       = linkflags,
-                 includes        = '.',
-                 export_includes = '.',
+                 includes        = [package_node],
+                 export_includes = [package_node],
                  use             = internal_deps,
                  uselib          = external_deps,
                  lib             = libs,
@@ -169,7 +169,7 @@ class BdeWafBuild(object):
                     lib           = libs,
                     stlib         = stlibs,
                     cust_libpaths = libpaths,
-                    includes      = '.',
+                    includes      = [package_node],
                     use           = [package_name + '_lib'] + dum_task_gens,
                     uselib        = external_deps
                     )
