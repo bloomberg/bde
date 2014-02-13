@@ -1048,13 +1048,13 @@ std::size_t hash<wchar_t>::operator()(wchar_t x) const
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 inline
-std::size_t hash<char>::operator()(char16_t x) const
+std::size_t hash<char16_t>::operator()(char16_t x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
 }
 
 inline
-std::size_t hash<char>::operator()(char32_t x) const
+std::size_t hash<char32_t>::operator()(char32_t x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
 }
