@@ -1225,14 +1225,14 @@ int main(int argc, char *argv[])
             {
                 bslma::TestAllocator testAllocatorY(veryVeryVerbose);
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mY(X, &testAllocatorY); const Obj& Y = mY;
 
                     LOOP_ASSERT(LINE, Y == W);
                     LOOP_ASSERT(LINE, W == Y);
                     LOOP_ASSERT(LINE, X == W);
                     LOOP_ASSERT(LINE, W == X);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -1771,12 +1771,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Default Ctor" << endl;
             const Obj X(&testAllocator);
             if (veryVerbose) { cout << "\t\t"; P(X); }
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << "\nTesting primary manipulator." << endl;
@@ -1877,7 +1877,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator testAllocatorY(veryVeryVerbose);
             bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
 
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Primary Manipulator" << endl;
 
@@ -1921,7 +1921,7 @@ int main(int argc, char *argv[])
             ASSERT(0 <= X.ruleId(R3));
             ASSERT(X == Z);
 
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
       } break;

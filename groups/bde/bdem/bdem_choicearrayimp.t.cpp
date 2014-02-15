@@ -1972,7 +1972,7 @@ int main(int argc, char *argv[])
                     cout << "Testing insertItem(i, Obj) for "
                          << "array based on spec '" << SPEC << "'" << endl;
                 }
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     // iterate over the index for insertion
                     // notice index=LEN+1 appends to the array
                     for (int index = 0; index < LEN + 1; ++index) {
@@ -2038,7 +2038,7 @@ int main(int argc, char *argv[])
                                         == Y.theItem(j - 1).isSelectionNull());
                         }
                     }
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
         {
@@ -2063,7 +2063,7 @@ int main(int argc, char *argv[])
                     cout << "Testing insertItem(i, Obj) for "
                          << "array based on spec '" << SPEC << "'" << endl;
                 }
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     // iterate over the index for insertion
                     // notice index=LEN+1 appends to the array
                     for (int index = 0; index <= LEN; ++index) {
@@ -2128,7 +2128,7 @@ int main(int argc, char *argv[])
                                          X.theItem(j - 1) == C.theItem(j));
                         }
                     }
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       } break;
@@ -2167,7 +2167,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_DATA; ++i) {
                 const char *SPEC  = DATA[i].d_catalogSpec;
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     if (veryVerbose) { P(SPEC); }
 
                     Catalog cat;
@@ -2195,7 +2195,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, X1==Y);
                     LOOP_ASSERT(i, X2==Y);
                     LOOP_ASSERT(i, X3==Z);
-                }END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       } break;
@@ -2251,7 +2251,7 @@ int main(int argc, char *argv[])
                 const char *SPEC  = DATA[i].d_catalogSpec;
                 const int   LEN   = bsl::strlen(SPEC);
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     if (veryVerbose) {
                         cout << "testing makeSelection based on spec '"
                              << SPEC << "'" << endl;
@@ -2285,7 +2285,7 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(i, j, !Ref.isNull());
                     }
                     LOOP_ASSERT(i, X == Y);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
         {
@@ -3697,7 +3697,7 @@ int main(int argc, char *argv[])
                                              (AggOption::AllocationStrategy) i;
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                 for (int j = 0; j < NUM_CTYPES; ++j) {
 
@@ -3794,7 +3794,7 @@ int main(int argc, char *argv[])
                     ASSERT(!isNull(Y, 0));
                 }
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
             }
         }
@@ -4608,7 +4608,7 @@ int main(int argc, char *argv[])
                     :            AggOption::BDEM_SUBORDINATE;
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                   // set up our test allocator based on the alloc strategy
                   bdema_SequentialAllocator seqAlloc(&testAllocator);
@@ -4634,7 +4634,7 @@ int main(int argc, char *argv[])
                   LOOP_ASSERT(i,0 == array2.numSelections());
                   LOOP_ASSERT(i,0 == array3.numSelections());
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
             }
         }
@@ -4663,7 +4663,7 @@ int main(int argc, char *argv[])
                     populateCatalog(&cat,SPEC);
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                       // set up our test allocator based on the alloc
                       // strategy
@@ -4705,7 +4705,7 @@ int main(int argc, char *argv[])
                                        CH.selectionDescriptor(k));
                       }
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || !defined(BDE_BUILD_TARGET_OPT)
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
                 }
             }
@@ -5239,7 +5239,7 @@ int main(int argc, char *argv[])
                 Catalog catalog;
                 populateCatalog(&catalog, SPEC);
 
-              BEGIN_BSLMA_EXCEPTION_TEST { // removed for performance
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                 EType::Type *begin = 0 == catalog.size() ? 0 : &catalog[0];
 
@@ -5464,7 +5464,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(j, 0 == X.numSelections());
                 LOOP_ASSERT(j, 0 == X.length());
 
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 

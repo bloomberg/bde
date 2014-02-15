@@ -2869,7 +2869,7 @@ if (veryVerbose)
 
                     // Repeat the above streaming with 'bdema' exception-test.
                     // Note that it is *not* necessary to 'ASSERT' anything!
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       in.reset();
                       const int AL = testAllocator.allocationLimit();
                       testAllocator.setAllocationLimit(-1);
@@ -2880,7 +2880,7 @@ if (veryVerbose)
                       // testing 'bdema' exceptions only!
                       bdex_InStreamFunctions::streamIn(in, v, VERSION);
 
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -4489,9 +4489,9 @@ if (veryVerbose)
                     LOOP2_ASSERT(ILINE, JLINE,  fgAreSame == (F == G));
                     LOOP2_ASSERT(ILINE, JLINE, !fgAreSame == (F != G));
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       mF = G;
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     LOOP2_ASSERT(ILINE, JLINE,          1 == (F == G));
                     LOOP2_ASSERT(ILINE, JLINE,          0 == (F != G));
@@ -5178,7 +5178,7 @@ if (veryVerbose)
 
                     // Repeat the above streaming with 'bdema' exception-test.
                     // Note that it is *not* necessary to 'ASSERT' anything!
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                       in.reset();
                       const int AL = testAllocator.allocationLimit();
@@ -5188,7 +5188,7 @@ if (veryVerbose)
                       testAllocator.setAllocationLimit(AL);
                       // testing 'bdema' exceptions only!
                       bdex_InStreamFunctions::streamIn(in, v, VERSION);
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 }
             }
@@ -5274,7 +5274,7 @@ if (veryVerbose)
                 // Repeat the above streaming with 'bdema' exception-test.
                 // Note that it is *not* necessary to 'ASSERT' anything!
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     in.reset();
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
@@ -5284,7 +5284,7 @@ if (veryVerbose)
                     bdex_InStreamFunctions::streamIn(in, t2, VERSION);
                     bdex_InStreamFunctions::streamIn(in, t3, VERSION);
                     ASSERT(!in);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 Obj w1(t1), w2(t2), w3(t3);  // make copies to be sure we can
@@ -5879,12 +5879,12 @@ if (veryVerbose)
               Obj x(g(xSpec), Z);  const Obj& X = x;
               Obj y(g(ySpec), Z);  const Obj& Y = y;
 
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 y = X;
 
                 LOOP2_ASSERT(LINE, JLINE, X == Y);
                 LOOP2_ASSERT(LINE, JLINE, !(X != Y));
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -5960,24 +5960,24 @@ if (veryVerbose)
 
         if (verbose) bsl::cout << "\nTest with empty schema." << bsl::endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj x(Z);     const Obj& X = x;
             Obj y(X, Z);  const Obj& Y = y;
 
             ASSERT(1 == (X == Y));
             ASSERT(0 == (X != Y));
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) bsl::cout << "\nTest with \"standard\" test schemas."
                                << bsl::endl;
         {
             for (int i = 0; i < NUM_SPECS; ++i) {
-              Obj r(Z);  const Obj& R = r;             // "reference object"
+              Obj r(Z);  const Obj& R = r;              // "reference object"
               const int LINE   = testSpecs[i].d_lineNum;
               gg(&r, testSpecs[i].d_spec);
 
-              const Obj X1(R);                         // No allocator.
+              const Obj X1(R);                          // No allocator.
               LOOP_ASSERT(LINE, X1 == R);
               LOOP_ASSERT(LINE, !(X1 != R));
 
@@ -5985,7 +5985,8 @@ if (veryVerbose)
               LOOP_ASSERT(LINE, X2 == R);
               LOOP_ASSERT(LINE, !(X2 != R));
 
-              BEGIN_BSLMA_EXCEPTION_TEST {             // Test allocator.
+                                                        // Test allocator.
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 bslma::TestAllocator testAllocator;
 #ifdef BDE_BUILD_TARGET_EXC
                 testAllocator.setAllocationLimit(bslmaExceptionCounter);
@@ -5994,7 +5995,7 @@ if (veryVerbose)
 
                 LOOP_ASSERT(LINE, X3 == R);
                 LOOP_ASSERT(LINE, !(X3 != R));
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -7635,7 +7636,7 @@ if (veryVerbose)
 
         if (verbose) bsl::cout << "\t\tWith exceptions." << bsl::endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             if (veryVerbose)
                 bsl::cout << "\tTesting Exceptions In Default Ctor"
                           << bsl::endl;
@@ -7643,7 +7644,7 @@ if (veryVerbose)
             if (veryVerbose) { T_(); T_(); PS(X); }
             ASSERT(0 == X.numRecords());
             ASSERT(0 == X.numEnumerations());
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) bsl::cout << "\tIn place using a buffer allocator."
@@ -7664,7 +7665,7 @@ if (veryVerbose)
                 bsl::cout << "\nTesting 'createRecord' and 'bdem_RecordDef' "
                           << "constructor." << bsl::endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj x1(Z);  const Obj& X1 = x1;
             ASSERT(0 == X1.numRecords());
             ASSERT(0 == X1.numEnumerations());
@@ -7688,11 +7689,11 @@ if (veryVerbose)
             ASSERT(0 == X1.numRecords());
             ASSERT(0 == X1.numEnumerations());
             ASSERT(0  > X1.recordIndex("A"));
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj x1(Z);  const Obj& X1 = x1;
             ASSERT(0 == x1.numRecords());
             ASSERT(0 == X1.numEnumerations());
@@ -7735,7 +7736,7 @@ if (veryVerbose)
             ASSERT(0  > X1.recordIndex("A"));
             ASSERT(0  > X1.recordIndex("B"));
             ASSERT(0  > X1.recordIndex(""));
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose)
@@ -7743,7 +7744,7 @@ if (veryVerbose)
                       << "'bdem_EnumerationDef' constructor."
                       << bsl::endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj x1(Z);  const Obj& X1 = x1;
             ASSERT(0 == X1.numRecords());
             ASSERT(0 == X1.numEnumerations());
@@ -7772,11 +7773,11 @@ if (veryVerbose)
             EnumDef *eAnon1 = x1.createEnumeration();
             ASSERT(eAnon1);
 
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj x1(Z);  const Obj& X1 = x1;
             ASSERT(0 == x1.numRecords());
             ASSERT(0 == X1.numEnumerations());
@@ -7818,14 +7819,14 @@ if (veryVerbose)
             ASSERT(0  > X1.recordIndex("A"));
             ASSERT(0  > X1.recordIndex("B"));
             ASSERT(0  > X1.recordIndex(""));
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose)
             bsl::cout << "\nTesting addEnumeration and "
                       << "assignAlphabeticalIDs." << bsl::endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj x1(Z);  const Obj& X1 = x1;
             // On the first loop, we operate on the new object.  On the
             // second loop, we apply the same operations after a removeAll,
@@ -8071,14 +8072,14 @@ if (veryVerbose)
                 LOOP_ASSERT(loop, 0  > X2.enumerationIndex("A"));
 
             }
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         break;
         if (verbose)
             bsl::cout << "\nTesting appendField and "
                       << "bdem_FieldDef constructor." << bsl::endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj x1(Z);  const Obj& X1 = x1;
             // On the first loop, we operate on the new object.  On the
             // second loop, we apply the same operations after a removeAll,
@@ -8385,7 +8386,7 @@ if (veryVerbose)
                 LOOP_ASSERT(loop, 0 == X1.numRecords());
                 LOOP_ASSERT(loop, 0  > X1.recordIndex("A"));
             }
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
       } break;
@@ -8491,7 +8492,7 @@ if (veryVerbose)
         if (verbose) bsl::cout << "\nBreathing Test:"
                                << "\n===============" << bsl::endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
           if (verbose) bsl::cout << "\n 1. Create an object x1 (default ctor)."
                                     "\t\t{ x1: }" << bsl::endl;
           Obj x1(Z);  const Obj& X1 = x1;
@@ -9114,7 +9115,7 @@ if (veryVerbose)
 
           if (veryVerbose) PS(X2);
 
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
       } break;
       default: {
