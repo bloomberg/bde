@@ -683,7 +683,6 @@ class TestAllocator : public Allocator {
         // regardless of the validity of the request.
         //
         // DEPRECATED: use 'numDeallocations' instead.
-// TBD #endif
 #endif  // BDE_OMIT_TRANSITIONAL
 };
 
@@ -798,12 +797,6 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 
 #endif  // BDE_BUILD_TARGET_EXC
 
-// TBD remove this when no longer referenced in any .t.cpp files
-#ifndef BEGIN_BSLMA_EXCEPTION_TEST
-#define BEGIN_BSLMA_EXCEPTION_TEST                                          \
-                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-#endif
-
                  // ============================================
                  // macro BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                  // ============================================
@@ -839,11 +832,6 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
-#endif
-
-// TBD remove this when no longer referenced in any .t.cpp files
-#ifndef END_BSLMA_EXCEPTION_TEST
-#define END_BSLMA_EXCEPTION_TEST BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
 namespace bslma {
@@ -1046,6 +1034,19 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
 
 typedef bslma::TestAllocator bslma_TestAllocator;
     // This alias is defined for backward compatibility.
+
+// The following two macros can be deleted when they are no longer referenced
+// in any .t.cpp files.
+
+#ifndef BEGIN_BSLMA_EXCEPTION_TEST
+#define BEGIN_BSLMA_EXCEPTION_TEST                                     \
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
+#endif
+
+#ifndef END_BSLMA_EXCEPTION_TEST
+#define END_BSLMA_EXCEPTION_TEST BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif
+
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
