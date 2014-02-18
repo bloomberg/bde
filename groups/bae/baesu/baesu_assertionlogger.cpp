@@ -6,8 +6,11 @@ BDES_IDENT_RCSID(baesu_assertionlogger_cpp,"$Id$ $CSID$")
 
 #include <bael_log.h>
 #include <baesu_stacktraceutil.h>
+
 #include <bsls_atomicoperations.h>
-#include <bsl_ostream.h>
+
+#include <bsl_ostream.h>  // ostream
+#include <bsl_cstring.h>  // memcpy
 
 namespace BloombergLP {
 
@@ -86,9 +89,9 @@ baesu_AssertionLogger::getLogSeverityCallback(LogSeverityCallback  *callback,
 
     BSLS_ASSERT(sizeof(LogSeverityCallback) == sizeof cb);
 
-    memcpy(reinterpret_cast<unsigned char *>(callback),
-           reinterpret_cast<unsigned char *>(&cb),
-           sizeof *callback);
+    bsl::memcpy(reinterpret_cast<unsigned char *>(callback),
+                reinterpret_cast<unsigned char *>(&cb),
+                sizeof *callback);
 }
 
 void

@@ -11,6 +11,9 @@
 #include <bdet_datetime.h>
 #include <bslma_default.h>
 
+#include <bsl_cstdlib.h>  // getenv
+#include <bsl_cstring.h>  // memcpy
+
 namespace BloombergLP {
 
                         // ---------------------------------
@@ -101,7 +104,7 @@ void baetzo_LocalTimeOffsetUtil::loadLocalTimeOffset(
 
 int  baetzo_LocalTimeOffsetUtil::configure()
 {
-    const char *timezone = getenv("TZ");
+    const char *timezone = bsl::getenv("TZ");
     if (!timezone) {
         return -1;                                                    // RETURN
     }
