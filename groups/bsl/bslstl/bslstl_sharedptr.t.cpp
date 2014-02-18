@@ -8038,7 +8038,7 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations+1 == ta.numDeallocations());
 
 
-#if defined(BSLSTL_SWITCH_OVER_TO_PASS_DELETER_BY_VALUE)
+#if 1 //defined(BSLSTL_SWITCH_OVER_TO_PASS_DELETER_BY_VALUE)
         if (verbose) printf(
                         "\nTesting ctor (with function type and standard allocator)"
                         "\n-----------------------------------------------\n");
