@@ -14,13 +14,15 @@ namespace bslma {
                         // class Allocator
                         // ---------------
 
-#ifndef BDE_OMIT_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+
 // CLASS METHODS
 void Allocator::throwBadAlloc()
 {
     bsls::BslExceptionUtil::throwBadAlloc();
 }
-#endif  // BDE_OMIT_DEPRECATED
+
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 // CREATORS
 Allocator::~Allocator()
