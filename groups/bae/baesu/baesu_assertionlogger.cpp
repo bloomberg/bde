@@ -106,9 +106,9 @@ baesu_AssertionLogger::setLogSeverityCallback(LogSeverityCallback  callback,
 
     BSLS_ASSERT(sizeof(LogSeverityCallback) == sizeof cb);
 
-    memcpy(reinterpret_cast<unsigned char *>(&cb),
-           reinterpret_cast<unsigned char *>(&callback),
-           sizeof(cb));
+    bsl::memcpy(reinterpret_cast<unsigned char *>(&cb),
+                reinterpret_cast<unsigned char *>(&callback),
+                sizeof(cb));
     bsls::AtomicOperations::setPtrRelease(&s_callback, cb);
 }
 
