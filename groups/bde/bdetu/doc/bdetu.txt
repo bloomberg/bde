@@ -33,6 +33,7 @@
      bdetu_dayofweek
      bdetu_informixdatetime
      bdetu_month
+     bdetu_systemclocktype
      bdetu_timeinterval
      bdetu_unset
 ..
@@ -62,6 +63,9 @@
 :
 : 'bdetu_month':
 :      Provide non-primitive functionality on months of the year.
+:
+: 'bdetu_systemclocktype':
+:      Provide an enumeration of (and operations on) clock types.
 :
 : 'bdetu_systemtime':
 :      Provide utilities to retrieve the system time.
