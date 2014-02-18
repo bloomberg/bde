@@ -29,7 +29,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if (defined(BSLS_PLATFORM_CMP_CLANG) && defined(__ATOMIC_SEQ_CST))           \
+ || (!defined(BSLS_PLATFORM_CMP_CLANG)                                        \
+     && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40700)
 
 namespace BloombergLP {
 
