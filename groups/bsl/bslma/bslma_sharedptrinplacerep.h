@@ -186,11 +186,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #define INCLUDED_TYPEINFO
 #endif
 
-//#ifndef INCLUDED_UTILITY
-//#include <utility>  // for 'std::forward'
-//#define INCLUDED_UTILITY
-//#endif
-
 namespace BloombergLP {
 namespace bslma {
 
