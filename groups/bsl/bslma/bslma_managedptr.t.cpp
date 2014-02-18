@@ -6852,7 +6852,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   TBD...
         //
-        // Tested:
+        // Testing:
         //   void clear();
         //   bsl::pair<TYPE*, bslma::ManagedPtrDeleter> release();
         //
@@ -7003,7 +7003,7 @@ int main(int argc, char *argv[])
         //   Test the functions in the order in which they are declared in
         //   the ManagedPtr class.
         //
-        // Tested:
+        // Testing:
         //   [Just because a function is tested, we do not (yet) confirm that
         //    the testing is adequate.]
         //   void swap(ManagedPtr<ELEMENT_TYPE>& rhs);
@@ -7233,7 +7233,7 @@ int main(int argc, char *argv[])
         //   Test the functions in the order in which they are declared in
         //   the ManagedPtr class.
         //
-        // Tested:
+        // Testing:
         //   [Just because a function is tested, we do not (yet) confirm that
         //    the testing is adequate.]
         //   void swap(ManagedPtr<ELEMENT_TYPE>& rhs);
@@ -7384,7 +7384,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   TBD...
         //
-        // Tested:
+        // Testing:
         //   bslma::ManagedPtr(bslma::ManagedPtr<OTHER> &alias, TYPE *ptr)
         //   void loadAlias(bslma::ManagedPtr<OTHER> &alias, TYPE *ptr)
 
@@ -7579,7 +7579,7 @@ int main(int argc, char *argv[])
         //   move constructor, including with rvalues, and values of different
         //   target types.
         //
-        // Tested:
+        // Testing:
         //   operator bslma::ManagedPtr_Ref<OTHER_TYPE>();
         //   bslma::ManagedPtr(bslma::ManagedPtr_Ref<ELEMENT_TYPE> ref);
         //   bslma::ManagedPtr(bslma::ManagedPtr &original);
@@ -7902,7 +7902,7 @@ int main(int argc, char *argv[])
         //   that accept pointers (with negative testing if that is out of
         //   contract).
         //
-        // Tested:
+        // Testing:
         //   bslma::ManagedPtr(TARGET_TYPE *ptr)
         //   bslma::ManagedPtr(TARGET_TYPE *ptr, FACTORY *factory)
         //   bslma::ManagedPtr(TARGET_TYPE *, void *, DeleterFunc)
@@ -8159,7 +8159,7 @@ int main(int argc, char *argv[])
         //  Test that illegal expressions cannot compile in compile-fail tests,
         //  guarded by #ifdefs, where necessary.
         //
-        // Tested:
+        // Testing:
         //   operator BoolType() const;
         //   TYPE& operator*() const;
         //   TYPE *operator->() const;
@@ -8552,7 +8552,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   TBD...
         //
-        // Tested:
+        // Testing:
         //   void loadAlias(bslma::ManagedPtr<OTHER> &alias, TYPE *ptr)
 
         // TEST SCENARIOS for 'loadAlias'
@@ -8804,7 +8804,7 @@ int main(int argc, char *argv[])
         //   well for base/derived classes that are not polymorphic, but we
         //   do not currently test that.
         //
-        // Tested:
+        // Testing:
         //   void load(bsl::nullptr_t=0, bsl::nullptr_t=0, bsl::nullptr_t=0)
         //   void load(TARGET_TYPE *ptr)
         //   void load(TARGET_TYPE *ptr, FACTORY *factory)
@@ -8963,7 +8963,7 @@ int main(int argc, char *argv[])
         // Plan:
         //    TBD
         //
-        // Tested:
+        // Testing:
         //   bslma::ManagedPtr();
         //   bslma::ManagedPtr(nullptr_t);
         // --------------------------------------------------------------------
