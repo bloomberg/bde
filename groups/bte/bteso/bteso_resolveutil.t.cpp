@@ -529,7 +529,7 @@ int main(int argc, char *argv[])
 
         const char* sundev1[] = { "172.17.1.20",   0 };
         const char* sundev5[] = { "10.126.149.12", 0 };
-        const char* ibm1[]    = { "172.17.1.27",   0 };
+        const char* ibm1[]    = { "172.17.5.40",   0 };
         const char* n100[]    = { "10.126.151.36", 0 };
             #endif
 
@@ -851,9 +851,9 @@ int main(int argc, char *argv[])
             // resolvable on BLP CORP PCs! TBD: FIXME!
 
             const char* sundev31[] = { "172.17.5.196",   0 };
-            const char* sundev5[]  = { "10.126.149.12", 0 };
-            const char* ibm1[]     = { "172.17.1.27",   0 };
-            const char* n100[]     = { "10.126.151.36", 0 };
+            const char* sundev5[]  = { "10.126.149.12",  0 };
+            const char* ibm1[]     = { "172.17.5.40",    0 };
+            const char* n100[]     = { "10.126.151.36",  0 };
         #endif
 
             struct {
@@ -1123,6 +1123,7 @@ int main(int argc, char *argv[])
 
             int errCode = UNUSED_VALUE;
 
+            const char *me[]      = { "127.0.0.1", 0 };
         #ifdef BSLS_PLATFORM_OS_UNIX
             // Cannot come up with any multi-homed hosts
             // resolvable on BLP CORP LINUX machines! TBD FIXME
@@ -1167,7 +1168,7 @@ int main(int argc, char *argv[])
 
             const char* sundev1[] = { "172.17.1.20",   0 };
             const char* sundev5[] = { "10.126.149.12", 0 };
-            const char* ibm1[]    = { "172.17.1.27",   0 };
+            const char* ibm1[]    = { "172.17.5.40",   0 };
             const char* n100[]    = { "10.126.151.36", 0 };
         #endif
 
@@ -1181,6 +1182,8 @@ int main(int argc, char *argv[])
             //  line  hostname              errorCode   expAddr     expRet
             //  ----  --------              ---------   -------     ------
             {
+                { L_, "localhost",          &errCode,      me,     SUCCESS },
+                { L_, "localhost",                 0,      me,     SUCCESS },
         #ifdef BSLS_PLATFORM_OS_UNIX
                 { L_, "jlu1",               &errCode,        0,       FAIL },
                 { L_, "jlu1",                      0,        0,       FAIL },

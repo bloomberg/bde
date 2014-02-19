@@ -340,13 +340,15 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
         return -1;
     }
 
-    addrinfo *iter = buffer;
-    for (int i = 0; i < numAddresses && iter; iter = iter->ai_next) {
-        (*hostAddresses).resize(i + 1);
+    
+    for (addrinfo *iter = buffer;
+            iter && static_cast<int>(hostAddresses->size()) < numAddresses;
+                                                        iter = iter->ai_next) {
         sockaddr_in *addr_in = (sockaddr_in*)(iter->ai_addr);
         if (AF_INET == addr_in->sin_family) {
-            hostAddresses->back().setIpAddress(addr_in->sin_addr.s_addr);
-            ++i;
+            bteso_IPv4Address address;
+            address.setIpAddress(addr_in->sin_addr.s_addr);
+            hostAddresses->push_back(address);
         }
         else {
             // AF_INET6, AF_IRDA, AF_BTH, etc. not supported.
