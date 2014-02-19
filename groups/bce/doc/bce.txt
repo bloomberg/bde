@@ -3,7 +3,7 @@
 @PURPOSE: Provide concurrency services and objects.
 
 @MNEMONIC: Basic Concurrency Environment (bce)
- 
+
 @AUTHOR: David Laurance (dlauranc)
 
 @SEE_ALSO: bdema, bdef
@@ -134,6 +134,15 @@
  mechanism is the primary interface that clients will typically use to generate
  specific functors as needed, e.g., for callbacks in the signatures of other
  components.
+
+/'bcem'
+/- - - -
+ {'bcemt'} provides an interface for messaging using components in the 'bdem'
+ package.  In  particular 'bcem_aggregate' (and associated types) provide
+ a general-purpose in-core document representation that can be used in
+ conjunction with different of serialization mechanisms.  The supported
+ serialization mechanisms are {'bdex'} and all {'bdeat'} compliant encoders
+ and decoders (such as the BER encoders in 'bdem', {'baexml'}, or {'baejsn'}).
 
 /'bcema'
 /- - - -
