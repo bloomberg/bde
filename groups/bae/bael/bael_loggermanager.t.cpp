@@ -25,6 +25,8 @@
 #include <bdef_bind.h>                          // for testing only
 #include <bdef_placeholder.h>                   // for testing only
 
+#include <bdetu_systemtime.h>                   // for testing only
+
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bdema_managedptr.h>
