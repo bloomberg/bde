@@ -1,6 +1,12 @@
 // bdeut_bigendian.t.cpp                                              -*-C++-*-
 #include <bdeut_bigendian.h>
 
+#ifdef BSLS_PLATFORM_OS_UNIX
+#include <arpa/inet.h> // not a component
+#else
+#include <winsock2.h> // not a component
+#endif
+
 #include <bdex_instreamfunctions.h>             // for testing only
 #include <bdex_outstreamfunctions.h>            // for testing only
 #include <bdex_testinstream.h>                  // for testing only
@@ -19,12 +25,6 @@
 
 #include <bsl_cctype.h>      // isdigit() isupper() islower()
 #include <bsl_cstdlib.h>     // atoi()
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-#include <arpa/inet.h> // not a component
-#else
-#include <winsock2.h> // not a component
-#endif
 
 using namespace BloombergLP;
 using bsl::cerr;

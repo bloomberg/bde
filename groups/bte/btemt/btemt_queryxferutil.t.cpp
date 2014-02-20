@@ -1,34 +1,35 @@
-// btemt_queryxferutil.t.cpp                  -*-C++-*-
+// btemt_queryxferutil.t.cpp                                          -*-C++-*-
 
 #include <btemt_queryxferutil.h>
+
 #include <btemt_query.h>
 #include <btemt_message.h>
 
-#include <bslma_testallocator.h>
-#include <bdema_managedptr.h>
-#include <bcema_sharedptr.h>
-
-#include <bcema_pooledbufferchain.h>
-#include <bdem_list.h>
-#include <bdet_date.h>
-#include <bdex_testoutstream.h>
 #include <btesc_channel.h>
 #include <bteso_inetstreamsocketfactory.h>
 #include <bteso_ipv4address.h>
 #include <bteso_resolveutil.h>
-
 #include <btesos_tcpconnector.h>
 
-#include <bdef_function.h>
-#include <bdef_bind.h>
-#include <bdef_placeholder.h>
+#include <bcema_pooledbufferchain.h>
 
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
+#include <bdef_bind.h>
+#include <bdef_function.h>
+#include <bdef_placeholder.h>
+#include <bdem_list.h>
+#include <bdet_date.h>
+#include <bdema_managedptr.h>
+#include <bcema_sharedptr.h>
+#include <bdex_testoutstream.h>
+
+#include <bslma_testallocator.h>
+#include <bsls_assert.h>
+
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_ctime.h>
-#include <bsls_assert.h>
+#include <bsl_iostream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script

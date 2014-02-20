@@ -56,6 +56,12 @@
 
 #include <bsl_c_stdio.h>
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+// Undefine some awkwardly named Windows macros that interfere with this cpp
+// file, but only after the last #include.
+# undef ERROR
+#endif
+
 // Warning: the following 'using' declarations interfere with the testing of
 // the macros defined in this component.  Please do not uncomment them.
 // using namespace BloombergLP;

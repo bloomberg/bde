@@ -36,6 +36,12 @@
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+// Undefine some awkwardly named Windows macros that interfere with this cpp
+// file, but only after the last #include.
+# undef ERROR
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -207,8 +213,8 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdem_ChoiceArrayImp      CAI;
-typedef bdem_ChoiceArrayImp      Obj;
+typedef bdem_ChoiceArrayImp CAImp; // The preferred 'CAI' conflicts on Windows
+typedef bdem_ChoiceArrayImp Obj;
 
 typedef bdem_Properties                          Prop;
 typedef bdem_Descriptor                          Desc;
@@ -1006,7 +1012,7 @@ static void populateCatalog(Catalog *catalog, const char *spec)
     }
 }
 
-static void populateData(CAI *X, const void **VALUES)
+static void populateData(CAImp *X, const void **VALUES)
     // populates array X with dummy data.  Uses the size of the catalog
     // to determine the size of the array to populate.  For each element i
     // it selects the type at index i from the catalog and looks up a value for
@@ -1048,7 +1054,7 @@ static void write(const Catalog *catalog)
     cout << "]";
 }
 
-static bool isNull(const CAI& cai, int index)
+static bool isNull(const CAImp& cai, int index)
     //
 {
     return cai.theItem(index).isSelectionNull();
@@ -1511,7 +1517,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting s_choiceArrayAttr Struct"
                                << "\n================================"
                                << endl;
-        const Desc &d = CAI::s_choiceArrayAttr;
+        const Desc &d = CAImp::s_choiceArrayAttr;
         {
             // TEST 1. d_elemENUM
             if (veryVerbose) cout << "Test d_elemEnum" << endl;
@@ -1533,13 +1539,13 @@ int main(int argc, char *argv[])
             // TEST 4. unsetConstruct
             bslma::TestAllocator tAlloc(veryVeryVerbose);
             if (veryVerbose) cout << "Test unset construction" << endl;
-            CAI mX; const CAI& X = mX;
+            CAImp mX; const CAImp& X = mX;
             void *dataPtr = tAlloc.allocate(d.d_size);
             d.unsetConstruct(dataPtr, PASSTH, &tAlloc);
-            CAI &mY = *((CAI *)dataPtr); const CAI &Y = mY;
+            CAImp &mY = *((CAImp *)dataPtr); const CAImp &Y = mY;
             ASSERT(X == Y);
             // explicitly call the destructor to free the memory
-            mY.~CAI();
+            mY.~CAImp();
             tAlloc.deallocate(dataPtr);
         }
 
@@ -1563,8 +1569,8 @@ int main(int argc, char *argv[])
                                    ? &cat.front()
                                    : NULL;
                 // create and populate mX
-                CAI mX(catSt, cat.size(), DESCRIPTORS, PASSTH, &tAlloc);
-                const CAI& X = mX;
+                CAImp mX(catSt, cat.size(), DESCRIPTORS, PASSTH, &tAlloc);
+                const CAImp& X = mX;
                 populateData(&mX, VALUES_A);
 
                 {
@@ -1577,7 +1583,7 @@ int main(int argc, char *argv[])
                     // construct a object Y using descriptor.copyConstruct
                     void *dataPtr = copyAlloc.allocate(d.d_size);
                     d.copyConstruct(dataPtr, &X, PASSTH, &copyAlloc);
-                    CAI &mY = *((CAI *)dataPtr); const CAI &Y = mY;
+                    CAImp &mY = *((CAImp *)dataPtr); const CAImp &Y = mY;
 
                     ASSERT(X == Y);
 
@@ -1588,7 +1594,7 @@ int main(int argc, char *argv[])
                     }
 
                     // explicitly call the destructor to free the memory
-                    mY.~CAI();
+                    mY.~CAImp();
                     copyAlloc.deallocate(dataPtr);
                 }
                 {
@@ -1601,8 +1607,8 @@ int main(int argc, char *argv[])
                     // use placement new forcing us to explicitly destroy
                     // the memory
                     void *dataPtr = dstyAlloc.allocate(d.d_size);
-                    CAI *temp = new (dataPtr) CAI(X, PASSTH, &dstyAlloc);
-                    CAI &mY = *((CAI *)dataPtr); const CAI &Y = mY;
+                    CAImp *temp = new (dataPtr) CAImp(X, PASSTH, &dstyAlloc);
+                    CAImp &mY = *((CAImp *)dataPtr); const CAImp &Y = mY;
 
                     ASSERT(X == Y);
 
@@ -1615,8 +1621,8 @@ int main(int argc, char *argv[])
                 {
                     // TEST 7. assign
                     if (veryVerbose) cout << "Testing Assignments" << endl;
-                    CAI mCntrl(X); const CAI &CNTRL = mCntrl;
-                    CAI mY; const CAI &Y = mY;
+                    CAImp mCntrl(X); const CAImp &CNTRL = mCntrl;
+                    CAImp mY; const CAImp &Y = mY;
 
                     // ensure the arrays are different for the base case
                     if (LEN == 0)  mCntrl.insertNullItems(0, 1);
@@ -1636,11 +1642,11 @@ int main(int argc, char *argv[])
                     if (veryVerbose) {
                         cout << "Testing move" << endl;
                     }
-                    CAI mCntrl(X); const CAI& CNTRL = mCntrl;
+                    CAImp mCntrl(X); const CAImp& CNTRL = mCntrl;
                     // ensure the arrays are different for the base case
                     if (LEN == 0)  mCntrl.insertNullItems(0, 1);
 
-                    CAI mZ(CNTRL); const CAI& Z = mZ;
+                    CAImp mZ(CNTRL); const CAImp& Z = mZ;
                     // use placement new - because we are testing
                     // a bitwise copy function, we don't want to call
                     // a destructor twice on the same object
@@ -1651,7 +1657,7 @@ int main(int argc, char *argv[])
                     ASSERT(CNTRL == Z);
                     d.move(dataPtr, &mZ);
 
-                    CAI &mY = *((CAI *)dataPtr); const CAI& Y = mY;
+                    CAImp &mY = *((CAImp *)dataPtr); const CAImp& Y = mY;
                     ASSERT(CNTRL == Y);
                     ASSERT(Z == Y);
                     const int numItems = Y.length();
@@ -1667,7 +1673,7 @@ int main(int argc, char *argv[])
                 {
                     // TEST 9. makeUnset
                     if (veryVerbose) cout << "Testing makeUnset" << endl;
-                    CAI mY(X);    const CAI& Y = mY;
+                    CAImp mY(X);    const CAImp& Y = mY;
                     if (LEN != 0) {
                         ASSERT(0 < Y.numSelections());
                         ASSERT(0 < Y.length());
@@ -1681,7 +1687,7 @@ int main(int argc, char *argv[])
                 {
                     // TEST 10. isUnset
                     if (veryVerbose) cout << "Testing isUnset" << endl;
-                    CAI mY(X);  const CAI& Y = mY;
+                    CAImp mY(X);  const CAImp& Y = mY;
                     bool isUnset = (LEN == 0);
 
                     ASSERT(isUnset == d.isUnset(&mY));
@@ -1689,8 +1695,8 @@ int main(int argc, char *argv[])
                 {
                     // TEST 10. areEqual
                     if (veryVerbose) cout << "Testing areEqual" << endl;
-                    CAI mZ(X); const CAI& Z = mZ;
-                    CAI mY(X); const CAI& Y = mY;
+                    CAImp mZ(X); const CAImp& Z = mZ;
+                    CAImp mY(X); const CAImp& Y = mY;
                     mZ.insertNullItems(0, 1);
                     ASSERT(d.areEqual(&X, &Y));
                     const int numItems = X.length();
@@ -1701,7 +1707,7 @@ int main(int argc, char *argv[])
                     ASSERT(!d.areEqual(&X, &Z));
                 }
                 {
-                    CAI mY(X);    const CAI &Y = mY;
+                    CAImp mY(X);    const CAImp &Y = mY;
                     bsl::ostringstream streamX;
                     bsl::ostringstream streamY;
 
@@ -1774,9 +1780,9 @@ int main(int argc, char *argv[])
                     // iterate over how many elements to remove
                     for (int num = 0; num < LEN - index; ++num) {
 
-                        CAI mA(&cat.front(), cat.size(), DESCRIPTORS,
+                        CAImp mA(&cat.front(), cat.size(), DESCRIPTORS,
                                PASSTH, &testAllocator);
-                        const CAI& A = mA;
+                        const CAImp& A = mA;
 
                         // pre-populate our test array X
                         mA.insertNullItems(0, LEN);
@@ -1786,12 +1792,12 @@ int main(int argc, char *argv[])
                             mA.theModifiableItem(j).makeSelection(j, valueA);
                         }
 
-                        CAI mB(mA, PASSTH, &testAllocator);
-                        const CAI& B = mB;
+                        CAImp mB(mA, PASSTH, &testAllocator);
+                        const CAImp& B = mB;
 
                         // create a control copy Y
-                        CAI mX(mA, PASSTH, &testAllocator);
-                        const CAI& X = mX;
+                        CAImp mX(mA, PASSTH, &testAllocator);
+                        const CAImp& X = mX;
 
                         // remove the elements
                         mA.removeItems(index, num);
@@ -1852,9 +1858,9 @@ int main(int argc, char *argv[])
                         continue;
                     }
 
-                    CAI mA(&cat.front(), cat.size(), DESCRIPTORS,
+                    CAImp mA(&cat.front(), cat.size(), DESCRIPTORS,
                            PASSTH, &testAllocator);
-                    const CAI& A = mA;
+                    const CAImp& A = mA;
 
                     // pre-populate our test array X
                     mA.insertNullItems(0, LEN);
@@ -1864,12 +1870,12 @@ int main(int argc, char *argv[])
                         mA.theModifiableItem(j).makeSelection(j, valueA);
                     }
 
-                    CAI mB(mA,PASSTH,&testAllocator);
-                    const CAI &B = mB;
+                    CAImp mB(mA,PASSTH,&testAllocator);
+                    const CAImp &B = mB;
 
                     // create a control copy Y
-                    CAI mX(mA,PASSTH,&testAllocator);
-                    const CAI& X = mX;
+                    CAImp mX(mA,PASSTH,&testAllocator);
+                    const CAImp& X = mX;
 
                     // remove the element
                     mA.removeItem(index);
@@ -1958,9 +1964,9 @@ int main(int argc, char *argv[])
 
             // we need this dummy to help create choice headers without
             // cumbersome code to create a DescriptorCatalog for the header
-            CAI dummy(&cat.front(), cat.size(), DESCRIPTORS,
+            CAImp dummy(&cat.front(), cat.size(), DESCRIPTORS,
                       PASSTH, &testAllocator);
-            const CAI& DUMMY = dummy;
+            const CAImp& DUMMY = dummy;
             dummy.insertNullItems(0, 1);
 
             // iterate over element over our selection of test data
@@ -1976,9 +1982,9 @@ int main(int argc, char *argv[])
                     // iterate over the index for insertion
                     // notice index=LEN+1 appends to the array
                     for (int index = 0; index < LEN + 1; ++index) {
-                        CAI mX(&cat.front(), cat.size(), DESCRIPTORS,
+                        CAImp mX(&cat.front(), cat.size(), DESCRIPTORS,
                                PASSTH, &testAllocator);
-                        const CAI& X = mX;
+                        const CAImp& X = mX;
 
                         // pre-populate our test array X
                         mX.insertNullItems(0, LEN);
@@ -1989,8 +1995,8 @@ int main(int argc, char *argv[])
                         }
 
                         // create a control copy Y
-                        CAI mY(mX, PASSTH, &testAllocator);
-                        const CAI& Y = mY;
+                        CAImp mY(mX, PASSTH, &testAllocator);
+                        const CAImp& Y = mY;
 
                         // insert an element at the current index, use a
                         // different type
@@ -2067,9 +2073,9 @@ int main(int argc, char *argv[])
                     // iterate over the index for insertion
                     // notice index=LEN+1 appends to the array
                     for (int index = 0; index <= LEN; ++index) {
-                        CAI mA(&cat.front(), cat.size(), DESCRIPTORS,
+                        CAImp mA(&cat.front(), cat.size(), DESCRIPTORS,
                                PASSTH, &testAllocator);
-                        const CAI& A = mA;
+                        const CAImp& A = mA;
 
                         // pre-populate our test array X
                         mA.insertNullItems(0, LEN + 1);
@@ -2080,11 +2086,14 @@ int main(int argc, char *argv[])
                             mA.theModifiableItem(j).makeSelection(j, valueA);
                         }
 
-                        CAI mB(mA, PASSTH, &testAllocator); const CAI& B = mB;
-                        CAI mC(mA, PASSTH, &testAllocator); const CAI& C = mC;
+                        CAImp mB(mA, PASSTH, &testAllocator);
+                        const CAImp& B = mB;
+                        CAImp mC(mA, PASSTH, &testAllocator);
+                        const CAImp& C = mC;
 
                         // create a control copy Y
-                        CAI mX(mA, PASSTH, &testAllocator); const CAI& X = mX;
+                        CAImp mX(mA, PASSTH, &testAllocator);
+                        const CAImp& X = mX;
                         mA.insertItem(index, A.theItem(0));
                         mB.insertItem(index, B.theItem(B.length() - 1));
                         mC.insertItem(index, C.theItem((C.length()- 1) / 2));
@@ -2176,15 +2185,16 @@ int main(int argc, char *argv[])
                         : NULL;
 
                     // create and populate mX1 and mX2
-                    CAI mX1(catSt,cat.size(),D,PASSTH,&tAlloc);
-                    const CAI &X1 = mX1;
+                    CAImp mX1(catSt,cat.size(),D,PASSTH,&tAlloc);
+                    const CAImp &X1 = mX1;
                     populateData(&mX1,VALUES_A);
-                    CAI mX2(mX1,PASSTH,&tAlloc); const CAI &X2 = mX2;
-                    CAI mX3(mX1,PASSTH,&tAlloc); const CAI &X3 = mX3;
+                    CAImp mX2(mX1,PASSTH,&tAlloc); const CAImp &X2 = mX2;
+                    CAImp mX3(mX1,PASSTH,&tAlloc); const CAImp &X3 = mX3;
 
                     // create the control arrays
-                    CAI mY;                                    const CAI &Y=mY;
-                    CAI mZ(catSt,cat.size(),D,PASSTH,&tAlloc); const CAI &Z=mZ;
+                    CAImp mY;                      const CAImp &Y=mY;
+                    CAImp mZ(catSt, cat.size(), D, PASSTH, &tAlloc);
+                    const CAImp &Z=mZ;
 
                     // reset
                     mX1.reset();
@@ -2257,13 +2267,13 @@ int main(int argc, char *argv[])
                              << SPEC << "'" << endl;
                     }
 
-                    CAI mX(&cat.front(), cat.size(), DESCRIPTORS,
+                    CAImp mX(&cat.front(), cat.size(), DESCRIPTORS,
                            PASSTH, &testAllocator);
-                    CAI mY(&cat.front(), cat.size(), DESCRIPTORS,
+                    CAImp mY(&cat.front(), cat.size(), DESCRIPTORS,
                            PASSTH, &testAllocator);
 
-                    const CAI& X = mX;
-                    const CAI& Y = mY;
+                    const CAImp& X = mX;
+                    const CAImp& Y = mY;
 
                     LOOP_ASSERT(i, 0 == X.length());
 
@@ -2310,9 +2320,9 @@ int main(int argc, char *argv[])
                          << SPEC << "'" << endl;
                 }
 
-                CAI mU(&cat.front(), cat.size(), DESCRIPTORS,
+                CAImp mU(&cat.front(), cat.size(), DESCRIPTORS,
                        PASSTH, &testAllocator);
-                const CAI& U = mU;
+                const CAImp& U = mU;
                 // construct our sample data using tested methods
                 mU.insertNullItems(0, LEN);
                 for (int j = 0; j < LEN; ++j) {
@@ -2322,8 +2332,8 @@ int main(int argc, char *argv[])
                     mU.theModifiableItem(j).makeSelection(type, valueA);
                 }
 
-                CAI mW(U, PASSTH, &testAllocator);
-                const CAI& W = mW;
+                CAImp mW(U, PASSTH, &testAllocator);
+                const CAImp& W = mW;
 
                 for (int j = 0; j < LEN; ++j) {
                     const EType::Type  type      = getElemType(SPEC[j]);
@@ -2419,8 +2429,8 @@ int main(int argc, char *argv[])
                     ? &catU.front()
                     : NULL;
 
-                CAI mU(catUSt, catU.size(), D, PASSTH, &tAlloc);
-                const CAI &U = mU;
+                CAImp mU(catUSt, catU.size(), D, PASSTH, &tAlloc);
+                const CAImp &U = mU;
                 populateData(&mU, VALUES_A);
 
                 Out os;
@@ -2431,7 +2441,7 @@ int main(int argc, char *argv[])
                 // TEST 2.VALID STREAMS (case 1)
                 // Stream a constructed obj to an empty obj
                 {
-                    CAI mA(&tAlloc);    const CAI& A = mA;
+                    CAImp mA(&tAlloc);    const CAImp& A = mA;
 
                     if (catU.size() > 0)
                     {
@@ -2454,7 +2464,7 @@ int main(int argc, char *argv[])
                 // TEST 3. EMPTY AND INVALID STREAMS
                 // Stream from an empty and invalid stream
                 {
-                    CAI mA(U, &tAlloc); const CAI& A = mA;
+                    CAImp mA(U, &tAlloc); const CAImp& A = mA;
 
                     {
                         In testInStream;  // Empty stream
@@ -2495,15 +2505,15 @@ int main(int argc, char *argv[])
                     EType::Type *catVSt = (catV.size()>0) ? &catV.front()
                                                           : NULL;
 
-                    CAI mV(catVSt,catV.size(),D,PASSTH,&tAlloc);
-                    const CAI &V = mV;
+                    CAImp mV(catVSt,catV.size(),D,PASSTH,&tAlloc);
+                    const CAImp &V = mV;
 
                     populateData(&mV,VALUES_A);
 
                     // TEST 2.VALID STREAMS (case 2)
                     // Stream a constructed U into a temp copy of V
                     {
-                        CAI tmpV(&tAlloc); const CAI& TMPV = tmpV;
+                        CAImp tmpV(&tAlloc); const CAImp& TMPV = tmpV;
 
                         In testInStream(os.data(), os.length());
 
@@ -2528,12 +2538,12 @@ int main(int argc, char *argv[])
                 Catalog cat;
                 populateCatalog(&cat, "A");
                                     // DATA.theItem(NUM_DATA-1).d_catalogSpec);
-                CAI mA(&cat.front(),cat.size(),D,PASSTH,&tAlloc);
-                const CAI& A = mA;
-                CAI mB(&cat.front(),cat.size(),D,PASSTH,&tAlloc);
-                const CAI& B = mB;
-                CAI mC(&cat.front(),cat.size(),D,PASSTH,&tAlloc);
-                const CAI& C = mC;
+                CAImp mA(&cat.front(),cat.size(),D,PASSTH,&tAlloc);
+                const CAImp& A = mA;
+                CAImp mB(&cat.front(),cat.size(),D,PASSTH,&tAlloc);
+                const CAImp& B = mB;
+                CAImp mC(&cat.front(),cat.size(),D,PASSTH,&tAlloc);
+                const CAImp& C = mC;
 
                 populateData(&mA,VALUES_A);
                 populateData(&mB,VALUES_B);
@@ -2558,8 +2568,8 @@ int main(int argc, char *argv[])
                     In testInStream(OD,bytes);
                     In &in = testInStream;
 
-                    CAI mX;    const CAI& X = mX;
-                    CAI mY(A); const CAI& Y = mY;
+                    CAImp mX;    const CAImp& X = mX;
+                    CAImp mY(A); const CAImp& Y = mY;
                     mY.removeItems(0,A.length());
 
                     BEGIN_BDEX_EXCEPTION_TEST {
@@ -2568,7 +2578,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(bytes,testInStream);
                         LOOP_ASSERT(bytes,!bytes == testInStream.isEmpty());
 
-                        CAI t1(X), t2(X), t3(X);
+                        CAImp t1(X), t2(X), t3(X);
 
                         if (bytes < LOD1) {
                             READ( t1, in);  LOOP_ASSERT(bytes, !in);
@@ -2595,7 +2605,7 @@ int main(int argc, char *argv[])
                             if (LOD2 == bytes) { LOOP_ASSERT(bytes, X == t3);}
                         }
 
-                        CAI blank(A); const CAI &BLANK = blank;
+                        CAImp blank(A); const CAImp &BLANK = blank;
                         // not tested, but for our purposes its fine
                         blank.reset();
 
@@ -2670,11 +2680,11 @@ int main(int argc, char *argv[])
 
                 const Desc **D = DESCRIPTORS;
 
-                CAI mV(catVSt, catV.size(), D, PASSTH, &tAlloc);
-                const CAI &V = mV;
+                CAImp mV(catVSt, catV.size(), D, PASSTH, &tAlloc);
+                const CAImp &V = mV;
 
-                CAI mU(catUSt, catU.size(), D, PASSTH, &tAlloc);
-                const CAI &U = mU;
+                CAImp mU(catUSt, catU.size(), D, PASSTH, &tAlloc);
+                const CAImp &U = mU;
 
                 populateData(&mU, VALUES_A);
                 populateData(&mV, VALUES_A);
@@ -2686,7 +2696,7 @@ int main(int argc, char *argv[])
                     mV.theModifiableItem(V.length() - 1).clearNullnessBit();
                 }
 
-                CAI mW(mV); const CAI &W = mW;
+                CAImp mW(mV); const CAImp &W = mW;
 
                 // sanity check
                 LOOP2_ASSERT(uI, vI, (vI == uI) == (U == W));
@@ -2733,9 +2743,9 @@ int main(int argc, char *argv[])
                                ? &cat.front()
                                : NULL;
 
-            CAI mU(catSt, cat.size(),
+            CAImp mU(catSt, cat.size(),
                    DESCRIPTORS, PASSTH,&tAlloc);
-            const CAI &U = mU;
+            const CAImp &U = mU;
             populateData(&mU,VALUES_A);
 
             if (U.length() > 0) {
@@ -2744,7 +2754,7 @@ int main(int argc, char *argv[])
                 mU.theModifiableItem(U.length() - 1).clearNullnessBit();
             }
 
-            CAI mW(U); const CAI &W = mW;
+            CAImp mW(U); const CAImp &W = mW;
 
             // PERFORM ASSIGNMENT
             mU = U;
@@ -2817,10 +2827,10 @@ int main(int argc, char *argv[])
                                       : NULL;
 
             const Desc **D = DESCRIPTORS;
-            CAI mA(catSt, cat.size(), D, AggOption::BDEM_WRITE_MANY, &tAlloc1);
-            CAI mB(catSt, cat.size(), D, AggOption::BDEM_SUBORDINATE,&sAlloc2);
-            const CAI& A = mA;
-            const CAI& B = mB;
+            CAImp mA(catSt,cat.size(),D,AggOption::BDEM_WRITE_MANY, &tAlloc1);
+            CAImp mB(catSt,cat.size(),D,AggOption::BDEM_SUBORDINATE,&sAlloc2);
+            const CAImp& A = mA;
+            const CAImp& B = mB;
 
             // populate our test arrays
             populateData(&mA,VALUES_A);
@@ -2848,9 +2858,9 @@ int main(int argc, char *argv[])
                 // ensures the default allocator is specified correctly
                 const bslma::DefaultAllocatorGuard dag1(&tAlloc3);
 
-                CAI mX1(A);                const CAI &X1 = mX1;
-                CAI mY1(A,alloc4);         const CAI &Y1 = mY1;
-                CAI mZ1(A,mode,alloc5);    const CAI &Z1 = mZ1;
+                CAImp mX1(A);                const CAImp &X1 = mX1;
+                CAImp mY1(A,alloc4);         const CAImp &Y1 = mY1;
+                CAImp mZ1(A,mode,alloc5);    const CAImp &Z1 = mZ1;
 
                 // This tests that the mode and allocator used in copy
                 // construction by looking into the sub objects
@@ -2895,9 +2905,9 @@ int main(int argc, char *argv[])
                 }
 
                 // perturb by adding an element
-                CAI mX2(A);                const CAI &X2 = mX2;
-                CAI mY2(A,alloc4);         const CAI &Y2 = mY2;
-                CAI mZ2(A,mode,alloc5);    const CAI &Z2 = mZ2;
+                CAImp mX2(A);                const CAImp &X2 = mX2;
+                CAImp mY2(A,alloc4);         const CAImp &Y2 = mY2;
+                CAImp mZ2(A,mode,alloc5);    const CAImp &Z2 = mZ2;
 
                 mX2.insertNullItems(0,1);
                 mY2.insertNullItems(0,1);
@@ -2912,9 +2922,9 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(testI,modeI, B!=Z2);
 
                 // perturb by resetting the catalog
-                CAI mX3(A);                const CAI &X3 = mX3;
-                CAI mY3(A,alloc4);         const CAI &Y3 = mY3;
-                CAI mZ3(A,mode,alloc5);    const CAI &Z3 = mZ3;
+                CAImp mX3(A);                const CAImp &X3 = mX3;
+                CAImp mY3(A,alloc4);         const CAImp &Y3 = mY3;
+                CAImp mZ3(A,mode,alloc5);    const CAImp &Z3 = mZ3;
 
                 // if the catalog is size 0, the result of reset
                 // on the second catalog should be equal to the original
@@ -3055,15 +3065,15 @@ int main(int argc, char *argv[])
                     //-1 indicates no perturbation
                     for (int arrI = -2; arrI < LEN; ++arrI) {
 
-                        CAI caA1(catAStart, catA.size(), D, strat1, alloc1);
-                        CAI caA2(catAStart, catA.size(), D, strat2, alloc2);
-                        CAI caB1(catBStart, catB.size(), D, strat1, alloc1);
-                        CAI caB2(catBStart, catB.size(), D, strat2, alloc2);
+                        CAImp caA1(catAStart, catA.size(), D, strat1, alloc1);
+                        CAImp caA2(catAStart, catA.size(), D, strat2, alloc2);
+                        CAImp caB1(catBStart, catB.size(), D, strat1, alloc1);
+                        CAImp caB2(catBStart, catB.size(), D, strat2, alloc2);
 
-                        const CAI &CAA1 = caA1;
-                        const CAI &CAA2 = caA2;
-                        const CAI &CAB1 = caB1;
-                        const CAI &CAB2 = caB2;
+                        const CAImp &CAA1 = caA1;
+                        const CAImp &CAA2 = caA2;
+                        const CAImp &CAB1 = caB1;
+                        const CAImp &CAB2 = caB2;
 
                         // prepopulate the arrays using valueA()
                         populateData(&caA1, VALUES_A);
@@ -3183,7 +3193,7 @@ int main(int argc, char *argv[])
             const char *EXP_P4 = "{ Selection Types: [ ] }";
             const char *EXP_OP = "{ Selection Types: [ ] }";
 
-            CAI mX; const CAI& X = mX;
+            CAImp mX; const CAImp& X = mX;
 
             bsl::ostringstream os1, os2, os3, os4, os5;
             X.print(os1, 1, 4);
@@ -3454,9 +3464,9 @@ int main(int argc, char *argv[])
                 populateCatalog(&cat,SPEC);
                 const EType::Type *catPtr = cat.size() > 0 ? &cat.front()
                                                            : NULL;
-                CAI mX(catPtr, cat.size(), DESCRIPTORS,
-                       PASSTH,&alloc1);
-                const CAI& X = mX;
+                CAImp mX(catPtr, cat.size(), DESCRIPTORS,
+                         PASSTH,&alloc1);
+                const CAImp& X = mX;
                 mX.insertNullItems(0,cat.size());
 
                 // Set Element j to a catalog value of j
@@ -3546,8 +3556,8 @@ int main(int argc, char *argv[])
                 }
                 // create and populate mX
                 bslma::TestAllocator tAlloc(veryVeryVerbose);
-                CAI mX(NULL,0,DESCRIPTORS,PASSTH,&tAlloc);
-                const CAI &X = mX;
+                CAImp mX(NULL,0,DESCRIPTORS,PASSTH,&tAlloc);
+                const CAImp &X = mX;
                 populateData(&mX,VALUES_A);
 
                 ASSERT(0 == X.length());
@@ -3564,8 +3574,8 @@ int main(int argc, char *argv[])
                         : NULL;
                     // create and populate mX
                     bslma::TestAllocator tAlloc(veryVeryVerbose);
-                    CAI mX(catSt,c.size(),DESCRIPTORS,PASSTH,&tAlloc);
-                    const CAI &X = mX;
+                    CAImp mX(catSt,c.size(),DESCRIPTORS,PASSTH,&tAlloc);
+                    const CAImp &X = mX;
                     populateData(&mX,VALUES_A);
 
                     ASSERT(1 == X.length());
@@ -3605,8 +3615,8 @@ int main(int argc, char *argv[])
                     : NULL;
                 // create and populate mX
                 bslma::TestAllocator tAlloc(veryVeryVerbose);
-                CAI mX(catSt,c.size(),DESCRIPTORS,PASSTH,&tAlloc);
-                const CAI &X = mX;
+                CAImp mX(catSt,c.size(),DESCRIPTORS,PASSTH,&tAlloc);
+                const CAImp &X = mX;
 
                 // ensure that we only allocate the space in the array
                 // that we need
@@ -3678,7 +3688,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator testAllocator(veryVeryVerbose);
             if (verbose) cout << "\tTest empty choice arrays." <<endl;
-            CAI array1(&testAllocator);
+            CAImp array1(&testAllocator);
 
             ASSERT(array1.length() == 0);
         }
@@ -3723,8 +3733,8 @@ int main(int argc, char *argv[])
                         alloc = &seqAlloc;
                     }
 
-                    CAI mX(&cat.front(), cat.size(), DESCRIPTORS, mode, alloc);
-                    const CAI& X = mX;
+                    CAImp mX(&cat.front(),cat.size(),DESCRIPTORS,mode,alloc);
+                    const CAImp& X = mX;
 
                     ASSERT(X.length() == 0);
 
@@ -3770,8 +3780,8 @@ int main(int argc, char *argv[])
                                    valueN,
                                    type));
 
-                    CAI mY(&cat.front(), cat.size(), DESCRIPTORS, mode, alloc);
-                    const CAI& Y = mY;
+                    CAImp mY(&cat.front(),cat.size(),DESCRIPTORS,mode,alloc);
+                    const CAImp& Y = mY;
                     ASSERT(Y.length() == 0);
 
                     mY.insertNullItems(0,1);
@@ -3824,9 +3834,9 @@ int main(int argc, char *argv[])
                             "array based on spec '" << SPEC << "'" << endl;
                 }
 
-                CAI mX(&cat.front(), cat.size(), DESCRIPTORS,
+                CAImp mX(&cat.front(), cat.size(), DESCRIPTORS,
                        PASSTH, &testAllocator);
-                const CAI& X = mX;
+                const CAImp& X = mX;
 
                 LOOP_ASSERT(i, 0 == X.length());
 
@@ -3887,9 +3897,9 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                CAI mY(&cat.front(), cat.size(), DESCRIPTORS,
-                       PASSTH, &testAllocator);
-                const CAI& Y = mY;
+                CAImp mY(&cat.front(), cat.size(), DESCRIPTORS,
+                         PASSTH, &testAllocator);
+                const CAImp& Y = mY;
 
                 LOOP_ASSERT(i, 0 == Y.length());
 
@@ -3975,9 +3985,9 @@ int main(int argc, char *argv[])
                 populateCatalog(&cat, SPEC);
                 const EType::Type *catPtr = cat.size() ? &cat.front() : NULL;
 
-                CAI mX(catPtr, cat.size(), DESCRIPTORS,
-                       PASSTH, &testAllocator);
-                const CAI& X = mX;
+                CAImp mX(catPtr, cat.size(), DESCRIPTORS,
+                         PASSTH, &testAllocator);
+                const CAImp& X = mX;
 
                 LOOP_ASSERT(i, 0 == X.length());
                 mX.insertNullItems(0, NUM_TEST_ELEMS);
@@ -3999,9 +4009,9 @@ int main(int argc, char *argv[])
                         LOOP3_ASSERT(i, j, selI, expected == desc);
                     }
                 }
-                CAI mY(catPtr, cat.size(), DESCRIPTORS,
-                       PASSTH, &testAllocator);
-                const CAI& Y = mY;
+                CAImp mY(catPtr, cat.size(), DESCRIPTORS,
+                         PASSTH, &testAllocator);
+                const CAImp& Y = mY;
 
                 LOOP_ASSERT(i, 0 == Y.length());
                 mY.insertNullItems(0, NUM_TEST_ELEMS);
@@ -4051,9 +4061,9 @@ int main(int argc, char *argv[])
                              << endl;
                     }
 
-                    CAI mX(&cat.front(), cat.size(), DESCRIPTORS,
-                           PASSTH, &testAllocator);
-                    const CAI& X = mX;
+                    CAImp mX(&cat.front(), cat.size(), DESCRIPTORS,
+                             PASSTH, &testAllocator);
+                    const CAImp& X = mX;
 
                     // We're not concerned with the actual dummy data
                     const char  type      = 'A';
@@ -4103,9 +4113,9 @@ int main(int argc, char *argv[])
                                      compare(X.theItem(i).selectionPointer(),
                                              valueN,type));
                     }
-                    CAI mY(&cat.front(), cat.size(), DESCRIPTORS,
-                           PASSTH, &testAllocator);
-                    const CAI& Y = mY;
+                    CAImp mY(&cat.front(), cat.size(), DESCRIPTORS,
+                             PASSTH, &testAllocator);
+                    const CAImp& Y = mY;
 
                     // we've only tested insertNullItem(i,1) up to this point
                     for (i = 0; i < TEST_SIZE; ++i) {
@@ -4227,18 +4237,18 @@ int main(int argc, char *argv[])
                 // ensures the default allocator is specified correctly.
                 const bslma::DefaultAllocatorGuard dag1(&alloc1A);
                 ASSERT(0 == alloc1A.numBlocksTotal());
-                CAI array1A;          // using default alloc1A
+                CAImp array1A;          // using default alloc1A
                 const int NBTA = alloc1A.numBlocksTotal();
 
                 const bslma::DefaultAllocatorGuard dag2(&alloc1B);
                 ASSERT(0 == alloc1B.numBlocksTotal());
-                CAI array1B(PASSTH);  // using default alloc1B
+                CAImp array1B(PASSTH);  // using default alloc1B
                 const int NBTB = alloc1B.numBlocksTotal();
 
                 const bslma::DefaultAllocatorGuard dag3(&alloc1C);
                 ASSERT(0 == alloc1C.numBlocksTotal());
                 // using default alloc1C
-                CAI array1C(dummyCat,dummyCatSize,DESCRIPTORS, PASSTH);
+                CAImp array1C(dummyCat,dummyCatSize,DESCRIPTORS, PASSTH);
                 const int NBTC = alloc1C.numBlocksTotal();
 
                 ASSERT(NBTA > 0);
@@ -4252,10 +4262,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 == alloc2B.numBlocksTotal());
                 ASSERT(0 == alloc2C.numBlocksTotal());
 
-                CAI array2A(&alloc2A);
-                CAI array2B(PASSTH, &alloc2B);
-                CAI array2C(dummyCat, dummyCatSize, DESCRIPTORS,
-                            PASSTH, &alloc2C);
+                CAImp array2A(&alloc2A);
+                CAImp array2B(PASSTH, &alloc2B);
+                CAImp array2C(dummyCat, dummyCatSize, DESCRIPTORS,
+                              PASSTH, &alloc2C);
 
                 ASSERT(NBTA == alloc1A.numBlocksTotal());
                 ASSERT(NBTA == alloc2A.numBlocksTotal());
@@ -4278,15 +4288,15 @@ int main(int argc, char *argv[])
                 {
                     const bslma::DefaultAllocatorGuard oag1(&alloc3A);
                     ASSERT(0 == alloc3A.numBlocksTotal());
-                    CAI array3A;
+                    CAImp array3A;
 
                     const bslma::DefaultAllocatorGuard oag2(&alloc3B);
                     ASSERT(0 == alloc3B.numBlocksTotal());
-                    CAI array3B(PASSTH);
+                    CAImp array3B(PASSTH);
 
                     const bslma::DefaultAllocatorGuard oag3(&alloc3C);
                     ASSERT(0 == alloc3C.numBlocksTotal());
-                    CAI array3C(dummyCat,dummyCatSize, DESCRIPTORS, PASSTH);
+                    CAImp array3C(dummyCat,dummyCatSize, DESCRIPTORS, PASSTH);
 
                     ASSERT(NBTA == alloc3A.numBlocksTotal());
                     ASSERT(NBTB == alloc3B.numBlocksTotal());
@@ -4410,27 +4420,27 @@ int main(int argc, char *argv[])
             }
 
             // USING THE FIRST CONSTRUCTOR
-            CAI cArrX1(                        &aX1);
-            CAI cArrA1(AggOption::BDEM_PASS_THROUGH,&aA1);
-            CAI cArrB1(AggOption::BDEM_WRITE_ONCE,  &aB1);
-            CAI cArrC1(AggOption::BDEM_WRITE_MANY,  &aC1);
-            // CAI cArrD1(AggOption::BDEM_SUBORDINATE,&aD1);
-            CAI cArrD1(AggOption::BDEM_WRITE_MANY,  &aD1); // dummy
+            CAImp cArrX1(                        &aX1);
+            CAImp cArrA1(AggOption::BDEM_PASS_THROUGH,&aA1);
+            CAImp cArrB1(AggOption::BDEM_WRITE_ONCE,  &aB1);
+            CAImp cArrC1(AggOption::BDEM_WRITE_MANY,  &aC1);
+            // CAImp cArrD1(AggOption::BDEM_SUBORDINATE,&aD1);
+            CAImp cArrD1(AggOption::BDEM_WRITE_MANY,  &aD1); // dummy
 
             EType::Type cat[] = { EType::BDEM_INT };
             const int catS = sizeof cat/sizeof *cat;
 
             // USING THE SECOND CONSTRUCTOR
-            CAI cArrA2(cat,catS,DESCRIPTORS,
-                       AggOption::BDEM_PASS_THROUGH,&aA2);
-            CAI cArrB2(cat,catS,DESCRIPTORS,
-                       AggOption::BDEM_WRITE_ONCE,  &aB2);
-            CAI cArrC2(cat,catS,DESCRIPTORS,
-                       AggOption::BDEM_WRITE_MANY,  &aC2);
-            // CAI cArrD2(cat,catS,DESCRIPTORS,
-            //            AggOption::BDEM_SUBORDINATE,&aD2);
+            CAImp cArrA2(cat,catS,DESCRIPTORS,
+                         AggOption::BDEM_PASS_THROUGH,&aA2);
+            CAImp cArrB2(cat,catS,DESCRIPTORS,
+                         AggOption::BDEM_WRITE_ONCE,  &aB2);
+            CAImp cArrC2(cat,catS,DESCRIPTORS,
+                         AggOption::BDEM_WRITE_MANY,  &aC2);
+            // CAImp cArrD2(cat,catS,DESCRIPTORS,
+            //              AggOption::BDEM_SUBORDINATE,&aD2);
 
-            CAI cArrD2(cat,catS,DESCRIPTORS, AggOption::BDEM_WRITE_MANY, &aD2);
+            CAImp cArrD2(cat,catS,DESCRIPTORS,AggOption::BDEM_WRITE_MANY,&aD2);
                                                                        // dummy
 
             // As it turns out, we would get a memory leak if BDEM_SUBORDINATE
@@ -4626,9 +4636,9 @@ int main(int argc, char *argv[])
                   const Desc **desc = NULL;
 
                   // PERFORM THE TEST
-                  CAI array1(alloc);
-                  CAI array2(mode, alloc);
-                  CAI array3(cat,catS,desc,mode, alloc);
+                  CAImp array1(alloc);
+                  CAImp array2(mode, alloc);
+                  CAImp array3(cat,catS,desc,mode, alloc);
 
                   LOOP_ASSERT(i,0 == array1.numSelections());
                   LOOP_ASSERT(i,0 == array2.numSelections());
@@ -4685,8 +4695,8 @@ int main(int argc, char *argv[])
                       }
                       EType::Type *begin = 0 == cat.size() ? 0 : &cat[0];
 
-                      CAI mX(begin, cat.size(), DESCRIPTORS, mode, alloc);
-                      const CAI& X = mX;
+                      CAImp mX(begin, cat.size(), DESCRIPTORS, mode, alloc);
+                      const CAImp& X = mX;
 
                       // Note: Untested methods.  Need to get the choice
                       // header to inspect the set descriptors.
@@ -4995,10 +5005,10 @@ int main(int argc, char *argv[])
 
         {
             if (verbose) {
-                cout << "\tDefault construct CAI mX" << endl;
+                cout << "\tDefault construct CAImp mX" << endl;
             }
             bslma::TestAllocator alloc(veryVeryVerbose);
-            CAI mX(&alloc); const CAI& X = mX;
+            CAImp mX(&alloc); const CAImp& X = mX;
             ASSERT(0 == X.numSelections());
             ASSERT(0 == X.length());
 
@@ -5037,22 +5047,22 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\tX:" << endl;
                 X.print(cout, 1, 4);
-                cout << "\tConstruct CAI mY holding a string"
+                cout << "\tConstruct CAImp mY holding a string"
                           << endl;
                 cout << "\tX:" << endl;
                 X.print(cout, 1, 4);
-                cout << "\tConstruct CAI mY holding a string"
+                cout << "\tConstruct CAImp mY holding a string"
                           << endl;
             }
 
             // create a second object mY
             EType::Type catalog2[] = { EType::BDEM_STRING };
-            CAI mY(catalog2,
+            CAImp mY(catalog2,
                    1,
                    DESCRIPTORS,
                    PASSTH,
                    &alloc);
-            const CAI& Y = mY;
+            const CAImp& Y = mY;
 
             // add an unset choice element to mY
             mY.insertNullItems(0, 1);
@@ -5082,7 +5092,7 @@ int main(int argc, char *argv[])
                 Y.print(cout, 1, 4);
                 cout << "\tCopy Construct mZ from mY" << endl;
             }
-            CAI mZ(mY, &alloc); const CAI& Z = mZ;
+            CAImp mZ(mY, &alloc); const CAImp& Z = mZ;
             ASSERT(1 == Z.numSelections());
             ASSERT(1 == Z.length());
             ASSERT(0 == Z.selector(0));
@@ -5130,17 +5140,17 @@ int main(int argc, char *argv[])
                 Y.print(cout, 1, 4);
                 cout << "\tZ:" << endl;
                 Z.print(cout, 1, 4);
-                cout << "\tConstruct CAI mA holding a double"
+                cout << "\tConstruct CAImp mA holding a double"
                           << endl;
             }
             EType::Type catalog3[] = { EType::BDEM_DOUBLE };
             bslma::TestAllocator ta(verbose);
-            CAI mA(catalog3,
+            CAImp mA(catalog3,
                    1,
                    DESCRIPTORS,
                    PASSTH,
                    &ta);
-            const CAI& A = mA;
+            const CAImp& A = mA;
             mA.insertNullItems(0, 1);
             const double DBL_VAL = 123.5;
             mA.makeSelection(0, 0).theModifiableDouble() = DBL_VAL;
@@ -5172,7 +5182,7 @@ int main(int argc, char *argv[])
 
             bdex_TestInStream is(os.data(), os.length());
             bslma::TestAllocator va(verbose);
-            bsl::vector<CAI> objVec(4, &va);
+            bsl::vector<CAImp> objVec(4, &va);
             objVec[0].bdexStreamIn(
                          is,
                          1,
@@ -5219,7 +5229,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator t(veryVeryVerbose);
 
-            CAI mX(&t); const CAI& X = mX;
+            CAImp mX(&t); const CAImp& X = mX;
             ASSERT(0 == X.numSelections());
             ASSERT(0 == X.length());
         }
@@ -5243,8 +5253,8 @@ int main(int argc, char *argv[])
 
                 EType::Type *begin = 0 == catalog.size() ? 0 : &catalog[0];
 
-                CAI mX(begin, catalog.size(), DESCRIPTORS, PASSTH, &alloc);
-                const CAI& X = mX;
+                CAImp mX(begin, catalog.size(), DESCRIPTORS, PASSTH, &alloc);
+                const CAImp& X = mX;
 
                 LOOP_ASSERT(j, catalog.size() == X.numSelections());
                 LOOP_ASSERT(j, 0              == X.length());
@@ -5412,8 +5422,8 @@ int main(int argc, char *argv[])
 
                         bdex_TestInStream is(os.data(), os.length());
                         bslma::TestAllocator ta(veryVeryVerbose);
-                        CAI mY(PASSTH, &ta);
-                        const CAI& Y = mY;
+                        CAImp mY(PASSTH, &ta);
+                        const CAImp& Y = mY;
 
                         LOOP_ASSERT(S,   X != Y);
                         LOOP_ASSERT(S, !(X == Y));
@@ -5430,7 +5440,7 @@ int main(int argc, char *argv[])
                     }
                     {
                         bslma::TestAllocator ta(veryVeryVerbose);
-                        CAI mY(PASSTH, &ta); const CAI& Y = mY;
+                        CAImp mY(PASSTH, &ta); const CAImp& Y = mY;
 
                         LOOP_ASSERT(S,   X != Y);
                         LOOP_ASSERT(S, !(X == Y));
@@ -5446,7 +5456,7 @@ int main(int argc, char *argv[])
                     }
                     {
                         bslma::TestAllocator ta(verbose);
-                        CAI mY(X, PASSTH, &ta); const CAI& Y = mY;
+                        CAImp mY(X, PASSTH, &ta); const CAImp& Y = mY;
 
                         LOOP_ASSERT(S,   X == Y);
                         LOOP_ASSERT(S, !(X != Y));
