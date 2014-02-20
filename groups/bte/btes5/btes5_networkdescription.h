@@ -65,10 +65,6 @@ BDES_IDENT("$Id: $")
 #include <btes5_proxydescription.h>
 #endif
 
-#ifndef INCLUDED_BSL_VECTOR
-#include <bsl_vector.h>
-#endif
-
 #ifndef INCLUDED_BTES5_PROXYDESCRIPTION
 #include <btes5_proxydescription.h>
 #endif
@@ -84,8 +80,12 @@ BDES_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef.h>
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
 namespace BloombergLP {

@@ -323,6 +323,42 @@ BDES_IDENT("$Id: $")
 #include <btes_iovec.h>
 #endif
 
+#ifdef read
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+#ifdef readv
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+#ifdef virtual
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+#ifdef int
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+#ifdef const
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+#ifdef btes_Iovec
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+#ifdef buffers
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+#ifdef numBuffers
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
+#ifdef flags
+#error Microsoft Windows headers make writing portable code extremely painful.
+#endif
+
                         // ===================
                         // class btesc_Channel
                         // ===================

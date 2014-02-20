@@ -1,4 +1,4 @@
-// bteso_streamsocket.h            -*-C++-*-
+// bteso_streamsocket.h                                               -*-C++-*-
 #ifndef INCLUDED_BTESO_STREAMSOCKET
 #define INCLUDED_BTESO_STREAMSOCKET
 
@@ -237,6 +237,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BTES_IOVEC
 #include <btes_iovec.h>
+#endif
+
+#ifdef readv
+#error Microsoft Windows headers make writing portable code extremely painful.
 #endif
 
 namespace BloombergLP {
