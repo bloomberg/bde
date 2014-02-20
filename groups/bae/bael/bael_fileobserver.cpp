@@ -76,11 +76,13 @@ bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
 , d_fileObserver2(basicAllocator)
 {
     if (d_publishInLocalTime) {
-        d_logFileFormatter.setTimestampOffset(
-                                            d_fileObserver2.localTimeOffset());
-        d_stdoutFormatter.setTimestampOffset(
-                                            d_fileObserver2.localTimeOffset());
+        d_logFileFormatter.enablePublishInLocalTime();
+        d_stdoutFormatter.enablePublishInLocalTime();
         d_fileObserver2.enablePublishInLocalTime();
+    } else {
+        d_logFileFormatter.disablePublishInLocalTime();
+        d_stdoutFormatter.disablePublishInLocalTime();
+        d_fileObserver2.disablePublishInLocalTime();
     }
 }
 
@@ -125,8 +127,8 @@ void bael_FileObserver::disablePublishInLocalTime()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_publishInLocalTime = false;
-    d_stdoutFormatter.setTimestampOffset(bdet_DatetimeInterval(0));
-    d_logFileFormatter.setTimestampOffset(bdet_DatetimeInterval(0));
+    d_stdoutFormatter.disablePublishInLocalTime();
+    d_logFileFormatter.disablePublishInLocalTime();
     d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 
@@ -166,8 +168,8 @@ void bael_FileObserver::enablePublishInLocalTime()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_publishInLocalTime = true;
-    d_stdoutFormatter.setTimestampOffset(d_fileObserver2.localTimeOffset());
-    d_logFileFormatter.setTimestampOffset(d_fileObserver2.localTimeOffset());
+    d_stdoutFormatter.enablePublishInLocalTime();
+    d_logFileFormatter.enablePublishInLocalTime();
     d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 

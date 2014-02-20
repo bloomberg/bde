@@ -643,8 +643,9 @@ int main(int argc, char *argv[])
       case 12: {
         // --------------------------------------------------------------------
         // TESTING: Published Records Show Current Local-Time Offset
-        //    Per DRQS 13681097, log records observe DST time changes, when
-        //    the default logging functor has not been replaced and 
+        //   Per DRQS 13681097, log records observe DST time transitions when
+        //   the default logging functor is used and the 'publishInLocalTime'
+        //   attribute is 'true'.
         //
         // Concern:
         //: 1 Log records show the current local time offset (possibly
@@ -877,12 +878,12 @@ int main(int argc, char *argv[])
         bael_LoggerManager::initSingleton(&mX, configuration);
 
         bsl::string BASENAME = tempFileName(veryVerbose);
-        P(BASENAME);
+        if (veryVeryVerbose) { T_(); T_(); P(BASENAME); }
         ASSERT(0 == mX.enableFileLogging(BASENAME.c_str(), true));
 
         bsl::string logfilename;
         ASSERT(X.isFileLoggingEnabled(&logfilename));
-        P(logfilename);
+        if (veryVeryVerbose) { T_(); T_(); P(logfilename); }
 
         BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
 
