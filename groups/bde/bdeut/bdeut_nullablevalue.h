@@ -129,8 +129,11 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <class TYPE> class bdeut_NullableValue_WithAllocator;
-template <class TYPE> class bdeut_NullableValue_WithoutAllocator;
+template <class TYPE>
+class bdeut_NullableValue_WithAllocator;
+
+template <class TYPE>
+class bdeut_NullableValue_WithoutAllocator;
 
                       // ===============================
                       // class bdeut_NullableValue<TYPE>
@@ -172,6 +175,7 @@ class bdeut_NullableValue {
     // true for 'bdeut_NullableValue' only if the corresponding trait is true
     // for 'TYPE'.  The 'bdeu_HasPrintMethod' is always true for
     // 'bdeut_NullableValue'.
+
     BSLMF_NESTED_TRAIT_DECLARATION_IF(bdeut_NullableValue,
                                       bslma::UsesBslmaAllocator,
                                       bslma::UsesBslmaAllocator<TYPE>::value);
@@ -524,6 +528,9 @@ class bdeut_NullableValue_WithAllocator {
         // is null.
 
     // ACCESSORS
+    const void *bufferPtr() const;
+        // Return a pointer to the object buffer contained in this object.
+
     bool isNull() const;
         // Return 'true' if this object is null, and 'false' otherwise.
 
@@ -602,6 +609,9 @@ class bdeut_NullableValue_WithoutAllocator {
         // is null.
 
     // ACCESSORS
+    const void *bufferPtr() const;
+        // Return a pointer to the object buffer contained in this object.
+
     bool isNull() const;
         // Return 'true' if this object is null, and 'false' otherwise.
 
@@ -838,7 +848,9 @@ template <typename TYPE>
 inline
 int bdeut_NullableValue<TYPE>::maxSupportedBdexVersion() const
 {
-    return bdex_VersionFunctions::maxSupportedVersion(d_imp.value());
+    const TYPE *p = static_cast<const TYPE *>(d_imp.bufferPtr());
+
+    return bdex_VersionFunctions::maxSupportedVersion(*p);
 }
 
 template <typename TYPE>
@@ -1028,6 +1040,7 @@ void bdeut_NullableValue_WithAllocator<TYPE>::swap(
 
     if (!isNull() && !other.isNull()) {
         // swap typed values
+
         bslalg::SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
@@ -1124,6 +1137,13 @@ TYPE& bdeut_NullableValue_WithAllocator<TYPE>::value()
 // ACCESSORS
 template <typename TYPE>
 inline
+const void *bdeut_NullableValue_WithAllocator<TYPE>::bufferPtr() const
+{
+    return &d_buffer;
+}
+
+template <typename TYPE>
+inline
 bool bdeut_NullableValue_WithAllocator<TYPE>::isNull() const
 {
     return d_isNull;
@@ -1199,6 +1219,7 @@ void bdeut_NullableValue_WithoutAllocator<TYPE>::swap(
 
     if (!isNull() && !other.isNull()) {
         // swap typed values
+
         bslalg::SwapUtil::swap(&this->value(), &other.value());
         return;                                                       // RETURN
     }
@@ -1295,6 +1316,13 @@ TYPE& bdeut_NullableValue_WithoutAllocator<TYPE>::value()
 // ACCESSORS
 template <typename TYPE>
 inline
+const void *bdeut_NullableValue_WithoutAllocator<TYPE>::bufferPtr() const
+{
+    return &d_buffer;
+}
+
+template <typename TYPE>
+inline
 bool bdeut_NullableValue_WithoutAllocator<TYPE>::isNull() const
 {
     return d_isNull;
@@ -1304,12 +1332,7 @@ template <typename TYPE>
 inline
 const TYPE& bdeut_NullableValue_WithoutAllocator<TYPE>::value() const
 {
-    // TBD
-    // The assert below was commented out because a call to this function is
-    // sometimes used as an argument to a template function that only looks at
-    // the value type (and does not access the value).
-
-    // BSLS_ASSERT_SAFE(!d_isNull);
+    BSLS_ASSERT_SAFE(!d_isNull);
 
     return d_buffer.object();
 }
