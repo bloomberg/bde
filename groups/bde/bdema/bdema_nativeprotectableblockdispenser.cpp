@@ -15,6 +15,7 @@ BDES_IDENT_RCSID(bdema_nativeprotectableblockdispenser_cpp,"$Id$ $CSID$")
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+#include <bsls_bslexceptionutil.h>
 
 #include <bsl_new.h>
 
@@ -163,7 +164,7 @@ bdema_NativeProtectableBlockDispenser::allocate(size_type size)
     void *ptr = valloc(actualSize);
 
     if (0 == ptr) {
-        bslma::Allocator::throwBadAlloc();
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     return bdema_MemoryBlockDescriptor(ptr, actualSize);

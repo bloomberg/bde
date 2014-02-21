@@ -12,6 +12,7 @@ BDES_IDENT_RCSID(bdesu_filesystemutil_cpp,"$Id$ $CSID$")
 #include <bdetu_epoch.h>
 #include <bdetu_systemtime.h> // for testing only
 #include <bsls_assert.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
 #include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
@@ -1291,7 +1292,7 @@ void bdesu_FilesystemUtil::visitPaths(
         return;                                                       // RETURN
     }
     if (GLOB_NOSPACE == rc) {
-        bslma::Allocator::throwBadAlloc();
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {
