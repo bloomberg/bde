@@ -11,6 +11,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
+#include <bsls_bslexceptionutil.h>
 
 #include <climits>  // INT_MAX
 #include <cstdio>
@@ -172,7 +173,8 @@ void *BufferAllocator::allocate(size_type size)
     }
 
     // Throw 'std::bad_alloc' if cannot satisfy request.
-    Allocator::throwBadAlloc();
+    bsls::BslExceptionUtil::throwBadAlloc();
+
     return result;
 }
 
