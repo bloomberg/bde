@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bdesu_FileUtil: struct which scopes file system utilities
 //
-//@SEE_ALSO: bdesu_pathutil
+//@SEE_ALSO: bdesu_pathutil, bdesu_filesystemutil
 //
 //@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov)
 //

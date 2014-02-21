@@ -930,6 +930,8 @@ bdesu_FilesystemUtil::open(const char         *path,
                            FileIOPolicy        ioPolicy,
                            FileTruncatePolicy  truncatePolicy)
 {
+    BSLS_ASSERT(path);
+
     if (   e_OPEN     == openPolicy
         && e_TRUNCATE == truncatePolicy
         && (   e_READ_ONLY   == ioPolicy
