@@ -43,7 +43,8 @@ bsls::Types::Int64 bcemt_Turnstile::waitTurn()
     Int64 waitTime  = 0;
 
     if (nextTurn > timestamp) {
-        Int64 nowUSec = bdetu_SystemTime::now().totalMicroseconds();
+        Int64 nowUSec =
+                     bdetu_SystemTime::nowMonotonicClock().totalMicroseconds();
         d_timestamp = nowUSec;
 
         waitTime = nextTurn - nowUSec;
@@ -75,14 +76,14 @@ void bcemt_Turnstile::reset(double                   rate,
                             const bdet_TimeInterval& startTime)
 {
     d_interval  = (Int64) (MICROSECS_PER_SECOND / rate);
-    d_timestamp = bdetu_SystemTime::now().totalMicroseconds();
+    d_timestamp = bdetu_SystemTime::nowMonotonicClock().totalMicroseconds();
     d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
 }
 
 // ACCESSORS
 bsls::Types::Int64 bcemt_Turnstile::lagTime() const
 {
-    Int64 nowUSecs = bdetu_SystemTime::now().totalMicroseconds();
+    Int64 nowUSecs = bdetu_SystemTime::nowMonotonicClock().totalMicroseconds();
     d_timestamp = nowUSecs;
 
     Int64 delta = nowUSecs - d_nextTurn;
