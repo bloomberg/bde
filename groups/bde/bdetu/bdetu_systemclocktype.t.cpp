@@ -32,6 +32,8 @@ using namespace bsl;  // automatically added by script
 // [ 2] STREAM& bdexStreamIn(STREAM&, bdetu_SystemClockType::Type& value, int);
 //
 // [ 1] operator<<(ostream&, bdetu_SystemClockType::Type rhs);
+//---------------------------------------------------------------------------
+// [ 3] USAGE example
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------

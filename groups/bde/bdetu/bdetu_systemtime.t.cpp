@@ -32,6 +32,9 @@ using namespace bsl;  // automatically added by script
 // [ 6] bdet_Datetime nowAsDatetime();
 // [12] bdet_Datetime nowAsDatetimeGMT();
 // [ 5] bdet_TimeInterval now();
+// [15] bdet_TimeInterval now(bdetu_SystemClockType::Type);
+// [14] bdet_TimeInterval nowMonotonicClock();
+// [14] bdet_TimeInterval nowRealtimeClock();
 // [ 3] void loadCurrentTime(bdet_TimeInterval *result);
 // [ 1] void loadSystemTimeDefault(bdet_TimeInterval *result);
 // [ 1] loadLocalTimeOffsetDefault(bdet_TimeInterval *result);
@@ -45,7 +48,7 @@ using namespace bsl;  // automatically added by script
 // [13] LLTOC setLLTOC(LLTOC callback);
 // [13] LLTOC currentLLTOC();
 //---------------------------------------------------------------------------
-// [14] USAGE example
+// [16] USAGE example
 // [ 9] bdet_Datetime nowAsDatetime() stress test
 // [ 8] bdet_Datetime nowAsDatetimeUtc() stress test
 // [ 7] bdet_TimeInterval now() stress test
@@ -382,7 +385,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-    case 14: {
+    case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -429,6 +432,14 @@ int main(int argc, char *argv[])
       ASSERT(0 != i2);
       ASSERT(dti.totalMilliseconds() <= i2.totalMilliseconds());
                                                //  Presumably, 0 < i0 < i1 < i2
+//..
+// Finally verify the 'now(bdetu_SystemClockType::e_REALTIME)' and
+// 'nowRealtimeClock' methods return values close to the one returned by 'now'.
+//..
+      ASSERT(bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME) - i0
+                                                    < bdet_TimeInterval(1, 0));
+      ASSERT(bdetu_SystemTime::nowRealtimeClock() - i0
+                                                    < bdet_TimeInterval(1, 0));
 //..
         }
 
@@ -513,6 +524,99 @@ int main(int argc, char *argv[])
             == Obj::currentSystemTimeCallback());
 
         UsageExample4::main4();
+
+    } break;
+    case 15: {
+      // --------------------------------------------------------------------
+      // TESTING 'now(bdetu_SystemClockType::Type)' METHOD
+      //  The methods return a 'bdet_TimeInterval' value representing the
+      //  current system time using the specified system clock.
+      //
+      // Plan:
+      //  Verify the value returned for each 'bdetu_SystemClockType::Type'
+      //  closely approximates the implied class method that implementes
+      //  the selected clock type (i.e. 'nowRealtimeClock')
+      //
+      //
+      // Testing:
+      //  bdet_TimeInterval now(bdetu_SystemClockType::Type);
+      // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTesting 'now(bdetu_SystemClockType::Type)'"
+                    "\n==========================================" << endl;
+
+        {
+            bdet_TimeInterval first = bdetu_SystemTime::nowMonotonicClock();
+            bdet_TimeInterval second =
+                     bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC);
+            ASSERT(second - first  < bdet_TimeInterval(1, 0));
+        }
+        {
+            bdet_TimeInterval first = bdetu_SystemTime::nowRealtimeClock();
+            bdet_TimeInterval second =
+                      bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME);
+            ASSERT(second - first  < bdet_TimeInterval(1, 0));
+        }
+    } break;
+    case 14: {
+      // --------------------------------------------------------------------
+      // TESTING 'nowMonotonicClock' and 'nowRealtimeClock' METHODS
+      //  The methods return a 'bdet_TimeInterval' value representing the
+      //  current system time using either a monotonic or realtime (wall)
+      //  system clock.  We have to verify that each subsequent call to the
+      //  methods reports a time that is non-decreasing.
+      //
+      // Plan:
+      //  First verify 'nowRealtimeClock' closely approximates the value
+      //  returned by 'now' using the default callback function.  Then verify
+      //  'nowMonotonicClock' is non-decreasing.
+      //
+      //
+      // Testing:
+      //  bdet_TimeInterval nowMonotonicClock()
+      //  bdet_TimeInterval nowRealtimeClock()
+      // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTesting 'nowMonotonicClock' and 'nowRealtimeClock'"
+                    "\n=================================================="
+                 << endl;
+
+        {
+            bdet_TimeInterval realtime = bdetu_SystemTime::nowRealtimeClock();
+            ASSERT(realtime > 0);
+
+            bdetu_SystemTime::setSystemTimeCallback(
+                                     &bdetu_SystemTime::loadSystemTimeDefault);
+            bdet_TimeInterval realtimeLegacy = bdetu_SystemTime::now();
+            ASSERT(realtimeLegacy - realtime < bdet_TimeInterval(1, 0));
+
+            bdet_TimeInterval monotonic
+                                       = bdetu_SystemTime::nowMonotonicClock();
+            ASSERT(monotonic > 0);
+
+            if (veryVerbose) {
+                P(realtime);
+                P(realtimeLegacy);
+                P(monotonic);
+            }
+
+            // Generally, we can assume that the realtime clock gives time
+            // since the epoch and the monotonic clock gives the time since the
+            // machine boot.
+            ASSERT(realtime > monotonic);
+
+            // Monotonic clock always goes forward in time.
+            for (int i = 0; i < 10000; ++i) {
+                bdet_TimeInterval newMonotonic
+                                       = bdetu_SystemTime::nowMonotonicClock();
+                ASSERT(monotonic <= newMonotonic);
+                monotonic = newMonotonic;
+
+                if (i % 1000 == 0 && veryVeryVerbose) P(monotonic);
+            }
+        }
 
     } break;
     case 13: {
@@ -689,9 +793,6 @@ int main(int argc, char *argv[])
         {
             const int OFFSETS[]   = {  -48 * 3600, 0, 72 * 3600 };
             const int NUM_OFFSETS = sizeof(OFFSETS)/sizeof(*OFFSETS);
-
-            int resultHelper;
-            int resultMethod;
 
             const int expectedStatus = 0;
             int       expectedOffset;
@@ -1906,7 +2007,7 @@ int main(int argc, char *argv[])
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
