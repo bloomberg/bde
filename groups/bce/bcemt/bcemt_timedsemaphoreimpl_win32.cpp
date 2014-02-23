@@ -24,7 +24,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore>::timedWait(
                                               const bdet_TimeInterval& timeout)
 {
     DWORD milliTimeout = 0;
-    bdet_TimeInterval now = bdetu_SystemTime::now();
+    bdet_TimeInterval now = bdetu_SystemTime::now(d_clockType);
     if (timeout > now) {
         bdet_TimeInterval reltime = timeout - now;
         bcemt_SaturatedTimeConversionImpUtil::toMillisec(&milliTimeout,
@@ -40,7 +40,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore>::timedWait(
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

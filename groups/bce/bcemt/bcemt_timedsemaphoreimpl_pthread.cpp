@@ -9,6 +9,7 @@ BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 #include <bcemt_threadutil.h>
 
 #include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
 
 #include <bsls_assert.h>
 
@@ -21,7 +22,75 @@ BDES_IDENT_RCSID(bcemt_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
+#if !defined(BSLS_PLATFORM_OS_DARWIN)
+// Set the condition clock type, except on Darwin which doesn't support it.
+
+class CondAttr {
+    // This class is a thin wrapper over 'pthread_condattr_t' structure which
+    // gets configured with the proper clock type for the purpose of
+    // initializing the 'pthread_cond_t' object.
+
+    // DATA
+    pthread_condattr_t d_attr;
+
+    // NOT IMPLEMENTED
+    CondAttr();
+    CondAttr(const CondAttr&);
+    CondAttr& operator=(const CondAttr&);
+
+public:
+    CondAttr(bdetu_SystemClockType::Type clockType)
+        // Create the 'pthread_condattr_t' structure and initialize it with the
+        // specified 'clockType'.
+    {
+        pthread_condattr_init(&d_attr);
+
+        clockid_t clockId;
+        switch (clockType) {
+          case bdetu_SystemClockType::e_REALTIME: {
+            clockId = CLOCK_REALTIME;
+          } break;
+          case bdetu_SystemClockType::e_MONOTONIC: {
+            clockId = CLOCK_MONOTONIC;
+          } break;
+          default:
+            BSLS_ASSERT_OPT("Invalid ClockType parameter value" && 0);
+        }
+
+        pthread_condattr_setclock(&d_attr, clockId);
+    }
+
+    ~CondAttr()
+        // Destroy the 'pthread_condattr_t' structure.
+    {
+        pthread_condattr_destroy(&d_attr);
+    }
+
+    const pthread_condattr_t& conditonAttributes() const
+    {
+        return d_attr;
+    }
+};
+
+#endif
+
 // STATIC HELPER FUNCTIONS
+
+static
+void initializeCondition(pthread_cond_t              *cond,
+                         bdetu_SystemClockType::Type  clockType)
+    // Initialize the specified 'cond' variable with the specified 'clockType'.
+{
+#ifdef BSLS_PLATFORM_OS_DARWIN
+    (void) clockType;
+    pthread_cond_init(cond, 0);
+#else
+    CondAttr attr(clockType);
+    int rc = pthread_cond_init(cond, &attr.conditonAttributes());
+    (void) rc; BSLS_ASSERT(0 == rc);
+#endif
+}
+
 static
 int decrementIfPositive(bces_AtomicInt *a)
     // Try to decrement the specified atomic integer 'a' if positive.  Return
@@ -43,6 +112,30 @@ int decrementIfPositive(bces_AtomicInt *a)
            // -----------------------------------------------------
 
 // CREATORS
+bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
+                bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Type clockType)
+: d_resources(0)
+, d_waiters(0)
+#ifdef BSLS_PLATFORM_OS_DARWIN
+, d_clockType(clockType)
+#endif
+{
+    pthread_mutex_init(&d_lock, 0);
+    initializeCondition(&d_condition, clockType);
+}
+
+bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
+     bcemt_TimedSemaphoreImpl(int count, bdetu_SystemClockType::Type clockType)
+: d_resources(count)
+, d_waiters(0)
+#ifdef BSLS_PLATFORM_OS_DARWIN
+, d_clockType(clockType)
+#endif
+{
+    pthread_mutex_init(&d_lock, 0);
+    initializeCondition(&d_condition, clockType);
+}
+
 bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
                                                     ~bcemt_TimedSemaphoreImpl()
 {
@@ -88,23 +181,49 @@ int bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::timedWait(
         return 0;                                                     // RETURN
     }
 
-    timespec ts;
-    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&ts, timeout);
-
     int ret = 0;
     pthread_mutex_lock(&d_lock);
     ++d_waiters;
+
     while (0 != decrementIfPositive(&d_resources)) {
-        const int status = pthread_cond_timedwait(&d_condition, &d_lock, &ts);
+        int status = timedWaitImp(timeout);
         if (0 != status) {
             BSLS_ASSERT(ETIMEDOUT == status);    // timeout and not an error
             ret = 1;
             break;
         }
     }
+
     --d_waiters;
     pthread_mutex_unlock(&d_lock);
     return ret;
+}
+
+int bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>
+                               ::timedWaitImp(const bdet_TimeInterval& timeout)
+{
+#ifdef BSLS_PLATFORM_OS_DARWIN
+    // Darwin supports only realtime clock for the condition variable.
+
+    bdet_TimeInterval realTimeout(timeout);
+
+    if (d_clockType != bdetu_SystemClockType::e_REALTIME) {
+        // since cond_timedwait operates only with the realtime clock, adjust
+        // the timeout value to make it consistent with the realtime clock
+        realTimeout += bdetu_SystemTime::nowRealtimeClock()
+                       - bdetu_SystemTime::now(d_clockType);
+    }
+
+    timespec ts;
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&ts, realTimeout);
+
+#else  // !DARWIN
+    timespec ts;
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&ts, timeout);
+#endif
+
+    int status = pthread_cond_timedwait(&d_condition, &d_lock, &ts);
+    return status == 0 ? 0 : (status == ETIMEDOUT ? -1 : -2);
 }
 
 int bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::tryWait()
@@ -140,7 +259,7 @@ void bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::wait()
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

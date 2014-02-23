@@ -22,7 +22,7 @@ namespace BloombergLP {
 
 // CREATORS
 bcemt_Sluice::GenerationDescriptor::GenerationDescriptor(
-                                               bdetu_ClockType::Type clockType)
+                                         bdetu_SystemClockType::Type clockType)
 : d_numThreads(0)
 , d_numSignaled(0)
 , d_sema(0, clockType)

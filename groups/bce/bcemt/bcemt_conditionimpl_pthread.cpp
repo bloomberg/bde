@@ -16,13 +16,18 @@ namespace BloombergLP {
 #if !defined(BSLS_PLATFORM_OS_DARWIN)
 // Set the condition clock type, except on Darwin which doesn't support it.
 
-class CondAttr
+class CondAttr {
     // This class is a thin wrapper over 'pthread_condattr_t' structure which
     // gets configured with the proper clock type for the purpose of
     // initializing the 'pthread_cond_t' object.
-{
-private:
+
+    // DATA
     pthread_condattr_t d_attr;
+
+    // NOT IMPLEMENTED
+    CondAttr();
+    CondAttr(const CondAttr&);
+    CondAttr& operator=(const CondAttr&);
 
 public:
     CondAttr(bdetu_SystemClockType::Type clockType)
@@ -52,7 +57,7 @@ public:
         pthread_condattr_destroy(&d_attr);
     }
 
-    const pthread_condattr_t & get() const
+    const pthread_condattr_t & conditonAttributes() const
     {
         return d_attr;
     }
@@ -70,7 +75,7 @@ void initializeCondition(pthread_cond_t              *cond,
     pthread_cond_init(cond, 0);
 #else
     CondAttr attr(clockType);
-    int rc = pthread_cond_init(cond, &attr.get());
+    int rc = pthread_cond_init(cond, &attr.conditonAttributes());
     (void) rc; BSLS_ASSERT(0 == rc);
 #endif
 }

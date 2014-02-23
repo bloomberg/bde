@@ -35,10 +35,6 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCES_ATOMICTYPES
-#include <bces_atomictypes.h>
-#endif
-
 #ifndef INCLUDED_BCES_PLATFORM
 #include <bces_platform.h>
 #endif
@@ -46,6 +42,14 @@ BDES_IDENT("$Id: $")
 #ifdef BCES_PLATFORM_POSIX_THREADS
 
 // Platform specific implementation starts here.
+
+#ifndef INCLUDED_BCES_ATOMICTYPES
+#include <bces_atomictypes.h>
+#endif
+
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
 
 #ifndef INCLUDED_PTHREAD
 #include <pthread.h>
@@ -74,18 +78,37 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore> {
     pthread_mutex_t d_lock;       // lock
     pthread_cond_t  d_condition;  // condition
 
+#ifdef BSLS_PLATFORM_OS_DARWIN
+    bdetu_SystemClockType::Type d_clockType;
+#endif
+
     // NOT IMPLEMENTED
     bcemt_TimedSemaphoreImpl(const bcemt_TimedSemaphoreImpl&);
     bcemt_TimedSemaphoreImpl& operator=(const bcemt_TimedSemaphoreImpl&);
 
+    // PRIVATE MANIPULATORS
+    int timedWaitImp(const bdet_TimeInterval& timeout);
+
   public:
     // CREATORS
-    bcemt_TimedSemaphoreImpl();
-        // Create a new semaphore object with a count of 0.
+    explicit
+    bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Type clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
+        // Create a timed semaphore initially having a count of 0.  Optionally
+        // specify a 'clockType' indicating the type of the system clock
+        // against which the 'bdet_TimeInterval' timeouts passed to the
+        // 'timedWait' method are to be interpreted.  If 'clockType' is not
+        // specified then the realtime system clock is assumed.
 
     explicit
-    bcemt_TimedSemaphoreImpl(int count);
-        // Create a new semaphore object having the specified 'count'.
+    bcemt_TimedSemaphoreImpl(int                         count,
+                             bdetu_SystemClockType::Type clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
+        // Create a timed semaphore initially having the specified 'count'.
+        // Optionally specify a 'clockType' indicating the type of the system
+        // clock against which the 'bdet_TimeInterval' timeouts passed to the
+        // 'timedWait' method are to be interpreted.  If 'clockType' is not
+        // specified then the realtime system clock is assumed.
 
     ~bcemt_TimedSemaphoreImpl();
         // Destroy this semaphore object.
@@ -118,31 +141,6 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore> {
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-           // =====================================================
-           // class bcemt_TimedSemaphoreImpl<PthreadTimedSemaphore>
-           // =====================================================
-
-// CREATORS
-inline
-bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
-                                            bcemt_TimedSemaphoreImpl()
-: d_resources(0)
-, d_waiters(0)
-{
-    pthread_mutex_init(&d_lock, 0);
-    pthread_cond_init(&d_condition, 0);
-}
-
-inline
-bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
-                                            bcemt_TimedSemaphoreImpl(int count)
-: d_resources(count)
-, d_waiters(0)
-{
-    pthread_mutex_init(&d_lock, 0);
-    pthread_cond_init(&d_condition, 0);
-}
-
 }  // close namespace BloombergLP
 
 #endif  // BCES_PLATFORM_POSIX_THREADS
@@ -151,7 +149,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

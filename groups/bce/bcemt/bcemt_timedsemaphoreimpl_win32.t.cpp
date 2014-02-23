@@ -9,6 +9,7 @@
 
 #include <bdet_timeinterval.h>
 #include <bdetu_systemtime.h>
+#include <bdetu_systemclocktype.h>
 
 #include <bsl_deque.h>
 #include <bsl_iostream.h>
@@ -431,9 +432,10 @@ extern "C" void *thread4Wait(void * arg)
 }
 
 struct ThreadInfo3 {
-    MyBarrier        *d_barrier;
-    Obj *d_sem;
-    int                   d_numIterations;
+    MyBarrier                   *d_barrier;
+    Obj                         *d_sem;
+    int                          d_numIterations;
+    bdetu_SystemClockType::Type  d_clockType;
 };
 
 extern "C" void *thread3Post(void *arg) {
@@ -459,22 +461,48 @@ extern "C" void *thread3Post(void *arg) {
 extern "C" void *thread3Wait(void * arg) {
     ThreadInfo3 *t = (ThreadInfo3 *) arg;
 
-    ASSERT(0 != t->d_sem->timedWait(bdetu_SystemTime::now() +
+    ASSERT(0 != t->d_sem->timedWait(bdetu_SystemTime::now(t->d_clockType) +
                                     bdet_TimeInterval(0, 1000 * 100)));
 
     t->d_barrier->wait();
     for (int i = 0; i < t->d_numIterations; ++i) {
-        ASSERT(0 == t->d_sem->timedWait(bdetu_SystemTime::now() +
+        ASSERT(0 == t->d_sem->timedWait(bdetu_SystemTime::now(t->d_clockType) +
                                         bdet_TimeInterval(5)));
     }
     t->d_barrier->wait();
     for (int i = 0; i < t->d_numIterations; ++i) {
-        if (0 != t->d_sem->timedWait(bdetu_SystemTime::now() +
+        if (0 != t->d_sem->timedWait(bdetu_SystemTime::now(t->d_clockType) +
                                      bdet_TimeInterval(0, 1000 * 20))) {
             --i;
         }
     }
     return 0;
+}
+
+void testCase3(bdetu_SystemClockType::Type clockType)
+{
+    bcemt_ThreadUtil::Handle threads[10];
+    MyBarrier barrier(10);
+    Obj sem(clockType);
+
+    struct ThreadInfo3 info;
+    info.d_numIterations = 2000; // half the number of ops per thread
+    info.d_barrier = &barrier;
+    info.d_sem = &sem;
+    info.d_clockType = clockType;
+
+    for (int i = 0; i < 5; ++i) {
+        ASSERT(0 == bcemt_ThreadUtil::create(&threads[i * 2],
+                                             thread3Post,
+                                             &info));
+
+        ASSERT(0 == bcemt_ThreadUtil::create(&threads[i * 2 + 1],
+                                             thread3Wait,
+                                             &info));
+    }
+    for (int i = 0; i < 10; ++i) {
+        ASSERT(0 == bcemt_ThreadUtil::join(threads[i]));
+    }
 }
 
 struct ThreadInfo2 {
@@ -709,27 +737,9 @@ int main(int argc, char *argv[]) {
                           << "Testing 'timedWait'" << endl
                           << "===================" << endl;
 
-        bcemt_ThreadUtil::Handle threads[10];
-        MyBarrier barrier(10);
-        Obj sem;
+        testCase3(bdetu_SystemClockType::e_REALTIME);
+        testCase3(bdetu_SystemClockType::e_MONOTONIC);
 
-        struct ThreadInfo3 info;
-        info.d_numIterations = 2000; // half the number of ops per thread
-        info.d_barrier = &barrier;
-        info.d_sem = &sem;
-
-        for (int i = 0; i < 5; ++i) {
-            ASSERT(0 == bcemt_ThreadUtil::create(&threads[i * 2],
-                                                 thread3Post,
-                                                 &info));
-
-            ASSERT(0 == bcemt_ThreadUtil::create(&threads[i * 2 + 1],
-                                                 thread3Wait,
-                                                 &info));
-        }
-        for (int i = 0; i < 10; ++i) {
-            ASSERT(0 == bcemt_ThreadUtil::join(threads[i]));
-        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -835,7 +845,7 @@ int main()
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
