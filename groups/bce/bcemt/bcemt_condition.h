@@ -39,9 +39,10 @@ BDES_IDENT("$Id: $")
 // When invoking the 'timedWait' method, clients must specify a timeout after
 // which the call will return even if the condition is not signaled.  The
 // timeout is expressed as a 'bdet_TimeInterval' object that holds the absolute
-// time since some platform defined epoch (e.g., the number of seconds and
-// nanoseconds from 00:00:00 UTC, January 1, 1970).  Clients should use the
-// 'bdetu_SystemTime' utility to access the current time.
+// time according to the clock type the 'bcemt_Condition' object is constructed
+// with (the default clock is 'bdetu_SystemClockType::e_REALTIME').  Clients
+// should use the 'bdetu_SystemTime::now(clockType)' utility method to obtain
+// the current time.
 //
 // Other threads can indicate that the predicate is true by signaling or
 // broadcasting the same 'bcemt_Condition' object.  A broadcast wakes up all
@@ -144,6 +145,10 @@ BDES_IDENT("$Id: $")
 #include <bdet_timeinterval.h>
 #endif
 
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
+
 namespace BloombergLP {
 
 template <typename THREAD_POLICY>
@@ -169,7 +174,13 @@ class bcemt_Condition {
   public:
     // CREATORS
     bcemt_Condition();
-        // Create a condition variable object.
+    explicit
+    bcemt_Condition(bdetu_SystemClockType::Type clockType);
+        // Create a condition variable object.  Optionally specify a
+        // 'clockType' indicating the type of the system clock against which
+        // the 'bdet_TimeInterval' timeouts passed to the 'timedWait' method
+        // are to be interpreted.  If 'clockType' is not specified then the
+        // realtime system clock is assumed.
 
     ~bcemt_Condition();
         // Destroy this condition variable object.
@@ -187,19 +198,19 @@ class bcemt_Condition {
 
     int timedWait(bcemt_Mutex *mutex, const bdet_TimeInterval& absoluteTime);
         // Atomically unlock the specified 'mutex' and suspend execution of the
-        // current thread until this condition object is "signaled" (i.e.,
-        // either 'signal' or 'broadcast' is invoked on this object in another
-        // thread), or until the specified 'absoluteTime' (expressed as the
-        // !ABSOLUTE! time from 00:00:00 UTC, January 1, 1970), then re-acquire
-        // a lock on the 'mutex'.  Return 0 on success, -1 on timeout,
-        // and a non-zero value different from -1 if an error occurs.  Spurious
-        // wakeups are rare but possible; i.e., this method may succeed (return
-        // 0), and return control to the thread without the condition object
-        // being signaled.  The behavior is undefined unless 'mutex' is locked
-        // by the calling thread prior to calling this method.  Note that
-        // 'mutex' remains locked by the calling thread upon returning from
-        // this function on success or timeout, but is *not* guaranteed to
-        // remain locked if an error occurs.
+        // current thread until this condition object is "signaled" (i.e., one
+        // of the 'signal' or 'broadcast' methods is invoked on this object) or
+        // until the specified 'timeout', then re-acquire a lock on the
+        // 'mutex'.  The 'timeout' value should be obtained from the clock type
+        // this object was constructed with.  Return 0 on success, -1 on
+        // timeout, and a non-zero value different from -1 if an error occurs.
+        // The behavior is undefined unless 'mutex' is locked by the calling
+        // thread prior to calling this method.  Note that 'mutex' remains
+        // locked by the calling thread upon returning from this function with
+        // success or timeout, but is *not* guaranteed to remain locked
+        // otherwise.  Also note that spurious wakeups are rare but possible,
+        // i.e., this method may succeed (return 0) and return control to the
+        // thread without the condition object being signaled.
 
     int wait(bcemt_Mutex *mutex);
         // Atomically unlock the specified 'mutex' and suspend execution of the
@@ -227,6 +238,13 @@ class bcemt_Condition {
 // CREATORS
 inline
 bcemt_Condition::bcemt_Condition()
+: d_imp()
+{
+}
+
+inline
+bcemt_Condition::bcemt_Condition(bdetu_SystemClockType::Type clockType)
+: d_imp(clockType)
 {
 }
 
@@ -267,7 +285,7 @@ int bcemt_Condition::wait(bcemt_Mutex *mutex)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

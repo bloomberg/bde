@@ -42,6 +42,10 @@ BDES_IDENT("$Id: $")
 #include <bces_platform.h>
 #endif
 
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
+
 #ifdef BCES_PLATFORM_POSIX_THREADS
 
 // Platform-specific implementation starts here.
@@ -77,7 +81,11 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
     // proxy for the 'pthread_cond_t' pthread type, and related operations.
 
     // DATA
-    pthread_cond_t d_cond;  // TBD doc
+    pthread_cond_t d_cond;  // provides post/wait for condition
+
+#ifdef BSLS_PLATFORM_OS_DARWIN
+    bdetu_SystemClockType::Type d_clockType; // clock type used in 'timedWait'
+#endif
 
     // NOT IMPLEMENTED
     bcemt_ConditionImpl(const bcemt_ConditionImpl&);
@@ -86,7 +94,13 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
   public:
     // CREATORS
     bcemt_ConditionImpl();
-        // Create a condition variable.
+    explicit
+    bcemt_ConditionImpl(bdetu_SystemClockType::Type clockType);
+        // Create a condition variable object.  Optionally specify a
+        // 'clockType' indicating the type of the system clock against which
+        // the 'bdet_TimeInterval' timeouts passed to the 'timedWait' method
+        // are to be interpreted.  If 'clockType' is not specified then the
+        // realtime system clock is assumed.
 
     ~bcemt_ConditionImpl();
         // Destroy condition variable this object.
@@ -101,14 +115,20 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
         // currently waiting on this condition.
 
     int timedWait(bcemt_Mutex *mutex, const bdet_TimeInterval& timeout);
-        // Atomically unlock the specified 'mutex' and suspend execution of
-        // current thread until this condition object is "signaled"('signal',
-        // 'broadcast') or until the specified 'timeout' (expressed as the
-        // absolute time from 00:00:00 UTC, January 1, 1970), then re-acquire
-        // the lock on the specified 'mutex', and return 0 upon success and
-        // non-zero if an error or timeout occurred.  Note that the behavior is
-        // undefined unless specified 'mutex' is locked by the calling thread
-        // prior to calling this method.
+        // Atomically unlock the specified 'mutex' and suspend execution of the
+        // current thread until this condition object is "signaled" (i.e., one
+        // of the 'signal' or 'broadcast' methods is invoked on this object) or
+        // until the specified 'timeout', then re-acquire a lock on the
+        // 'mutex'.  The 'timeout' value should be obtained from the clock type
+        // this object was constructed with.  Return 0 on success, -1 on
+        // timeout, and a non-zero value different from -1 if an error occurs.
+        // The behavior is undefined unless 'mutex' is locked by the calling
+        // thread prior to calling this method.  Note that 'mutex' remains
+        // locked by the calling thread upon returning from this function with
+        // success or timeout, but is *not* guaranteed to remain locked
+        // otherwise.  Also note that spurious wakeups are rare but possible,
+        // i.e., this method may succeed (return 0) and return control to the
+        // thread without the condition object being signaled.
 
     int wait(bcemt_Mutex *mutex);
         // Atomically unlock the specified 'mutex' and suspend execution of
@@ -130,6 +150,9 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
 // CREATORS
 inline
 bcemt_ConditionImpl<bces_Platform::PosixThreads>::bcemt_ConditionImpl()
+#ifdef BSLS_PLATFORM_OS_DARWIN
+: d_clockType(bdetu_SystemClockType::e_REALTIME)
+#endif
 {
     pthread_cond_init(&d_cond, 0);
 }
@@ -167,7 +190,7 @@ int bcemt_ConditionImpl<bces_Platform::PosixThreads>::wait(bcemt_Mutex *mutex)
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -50,6 +50,10 @@ BDES_IDENT("$Id: $")
 #include <bslma_mallocfreeallocator.h>
 #endif
 
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
+
 namespace BloombergLP {
 
 template <typename THREAD_POLICY>
@@ -68,7 +72,7 @@ class bcemt_ConditionImpl<bces_Platform::Win32Threads> {
     // POSIX like condition variable.
 
     // DATA
-    bcemt_Sluice d_waitSluice;  // TBD doc
+    bcemt_Sluice d_waitSluice;  // provides post/wait for condition
 
     // NOT IMPLEMENTED
     bcemt_ConditionImpl(const bcemt_ConditionImpl&);
@@ -77,7 +81,13 @@ class bcemt_ConditionImpl<bces_Platform::Win32Threads> {
   public:
     // CREATORS
     bcemt_ConditionImpl();
-        // Create a condition variable.
+    explicit
+    bcemt_ConditionImpl(bdetu_SystemClockType::Type clockType);
+        // Create a condition variable object.  Optionally specify a
+        // 'clockType' indicating the type of the system clock against which
+        // the 'bdet_TimeInterval' timeouts passed to the 'timedWait' method
+        // are to be interpreted.  If 'clockType' is not specified then the
+        // realtime system clock is assumed.
 
     ~bcemt_ConditionImpl();
         // Destroy condition variable this object.
@@ -95,17 +105,17 @@ class bcemt_ConditionImpl<bces_Platform::Win32Threads> {
         // Atomically unlock the specified 'mutex' and suspend execution of the
         // current thread until this condition object is "signaled" (i.e., one
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
-        // until the specified 'timeout' (expressed as the !ABSOLUTE! time from
-        // 00:00:00 UTC, January 1, 1970), then re-acquire a lock on the
-        // 'mutex'.  Return 0 on success, -1 on timeout, and a non-zero value
-        // different from -1 if an error occurs.  The behavior is undefined
-        // unless 'mutex' is locked by the calling thread prior to calling this
-        // method.  Note that 'mutex' remains locked by the calling thread upon
-        // returning from this function with success or timeout, but is
-        // *not* guaranteed to remain locked otherwise.  Also note that
-        // spurious wakeups are rare but possible, i.e., this method may
-        // succeed (return 0) and return control to the thread without the
-        // condition object being signaled.
+        // until the specified 'timeout', then re-acquire a lock on the
+        // 'mutex'.  The 'timeout' value should be obtained from the clock type
+        // this object was constructed with.  Return 0 on success, -1 on
+        // timeout, and a non-zero value different from -1 if an error occurs.
+        // The behavior is undefined unless 'mutex' is locked by the calling
+        // thread prior to calling this method.  Note that 'mutex' remains
+        // locked by the calling thread upon returning from this function with
+        // success or timeout, but is *not* guaranteed to remain locked
+        // otherwise.  Also note that spurious wakeups are rare but possible,
+        // i.e., this method may succeed (return 0) and return control to the
+        // thread without the condition object being signaled.
 
     int wait(bcemt_Mutex *mutex);
         // Atomically unlock the specified 'mutex' and suspend execution of the
@@ -139,6 +149,15 @@ bcemt_ConditionImpl<bces_Platform::Win32Threads>::bcemt_ConditionImpl()
 }
 
 inline
+bcemt_ConditionImpl<bces_Platform::Win32Threads>::bcemt_ConditionImpl(
+                                         bdetu_SystemClockType::Type clockType)
+: d_waitSluice(clockType, &bslma::MallocFreeAllocator::singleton())
+{
+    // We use the malloc/free allocator singleton so as not to produce "noise"
+    // in any tests involving the global allocator or global new/delete.
+}
+
+inline
 bcemt_ConditionImpl<bces_Platform::Win32Threads>::~bcemt_ConditionImpl()
 {
 }
@@ -164,7 +183,7 @@ void bcemt_ConditionImpl<bces_Platform::Win32Threads>::signal()
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
