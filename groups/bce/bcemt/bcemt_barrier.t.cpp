@@ -8,6 +8,7 @@
 #include <bsls_timeutil.h>
 
 #include <bdef_bind.h>
+#include <bdetu_systemclocktype.h>
 #include <bdetu_systemtime.h>
 
 #include <bsl_functional.h>
@@ -124,11 +125,18 @@ struct ThreadArgs {
     bces_AtomicInt d_numTimedOut; // number of threads that time out on
                                   // a call to 'timedWait'
 
-    ThreadArgs(int barrierCount, int timeOut=0)
-        : d_barrier(barrierCount)
+    bdetu_SystemClockType::Type d_clockType;
+                                  // clock type to use for 'timedWait' method
+
+    ThreadArgs(int                         barrierCount,
+               int                         timeOut = 0,
+               bdetu_SystemClockType::Type clock
+                                           = bdetu_SystemClockType::e_REALTIME)
+        : d_barrier(barrierCount, clock)
         , d_waitCount(0)
         , d_timeOut(timeOut)
         , d_numTimedOut(0)
+        , d_clockType(clock)
     {
     }
 };
@@ -225,7 +233,7 @@ extern "C" void * testThread5a(void *arg)
         args->d_barrier.wait();
     }
     else {
-        bdet_TimeInterval timeOut(bdetu_SystemTime::now());
+        bdet_TimeInterval timeOut(bdetu_SystemTime::now(args->d_clockType));
         timeOut.addMicroseconds(args->d_timeOut);
         int res = args->d_barrier.timedWait(timeOut);
         if (res) ++args->d_numTimedOut;
@@ -243,7 +251,7 @@ extern "C" void * testThread5b(void *arg)
     ThreadArgs *args = (ThreadArgs*)arg;
 
     if (++args->d_waitCount == 1) {
-        bdet_TimeInterval timeOut(bdetu_SystemTime::now());
+        bdet_TimeInterval timeOut(bdetu_SystemTime::now(args->d_clockType));
         timeOut.addMicroseconds(args->d_timeOut);
         int res = args->d_barrier.timedWait(timeOut);
         if (res) ++args->d_numTimedOut;
@@ -277,12 +285,16 @@ struct ThreadArgs4 {
 
     int            d_nThreads;    // number of worker threads
 
-    ThreadArgs4(int nThreads, int timeOut=0)
-        : d_barrier(nThreads + 1)
-        , d_timeOut(timeOut)
-        , d_stopCount(0)
-        , d_numTimedOut(0)
-        , d_nThreads(nThreads)
+    bdetu_SystemClockType::Type d_clockType;
+                                  // clock type used for 'timedWait' method
+
+    ThreadArgs4(int nThreads, int timeOut, bdetu_SystemClockType::Type clock)
+    : d_barrier(nThreads + 1, clock)
+    , d_timeOut(timeOut)
+    , d_stopCount(0)
+    , d_numTimedOut(0)
+    , d_nThreads(nThreads)
+    , d_clockType(clock)
     {
     }
 };
@@ -298,12 +310,15 @@ extern "C" void * testThread4(void *arg)
 {
     ThreadArgs4 *args = (ThreadArgs4*)arg;
 
-    bdet_TimeInterval timeOut(bdetu_SystemTime::now());
+    bdet_TimeInterval timeOut(bdetu_SystemTime::now(args->d_clockType));
+    bdet_TimeInterval start(bdetu_SystemTime::nowRealtimeClock());
+
     timeOut.addMicroseconds(args->d_timeOut);
     int res = args->d_barrier.timedWait(timeOut);
-    bdet_TimeInterval duration(bdetu_SystemTime::now());
-    duration.addMicroseconds(args->d_timeOut);
-    duration -= timeOut;
+
+    bdet_TimeInterval end(bdetu_SystemTime::nowRealtimeClock());
+    bdet_TimeInterval duration = end - start;
+
     if (res) {
         // relax timing by 50us for Windows
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -313,8 +328,11 @@ extern "C" void * testThread4(void *arg)
 #endif
 
         ++args->d_numTimedOut;
-        LOOP2_ASSERT(args->d_timeOut, duration.totalMicroseconds(),
-                      duration.totalMicroseconds() + relax >= args->d_timeOut);
+
+        LOOP3_ASSERT(args->d_clockType,
+                     args->d_timeOut,
+                     duration.totalMicroseconds(),
+                     duration.totalMicroseconds() + relax >= args->d_timeOut);
     }
 
     // Wait until all the threads have stopped.
@@ -744,34 +762,79 @@ int main(int argc, char *argv[])
                 TIMEOUT    = 100000 // 0.1s, in microseconds
             };
 
-            ThreadArgs args(NTHREADS, TIMEOUT);
-            bcemt_ThreadUtil::Handle threadHandles[NTHREADS];
             bcemt_ThreadAttributes attributes;
 
-            for (int i = 0; i < NTHREADS; ++i) {
-                bcemt_ThreadUtil::create(&threadHandles[i], attributes,
-                                         testThread5a, &args);
+            {
+                if (veryVerbose) cout << "\t\tUsing REALTIME clock" << endl;
+
+                ThreadArgs args(NTHREADS,
+                                TIMEOUT,
+                                bdetu_SystemClockType::e_REALTIME);
+                bcemt_ThreadUtil::Handle threadHandles[NTHREADS];
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::create(&threadHandles[i], attributes,
+                                             testThread5a, &args);
+                }
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::join(threadHandles[i]);
+                }
+
+                ASSERT(0 == args.d_numTimedOut);
+
+                ThreadArgs args1(NTHREADS,
+                                 TIMEOUT,
+                                 bdetu_SystemClockType::e_REALTIME);
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::create(&threadHandles[i], attributes,
+                                             testThread5b, &args1);
+                }
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::join(threadHandles[i]);
+                }
+
+                ASSERT(0 == args1.d_numTimedOut);
             }
 
-            for (int i = 0; i < NTHREADS; ++i) {
-                bcemt_ThreadUtil::join(threadHandles[i]);
+            {
+                if (veryVerbose) cout << "\t\tUsing MONOTONIC clock" << endl;
+
+                ThreadArgs args(NTHREADS,
+                                TIMEOUT,
+                                bdetu_SystemClockType::e_MONOTONIC);
+                bcemt_ThreadUtil::Handle threadHandles[NTHREADS];
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::create(&threadHandles[i], attributes,
+                                             testThread5a, &args);
+                }
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::join(threadHandles[i]);
+                }
+
+                ASSERT(0 == args.d_numTimedOut);
+
+                ThreadArgs args1(NTHREADS,
+                                 TIMEOUT,
+                                 bdetu_SystemClockType::e_MONOTONIC);
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::create(&threadHandles[i], attributes,
+                                             testThread5b, &args1);
+                }
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::join(threadHandles[i]);
+                }
+
+                ASSERT(0 == args1.d_numTimedOut);
             }
-
-            ASSERT(0 == args.d_numTimedOut);
-
-            for (int i = 0; i < NTHREADS; ++i) {
-                bcemt_ThreadUtil::create(&threadHandles[i], attributes,
-                                         testThread5b, &args);
-            }
-
-            for (int i = 0; i < NTHREADS; ++i) {
-                bcemt_ThreadUtil::join(threadHandles[i]);
-            }
-
-            ASSERT(0 == args.d_numTimedOut);
         }
       } break;
-
       case 4: {
         // --------------------------------------------------------------------
         // TESTING 'timedWait'
@@ -821,96 +884,212 @@ int main(int argc, char *argv[])
             TIMEOUT    = 1000000 // 1s, in microseconds
         };
 
-        bcemt_ThreadUtil::Handle threadHandles[NTHREADS];
-        bcemt_ThreadAttributes attributes;
-
         if (verbose)
             cout << "\tTesting 'timedWait' with timeouts" << endl
                  << "\t---------------------------------" << endl;
 
+        bcemt_ThreadAttributes attributes;
+
         {
-            ThreadArgs4 args(NTHREADS, TIMEOUT);
-            for (int i = 0; i < NTHREADS; ++i) {
-                bcemt_ThreadUtil::create(&threadHandles[i], attributes,
-                                         testThread4, &args);
-            }
+            if (veryVerbose) cout << "\t\tUsing REALTIME clock" << endl;
 
-            // Wait until all the threads have stopped.
-            ++args.d_stopCount;
-            while (NTHREADS + 1 != args.d_stopCount) {
-#ifdef BSLS_PLATFORM_OS_AIX
-                bcemt_ThreadUtil::yield();
-#endif
-            }
+            bcemt_ThreadUtil::Handle threadHandles[NTHREADS];
 
-            LOOP_ASSERT(args.d_numTimedOut, NTHREADS == args.d_numTimedOut);
-            for (int i = 0; i < NTHREADS; ++i) {
-                bcemt_ThreadUtil::join(threadHandles[i]);
-            }
-        }
+            {
+                ThreadArgs4 args(NTHREADS,
+                                 TIMEOUT,
+                                 bdetu_SystemClockType::e_REALTIME);
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::create(&threadHandles[i], attributes,
+                                             testThread4, &args);
+                }
 
-        if (verbose)
-            cout << "\tTesting 'timedWait' without timeouts" << endl
-                << "\t------------------------------------" << endl;
-
-        ThreadArgs4 args(NTHREADS, 60 * TIMEOUT);  // 60s
-        for (int n = 0; n < 2; ++n)
-        {
-            if (verbose) cout << "\titeration number " << n << endl;
-            args.d_stopCount = 0;
-
-            for (int i = 0; i < NTHREADS; ++i) {
-                bcemt_ThreadUtil::create(&threadHandles[i], attributes,
-                        testThread4, &args);
-            }
-
-            // Note: previous testing used 'wait()', but this fails to make
-            // sure that the 'timedWait' function also succeeds in unlocking
-            // the other threads, and can lead to a TIMEOUT failure if the
-            // worker threads time out before 'wait' is called.  We prefer to
-            // use the 'timedWait' function instead and make sure it does not
-            // time out.  If it does time out, then the test will not be able
-            // to run properly, but this may be due to the failure of the test
-            // driver to reach line 621: 'args.d_barrier.timedWait()' below
-            // before the worker threads have already timed out (timer
-            // failure), so we do not assert and issue a warning instead.
-
-            bdet_TimeInterval timeOut = bdetu_SystemTime::now();
-            timeOut.addMicroseconds(60 * TIMEOUT);  // 60s
-
-            const int res = args.d_barrier.timedWait(timeOut);
-            ASSERT(0 == res);
-
-            if (0 == res ) {
+                // Wait until all the threads have stopped.
                 ++args.d_stopCount;
-                while(NTHREADS + 1 != args.d_stopCount) {
+                while (NTHREADS + 1 != args.d_stopCount) {
 #ifdef BSLS_PLATFORM_OS_AIX
                     bcemt_ThreadUtil::yield();
 #endif
                 }
 
-                LOOP2_ASSERT(n, args.d_numTimedOut,
-                        0 == args.d_numTimedOut);
-
-                for (int i = 0; i < NTHREADS; ++i) {
-                    bcemt_ThreadUtil::join(threadHandles[i]);
-                }
-            }
-            else {
-                // This can fail if 'timedWait' above gets executed after a
-                // worker thread already timed out, but the extremely long
-                // TIMEOUT makes this really unlikely!  Just to be complete,
-                // we avoid locking this test driver indefinitely.
-                // We still need to unlock the waiting threads.
-
-                ++args.d_stopCount;
+                LOOP_ASSERT(args.d_numTimedOut,
+                            NTHREADS == args.d_numTimedOut);
                 for (int i = 0; i < NTHREADS; ++i) {
                     bcemt_ThreadUtil::join(threadHandles[i]);
                 }
             }
         }
-      } break;
 
+        {
+            if (veryVerbose) cout << "\t\tUsing MONOTONIC clock" << endl;
+
+            bcemt_ThreadUtil::Handle threadHandles[NTHREADS];
+
+            {
+                ThreadArgs4 args(NTHREADS,
+                                 TIMEOUT,
+                                 bdetu_SystemClockType::e_MONOTONIC);
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::create(&threadHandles[i], attributes,
+                                             testThread4, &args);
+                }
+
+                // Wait until all the threads have stopped.
+                ++args.d_stopCount;
+                while (NTHREADS + 1 != args.d_stopCount) {
+#ifdef BSLS_PLATFORM_OS_AIX
+                    bcemt_ThreadUtil::yield();
+#endif
+                }
+
+                LOOP_ASSERT(args.d_numTimedOut,
+                            NTHREADS == args.d_numTimedOut);
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::join(threadHandles[i]);
+                }
+            }
+        }
+
+        if (verbose)
+            cout << "\tTesting 'timedWait' without timeouts" << endl
+                 << "\t------------------------------------" << endl;
+
+        {
+            if (veryVerbose) cout << "\t\tUsing REALTIME clock" << endl;
+
+            bcemt_ThreadUtil::Handle threadHandles[NTHREADS];
+
+            ThreadArgs4 args(NTHREADS,
+                             60 * TIMEOUT,
+                             bdetu_SystemClockType::e_REALTIME);
+            for (int n = 0; n < 2; ++n)
+            {
+                if (verbose) cout << "\titeration number " << n << endl;
+                args.d_stopCount = 0;
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::create(&threadHandles[i], attributes,
+                                             testThread4, &args);
+                }
+
+                // Note: previous testing used 'wait()', but this fails to make
+                // sure that the 'timedWait' function also succeeds in
+                // unlocking the other threads, and can lead to a TIMEOUT
+                // failure if the worker threads time out before 'wait' is
+                // called.  We prefer to use the 'timedWait' function instead
+                // and make sure it does not time out.  If it does time out,
+                // then the test will not be able to run properly, but this may
+                // be due to the failure of the test driver to reach line 621:
+                // 'args.d_barrier.timedWait()' below before the worker threads
+                // have already timed out (timer failure), so we do not assert
+                // and issue a warning instead.
+
+                bdet_TimeInterval timeOut =
+                                          bdetu_SystemTime::nowRealtimeClock();
+                timeOut.addMicroseconds(60 * TIMEOUT);  // 60s
+
+                const int res = args.d_barrier.timedWait(timeOut);
+                ASSERT(0 == res);
+
+                if (0 == res ) {
+                    ++args.d_stopCount;
+                    while(NTHREADS + 1 != args.d_stopCount) {
+#ifdef BSLS_PLATFORM_OS_AIX
+                        bcemt_ThreadUtil::yield();
+#endif
+                    }
+
+                    LOOP2_ASSERT(n, args.d_numTimedOut,
+                                 0 == args.d_numTimedOut);
+
+                    for (int i = 0; i < NTHREADS; ++i) {
+                        bcemt_ThreadUtil::join(threadHandles[i]);
+                    }
+                }
+                else {
+                    // This can fail if 'timedWait' above gets executed after a
+                    // worker thread already timed out, but the extremely long
+                    // TIMEOUT makes this really unlikely!  Just to be
+                    // complete, we avoid locking this test driver
+                    // indefinitely.  We still need to unlock the waiting
+                    // threads.
+
+                    ++args.d_stopCount;
+                    for (int i = 0; i < NTHREADS; ++i) {
+                        bcemt_ThreadUtil::join(threadHandles[i]);
+                    }
+                }
+            }
+        }
+
+        {
+            if (veryVerbose) cout << "\t\tUsing MONOTONIC clock" << endl;
+
+            bcemt_ThreadUtil::Handle threadHandles[NTHREADS];
+
+            ThreadArgs4 args(NTHREADS,
+                             60 * TIMEOUT,
+                             bdetu_SystemClockType::e_MONOTONIC);
+            for (int n = 0; n < 2; ++n)
+            {
+                if (verbose) cout << "\titeration number " << n << endl;
+                args.d_stopCount = 0;
+
+                for (int i = 0; i < NTHREADS; ++i) {
+                    bcemt_ThreadUtil::create(&threadHandles[i], attributes,
+                                             testThread4, &args);
+                }
+
+                // Note: previous testing used 'wait()', but this fails to make
+                // sure that the 'timedWait' function also succeeds in
+                // unlocking the other threads, and can lead to a TIMEOUT
+                // failure if the worker threads time out before 'wait' is
+                // called.  We prefer to use the 'timedWait' function instead
+                // and make sure it does not time out.  If it does time out,
+                // then the test will not be able to run properly, but this may
+                // be due to the failure of the test driver to reach line 621:
+                // 'args.d_barrier.timedWait()' below before the worker threads
+                // have already timed out (timer failure), so we do not assert
+                // and issue a warning instead.
+
+                bdet_TimeInterval timeOut =
+                                         bdetu_SystemTime::nowMonotonicClock();
+                timeOut.addMicroseconds(60 * TIMEOUT);  // 60s
+
+                const int res = args.d_barrier.timedWait(timeOut);
+                ASSERT(0 == res);
+
+                if (0 == res ) {
+                    ++args.d_stopCount;
+                    while(NTHREADS + 1 != args.d_stopCount) {
+#ifdef BSLS_PLATFORM_OS_AIX
+                        bcemt_ThreadUtil::yield();
+#endif
+                    }
+
+                    LOOP2_ASSERT(n, args.d_numTimedOut,
+                                 0 == args.d_numTimedOut);
+
+                    for (int i = 0; i < NTHREADS; ++i) {
+                        bcemt_ThreadUtil::join(threadHandles[i]);
+                    }
+                }
+                else {
+                    // This can fail if 'timedWait' above gets executed after a
+                    // worker thread already timed out, but the extremely long
+                    // TIMEOUT makes this really unlikely!  Just to be
+                    // complete, we avoid locking this test driver
+                    // indefinitely.  We still need to unlock the waiting
+                    // threads.
+
+                    ++args.d_stopCount;
+                    for (int i = 0; i < NTHREADS; ++i) {
+                        bcemt_ThreadUtil::join(threadHandles[i]);
+                    }
+                }
+            }
+        }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 'wait'
@@ -1027,12 +1206,25 @@ int main(int argc, char *argv[])
                 const int LINE = VALUES[i].d_lineNum;
                 const int NUM  = VALUES[i].d_numThreads;
 
-                bcemt_Barrier x(NUM); const bcemt_Barrier &X = x;
-                LOOP_ASSERT(LINE, NUM == X.numThreads());
+                {
+                    bcemt_Barrier x(NUM); const bcemt_Barrier &X = x;
+                    LOOP_ASSERT(LINE, NUM == X.numThreads());
+                }
+
+                {
+                    bcemt_Barrier x(NUM, bdetu_SystemClockType::e_REALTIME);
+                    const bcemt_Barrier &X = x;
+                    LOOP_ASSERT(LINE, NUM == X.numThreads());
+                }
+
+                {
+                    bcemt_Barrier x(NUM, bdetu_SystemClockType::e_MONOTONIC);
+                    const bcemt_Barrier &X = x;
+                    LOOP_ASSERT(LINE, NUM == X.numThreads());
+                }
             }
         }
       } break;
-
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST:

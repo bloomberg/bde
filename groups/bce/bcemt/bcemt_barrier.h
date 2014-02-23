@@ -278,6 +278,10 @@ BDES_IDENT("$Id: $")
 #include <bdet_timeinterval.h>
 #endif
 
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
+
 namespace BloombergLP {
 
                              // ===================
@@ -306,9 +310,17 @@ class bcemt_Barrier {
 
   public:
     // CREATORS
-    explicit bcemt_Barrier(int numThreads);
-        // Construct a barrier that requires 'numThreads' to unblock.  Note
-        // that the behavior is undefined unless '0 < numThreads'.
+    explicit
+    bcemt_Barrier(
+             int                         numThreads,
+             bdetu_SystemClockType::Type clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
+        // Create a barrier that requires the specified 'numThreads' to
+        // unblock.  Optionally specify a 'clockType' indicating the type of
+        // the system clock against which the 'bdet_TimeInterval' timeouts
+        // passed to the 'timedWait' method are to be interpreted.  If
+        // 'clockType' is not specified then the realtime system clock is
+        // assumed.  The behavior is undefined unless '0 < numThreads'.
 
     ~bcemt_Barrier();
         // Wait for all *signaled* threads to unblock and destroy this barrier.
@@ -328,18 +340,18 @@ class bcemt_Barrier {
     int timedWait(const bdet_TimeInterval &timeout);
         // Block until the required number of threads have called 'wait' or
         // 'timedWait' on this barrier, or until the specified 'timeout'
-        // (expressed as the !ABSOLUTE! time from 00:00:00 UTC, January 1,
-        // 1970) expires.  In the former case, *signal* all the threads that
-        // are currently waiting on this barrier to unblock, reset the state of
+        // expires.  In the former case, *signal* all the threads that are
+        // currently waiting on this barrier to unblock, reset the state of
         // this barrier to its initial state, and return 0.  If this method
         // times out before the required number of threads are waiting, the
         // thread is released to proceed and ceases to contribute to the number
         // of threads waiting.  Return a non-zero value if a timeout or error
-        // occurs.  Note that 'timedWait' and 'wait' should not generally be
-        // used together; if one or more threads called 'wait' while others
-        // called 'timedWait', then if the thread(s) that called 'timedWait'
-        // were to time out and not retry, the threads that called 'wait' would
-        // never unblock.
+        // occurs.  The 'timeout' value should be obtained from the clock type
+        // this object was constructed with.  Note that 'timedWait' and 'wait'
+        // should not generally be used together; if one or more threads called
+        // 'wait' while others called 'timedWait', then if the thread(s) that
+        // called 'timedWait' were to time out and not retry, the threads thst
+        // called 'wait' would never unblock.
 
     // ACCESSORS
     int numThreads() const;
@@ -353,8 +365,11 @@ class bcemt_Barrier {
 
 // CREATORS
 inline
-bcemt_Barrier::bcemt_Barrier(int numThreads)
-: d_numThreads(numThreads)
+bcemt_Barrier::bcemt_Barrier(int                         numThreads,
+                             bdetu_SystemClockType::Type clockType)
+: d_mutex()
+, d_cond(clockType)
+, d_numThreads(numThreads)
 , d_numWaiting(0)
 , d_sigCount(0)
 , d_numPending(0)
