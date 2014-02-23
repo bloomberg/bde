@@ -212,9 +212,11 @@ BDES_IDENT("$Id: $")
 // When invoking the 'timedWait' methods, clients must specify a timeout after
 // which the call will return even if the condition is not signaled.  The
 // timeout is expressed as a 'bdet_TimeInterval' object that holds the absolute
-// time since some platform defined epoch (e.g., number of seconds and
-// nanoseconds from 00:00:00 UTC, January 1, 1970).  Clients should use the
-// 'bdetu_SystemTime' utility to access the current time.
+// time value relative to the same system clock type as was indicated at the
+// construction of the 'bcemt_Condition' object.  By default, the clock type
+// used by a 'bcemt_Condition' object is 'bdetu_SystemClockType::e_REALTIME'.
+// Clients should use the 'bdetu_SystemTime::now(clockType)' utility method to
+// access the current time for a particular system clock.
 //
 // Other threads can indicate that the predicate is true by signaling or
 // broadcasting the same 'bcemt_Condition' object.  A broadcast wakes up all

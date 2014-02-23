@@ -72,6 +72,10 @@ BDES_IDENT("$Id: $")
 #include <bcemt_timedsemaphore.h>
 #endif
 
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -112,8 +116,9 @@ class bcemt_Sluice {
                                               // descriptor in the pool
 
         // CREATORS
-        GenerationDescriptor();
-            // Create a generation descriptor object.
+        explicit GenerationDescriptor(bdetu_SystemClockType::Type clockType);
+            // Create a generation descriptor object with the specified
+            // 'clockType'.
     };
 
     // DATA
@@ -131,6 +136,10 @@ class bcemt_Sluice {
     GenerationDescriptor *d_descriptorPool;      // pool of available
                                                  // generation descriptors
 
+    bdetu_SystemClockType::Type
+                          d_clockType;           // the type of clock used for
+                                                 // timeout in 'timedWait'
+
     bslma::Allocator     *d_allocator_p;         // memory allocator (held, not
                                                  // owned)
 
@@ -141,10 +150,17 @@ class bcemt_Sluice {
   public:
     // CREATORS
     explicit
-    bcemt_Sluice(bslma::Allocator *basicAllocator = 0);
-        // Create a sluice.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If basicAllocator is 0, the currently installed
-        // default allocator is used.
+    bcemt_Sluice(bslma::Allocator           *basicAllocator = 0);
+    explicit
+    bcemt_Sluice(bdetu_SystemClockType::Type  clockType,
+                 bslma::Allocator            *basicAllocator = 0);
+        // Create a sluice.  Optionally specify a 'clockType' indicating the
+        // type of the system clock against which the 'bdet_TimeInterval'
+        // timeouts passed to the 'timedWait' method are to be interpreted.  If
+        // 'clockType' is not specified then the realtime system clock is
+        // assumed.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If basicAllocator is 0, the currently installed default
+        // allocator is used.
 
     ~bcemt_Sluice();
         // Destroy this sluice.
@@ -166,12 +182,12 @@ class bcemt_Sluice {
 
     int timedWait(const void *token, const bdet_TimeInterval& timeout);
         // Wait for the specified 'token' to be signaled, or until the
-        // specified 'timeout' (expressed as the !ABSOLUTE! time from 00:00:00
-        // UTC, January 1, 1970) expires.  Return 0 on success, and a non-zero
-        // value on timeout.  The 'token' is released whether or not a timeout
-        // occurred.  The behavior is undefined unless 'token' was obtained
-        // from a call to 'enter' by this thread, and was not subsequently
-        // released (via a call to 'timedWait' or 'wait').
+        // specified 'timeout' expires.  The 'timeout' value should be obtained
+        // from the clock type this object was constructed with.  Return 0 on
+        // success, and a non-zero value on timeout.  The 'token' is released
+        // whether or not a timeout occurred.  The behavior is undefined unless
+        // 'token' was obtained from a call to 'enter' by this thread, and was
+        // not subsequently released (via a call to 'timedWait' or 'wait').
 
     void wait(const void *token);
         // Wait for the specified 'token' to be signaled, and release the

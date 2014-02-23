@@ -21,10 +21,11 @@ namespace BloombergLP {
                    // ----------------------------------------
 
 // CREATORS
-bcemt_Sluice::GenerationDescriptor::GenerationDescriptor()
+bcemt_Sluice::GenerationDescriptor::GenerationDescriptor(
+                                               bdetu_ClockType::Type clockType)
 : d_numThreads(0)
 , d_numSignaled(0)
-, d_sema(0)
+, d_sema(0, clockType)
 , d_next(0)
 {
 }
@@ -38,6 +39,17 @@ bcemt_Sluice::bcemt_Sluice(bslma::Allocator *basicAllocator)
 : d_signaledGeneration(0)
 , d_pendingGeneration(0)
 , d_descriptorPool(0)
+, d_clockType(bdetu_SystemClockType::e_REALTIME)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+bcemt_Sluice::bcemt_Sluice(bdetu_SystemClockType::Type  clockType,
+                           bslma::Allocator            *basicAllocator)
+: d_signaledGeneration(0)
+, d_pendingGeneration(0)
+, d_descriptorPool(0)
+, d_clockType(clockType)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -73,7 +85,7 @@ const void *bcemt_Sluice::enter()
         }
         else {
             // The pool is empty.  Allocate a new descriptor.
-            g = new (*d_allocator_p) GenerationDescriptor;
+            g = new (*d_allocator_p) GenerationDescriptor(d_clockType);
         }
 
         d_pendingGeneration = g;
