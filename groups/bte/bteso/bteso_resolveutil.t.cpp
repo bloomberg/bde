@@ -527,10 +527,10 @@ int main(int argc, char *argv[])
                 // Cannot come up with any multi-homed hosts
                 // resolvable on BLP CORP PCs! TBD FIXME
 
-        const char* sundev1[] = { "172.17.1.20",   0 };
-        const char* sundev5[] = { "10.126.149.12", 0 };
-        const char* ibm1[]    = { "172.17.5.40",   0 };
-        const char* n100[]    = { "10.126.151.36", 0 };
+        const char* sundev1[] = { "172.17.1.20",    0 };
+        const char* sundev5[] = { "10.126.149.12",  0 };
+        const char* ibm1[]    = { "172.17.5.40",    0 };
+        const char* n100[]    = { "10.126.161.141", 0 };
             #endif
 
                 struct {
@@ -1166,10 +1166,10 @@ int main(int argc, char *argv[])
             // Cannot come up with any multi-homed hosts
             // resolvable on BLP CORP PCs! TBD FIXME
 
-            const char* sundev1[] = { "172.17.1.20",   0 };
-            const char* sundev5[] = { "10.126.149.12", 0 };
-            const char* ibm1[]    = { "172.17.5.40",   0 };
-            const char* n100[]    = { "10.126.151.36", 0 };
+            const char* sundev1[] = { "172.17.1.20",    0 };
+            const char* sundev5[] = { "10.126.149.12",  0 };
+            const char* ibm1[]    = { "172.17.5.40",    0 };
+            const char* n100[]    = { "10.126.161.141", 0 };
         #endif
 
             struct {
