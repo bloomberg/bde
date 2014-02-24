@@ -4014,7 +4014,9 @@ int main(int argc, char *argv[])
                 const int NUM          = DATA[ti].d_offset;
                 const int FAIL         = DATA[ti].d_fail;
                 float VALUE;
-                sscanf(SPEC, "%f", &VALUE);
+                double VALUE_D;
+                sscanf(SPEC, "%lf", &VALUE_D);
+                VALUE = VALUE_D;
                 const int curLen       = strlen(SPEC);
 
                 if (curLen != oldLen) {
@@ -4031,7 +4033,12 @@ int main(int argc, char *argv[])
                                             parseFloat(&endPos, &result, SPEC);
                     LOOP_ASSERT(LINE, SPEC + NUM == endPos);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
-                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_1 : VALUE));
+
+                    printf ("%16.16e\n", result);
+                    printf ("%16.16e\n", rv ? INITIAL_VALUE_1 : VALUE);
+
+                    LOOP_ASSERT(LINE,
+                                     result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
 
                 {  // test with second initial value
@@ -4041,7 +4048,12 @@ int main(int argc, char *argv[])
                                             parseFloat(&endPos, &result, SPEC);
                     LOOP_ASSERT(LINE, SPEC + NUM == endPos);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
-                    LOOP_ASSERT(LINE,result == (rv ? INITIAL_VALUE_2 : VALUE));
+
+                    printf ("%16.16e\n", result);
+                    printf ("%16.16e\n", rv ? INITIAL_VALUE_2 : VALUE);
+
+                    LOOP_ASSERT(LINE,
+                                     result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
             }
         }
