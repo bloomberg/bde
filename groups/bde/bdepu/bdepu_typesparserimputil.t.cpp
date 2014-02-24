@@ -4015,12 +4015,9 @@ int main(int argc, char *argv[])
                 const int FAIL         = DATA[ti].d_fail;
                 float VALUE;
 
-                // %lf forces all of the digits in the string representation
-                // to be read by sscanf, and proper rounding to be performed.
-                // For example, the string "7.038531e-26" is interpreted in
-                // float as 7.0385306918512091e-26, but parsed as double and
-                // rounded, it is interpreted as 7.0385313081487913e-26, a
-                // close approximation.
+                // Note that parseFloat parses the string into a 'double'
+                // first, before converting to a 'float'. This is why we scan
+                // the string as a 'double' first.
                 double VALUE_D;
                 sscanf(SPEC, "%lf", &VALUE_D);
                 VALUE = VALUE_D;

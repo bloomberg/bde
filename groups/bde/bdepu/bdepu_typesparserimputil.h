@@ -642,6 +642,9 @@ struct bdepu_TypesParserImpUtil {
         //      'inputString' but the character following it is not a decimal
         //      number.
         //..
+        //
+        // Note that parseFloat parses the string into a 'double' first, before
+        // converting to a 'float'.  TBD: Avoid this.
 
     static int parseInt(const char **endPos,
                         int         *result,
