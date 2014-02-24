@@ -4014,6 +4014,9 @@ int main(int argc, char *argv[])
                 const int NUM          = DATA[ti].d_offset;
                 const int FAIL         = DATA[ti].d_fail;
                 float VALUE;
+
+                // %lf forces all of the digits in the string representation
+                // to be read by sscanf, and proper rounding to be performed.
                 double VALUE_D;
                 sscanf(SPEC, "%lf", &VALUE_D);
                 VALUE = VALUE_D;
@@ -4033,10 +4036,6 @@ int main(int argc, char *argv[])
                                             parseFloat(&endPos, &result, SPEC);
                     LOOP_ASSERT(LINE, SPEC + NUM == endPos);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
-
-                    printf ("%16.16e\n", result);
-                    printf ("%16.16e\n", rv ? INITIAL_VALUE_1 : VALUE);
-
                     LOOP_ASSERT(LINE,
                                      result == (rv ? INITIAL_VALUE_1 : VALUE));
                 }
@@ -4048,10 +4047,6 @@ int main(int argc, char *argv[])
                                             parseFloat(&endPos, &result, SPEC);
                     LOOP_ASSERT(LINE, SPEC + NUM == endPos);
                     LOOP_ASSERT(LINE, FAIL == !!rv);
-
-                    printf ("%16.16e\n", result);
-                    printf ("%16.16e\n", rv ? INITIAL_VALUE_2 : VALUE);
-
                     LOOP_ASSERT(LINE,
                                      result == (rv ? INITIAL_VALUE_2 : VALUE));
                 }
