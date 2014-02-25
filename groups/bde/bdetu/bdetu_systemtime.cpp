@@ -102,13 +102,13 @@ bdet_TimeInterval getNowTime(clock_id_t       clockId,
     return bdet_TimeInterval(mts.tv_sec, mts.tv_nsec);
 }
 
-bdet_TimeInterval bdetu_SystemTime::nowRealtime()
+bdet_TimeInterval bdetu_SystemTime::nowRealtimeClock()
     // Return the current time for the realtime clock.
 {
     return getNowTime(CALENDAR_CLOCK, g_calendarClock);
 }
 
-bdet_TimeInterval bdetu_SystemTime::nowMonotonic()
+bdet_TimeInterval bdetu_SystemTime::nowMonotonicClock()
     // Return the current time for the monotonic clock.
 {
     return getNowTime(REALTIME_CLOCK, g_realtimeClock);
