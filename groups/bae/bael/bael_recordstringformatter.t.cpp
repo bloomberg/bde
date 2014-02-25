@@ -275,11 +275,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTest Constructors" << endl;
         {
             Obj mX0(true);        
-            P(mX0.timestampOffset().totalMilliseconds());
-                                  ASSERT( mX0.isPublishInLocalTimeEnabled());
+            if (veryVerbose) {
+                P(mX0.timestampOffset().totalMilliseconds());
+            }
+            ASSERT( mX0.isPublishInLocalTimeEnabled());
 
-            Obj mX1(false);      
-            P(mX1.timestampOffset().totalMilliseconds());
+            Obj mX1(false);   
+            if (veryVerbose) {   
+                P(mX1.timestampOffset().totalMilliseconds());
+            }
                                   ASSERT(!mX1.isPublishInLocalTimeEnabled());
             Obj mX2("%i", true);  ASSERT( mX2.isPublishInLocalTimeEnabled());
             Obj mX3("%i", false); ASSERT(!mX3.isPublishInLocalTimeEnabled());
@@ -311,7 +315,7 @@ int main(int argc, char *argv[])
 
             bdet_Datetime         dtUtc(2014, 2, 19);
 
-            
+
             bael_RecordAttributes fixedFields(dtUtc,
                                               0,
                                               0,
@@ -841,9 +845,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n Testing allocation behavior." << endl;
         {
 
-            const char *TEST_MESSAGES[] = { 
-                MSG_1BYTE, 
-                MSG_20BYTE, 
+            const char *TEST_MESSAGES[] = {
+                MSG_1BYTE,
+                MSG_20BYTE,
                 MSG_200BYTE,
                 MSG_450BYTE,
                 MSG_550BYTE,
@@ -857,7 +861,7 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocator oa, da;
                 Obj x("%m", &oa); const Obj& X = x;
-            
+
                 bael_RecordAttributes fixedFields(bdet_Datetime(),
                                                   processID,
                                                   threadID,
@@ -868,15 +872,15 @@ int main(int argc, char *argv[])
                                                   MSG,
                                                   &oa);
                 fixedFields.setTimestamp(bdetu_SystemTime::nowAsDatetimeUtc());
-                
+
                 bdem_List   userFields(&oa);
                 bael_Record record(fixedFields, userFields);
 
-                bsl::ostringstream stream;                
+                bsl::ostringstream stream;
                 bslma::DefaultAllocatorGuard guard(&da);
 
                 bslma::TestAllocatorMonitor oam(&oa), dam(&da);
-                
+
                 X(stream, record);
 
                 bool expectIncrease = MSG_LEN > 500;

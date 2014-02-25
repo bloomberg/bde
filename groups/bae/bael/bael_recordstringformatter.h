@@ -244,14 +244,13 @@ class bael_RecordStringFormatter {
     explicit bael_RecordStringFormatter(
                              bool              publishInLocalTime,
                              bslma::Allocator *basicAllocator = 0);
-        // Create a record formatter having a default format specification.  If
-        // the specified 'publishInLocalTime' flag is 'true', the timestamp (in
-        // UTC) of eacho log record is formated showing the local time (in the
-        // local time zone) for that UTC timestamp; otherwise the formatted
-        // timestamp shows UTC time.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  The default format
-        // specification is:
+        // Create a record formatter having a default format specification, and
+        // if the specified 'publishInLocalTime' flag is 'true', format the
+        // timestamp of each logged record in the local time of the current
+        // task, and format the timestamp in UTC otherwise.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The default
+        // format specification is:
         //..
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
@@ -276,11 +275,10 @@ class bael_RecordStringFormatter {
                              bool              publishInLocalTime,
                              bslma::Allocator *basicAllocator = 0);
         // Create a record formatter having the specified 'format'
-        // specification.  If the specified 'publishInLocalTime' flag is
-        // 'true', the timestamp (in UTC) of each log record is formated
-        // showing the local time (in the local time zone) for that UTC
-        // timestamp; otherwise the formatted timestamp shows UTC time.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // specification, and if the specified 'publishInLocalTime' flag is
+        // 'true', format the timestamp of each log in the local time of the
+        // current task, and format the timestamp in UTC otherwise.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  Note that local time offsets are calculated for the timestamp
         // of each formatted record and so track transitions into and out of

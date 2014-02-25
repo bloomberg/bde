@@ -19,9 +19,7 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdema_bufferedsequentialallocator.h>
 #include <bdem_list.h>
 #include <bdet_datetime.h>
-#if 1
 #include <bdetu_systemtime.h>
-#endif
 #include <bdeu_print.h>
 
 #include <bsls_platform.h>
@@ -90,9 +88,8 @@ static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
                         // --------------------------------
 
 // CLASS DATA
-const int bael_RecordStringFormatter:: k_ENABLE_PUBLISH_IN_LOCALTIME = INT_MAX;
-const int bael_RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = 
-                                                -k_ENABLE_PUBLISH_IN_LOCALTIME;
+const int bael_RecordStringFormatter::k_ENABLE_PUBLISH_IN_LOCALTIME  = INT_MAX;
+const int bael_RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = INT_MIN;
     // Local time offsets of 'INT_MAX' *milliseconds* (about 23 days) should
     // not appear in practice.  Real values are (always?) less than one day
     // (plus or minus).
@@ -214,11 +211,11 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     // in order to ensure only a single allocation occurs.
 
     const int BUFFER_SIZE        = 512;
-    const int STRING_RESERVATION = BUFFER_SIZE - 
+    const int STRING_RESERVATION = BUFFER_SIZE -
                                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
     char fixedBuffer[BUFFER_SIZE];
-    bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer, 
+    bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer,
                                                       BUFFER_SIZE);
     bsl::string output(&stringAllocator);
     output.reserve(STRING_RESERVATION);
