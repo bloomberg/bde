@@ -1,3 +1,20 @@
+bde-core (2.20.1.0) unstable; urgency=low
+
+  * Bump changelog
+  * ad5241c bump patch version to 2.20.1
+  * 9912728 [APPROVAL] origin/review/bteso_resolveutil-ipv6-windows-confusion-drqs-47568432 to releases/2.20.x
+  * 59b9948 [APPROVAL] origin/dev/apaprock/baea-unused-member-drqs49432044 to releases/2.20.x
+  * 1c403a4 [APPROVAL] pending/master/bael_localtimeoffset_redux-drqs-39620126 to releases/2.20.x
+  * 9375b7b [APPROVAL] pending/master/parse_double_fix_rounding to releases/2.20.x
+  * 7deb444 [APPROVAL] pending/master/fileutil-cleanup-patch-drqs-45032518-and-45068181 to releases/2.20.x
+  * 91f6940 [APPROVAL] pending/master/windows_build_issues_for_2_20_drqs49083266 to releases/2.20.x
+  * 952ab47 [APPROVAL] pending/master/drqs-49477867-BDE_BUILD_TARGET_OPT to releases/2.20.x
+  * 6987990 [APPROVAL] pending/master/remove-stropts-drqs46249510 to releases/2.20.x
+  * 920d78e [APPROVAL] pending/master/remove-stropts-drqs46249510 to master
+  * f1033d8 [APPROVAL] pending/master/add-back-bdetu-transitive-include-drqs-48980359 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 25 Feb 2014 15:04:25 -0500
+
 bde-core (2.20.0.2) unstable; urgency=low
 
   * Bump changelog
