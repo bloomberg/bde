@@ -274,14 +274,19 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest Constructors" << endl;
         {
-            Obj mX0(true);        ASSERT( mX0.isPublishInLocalTimeEnabled());
-            Obj mX1(false);       ASSERT(!mX1.isPublishInLocalTimeEnabled());
+            Obj mX0(true);        
+            P(mX0.timestampOffset().totalMilliseconds());
+                                  ASSERT( mX0.isPublishInLocalTimeEnabled());
+
+            Obj mX1(false);      
+            P(mX1.timestampOffset().totalMilliseconds());
+                                  ASSERT(!mX1.isPublishInLocalTimeEnabled());
             Obj mX2("%i", true);  ASSERT( mX2.isPublishInLocalTimeEnabled());
             Obj mX3("%i", false); ASSERT(!mX3.isPublishInLocalTimeEnabled());
 
             Obj mX4;              ASSERT(!mX4.isPublishInLocalTimeEnabled());
             Obj mX5("%i");        ASSERT(!mX5.isPublishInLocalTimeEnabled());
-            Obj mX6("%i", bdet_DatetimeInterval(100));
+            Obj mX6("%i", bdet_DatetimeInterval(10));
                                   ASSERT(!mX6.isPublishInLocalTimeEnabled());
         }
 
@@ -301,7 +306,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest Fixed and Calculated Offsets" << endl;
         {
-            Obj mX("%i", bdet_DatetimeInterval(100));
+            Obj mX("%i", bdet_DatetimeInterval(10));
                                      ASSERT(!mX.isPublishInLocalTimeEnabled());
 
             bdet_Datetime         dtUtc(2014, 2, 19);
@@ -318,7 +323,10 @@ int main(int argc, char *argv[])
             bael_Record           mRecord(fixedFields, bdem_List());
             const bael_Record&    record = mRecord;
 
-            bdet_Datetime dtWithOffset(dtUtc); dtWithOffset.addDays(100);
+            bdet_Datetime dtWithOffset(dtUtc); dtWithOffset.addDays(10);
+
+            if (veryVerbose) { P_(dtUtc) P(dtWithOffset); }
+
             ostringstream ossExpected;
             ossExpected
                  << bsl::setw(4) << bsl::setfill('0') << dtWithOffset.year()
@@ -344,10 +352,15 @@ int main(int argc, char *argv[])
             int localTimeOffsetInSeconds;
             bdetu_SystemTime::loadLocalTimeOffset(&localTimeOffsetInSeconds,
                                                   dtUtc);
-            ASSERT(100 * 24 * 60 * 60 != localTimeOffsetInSeconds);
+            ASSERT(10 * 24 * 60 * 60 != localTimeOffsetInSeconds);
+
+            if (veryVerbose) { P(localTimeOffsetInSeconds); }
 
             bdet_Datetime dtWithLTO(dtUtc);
             dtWithLTO.addSeconds(localTimeOffsetInSeconds);
+
+            if (veryVerbose) { P_(dtUtc) P(dtWithLTO); }
+
             ossExpected
                     << bsl::setw(4) << bsl::setfill('0') << dtWithLTO.year()
                     << '-'

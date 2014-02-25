@@ -180,7 +180,7 @@ class bael_RecordStringFormatter {
     // an object as both source and destination) is supported in all cases.
 
     // CLASS DATA
-    const static bdet_DatetimeInterval s_disablePublishInLocalTime;
+    static const int k_DISABLE_PUBLISH_IN_LOCALTIME;
                                               // Reserved offset (a value
                                               // corresponding to no known time
                                               // zone) that indicates that the
@@ -188,7 +188,7 @@ class bael_RecordStringFormatter {
                                               // *not* adjusted to the current
                                               // local time.
 
-    const static bdet_DatetimeInterval s_enablePublishInLocalTime;
+    static const int k_ENABLE_PUBLISH_IN_LOCALTIME;
                                               // Reserved offset (a value
                                               // corresponding to no known time
                                               // zone) that indicates that the
@@ -402,13 +402,13 @@ int bael_RecordStringFormatter::maxSupportedBdexVersion()
 inline
 void bael_RecordStringFormatter::disablePublishInLocalTime()
 {
-    d_timestampOffset = s_disablePublishInLocalTime;
+    d_timestampOffset.setTotalMilliseconds(k_DISABLE_PUBLISH_IN_LOCALTIME);
 }
 
 inline
 void bael_RecordStringFormatter::enablePublishInLocalTime()
 {
-    d_timestampOffset = s_enablePublishInLocalTime;
+    d_timestampOffset.setTotalMilliseconds(k_ENABLE_PUBLISH_IN_LOCALTIME);
 }
 
 inline
@@ -463,7 +463,8 @@ const char *bael_RecordStringFormatter::format() const
 inline
 bool bael_RecordStringFormatter::isPublishInLocalTimeEnabled() const
 {
-    return s_enablePublishInLocalTime == d_timestampOffset;
+    return k_ENABLE_PUBLISH_IN_LOCALTIME ==
+                                         d_timestampOffset.totalMilliseconds();
 }
 
 inline

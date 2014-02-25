@@ -122,11 +122,11 @@ BDES_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - -
 // The calculation of the local time offset adds some overhead to the
 // publication of each log record.  If that is problematic, the overhead can be
-// mitigated by the installation of a high-performance local-time offset
-// callback for 'bdetu_SystemTime'.  See {'bdetu_systemtime'} for details of
-// installing such callback and see {'baetzo_localtimeoffsetutil'} for a an
-// example facility.  Note that such callbacks can improve performance for all
-// users of 'bdetu_SystemTime', not just logging.
+// mitigated if the owner of 'main' installs a high-performance local-time
+// offset callback for 'bdetu_SystemTime'.  See {'bdetu_systemtime'} for
+// details of installing such callback and see {'baetzo_localtimeoffsetutil'}
+// for a an example facility.  Note that such callbacks can improve performance
+// for all users of 'bdetu_SystemTime', not just logging.
 //
 ///Log Filename Pattern
 ///--------------------
@@ -626,9 +626,8 @@ class bael_AsyncFileObserver : public bael_Observer {
         // at multiples of the specified 'interval'.  Optionally, specify
         // 'referenceStartTime' indicating the *local* datetime to use as the
         // starting point for computing the periodic rotation schedule.
-        // 'referenceStartTime' is interpreted using the local-time offset in
-        // effect on construction.  (See the function-level documentation of
-        // the 'localTimeOffset' method.)  If 'referenceStartTime' is
+        // 'referenceStartTime' is interpreted using the local-time offset at
+        // the time this object was constructred.  If 'referenceStartTime' is
         // unspecified, the current time is used.  The behavior is undefined
         // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
         // rotation-on-time-interval rule currently in effect.  Note that

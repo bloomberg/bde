@@ -90,10 +90,12 @@ static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
                         // --------------------------------
 
 // CLASS DATA
-const bdet_DatetimeInterval bael_RecordStringFormatter::
-                                          s_disablePublishInLocalTime(INT_MIN);
-const bdet_DatetimeInterval bael_RecordStringFormatter::
-                                           s_enablePublishInLocalTime(INT_MAX);
+const int bael_RecordStringFormatter:: k_ENABLE_PUBLISH_IN_LOCALTIME = INT_MAX;
+const int bael_RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = 
+                                                -k_ENABLE_PUBLISH_IN_LOCALTIME;
+    // Local time offsets of 'INT_MAX' *milliseconds* (about 23 days) should
+    // not appear in practice.  Real values are (always?) less than one day
+    // (plus or minus).
 
 // CREATORS
 bael_RecordStringFormatter::bael_RecordStringFormatter(
@@ -123,9 +125,13 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
                                           bool              publishInLocalTime,
                                           bslma::Allocator *basicAllocator)
 : d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
-, d_timestampOffset(publishInLocalTime
-                    ?  s_enablePublishInLocalTime
-                    : s_disablePublishInLocalTime)
+, d_timestampOffset(0,
+                    0,
+                    0,
+                    0,
+                    publishInLocalTime
+                    ?  k_ENABLE_PUBLISH_IN_LOCALTIME
+                    : k_DISABLE_PUBLISH_IN_LOCALTIME)
 {
 }
 
@@ -143,9 +149,13 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
                                           bool              publishInLocalTime,
                                           bslma::Allocator *basicAllocator)
 : d_formatSpec(format, basicAllocator)
-, d_timestampOffset(publishInLocalTime
-                    ?  s_enablePublishInLocalTime
-                    : s_disablePublishInLocalTime)
+, d_timestampOffset(0,
+                    0,
+                    0,
+                    0,
+                    publishInLocalTime
+                    ?  k_ENABLE_PUBLISH_IN_LOCALTIME
+                    : k_DISABLE_PUBLISH_IN_LOCALTIME)
 {
 }
 
@@ -178,16 +188,17 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
                                             const bael_Record& record) const
 
 {
-    static const bdet_DatetimeInterval offsetZero  = bdet_DatetimeInterval();
-    const bael_RecordAttributes&       fixedFields = record.fixedFields();
-    bdet_Datetime                      timestamp   = fixedFields.timestamp();
+    const bael_RecordAttributes& fixedFields = record.fixedFields();
+    bdet_Datetime                timestamp   = fixedFields.timestamp();
 
-    if (s_enablePublishInLocalTime == d_timestampOffset) {
+    if (k_ENABLE_PUBLISH_IN_LOCALTIME ==
+                                       d_timestampOffset.totalMilliseconds()) {
         int localTimeOffsetInSeconds;
         bdetu_SystemTime::loadLocalTimeOffset(&localTimeOffsetInSeconds,
                                               timestamp);
         timestamp.addSeconds(localTimeOffsetInSeconds);
-    } else if(s_disablePublishInLocalTime == d_timestampOffset) {
+    } else if(k_DISABLE_PUBLISH_IN_LOCALTIME ==
+                                       d_timestampOffset.totalMilliseconds()) {
         // Do not adjust 'timestamp'.
     } else {
         timestamp += d_timestampOffset;
