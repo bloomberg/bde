@@ -499,9 +499,6 @@ class baea_SerializableObjectProxyUtil_ChoiceAccessorProxy {
     // 'baea_SerializableObjectProxy' for encoding the current selection of a
     // Choice object.
 
-    int                           d_selectionId;  // ID of the current
-                                                  // selection
-
     baea_SerializableObjectProxy *d_proxy_p;      // proxy to populate
                                                   // (held, not owned)
 
@@ -511,12 +508,10 @@ class baea_SerializableObjectProxyUtil_ChoiceAccessorProxy {
     // CREATORS
     baea_SerializableObjectProxyUtil_ChoiceAccessorProxy(
                                      baea_SerializableObjectProxy *proxy,
-                                     int                           selectionId,
                                      const char                   *className);
         // Create a 'baea_SerializableObjectProxyUtil_ChoiceAccessorProxy'
-        // object that will be used to populate the specified 'proxy' and
-        // 'className' with the selection indicated by the specified
-        // 'selectionId'.
+        // object that will be used to populate the specified 'proxy' with
+        // the current selection of a type corresponding to 'className'.
 
     // MANIPULATORS
     template <typename SELECTED_TYPE>
@@ -990,7 +985,6 @@ void baea_SerializableObjectProxyUtil::makeEncodeProxy(
 {
     baea_SerializableObjectProxyUtil_ChoiceAccessorProxy accessorProxy(
                                                          proxy,
-                                                         object->selectionId(),
                                                          TYPE::CLASS_NAME);
 
     object->accessSelection(accessorProxy);
@@ -1067,10 +1061,8 @@ inline
 baea_SerializableObjectProxyUtil_ChoiceAccessorProxy
 ::baea_SerializableObjectProxyUtil_ChoiceAccessorProxy(
                                      baea_SerializableObjectProxy *proxy,
-                                     int                           selectionId,
                                      const char                   *className)
-: d_selectionId(selectionId)
-, d_proxy_p(proxy)
+: d_proxy_p(proxy)
 , d_className(className)
 {
 }
