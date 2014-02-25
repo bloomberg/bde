@@ -548,12 +548,6 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
     return nowAsDatetimeUtc();
 }
 
-    static bdet_TimeInterval nowMonotonicClock();
-        // Return the 'bdet_TimeInterval' value representing the current system
-        // time according to the monotonic clock.
-
-    static bdet_TimeInterval nowRealtimeClock();
-
                         // ** load methods **
 
 inline
