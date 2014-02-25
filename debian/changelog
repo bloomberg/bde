@@ -1,3 +1,11 @@
+bsl-internal (2.20.1.0) unstable; urgency=low
+
+  * Bump changelog
+  * b4d9bca Bump version to 2.20.1
+  * b1eaf93 [APPROVAL] origin/review/make_string_dtor_asserts_safe-2.20.x-version-drqs-49789550 to releases/2.20.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 25 Feb 2014 14:48:38 -0500
+
 bsl-internal (2.20.0.1) unstable; urgency=low
 
   * Bump changelog
