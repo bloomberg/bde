@@ -19,6 +19,7 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdema_bufferedsequentialallocator.h>
 #include <bdem_list.h>
 #include <bdet_datetime.h>
+#include <bdetu_systemtime.h>
 #include <bdeu_print.h>
 
 #include <bsls_platform.h>
@@ -26,6 +27,7 @@ BDES_IDENT_RCSID(bael_recordstringformatter_cpp,"$Id$ $CSID$")
 
 #include <bslstl_stringref.h>
 
+#include <bsl_climits.h>   // for 'INT_MAX'
 #include <bsl_cstring.h>   // for 'bsl::strcmp'
 #include <bsl_c_stdlib.h>
 #include <bsl_c_stdio.h>   // for 'snprintf'
@@ -41,6 +43,7 @@ const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
 }  // close unnamed namespace
 
 namespace BloombergLP {
+
 
 static void appendToString(bsl::string *result, int value)
     // Convert the specified 'value' into ASCII characters and append it to the
@@ -84,6 +87,13 @@ static void appendToString(bsl::string *result, bsls::Types::Uint64 value)
                         // class bael_RecordStringFormatter
                         // --------------------------------
 
+// CLASS DATA
+const int bael_RecordStringFormatter::k_ENABLE_PUBLISH_IN_LOCALTIME  = INT_MAX;
+const int bael_RecordStringFormatter::k_DISABLE_PUBLISH_IN_LOCALTIME = INT_MIN;
+    // Local time offsets of 'INT_MAX' *milliseconds* (about 23 days) should
+    // not appear in practice.  Real values are (always?) less than one day
+    // (plus or minus).
+
 // CREATORS
 bael_RecordStringFormatter::bael_RecordStringFormatter(
                                               bslma::Allocator *basicAllocator)
@@ -109,11 +119,40 @@ bael_RecordStringFormatter::bael_RecordStringFormatter(
 }
 
 bael_RecordStringFormatter::bael_RecordStringFormatter(
+                                          bool              publishInLocalTime,
+                                          bslma::Allocator *basicAllocator)
+: d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
+, d_timestampOffset(0,
+                    0,
+                    0,
+                    0,
+                    publishInLocalTime
+                    ?  k_ENABLE_PUBLISH_IN_LOCALTIME
+                    : k_DISABLE_PUBLISH_IN_LOCALTIME)
+{
+}
+
+bael_RecordStringFormatter::bael_RecordStringFormatter(
                                   const char                   *format,
                                   const bdet_DatetimeInterval&  offset,
                                   bslma::Allocator             *basicAllocator)
 : d_formatSpec(format, basicAllocator)
 , d_timestampOffset(offset)
+{
+}
+
+bael_RecordStringFormatter::bael_RecordStringFormatter(
+                                          const char       *format,
+                                          bool              publishInLocalTime,
+                                          bslma::Allocator *basicAllocator)
+: d_formatSpec(format, basicAllocator)
+, d_timestampOffset(0,
+                    0,
+                    0,
+                    0,
+                    publishInLocalTime
+                    ?  k_ENABLE_PUBLISH_IN_LOCALTIME
+                    : k_DISABLE_PUBLISH_IN_LOCALTIME)
 {
 }
 
@@ -147,8 +186,20 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
 
 {
     const bael_RecordAttributes& fixedFields = record.fixedFields();
+    bdet_Datetime                timestamp   = fixedFields.timestamp();
 
-    bdet_Datetime timestamp = fixedFields.timestamp() + d_timestampOffset;
+    if (k_ENABLE_PUBLISH_IN_LOCALTIME ==
+                                       d_timestampOffset.totalMilliseconds()) {
+        int localTimeOffsetInSeconds;
+        bdetu_SystemTime::loadLocalTimeOffset(&localTimeOffsetInSeconds,
+                                              timestamp);
+        timestamp.addSeconds(localTimeOffsetInSeconds);
+    } else if(k_DISABLE_PUBLISH_IN_LOCALTIME ==
+                                       d_timestampOffset.totalMilliseconds()) {
+        // Do not adjust 'timestamp'.
+    } else {
+        timestamp += d_timestampOffset;
+    }
 
     // Step through the format string, outputting the required elements.
 
@@ -160,11 +211,11 @@ void bael_RecordStringFormatter::operator()(bsl::ostream&      stream,
     // in order to ensure only a single allocation occurs.
 
     const int BUFFER_SIZE        = 512;
-    const int STRING_RESERVATION = BUFFER_SIZE - 
+    const int STRING_RESERVATION = BUFFER_SIZE -
                                    bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
     char fixedBuffer[BUFFER_SIZE];
-    bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer, 
+    bdema_BufferedSequentialAllocator stringAllocator(fixedBuffer,
                                                       BUFFER_SIZE);
     bsl::string output(&stringAllocator);
     output.reserve(STRING_RESERVATION);

@@ -323,7 +323,10 @@ void bael_FileObserver2::logRecordDefault(bsl::ostream&      stream,
 
     bdet_Datetime timestamp = fixedFields.timestamp();
     if (d_publishInLocalTime) {
-        timestamp += d_localTimeOffset;
+        int localTimeOffsetInSeconds;
+        bdetu_SystemTime::loadLocalTimeOffset(&localTimeOffsetInSeconds,
+                                              timestamp);
+        timestamp.addSeconds(localTimeOffsetInSeconds);
     }
 
     char buffer[256];
