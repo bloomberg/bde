@@ -179,6 +179,23 @@ class bael_RecordStringFormatter {
     // event is memory leaked.  Finally, *aliasing* (e.g., using all or part of
     // an object as both source and destination) is supported in all cases.
 
+    // CLASS DATA
+    static const int k_DISABLE_PUBLISH_IN_LOCALTIME;
+                                              // Reserved offset (a value
+                                              // corresponding to no known time
+                                              // zone) that indicates that the
+                                              // record time stamp (in UTC) is
+                                              // *not* adjusted to the current
+                                              // local time.
+
+    static const int k_ENABLE_PUBLISH_IN_LOCALTIME;
+                                              // Reserved offset (a value
+                                              // corresponding to no known time
+                                              // zone) that indicates that the
+                                              // record time stamp (in UTC) is
+                                              // adjusted to the current local
+                                              // time.
+
     // DATA
     bsl::string           d_formatSpec;       // 'printf'-style format spec.
     bdet_DatetimeInterval d_timestampOffset;  // offset added to timestamps
@@ -213,6 +230,8 @@ class bael_RecordStringFormatter {
     explicit bael_RecordStringFormatter(
                              const bdet_DatetimeInterval&  offset,
                              bslma::Allocator             *basicAllocator = 0);
+        // !DEPRECATED!: Use a CTOR specifying 'publishInLocalTime' instead.
+        //
         // Create a record formatter having a default format specification and
         // the specified timestamp 'offset'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -222,15 +241,48 @@ class bael_RecordStringFormatter {
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
 
+    explicit bael_RecordStringFormatter(
+                             bool              publishInLocalTime,
+                             bslma::Allocator *basicAllocator = 0);
+        // Create a record formatter having a default format specification, and
+        // if the specified 'publishInLocalTime' flag is 'true', format the
+        // timestamp of each logged record in the local time of the current
+        // task, and format the timestamp in UTC otherwise.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  The default
+        // format specification is:
+        //..
+        //  "\n%d %p:%t %s %f:%l %c %m %u\n"
+        //..
+        // Note that local time offsets are calculated for the timestamp of
+        // each formatted record and so track transitions into and out of
+        // Daylight Saving Time.
+
     bael_RecordStringFormatter(
                              const char                   *format,
                              const bdet_DatetimeInterval&  offset,
                              bslma::Allocator             *basicAllocator = 0);
+        // !DEPRECATED!: Use a CTOR specifying 'publishInLocalTime' instead.
+        //
         // Create a record formatter having the specified 'format'
         // specification and the specified timestamp 'offset'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
+
+    bael_RecordStringFormatter(
+                             const char       *format,
+                             bool              publishInLocalTime,
+                             bslma::Allocator *basicAllocator = 0);
+        // Create a record formatter having the specified 'format'
+        // specification, and if the specified 'publishInLocalTime' flag is
+        // 'true', format the timestamp of each log in the local time of the
+        // current task, and format the timestamp in UTC otherwise.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  Note that local time offsets are calculated for the timestamp
+        // of each formatted record and so track transitions into and out of
+        // Daylight Saving Time.
 
     bael_RecordStringFormatter(
                         const bael_RecordStringFormatter&  original,
@@ -249,11 +301,23 @@ class bael_RecordStringFormatter {
         // Assign to this record formatter the value of the specified 'rhs'
         // record formatter.
 
+    void disablePublishInLocalTime();
+        // Disable adjust of the timestamp attribute of to the current local
+        // time by this file observer.  This method has no effect if adjustment
+        // to the current local time is not enabled.
+
+    void enablePublishInLocalTime();
+        // Enable adjustment of the timestamp attribute to the current local
+        // time.  This method has no effect if adjustment to the current local
+        // time is already enabled.
+
     void setFormat(const char *format);
         // Set the format specification of this record formatter to the
         // specified 'format'.
 
     void setTimestampOffset(const bdet_DatetimeInterval& offset);
+        // !DEPRECATED!: Use 'enablePublishInLocalTime' instead.
+        //
         // Set the timestamp offset of this record formatter to the specified
         // 'offset'.
 
@@ -277,7 +341,13 @@ class bael_RecordStringFormatter {
     const char *format() const;
         // Return the format specification of this record formatter.
 
+    bool isPublishInLocalTimeEnabled() const;
+        // Return 'true' if this formatter adjusts the timestamp attribute to
+        // the current local time, and 'false' otherwise.
+
     const bdet_DatetimeInterval& timestampOffset() const;
+        // !DEPRECATED!: Use the 'isPublishInLocalTimeEnabled' method instead.
+        //
         // Return a reference to the non-modifiable timestamp offset of this
         // record formatter.
 
@@ -328,6 +398,18 @@ int bael_RecordStringFormatter::maxSupportedBdexVersion()
 
 // MANIPULATORS
 inline
+void bael_RecordStringFormatter::disablePublishInLocalTime()
+{
+    d_timestampOffset.setTotalMilliseconds(k_DISABLE_PUBLISH_IN_LOCALTIME);
+}
+
+inline
+void bael_RecordStringFormatter::enablePublishInLocalTime()
+{
+    d_timestampOffset.setTotalMilliseconds(k_ENABLE_PUBLISH_IN_LOCALTIME);
+}
+
+inline
 void bael_RecordStringFormatter::setFormat(const char *format)
 {
     d_formatSpec = format;
@@ -374,6 +456,13 @@ inline
 const char *bael_RecordStringFormatter::format() const
 {
     return d_formatSpec.c_str();
+}
+
+inline
+bool bael_RecordStringFormatter::isPublishInLocalTimeEnabled() const
+{
+    return k_ENABLE_PUBLISH_IN_LOCALTIME ==
+                                         d_timestampOffset.totalMilliseconds();
 }
 
 inline

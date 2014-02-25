@@ -108,6 +108,19 @@ BDES_IDENT("$Id: $")
 // By default, the timestamp attributes of published records are written in UTC
 // time.  This behavior can be changed by calling 'enablePublishInLocalTime'
 // which will cause timestamp attributes to be written in local time instead.
+// The local time offset is calculated using the UTC timestamp of each record.
+// Note that local time offsets for the calculation of log file names (see {Log
+// Filename Pattern}) use the local time offset in effect at construction.
+//
+///Local Time Offset Calculations
+/// - - - - - - - - - - - - - - -
+// The calculation of the local time offset adds some overhead to the
+// publication of each log record.  If that is problematic, the overhead can be
+// mitigated if the owner of 'main' installs a high-performance local-time
+// offset callback for 'bdetu_SystemTime'.  See {'bdetu_systemtime'} for
+// details of installing such callback and see {'baetzo_localtimeoffsetutil'}
+// for a an example facility.  Note that such callbacks can improve performance
+// for all users of 'bdetu_SystemTime', not just logging.
 //
 ///Log Filename Pattern
 ///--------------------
@@ -509,14 +522,15 @@ class bael_FileObserver : public bael_Observer {
         // Set this file observer to perform a periodic log-file rotation at
         // multiples of the specified 'interval'.  Optionally, specify
         // 'referenceStartTime' indicating the *local* datetime to use as the
-        // starting point for computing the periodic rotation schedule.  If
-        // 'referenceStartTime' is unspecified, the current time is used.  The
-        // behavior is undefined unless '0 < interval.totalMilliseconds()'.
-        // This rule replaces any rotation-on-time-interval rule currently in
-        // effect.  Note that 'referenceStartTime' may be a fixed time in the
-        // past.  E.g., a reference time of 'bdet_Datetime(1, 1, 1)' and an
-        // interval of 24 hours would configure a periodic rotation at midnight
-        // each day.
+        // starting point for computing the periodic rotation schedule.
+        // 'referenceStartTime' is interpreted using the local-time offset at
+        // the time this object was constructed.  If 'referenceStartTime' is
+        // unspecified, the current time is used.  The behavior is undefined
+        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
+        // rotation-on-time-interval rule currently in effect.  Note that
+        // 'referenceStartTime' may be a fixed time in the past.  E.g., a
+        // reference time of 'bdet_Datetime(1, 1, 1)' and an interval of 24
+        // hours would configure a periodic rotation at midnight each day.
 
     void setOnFileRotationCallback(
          const bael_FileObserver2::OnFileRotationCallback& onRotationCallback);
@@ -526,7 +540,6 @@ class bael_FileObserver : public bael_Observer {
         // 'setOnFileRotationCallback', 'forceRotation', or 'publish' on this
         // file observer (i.e., the supplied callback should *not* attempt to
         // write to the 'bael' log).
-
 
     void setStdoutThreshold(bael_Severity::Level stdoutThreshold);
         // Set the minimum severity of messages logged to 'stdout' by this file
