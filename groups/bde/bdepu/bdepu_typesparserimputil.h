@@ -642,6 +642,10 @@ struct bdepu_TypesParserImpUtil {
         //      'inputString' but the character following it is not a decimal
         //      number.
         //..
+        // Note that 'parseFloat' parses the string into a 'double' and then
+        // coverts that 'double' to a 'float', which may produce different
+        // rounding behavior than expected when parsing directly into a
+        // 'float'.
 
     static int parseInt(const char **endPos,
                         int         *result,
