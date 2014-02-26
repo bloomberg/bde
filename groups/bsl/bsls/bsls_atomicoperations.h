@@ -687,7 +687,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_X86)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40700
+    //  GCC 4.7+
+#   include <bsls_atomicoperations_all_all_gccintrinsics.h>
+
+#elif defined(BSLS_PLATFORM_CPU_X86)
 
 #   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include <bsls_atomicoperations_x86_all_gcc.h>
