@@ -5135,6 +5135,15 @@ class TestDriver {
                                // --------------
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>&
+TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
+                                                          const char *spec)
+{
+    ASSERTV(-1 == ggg(object, spec));
+    return *object;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 int TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ggg(
                                                            Obj        *object,
                                                            const char *spec,
@@ -5175,15 +5184,6 @@ int TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::ggg(
         }
    }
    return SUCCESS;
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>&
-TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
-                                                          const char *spec)
-{
-    ASSERTV(-1 == ggg(object, spec));
-    return *object;
 }
 
 //- - - - - - - - - - - - - TEST CASE IMPLEMENTATIONS - - - - - - - - - - - - -
