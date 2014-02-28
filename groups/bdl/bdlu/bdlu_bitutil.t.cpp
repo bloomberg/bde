@@ -17018,69 +17018,8 @@ int main(int argc, char *argv[])
       }
         */
       default: {
-        /*
-        {
-          unsigned i = 0;
-          int n = Util::findSetBitAtLargestIndex(i - 1) + 1;
-          std::cout << n << std::endl;
-          std::cout << (1U << 32) << std::endl;
-          std::cout << (1U << 33) << std::endl;
-          std::cout << (1U << n) << std::endl;
-          std::cout << (1U << (n+1)) << std::endl;
-        }
-        for (unsigned i = 0; i < (1 << 20); ++i) {
-          if (Util::roundUpToBinaryPower(i) != Util::roundUpToBinaryPowerNew(i)) std::cout << "oops " << i << std::endl;
-        }
-        {
-          unsigned i = 0;
-          if (Util::roundUpToBinaryPower(i) != 0) std::cout << "oops A " << i << std::endl;
-          if (Util::roundUpToBinaryPowerNew(i) != 0) std::cout << "oops B " << i << std::endl;
-        }
-        {
-          unsigned i = 1U << 31;
-          if (Util::roundUpToBinaryPower(i) != (1U << 31)) std::cout << "oops A " << i << std::endl;
-          if (Util::roundUpToBinaryPowerNew(i) != (1U << 31)) std::cout << "oops B " << i << std::endl;
-        }
-        {
-          unsigned i = (1U << 31) + 1;
-          if (Util::roundUpToBinaryPower(i) != 0) std::cout << "oops A " << i << std::endl;
-          if (Util::roundUpToBinaryPowerNew(i) != 0) std::cout << "oops B " << i << std::endl;
-        }
-
-        {
-          timespec start;
-          clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-          for (unsigned i = 0; i < (1 << 20); ++i) {
-            Util::roundUpToBinaryPower(1U);
-            Util::roundUpToBinaryPower(2U);
-            Util::roundUpToBinaryPower(3U);
-            Util::roundUpToBinaryPower(4U);
-          }
-          timespec stop;
-          clock_gettime(CLOCK_MONOTONIC_RAW, &stop);
-          bsls::Types::Int64 ts = stop.tv_sec - start.tv_sec;
-          bsls::Types::Int64 tns = stop.tv_nsec - start.tv_nsec;
-          bsls::Types::Int64 t = ts * 1000000000 + tns;
-          std::cout << t << std::endl;
-        }
-
-        {
-          timespec start;
-          clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-          for (unsigned i = 0; i < (1 << 20); ++i) {
-            Util::roundUpToBinaryPowerNew(1U);
-            Util::roundUpToBinaryPowerNew(2U);
-            Util::roundUpToBinaryPowerNew(3U);
-            Util::roundUpToBinaryPowerNew(4U);
-          }
-          timespec stop;
-          clock_gettime(CLOCK_MONOTONIC_RAW, &stop);
-          bsls::Types::Int64 ts = stop.tv_sec - start.tv_sec;
-          bsls::Types::Int64 tns = stop.tv_nsec - start.tv_nsec;
-          bsls::Types::Int64 t = ts * 1000000000 + tns;
-          std::cout << t << std::endl;
-        }
-        */
+        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        testStatus = -1;
       }
     }
 
