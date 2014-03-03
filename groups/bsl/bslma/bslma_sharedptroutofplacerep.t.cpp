@@ -369,11 +369,14 @@ bdet_Datetime *MySharedDatetime::ptr() const {
 
 int main(int argc, char *argv[])
 {
-    int                test = argc > 1 ? atoi(argv[1]) : 0;
-    int             verbose = argc > 2;
-    int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
     int veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
