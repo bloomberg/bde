@@ -29,7 +29,7 @@ namespace bslstl
 bslalg::HashTableBucket *HashTable_ImpDetails::defaultBucketAddress()
 {
     static bslalg::HashTableBucket s_bucket = {0 , 0};
-                                                  // Aggregative initialization
+                                                  // Aggregate initialization
                                                   // of a POD should be thread-
                                                   // safe static initialization
 
@@ -65,7 +65,7 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
         static size_t roundToMax(double d)
             // Return the integer value corresponding to the specified 'd', or
             // the highest unsigned value representable by 'size_t' if 'd' is
-            // larger.  The behavior is undefine unless '0.0 <= d'.
+            // larger.  The behavior is undefined unless '0.0 <= d'.
         {
             BSLS_ASSERT_SAFE(0.0 <= d);
 
@@ -75,10 +75,10 @@ size_t HashTable_ImpDetails::growBucketsForLoadFactor(size_t *capacity,
         }
 
         static size_t throwIfOverMax(double d)
-            // Throw a 'std::length_error' exception if 'd' is larger than the
-            // highest unsigned value representable by 'size_t'.  Return the
-            // integer value corresponding to the specified 'd', rounding down.
-            // The behavior is undefine unless '0.0 <= d'.
+            // Throw a 'std::length_error' exception if the specified 'd' is
+            // larger than the highest unsigned value representable by
+            // 'size_t'.  Return the integer value corresponding to 'd',
+            // rounding down.  The behavior is undefined unless '0.0 <= d'.
         {
             BSLS_ASSERT_SAFE(0.0 <= d);
 
