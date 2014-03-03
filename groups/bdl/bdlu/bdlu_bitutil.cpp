@@ -5,15 +5,15 @@
 namespace BloombergLP {
 namespace bdlu {
 
-BSLMF_ASSERT(4 == sizeof(int));
-BSLMF_ASSERT(8 == sizeof(bsls::Types::Int64));
+BSLMF_ASSERT(4 == sizeof(uint32_t));
+BSLMF_ASSERT(8 == sizeof(uint64_t));
 
                         // ----------------
                         // struct BitUtil
                         // ----------------
 
 // PRIVATE CLASS METHODS
-int BitUtil::privateFindSetBitAtLargestIndex(unsigned int value)
+int BitUtil::privateFindIndexOfMostSignificantSetBit(uint32_t value)
 {
     // Note that it doesn't matter whether the right shifts sign extend or not.
 
@@ -22,10 +22,10 @@ int BitUtil::privateFindSetBitAtLargestIndex(unsigned int value)
     value |= value >>  4;
     value |= value >>  2;
     value |= value >>  1;
-    return numSetBit(value) - 1;
+    return numBitsSet(value) - 1;
 }
 
-int BitUtil::privateFindSetBitAtLargestIndex(bsls::Types::Uint64 value)
+int BitUtil::privateFindIndexOfMostSignificantSetBit(uint64_t value)
 {
     // Note that it doesn't matter whether the right shifts sign extend or not.
 
@@ -35,20 +35,20 @@ int BitUtil::privateFindSetBitAtLargestIndex(bsls::Types::Uint64 value)
     value |= value >>  4;
     value |= value >>  2;
     value |= value >>  1;
-    return numSetBit(value) - 1;
+    return numBitsSet(value) - 1;
 }
 
-int BitUtil::privateFindSetBitAtSmallestIndex(unsigned int value)
+int BitUtil::privateFindIndexOfLeastSignificantSetBit(uint32_t value)
 {
     value |= value << 16;
     value |= value <<  8;
     value |= value <<  4;
     value |= value <<  2;
     value |= value <<  1;
-    return numSetBit(~value);
+    return numBitsSet(~value);
 }
 
-int BitUtil::privateFindSetBitAtSmallestIndex(bsls::Types::Uint64 value)
+int BitUtil::privateFindIndexOfLeastSignificantSetBit(uint64_t value)
 {
     value |= value << 32;
     value |= value << 16;
@@ -56,7 +56,7 @@ int BitUtil::privateFindSetBitAtSmallestIndex(bsls::Types::Uint64 value)
     value |= value <<  4;
     value |= value <<  2;
     value |= value <<  1;
-    return numSetBit(~value);
+    return numBitsSet(~value);
 }
 
 }  // close package namespace
