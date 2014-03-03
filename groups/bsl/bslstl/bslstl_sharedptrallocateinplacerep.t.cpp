@@ -550,6 +550,9 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
     if (verbose) printf("\nTesting Constructor"
                         "\n-------------------\n");
 
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
     typedef typename bsl::allocator_traits<ALLOCATOR>::
                           template rebind_traits<MyTestObject> Obj_AllocTraits;
     typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
@@ -578,7 +581,7 @@ void TestHarness<ALLOCATOR>::testCase2(bool verbose,
 
         // Dynamically allocate object as the destructor is declared as
         // private.
-        
+
         TCObj *xPtr = TCObj::makeRep(alloc_base);
 
 //        TCObj* xPtr = new(ta) TCObj(&ta);
@@ -633,6 +636,10 @@ void TestHarness<ALLOCATOR>::testCase3(bool verbose,
     // --------------------------------------------------------------------
     if (verbose) printf("\nTesting constructor\n"
                         "\n===================\n");
+
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+    (void)veryVeryVeryVerbose;
 
     // TBD rewrite this test case
     if (verbose) printf("\nTBD\n");
@@ -736,6 +743,9 @@ void TestHarness<ALLOCATOR>::testCase4(bool verbose,
     if (verbose) printf("\nTesting disposeObject"
                         "\n---------------------\n");
 
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
     typedef typename bsl::allocator_traits<ALLOCATOR>::
                           template rebind_traits<MyTestObject> Obj_AllocTraits;
     typedef typename Obj_AllocTraits::allocator_type Obj_Alloc;
@@ -813,6 +823,9 @@ void TestHarness<ALLOCATOR>::testCase5(bool verbose,
     // --------------------------------------------------------------------
     if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
                         "\n=========================================\n");
+
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
 
     typedef typename bsl::allocator_traits<ALLOCATOR>::
                           template rebind_traits<MyTestObject> Obj_AllocTraits;
@@ -1065,7 +1078,7 @@ int main(int argc, char *argv[])
         typedef TestHarness<ALLOC_1> T1;
         typedef TestHarness<ALLOC_2> T2;
         typedef TestHarness<ALLOC_3> T3;
-            
+
         T1::testCase5(verbose,
                       veryVerbose,
                       veryVeryVerbose,
@@ -1126,7 +1139,7 @@ int main(int argc, char *argv[])
         typedef TestHarness<ALLOC_1> T1;
         typedef TestHarness<ALLOC_2> T2;
         typedef TestHarness<ALLOC_3> T3;
-            
+
         T1::testCase4(verbose,
                       veryVerbose,
                       veryVeryVerbose,
@@ -1179,7 +1192,7 @@ int main(int argc, char *argv[])
         typedef TestHarness<ALLOC_1> T1;
         typedef TestHarness<ALLOC_2> T2;
         typedef TestHarness<ALLOC_3> T3;
-            
+
         T1::testCase3(verbose,
                       veryVerbose,
                       veryVeryVerbose,
@@ -1247,7 +1260,7 @@ int main(int argc, char *argv[])
         typedef TestHarness<ALLOC_1> T1;
         typedef TestHarness<ALLOC_2> T2;
         typedef TestHarness<ALLOC_3> T3;
-            
+
         T1::testCase2(verbose,
                       veryVerbose,
                       veryVeryVerbose,

@@ -1252,7 +1252,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  assert(!intWeakPtr2.acquireSharedPtr());
 //..
 // Example 2 - Breaking cyclical dependencies
-// - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - -
 // Weak pointers are frequently used to break cyclical dependencies between
 // objects that store references to each other via a shared pointer.  Consider
 // for example a simplified news alert system that sends news alerts to users
@@ -2068,15 +2068,15 @@ class shared_ptr {
     template <class COMPATIBLE_TYPE>
     shared_ptr& operator=(native_std::auto_ptr<COMPATIBLE_TYPE> rhs);
         // Transfer ownership to this shared pointer of the modifiable object
-        // managed by the 'rhs' auto pointer to the (template parameter) type
-        // 'COMPATIBLE_TYPE', using the 'delete' operator to destroy the shared
-        // object when the last reference is released, and make this shared
-        // pointer refer to '(ELEMENT_TYPE *)rhs.get()'.  If this shared
-        // pointer is already managing a (possibly shared) object, then release
-        // the reference to that shared object, and destroy it using it
-        // associated deleter if this shared pointer held the last shared
-        // reference to that object.  Note that if the specified 'rhs' is null,
-        // then this shared pointer will also be empty after the assignment.
+        // managed by the specified 'rhs' auto pointer to the (template
+        // parameter) type 'COMPATIBLE_TYPE', using the 'delete' operator to
+        // destroy the shared object when the last reference is released, and
+        // make this shared pointer refer to '(ELEMENT_TYPE *)rhs.get()'.  If
+        // this shared pointer is already managing a (possibly shared) object,
+        // then release the reference to that shared object, and destroy it
+        // using it associated deleter if this shared pointer held the last
+        // shared reference to that object.  Note that if 'rhs' is null, then
+        // this shared pointer will also be empty after the assignment.
 
     // MANIPULATORS
     template <class COMPATIBLE_TYPE>
@@ -2142,9 +2142,9 @@ class shared_ptr {
         // component-level documentation.)  If 'COMPATIBLE_TYPE *' is not
         // implicitly convertible to 'ELEMENT_TYPE *' then a compiler
         // diagnostic will be emitted indicating the error.  Note that, for
-        // factory deleters, the specified 'deleter' must remain valid until
-        // all references to 'ptr' have been released.  Also note that if 'ptr'
-        // is 0, then this shared pointer is reset to the empty state and both
+        // factory deleters, the 'deleter' must remain valid until all
+        // references to 'ptr' have been released.  Also note that if 'ptr' is
+        // 0, then this shared pointer is reset to the empty state and both
         // 'deleter' and 'basicAllocator' are ignored.  Also note that this
         // function is logically equivalent to:
         //..
@@ -6245,7 +6245,7 @@ bsl::allocate_shared(ALLOC *a,
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 // ============================================================================
-//                                TYPE TRAITS
+//                              TYPE TRAITS
 // ============================================================================
 
 // Type traits for STL *sequence* containers:

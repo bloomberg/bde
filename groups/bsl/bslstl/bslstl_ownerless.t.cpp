@@ -345,6 +345,8 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void)veryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     typedef bsl::shared_ptr<MyTestObject>         ObjSP;
@@ -365,14 +367,14 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator ta("general", veryVeryVerbose);
 
-    bsls::Types::Int64 numDeallocations;
-    bsls::Types::Int64 numAllocations;
+//    bsls::Types::Int64 numDeallocations;
+//    bsls::Types::Int64 numAllocations;
     bsls::Types::Int64 numDeletes = 0;
 
-    bsls::Types::Int64 numDefaultDeallocations =
-                                           defaultAllocator.numDeallocations();
-    bsls::Types::Int64 numDefaultAllocations =
-                                             defaultAllocator.numAllocations();
+//    bsls::Types::Int64 numDefaultDeallocations =
+//                                         defaultAllocator.numDeallocations();
+//    bsls::Types::Int64 numDefaultAllocations =
+//                                           defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
     case 1: {
       // --------------------------------------------------------------------

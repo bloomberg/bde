@@ -170,18 +170,18 @@ using namespace BloombergLP;
 //
 // This component provides a mechanism to create weak references to
 // reference-counted shared objects (managed by 'bsl::shared_ptr'.  The
-// functions supported by 'bsl::weak_ptr' include creating weak references
-// (via multiple constructors), changing the weak pointer object being
-// referenced (via the assignment operators), getting a shared pointer (via
-// the 'acquireSharedPtr' and 'lock' functions), resetting the weak pointer
-// (via 'reset'), and destroying the weak pointer.
+// functions supported by 'bsl::weak_ptr' include creating weak references (via
+// multiple constructors), changing the weak pointer object being referenced
+// (via the assignment operators), getting a shared pointer (via the
+// 'acquireSharedPtr' and 'lock' functions), resetting the weak pointer (via
+// 'reset'), and destroying the weak pointer.
 //
 // All the functions in this component are reasonably straight-forward and
 // typically increment or decrement the number of strong or weak references as
 // a side effect.  In addition the destructor and the reset functions may
-// destroy the representation.  To test these functions we create a simple
-// test representation that allows us to check the current strong and weak
-// count and additionally stores the number of times the data value and the
+// destroy the representation.  To test these functions we create a simple test
+// representation that allows us to check the current strong and weak count and
+// additionally stores the number of times the data value and the
 // representation were attempted to be destroyed.
 // ----------------------------------------------------------------------------
 // CREATORS
@@ -237,9 +237,9 @@ using namespace BloombergLP;
 // functor that than can be invoked with the expected arguments, and produce
 // the expected observable result (if any).  In the trickier case of
 // 'SharedPtrNilDeleter', it is not reasonable to check that the entire world
-// has not changed, but it would be good to confirm that the object itself
-// has not altered, nor the memory on the other end of the passed pointer.
-// The preferred way to do this would be to store the test object in a write-
+// has not changed, but it would be good to confirm that the object itself has
+// not altered, nor the memory on the other end of the passed pointer.  The
+// preferred way to do this would be to store the test object in a write-
 // protected page of memory, and similarly invoke with a pointer to another
 // write-protected page of memory.  Unfortunately, we do not have easy access
 // to such utilities at this point in our levelized library hierarchy, so will
@@ -1953,14 +1953,14 @@ MyTestObject::~MyTestObject()
 }
 
 // ACCESSORS
-volatile bsls::Types::Int64* MyTestObject::deleteCounter() const
-{
-    return d_deleteCounter_p;
-}
-
 volatile bsls::Types::Int64* MyTestObject::copyCounter() const
 {
     return d_copyCounter_p;
+}
+
+volatile bsls::Types::Int64* MyTestObject::deleteCounter() const
+{
+    return d_deleteCounter_p;
 }
 
                          // -------------------------
@@ -2131,20 +2131,34 @@ TestSharedPtrRep<TYPE>::~TestSharedPtrRep()
 // MANIPULATORS
 template <class TYPE>
 inline
-void TestSharedPtrRep<TYPE>::disposeRep()
-{
-    ++d_disposeRepCount;
-}
-
-template <class TYPE>
-inline
 void TestSharedPtrRep<TYPE>::disposeObject()
 {
     ++d_disposeObjectCount;
     d_allocator_p->deleteObject(d_dataPtr_p);
 }
 
+template <class TYPE>
+inline
+void TestSharedPtrRep<TYPE>::disposeRep()
+{
+    ++d_disposeRepCount;
+}
+
 // ACCESSORS
+template <class TYPE>
+inline
+int TestSharedPtrRep<TYPE>::disposeObjectCount() const
+{
+    return d_disposeObjectCount;
+}
+
+template <class TYPE>
+inline
+int TestSharedPtrRep<TYPE>::disposeRepCount() const
+{
+    return d_disposeRepCount;
+}
+
 template <class TYPE>
 inline
 void *TestSharedPtrRep<TYPE>::originalPtr() const
@@ -2157,20 +2171,6 @@ inline
 TYPE *TestSharedPtrRep<TYPE>::ptr() const
 {
     return d_dataPtr_p;
-}
-
-template <class TYPE>
-inline
-int TestSharedPtrRep<TYPE>::disposeRepCount() const
-{
-    return d_disposeRepCount;
-}
-
-template <class TYPE>
-inline
-int TestSharedPtrRep<TYPE>::disposeObjectCount() const
-{
-    return d_disposeObjectCount;
 }
 
 // ============================================================================
@@ -2714,6 +2714,9 @@ void TestHarness<ALLOCATOR>::testCase3(bool verbose,
     // --------------------------------------------------------------------
     if (verbose) printf("\nTesting constructor\n"
                         "\n===================\n");
+
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
 
     typedef typename bsl::allocator_traits<ALLOCATOR>::
                           template rebind_traits<MyTestObject> Obj_AllocTraits;

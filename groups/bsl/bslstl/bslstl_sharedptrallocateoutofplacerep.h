@@ -12,7 +12,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslstl::SharedPtrAllocateOutofplaceRep: out-of-place shared ptr implementation
 //
-//@AUTHOR: Alisdair Meredith (ameredit) 
+//@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO: bslma_sharedptr, bslma_sharedptrrep, bslma_sharedptrinplacerep
 //
@@ -24,23 +24,23 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 ///Thread-Safety
 ///-------------
-// 'bslma::SharedPtrAllocateOutofplaceRep' is thread-safe provided that 'disposeObject'
-// and 'disposeRep' are not called explicitly, meaning that all non-creator
-// operations other than 'disposeObject' and 'disposeRep' on a given instance
-// can be safely invoked simultaneously from multiple threads ('disposeObject'
-// and 'disposeRep' are meant to be invoked only by 'releaseRef' and
-// 'releaseWeakRef').  Note that there is no thread safety guarantees for
-// operations on the managed object.
+// 'bslma::SharedPtrAllocateOutofplaceRep' is thread-safe provided that
+// 'disposeObject' and 'disposeRep' are not called explicitly, meaning that all
+// non-creator operations other than 'disposeObject' and 'disposeRep' on a
+// given instance can be safely invoked simultaneously from multiple threads
+// ('disposeObject' and 'disposeRep' are meant to be invoked only by
+// 'releaseRef' and 'releaseWeakRef').  Note that there is no thread safety
+// guarantees for operations on the managed object.
 //
 ///Deleters
 ///--------
 // When the last shared reference to a shared object is released, the object is
 // destroyed using the "deleter" provided when the associated shared pointer
-// representation was created.  'bslma::SharedPtrAllocateOutofplaceRep' supports two
-// kinds of "deleter" objects, which vary in how they are invoked.  A
-// "function-like" deleter is any language entity that can be invoked such that
-// the expression 'deleterInstance(objectPtr)' is a valid expression, and a
-// "factory" deleter is any language entity that can be invoked such that the
+// representation was created.  'bslma::SharedPtrAllocateOutofplaceRep'
+// supports two kinds of "deleter" objects, which vary in how they are invoked.
+// A "function-like" deleter is any language entity that can be invoked such
+// that the expression 'deleterInstance(objectPtr)' is a valid expression, and
+// a "factory" deleter is any language entity that can be invoked such that the
 // expression 'deleterInstance.deleteObject(objectPtr)' is a valid expression,
 // where 'deleterInstance' is an instance of the "deleter" object, and
 // 'objectPtr' is a pointer to the shared object.  In summary:
@@ -75,9 +75,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //     // MANIPULATORS
 //     MyType *createObject(bslma::Allocator *basicAllocator = 0);
-//         // Create a 'MyType' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
+//         // Create a 'MyType' object.  Optionally specify a 'basicAllocator'
+//         // used to supply memory.  If 'basicAllocator' is 0, the currently
+//         // installed default allocator is used.
 //
 //     void deleteObject(MyType *object);
 //         // Delete the specified 'object'.
@@ -88,14 +88,15 @@ BSLS_IDENT("$Id$ $CSID$")
 // objects can be used as a factory deleter.  The purpose of this design is to
 // allow 'bslma' allocators and factories to be used seamlessly as deleters.
 //
-// The selection of which expression is used by 'bslma::SharedPtrAllocateOutofplaceRep'
-// to destroy a shared object is based on how the deleter is passed to the
-// shared pointer object: Deleters that are passed by *address* are assumed to
-// be factory deleters, while those that are passed by *value* are assumed to
-// be function-like.  Note that if the wrong interface is used for a deleter,
-// i.e., if a function-like deleter is passed by pointer, or a factory deleter
-// is passed by value, and the expression used to delete the object is invalid,
-// a compiler diagnostic will be emitted indicating the error.
+// The selection of which expression is used by
+// 'bslma::SharedPtrAllocateOutofplaceRep' to destroy a shared object is based
+// on how the deleter is passed to the shared pointer object: Deleters that are
+// passed by *address* are assumed to be factory deleters, while those that are
+// passed by *value* are assumed to be function-like.  Note that if the wrong
+// interface is used for a deleter, i.e., if a function-like deleter is passed
+// by pointer, or a factory deleter is passed by value, and the expression used
+// to delete the object is invalid, a compiler diagnostic will be emitted
+// indicating the error.
 //
 ///Usage
 ///-----
@@ -219,7 +220,7 @@ namespace bslstl {
                  // ====================================
 
 template <class TYPE, class DELETER, class ALLOCATOR>
-class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep 
+class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
                                                                               {
     // This class provides a concrete implementation of the 'SharedPtrRep'
     // protocol for out-of-place instances of the parameterized 'TYPE'.  Upon

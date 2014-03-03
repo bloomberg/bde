@@ -69,7 +69,7 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
 
   public:
     typedef typename ReboundTraits::allocator_type ReboundAllocator;
-    
+
   private:
     // DATA
     ReboundAllocator d_allocator; // copy of the allocator for this object
