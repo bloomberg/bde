@@ -232,6 +232,8 @@ const TYPE bsl::integral_constant<TYPE, VAL>::value;
 
 template <bool VAL>
 const bool bsl::integral_constant<bool, VAL>::value;
+template <bool VAL>
+const bool bsl::integral_constant<bool, VAL>::VALUE;
 
 // ACCESSORS
 template <class TYPE, TYPE VAL>
