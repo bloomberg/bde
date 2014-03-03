@@ -31,9 +31,9 @@ using namespace BloombergLP;
 // [ 2]   Test machinery
 // [ 3]   imp. class bslma::ManagedPtr_Ref
 // [4-5]  (tested classes migrated to their own components)
-// [6-15] class bslma::ManagedPtr
-// [16]   class bslma::ManagedPtrNilDeleter   [DEPRECATED]
-// [17]   class bslma::ManagedPtrNoOpDeleter
+// [4-13] class bslma::ManagedPtr
+// [14]   class bslma::ManagedPtrNilDeleter   [DEPRECATED]
+// [15]   class bslma::ManagedPtrNoOpDeleter
 //
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -73,45 +73,45 @@ using namespace BloombergLP;
 // tests will ensure that attempts to construct invalid managed pointers are
 // caught early by the compiler, ideally with a helpful error diagnostic.
 //-----------------------------------------------------------------------------
-// [ 6] ManagedPtr();
-// [ 6] ManagedPtr(bsl::nullptr_t);
-// [ 6] template<class TARGET_TYPE> ManagedPtr(TARGET_TYPE *ptr);
-// [11] ManagedPtr(ManagedPtr& original);
-// [11] ManagedPtr(ManagedPtr_Ref<ELEMENT_TYPE> ref);
-// [12] ManagedPtr(ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [10] ManagedPtr(TYPE *ptr, FACTORY *factory)
-// [10] ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
-// [ 6] ~ManagedPtr();
-// [11] operator ManagedPtr_Ref<OTHER>();
-// [ 7] void load(nullptr_t=0,nullptr_t=0,nullptr_t=0);
-// [ 7] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
-// [ 7] void load(TYPE *ptr, FACTORY *factory)
-// [ 7] void load(TYPE *ptr, nullptr_t, void (*deleter)(TYPE *, void*));
-// [ 7] void load(TYPE *ptr, void *factory, void (*deleter)(void *, void*));
-// [ 7] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
-// [ 7] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
-// [ 8] void loadAlias(ManagedPtr<OTHER> &alias, TYPE *ptr)
-// [13] void swap(ManagedPt& rhs);
-// [14] ManagedPtr& operator=(ManagedPtr &rhs);
-// [14] ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
-// [15] void clear();
-// [15] bsl::pair<TYPE*,ManagedPtrDeleter> release();
+// [ 4] ManagedPtr();
+// [ 4] ManagedPtr(bsl::nullptr_t);
+// [ 4] template<class TARGET_TYPE> ManagedPtr(TARGET_TYPE *ptr);
+// [ 9] ManagedPtr(ManagedPtr& original);
+// [ 9] ManagedPtr(ManagedPtr_Ref<ELEMENT_TYPE> ref);
+// [10] ManagedPtr(ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [ 8] ManagedPtr(TYPE *ptr, FACTORY *factory)
+// [ 8] ManagedPtr(TYPE *ptr, void *factory,void(*deleter)(TYPE*, void*))
+// [ 4] ~ManagedPtr();
+// [ 9] operator ManagedPtr_Ref<OTHER>();
+// [ 5] void load(nullptr_t=0,nullptr_t=0,nullptr_t=0);
+// [ 5] template<class TARGET_TYPE> void load(TARGET_TYPE *ptr);
+// [ 5] void load(TYPE *ptr, FACTORY *factory)
+// [ 5] void load(TYPE *ptr, nullptr_t, void (*deleter)(TYPE *, void*));
+// [ 5] void load(TYPE *ptr, void *factory, void (*deleter)(void *, void*));
+// [ 5] void load(TYPE *ptr, void *factory, void (*deleter)(TYPE *, void*));
+// [ 5] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
+// [ 6] void loadAlias(ManagedPtr<OTHER> &alias, TYPE *ptr)
+// [11] void swap(ManagedPt& rhs);
+// [12] ManagedPtr& operator=(ManagedPtr &rhs);
+// [12] ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
+// [13] void clear();
+// [13] bsl::pair<TYPE*,ManagedPtrDeleter> release();
 // [  ] TARGET_TYPE *release(ManagedPtrDeleter *deleter);
-// [ 9] operator BoolType() const;
-// [ 9] TYPE& operator*() const;
-// [ 9] TYPE *operator->() const;
-// [ 9] TYPE *ptr() const;
-// [ 9] const ManagedPtrDeleter& deleter() const;
+// [ 7] operator BoolType() const;
+// [ 7] TYPE& operator*() const;
+// [ 7] TYPE *operator->() const;
+// [ 7] TYPE *ptr() const;
+// [ 7] const ManagedPtrDeleter& deleter() const;
 //
-// [16] class ManagedPtrNilDeleter
-// [17] class ManagedPtrNoOpDeleter
+// [14] class ManagedPtrNilDeleter
+// [15] class ManagedPtrNoOpDeleter
 //
 // [ 3] imp. class ManagedPtr_Ref
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TESTING TEST MACHINERY
-// [18] CASTING EXAMPLE
-// [19] USAGE EXAMPLE
+// [16] CASTING EXAMPLE
+// [17] USAGE EXAMPLE
 // [-1] VERIFYING FAILURES TO COMPILE
 
 //=============================================================================
@@ -212,8 +212,8 @@ class MyTestObject {
         // this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
-    // MyTestObject(const MyTestObject& other);
-    // MyTestObject operator=(const MyTestObject& rhs);
+    // MyTestObject(const MyTestObject& other) = defeault;
+    // MyTestObject operator=(const MyTestObject& rhs) = default;
 
     virtual ~MyTestObject();
         // Destroy this object.
@@ -1958,8 +1958,8 @@ struct DObjFac {
             factory->deleteObject(object);
         }
         else {
-            // Use default allocator as the deleter,
-            // ignore the passed factory pointer
+            // Use the default allocator as the deleter, ignore the passed
+            // 'factory' pointer
             bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(object);
         }
@@ -2000,8 +2000,8 @@ struct DObjVoid {
             fac->deleteObject(object);
         }
         else {
-            // Use default allocator as the deleter,
-            // ignore the passed factory pointer
+            // Use the default allocator as the deleter, ignore the passed
+            // 'factory' pointer
             bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(object);
         }
@@ -2044,8 +2044,8 @@ struct DVoidFac {
             factory->deleteObject(obj);
         }
         else {
-            // Use default allocator as the deleter,
-            // ignore the passed factory pointer
+            // Use the default allocator as the deleter, ignore the passed
+            // 'factory' pointer
             bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(obj);
         }
@@ -2089,8 +2089,8 @@ struct DVoidVoid {
             fac->deleteObject(obj);
         }
         else {
-            // Use default allocator as the deleter,
-            // ignore the passed factory pointer
+            // Use the default allocator as the deleter, ignore the passed
+            // 'factory' pointer
             bslma::Allocator *pDa = bslma::Default::defaultAllocator();
             pDa->deleteObject(obj);
         }
@@ -5220,7 +5220,7 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), NullPolicy() )
 };
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This is the test table for iterating constructor and load functions for
 // 'bslma::ManagedPtr<MyTestObject>'.  The same test table is created for each
 // of the main 5 tested pointer types, and then the invalid functions are
@@ -6589,7 +6589,7 @@ int main(int argc, char *argv[])
     ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
-      case 21: {
+      case 19: {
         // --------------------------------------------------------------------
         // DRQS 30670366
         //
@@ -6624,7 +6624,7 @@ int main(int argc, char *argv[])
         }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
-      case 20: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION EXAMPLES
         //
@@ -6675,7 +6675,7 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(numdels, 20202 == numdels);
       } break;
-      case 19: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -6700,7 +6700,7 @@ int main(int argc, char *argv[])
         USAGE_EXAMPLES::testCountedFactory();
 
       } break;
-      case 18: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -6719,7 +6719,7 @@ int main(int argc, char *argv[])
         USAGE_EXAMPLES::testShapes();
         USAGE_EXAMPLES::testShapesToo();
       } break;
-      case 17: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING bslma::ManagedPtrNilDeleter
         //
@@ -6773,7 +6773,7 @@ int main(int argc, char *argv[])
         ASSERT(dam.isInUseSame());
         ASSERT(gam.isInUseSame());
       } break;
-      case 16: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING bslma::ManagedPtrNoOpDeleter
         //
@@ -6826,7 +6826,7 @@ int main(int argc, char *argv[])
         ASSERT(dam.isInUseSame());
         ASSERT(gam.isInUseSame());
       } break;
-      case 15: {
+      case 13: {
         // --------------------------------------------------------------------
         // CLEAR and RELEASE
         //
@@ -6955,7 +6955,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 14: {
+      case 12: {
         // --------------------------------------------------------------------
         // TEST ASSIGNMENT OPERATORS
         //
@@ -7183,7 +7183,7 @@ int main(int argc, char *argv[])
             }
 #endif
       } break;
-       case 13: {
+       case 11: {
         // --------------------------------------------------------------------
         // TESTING SWAP
         //
@@ -7358,7 +7358,7 @@ int main(int argc, char *argv[])
             }
 #endif
       } break;
-      case 12: {
+      case 10: {
         // --------------------------------------------------------------------
         // ALIAS SUPPORT TEST
         //
@@ -7536,7 +7536,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(da.numDeallocations() == numDeallocations + 1);
       } break;
-      case 11: {
+      case 9: {
         // --------------------------------------------------------------------
         // MOVE-CONSTRUCTION
         //
@@ -7864,7 +7864,7 @@ int main(int argc, char *argv[])
         //   void -> anything but void
 #endif
       } break;
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
         // CREATORS WITH FACTORY OR DELETER
         //
@@ -8121,7 +8121,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 9: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING ACCESSORS
         //
@@ -8532,7 +8532,7 @@ int main(int argc, char *argv[])
             }
 #endif
       } break;
-      case 8: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING loadAlias
         //
@@ -8663,7 +8663,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 7: {
+      case 5: {
         // --------------------------------------------------------------------
         // Testing 'load' overloads
         //
@@ -8932,7 +8932,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 6: {
+      case 4: {
         // --------------------------------------------------------------------
         // PRIMARY CREATORS TEST
         //   Note that we will not deem the destructor to be completely tested
@@ -9131,10 +9131,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == numDeletes);
 
-      } break;
-      case 5: {
-      } break;
-      case 4: {
       } break;
       case 3: {
         // --------------------------------------------------------------------
