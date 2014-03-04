@@ -1,14 +1,15 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 MAKE_JOBS:=12
-PATH:=/bbshr/bde/bde-tools/bin:/usr/bin:/bin
 TMPDIR:=/tmp
 SHELL:=/bin/bash
 RSSUITE_TOOLS=/bbsrc/rssuite-tools
 RSSUITE:=$(shell cat $(RSSUITE_TOOLS)/RSSUITE.version)
-PRODUCEMAKE:=/bbsrc/bin/prod/bin/producemake
+include $(RSSUITE_TOOLS)/rssuite-vars.mk
+PRODUCEMAKE:=producemake
+PATH:=$(PREFIX)/bin:/usr/bin:/bin
 
-BDE_TOOLS_ETC=/bbshr/bde/bde-tools/etc
+BDE_TOOLS_ETC=$(PREFIX)/etc/bde-tools/
 
 include $(BDE_TOOLS_ETC)/debian-rules-uplid
 include $(BDE_TOOLS_ETC)/debian-rules-flavors
@@ -31,18 +32,18 @@ clean:
 
 # A few levels of hackery to keep producemake happy:
 #   o Copy default.opts into "etc" in the source tree
-#   o Add a line to default.opts adding the -I rules for /bb/include and
-#     /bb/include/stlport to USER_CXXFLAGS.
-#   o Copy all the bsl metadata from /bb/bdemeta/groups/ into groups/
+#   o Add a line to default.opts adding the -I rules for $(PREFIX)/include and
+#     $(PREFIX)/include/stlport to USER_CXXFLAGS.
+#   o Copy all the bsl metadata from $(BLOOMBERG_BDEMETA_ROOT)/groups/ into groups/
 producemake:
 	mkdir -p etc
 	cp $(BDE_TOOLS_ETC)/default.opts etc/
-	echo "* _ USER_CXXFLAGS = -I/bb/include -I/bb/include/stlport" >> etc/default.opts
-	rsync -a /bb/bdemeta/groups/ groups/
-	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
+	echo "* _ USER_CXXFLAGS = -I$(PREFIX)/include -I$(PREFIX)/include/stlport" >> etc/default.opts
+	rsync -a $(BLOOMBERG_BDEMETA_ROOT)/groups/ groups/
+	BDE_ROOT=. BDE_PATH=$(BLOOMBERG_BDEMETA_ROOT):. PATH=$(PATH) \
 	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
 	  -p $(UPLID)                                                \
-	  -g $(subst $(space),$(comma),$(GROUPS))        \
+	  -g $(subst $(space),$(comma),$(GROUPS))                    \
 	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
 
 ##################################################################
@@ -93,19 +94,19 @@ define GROUPdev_template
 lib$(1)-dev-additional:
 
 lib$(1)-dev: lib/$(UPLID)/$(1).stamp lib$(1)-dev-additional
-	mkdir -p debian/lib$(1)-dev/bb/lib debian/lib$(1)-dev/bb/lib64
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/lib debian/lib$(1)-dev/$(PREFIX)/lib64
 	mkdir -p debian/lib$(1)-dev/DEBIAN
 ifeq ($(STATIC_FLAVORS),)
 else
-	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/bb/lib/
+	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/$(PREFIX)/lib/
 	)
-	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/bb/lib64/
+	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/$(PREFIX)/lib64/
 	)
-	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/bb/lib/lib$(1).a
-	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/bb/lib64/lib$(1).a
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/$(PREFIX)/lib/lib$(1).a
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/$(PREFIX)/lib64/lib$(1).a
 endif
-	mkdir -p debian/lib$(1)-dev/bb/include
-	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/bb/include/
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/include
+	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/$(PREFIX)/include/
 
 ALL_DEV_PACKAGES+=lib$(1)-dev-binary
 lib$(1)-dev-binary: lib$(1)-dev
@@ -119,8 +120,8 @@ $(foreach group,$(GROUPS),$(eval $(call GROUPdev_template,$(group))))
 debian/bde-core-bdemeta.stamp:
 	mkdir -p debian/bde-core-bdemeta/DEBIAN
 	find $(foreach g,$(GROUPS),groups/$(g)) -type d \( -name 'package' -or -name 'group' \) \
-	  -exec mkdir -p debian/bde-core-bdemeta/bb/bdemeta/{} \; \
-	  -exec sh -c "cp "{}"/* debian/bde-core-bdemeta/bb/bdemeta/"{}"/" \;
+	  -exec mkdir -p debian/bde-core-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/{} \; \
+	  -exec sh -c "cp "{}"/* debian/bde-core-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/"{}"/" \;
 	dpkg-gencontrol -pbde-core-bdemeta \
 	     -Pdebian/bde-core-bdemeta
 	dpkg-deb -b debian/bde-core-bdemeta ../
