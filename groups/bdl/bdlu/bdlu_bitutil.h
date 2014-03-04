@@ -46,54 +46,50 @@ struct BitUtil {
     // stateless functions that operate on the built-in 32- and 64-bit integer
     // types 'uint32_t' and 'uint64_t', respectively.
 
-    // CONSTANTS
+  private:
+    // PRIVATE CONSTANTS
     enum {
         k_BITS_PER_INT32  = 32,  // bits used to represent an 'int32_t'
         k_BITS_PER_INT64  = 64,  // bits used to represent an 'int64_t'
     };
 
-  private:
     // PRIVATE CLASS METHODS
-    static int privateFindIndexOfMostSignificantSetBit(uint32_t value);
-    static int privateFindIndexOfMostSignificantSetBit(uint64_t value);
-        // Return the index (least-significant bit is at 0) of the
-        // most-significant 1 bit in the specified 'value', if such a bit
-        // exists, and -1 otherwise.
+    static int privateNumLeadingUnsetBits(uint32_t value);
+    static int privateNumLeadingUnsetBits(uint64_t value);
+        // Return the number of consecutive 0 bits starting from the
+        // most-significant bit in the specified 'value'.
 
-    static int privateFindIndexOfLeastSignificantSetBit(uint32_t value);
-    static int privateFindIndexOfLeastSignificantSetBit(uint64_t value);
-        // Return the index (least-significant bit is at 0) of the
-        // least-significant 1 bit in the specified 'value', if such a bit
-        // exists, and 'sizeInBits(value)' otherwise.
+    static int privateNumTrailingUnsetBits(uint32_t value);
+    static int privateNumTrailingUnsetBits(uint64_t value);
+        // Return the number of consecutive 0 bits starting from the
+        // least-significant bit in the specified 'value'.
 
   public:
     // CLASS METHODS
-    static int log2(uint32_t value);
-    static int log2(uint64_t value);
-        // Return the base-2 logarithm of the specified 'value' rounded up to
-        // the nearest integer.  The behavior is undefined unless 'value > 0'.
-
-    static int findIndexOfMostSignificantSetBit(uint32_t value);
-    static int findIndexOfMostSignificantSetBit(uint64_t value);
-        // Return the index (least-significant bit is at 0) of the
-        // most-significant 1 bit in the specified 'value', if such a bit
-        // exists, and -1 otherwise.
-
-    static int findIndexOfLeastSignificantSetBit(uint32_t value);
-    static int findIndexOfLeastSignificantSetBit(uint64_t value);
-        // Return the index (least-significant bit is at 0) of the
-        // least-significant 1 bit in the specified 'value', if such a bit
-        // exists, and 'sizeInBits(value)' otherwise.
-
     static bool isBitSet(uint32_t value, int index);
     static bool isBitSet(uint64_t value, int index);
         // Return 'true' if the bit in the specified 'value' at the specified
         // 'index' is set to 1, and 'false' otherwise.  The behavior is
         // undefined unless '0 <= index < sizeInBits(value)'.
 
+    static int log2(uint32_t value);
+    static int log2(uint64_t value);
+        // Return the base-2 logarithm of the specified 'value' rounded up to
+        // the nearest integer.  The behavior is undefined unless 'value > 0'.
+
     static int numBitsSet(uint32_t value);
     static int numBitsSet(uint64_t value);
         // Return the number of 1 bits in the specified 'value'.
+
+    static int numLeadingUnsetBits(uint32_t value);
+    static int numLeadingUnsetBits(uint64_t value);
+        // Return the number of consecutive 0 bits starting from the
+        // most-significant bit in the specified 'value'.
+
+    static int numTrailingUnsetBits(uint32_t value);
+    static int numTrailingUnsetBits(uint64_t value);
+        // Return the number of consecutive 0 bits starting from the
+        // least-significant bit in the specified 'value'.
 
     static uint32_t roundUpToBinaryPower(uint32_t value);
     static uint64_t roundUpToBinaryPower(uint64_t value);
@@ -101,6 +97,11 @@ struct BitUtil {
         // specified 'value', and 0 if the conversion was not successful.  Note
         // that the conversion will not be successful if and only if
         // '0 == value || value > (1 << (sizeInBits(value) - 1))'.
+
+    template <typename INTEGER>
+    static int sizeInBits(INTEGER value);
+        // Return the number of bits in the specified 'value' of the (template
+        // parameter) type 'INTEGER'.
 
     static uint32_t withBitCleared(uint32_t value, int index);
     static uint64_t withBitCleared(uint64_t value, int index);
@@ -115,11 +116,6 @@ struct BitUtil {
         // position in the specified 'value' with 1, transferring all other
         // bits from 'value' unchanged.  The behavior is undefined unless
         // '0 <= index < sizeInBits(value)'.
-
-    template <typename INTEGER>
-    static int sizeInBits(INTEGER value);
-        // Return the number of bits in the specified 'value' of the (template
-        // parameter) type 'INTEGER'.
 };
 
 // ===========================================================================
@@ -131,91 +127,6 @@ struct BitUtil {
                                // ----------------
 
 // CLASS METHODS
-inline
-int BitUtil::log2(unsigned value)
-{
-    BSLS_ASSERT_SAFE(value > 0);
-
-    return findIndexOfMostSignificantSetBit(value - 1) + 1;
-}
-
-inline
-int BitUtil::log2(uint64_t value)
-{
-    BSLS_ASSERT_SAFE(value > 0LL);
-
-    return findIndexOfMostSignificantSetBit(value - 1) + 1;
-}
-
-inline
-int BitUtil::findIndexOfMostSignificantSetBit(uint32_t value)
-{
-#if defined(BSLS_PLATFORM_CMP_IBM)
-    return 31 - __cntlz4(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
-    return (31 - __builtin_clz(value)) | -static_cast<int>(!value);
-#else
-    return privateFindIndexOfMostSignificantSetBit(value);
-#endif
-}
-
-inline
-int BitUtil::findIndexOfMostSignificantSetBit(uint64_t value)
-{
-#if defined(BSLS_PLATFORM_CMP_IBM)
-    return 63 - __cntlz8(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
-    return (63 - __builtin_clzll(value)) | -static_cast<int64_t>(!value);
-#else
-    return privateFindIndexOfMostSignificantSetBit(value);
-#endif
-}
-
-inline
-int BitUtil::findIndexOfLeastSignificantSetBit(uint32_t value)
-{
-#if defined(BSLS_PLATFORM_CMP_IBM)
-    return __cnttz4(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
-    enum {
-        k_INT32_MASK = k_BITS_PER_INT32 - 1
-    };
-    const uint32_t a = __builtin_ffs(value) - 1;
-    return (a & k_INT32_MASK) + (a >> k_INT32_MASK);
-
-    // Other possibility:
-    //..
-    //  return (__builtin_ffs(value) - 1)
-    //       ^ ((-!value) & ~k_BITS_PER_INT32);
-    //..
-#else
-    return privateFindIndexOfLeastSignificantSetBit(value);
-#endif
-}
-
-inline
-int BitUtil::findIndexOfLeastSignificantSetBit(uint64_t value)
-{
-#if defined(BSLS_PLATFORM_CMP_IBM)
-    return __cnttz8(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU)
-    enum {
-        k_INT64_MASK = k_BITS_PER_INT64 - 1,
-        k_INT32_MASK = k_BITS_PER_INT32 - 1
-    };
-    const uint32_t a = __builtin_ffsll(value) - 1;
-    return (a & k_INT64_MASK) + (a >> k_INT32_MASK);
-
-    // Other possibility:
-    //..
-    //  return (__builtin_ffsll(value) - 1)
-    //       ^ ((-!value) & ~k_BITS_PER_INT64);
-    //..
-#else
-    return privateFindIndexOfLeastSignificantSetBit(value);
-#endif
-}
-
 inline
 bool BitUtil::isBitSet(uint32_t value, int index)
 {
@@ -232,6 +143,22 @@ bool BitUtil::isBitSet(uint64_t value, int index)
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
 
     return ((uint64_t)1 << index) & value;
+}
+
+inline
+int BitUtil::log2(unsigned value)
+{
+    BSLS_ASSERT_SAFE(value > 0);
+
+    return 32 - numLeadingUnsetBits(value - 1);
+}
+
+inline
+int BitUtil::log2(uint64_t value)
+{
+    BSLS_ASSERT_SAFE(value > 0LL);
+
+    return 64 - numLeadingUnsetBits(value - 1);
 }
 
 inline
@@ -314,30 +241,93 @@ int BitUtil::numBitsSet(uint64_t value)
 }
 
 inline
+int BitUtil::numLeadingUnsetBits(uint32_t value)
+{
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    return __cntlz4(value);
+#elif defined(BSLS_PLATFORM_CMP_GNU)
+    // __builtin_clz(0) is undefined
+    return __builtin_clz(value | 1) + static_cast<int>(!value);
+#else
+    return privateNumLeadingUnsetBits(value);
+#endif
+}
+
+inline
+int BitUtil::numLeadingUnsetBits(uint64_t value)
+{
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    return __cntlz8(value);
+#elif defined(BSLS_PLATFORM_CMP_GNU)
+    // __builtin_clzll(0) is undefined
+    return __builtin_clzll(value | 1) + static_cast<int>(!value);
+#else
+    return privateNumLeadingUnsetBits(value);
+#endif
+}
+
+inline
+int BitUtil::numTrailingUnsetBits(uint32_t value)
+{
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    return __cnttz4(value);
+#elif defined(BSLS_PLATFORM_CMP_GNU)
+    enum {
+        k_INT32_MASK = k_BITS_PER_INT32 - 1
+    };
+    const uint32_t a = __builtin_ffs(value) - 1;
+    return (a & k_INT32_MASK) + (a >> k_INT32_MASK);
+
+    // Other possibility:
+    //..
+    //  return (__builtin_ffs(value) - 1)
+    //       ^ ((-!value) & ~k_BITS_PER_INT32);
+    //..
+#else
+    return privateNumTrailingUnsetBits(value);
+#endif
+}
+
+inline
+int BitUtil::numTrailingUnsetBits(uint64_t value)
+{
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    return __cnttz8(value);
+#elif defined(BSLS_PLATFORM_CMP_GNU)
+    enum {
+        k_INT64_MASK = k_BITS_PER_INT64 - 1,
+        k_INT32_MASK = k_BITS_PER_INT32 - 1
+    };
+    const uint32_t a = __builtin_ffsll(value) - 1;
+    return (a & k_INT64_MASK) + (a >> k_INT32_MASK);
+
+    // Other possibility:
+    //..
+    //  return (__builtin_ffsll(value) - 1)
+    //       ^ ((-!value) & ~k_BITS_PER_INT64);
+    //..
+#else
+    return privateNumTrailingUnsetBits(value);
+#endif
+}
+
+inline
 uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
 {
-    int      index = findIndexOfMostSignificantSetBit(value);
-    unsigned ret   = BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 <= index)
-                     ? (1 << index)
-                     : 0;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(ret == value)) {
-        return ret;                                                   // RETURN
-    }
-    return ret << 1;
+    return (uint32_t)1 << (32 - numLeadingUnsetBits(value - 1));
 }
 
 inline
 uint64_t BitUtil::roundUpToBinaryPower(uint64_t value)
 {
-    int      index = findIndexOfMostSignificantSetBit(value);
-    uint64_t ret   = BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 <= index)
-                     ? ((uint64_t)1 << index)
-                     : 0;
+    return (uint64_t)1 << (64 - numLeadingUnsetBits(value - 1));
+}
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(ret == value)) {
-        return ret;                                                   // RETURN
-    }
-    return ret << 1;
+template <typename TYPE>
+inline
+int BitUtil::sizeInBits(TYPE)
+{
+    return CHAR_BIT * sizeof(TYPE);
 }
 
 inline
@@ -374,13 +364,6 @@ uint64_t BitUtil::withBitSet(uint64_t value, int index)
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
 
     return value | ((uint64_t)1 << index);
-}
-
-template <typename TYPE>
-inline
-int BitUtil::sizeInBits(TYPE)
-{
-    return CHAR_BIT * sizeof(TYPE);
 }
 
 }  // close package namespace

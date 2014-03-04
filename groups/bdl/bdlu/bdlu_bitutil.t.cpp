@@ -35,6 +35,27 @@ using namespace bsl;  // automatically added by script
 // Note that it was necessary to break 'main' up into separate files because
 // of unacceptably long build times on windows.
 //-----------------------------------------------------------------------------
+//
+// [ 2] bool isBitSet(uint32_t value, int index);
+// [ 2] bool isBitSet(uint64_t value, int index);
+// [ 7] int log2(uint32_t value);
+// [ 7] int log2(uint64_t value);
+// [ 4] int numBitsSet(uint32_t value);
+// [ 4] int numBitsSet(uint64_t value);
+// [ 5] int numLeadingUnsetBits(uint32_t value);
+// [ 5] int numLeadingUnsetBits(uint64_t value);
+// [ 6] int numTrailingUnsetBits(uint32_t value);
+// [ 6] int numTrailingUnsetBits(uint64_t value);
+// [ 7] uint32_t roundUpToBinaryPower(uint32_t value);
+// [ 7] uint64_t roundUpToBinaryPower(uint64_t value);
+// [ 1] int sizeInBits(INTEGER value);
+// [ 3] uint32_t withBitCleared(uint32_t value, int index);
+// [ 3] uint64_t withBitCleared(uint64_t value, int index);
+// [ 3] uint32_t withBitSet(uint32_t value, int index);
+// [ 3] uint64_t withBitSet(uint64_t value, int index);
+//
+//
+//
 // [ 3] enum { WORD_SIZE = sizeof(int) };
 // [ 3] enum { BITS_PER_BYTE = 8 };
 // [ 3] enum { BITS_PER_WORD = BITS_PER_BYTE * WORD_SIZE };
@@ -17017,6 +17038,244 @@ int main(int argc, char *argv[])
         testMinus(test);
       }
         */
+      case 6: {
+      } break;
+      case 5: {
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'numBitsSet'
+        //
+        // Concerns:
+        //: 1 'numBitsSet' correctly returns the number of set bits
+        //
+        // Plan:
+        //: 1 verify return values for depth enumerated test vectors with known
+        //:   expected result
+        //:
+        //: 2 verify result for case where all bits are set (C-1)
+        //
+        // Testing:
+        //   int numBitsSet(uint32_t value);
+        //   int numBitsSet(uint64_t value);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'numBitsSet'"
+                          << "\n===================="
+                          << endl;
+
+        { // depth 0; no bits set
+            uint32_t value32 = 0;
+            ASSERT(0 == Util::numBitsSet(value32));
+            uint64_t value64 = 0;
+            ASSERT(0 == Util::numBitsSet(value64));
+        }
+
+        { // depth 1; one bit set
+            for (int i = 0; i < 32; ++i) {
+                uint32_t value32 = (uint32_t)1 << i;
+                ASSERT(1 == Util::numBitsSet(value32));
+            }
+            for (int i = 0; i < 64; ++i) {
+                uint64_t value64 = (uint64_t)1 << i;
+                ASSERT(1 == Util::numBitsSet(value64));
+            }
+        }
+
+        { // depth 2; two bits set
+            for (int i = 0; i < 32; ++i) {
+                for (int j = i + 1; j < 32; ++j) {
+                    uint32_t value32 = (((uint32_t)1 << i)
+                                        | ((uint32_t)1 << j));
+                    ASSERT(2 == Util::numBitsSet(value32));
+                }
+            }
+            for (int i = 0; i < 64; ++i) {
+                for (int j = i + 1; j < 64; ++j) {
+                    uint64_t value64 = (((uint64_t)1 << i)
+                                        | ((uint64_t)1 << j));
+                    ASSERT(2 == Util::numBitsSet(value64));
+                }
+            }
+        }
+
+        { // all bits set
+            uint32_t value32 = (uint32_t)-1;
+            ASSERT(32 == Util::numBitsSet(value32));
+            uint64_t value64 = (uint64_t)-1;
+            ASSERT(64 == Util::numBitsSet(value64));
+        }
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING 'withBitCleared' and 'withBitSet'
+        //
+        // Concerns:
+        //: 1 the methods correctly adjust the bit in the specified index
+        //: 2 the methods do not adjust the bits in other index positions
+        //: 3 the methods work for all index positions
+        //
+        // Plan:
+        //: 1 starting with the values 0 and all-bits-set, for every index
+        //:   perform the no-op operation, the bit-flip operation, and then
+        //:   another bit-flip operation and verify the result values at all
+        //:   points (C-1..3)
+        //
+        // Testing:
+        //   uint32_t withBitCleared(uint32_t value, int index);
+        //   uint64_t withBitCleared(uint64_t value, int index);
+        //   uint32_t withBitSet(uint32_t value, int index);
+        //   uint64_t withBitSet(uint64_t value, int index);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'withBitCleared' and 'withBitSet'"
+                          << "\n========================================="
+                          << endl;
+
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'isBitSet'
+        //
+        // Concerns:
+        //: 1 'isBitSet' correctly returns the state of the specified bit
+        //
+        // Plan:
+        //: 1 verify return values for depth enumerated test vectors with known
+        //:   expected result (C-1)
+        //
+        // Testing:
+        //   bool isBitSet(uint32_t value, int index);
+        //   bool isBitSet(uint64_t value, int index);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'isBitSet'"
+                          << "\n=================="
+                          << endl;
+
+        { // depth 0; no bits set
+            uint32_t value32 = 0;
+            for (int index = 0; index < 32; ++index) {
+                ASSERT(false == Util::isBitSet(value32, index));
+            }
+            uint64_t value64 = 0;
+            for (int index = 0; index < 64; ++index) {
+                ASSERT(false == Util::isBitSet(value64, index));
+            }
+        }
+
+        { // depth 1; one bit set
+            for (int i = 0; i < 32; ++i) {
+                uint32_t value32 = (uint32_t)1 << i;
+                for (int index = 0; index < 32; ++index) {
+                    ASSERT((index == i) == Util::isBitSet(value32, index));
+                }
+            }
+            for (int i = 0; i < 64; ++i) {
+                uint64_t value64 = (uint64_t)1 << i;
+                for (int index = 0; index < 64; ++index) {
+                    ASSERT((index == i) == Util::isBitSet(value64, index));
+                }
+            }
+        }
+
+        { // depth 2; two bits set
+            for (int i = 0; i < 32; ++i) {
+                for (int j = i + 1; j < 32; ++j) {
+                    uint32_t value32 = (((uint32_t)1 << i)
+                                        | ((uint32_t)1 << j));
+                    for (int index = 0; index < 32; ++index) {
+                        ASSERT((index == i || index == j)
+                                            == Util::isBitSet(value32, index));
+                    }
+                }
+            }
+            for (int i = 0; i < 64; ++i) {
+                for (int j = i + 1; j < 64; ++j) {
+                    uint64_t value64 = (((uint64_t)1 << i)
+                                        | ((uint64_t)1 << j));
+                    for (int index = 0; index < 64; ++index) {
+                        ASSERT((index == i || index == j)
+                                            == Util::isBitSet(value64, index));
+                    }
+                }
+            }
+        }
+
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // TESTING 'sizeInBits'
+        //
+        // Concerns:
+        //: 1 'sizeInBits' correctly returns the size of variables in bits
+        //
+        // Plan:
+        //: 1 verify results on various sized types (C-1)
+        //
+        // Testing:
+        //   int sizeInBits(INTEGER value);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'sizeInBits'"
+                          << "\n===================="
+                          << endl;
+
+        BSLMF_ASSERT(4 == sizeof(int32_t) && 8 == sizeof(int64_t));
+        BSLMF_ASSERT(1 == sizeof(char) && 2 == sizeof(short));
+        BSLMF_ASSERT(4 == sizeof(int) && 8 == sizeof(Int64));
+
+        char myChar = 0;
+        unsigned char myUnsignedChar = 0;
+        signed char mySignedChar = 0;
+
+        short myShort = 0;
+        unsigned short myUnsignedShort = 0;
+
+        int32_t myExactInt32 = 0;
+        uint32_t myExactUint32 = 0;
+
+        int myInt = 0;
+        unsigned myUnsigned = 0;
+
+        long myLong = 0;
+        unsigned long myUnsignedLong = 0;
+
+        void *myPtr = 0;
+
+        int64_t myExactInt64 = 0;
+        uint64_t myExactUint64 = 0;
+
+        Int64 myInt64 = 0;
+        Uint64 myUint64 = 0;
+
+        ASSERT(8 == Util::sizeInBits(myChar));
+        ASSERT(8 == Util::sizeInBits(myUnsignedChar));
+        ASSERT(8 == Util::sizeInBits(mySignedChar));
+
+        ASSERT(16 == Util::sizeInBits(myShort));
+        ASSERT(16 == Util::sizeInBits(myUnsignedShort));
+
+        ASSERT(32 == Util::sizeInBits(myExactInt32));
+        ASSERT(32 == Util::sizeInBits(myExactUint32));
+
+        ASSERT(32 == Util::sizeInBits(myInt));
+        ASSERT(32 == Util::sizeInBits(myUnsigned));
+
+        ASSERT(sizeof(long) * CHAR_BIT == Util::sizeInBits(myLong));
+        ASSERT(sizeof(unsigned long) * CHAR_BIT ==
+                                             Util::sizeInBits(myUnsignedLong));
+
+        ASSERT(sizeof(void *) * CHAR_BIT == Util::sizeInBits(myPtr));
+
+        ASSERT(64 == Util::sizeInBits(myExactInt64));
+        ASSERT(64 == Util::sizeInBits(myExactUint64));
+
+        ASSERT(64 == Util::sizeInBits(myInt64));
+        ASSERT(64 == Util::sizeInBits(myUint64));
+
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

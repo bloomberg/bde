@@ -13,7 +13,7 @@ BSLMF_ASSERT(8 == sizeof(uint64_t));
                         // ----------------
 
 // PRIVATE CLASS METHODS
-int BitUtil::privateFindIndexOfMostSignificantSetBit(uint32_t value)
+int BitUtil::privateNumLeadingUnsetBits(uint32_t value)
 {
     // Note that it doesn't matter whether the right shifts sign extend or not.
 
@@ -22,10 +22,10 @@ int BitUtil::privateFindIndexOfMostSignificantSetBit(uint32_t value)
     value |= value >>  4;
     value |= value >>  2;
     value |= value >>  1;
-    return numBitsSet(value) - 1;
+    return 32 - numBitsSet(value);
 }
 
-int BitUtil::privateFindIndexOfMostSignificantSetBit(uint64_t value)
+int BitUtil::privateNumLeadingUnsetBits(uint64_t value)
 {
     // Note that it doesn't matter whether the right shifts sign extend or not.
 
@@ -35,10 +35,10 @@ int BitUtil::privateFindIndexOfMostSignificantSetBit(uint64_t value)
     value |= value >>  4;
     value |= value >>  2;
     value |= value >>  1;
-    return numBitsSet(value) - 1;
+    return 64 - numBitsSet(value);
 }
 
-int BitUtil::privateFindIndexOfLeastSignificantSetBit(uint32_t value)
+int BitUtil::privateNumTrailingUnsetBits(uint32_t value)
 {
     value |= value << 16;
     value |= value <<  8;
@@ -48,7 +48,7 @@ int BitUtil::privateFindIndexOfLeastSignificantSetBit(uint32_t value)
     return numBitsSet(~value);
 }
 
-int BitUtil::privateFindIndexOfLeastSignificantSetBit(uint64_t value)
+int BitUtil::privateNumTrailingUnsetBits(uint64_t value)
 {
     value |= value << 32;
     value |= value << 16;
