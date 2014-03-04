@@ -4,6 +4,8 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -19,6 +21,51 @@
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
+
+
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
+
+static int testStatus = 0;
+
+static void aSsErT(int c, const char *s, int i)
+{
+    if (c) {
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+             << "    (failed)" << endl;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    }
+}
+
+#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+//=============================================================================
+//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//-----------------------------------------------------------------------------
+
+#define LOOP_ASSERT(I,X) { \
+    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+
+#define LOOP2_ASSERT(I,J,X) { \
+    if (!(X)) { cout << #I << ": " << I << "\t"  \
+                     << #J << ": " << J << "\n"; \
+                aSsErT(1, #X, __LINE__); } }
+
+#define LOOP3_ASSERT(I,J,K,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t"  \
+                    << #J << ": " << J << "\t"  \
+                    << #K << ": " << K << "\n"; \
+               aSsErT(1, #X, __LINE__); } }
+
+//=============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+//-----------------------------------------------------------------------------
+
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 //=============================================================================
 //                                TEST PLAN
@@ -238,61 +285,6 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [ 2] TEST GENERATOR FUNCTION: int g(const char *spec)
 // [ 3] QUICK REFERENCE
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
-
-static void aSsErT(int c, const char *s, int i) {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
-    }
-}
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\t" << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\t" << #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-        aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\t" << #K << ": " << K << "\t" << #L << ": " << L \
-        << "\t" << #M << ": " << M << "\n"; \
-        aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\t" << #K << ": " << K << "\t" << #L << ": " << L \
-        << "\t" << #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-        aSsErT(1, #X, __LINE__); } }
-
-#define LOOP7_ASSERT(I,J,K,L,M,N,P,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\t" << #K << ": " << K << "\t" << #L << ": " << L \
-        << "\t" << #M << ": " << M << "\t" << #N << ": " << N \
-        << "\t" << #P << ": " << P << "\n"; \
-        aSsErT(1, #X, __LINE__); } }
-
-//=============================================================================
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_() cout << '\t' << flush;           // Print tab w/o linefeed.
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -17115,12 +17107,14 @@ int main(int argc, char *argv[])
         //: 1 the methods correctly adjust the bit in the specified index
         //: 2 the methods do not adjust the bits in other index positions
         //: 3 the methods work for all index positions
+        //: 4 QoI: asserted precondition violations are detected when enabled
         //
         // Plan:
         //: 1 starting with the values 0 and all-bits-set, for every index
-        //:   perform the no-op operation, the bit-flip operation, and then
-        //:   another bit-flip operation and verify the result values at all
-        //:   points (C-1..3)
+        //:   perform both operations and verify the result values (C-1..3)
+        //:
+        //: 2 verify defensive checks are triggered for invalid attribute
+        //:   values (C-4)
         //
         // Testing:
         //   uint32_t withBitCleared(uint32_t value, int index);
@@ -17133,6 +17127,60 @@ int main(int argc, char *argv[])
                           << "\n========================================="
                           << endl;
 
+        { // starting from 0
+            for (int index = 0; index < 32; ++index) {
+                uint32_t value32 = 0;
+                ASSERT(0 == Util::withBitCleared(value32, index));
+                ASSERT((1 << index) == Util::withBitSet(value32, index));
+            }
+            for (int index = 0; index < 64; ++index) {
+                uint64_t value64 = 0;
+                ASSERT(0 == Util::withBitCleared(value64, index));
+                ASSERT(((uint64_t)1 << index)
+                                          == Util::withBitSet(value64, index));
+            }
+        }
+        { // starting from all-bits-set
+            for (int index = 0; index < 32; ++index) {
+                uint32_t value32 = (uint32_t)-1;
+                ASSERT(~(1 << index) == Util::withBitCleared(value32, index));
+                ASSERT(value32 == Util::withBitSet(value32, index));
+            }
+            for (int index = 0; index < 64; ++index) {
+                uint64_t value64 = (uint64_t)-1;
+                ASSERT(~((uint64_t)1 << index)
+                                      == Util::withBitCleared(value64, index));
+                ASSERT(value64 == Util::withBitSet(value64, index));
+            }
+        }
+
+        { // negative testing
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            uint32_t value32 = 0;
+            uint64_t value64 = 0;
+
+            ASSERT_SAFE_FAIL(Util::withBitCleared(value32, -1));
+            ASSERT_SAFE_PASS(Util::withBitCleared(value32, 0));
+            ASSERT_SAFE_PASS(Util::withBitCleared(value32, 31));
+            ASSERT_SAFE_FAIL(Util::withBitCleared(value32, 32));
+
+            ASSERT_SAFE_FAIL(Util::withBitCleared(value64, -1));
+            ASSERT_SAFE_PASS(Util::withBitCleared(value64, 0));
+            ASSERT_SAFE_PASS(Util::withBitCleared(value64, 63));
+            ASSERT_SAFE_FAIL(Util::withBitCleared(value64, 64));
+
+            ASSERT_SAFE_FAIL(Util::withBitSet(value32, -1));
+            ASSERT_SAFE_PASS(Util::withBitSet(value32, 0));
+            ASSERT_SAFE_PASS(Util::withBitSet(value32, 31));
+            ASSERT_SAFE_FAIL(Util::withBitSet(value32, 32));
+
+            ASSERT_SAFE_FAIL(Util::withBitSet(value64, -1));
+            ASSERT_SAFE_PASS(Util::withBitSet(value64, 0));
+            ASSERT_SAFE_PASS(Util::withBitSet(value64, 63));
+            ASSERT_SAFE_FAIL(Util::withBitSet(value64, 64));
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -17140,10 +17188,14 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 'isBitSet' correctly returns the state of the specified bit
+        //: 2 QoI: asserted precondition violations are detected when enabled
         //
         // Plan:
         //: 1 verify return values for depth enumerated test vectors with known
         //:   expected result (C-1)
+        //:
+        //: 2 verify defensive checks are triggered for invalid attribute
+        //:   values (C-2)
         //
         // Testing:
         //   bool isBitSet(uint32_t value, int index);
@@ -17201,6 +17253,24 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+        }
+
+        { // negative testing
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            uint32_t value32 = 0;
+            uint64_t value64 = 0;
+
+            ASSERT_SAFE_FAIL(Util::isBitSet(value32, -1));
+            ASSERT_SAFE_PASS(Util::isBitSet(value32, 0));
+            ASSERT_SAFE_PASS(Util::isBitSet(value32, 31));
+            ASSERT_SAFE_FAIL(Util::isBitSet(value32, 32));
+
+            ASSERT_SAFE_FAIL(Util::isBitSet(value64, -1));
+            ASSERT_SAFE_PASS(Util::isBitSet(value64, 0));
+            ASSERT_SAFE_PASS(Util::isBitSet(value64, 63));
+            ASSERT_SAFE_FAIL(Util::isBitSet(value64, 64));
         }
 
       } break;
@@ -17290,11 +17360,24 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------------------------------------------------------
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
