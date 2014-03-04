@@ -289,6 +289,73 @@ const char *bdeu_String::strstrCaseless(const char *string,
     return 0;
 }
 
+const char *bdeu_String::strrstr(const char *string,
+                                 int         stringLen,
+                                 const char *subString,
+                                 int         subStringLen)
+{
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= stringLen);
+    BSLS_ASSERT(0 <= subStringLen);
+    BSLS_ASSERT(0 == subStringLen || subString);
+
+    if (0 == subStringLen) {
+        return string;                                                // RETURN
+    }
+
+    if (stringLen < subStringLen) {
+        return 0;                                                     // RETURN
+    }
+
+    const char *end = string + stringLen - subStringLen;
+
+    for (const char *p = end; *p && p >= string; --p) {
+        if (0 == bsl::memcmp(p, subString, subStringLen)) {
+            return p;                                                 // RETURN
+        }
+    }
+
+    return 0;
+}
+
+const char *bdeu_String::strrstrCaseless(const char *string,
+                                         int         stringLen,
+                                         const char *subString,
+                                         int         subStringLen)
+{
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= stringLen);
+    BSLS_ASSERT(0 <= subStringLen);
+    BSLS_ASSERT(0 == subStringLen || subString);
+
+    if (0 == subStringLen) {
+        return string;                                                // RETURN
+    }
+
+    if (stringLen < subStringLen) {
+        return 0;                                                     // RETURN
+    }
+
+    const char *end = string + stringLen - subStringLen;
+
+    for (const char *p = end; *p && p >= string; --p) {
+        int i;
+
+        for (i = 0; i < subStringLen; ++i) {
+            if (bsl::toupper(static_cast<unsigned char>(p[i]))
+                   != bsl::toupper(static_cast<unsigned char>(subString[i]))) {
+                break;
+            }
+        }
+
+        if (i == subStringLen) {
+            return p;                                                 // RETURN
+        }
+    }
+
+    return 0;
+}
+
 void bdeu_String::toFixedLength(char       *dstString,
                                 int         dstLength,
                                 const char *srcString,

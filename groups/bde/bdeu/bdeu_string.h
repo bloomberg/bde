@@ -224,6 +224,30 @@ struct bdeu_String {
         // beginning of 'string', and that 'subString' may be 0, but only if
         // 'subStringLen' is 0.
 
+    static const char *strrstr(const char *string,
+                               int         stringLen,
+                               const char *subString,
+                               int         subStringLen);
+        // Return the address of the non-modifiable last occurrence of the
+        // specified 'subString' having the specified 'subStringLen' in the
+        // specified 'string' having the specified 'stringLen'; return 0 if
+        // 'subString' is not found in 'string'.  The comparison is
+        // case-sensitive.  Note that a 'subString' of length 0 matches the
+        // beginning of 'string', and that 'subString' may be 0, but only if
+        // 'subStringLen' is 0.
+
+    static const char *strrstrCaseless(const char *string,
+                                       int         stringLen,
+                                       const char *subString,
+                                       int         subStringLen);
+        // Return the address of the non-modifiable last occurrence of the
+        // specified 'subString' having the specified 'subStringLen' in the
+        // specified 'string' having the specified 'stringLen'; return 0 if
+        // 'subString' is not found in 'string'.  The comparison is
+        // case-insensitive.  Note that a 'subString' of length 0 matches the
+        // beginning of 'string', and that 'subString' may be 0, but only if
+        // 'subStringLen' is 0.
+
     static int strnlen(const char *string, int maximumLength);
         // Return the minimum of the length of the specified null-terminated
         // 'string' and the specified 'maximumLength'.
