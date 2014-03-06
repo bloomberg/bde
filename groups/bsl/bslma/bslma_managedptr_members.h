@@ -37,6 +37,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#pragma bde_verify set ok_unquoted object
+
 namespace BloombergLP {
 namespace bslma {
 
@@ -85,20 +87,20 @@ class ManagedPtr_Members {
         // deleter as 'other', and then put 'other' into an unset state.
 
     ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
-        // If 'object' is 0, create a 'ManagedPtr_Members' object that does not
-        // manage a pointer; otherwise create a 'ManagedPtr_Members' object
-        // having the specified 'object', 'factory' and 'deleter'.
+        // Create a 'ManagedPtr_Members' object having the specified 'object',
+        // 'factory' and 'deleter' unless '0 == object', in which case create a
+        // 'ManagedPtr_Members' object that does not manage a pointer.
 
     ManagedPtr_Members(void        *object,
                        void        *factory,
                        DeleterFunc  deleter,
                        void        *alias);
-        // If 'object' is 0, create a 'ManagedPtr_Members' object that does not
-        // manage a pointer; otherwise create a 'ManagedPtr_Members' object
-        // having the specified 'object', 'factory' and 'deleter', but aliasing
-        // 'alias'.  Note that this constructor is important for managed
-        // pointers pointing to one of multiple base classes of a class using
-        // multiple inheritance.
+        // Create a 'ManagedPtr_Members' object having the specified 'object',
+        // 'factory', and 'deleter', but aliasing the specified 'alias', unless
+        // '0 == object'; if '0 == object' create a 'ManagedPtr_Members' object
+        // that does not manage any pointer.  Note that this constructor is
+        // important for managed pointers pointing to one of multiple base
+        // classes of a class using multiple inheritance.
 
     //! ~ManagedPtr_Members() = default;
         // Destroy this 'ManagedPtr_Members' object.  Note that this trivial
@@ -118,9 +120,9 @@ class ManagedPtr_Members {
     void moveAssign(ManagedPtr_Members *other);
         // Destroy the currently managed object (if any) unless the specified
         // 'other' refers to this object, then re-initialize this object,
-        // having the same 'pointer' as the specified 'other' object, and, if
-        // 'pointer' is not 0, the same deleter as 'other', and then put
-        // 'other' into an unset set.
+        // having the same 'pointer' as the 'other' object, and, if 'pointer'
+        // is not 0, the same deleter as 'other', and then put 'other' into an
+        // unset set.
 
     void set(void *object, void *factory, DeleterFunc deleter);
         // Re-initialize this object with the specified 'object' pointer value,
@@ -128,15 +130,15 @@ class ManagedPtr_Members {
         // Note that any previously managed object will not be destroyed.
 
     void setAliasPtr(void *ptr);
-        // Set 'pointer' to have the specified 'ptr' value.  If 'ptr' is 0 then
+        // Set 'pointer' to have the specified 'ptr' value.  If '0 == ptr' then
         // this object will have an unset state.
 
     void swap(ManagedPtr_Members& other);
         // Efficiently exchange the state of this object with the state of the
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.  Note that if either object is in an
-        // unset state, there are no guarantees about the unset state that may
-        // be exchanged, other than 'pointer' shall be null.
+        // unset state, then the only guarantee about the unset state that may
+        // be exchanged is that the 'pointer' value shall be null.
 
     // ACCESSORS
     const ManagedPtrDeleter& deleter() const;

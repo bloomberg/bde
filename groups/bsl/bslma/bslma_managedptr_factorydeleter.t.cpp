@@ -16,17 +16,22 @@ using namespace BloombergLP;
 //=============================================================================
 //                                  TEST PLAN
 //                                  ---------
+//-----------------------------------------------------------------------------
 // [ 3] void deleter(obj, factory)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] Test machinery
+// [ 2] TEST MACHINERY
+// [ 2] class MyTestObject
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -34,8 +39,9 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
@@ -73,13 +79,15 @@ void aSsErT(bool b, const char *s, int i)
 //                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
+namespace {
+
 class MyTestObject {
     // This test-class serves three purposes.  It provides a base class for the
     // test classes in this test driver, so that derived -> base conversions
     // can be tested.  It also signals when its destructor is run by
-    // incrementing an externally managed counter, supplied when each object
-    // is created.  Finally, it exposes an internal data structure that can be
-    // use to demonstrate the 'bslma::ManagedPtr' aliasing facility.
+    // incrementing an externally managed counter, supplied when each object is
+    // created.  Finally, it exposes an internal data structure that can be use
+    // to demonstrate the 'bslma::ManagedPtr' aliasing facility.
 
     // DATA
     volatile int *d_deleteCounter_p;
@@ -92,8 +100,8 @@ class MyTestObject {
         // this object's destructor is run.
 
     // Use compiler-generated copy constructor and assignment operator
-    // MyTestObject(const MyTestObject& orig);
-    // MyTestObject operator=(const MyTestObject& orig);
+    // MyTestObject(const MyTestObject& orig) = default;
+    // MyTestObject operator=(const MyTestObject& orig) = default;
 
     virtual ~MyTestObject();
         // Destroy this object.
@@ -160,6 +168,10 @@ class CountedStackDeleter
         // invoked as a deleter.
 
     void deleteObject(void *) const
+        // Increment the count of calls to this function.  Note that there is
+        // no attempt to destroy the object pointed to by the function argument
+        // as it is excepted to exist on the function call-stack and by
+        // destroyed on exiting the relevant function scope.
     {
         ++*d_deleteCounter_p;
     }
@@ -219,7 +231,7 @@ int main(int argc, char *argv[])
         //: 1 blah ...
         //
         // Testing:
-        //    ManagedPtr_FactoryDeleter<T,U>::deleter(obj, factory)
+        //    void deleter(obj, factory)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING bslma::ManagedPtr_FactoryDeleter"
@@ -337,11 +349,12 @@ int main(int argc, char *argv[])
         //:   allocator guards.
         //
         // Testing:
+        //    TEST MACHINERY
         //    class MyTestObject
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TEST MACHINERY"
-                            "\n----------------------\n");
+                            "\n======================\n");
 
         if (verbose) printf("\tTest class MyTestObject\n");
 
@@ -372,6 +385,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This test exercises basic functionality but *tests* *nothing*.
         //
         // Concerns:
         //   1. That the functions exist with the documented signatures.
@@ -382,11 +396,11 @@ int main(int argc, char *argv[])
         //   sequence to ensure that the basic functionality is as documented.
         //
         // Testing:
-        //   This test exercises basic functionality but *tests* *nothing*.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
-                            "\n--------------\n");
+                            "\n==============\n");
 
         printf("Nothing tested yet.\n");
       } break;
