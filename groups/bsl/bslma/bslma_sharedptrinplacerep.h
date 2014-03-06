@@ -169,6 +169,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_sharedptrrep.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -747,8 +751,20 @@ void *SharedPtrInplaceRep<TYPE>::originalPtr() const
     return const_cast<void *>(static_cast<const void *>(&d_instance));
 }
 
-}  // close namespace bslma
-}  // close namespace BloombergLP
+// ============================================================================
+//                              TYPE TRAITS
+// ============================================================================
+
+template <typename ELEMENT_TYPE>
+struct UsesBslmaAllocator<SharedPtrInplaceRep<ELEMENT_TYPE> >
+    : bsl::false_type {
+    // The class template 'SharedPtrInplaceRep' appears to use allocators, but
+    // passes its allocator argument in the first position, rather than in the
+    // last position, so is not compatible with BDE APIs that use this trait.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

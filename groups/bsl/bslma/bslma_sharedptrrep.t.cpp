@@ -16,6 +16,11 @@
 #endif
 #endif
 
+#pragma bdeverify -FD01  // Test-machinery lacks a contract
+#pragma bdeverify -TP06  // Test-case indexing thing
+#pragma bdeverify -TP09  // Test-case indexing thing
+#pragma bdeverify -TP18  // Test-case banners are ALL-CAPS
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -28,7 +33,7 @@ using namespace BloombergLP;
 // - The test plans are still to be written (so marked TBD).
 //-----------------------------------------------------------------------------
 // bslma::SharedPtrRep
-//------------------------
+//--------------------
 // [ 9] void managedPtrDeleter(void *, bslma::SharedPtrRep *rep); // TBD
 // [ 2] bslma::SharedPtrRep();
 // [ 3] void acquireRef();
@@ -48,12 +53,15 @@ using namespace BloombergLP;
 // [10] USAGE EXAMPLE // TBD
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                        STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -463,7 +471,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void managedPtrDeleter(void*, bslma::SharedPtrRep *rep);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'managedPtrDeleter'"
+        if (verbose) printf("\nTESTING 'managedPtrDeleter'"
                             "\n===========================\n");
         {
             TObj t;
@@ -493,7 +501,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void incrementRefs(int incrementAmount = 1);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'incrementRefs'"
+        if (verbose) printf("\nTESTING 'incrementRefs'"
                             "\n=======================\n");
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
         {
@@ -526,6 +534,8 @@ int main(int argc, char *argv[])
 
             x.incrementRefs(3);
             ASSERT(10 == X.numReferences());
+
+            // TBD Negative testing
         }
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
@@ -547,7 +557,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bool tryAcquireRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'tryAcquireRef'"
+        if (verbose) printf("\nTESTING 'tryAcquireRef'"
                             "\n=======================\n");
         {
             TObj t;
@@ -582,7 +592,7 @@ int main(int argc, char *argv[])
         //   void resetCountsRaw(int numSharedReferences,
         //                       int numWeakReferences);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'resetCountsRaw'"
+        if (verbose) printf("\nTESTING 'resetCountsRaw'"
                             "\n========================\n");
         {
             TObj t;
@@ -608,7 +618,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'disposeObject' and 'disposeRep'
+        // TESTING 'disposeObject' AND 'disposeRep'
         //
         // Concerns:
         //   1) disposeObject() is called when there is no shared reference.
@@ -626,7 +636,7 @@ int main(int argc, char *argv[])
         //   void disposeObject();
         //   void disposeRep();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'disposeObject' and 'disposeRep'"
+        if (verbose) printf("\nTESTING 'disposeObject' AND 'disposeRep'"
                             "\n========================================\n");
         {
             TObj t;
@@ -669,7 +679,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' and 'releaseWeakRef'
+        // TESTING 'releaseRef' AND 'releaseWeakRef'
         //
         // Concerns:
         //   'releaseRef' and 'releaseWeakRef' is decrementing the reference
@@ -684,8 +694,8 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'acquireRef' and 'releaseRef'"
-                            "\n=====================================\n");
+        if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
+                            "\n=========================================\n");
         {
             TObj t;
             Obj& x = t;
@@ -723,7 +733,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'acquireRef' and 'acquireWeakRef'
+        // TESTING 'acquireRef' AND 'acquireWeakRef'
         //
         // Concerns:
         //   'acquireRef' and 'acquireWeakRef' is incrementing the reference
@@ -737,8 +747,8 @@ int main(int argc, char *argv[])
         //   void acquireRef();
         //   void acquireWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'acquireRef' and 'releaseRef'"
-                            "\n=====================================\n");
+        if (verbose) printf("\nTESTING 'acquireRef' AND 'acquireWeakRef'"
+                            "\n=========================================\n");
         {
             TObj t;
             Obj& x = t;
@@ -786,8 +796,8 @@ int main(int argc, char *argv[])
         //   int numWeakReferences() const;
         //   bool hasUniqueOwner() const;
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting Constructors and Destructor"
-                            "\n===================================\n");
+        if (verbose) printf("\nTESTING BASIC CONSTRUCTORS AND ACCESSOR"
+                            "\n=======================================\n");
 
         if (verbose) printf("\nTesting default constructor"
                             "\n---------------------------\n");
@@ -805,9 +815,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
-        // Testing:
+        // Concerns:
         //   This test exercises basic functionality but tests nothing.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
         {

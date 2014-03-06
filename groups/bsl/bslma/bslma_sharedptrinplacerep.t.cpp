@@ -14,6 +14,11 @@
 #endif
 #endif
 
+#pragma bdeverify -FD01  // Test-machinery lacks a contract
+#pragma bdeverify -TP06  // Test-case indexing thing
+#pragma bdeverify -TP09  // Test-case indexing thing
+#pragma bdeverify -TP18  // Test-case banners are ALL-CAPS
+
 using namespace BloombergLP;
 //using namespace bsl;  // automatically added by script
 
@@ -26,7 +31,7 @@ using namespace BloombergLP;
 // representation.
 //-----------------------------------------------------------------------------
 // bslma::SharedPtrInplaceRep
-//------------------------
+//---------------------------
 // [ 2] SharedPtrInplaceRep(bslma::Allocator *basicAllocator);
 // [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1& a1);
 // [ 3] SharedPtrInplaceRep(bslma::Allocator *allocator, const A1&...a2);
@@ -53,12 +58,15 @@ using namespace BloombergLP;
 // [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -66,7 +74,6 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
 }  // close unnamed namespace
@@ -691,10 +698,13 @@ bdet_Datetime *MySharedDatetime::ptr() const {
 int main(int argc, char *argv[])
 {
     int                test = argc > 1 ? atoi(argv[1]) : 0;
-    int             verbose = argc > 2;
-    int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;      // silence unused variable warnings
+    (void)veryVeryVerbose;  // silence unused variable warnings
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
@@ -781,7 +791,7 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING 'releaseRef' and 'releaseWeakRef'"
                             "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
@@ -856,30 +866,28 @@ int main(int argc, char *argv[])
         //   void disposeObject();
         //
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting disposeObject"
-                            "\n---------------------\n");
+        if (verbose) printf("\nTESTING 'disposeObject'"
+                            "\n=======================\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
             int numDeletes = 0;
             Obj* xPtr = new(ta) Obj(&ta, &numDeletes);
-            Obj& x = *xPtr;
-            Obj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(0 == numDeletes);
 
-            x.disposeObject();
+            xPtr->disposeObject();
             ASSERT(1 == numDeletes);
 
-            x.disposeRep();
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING CONSTRUCTOR
+        // TESTING CONSTRUCTORS
         //
         // Concerns:
         //   All constructor is able to initialize the object correctly.
@@ -890,23 +898,23 @@ int main(int argc, char *argv[])
         //   the representation is initialized using the arguments supplied.
         //
         // Testing:
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a1);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a2);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a3);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a4);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a5);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a6);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a7);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a8);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a9);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a10);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a11);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a12);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a13);
-        //   bslma::SharedPtrInplaceRep(bslma::Allocator *allocator, ...a14);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a1);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a2);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a3);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a4);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a5);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a6);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a7);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a8);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a9);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a10);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a11);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a12);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a13);
+        //   SharedPtrInplaceRep(bslma::Allocator *allocator, ...a14);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting constructor\n"
-                            "\n===================\n");
+        if (verbose) printf("\nTESTING CONSTRUCTORS"
+                            "\n====================\n");
 
         static const MyTestArg1 V1(1);
         static const MyTestArg2 V2(20);
@@ -931,12 +939,10 @@ int main(int argc, char *argv[])
         {
             static const MyInplaceTestObject EXP(V1);
             TCObj* xPtr = new(ta) TCObj(&ta, V1);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -948,12 +954,10 @@ int main(int argc, char *argv[])
         {
             static const MyInplaceTestObject EXP(V1, V2);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -965,12 +969,10 @@ int main(int argc, char *argv[])
         {
             static const MyInplaceTestObject EXP(V1, V2, V3);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -982,12 +984,10 @@ int main(int argc, char *argv[])
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -999,12 +999,10 @@ int main(int argc, char *argv[])
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1016,12 +1014,10 @@ int main(int argc, char *argv[])
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1033,12 +1029,10 @@ int main(int argc, char *argv[])
         {
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1051,12 +1045,10 @@ int main(int argc, char *argv[])
             static const MyInplaceTestObject EXP(V1, V2, V3, V4, V5, V6, V7,
                                                                            V8);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1070,12 +1062,10 @@ int main(int argc, char *argv[])
                                                                        V8, V9);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
                                                                            V9);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1089,12 +1079,10 @@ int main(int argc, char *argv[])
                                                                   V8, V9, V10);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
                                                                       V9, V10);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1108,12 +1096,10 @@ int main(int argc, char *argv[])
                                                              V8, V9, V10, V11);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
                                                                  V9, V10, V11);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1127,12 +1113,10 @@ int main(int argc, char *argv[])
                                                         V8, V9, V10, V11, V12);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
                                                             V9, V10, V11, V12);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1146,12 +1130,10 @@ int main(int argc, char *argv[])
                                                    V8, V9, V10, V11, V12, V13);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
                                                        V9, V10, V11, V12, V13);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
 
@@ -1165,15 +1147,12 @@ int main(int argc, char *argv[])
                                               V8, V9, V10, V11, V12, V13, V14);
             TCObj* xPtr = new(ta) TCObj(&ta, V1, V2, V3, V4, V5, V6, V7, V8,
                                                   V9, V10, V11, V12, V13, V14);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            x.disposeRep();
+            ASSERT(EXP == *(xPtr->ptr()));
+            xPtr->disposeRep();
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
-
 
       } break;
       case 2: {
@@ -1194,8 +1173,8 @@ int main(int argc, char *argv[])
         //   void *originalPtr() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Constructor"
-                            "\n-------------------\n");
+        if (verbose) printf("\nTESTING BASIC CONSTRUCTOR"
+                            "\n=========================\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -1206,16 +1185,14 @@ int main(int argc, char *argv[])
             // private.
 
             TCObj* xPtr = new(ta) TCObj(&ta);
-            TCObj& x = *xPtr;
-            TCObj const& X = *xPtr;
 
             ASSERT(++numAllocations == ta.numAllocations());
-            ASSERT(EXP == *(x.ptr()));
-            ASSERT(x.originalPtr() == static_cast<void*>(x.ptr()));
+            ASSERT(EXP == *(xPtr->ptr()));
+            ASSERT(xPtr->originalPtr() == static_cast<void*>(xPtr->ptr()));
 
             // Manually deallocate the representation using 'disposeRep'.
 
-            x.disposeRep();
+            xPtr->disposeRep();
 
             ASSERT(++numDeallocations == ta.numDeallocations());
         }
@@ -1225,11 +1202,14 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
-        // Testing:
+        // Concerns:
         //   This test exercises basic functionality but tests nothing.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST\n"
+        if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
       } break;

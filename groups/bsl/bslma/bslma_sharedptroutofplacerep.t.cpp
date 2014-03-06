@@ -17,6 +17,11 @@
 #endif
 #endif
 
+#pragma bdeverify -FD01  // Test-machinery lacks a contract
+#pragma bdeverify -TP06  // Test-case indexing thing
+#pragma bdeverify -TP09  // Test-case indexing thing
+#pragma bdeverify -TP18  // Test-case banners are ALL-CAPS
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -28,7 +33,7 @@ using namespace BloombergLP;
 // the shared pointer representation object.
 //-----------------------------------------------------------------------------
 // bslma::SharedPtrRep
-//------------------------
+//--------------------
 // [ 2] bslma::SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_ALLOCATOR_PTR>);
 // [ 3] bslma::SharedPtrOutofplaceRep(TYPE *ptr, const...BCEMA_FACTORY_PTR>);
 // [ 3] bslma::SharedPtrOutofplaceRep(TYPE *ptr, ...BCEMA_FUNCTOR_WITH_ALLOC>);
@@ -44,12 +49,15 @@ using namespace BloombergLP;
 // [ 5] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -60,8 +68,6 @@ void aSsErT(bool b, const char *s, int i)
 }
 
 }  // close unnamed namespace
-
-//# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
@@ -122,7 +128,7 @@ typedef void (*DeleteFunction)(MyTestObject *);
                          // ==================
                          // class MyTestObject
                          // ==================
-class MyTestObject{
+class MyTestObject {
     // This class provides an implementation for 'bslma::SharedPtrRep' so that
     // it can be initialized and tested.
 
@@ -373,7 +379,7 @@ int main(int argc, char *argv[])
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
+    bool veryVeryVeryVerbose = argc > 5;
 
     (void)veryVerbose;
     (void)veryVeryVerbose;
@@ -618,7 +624,7 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING 'releaseRef' and 'releaseWeakRef'"
                             "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
@@ -714,6 +720,10 @@ int main(int argc, char *argv[])
         //   void *originalPtr() const;
         //   TYPE *ptr() const;
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING BASIC CONSTRUCTOR"
+                            "\n=========================\n");
+
         if (verbose) printf("\nTesting 'disposeObject' and 'disposeRep'"
                             "\n========================================\n");
 
@@ -740,11 +750,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
-        // Testing:
+        // Concerns:
         //   This test exercises basic functionality but tests nothing.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
+
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
