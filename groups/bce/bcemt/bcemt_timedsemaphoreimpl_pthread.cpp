@@ -188,7 +188,7 @@ int bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::timedWait(
     while (0 != decrementIfPositive(&d_resources)) {
         int status = timedWaitImp(timeout);
         if (0 != status) {
-            BSLS_ASSERT(ETIMEDOUT == status);    // timeout and not an error
+            BSLS_ASSERT(-1 == status);    // timeout and not an error
             ret = 1;
             break;
         }

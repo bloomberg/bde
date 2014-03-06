@@ -148,9 +148,11 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore> {
 
     int timedWait(const bdet_TimeInterval& timeout);
         // Block until the count of this semaphore is a positive value, or
-        // until the specified 'timeout' (expressed as the !ABSOLUTE! time from
-        // 00:00:00 UTC, January 1, 1970) expires.  Atomically decrement the
-        // count and return 0 on success, and a non-zero value otherwise.
+        // until the specified 'timeout' expires.  The 'timeout' value should
+        // be obtained from the clock type this object was constructed with.
+        // If the 'timeout' did not expire before the count attained a positive
+        // value, atomically decrement the count and return 0; otherwise,
+        // return a non-zero value with no effect on the count.
 
     int tryWait();
         // Decrement the count of this semaphore if it is positive and return
