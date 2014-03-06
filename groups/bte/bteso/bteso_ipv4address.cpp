@@ -75,7 +75,7 @@ int bteso_IPv4Address::machineIndependentInetPtonIPv4(int        *addr,
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     *addr = inet_addr(address);
-    if (addr != reinterpret_cast<int *>(-1)) {
+    if (-1 != *addr) {
         return 1;                                                     // RETURN
     }
     else {
@@ -102,7 +102,7 @@ int bteso_IPv4Address::machineIndependentInetPtonIPv4(int        *addr,
 
 bteso_IPv4Address::bteso_IPv4Address(const char *address,
                                      int         portNumber)
-: d_portNumber(portNumber)
+: d_portNumber(static_cast<unsigned short>(portNumber))
 {
     BSLS_ASSERT(address);
     BSLS_ASSERT_SAFE(0 == isValid(address));
