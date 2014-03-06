@@ -133,16 +133,16 @@ bsls::Types::Int64 getFrequency()
     // We can use relaxed atomic operations throughout, it only matters that
     // g_frequency is updated atomically.
 
-    if (0 == g_frequency.loadRelaxed()) {
+    if (0 == bsls::AtomicOperations::getInt64Relaxed(&g_frequency)) {
         LARGE_INTEGER freq;
 
         BOOL rc = QueryPerformanceFrequency(&freq);
         (void) rc; BSLS_ASSERT(rc);
 
-        g_frequency.storeRelaxed(freq.QuadPart);
+        bsls::AtomicOperations::setInt64Relaxed(&g_frequency, freq.QuadPart);
     }
 
-    return g_frequency.loadRelaxed();
+    return bsls::AtomicOperations::getInt64Relaxed(&g_frequency);
 }
 
 bdet_TimeInterval bdetu_SystemTime::nowRealtimeClock()
