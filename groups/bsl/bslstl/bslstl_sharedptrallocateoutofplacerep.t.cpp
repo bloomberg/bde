@@ -31,10 +31,11 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // bslstl::SharedPtrAllocateOutofplaceRep
 //---------------------------------------
-// [ 2] SharedPtrAllocateOutofplaceRep(TYPE *p, const DEL& d, constALLOC& a>);
-// [ 2] SharedPtrAllocateOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(...);
+// [ 2] SharedPtrAllocateOutofplaceRep(TYPE *, const DEL&, const ALLOC&);
+// [ 2] SharedPtrAllocateOutofplaceRep<T,D,A> *makeOutofplaceRep(T*,D,A);
 // [ 2] void disposeRep();
-// [ 3] void disposeObject();
+// [ 2] void disposeObject();
+// [  ] void *getDeleter(const std::type_info& type);
 // [ 2] void *originalPtr() const;
 // [ 2] TYPE *ptr() const;
 //
@@ -43,12 +44,15 @@ using namespace BloombergLP;
 // [ 5] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -59,8 +63,6 @@ void aSsErT(bool b, const char *s, int i)
 }
 
 }  // close unnamed namespace
-
-//# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
@@ -170,6 +172,10 @@ public:
 };
 
 
+                         // ---------------------
+                         // class StatefulDeleter
+                         // ---------------------
+
 // CREATORS
 StatefulDeleter::StatefulDeleter()
 : d_count()
@@ -189,23 +195,30 @@ int StatefulDeleter::count() const
 {
     return d_count;
 }
+
                          // ==================
                          // class MyTestObject
                          // ==================
-class MyTestObject{
+class MyTestObject {
     // This class provides an implementation for 'bslma::SharedPtrRep' so that
     // it can be initialized and tested.
 
     // DATA
-    int        d_data;
-    static int d_deleteCounter;
+    int        d_data;  // Non-static data member that serves no clear purpose
+    static int d_deleteCounter;  // Static count of destroyed objects
+
   public:
     // CREATORS
     MyTestObject();
+        // Create a 'MyTestObject' having '0 == d_data'.
+
     ~MyTestObject();
+        // Destroy this object and increment the static count of destroyed
+        // objects.
 
     // ACCESSORS
     static int getNumDeletes();
+        // Return the number of 'MyTestObject's that have beem destroyed.
 };
 
                          // ------------------
@@ -467,6 +480,9 @@ class StdAllocator {
         // function 'malloc', and return the address of that block.
 
     void deallocate(TYPE *ptr, size_t numObjects);
+        // Return to the system the memory occupied by the specified
+        // 'numObjects' of (template parameter) 'TYPE' starting at the address
+        // given by the specified 'ptr', using the C function 'free'.
 };
 
                               // ------------------
@@ -544,7 +560,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
-    case 5: {
+    case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -577,170 +593,6 @@ int main(int argc, char *argv[])
         ASSERT(2 == ta.numDeallocations());
       } break;
 #endif  // 0
-#if 0   // we no longer have these constructors, primary ctor tested in case 2.
-    case 4: {
-        // --------------------------------------------------------------------
-        // TESTING CONSTRUCTORS ACCESSOR
-        //
-        // Concerns:
-        //   Object is properly initialized, and can be properly destructed
-        //   when the last reference is released.
-        //
-        // Plan:
-        //   Construct bslstl::SharedPtrAllocateOutofplaceRep using each of the
-        //   constructor and call releaseRef() to remove the last reference and
-        //   check the that destructor for the object is called.
-        //
-        // Testing:
-        //   bslstl::SharedPtrAllocateOutofplaceRep(
-        //                   TYPE             *ptr,
-        //                   const DELETER&    deleter,
-        //                   bslma::Allocator *basicAllocator,
-        //                   bslmf::MetaInt<DeleterType::BCEMA_ALLOCATOR_PTR>);
-        //   bslstl::SharedPtrAllocateOutofplaceRep(
-        //                     TYPE             *ptr,
-        //                     const DELETER&    deleter,
-        //                     bslma::Allocator *basicAllocator,
-        //                     bslmf::MetaInt<DeleterType::BCEMA_FACTORY_PTR>);
-        //   bslstl::SharedPtrAllocateOutofplaceRep(
-        //              TYPE             *ptr,
-        //              const DELETER&    deleter,
-        //              bslma::Allocator *basicAllocator,
-        //              bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITH_ALLOC>);
-        //   bslstl::SharedPtrAllocateOutofplaceRep(
-        //           TYPE             *ptr,
-        //           const DELETER&    deleter,
-        //           bslma::Allocator *basicAllocator,
-        //           bslmf::MetaInt<DeleterType::BCEMA_FUNCTOR_WITHOUT_ALLOC>);
-        //   bslstl::SharedPtrAllocateOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(
-        //                                TYPE             *ptr,
-        //                                const DELETER&    deleter,
-        //                                bslma::Allocator *basicAllocator=0);
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTesting Constructors and Destructor"
-                            "\n===================================\n");
-
-        if (verbose) printf("\nTesting bslma::AllocatorDeleter"
-                            "\n-------------------------------\n");
-
-        {
-            TObj *t = new(ta) TObj();
-            Obj *xPtr = Obj::makeOutofplaceRep(t, &ta, &ta);
-            Obj& x = *xPtr;
-            const Obj& X = x;
-
-            ASSERT(1 == X.numReferences());
-            ASSERT(0 == X.numWeakReferences());
-            ASSERT(true == X.hasUniqueOwner());
-
-            x.releaseRef();
-            ASSERT(1 == TObj::getNumDeletes());
-        }
-
-        if (verbose) printf("\nTesting Factory Deleter"
-                            "\n-----------------------\n");
-        {
-            enum { DELETER_TYPE = bslstl::
-                           SharedPtrAllocateOutofplaceRep_DeleterDiscriminator<
-                                                        MyTestFactory *>::VALUE
-            };
-
-            MyTestFactory *factory = new(ta) MyTestFactory();
-
-
-            typedef bslstl::SharedPtrAllocateOutofplaceRep<MyTestObject,
-                                                  MyTestFactory *> TestRep;
-            TObj     *t    = factory->createObject();
-            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, factory, &ta);
-            TestRep&  x    = *xPtr;   const TestRep& X = x;
-
-            ASSERT(1 == X.numReferences());
-            ASSERT(0 == X.numWeakReferences());
-            ASSERT(true == X.hasUniqueOwner());
-
-            x.releaseRef();
-            ASSERT(2 == TObj::getNumDeletes());
-            ta.deleteObject(factory);
-        }
-
-        if (verbose) printf("\nTesting Function Deleter"
-                            "\n------------------------\n");
-        {
-            enum { DELETER_TYPE =
-                    bslstl::SharedPtrAllocateOutofplaceRep_DeleterDiscriminator<
-                                                        DeleteFunction> ::VALUE
-            };
-
-            typedef
-                 bslstl::SharedPtrAllocateOutofplaceRep<MyTestObject,
-                                                       DeleteFunction> TestRep;
-
-            TObj *t = new TObj();
-            TestRep *xPtr = TestRep::makeOutofplaceRep(t,
-                                                       myDeleteFunction,
-                                                       &ta);
-            TestRep&  x    = *xPtr;   const TestRep& X = x;
-
-            ASSERT(1 == X.numReferences());
-            ASSERT(0 == X.numWeakReferences());
-            ASSERT(true == X.hasUniqueOwner());
-
-            x.acquireWeakRef();
-            x.releaseRef();
-            ASSERT(3 == TObj::getNumDeletes());
-            x.releaseWeakRef();
-        }
-
-        if (verbose) printf("\nTesting Functor Deleter Without Alloc"
-                            "\n-------------------------------------\n");
-        {
-            enum { DELETER_TYPE =
-                    bslstl::SharedPtrAllocateOutofplaceRep_DeleterDiscriminator<
-                                                        MyDeleteFunctor>::VALUE
-            };
-
-            typedef bslstl::SharedPtrAllocateOutofplaceRep<MyTestObject,
-                                                  MyDeleteFunctor> TestRep;
-            MyDeleteFunctor deleteFunctor;
-            TObj     *t = new TObj();
-            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, deleteFunctor, &ta);
-            TestRep&  x    = *xPtr;   const TestRep& X = x;
-
-            ASSERT(1 == X.numReferences());
-            ASSERT(0 == X.numWeakReferences());
-            ASSERT(true == X.hasUniqueOwner());
-
-            x.releaseRef();
-            ASSERT(4 == TObj::getNumDeletes());
-        }
-
-        if (verbose) printf("\nTesting Functor Deleter With Alloc"
-                            "\n----------------------------------\n");
-        {
-            enum { DELETER_TYPE =
-                   bslstl::SharedPtrAllocateOutofplaceRep_DeleterDiscriminator<
-                                                     MyAllocTestDeleter>::VALUE
-            };
-
-            TObj* t = new(ta) TObj();
-            MyAllocTestDeleter deleteFunctor(&ta, &ta);
-
-            typedef bslstl::SharedPtrAllocateOutofplaceRep<MyTestObject,
-                                                  MyAllocTestDeleter>  TestRep;
-
-            TestRep  *xPtr = TestRep::makeOutofplaceRep(t, deleteFunctor, &ta);
-            TestRep&  x    = *xPtr;   const TestRep& X = x;
-
-            ASSERT(1 == X.numReferences());
-            ASSERT(0 == X.numWeakReferences());
-            ASSERT(true == X.hasUniqueOwner());
-
-            x.releaseRef();
-            ASSERT(5 == TObj::getNumDeletes());
-        }
-      } break;
-#endif  // 0
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 'releaseRef' and 'releaseWeakRef'
@@ -769,7 +621,7 @@ int main(int argc, char *argv[])
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'releaseRef' and 'releaseWeakRef'"
+        if (verbose) printf("\nTESTING 'releaseRef' and 'releaseWeakRef'"
                             "\n=========================================\n");
 
         numAllocations = ta.numAllocations();
@@ -869,7 +721,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING BASIC CONSTRUCTOR
+        // TESTING BASIC OPERATIONS
         //
         // Concerns:
         //   Object is properly initialized, and can be properly destructed
@@ -882,15 +734,15 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   SharedPtrAllocateOutofplaceRep(TYPE *, const DEL&, const ALLOC&);
-        //   SharedPtrAllocateOutofplaceRep *makeOutofplaceRep(T *, DEL, AL);
+        //   SharedPtrAllocateOutofplaceRep<T,D,A> *makeOutofplaceRep(T*,D,A);
         //   void disposeObject();
         //   void disposeRep();
         //   void *originalPtr() const;
         //   TYPE *ptr() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'disposeObject' and 'disposeRep'"
-                            "\n========================================\n");
+        if (verbose) printf("\nTESTING BASIC OPERATIONS"
+                            "\n========================\n");
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -930,8 +782,11 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
-        // Testing:
+        // Concerns:
         //   This test exercises basic functionality but tests nothing.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

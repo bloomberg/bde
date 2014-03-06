@@ -10,11 +10,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
 //
 //@CLASSES:
-//  bslstl::SharedPtrAllocateInplaceRep: in-place shared ptr implementation
+//  bslstl::SharedPtrAllocateInplaceRep: in-place shared_ptr implementation
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO: bslma_sharedptr, bslma_sharedptrrep, bslma_SharedPtrAllocateInplaceRep
+//@SEE_ALSO: bslma_sharedptrrep, bslma_sharedptrinplacerep, bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides ...
 
@@ -74,16 +74,13 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
     // DATA
     ReboundAllocator d_allocator; // copy of the allocator for this object
 
-    bsls::ObjectBuffer<TYPE> d_instance;
-                                  // beginning of the in-place buffer
-                                  // Note that this must be last in this layout
-                                  // to allow for the possibility of creating
-                                  // in-place uninitialized buffer, where it is
-                                  // possible to access memory beyond the
-                                  // 'd_instance' footprint (refer to
-                                  // 'bsl::share_ptr::
-                                  // createInplaceUninitializedBuffer' for
-                                  // sample usage)
+    bsls::ObjectBuffer<TYPE> d_instance;  // beginning of the in-place buffer
+                        // Note that this must be last in this layout to allow
+                        // for the possibility of creating in-place
+                        // uninitialized buffer, where it is possible to access
+                        // memory beyond the 'd_instance' footprint (refer to
+                        // 'bsl::shared_ptr::createInplaceUninitializedBuffer'
+                        // for sample usage)
 
     // PRIVATE CREATORS
     explicit SharedPtrAllocateInplaceRep(

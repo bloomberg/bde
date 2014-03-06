@@ -33,7 +33,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 
 // ============================================================================
-//                                   TEST PLAN (Additional functors)
+//                        TEST PLAN (Additional functors)
 //
 // Most of these classes have trivial contracts that are almost too trivial to
 // validate, such as a function-call operator to "do nothing".  The essence of
@@ -41,9 +41,9 @@ using namespace BloombergLP;
 // functor that than can be invoked with the expected arguments, and produce
 // the expected observable result (if any).  In the trickier case of
 // 'SharedPtrNilDeleter', it is not reasonable to check that the entire world
-// has not changed, but it would be good to confirm that the object itself
-// has not altered, nor the memory on the other end of the passed pointer.
-// The preferred way to do this would be to store the test object in a write-
+// has not changed, but it would be good to confirm that the object itself has
+// not altered, nor the memory on the other end of the passed pointer.  The
+// preferred way to do this would be to store the test object in a write-
 // protected page of memory, and similarly invoke with a pointer to another
 // write-protected page of memory.  Unfortunately, we do not have easy access
 // to such utilities at this point in our levelized library hierarchy, so will
@@ -56,15 +56,17 @@ using namespace BloombergLP;
 // [ 1] bool operator()(const weak_ptr<TYPE>&,   const shared_ptr<TYPE>&) const
 //
 // bsl::owner_less<weak_ptr<TYPE> >
-//-----------------------------------
+//---------------------------------
 // [ 1] bool operator()(const shared_ptr<TYPE>&, const shared_ptr<TYPE>&) const
 // [ 1] bool operator()(const weak_ptr<TYPE>&,   const shared_ptr<TYPE>&) const
 // [ 1] bool operator()(const weak_ptr<TYPE>&,   const weak_ptr<TYPE>&)   const
 
 //=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-int testStatus = 0;
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
+static int testStatus = 0;
 
 namespace {
 
@@ -80,7 +82,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -140,8 +142,8 @@ class MyTestObject {
     virtual ~MyTestObject();
 
     // ACCESSORS
-    volatile bsls::Types::Int64 *deleteCounter() const;
     volatile bsls::Types::Int64 *copyCounter() const;
+    volatile bsls::Types::Int64 *deleteCounter() const;
 };
 
                         // ======================
@@ -187,11 +189,11 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
         // Destroy this test shared ptr rep object.
 
     // MANIPULATORS
-    virtual void disposeRep();
-        // Release this representation.
-
     virtual void disposeObject();
         // Release the value stored by this representation.
+
+    virtual void disposeRep();
+        // Release this representation.
 
     virtual void *getDeleter(const std::type_info&) { return 0; }
         // Return a pointer to the deleter stored by the derived representation
@@ -202,14 +204,14 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
     virtual void *originalPtr() const;
         // Return the original pointer stored by this representation.
 
-    TYPE *ptr() const;
-        // Return the data pointer stored by this representation.
+    int disposeObjectCount() const;
+        // Return the number of time 'releaseValue' was called.
 
     int disposeRepCount() const;
         // Return the number of time 'release' was called.
 
-    int disposeObjectCount() const;
-        // Return the number of time 'releaseValue' was called.
+    TYPE *ptr() const;
+        // Return the data pointer stored by this representation.
 };
 
 // ============================================================================
@@ -241,14 +243,14 @@ MyTestObject::~MyTestObject()
 }
 
 // ACCESSORS
-volatile bsls::Types::Int64* MyTestObject::deleteCounter() const
-{
-    return d_deleteCounter_p;
-}
-
 volatile bsls::Types::Int64* MyTestObject::copyCounter() const
 {
     return d_copyCounter_p;
+}
+
+volatile bsls::Types::Int64* MyTestObject::deleteCounter() const
+{
+    return d_deleteCounter_p;
 }
 
                         // ----------------------
@@ -291,32 +293,25 @@ TestSharedPtrRep<TYPE>::~TestSharedPtrRep()
 // MANIPULATORS
 template <class TYPE>
 inline
-void TestSharedPtrRep<TYPE>::disposeRep()
-{
-    ++d_disposeRepCount;
-}
-
-template <class TYPE>
-inline
 void TestSharedPtrRep<TYPE>::disposeObject()
 {
     ++d_disposeObjectCount;
     d_allocator_p->deleteObject(d_dataPtr_p);
 }
 
+template <class TYPE>
+inline
+void TestSharedPtrRep<TYPE>::disposeRep()
+{
+    ++d_disposeRepCount;
+}
+
 // ACCESSORS
 template <class TYPE>
 inline
-void *TestSharedPtrRep<TYPE>::originalPtr() const
+int TestSharedPtrRep<TYPE>::disposeObjectCount() const
 {
-    return (void *) d_dataPtr_p;
-}
-
-template <class TYPE>
-inline
-TYPE *TestSharedPtrRep<TYPE>::ptr() const
-{
-    return d_dataPtr_p;
+    return d_disposeObjectCount;
 }
 
 template <class TYPE>
@@ -328,9 +323,16 @@ int TestSharedPtrRep<TYPE>::disposeRepCount() const
 
 template <class TYPE>
 inline
-int TestSharedPtrRep<TYPE>::disposeObjectCount() const
+void *TestSharedPtrRep<TYPE>::originalPtr() const
 {
-    return d_disposeObjectCount;
+    return static_cast<void *>(d_dataPtr_p);
+}
+
+template <class TYPE>
+inline
+TYPE *TestSharedPtrRep<TYPE>::ptr() const
+{
+    return d_dataPtr_p;
 }
 
 //=============================================================================

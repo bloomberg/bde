@@ -81,8 +81,8 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
         // is ordered before the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified
-        // 'b' under the total ordering supplied by 
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'b'
+        // under the total ordering supplied by
         // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
         // otherwise.
 };
@@ -122,15 +122,15 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
         // Return 'true' if the address of the
         // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'a'
         // is ordered before the address of the
-        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified
-        // 'b' under the total ordering supplied by 
+        // 'BloombergLP::bslma::SharedPtrRep' object used by the specified 'b'
+        // under the total ordering supplied by
         // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
         // otherwise.
 };
 
 
 // ============================================================================
-//                      INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//              INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
 // ============================================================================
 
               // --------------------------------------------

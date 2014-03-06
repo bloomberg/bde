@@ -10,11 +10,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
 //
 //@CLASSES:
-//  bslstl::SharedPtrAllocateOutofplaceRep: out-of-place shared ptr implementation
+//  bslstl::SharedPtrAllocateOutofplaceRep: out-of-place shared_ptr imp.
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
-//@SEE_ALSO: bslma_sharedptr, bslma_sharedptrrep, bslma_sharedptrinplacerep
+//@SEE_ALSO: bslma_sharedptrrep, bslma_sharedptroutofplacerep, bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides a concrete implementation of
 // 'bslma::SharedPtrRep' for managing objects of the parameterized 'TYPE' that
@@ -154,8 +154,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //                                           bslma::Allocator *basicAllocator)
 //  {
 //      d_ptr_p = ptr;
-//      d_rep_p =
-//           bslma::SharedPtrAllocateOutofplaceRep<bdet_Datetime, bslma::Allocator *>::
+//      d_rep_p = bslma::SharedPtrAllocateOutofplaceRep<bdet_Datetime,
+//                                                      bslma::Allocator *>::
 //                      makeOutofplaceRep(ptr, basicAllocator, basicAllocator);
 //  }
 //
@@ -228,8 +228,7 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
     // on the pointer to the shared object.
 
     // DATA
-    TYPE      *d_ptr_p;     // pointer to out-of-place instance
-                            // (held, not owned)
+    TYPE      *d_ptr_p;     // pointer to out-of-place object (held, not owned)
     DELETER    d_deleter;   // deleter for this out-of-place instance
     ALLOCATOR  d_allocator; // copy of the allocator for this instance
 
@@ -243,12 +242,12 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
     SharedPtrAllocateOutofplaceRep(TYPE             *ptr,
                                    const DELETER&    deleter,
                                    const ALLOCATOR&  basicAllocator);
-        // Create a 'SharedPtrAllocateOutofplaceRep' that manages the lifetime of the
-        // specified 'ptr', using the specified 'deleter' to destroy 'ptr', and
-        // using the specified 'basicAllocator' to supply memory.  Note that
-        // 'basicAllocator' will be used to destroy this representation object,
-        // but not necessarily to destroy 'ptr'.  Also note that
-        // 'SharedPtrAllocateOutofplaceRep' should be created using
+        // Create a 'SharedPtrAllocateOutofplaceRep' that manages the lifetime
+        // of the specified 'ptr', using the specified 'deleter' to destroy
+        // 'ptr', and using the specified 'basicAllocator' to supply memory.
+        // Note that 'basicAllocator' will be used to destroy this
+        // representation object, but not necessarily to destroy 'ptr'.  Also
+        // note that 'SharedPtrAllocateOutofplaceRep' should be created using
         // 'makeOutofplaceRep', which will call the appropriate private
         // constructor depending on the parameterized 'DELETER' type.
 
@@ -265,13 +264,13 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
                                              TYPE             *ptr,
                                              const DELETER&    deleter,
                                              const ALLOCATOR&  basicAllocator);
-        // Return the address of a newly created 'SharedPtrAllocateOutofplaceRep'
-        // object that manages the lifetime of the specified 'ptr', using the
-        // specified 'deleter' to destroy 'ptr'.  Optionally, specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.  Note that the
-        // parameterized 'DELETER' type will be used to deallocate the memory
-        // pointed to by 'ptr'.
+        // Return the address of a newly created
+        // 'SharedPtrAllocateOutofplaceRep' object that manages the lifetime of
+        // the specified 'ptr', using the specified 'deleter' to destroy 'ptr'.
+        // Optionally, specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  Note that the parameterized 'DELETER' type will be used to
+        // deallocate the memory pointed to by 'ptr'.
 
     // MANIPULATORS
     virtual void disposeObject();
@@ -306,21 +305,21 @@ class SharedPtrAllocateOutofplaceRep : public BloombergLP::bslma::SharedPtrRep
 };
 
 
-               // ===============================================
-               // struct SharedPtrAllocateOutofplaceRep_InitGuard
-               // ===============================================
+               // =================================================
+               // struct SharedPtrAllocateOutofplaceRep_InitProctor
+               // =================================================
 
 template <class TYPE, class DELETER>
-struct SharedPtrAllocateOutofplaceRep_InitGuard {
-    // This guard is used for out-of-place shared pointer instantiations.
-    // Generally, a guard is created prior to constructing a
-    // 'SharedPtrAllocateOutofplaceRep' and released after successful construction.  In
-    // the event that an exception is thrown during construction of the
-    // representation, the guard will delete the provided pointer using the
-    // provided deleter.  Note that the provided deleter is held by reference
-    // and must remain valid for the lifetime of the guard.  If the guard is
-    // not released before it's destruction, a copy of the deleter is
-    // instantiated to delete the pointer (in case 'operator()' is
+struct SharedPtrAllocateOutofplaceRep_InitProctor {
+    // This proctor is used for out-of-place shared pointer instantiations.
+    // Generally, a proctor is created prior to constructing a
+    // 'SharedPtrAllocateOutofplaceRep' and released after successful
+    // construction.  In the event that an exception is thrown during
+    // construction of the representation, the proctor will delete the provided
+    // pointer using the provided deleter.  Note that the provided deleter is
+    // held by reference and must remain valid for the lifetime of the proctor.
+    // If the proctor is not released before it's destruction, a copy of the
+    // deleter is instantiated to delete the pointer (in case 'operator()' is
     // non-'const').  Also note that if the deleter throws during
     // copy-construction, the provided pointer will not be destroyed.
 
@@ -332,12 +331,12 @@ struct SharedPtrAllocateOutofplaceRep_InitGuard {
 
   public:
     // CREATORS
-    SharedPtrAllocateOutofplaceRep_InitGuard(TYPE           *ptr,
+    SharedPtrAllocateOutofplaceRep_InitProctor(TYPE           *ptr,
                                              const DELETER&  deleter);
         // Create a guard referring to the specified 'ptr' and using the
         // specified 'deleter' to destroy 'ptr' when the guard is destroyed.
 
-    ~SharedPtrAllocateOutofplaceRep_InitGuard();
+    ~SharedPtrAllocateOutofplaceRep_InitProctor();
         // Destroy this guard and the object (if any) referred to by this
         // guard.
 
@@ -362,7 +361,8 @@ SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::makeOutofplaceRep(
                                               const DELETER&    deleter,
                                               const ALLOCATOR&  basicAllocator)
 {
-    SharedPtrAllocateOutofplaceRep_InitGuard<TYPE, DELETER> guard(ptr, deleter);
+    SharedPtrAllocateOutofplaceRep_InitProctor<TYPE, DELETER> proctor(ptr,
+                                                                      deleter);
 
     typedef
      typename ALLOCATOR::template rebind<SharedPtrAllocateOutofplaceRep>::other
@@ -372,7 +372,7 @@ SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::makeOutofplaceRep(
     SharedPtrAllocateOutofplaceRep *rep = alloc.allocate(1);
     new (rep) SharedPtrAllocateOutofplaceRep(ptr, deleter, basicAllocator);
 
-    guard.release();
+    proctor.release();
 
     return rep;
 }
@@ -461,14 +461,14 @@ TYPE *SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::ptr() const
 
 
                // -----------------------------------------------
-               // struct SharedPtrAllocateOutofplaceRep_InitGuard
+               // struct SharedPtrAllocateOutofplaceRep_InitProctor
                // -----------------------------------------------
 
 // CREATORS
 template <class TYPE, class DELETER>
 inline
-SharedPtrAllocateOutofplaceRep_InitGuard<TYPE, DELETER>::
-SharedPtrAllocateOutofplaceRep_InitGuard(TYPE           *ptr,
+SharedPtrAllocateOutofplaceRep_InitProctor<TYPE, DELETER>::
+SharedPtrAllocateOutofplaceRep_InitProctor(TYPE           *ptr,
                                          const DELETER&  deleter)
 : d_ptr_p(ptr)
 , d_deleter(deleter)
@@ -477,8 +477,8 @@ SharedPtrAllocateOutofplaceRep_InitGuard(TYPE           *ptr,
 
 template <class TYPE, class DELETER>
 inline
-SharedPtrAllocateOutofplaceRep_InitGuard<TYPE, DELETER>::
-~SharedPtrAllocateOutofplaceRep_InitGuard()
+SharedPtrAllocateOutofplaceRep_InitProctor<TYPE, DELETER>::
+~SharedPtrAllocateOutofplaceRep_InitProctor()
 {
     // The guard must destroy 'ptr' to avoid a leak, but is not subject to the
     // reference-counting null pointers principle, where the deleter is called
@@ -492,7 +492,7 @@ SharedPtrAllocateOutofplaceRep_InitGuard<TYPE, DELETER>::
 // MANIPULATORS
 template <class TYPE, class DELETER>
 inline
-void SharedPtrAllocateOutofplaceRep_InitGuard<TYPE, DELETER>::release()
+void SharedPtrAllocateOutofplaceRep_InitProctor<TYPE, DELETER>::release()
 {
     d_ptr_p = 0;
 }
