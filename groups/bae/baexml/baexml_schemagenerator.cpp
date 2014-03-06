@@ -242,7 +242,6 @@ void getDefaultValue(bsl::string *defaultValue, const bdem_FieldDef& field)
         }
       } break;
       case bdem_ElemType::BDEM_INT64: {
-        typedef bsls::Types::Int64 Int64;
         baexml_TypesPrintUtil::print(stream,
                                      field.defaultValue().theInt64(),
                                      formattingMode);
