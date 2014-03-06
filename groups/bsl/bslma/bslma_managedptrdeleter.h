@@ -126,12 +126,11 @@ class ManagedPtrDeleter {
         // Reset this 'ManagedPtrDeleter' to its uninitialized state.
 
     void set(void *object, void *factory, Deleter deleter);
-        // Set this 'ManagedPtrDeleter' to refer to the object and factory
-        // instance located at the specified 'object' and 'factory' memory
-        // locations, and to the specified 'deleter'.  The behavior is
-        // undefined unless 'deleter' is either 0, or points to a function
-        // whose behavior is also defined if called once with 'object' and
-        // 'factory' as arguments.
+        // Set this 'ManagedPtrDeleter' to refer to the specified 'object', to
+        // the specified 'factory', and to the specified 'deleter'.  The
+        // behavior is undefined unless 'deleter' is either 0, or points to a
+        // function whose behavior is also defined if called once with 'object'
+        // and 'factory' as arguments.
 
     // ACCESSORS
     void deleteManagedObject() const;

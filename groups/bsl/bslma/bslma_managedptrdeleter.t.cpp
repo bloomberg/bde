@@ -81,9 +81,11 @@ using std::swap;
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 
 //=============================================================================
-//                      STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-int testStatus = 0;
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
+static int testStatus = 0;
 
 namespace {
 
@@ -146,35 +148,37 @@ typedef bslma::ManagedPtrDeleter Obj;
 // ============================================================================
 //                      GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
-template <class T>
+template <class TYPE>
 struct StatelessFactory
 {
-    void destroy(T *object) const;
+    void destroy(TYPE *object) const;
 };
 
-template <class T>
-void StatelessFactory<T>::destroy(T *object) const
-{
-    ASSERT(object);
-    ++*object;
-}
-
-template <class T>
+template <class TYPE>
 class StatefulFactory
 {
-    T d_data;
+    TYPE d_data;
     mutable bool d_empty;
 
   public:
     StatefulFactory() : d_data(), d_empty(true) {}
 
-    T *create();
+    TYPE *create();
 
-    void destroy(T *object) const;
+    void destroy(TYPE *object) const;
 };
 
-template <class T>
-T *StatefulFactory<T>::create()
+
+template <class TYPE>
+void StatelessFactory<TYPE>::destroy(TYPE *object) const
+{
+    ASSERT(object);
+    ++*object;
+}
+
+
+template <class TYPE>
+TYPE *StatefulFactory<TYPE>::create()
 {
     if (!d_empty) { return 0; }                                       // RETURN
 
@@ -182,8 +186,8 @@ T *StatefulFactory<T>::create()
     return &d_data;
 }
 
-template <class T>
-void StatefulFactory<T>::destroy(T *object) const
+template <class TYPE>
+void StatefulFactory<TYPE>::destroy(TYPE *object) const
 {
     ASSERT(object == &d_data);
     d_empty = true;
@@ -192,28 +196,6 @@ void StatefulFactory<T>::destroy(T *object) const
 // ============================================================================
 //                      GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
-
-void destroyWithNoFactory(void * object, void *)
-{
-    ASSERT(object);
-    ++*reinterpret_cast<int *>(object);
-}
-
-void destroyWithStatelessFactory(void * object, void *factory)
-{
-    ASSERT(object);
-    ASSERT(factory);
-    reinterpret_cast<StatelessFactory<int>*>(factory)->destroy(
-                                              reinterpret_cast<int *>(object));
-}
-
-void destroyWithStatefulFactory(void * object, void *factory)
-{
-    ASSERT(object);
-    ASSERT(factory);
-    reinterpret_cast<StatefulFactory<int>*>(factory)->destroy(
-                                              reinterpret_cast<int *>(object));
-}
 
 // 'debugprint' support for 'bsl' types
 
@@ -236,6 +218,29 @@ void debugprint(const ManagedPtrDeleter& obj)
 
 }  // close namespace bslma
 }  // close namespace BloombergLP
+
+
+void destroyWithNoFactory(void * object, void *)
+{
+    ASSERT(object);
+    ++*reinterpret_cast<int *>(object);
+}
+
+void destroyWithStatelessFactory(void * object, void *factory)
+{
+    ASSERT(object);
+    ASSERT(factory);
+    reinterpret_cast<StatelessFactory<int>*>(factory)->destroy(
+                                              reinterpret_cast<int *>(object));
+}
+
+void destroyWithStatefulFactory(void * object, void *factory)
+{
+    ASSERT(object);
+    ASSERT(factory);
+    reinterpret_cast<StatefulFactory<int>*>(factory)->destroy(
+                                              reinterpret_cast<int *>(object));
+}
 
 // ============================================================================
 //                      GLOBAL CONSTANTS USED FOR TESTING
@@ -276,6 +281,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 // ----------------------------------------------------------------------------
 
 BSLMF_ASSERT((bslmf::IsBitwiseMoveable<bslma::ManagedPtrDeleter>::value));
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -464,7 +470,7 @@ int main(int argc, char *argv[])
         //   bslx streaming is not implemented for this type.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBDEX STREAMING (not implemented)"
+        if (verbose) printf("\nBSLX STREAMING (not implemented)"
                             "\n================================\n");
       } break;
       case 9: {
@@ -629,8 +635,8 @@ int main(int argc, char *argv[])
         //   void swap(ManagedPtrDeleter&, ManagedPtrDeleter&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nSWAP FUNCTIONS"
-                            "\n==============\n");
+        if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
+                            "\n==============================\n");
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
 
@@ -1095,8 +1101,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ T_ P(X) }
 
-            // Use untested functionality to help ensure the first row
-            // of the table contains the default-constructed value.
+            // Use untested functionality to help ensure the first row of the
+            // table contains the default-constructed value.
             if (0 == ti) {
                 LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
             }
@@ -1227,8 +1233,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ T_ P(X) }
 
-                // Use untested functionality to help ensure the first row
-                // of the table contains the default-constructed value.
+                // Use untested functionality to help ensure the first row of
+                // the table contains the default-constructed value.
                 if (0 == ti) {
                     LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
                 }
