@@ -212,7 +212,7 @@ bdema_NativeProtectableBlockDispenser::allocate(size_type size)
                              PAGE_READWRITE);
 
     if (0 == ptr) {
-        bslma::Allocator::throwBadAlloc();
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     return bdema_MemoryBlockDescriptor(ptr, actualSize);
