@@ -1223,9 +1223,6 @@ int bdem_BdemEncoderUtil_Encoder<STREAM>::encodeImp(
                                             const TYPE& value,
                                             bdeat_TypeCategory::CustomizedType)
 {
-    typedef typename
-    bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
-
     return encode(bdeat_CustomizedTypeFunctions::convertToBaseType(value));
 }
 
