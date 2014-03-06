@@ -311,12 +311,12 @@ extern "C" void * testThread4(void *arg)
     ThreadArgs4 *args = (ThreadArgs4*)arg;
 
     bdet_TimeInterval timeOut(bdetu_SystemTime::now(args->d_clockType));
-    bdet_TimeInterval start(bdetu_SystemTime::nowRealtimeClock());
+    bdet_TimeInterval start(bdetu_SystemTime::now(args->d_clockType));
 
     timeOut.addMicroseconds(args->d_timeOut);
     int res = args->d_barrier.timedWait(timeOut);
 
-    bdet_TimeInterval end(bdetu_SystemTime::nowRealtimeClock());
+    bdet_TimeInterval end(bdetu_SystemTime::now(args->d_clockType));
     bdet_TimeInterval duration = end - start;
 
     if (res) {
