@@ -298,12 +298,16 @@ const char *bdeu_String::strrstr(const char *string,
         return 0;                                                     // RETURN
     }
 
-    const char *end = string + stringLen - subStringLen;
+    int i = stringLen - subStringLen;
 
-    for (const char *p = end; p >= string; --p) {
+    while (i >= 0) {
+        const char *p = string + i;
+
         if (0 == bsl::memcmp(p, subString, subStringLen)) {
             return p;                                                 // RETURN
         }
+
+        --i;
     }
 
     return 0;
@@ -327,12 +331,16 @@ const char *bdeu_String::strrstrCaseless(const char *string,
         return 0;                                                     // RETURN
     }
 
-    const char *end = string + stringLen - subStringLen;
+    int i = stringLen - subStringLen;
 
-    for (const char *p = end; p >= string; --p) {
+    while (i >= 0) {
+        const char *p = string + i;
+
         if (areEqualCaseless(p, subStringLen, subString, subStringLen)) {
             return p;                                                 // RETURN
         }
+
+        --i;
     }
 
     return 0;
