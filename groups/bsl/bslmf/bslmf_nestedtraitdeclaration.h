@@ -71,7 +71,7 @@ class NestedTraitDeclaration {
 
 #ifdef __CDT_PARSER__
 // Work around an Eclise CDT bug where it fails to parse the conditional trait
-// declaration.  See internal DRQS S 47839133.
+// declaration.  See internal DRQS 47839133.
 #define BSLMF_NESTED_TRAIT_DECLARATION_IF(TYPE, TRAIT, COND)
 #else
 #define BSLMF_NESTED_TRAIT_DECLARATION_IF(TYPE, TRAIT, COND)                 \
