@@ -16,17 +16,43 @@ BDES_IDENT_RCSID(bteso_ipv4address_cpp,"$Id$ $CSID$")
 #include <arpa/inet.h>
 #endif
 
+namespace BloombergLP {
 
                        // =======================
                        // class bteso_IPv4Address
                        // =======================
 
-                            // -------------
-                            // CLASS METHODS
-                            // -------------
 
-namespace BloombergLP {
+// PRIVATE CLASS METHODS
 
+int bteso_IPv4Address::machineIndependentInetPtonIPv4(int        *addr,
+                                                      const char *address)
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+
+    *addr = inet_addr(address);
+    if (-1 != *addr) {
+        return 1;                                                     // RETURN
+    }
+    else {
+        if (isLocalBroadcastAddress(address)) {
+            *addr = -1;
+            return 1;                                                 // RETURN
+        }
+        return 0;                                                     // RETURN
+    }
+
+#else
+
+    in_addr inaddr;
+    int errorcode = inet_aton(address, &inaddr);
+    *addr = inaddr.s_addr;
+    return errorcode;
+
+#endif
+}
+
+// CLASS METHODS
 int bteso_IPv4Address::isValid(const char *address)
 {
     BSLS_ASSERT(address);
@@ -69,37 +95,7 @@ int bteso_IPv4Address::isLocalBroadcastAddress(const char *addr)
     return memcmp(segs, minusOne[numSeg - 1], sizeof segs) == 0;
 }
 
-int bteso_IPv4Address::machineIndependentInetPtonIPv4(int        *addr,
-                                                      const char *address)
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-
-    *addr = inet_addr(address);
-    if (-1 != *addr) {
-        return 1;                                                     // RETURN
-    }
-    else {
-        if (isLocalBroadcastAddress(address)) {
-            *addr = -1;
-            return 1;                                                 // RETURN
-        }
-        return 0;                                                     // RETURN
-    }
-
-#else
-
-    in_addr inaddr;
-    int errorcode = inet_aton(address, &inaddr);
-    *addr = inaddr.s_addr;
-    return errorcode;
-
-#endif
-}
-
-                            // --------
-                            // CREATORS
-                            // --------
-
+// CREATORS
 bteso_IPv4Address::bteso_IPv4Address(const char *address,
                                      int         portNumber)
 : d_portNumber(static_cast<unsigned short>(portNumber))
@@ -111,10 +107,7 @@ bteso_IPv4Address::bteso_IPv4Address(const char *address,
     machineIndependentInetPtonIPv4(&d_address, address);
 }
 
-                            // ------------
-                            // MANIPULATORS
-                            // ------------
-
+// MANIPULATORS
 int bteso_IPv4Address::setIpAddress(const char *address)
 {
     BSLS_ASSERT(address);
@@ -129,10 +122,7 @@ int bteso_IPv4Address::setIpAddress(const char *address)
     return 0;
 }
 
-                            // ---------
-                            // ACCESSORS
-                            // ---------
-
+// ACCESSORS
 int bteso_IPv4Address::loadIpAddress(char *result) const
 {
     BSLS_ASSERT(result);
