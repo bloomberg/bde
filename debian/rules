@@ -1,14 +1,15 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 MAKE_JOBS:=4
-PATH:=/bbshr/bde/bde-tools/bin:/usr/bin:/bin
 TMPDIR:=/tmp
 SHELL:=/bin/bash
 RSSUITE_TOOLS=/bbsrc/rssuite-tools
 RSSUITE:=$(shell cat $(RSSUITE_TOOLS)/RSSUITE.version)
-PRODUCEMAKE:=/bbsrc/bin/prod/bin/producemake
+include $(RSSUITE_TOOLS)/rssuite-vars.mk
+PRODUCEMAKE:=producemake
+PATH:=$(PREFIX)/bin:/usr/bin:/bin:/usr/ccs/bin
 
-BDE_TOOLS_ETC=/bbshr/bde/bde-tools/etc
+BDE_TOOLS_ETC=$(PREFIX)/etc/bde-tools/
 
 include $(BDE_TOOLS_ETC)/debian-rules-uplid
 include $(BDE_TOOLS_ETC)/debian-rules-flavors
@@ -120,16 +121,16 @@ libbsl-rs-binary: libbsl-rs
 # We install the compliant package's headers here, and later we have a ifeq
 # for bsl to install the stlport headers.
 libbsl-dev-additional:
-	mkdir -p debian/libbsl-dev/bb/include/stlport
+	mkdir -p debian/libbsl-dev/$(PREFIX)/include/stlport
 # This is implemented just as a symlink in build_prebuild, but here we won't have
 # the source, so we need to copy
-	cp -r groups/bsl/bsl+stdhdrs/* debian/libbsl-dev/bb/include/stlport
+	cp -r groups/bsl/bsl+stdhdrs/* debian/libbsl-dev/$(PREFIX)/include/stlport
 # Unfortunally, there is going to be more stuff in there than it should, so we're
 # just going to purge the excess
-	rm -rf debian/libbsl-dev/bb/include/stlport/package/ \
-	       debian/libbsl-dev/bb/include/stlport/doc/ \
-	       debian/libbsl-dev/bb/include/stlport/test/ \
-	       debian/libbsl-dev/bb/include/stlport/$(UPLID)/
+	rm -rf debian/libbsl-dev/$(PREFIX)/include/stlport/package/ \
+	       debian/libbsl-dev/$(PREFIX)/include/stlport/doc/ \
+	       debian/libbsl-dev/$(PREFIX)/include/stlport/test/ \
+	       debian/libbsl-dev/$(PREFIX)/include/stlport/$(UPLID)/
 
 define GROUPdev_template
 
@@ -137,19 +138,20 @@ define GROUPdev_template
 lib$(1)-dev-additional:
 
 lib$(1)-dev: lib/$(UPLID)/$(1).stamp lib$(1)-dev-additional
-	mkdir -p debian/lib$(1)-dev/bb/lib debian/lib$(1)-dev/bb/lib64
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/lib \
+	         debian/lib$(1)-dev/$(PREFIX)/lib64
 	mkdir -p debian/lib$(1)-dev/DEBIAN
 ifeq ($(STATIC_FLAVORS),)
 else
-	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/bb/lib/
+	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/$(PREFIX)/lib/
 	)
-	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/bb/lib64/
+	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/$(PREFIX)/lib64/
 	)
-	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/bb/lib/lib$(1).a
-	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/bb/lib64/lib$(1).a
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/$(PREFIX)/lib/lib$(1).a
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/$(PREFIX)/lib64/lib$(1).a
 endif
-	mkdir -p debian/lib$(1)-dev/bb/include
-	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/bb/include/
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/include
+	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/$(PREFIX)/include/
 
 ALL_DEV_PACKAGES+=lib$(1)-dev-binary
 lib$(1)-dev-binary: lib$(1)-dev
@@ -164,8 +166,8 @@ $(foreach group,$(GROUPS),$(eval $(call GROUPdev_template,$(group))))
 debian/bsl-internal-bdemeta.stamp:
 	mkdir -p debian/bsl-internal-bdemeta/DEBIAN
 	find groups -type d \( -name 'package' -or -name 'group' \) \
-	  -exec mkdir -p debian/bsl-internal-bdemeta/bb/bdemeta/{} \; \
-	  -exec sh -c "cp "{}"/* debian/bsl-internal-bdemeta/bb/bdemeta/"{}"/" \;
+	  -exec mkdir -p debian/bsl-internal-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/{} \; \
+	  -exec sh -c "cp "{}"/* debian/bsl-internal-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/"{}"/" \;
 	dpkg-gencontrol -pbsl-internal-bdemeta \
 	     -Pdebian/bsl-internal-bdemeta
 	dpkg-deb -b debian/bsl-internal-bdemeta ../
