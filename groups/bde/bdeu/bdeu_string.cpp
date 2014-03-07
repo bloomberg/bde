@@ -242,7 +242,7 @@ const char *bdeu_String::strstr(const char *string,
 
     const char *end = string + stringLen - subStringLen;
 
-    for (const char *p = string; *p && p <= end; ++p) {
+    for (const char *p = string; p <= end; ++p) {
         if (0 == bsl::memcmp(p, subString, subStringLen)) {
             return p;                                                 // RETURN
         }
@@ -271,17 +271,8 @@ const char *bdeu_String::strstrCaseless(const char *string,
 
     const char *end = string + stringLen - subStringLen;
 
-    for (const char *p = string; *p && p <= end; ++p) {
-        int i;
-
-        for (i = 0; i < subStringLen; ++i) {
-            if (bsl::toupper(static_cast<unsigned char>(p[i]))
-                   != bsl::toupper(static_cast<unsigned char>(subString[i]))) {
-                break;
-            }
-        }
-
-        if (i == subStringLen) {
+    for (const char *p = string; p <= end; ++p) {
+        if (areEqualCaseless(p, subStringLen, subString, subStringLen)) {
             return p;                                                 // RETURN
         }
     }
@@ -300,7 +291,7 @@ const char *bdeu_String::strrstr(const char *string,
     BSLS_ASSERT(0 == subStringLen || subString);
 
     if (0 == subStringLen) {
-        return string;                                                // RETURN
+        return string + stringLen;                                    // RETURN
     }
 
     if (stringLen < subStringLen) {
@@ -309,7 +300,7 @@ const char *bdeu_String::strrstr(const char *string,
 
     const char *end = string + stringLen - subStringLen;
 
-    for (const char *p = end; *p && p >= string; --p) {
+    for (const char *p = end; p >= string; --p) {
         if (0 == bsl::memcmp(p, subString, subStringLen)) {
             return p;                                                 // RETURN
         }
@@ -329,7 +320,7 @@ const char *bdeu_String::strrstrCaseless(const char *string,
     BSLS_ASSERT(0 == subStringLen || subString);
 
     if (0 == subStringLen) {
-        return string;                                                // RETURN
+        return string + stringLen;                                    // RETURN
     }
 
     if (stringLen < subStringLen) {
@@ -338,17 +329,8 @@ const char *bdeu_String::strrstrCaseless(const char *string,
 
     const char *end = string + stringLen - subStringLen;
 
-    for (const char *p = end; *p && p >= string; --p) {
-        int i;
-
-        for (i = 0; i < subStringLen; ++i) {
-            if (bsl::toupper(static_cast<unsigned char>(p[i]))
-                   != bsl::toupper(static_cast<unsigned char>(subString[i]))) {
-                break;
-            }
-        }
-
-        if (i == subStringLen) {
+    for (const char *p = end; p >= string; --p) {
+        if (areEqualCaseless(p, subStringLen, subString, subStringLen)) {
             return p;                                                 // RETURN
         }
     }
