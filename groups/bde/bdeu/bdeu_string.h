@@ -204,49 +204,43 @@ struct bdeu_String {
                               int         stringLen,
                               const char *subString,
                               int         subStringLen);
-        // Return the address of the non-modifiable first occurrence of the
-        // specified 'subString' having the specified 'subStringLen' in the
-        // specified 'string' having the specified 'stringLen'; return 0 if
-        // 'subString' is not found in 'string'.  The comparison is
-        // case-sensitive.  Note that a 'subString' of length 0 matches the
-        // beginning of 'string', and that 'subString' may be 0, but only if
-        // 'subStringLen' is 0.
+        // Return a pointer offering non-modifiable access to the first
+        // position in the specified 'string' of 'stringLen' characters at
+        // which the specified 'subString' of 'subStringLen' characters is
+        // found, or 0 if there is no such position.  If 'subStringLen' is 0,
+        // 'subString' may be null and 'string' is returned.
 
     static const char *strstrCaseless(const char *string,
                                       int         stringLen,
                                       const char *subString,
                                       int         subStringLen);
-        // Return the address of the non-modifiable first occurrence of the
-        // specified 'subString' having the specified 'subStringLen' in the
-        // specified 'string' having the specified 'stringLen'; return 0 if
-        // 'subString' is not found in 'string'.  The comparison is
-        // case-insensitive.  Note that a 'subString' of length 0 matches the
-        // beginning of 'string', and that 'subString' may be 0, but only if
-        // 'subStringLen' is 0.
+        // Return a pointer offering non-modifiable access to the first
+        // position in the specified 'string' of 'stringLen' characters at
+        // which the specified 'subString' of 'subStringLen' characters is
+        // found using case-insensitive comparison, or 0 if there is no such
+        // position.  If 'subStringLen' is 0, 'subString' may be null and
+        // 'string' is returned.
 
     static const char *strrstr(const char *string,
                                int         stringLen,
                                const char *subString,
                                int         subStringLen);
-        // Return the address of the non-modifiable last occurrence of the
-        // specified 'subString' having the specified 'subStringLen' in the
-        // specified 'string' having the specified 'stringLen'; return 0 if
-        // 'subString' is not found in 'string'.  The comparison is
-        // case-sensitive.  Note that a 'subString' of length 0 matches the
-        // beginning of 'string', and that 'subString' may be 0, but only if
-        // 'subStringLen' is 0.
+        // Return a pointer offering non-modifiable access to the last position
+        // in the specified 'string' of 'stringLen' characters at which the
+        // specified 'subString' of 'subStringLen' characters is found, or 0 if
+        // there is no such position.  If 'subStringLen' is 0, 'subString' may
+        // be null and 'string + stringLen' is returned.
 
     static const char *strrstrCaseless(const char *string,
                                        int         stringLen,
                                        const char *subString,
                                        int         subStringLen);
-        // Return the address of the non-modifiable last occurrence of the
-        // specified 'subString' having the specified 'subStringLen' in the
-        // specified 'string' having the specified 'stringLen'; return 0 if
-        // 'subString' is not found in 'string'.  The comparison is
-        // case-insensitive.  Note that a 'subString' of length 0 matches the
-        // beginning of 'string', and that 'subString' may be 0, but only if
-        // 'subStringLen' is 0.
+        // Return a pointer offering non-modifiable access to the last position
+        // in the specified 'string' of 'stringLen' characters at which the
+        // specified 'subString' of 'subStringLen' characters is found using
+        // case-insensitive comparison, or 0 if there is no such position.  If
+        // 'subStringLen' is 0, 'subString' may be null and
+        // 'string + stringLen' is returned.
 
     static int strnlen(const char *string, int maximumLength);
         // Return the minimum of the length of the specified null-terminated
