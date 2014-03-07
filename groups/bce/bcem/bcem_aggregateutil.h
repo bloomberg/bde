@@ -1,4 +1,3 @@
-
 // bcem_aggregateutil.h                                               -*-C++-*-
 #ifndef INCLUDED_BCEM_AGGREGATEUTIL
 #define INCLUDED_BCEM_AGGREGATEUTIL
