@@ -332,9 +332,10 @@ int main(int argc, char *argv[])
         //  lengths of substrings (0 to 2) and match them against different
         //  lengths of original strings (0 to substring length + 2).  The case
         //  of both the substrings and the original strings are also permuted.
-        //  The resulting address returned from the 'strstr' and
-        //  'strstrCaseless' is compared against the expected offset from the
-        //  original string to make sure concerns 1, 2, 3, and 4 are addressed.
+        //  The resulting address returned from 'strstr', 'strstrCaseless',
+        //  'strrstr', and 'strrstrCaseless' is compared against the expected
+        //  offset from the original string to make sure concerns 1, 2, 3, and
+        //  4 are addressed.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method (original string)
@@ -349,9 +350,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl
                           << "TESTING 'strstr', 'strstrCaseless, "
-                          << "'strrstr', and 'strrstrCaseless" << endl
+                             "'strrstr', and 'strrstrCaseless" << endl
                           << "==================================="
-                          << "===============================" << endl;
+                             "===============================" << endl;
 
         static const struct {
             const int   d_lineNumber;
@@ -393,22 +394,22 @@ int main(int argc, char *argv[])
 
             //Substring length 0, caseless
             { L_,   "",      0,          0,       0,          0,  0,  0,  0},
-            { L_,   "a",     1,          0,       0,          0,  0,  0,  0},
-            { L_,   "ab",    2,          0,       0,          0,  0,  0,  0},
-            { L_,   "abc",   3,          0,       0,          0,  0,  0,  0},
+            { L_,   "a",     1,          0,       0,          0,  0,  1,  1},
+            { L_,   "ab",    2,          0,       0,          0,  0,  2,  2},
+            { L_,   "abc",   3,          0,       0,          0,  0,  3,  3},
 
             //Substring length 0, case sensitive
-            { L_,   "A",     1,         "",       0,          0,  0,  0,  0},
-            { L_,   "Ab",    2,         "",       0,          0,  0,  0,  0},
-            { L_,   "aB",    2,         "",       0,          0,  0,  0,  0},
-            { L_,   "AB",    2,         "",       0,          0,  0,  0,  0},
-            { L_,   "Abc",   3,         "",       0,          0,  0,  0,  0},
-            { L_,   "aBc",   3,         "",       0,          0,  0,  0,  0},
-            { L_,   "abC",   3,         "",       0,          0,  0,  0,  0},
-            { L_,   "ABc",   3,         "",       0,          0,  0,  0,  0},
-            { L_,   "aBC",   3,         "",       0,          0,  0,  0,  0},
-            { L_,   "AbC",   3,         "",       0,          0,  0,  0,  0},
-            { L_,   "ABC",   3,         "",       0,          0,  0,  0,  0},
+            { L_,   "A",     1,         "",       0,          0,  0,  1,  1},
+            { L_,   "Ab",    2,         "",       0,          0,  0,  2,  2},
+            { L_,   "aB",    2,         "",       0,          0,  0,  2,  2},
+            { L_,   "AB",    2,         "",       0,          0,  0,  2,  2},
+            { L_,   "Abc",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "aBc",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "abC",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "ABc",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "aBC",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "AbC",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "ABC",   3,         "",       0,          0,  0,  3,  3},
 
             //Substring length 1, caseless
             { L_,   "",      0,         "a",      1,         -1, -1, -1, -1},
@@ -428,6 +429,18 @@ int main(int argc, char *argv[])
             { L_,   "baa",   3,         "a",      1,          1,  1,  2,  2},
             { L_,   "bba",   3,         "a",      1,          2,  2,  2,  2},
             { L_,   "bbb",   3,         "a",      1,         -1, -1, -1, -1},
+
+            //String embedded nulls
+            { L_,   "\0  ",  3,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "\0aa",  3,         "a",      1,          1,  1,  2,  2},
+            { L_,   "\0ab",  3,         "a",      1,          1,  1,  1,  1},
+            { L_,   "\0ba",  3,         "a",      1,          2,  2,  2,  2},
+            { L_,   "\0bb",  3,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "  \0",  3,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "aa\0",  3,         "a",      1,          0,  0,  1,  1},
+            { L_,   "ab\0",  3,         "a",      1,          0,  0,  0,  0},
+            { L_,   "ba\0",  3,         "a",      1,          1,  1,  1,  1},
+            { L_,   "bb\0",  3,         "a",      1,         -1, -1, -1, -1},
 
             //Substring length 1, case sensitive
             { L_,   "A",     1,         "a",      1,         -1,  0, -1,  0},
