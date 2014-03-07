@@ -177,10 +177,6 @@ void selectUtcOffset(
         return;                                                       // RETURN
     }
 
-
-    typedef baetzo_LocalTimeDescriptor Descriptor;
-
-
     // 'iter2' is by construction later than 'iter1' if they are different.
 
     baetzo_Zoneinfo::TransitionConstIterator candidateTransition =
