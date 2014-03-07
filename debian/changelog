@@ -1,3 +1,12 @@
+bde-core (2.20.2.0) unstable; urgency=low
+
+  * Bump changelog
+  * 3367511 [APPROVAL] pending/master/gcc-4.8.1-core-cleanup-drqs-49479619-patch to releases/2.20.x
+  * c210194 [APPROVAL] dev/druoso/use-prefix-from-build-base to releases/2.20.x
+  * 4466bc1 [APPROVAL] bteso_ipv4address-isValid-fix-drqs50140302-patch to releases/2.20.x
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Fri, 7 Mar 2014 14:42:27 -0500
+
 bde-core (2.20.1.0) unstable; urgency=low
 
   * Bump changelog
