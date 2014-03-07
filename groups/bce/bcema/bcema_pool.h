@@ -602,8 +602,8 @@ void *operator new(bsl::size_t size, BloombergLP::bcema_Pool& pool)
     using namespace BloombergLP;
 
 #ifdef BDE_BUILD_TARGET_SAFE
-    // This must be #ifdef'ed because the typedef is used only in a safe
-    // assert.
+    // gcc-4.8.1 introduced a new warning for unused typedefs, so this typedef
+    // should only be present in SAFE mode builds (where it is used).
 
     typedef BloombergLP::bsls::AlignmentUtil Util;
 
