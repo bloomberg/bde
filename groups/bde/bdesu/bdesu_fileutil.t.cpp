@@ -134,6 +134,8 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef bdesu_FileUtil Obj;
 
+static int test;    // test case number
+
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 inline
 bool isBackslash (char t)
@@ -164,6 +166,15 @@ void localSleep(int seconds)
     sleep(seconds);
 #else
     ::Sleep(seconds * 1000);
+#endif
+}
+
+int localGetPId()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return static_cast<int>(GetCurrentProcessId());
+#else
+    return static_cast<int>(getpid());
 #endif
 }
 
@@ -247,10 +258,13 @@ bsl::string tempFileName(const char *fnTemplate = 0, int nocheck = 0)
     // uniqueness (and, as a side-effect, from being created).
 {
     bsl::string result;
-
-    if (!fnTemplate) {
-        fnTemplate = "bdesu_fileutil.test";
+    bsl::ostringstream oss;
+    oss << "bdesu_fileutil." << test << '.' << localGetPId();
+    if (fnTemplate) {
+        oss << '.' << fnTemplate;
     }
+    const bsl::string& fnTemplateStr = oss.str();
+    fnTemplate = fnTemplateStr.c_str();
 
     (void) nocheck;  // Avoid warning.
 
@@ -391,7 +405,7 @@ namespace UsageExample2 {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
@@ -423,11 +437,11 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdesu_FileUtil::remove("temp.2", true);
+        bdesu_FileUtil::remove("temp.bdesu_fileutil.usage.2", true);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::string logPath =  "temp.2\\logs2\\";
+        bsl::string logPath =  "temp.bdesu_fileutil.usage.2\\logs2\\";
 #else
-        bsl::string logPath =  "temp.2/logs2/";
+        bsl::string logPath =  "temp.bdesu_fileutil.usage.2/logs2/";
 #endif
 
         ASSERT(0 == bdesu_FileUtil::createDirectories(logPath.c_str(), true));
@@ -502,7 +516,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdesu_FileUtil::remove("temp.1");
+        bdesu_FileUtil::remove("temp.bdesu_fileutil.usage.1", true);
 
 ///Example 1: General Usage
 ///- - - - - - - - - - - - -
@@ -510,9 +524,9 @@ int main(int argc, char *argv[])
 // containing log files:
 //..
     #ifdef BSLS_PLATFORM_OS_WINDOWS
-      bsl::string logPath = "temp.1\\logs";
+      bsl::string logPath = "temp.bdesu_fileutil.usage.1\\logs";
     #else
-      bsl::string logPath = "temp.1/logs";
+      bsl::string logPath = "temp.bdesu_fileutil.usage.1/logs";
     #endif
 //..
 // Suppose that we want to separate files into "old" and "new" subdirectories
@@ -992,9 +1006,12 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        bsl::string fileNameWrite   = tempFileName("write", 11);
-        bsl::string fileNameRead    = tempFileName("read", 11);
-        bsl::string fileNameSuccess = tempFileName("success", 11);
+        bsl::string fileNameWrite   =
+                          tempFileName("bdesu_fileutil.temp.11.write", true);
+        bsl::string fileNameRead    =
+                          tempFileName("bdesu_fileutil.temp.11.read", true);
+        bsl::string fileNameSuccess =
+                          tempFileName("bdesu_fileutil.temp.11.success", true);
 
         if (veryVerbose) {
             T_() P(fileNameWrite) T_() P(fileNameRead) T_() P(fileNameSuccess)
@@ -1477,7 +1494,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nSimple matching test"
                           << "\n====================" << endl;
 
-        const char* dirName = "testDirCase7";
+        const char* dirName = "bdesu_fileutil.testDirCase7";
         bdesu_FileUtil::remove(dirName, true);
         bdesu_FileUtil::createDirectories(dirName, true);
         bdesu_FileUtil::setWorkingDirectory(dirName);
@@ -1526,7 +1543,7 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
         // Setup by first creating a tmp file
-        string fileName = tempFileName("tmp.getFileSizeTest");
+        string fileName =tempFileName("bdesu_fileutil.temp.6.getFileSizeTest");
         if (veryVerbose) P(fileName);
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(fileName,
                                                                  true,
@@ -1833,8 +1850,12 @@ int main(int argc, char *argv[])
             Parameters regular;
             Parameters directory;
         } parameters = {
-            { "case4" PS "file", "case4" PS "file2", "case4" PS "dir"  },
-            { "case4" PS "dir",  "case4" PS "dir2",  "case4" PS "file" }
+            { "bdesu_fileutil.temp.case3" PS "file",
+              "bdesu_fileutil.temp.case3" PS "file2",
+              "bdesu_fileutil.temp.case3" PS "dir"  },
+            { "bdesu_fileutil.temp.case3" PS "dir",
+              "bdesu_fileutil.temp.case3" PS "dir2",
+              "bdesu_fileutil.temp.case3" PS "file" } 
         };
 
         const Parameters& r = parameters.regular;
@@ -1983,7 +2004,7 @@ int main(int argc, char *argv[])
 
         //clean up
 
-        ASSERT(0 == bdesu_FileUtil::remove("case4", true));
+        ASSERT(0 == bdesu_FileUtil::remove("bdesu_fileutil.temp.case3", true));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2008,41 +2029,54 @@ int main(int argc, char *argv[])
            "abc.def",
         };
 
-        bsl::string path("futc3");
+#define PATH  "bdesu_fileutil.temp.2.futc3"
+#define PATHQ "bdesu_fileutil.temp.2.futc?"
+
+        bsl::string path(PATH);
+
+        ASSERT(bdesu_FileUtil::remove(path.c_str(), true));
 
         // The string literal "futc3/b???/*d*" seems to confuse the
         // Sun compiler, which complains about the character sequence "\*".
         // So let's hard-code it.
 
-        const char tripleQMarkLiteral[] = {'f','u','t','c','3','/','b',
+        const char tripleQMarkLiteral[] = {'b','d','e','s','u','_','f','i','l',
+                                           'e','u','t',
+                                           'i','l','.','t','e','m','p','.','2',
+                                           '.','f','u','t','c','3','/','b',
                                            '?','?','?','/','*','d','*', 0};
 
         struct Parameters {
+            int         line;
             const char* pattern;
             const char* result;
         } parameters[] = {
-            {"", ""},
-            {"futc3/*/*foo*", ""},
-            {"futc3/*/*d*", "futc3/alpha/abc.def:futc3/alpha/abcd:"
-                            "futc3/beta/abc.def:futc3/beta/abcd"},
-            {tripleQMarkLiteral, "futc3/beta/abc.def:futc3/beta/abcd"},
-            {"futc3/*b*", "futc3/beta"},
+            {L_, "", ""},
+            {L_, PATH "/*/*foo*", ""},
+            {L_, PATH "/*/*d*", PATH "/alpha/abc.def:" PATH "/alpha/abcd:"
+                            PATH "/beta/abc.def:" PATH "/beta/abcd"},
+            {L_, tripleQMarkLiteral, PATH "/beta/abc.def:" PATH "/beta/abcd"},
+            {L_, PATH "/*b*", PATH "/beta"},
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            {"futc3/*b*/*.?","futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-            {"futc?/*b*/*.?","futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-            {"futc?/*/abcd.*","futc3/alpha/abcd:futc3/beta/abcd"},
-            {"futc?/*b*/*.*","futc3/beta/abc.def:futc3/beta/abc.zzz:"
-                             "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-            {"futc3*/*/*.?",
-               "futc3/alpha/abcd:futc3/alpha/zy.z:futc3/alpha/zyx:"
-               "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"}
+            {L_, PATH "/*b*/*.?",
+                      PATH "/beta/abcd:" PATH "/beta/zy.z:" PATH "/beta/zyx" },
+            {L_, PATHQ "/*b*/*.?",
+                       PATH "/beta/abcd:" PATH "/beta/zy.z:" PATH "/beta/zyx"},
+            {L_, PATHQ "/*/abcd.*",PATH "/alpha/abcd:" PATH "/beta/abcd"},
+            {L_, PATHQ "/*b*/*.*", PATH "/beta/abc.def:" PATH "/beta/abc.zzz:"
+                              PATH "/beta/abcd:" PATH "/beta/zy.z:"
+                              PATH "/beta/zyx"},
+            {L_, PATH "*/*/*.?",
+               PATH "/alpha/abcd:" PATH "/alpha/zy.z:" PATH "/alpha/zyx:"
+               PATH "/beta/abcd:" PATH "/beta/zy.z:" PATH "/beta/zyx"}
 #else
-            {"futc3/*b*/*.?", "futc3/beta/zy.z"},
-            {"futc?/*b*/*.?", "futc3/beta/zy.z"},
-            {"futc?/*/abcd.*", ""},
-            {"futc?/*b*/*.*",
-                      "futc3/beta/abc.def:futc3/beta/abc.zzz:futc3/beta/zy.z"},
-            {"futc3*/*/*.?", "futc3/alpha/zy.z:futc3/beta/zy.z"}
+            {L_, PATH "/*b*/*.?", PATH "/beta/zy.z"},
+            {L_, PATHQ "/*b*/*.?", PATH "/beta/zy.z"},
+            {L_, PATHQ "/*/abcd.*", ""},
+            {L_, PATHQ "/*b*/*.*",
+                   PATH "/beta/abc.def:" PATH "/beta/abc.zzz:"
+                   PATH "/beta/zy.z"},
+            {L_, PATH "*/*/*.?", PATH "/alpha/zy.z:" PATH "/beta/zy.z"}
 #endif
         };
 
@@ -2110,6 +2144,8 @@ int main(int argc, char *argv[])
         enum { NUM_PARAMETERS = sizeof(parameters) / sizeof(*parameters) };
         for (int i = 0; i < NUM_PARAMETERS; ++i) {
             const Parameters& p = parameters[i];
+            const int LINE      =  p.line;
+
             string pattern(p.pattern);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
             replace_if(pattern.begin(), pattern.end(), isForwardSlash, *PS);
@@ -2119,7 +2155,7 @@ int main(int argc, char *argv[])
 
             bdesu_FileUtil::findMatchingPaths(&resultPaths, pattern.c_str());
             string rollup = rollupPaths(resultPaths);
-            LOOP2_ASSERT(p.result, rollup, string(p.result) == rollup);
+            LOOP3_ASSERT(LINE, p.result, rollup, string(p.result) == rollup);
         }
 
         ASSERT(0 == bdesu_FileUtil::remove(path.c_str(), true));
