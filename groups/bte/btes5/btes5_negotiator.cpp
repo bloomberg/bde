@@ -585,9 +585,12 @@ static int sendMethodRequest(btes5_Negotiation_Imp::Context negotiation)
                                  reinterpret_cast<const char *>(&pkt),
                                  length);
     if (length != rc) {
+        // signal error through via return code, not a callback
+
         terminate(negotiation,
                   btes5_Negotiator::e_ERROR,
-                  btes5_DetailedError("error writing method request"));
+                  btes5_DetailedError("error writing method request"),
+                  true);
         return btes5_Negotiator::e_ERROR;
     }
 
