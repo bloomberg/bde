@@ -160,9 +160,7 @@ int main(int argc, char *argv[])
 //..
      bael_DefaultObserver observer(cout);  
      bael_LoggerManagerConfiguration configuration;
-     bael_LoggerManager::initSingleton(&observer, 
-                                       configuration, 
-                                       bslma::Default::globalAllocator(0));
+     bael_LoggerManagerScopedGuard guard(&observer, configuration);
 //..
 // Next define some hypothetical category names:
 //..

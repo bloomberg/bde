@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a suite of utility functions for logging administration.
 //
 //@CLASSES:
-//     bael_Administration: namespace for logging administration utilities
+//  bael_Administration: namespace for logging administration utilities
 //
 //@SEE_ALSO: bael_loggermanager
 //
@@ -35,9 +35,7 @@ BDES_IDENT("$Id: $")
 //..
 //     bael_DefaultObserver observer(cout);
 //     bael_LoggerManagerConfiguration configuration;
-//     bael_LoggerManager::initSingleton(&observer,
-//                                       configuration,
-//                                       bslma::Default::globalAllocator(0));
+//     bael_LoggerManagerScopedGuard guard(&observer, configuration);
 //..
 // Next define some hypothetical category names:
 //..
