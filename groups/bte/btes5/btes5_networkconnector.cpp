@@ -409,7 +409,7 @@ static void connectTcpCb(
         if (attempt->d_socket_p) {
             attempt->d_connector->d_eventManager_p->deregisterSocket(
                                                 attempt->d_socket_p->handle());
-            rc = attempt->d_socket_p->connectionStatus();
+            rc = timeout || attempt->d_socket_p->connectionStatus();
             if (rc) {
                 attempt->d_connector->d_socketFactory_p->deallocate(
                                                       attempt->d_socket_p);
