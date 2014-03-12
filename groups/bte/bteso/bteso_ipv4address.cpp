@@ -6,7 +6,10 @@ BDES_IDENT_RCSID(bteso_ipv4address_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_cctype.h>
 #include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_ostream.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -52,9 +55,9 @@ int bteso_IPv4Address::isLocalBroadcastAddress(const char *addr)
     unsigned long segs[4] = { 0, 0, 0, 0 };
     int numSeg = 0;
     for (int i = 0; i < 4; ++i) {
-        if (!isdigit(*addr))     { return false; }                    // RETURN
+        if (!bsl::isdigit(*addr))     { return false; }               // RETURN
         // Consume one numerical token.
-        segs[numSeg++] = strtoul(addr, const_cast<char **>(&addr), 0);
+        segs[numSeg++] = bsl::strtoul(addr, const_cast<char **>(&addr), 0);
         if (*addr == 0)          { break; }  // Reached end.
         if (*addr++ != "..."[i]) { return false; }                    // RETURN
     }
@@ -66,7 +69,7 @@ int bteso_IPv4Address::isLocalBroadcastAddress(const char *addr)
         {0xFFul,       0xFFul,     0xFFFFul, 0     },
         {0xFFul,       0xFFul,     0xFFul,   0xFFul},
     };
-    return memcmp(segs, minusOne[numSeg - 1], sizeof segs) == 0;
+    return bsl::memcmp(segs, minusOne[numSeg - 1], sizeof segs) == 0;
 }
 
 int bteso_IPv4Address::machineIndependentInetPtonIPv4(int        *addr,
