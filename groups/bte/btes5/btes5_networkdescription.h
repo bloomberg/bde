@@ -84,6 +84,10 @@ BDES_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef.h>
 #endif

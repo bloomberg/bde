@@ -69,6 +69,10 @@ BDES_IDENT("$Id: $")
 #include <bteso_endpoint.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
 namespace BloombergLP {
 
                         // ============================
