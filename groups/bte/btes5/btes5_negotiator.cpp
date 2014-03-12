@@ -1,8 +1,11 @@
 // btes5_negotiator.cpp               -*-C++-*-
 #include <btes5_negotiator.h>
 
-// btes5_testserver is used in the test driver
-#include <btes5_testserver.h>
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(btes5_negotiator_cpp,"$Id$ $CSID$")
+
+#include <btes5_detailederror.h>
+#include <btes5_testserver.h>  // for testing only
 
 #include <bcema_blob.h>
 #include <bcema_blobutil.h>
@@ -585,13 +588,15 @@ static int sendMethodRequest(btes5_Negotiation_Imp::Context negotiation)
                                  reinterpret_cast<const char *>(&pkt),
                                  length);
     if (length != rc) {
-        // signal error through via return code, not a callback
+        // Since we indicate an immediate error via return code, do not invoke
+        // the callback.
 
+        const bool noCallback = true;
         terminate(negotiation,
                   btes5_Negotiator::e_ERROR,
                   btes5_DetailedError("error writing method request"),
-                  true);
-        return btes5_Negotiator::e_ERROR;
+                  noCallback);
+        return btes5_Negotiator::e_ERROR;                             // RETURN
     }
 
     return 0;
