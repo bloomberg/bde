@@ -102,6 +102,7 @@ static void aSsErT(int c, const char *s, int i)
 //                       SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
+#define PL(X) cout << "Line: " << __LINE__ << ", " #X " = " << (X) << endl;
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
@@ -179,6 +180,14 @@ int localGetPId()
 }
 
 static
+bsl::string localGetcwd()
+{
+    bsl::string result;
+    ASSERT(0 == bdesu_FileUtil::getWorkingDirectory(&result));
+    return result;
+}
+
+static
 void localForkExec(bsl::string command)
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -198,6 +207,8 @@ void localForkExec(bsl::string command)
         argvec.push_back(0);
 
         execv(argvec[0], argvec.data());
+
+        ASSERT(0 && "execv failed");
     }
 #else
     STARTUPINFO sui;
@@ -251,7 +262,7 @@ void makeArbitraryFile(const char *path)
     ASSERT(0 == bdesu_FileUtil::close(fd));
 }
 
-bsl::string tempFileName(const char *fnTemplate = 0, int nocheck = 0)
+bsl::string tempFileName(const char *fnTemplate = 0)
     // Return a temporary file name.  Optionally specify 'fnTemplate' to serve
     // as a part of the resulting name.  On Windows, optionally specify a non-
     // zero value for 'nocheck' to prevent the filename for being checked for
@@ -259,14 +270,12 @@ bsl::string tempFileName(const char *fnTemplate = 0, int nocheck = 0)
 {
     bsl::string result;
     bsl::ostringstream oss;
-    oss << "bdesu_fileutil." << test << '.' << localGetPId();
+    oss << "tmp.fileutil." << test << '.' << localGetPId();
     if (fnTemplate) {
         oss << '.' << fnTemplate;
     }
     const bsl::string& fnTemplateStr = oss.str();
     fnTemplate = fnTemplateStr.c_str();
-
-    (void) nocheck;  // Avoid warning.
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
@@ -412,6 +421,36 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    // Make 'program' be a absolute path to the executable, for when we fork /
+    // exec from different directories.
+
+    const bsl::string program = PS[0] == *argv[0] || bsl::strstr(argv[0],":\\")
+                              ? bsl::string(argv[0])
+                              : localGetcwd() + PS + argv[0];
+    if (veryVerbose) P(program);
+
+    bsl::string mainRoot;
+    {
+        // Must not call 'tempFileName' here, because 'tempFileName' would
+        // create a plain file with the result name, and the attempt to
+        // create the directory would fail.
+
+        char hostName[80];
+        ASSERT(0 ==::gethostname(hostName, sizeof(hostName)));
+
+        bsl::ostringstream oss;
+        oss << "tmp.fileutil.case_" << test << '.' << hostName <<
+                                                          '.' << localGetPId();
+        mainRoot = oss.str();
+    }
+    if (veryVerbose) P(mainRoot);
+
+    if (bdesu_FileUtil::exists(mainRoot)) {
+        LOOP_ASSERT(mainRoot, 0 == bdesu_FileUtil::remove(mainRoot, true));
+    }
+    ASSERT(0 == bdesu_FileUtil::createDirectories(mainRoot, true));
+    ASSERT(0 == bdesu_FileUtil::setWorkingDirectory(mainRoot));
+
     switch(test) { case 0:
       case 16: {
         // --------------------------------------------------------------------
@@ -437,11 +476,11 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdesu_FileUtil::remove("temp.bdesu_fileutil.usage.2", true);
+        bdesu_FileUtil::remove("usage.2", true);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::string logPath =  "temp.bdesu_fileutil.usage.2\\logs2\\";
+        bsl::string logPath =  "usage.2\\logs2\\";
 #else
-        bsl::string logPath =  "temp.bdesu_fileutil.usage.2/logs2/";
+        bsl::string logPath =  "usage.2/logs2/";
 #endif
 
         ASSERT(0 == bdesu_FileUtil::createDirectories(logPath.c_str(), true));
@@ -496,8 +535,6 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(results.size() == END - START + 1);
-        ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -516,7 +553,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdesu_FileUtil::remove("temp.bdesu_fileutil.usage.1", true);
+        bdesu_FileUtil::remove("usage.1", true);
 
 ///Example 1: General Usage
 ///- - - - - - - - - - - - -
@@ -524,9 +561,9 @@ int main(int argc, char *argv[])
 // containing log files:
 //..
     #ifdef BSLS_PLATFORM_OS_WINDOWS
-      bsl::string logPath = "temp.bdesu_fileutil.usage.1\\logs";
+      bsl::string logPath = "usage.1\\logs";
     #else
-      bsl::string logPath = "temp.bdesu_fileutil.usage.1/logs";
+      bsl::string logPath = "usage.1/logs";
     #endif
 //..
 // Suppose that we want to separate files into "old" and "new" subdirectories
@@ -603,12 +640,6 @@ int main(int argc, char *argv[])
         delete[] buf;
         bdesu_FileUtil::close(fd);
 #endif
-
-        // NOT IN USAGE EXAMPLE: CLEAN UP
-
-        ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -639,8 +670,8 @@ int main(int argc, char *argv[])
         {
             typedef bdesu_FileUtil::FileDescriptor FD;
 
-            const bsl::string& testFile = tempFileName(
-                                             "tmp.bdesu_fileutil_14.open.txt");
+            const bsl::string& testFile = tempFileName("tmp.open.txt");
+
             if (veryVerbose) P(testFile);
 
             (void) bdesu_FileUtil::remove(testFile, false);
@@ -673,8 +704,6 @@ int main(int argc, char *argv[])
                 cout.flags(flags);
             }
             ASSERT(eq);
-
-            ASSERT(0 == bdesu_FileUtil::remove(testFile, false));
         }
 #endif
       } break;
@@ -737,7 +766,7 @@ int main(int argc, char *argv[])
         int         rc     = 0;
         Obj::Offset offset = 0;
 
-        bsl::string testFileName(tempFileName());
+        bsl::string testFileName = tempFileName();
         Obj::remove(testFileName);
         FD writeFd = Obj::open(testFileName, true, false, false);
         FD readFd  = Obj::open(testFileName, false, true, false);
@@ -825,7 +854,8 @@ int main(int argc, char *argv[])
         }
         Obj::close(writeFd);
         Obj::close(readFd);
-        Obj::remove(testFileName);
+
+        ASSERT(0 == Obj::remove(testFileName));
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -841,9 +871,9 @@ int main(int argc, char *argv[])
 
         typedef bdesu_FileUtil::FileDescriptor FD;
 
-        const char *testFile = "tmp.bdesu_fileutil_12.append.txt.";
-        const char *tag1     = "tmp.bdesu_fileUtil_12.tag.1.txt";
-        const char *success  = "tmp.bdesu_fileUtil_12.success.txt";
+        const char *testFile = "tmp.12.append.txt.";
+        const char *tag1     = "tmp.12.tag.1.txt";
+        const char *success  = "tmp.12.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -900,7 +930,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(off, 4 * SZ10 == off);
 
             bsl::stringstream cmd;
-            cmd << argv[0] << ' ' << argv[1] << " child";
+            cmd << program << ' ' << argv[1] << " child";
             cmd << (verbose     ? " v" : "");
             cmd << (veryVerbose ? " v" : "");
 
@@ -923,9 +953,6 @@ int main(int argc, char *argv[])
 
             Obj::close(fd);
             Obj::close(fd2);
-            Obj::remove(testFile);
-            Obj::remove(tag1);
-            Obj::remove(success);
 
             if (verbose) Q(Parent finished);
 
@@ -939,6 +966,8 @@ int main(int argc, char *argv[])
             verbose = veryVerbose;
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
+
+            ASSERT(0 == bdesu_FileUtil::setWorkingDirectory(".."));
 
             ASSERT(bdesu_FileUtil::exists(testFile));
             LOOP_ASSERT(fs, 4 * SZ10 == (fs = Obj::getFileSize(testFile)));
@@ -961,6 +990,10 @@ int main(int argc, char *argv[])
             Obj::close(fdChild);
 
             if (verbose) Q(Child finished);
+
+            // Quit to avoid doing cleanup at end of 'main' twice.
+
+            return testStatus;                                        // RETURN
         }
       } break;
 
@@ -1006,12 +1039,9 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        bsl::string fileNameWrite   =
-                          tempFileName("bdesu_fileutil.temp.11.write", true);
-        bsl::string fileNameRead    =
-                          tempFileName("bdesu_fileutil.temp.11.read", true);
-        bsl::string fileNameSuccess =
-                          tempFileName("bdesu_fileutil.temp.11.success", true);
+        bsl::string fileNameWrite   = tempFileName("temp.11.write");
+        bsl::string fileNameRead    = tempFileName("temp.11.read");
+        bsl::string fileNameSuccess = tempFileName("temp.11.success");
 
         if (veryVerbose) {
             T_() P(fileNameWrite) T_() P(fileNameRead) T_() P(fileNameSuccess)
@@ -1052,7 +1082,6 @@ int main(int argc, char *argv[])
             fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
             LOOP_ASSERT(fdWrite, bdesu_FileUtil::INVALID_FD != fdWrite);
 #endif
-
             fdRead  = bdesu_FileUtil::open(fileNameRead,  true, false);
             LOOP_ASSERT(fdRead, bdesu_FileUtil::INVALID_FD != fdRead);
             rc = bdesu_FileUtil::write(fdRead , "woof", 4);
@@ -1069,7 +1098,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
 
             bsl::stringstream cmd;
-            cmd << argv[0] << ' ' << argv[1] << " child";
+            cmd << program << ' ' << argv[1] << " child";
             cmd << (verbose     ? " v" : "");
             cmd << (veryVerbose ? " v" : "");
 
@@ -1104,10 +1133,6 @@ int main(int argc, char *argv[])
             if (verbose) P(GetLastError());
 
             LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
-
-            bdesu_FileUtil::remove(fileNameWrite);
-            bdesu_FileUtil::remove(fileNameRead);
-            bdesu_FileUtil::remove(fileNameSuccess);
         }
         else {
             // child process
@@ -1123,6 +1148,8 @@ int main(int argc, char *argv[])
             verbose = veryVerbose;
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
+
+            ASSERT(0 == bdesu_FileUtil::setWorkingDirectory(".."));
 
             LOOP_ASSERT(fileNameWrite, bdesu_FileUtil::exists(fileNameWrite));
             LOOP_ASSERT(fileNameRead, bdesu_FileUtil::exists(fileNameRead));
@@ -1225,9 +1252,9 @@ int main(int argc, char *argv[])
         // It is important not to use 'tempFileName' here because otherwise
         // the parent and child will have different file names.
 
-        bsl::string fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
-        bsl::string fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
-        bsl::string fileNameSuccess = "tmp.bdesu_fileutil_10.success.txt";
+        bsl::string fileNameWrite   = "tmp.tryLock.10.write.txt";
+        bsl::string fileNameRead    = "tmp.tryLock.10.read.txt";
+        bsl::string fileNameSuccess = "tmp.tryLock.10.success.txt";
 
         if (veryVerbose) {
             P_(fileNameWrite);    P_(fileNameRead);    P(fileNameSuccess);
@@ -1240,6 +1267,8 @@ int main(int argc, char *argv[])
         if (isParent) {
             if (verbose) cout << "tryLock test\n"
                                  "============\n";
+
+            if (verbose) P(argv[2]);
 
             bdesu_FileUtil::remove(fileNameWrite);
             bdesu_FileUtil::remove(fileNameRead);
@@ -1271,15 +1300,17 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
 
             bsl::stringstream cmd;
-            cmd << argv[0] << ' ' << argv[1] << " child";
+            cmd << program << ' ' << argv[1] << " child";
             cmd << (verbose     ? " v" : "");
             cmd << (veryVerbose ? " v" : "");
 
+            if (verbose) P(cmd.str());
             localForkExec(cmd.str().c_str());
 
             localSleep(3);
 
-            ASSERT(bdesu_FileUtil::exists(fileNameSuccess));
+            LOOP_ASSERT((verbose ? argv[2] : "nix"),
+                                      bdesu_FileUtil::exists(fileNameSuccess));
 
             rc = bdesu_FileUtil::unlock(fdWrite);
             ASSERT(0 == rc);
@@ -1294,19 +1325,19 @@ int main(int argc, char *argv[])
             errno = 0;
             rc = bdesu_FileUtil::tryLock(fdWrite, false);
             ASSERT(0 != rc);
-            if (verbose) P(errno);
+            if (verbose) PL(errno);
             LOOP_ASSERT(errno, EBADF == errno);
 
             if (verbose) Q(Invalid file descriptor);
             errno = 0;
             rc = bdesu_FileUtil::tryLock(bdesu_FileUtil::INVALID_FD, false);
             ASSERT(0 != rc);
-            if (verbose) P(errno);
+            if (verbose) PL(errno);
             LOOP_ASSERT(errno, EBADF == errno);
 
-            bdesu_FileUtil::remove(fileNameWrite);
-            bdesu_FileUtil::remove(fileNameRead);
-            bdesu_FileUtil::remove(fileNameSuccess);
+//          bdesu_FileUtil::remove(fileNameWrite);
+//          bdesu_FileUtil::remove(fileNameRead);
+//          bdesu_FileUtil::remove(fileNameSuccess);
         }
         else {
             // child process
@@ -1314,6 +1345,8 @@ int main(int argc, char *argv[])
             verbose = veryVerbose;
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
+
+            ASSERT(0 == bdesu_FileUtil::setWorkingDirectory(".."));
 
             ASSERT(bdesu_FileUtil::exists(fileNameWrite));
             ASSERT(bdesu_FileUtil::exists(fileNameRead));
@@ -1348,7 +1381,7 @@ int main(int argc, char *argv[])
             rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 != rc);
             ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
-            if (verbose) P(errno);
+            if (verbose) PL(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 
             if (verbose) Q(Locked for write then read);
@@ -1356,7 +1389,7 @@ int main(int argc, char *argv[])
             rc = bdesu_FileUtil::tryLock(fdWrite, false);
             ASSERT(0 != rc);
             ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
-            if (verbose) P(errno);
+            if (verbose) PL(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 
             if (verbose) Q(Locked for read then write);
@@ -1364,14 +1397,14 @@ int main(int argc, char *argv[])
             rc = bdesu_FileUtil::tryLock(fdRead, true);
             ASSERT(0 != rc);
             ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
-            if (verbose) P(errno);
+            if (verbose) PL(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 
             if (verbose) Q(Locked for read then read);
             errno = 0;
             rc = bdesu_FileUtil::tryLock(fdRead, false);
             ASSERT(0 == rc);
-            if (verbose) P(errno);
+            if (verbose) PL(errno);
             LOOP_ASSERT(errno, 0 == errno);
             rc = bdesu_FileUtil::unlock(fdRead);
             ASSERT(0 == rc);
@@ -1390,6 +1423,19 @@ int main(int argc, char *argv[])
                                                     false);
                 bdesu_FileUtil::close(fdSuccess);
             }
+            else {
+                FD fdSuccess = bdesu_FileUtil::open(
+                                             "/tmp/bdesu_fileutil.fail.10.txt",
+                                                    true,
+                                                    false);
+                bdesu_FileUtil::close(fdSuccess);
+                P(testStatus);
+            }
+
+            // Exit from main from child without doing cleanup at end of main,
+            // since parent will do that.
+
+            return testStatus;                                        // RETURN
         }
 #else
         if (verbose) {
@@ -1474,8 +1520,6 @@ int main(int argc, char *argv[])
         fd = bdesu_FileUtil::open(fileName, false, true);
         ASSERT(3 == bdesu_FileUtil::read(fd, result, sizeof result));
         bdesu_FileUtil::close(fd);
-
-        bdesu_FileUtil::remove(fileName);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1494,10 +1538,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nSimple matching test"
                           << "\n====================" << endl;
 
-        const char* dirName = "bdesu_fileutil.testDirCase7";
-        bdesu_FileUtil::remove(dirName, true);
-        bdesu_FileUtil::createDirectories(dirName, true);
-        bdesu_FileUtil::setWorkingDirectory(dirName);
         for (int i=0; i<4; ++i) {
             char name[16];
             sprintf(name, "woof.a.%d", i);
@@ -1515,9 +1555,6 @@ int main(int argc, char *argv[])
         ASSERT(vs[1] == "woof.a.1");
         ASSERT(vs[2] == "woof.a.2");
         ASSERT(vs[3] == "woof.a.3");
-
-        bdesu_FileUtil::setWorkingDirectory("..");
-        bdesu_FileUtil::remove(dirName, true);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1543,7 +1580,7 @@ int main(int argc, char *argv[])
                           << "\n=====================" << endl;
 
         // Setup by first creating a tmp file
-        string fileName =tempFileName("bdesu_fileutil.temp.6.getFileSizeTest");
+        string fileName = tempFileName("tmp.6.getFileSizeTest");
         if (veryVerbose) P(fileName);
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(fileName,
                                                                  true,
@@ -1702,11 +1739,6 @@ int main(int argc, char *argv[])
                 cout << "Actual " << off << endl;
             }
         }
-
-        // Clean up the tmp file.
-
-        bdesu_FileUtil::remove(fileName);
-
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -1740,7 +1772,6 @@ int main(int argc, char *argv[])
         ASSERT(0 <= avail);
 
         bdesu_FileUtil::close(fd);
-        bdesu_FileUtil::remove(fileName);
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1757,7 +1788,7 @@ int main(int argc, char *argv[])
                           << "\n===============================" << endl;
 
         enum { MAXSUFFIX=3 };
-        bsl::string tmpFile(tempFileName());
+        bsl::string tmpFile = tempFileName();
         bdesu_FileUtil::FileDescriptor f;
 
         ASSERT(0 == bdesu_FileUtil::rollFileChain(tmpFile, MAXSUFFIX));
@@ -1850,12 +1881,12 @@ int main(int argc, char *argv[])
             Parameters regular;
             Parameters directory;
         } parameters = {
-            { "bdesu_fileutil.temp.case3" PS "file",
-              "bdesu_fileutil.temp.case3" PS "file2",
-              "bdesu_fileutil.temp.case3" PS "dir"  },
-            { "bdesu_fileutil.temp.case3" PS "dir",
-              "bdesu_fileutil.temp.case3" PS "dir2",
-              "bdesu_fileutil.temp.case3" PS "file" } 
+            { "tmp.case3" PS "file",
+              "tmp.case3" PS "file2",
+              "tmp.case3" PS "dir"  },
+            { "tmp.case3" PS "dir",
+              "tmp.case3" PS "dir2",
+              "tmp.case3" PS "file" }
         };
 
         const Parameters& r = parameters.regular;
@@ -2001,10 +2032,6 @@ int main(int argc, char *argv[])
             bdesu_FileUtil::remove(filename);
         }
 #endif  // BSLS_PLATFORM_OS_WINDOWS (unix domain socket)
-
-        //clean up
-
-        ASSERT(0 == bdesu_FileUtil::remove("bdesu_fileutil.temp.case3", true));
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2029,8 +2056,8 @@ int main(int argc, char *argv[])
            "abc.def",
         };
 
-#define PATH  "bdesu_fileutil.temp.2.futc3"
-#define PATHQ "bdesu_fileutil.temp.2.futc?"
+#define PATH  "tmp.2.futc3"
+#define PATHQ "tmp.2.futc?"
 
         bsl::string path(PATH);
 
@@ -2040,9 +2067,7 @@ int main(int argc, char *argv[])
         // Sun compiler, which complains about the character sequence "\*".
         // So let's hard-code it.
 
-        const char tripleQMarkLiteral[] = {'b','d','e','s','u','_','f','i','l',
-                                           'e','u','t',
-                                           'i','l','.','t','e','m','p','.','2',
+        const char tripleQMarkLiteral[] = {'t','m','p','.','2',
                                            '.','f','u','t','c','3','/','b',
                                            '?','?','?','/','*','d','*', 0};
 
@@ -2054,7 +2079,7 @@ int main(int argc, char *argv[])
             {L_, "", ""},
             {L_, PATH "/*/*foo*", ""},
             {L_, PATH "/*/*d*", PATH "/alpha/abc.def:" PATH "/alpha/abcd:"
-                            PATH "/beta/abc.def:" PATH "/beta/abcd"},
+                                PATH "/beta/abc.def:" PATH "/beta/abcd"},
             {L_, tripleQMarkLiteral, PATH "/beta/abc.def:" PATH "/beta/abcd"},
             {L_, PATH "/*b*", PATH "/beta"},
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -2064,8 +2089,8 @@ int main(int argc, char *argv[])
                        PATH "/beta/abcd:" PATH "/beta/zy.z:" PATH "/beta/zyx"},
             {L_, PATHQ "/*/abcd.*",PATH "/alpha/abcd:" PATH "/beta/abcd"},
             {L_, PATHQ "/*b*/*.*", PATH "/beta/abc.def:" PATH "/beta/abc.zzz:"
-                              PATH "/beta/abcd:" PATH "/beta/zy.z:"
-                              PATH "/beta/zyx"},
+                                   PATH "/beta/abcd:" PATH "/beta/zy.z:"
+                                   PATH "/beta/zyx"},
             {L_, PATH "*/*/*.?",
                PATH "/alpha/abcd:" PATH "/alpha/zy.z:" PATH "/alpha/zyx:"
                PATH "/beta/abcd:" PATH "/beta/zy.z:" PATH "/beta/zyx"}
@@ -2157,8 +2182,6 @@ int main(int argc, char *argv[])
             string rollup = rollupPaths(resultPaths);
             LOOP3_ASSERT(LINE, p.result, rollup, string(p.result) == rollup);
         }
-
-        ASSERT(0 == bdesu_FileUtil::remove(path.c_str(), true));
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2296,11 +2319,6 @@ int main(int argc, char *argv[])
         ASSERT(NUM_NEW_FILES == logFiles.size());
         bdesu_PathUtil::popLeaf(&logPath);
         bdesu_PathUtil::popLeaf(&logPath);
-
-        // Clean up
-
-        ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
-        ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -2501,12 +2519,32 @@ int main(int argc, char *argv[])
             int rc = Util::remove(fileName);
             ASSERT(0 == rc);
         }
-      }  break;
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // TESTING WORKING DIRECTORY CREATED
+        // --------------------------------------------------------------------
+
+        return -1;                                                    // RETURN
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == bdesu_FileUtil::setWorkingDirectory(".."));
+    LOOP_ASSERT(mainRoot, bdesu_FileUtil::exists(mainRoot));
+
+    // Sometimes this delete won't work because of '.nfs*' gremlin files that
+    // mysteriously get created in the directory.  Leave the directory behind
+    // and move on.  Also remove twice, because sometimes the first 'remove'
+    // 'sorta' fails -- it returns a negative status after successfully killing
+    // the gremlin file.  Worst case, leave the file there to be cleaned up
+    // in a sweep later.
+
+    bdesu_FileUtil::remove(mainRoot, true);
+    bdesu_FileUtil::remove(mainRoot, true);
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."
