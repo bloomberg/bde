@@ -445,6 +445,7 @@ int main(int argc, char *argv[])
     const bsl::string program = PS[0] == *argv[0] || bsl::strstr(argv[0],":\\")
                               ? bsl::string(argv[0])
                               : localGetcwd() + PS + argv[0];
+    LOOP_ASSERT(program, bdesu_FileUtil::exists(program));
     if (veryVerbose) P(program);
 
     bsl::string mainRoot;
@@ -457,7 +458,7 @@ int main(int argc, char *argv[])
         char host[80];
         ASSERT(0 ==::gethostname(host, sizeof(host)));
 #else
-        const char *host = "win.";    // 'gethostname' is difficult on
+        const char *host = "win";     // 'gethostname' is difficult on
                                       // Windows, and we usually aren't using
                                       // nfs there anyway.
 #endif
