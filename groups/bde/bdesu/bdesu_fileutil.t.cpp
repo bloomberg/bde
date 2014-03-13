@@ -269,6 +269,8 @@ bsl::string tempFileName(const char *fnTemplate = 0)
     // uniqueness (and, as a side-effect, from being created).
 {
     bsl::string result;
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     bsl::ostringstream oss;
     oss << "tmp.fileutil." << test << '.' << localGetPId();
     if (fnTemplate) {
@@ -277,14 +279,30 @@ bsl::string tempFileName(const char *fnTemplate = 0)
     const bsl::string& fnTemplateStr = oss.str();
     fnTemplate = fnTemplateStr.c_str();
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
-    GetTempPath(sizeof tmpPathBuf, tmpPathBuf);
-    GetTempFileName(tmpPathBuf, fnTemplate, nocheck, tmpNameBuf);
-    result = tmpNameBuf;
-#else
     result = fnTemplate + string("_XXXXXX");
     close(mkstemp(&result[0]));
+#else
+    // We can't make proper use of 'fnTemplate' on Windows.  We have created
+    // a local directory to put our files in and chdir'ed to it, so
+    // 'tmpPathBuf' should just be ".".  'GetTempFileName' is a really lame
+    // utility, other than the path, it allows us to specify only 3 chars of
+    // file name (!????!!!!!).
+    //: o The first will be 'T' (for 'tmp').
+    //: o The next will be 'A' + test case #, accomodating up to 25 test cases.
+    //: o The third will be 'A' - 1 + '# of calls' allowing this function to
+    //:   be called 26 times in any one process (each test case is run in a
+    //:   separate process).
+
+    (void) fnTemplate;
+
+    static int calls = 0;
+    char tplt[4] = { 'T', char('A' + test), char('A' + calls++), '\0' };
+    ASSERT(tplt[1] <= 'Z');
+    ASSERT(tplt[2] <= 'Z');
+
+    char tmpPathBuf[MAX_PATH] = { "." }, tmpNameBuf[MAX_PATH];
+    GetTempFileName(tmpPathBuf, tplt, 0, tmpNameBuf);
+    result = tmpNameBuf;
 #endif
 
     // Test Invariant:
@@ -435,17 +453,29 @@ int main(int argc, char *argv[])
         // create a plain file with the result name, and the attempt to
         // create the directory would fail.
 
-        char hostName[80];
-        ASSERT(0 ==::gethostname(hostName, sizeof(hostName)));
+#ifdef BSLS_PLATFORM_OS_UNIX
+        char host[80];
+        ASSERT(0 ==::gethostname(host, sizeof(host)));
+#else
+        const char *host = "win.";    // 'gethostname' is difficult on
+                                      // Windows, and we usually aren't using
+                                      // nfs there anyway.
+#endif
 
         bsl::ostringstream oss;
-        oss << "tmp.fileutil.case_" << test << '.' << hostName <<
-                                                          '.' << localGetPId();
+        oss << "tmp.fileutil.case_" << test << '.' << host << '.' <<
+                                                                 localGetPId();
         mainRoot = oss.str();
     }
     if (veryVerbose) P(mainRoot);
 
     if (bdesu_FileUtil::exists(mainRoot)) {
+        // Sometimes the cleanup at the end of this program is unable to clean
+        // up files, so we might encounter leftovers from a previous run, but
+        // these can usually be deleted if sufficient time has elapsed.  If
+        // we're not able to clean it up now, old files may prevent the test
+        // case we're running this time from working.
+
         LOOP_ASSERT(mainRoot, 0 == bdesu_FileUtil::remove(mainRoot, true));
     }
     ASSERT(0 == bdesu_FileUtil::createDirectories(mainRoot, true));
@@ -855,7 +885,7 @@ int main(int argc, char *argv[])
         Obj::close(writeFd);
         Obj::close(readFd);
 
-        ASSERT(0 == Obj::remove(testFileName));
+        Obj::remove(testFileName);
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1039,9 +1069,9 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        bsl::string fileNameWrite   = tempFileName("temp.11.write");
-        bsl::string fileNameRead    = tempFileName("temp.11.read");
-        bsl::string fileNameSuccess = tempFileName("temp.11.success");
+        bsl::string fileNameWrite   = "temp.11.write";
+        bsl::string fileNameRead    = "temp.11.read";
+        bsl::string fileNameSuccess = "temp.11.success";
 
         if (veryVerbose) {
             T_() P(fileNameWrite) T_() P(fileNameRead) T_() P(fileNameSuccess)
@@ -1151,6 +1181,8 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == bdesu_FileUtil::setWorkingDirectory(".."));
 
+            if (veryVerbose) P(localGetcwd());
+
             LOOP_ASSERT(fileNameWrite, bdesu_FileUtil::exists(fileNameWrite));
             LOOP_ASSERT(fileNameRead, bdesu_FileUtil::exists(fileNameRead));
 
@@ -1221,6 +1253,10 @@ int main(int argc, char *argv[])
                                                     false);
                 bdesu_FileUtil::close(fdSuccess);
             }
+
+            // Exit from child, avoiding redundant cleanup at end of 'main'.
+
+            return testStatus;                                        // RETURN
         }
 #endif
       } break;
