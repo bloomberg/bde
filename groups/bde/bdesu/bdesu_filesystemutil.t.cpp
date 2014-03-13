@@ -36,7 +36,6 @@
 #include <io.h>
 #endif
 
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -204,6 +203,14 @@ int localGetPId()
 }
 
 static
+bsl::string localGetcwd()
+{
+    bsl::string result;
+    ASSERT(0 == Obj::getWorkingDirectory(&result));
+    return result;
+}
+
+static
 void localForkExec(bsl::string command)
 {
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -223,6 +230,8 @@ void localForkExec(bsl::string command)
         argvec.push_back(0);
 
         execv(argvec[0], argvec.data());
+
+        ASSERT(0 && "execv failed");
     }
 #else
     STARTUPINFO sui;
@@ -278,33 +287,47 @@ void makeArbitraryFile(const char *path)
     ASSERT(0 == Obj::close(fd));
 }
 
-bsl::string tempFileName(const char *fnTemplate = 0, int nocheck = 0)
+bsl::string tempFileName(const char *fnTemplate = 0)
     // Return a temporary file name.  Optionally specify 'fnTemplate' to serve
     // as a part of the resulting name.  On Windows, optionally specify a non-
     // zero value for 'nocheck' to prevent the filename for being checked for
     // uniqueness (and, as a side-effect, from being created).
 {
+    bsl::string result;
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
     bsl::ostringstream oss;
-    oss << "bdesu_filesystemutil." << test << '.' << localGetPId();
+    oss << "tmp.fileutil." << test << '.' << localGetPId();
     if (fnTemplate) {
         oss << '.' << fnTemplate;
     }
     const bsl::string& fnTemplateStr = oss.str();
     fnTemplate = fnTemplateStr.c_str();
 
-    (void) nocheck;  // Avoid warning.
-
-    bsl::string result;
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
-    GetTempPath(sizeof tmpPathBuf, tmpPathBuf);
-    ASSERT(bsl::strlen(tmpPathBuf) + bsl::strrlen(fnTemplate) + 20 < MAX_PATH);
-    GetTempFileName(tmpPathBuf, fnTemplate, nocheck, tmpNameBuf);
-    result = tmpNameBuf;
-#else
     result = fnTemplate + string("_XXXXXX");
     close(mkstemp(&result[0]));
+#else
+    // We can't make proper use of 'fnTemplate' on Windows.  We have created
+    // a local directory to put our files in and chdir'ed to it, so
+    // 'tmpPathBuf' should just be ".".  'GetTempFileName' is a really lame
+    // utility, other than the path, it allows us to specify only 3 chars of
+    // file name (!????!!!!!).
+    //: o The first will be 'T' (for 'tmp').
+    //: o The next will be 'A' + test case #, accomodating up to 25 test cases.
+    //: o The third will be 'A' - 1 + '# of calls' allowing this function to
+    //:   be called 26 times in any one process (each test case is run in a
+    //:   separate process).
+
+    (void) fnTemplate;
+
+    static int calls = 0;
+    char tplt[4] = { 'T', char('A' + test), char('A' + calls++), '\0' };
+    ASSERT(tplt[1] <= 'Z');
+    ASSERT(tplt[2] <= 'Z');
+
+    char tmpPathBuf[MAX_PATH] = { "." }, tmpNameBuf[MAX_PATH];
+    GetTempFileName(tmpPathBuf, tplt, 0, tmpNameBuf);
+    result = tmpNameBuf;
 #endif
 
     // Test Invariant:
@@ -441,6 +464,49 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // Make 'program' be a absolute path to the executable, for when we fork /
+    // exec from different directories.
+
+    const bsl::string program = PS[0] == *argv[0] || bsl::strstr(argv[0],":\\")
+                              ? bsl::string(argv[0])
+                              : localGetcwd() + PS + argv[0];
+    LOOP_ASSERT(program, Obj::exists(program));
+    if (veryVerbose) P(program);
+
+    bsl::string mainRoot;
+    {
+        // Must not call 'tempFileName' here, because 'tempFileName' would
+        // create a plain file with the result name, and the attempt to
+        // create the directory would fail.
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+        char host[80];
+        ASSERT(0 ==::gethostname(host, sizeof(host)));
+#else
+        const char *host = "win";     // 'gethostname' is difficult on
+                                      // Windows, and we usually aren't using
+                                      // nfs there anyway.
+#endif
+
+        bsl::ostringstream oss;
+        oss << "tmp.filesystemutil.case_" << test << '.' << host << '.' <<
+                                                                 localGetPId();
+        mainRoot = oss.str();
+    }
+    if (veryVerbose) P(mainRoot);
+
+    if (Obj::exists(mainRoot)) {
+        // Sometimes the cleanup at the end of this program is unable to clean
+        // up files, so we might encounter leftovers from a previous run, but
+        // these can usually be deleted if sufficient time has elapsed.  If
+        // we're not able to clean it up now, old files may prevent the test
+        // case we're running this time from working.
+
+        LOOP_ASSERT(mainRoot, 0 == Obj::remove(mainRoot, true));
+    }
+    ASSERT(0 == Obj::createDirectories(mainRoot, true));
+    ASSERT(0 == Obj::setWorkingDirectory(mainRoot));
 
     switch(test) { case 0:
       case 19: {
@@ -1388,6 +1454,8 @@ int main(int argc, char *argv[])
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
 
+            ASSERT(0 == Obj::setWorkingDirectory(".."));
+
             ASSERT(Obj::exists(testFile));
             LOOP_ASSERT(fs, 4 * SZ10 == (fs = Obj::getFileSize(testFile)));
 
@@ -1411,6 +1479,10 @@ int main(int argc, char *argv[])
             Obj::close(fdChild);
 
             if (verbose) Q(Child finished);
+
+            // Exit main to avoid doing cleanup at end of 'main' twice.
+
+            return testStatus;                                        // RETURN
         }
       } break;
 
@@ -1456,12 +1528,9 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        bsl::string fileNameWrite   =
-                    tempFileName("bdesu_filesystemutil.temp.12.write",   true);
-        bsl::string fileNameRead    =
-                    tempFileName("bdesu_filesystemutil.temp.12.read",    true);
-        bsl::string fileNameSuccess =
-                    tempFileName("bdesu_filesystemutil.temp.12.success", true);
+        bsl::string fileNameWrite   = "tmp.filesystemutil.case_12.write";
+        bsl::string fileNameRead    = "tmp.filesystemutil.case_12.read";
+        bsl::string fileNameSuccess = "tmp.filesystemutil.case_12.success";
 
         if (veryVerbose) {
             T_() P(fileNameWrite) T_() P(fileNameRead) T_() P(fileNameSuccess)
@@ -1581,6 +1650,8 @@ int main(int argc, char *argv[])
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
 
+            ASSERT(0 == Obj::setWorkingDirectory(".."));
+
             LOOP_ASSERT(fileNameWrite, Obj::exists(fileNameWrite));
             LOOP_ASSERT(fileNameRead, Obj::exists(fileNameRead));
 
@@ -1652,6 +1723,11 @@ int main(int argc, char *argv[])
                                          Obj::e_READ_WRITE);
                 Obj::close(fdSuccess);
             }
+
+            // Exit 'main' to avoid doing the cleanup at the end of 'main'
+            // twice.
+
+            return testStatus;                                        // RETURN
         }
 #endif
       } break;
@@ -1683,10 +1759,9 @@ int main(int argc, char *argv[])
         // It is important not to use 'tempFileName' here because otherwise
         // the parent and child will have different file names.
 
-        bsl::string fileNameWrite   = "tmp.bdesu_filesystemutil_11.write.txt";
-        bsl::string fileNameRead    = "tmp.bdesu_filesystemutil_11.read.txt";
-        bsl::string fileNameSuccess =
-                                     "tmp.bdesu_filesystemutil_11.success.txt";
+        bsl::string fileNameWrite   = "tmp.filesystemutil.case_11.write.txt";
+        bsl::string fileNameRead    = "tmp.filesystemutil.case_11.read.txt";
+        bsl::string fileNameSuccess = "tmp.filesystemutil.case_11.success.txt";
 
         if (veryVerbose) {
             P_(fileNameWrite);    P_(fileNameRead);    P(fileNameSuccess);
@@ -1780,6 +1855,8 @@ int main(int argc, char *argv[])
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
 
+            ASSERT(0 == Obj::setWorkingDirectory(".."));
+                                        
             ASSERT(Obj::exists(fileNameWrite));
             ASSERT(Obj::exists(fileNameRead));
 
@@ -1859,6 +1936,11 @@ int main(int argc, char *argv[])
                                          Obj::e_READ_WRITE);
                 Obj::close(fdSuccess);
             }
+
+            // Exit 'main' to avoid doing the cleanup at the end of 'main'
+            // twice.
+
+            return testStatus;                                        // RETURN
         }
 #else
         if (verbose) {
@@ -2325,12 +2407,12 @@ int main(int argc, char *argv[])
             Parameters regular;
             Parameters directory;
         } parameters = {
-            { "bdesu_filesystemutil.temp.case4" PS "file",
-              "bdesu_filesystemutil.temp.case4" PS "file2",
-              "bdesu_filesystemutil.temp.case4" PS "dir"  },
-            { "bdesu_filesystemutil.temp.case4" PS "dir",
-              "bdesu_filesystemutil.temp.case4" PS "dir2",
-              "bdesu_filesystemutil.temp.case4" PS "file" }
+            { "tmp.filesystemutil.case4" PS "file",
+              "tmp.filesystemutil.case4" PS "file2",
+              "tmp.filesystemutil.case4" PS "dir"  },
+            { "tmp.filesystemutil.case4" PS "dir",
+              "tmp.filesystemutil.case4" PS "dir2",
+              "tmp.filesystemutil.case4" PS "file" }
         };
 
         const Parameters& r = parameters.regular;
@@ -2479,7 +2561,8 @@ int main(int argc, char *argv[])
 
         //clean up
 
-        ASSERT(0 == Obj::remove("bdesu_filesystemutil.temp.case4", true));
+       ASSERT(0 == Obj::remove("tmp.filesystemutil.case4",
+                                                true));
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -4752,6 +4835,19 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == Obj::setWorkingDirectory(".."));
+    LOOP_ASSERT(mainRoot, Obj::exists(mainRoot));
+
+    // Sometimes this delete won't work because of '.nfs*' gremlin files that
+    // mysteriously get created in the directory.  Leave the directory behind
+    // and move on.  Also remove twice, because sometimes the first 'remove'
+    // 'sorta' fails -- it returns a negative status after successfully killing
+    // the gremlin file.  Worst case, leave the file there to be cleaned up
+    // in a sweep later.
+
+    Obj::remove(mainRoot, true);
+    Obj::remove(mainRoot, true);
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."
