@@ -131,6 +131,56 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
+// [ 6] int log2(uint32_t value);
+// [ 6] int log2(uint64_t value);
+// [ 6] uint32_t roundUpToBinaryPower(uint32_t value);
+// [ 6] uint64_t roundUpToBinaryPower(uint64_t value);
+
+        { // verify extreme values
+            uint32_t value32 = 0;
+            uint64_t value64 = 0;
+
+            // NOTE: 0 is undefined for 'log2'; see negative testing
+
+            ASSERT(0 == Util::roundUpToBinaryPower(value32));
+            ASSERT(0 == Util::roundUpToBinaryPower(value64));
+
+            value32 = (uint32_t)1 << 31;
+            value64 = (uint64_t)1 << 63;
+
+            ASSERT(31 == Util::log2(value32 - 1));
+            ASSERT(63 == Util::log2(value64 - 1));
+            ASSERT(value32 == Util::roundUpToBinaryPower(value32 - 1));
+            ASSERT(value64 == Util::roundUpToBinaryPower(value64 - 1));
+
+            ASSERT(31 == Util::log2(value32));
+            ASSERT(63 == Util::log2(value64));
+            ASSERT(value32 == Util::roundUpToBinaryPower(value32));
+            ASSERT(value64 == Util::roundUpToBinaryPower(value64));
+
+            ASSERT(32 == Util::log2(value32 + 1));
+            ASSERT(64 == Util::log2(value64 + 1));
+            ASSERT(0 == Util::roundUpToBinaryPower(value32 + 1));
+            ASSERT(0 == Util::roundUpToBinaryPower(value64 + 1));
+
+            value32 = (uint32_t)-1;
+            value64 = (uint64_t)-1;
+            ASSERT(32 == Util::log2(value32));
+            ASSERT(64 == Util::log2(value64));
+            ASSERT(0 == Util::roundUpToBinaryPower(value32));
+            ASSERT(0 == Util::roundUpToBinaryPower(value64));
+        }
+
+        { // negative testing
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            uint32_t value32 = 0;  (void)value32;
+            uint64_t value64 = 0;  (void)value64;
+
+            ASSERT_SAFE_FAIL(Util::log2(value32));
+            ASSERT_SAFE_FAIL(Util::log2(value64));
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------

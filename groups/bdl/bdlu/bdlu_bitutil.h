@@ -150,7 +150,7 @@ int BitUtil::log2(unsigned value)
 {
     BSLS_ASSERT_SAFE(value > 0);
 
-    return 32 - numLeadingUnsetBits(value - 1);
+    return k_BITS_PER_INT32 - numLeadingUnsetBits(value - 1);
 }
 
 inline
@@ -158,7 +158,7 @@ int BitUtil::log2(uint64_t value)
 {
     BSLS_ASSERT_SAFE(value > 0LL);
 
-    return 64 - numLeadingUnsetBits(value - 1);
+    return k_BITS_PER_INT64 - numLeadingUnsetBits(value - 1);
 }
 
 inline
@@ -314,13 +314,19 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
 inline
 uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
 {
-    return (uint32_t)1 << (32 - numLeadingUnsetBits(value - 1));
+    int index = numLeadingUnsetBits(value - 1);
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
+           ? (uint32_t)1 << (k_BITS_PER_INT32 - index)
+           : 0;
 }
 
 inline
 uint64_t BitUtil::roundUpToBinaryPower(uint64_t value)
 {
-    return (uint64_t)1 << (64 - numLeadingUnsetBits(value - 1));
+    int index = numLeadingUnsetBits(value - 1);
+    return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
+           ? (uint64_t)1 << (k_BITS_PER_INT64 - index)
+           : 0;
 }
 
 template <typename TYPE>
