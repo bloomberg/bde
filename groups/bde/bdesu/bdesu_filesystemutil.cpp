@@ -174,7 +174,7 @@ extern "C" {
     // into the function type itself...but provide no way to declare
     // a function pointer of extern type local to a function.
 
-    typedef int (*StatFuncType)(const char *, struct stat *);
+    typedef int (*StatFuncType)(const char *, struct stat64 *);
 }
 
 static
@@ -1236,9 +1236,9 @@ bool bdesu_FilesystemUtil::isRegularFile(const char *path, bool followLinks)
 {
     BSLS_ASSERT(path);
 
-    struct stat fileStats;
+    struct stat64 fileStats;
 
-    StatFuncType statFunc = followLinks ? stat : lstat;
+    StatFuncType statFunc = followLinks ? stat64 : lstat64;
 
     if (0 != statFunc(path, &fileStats)) {
         return false;                                                 // RETURN
@@ -1251,9 +1251,9 @@ bool bdesu_FilesystemUtil::isDirectory(const char *path, bool followLinks)
 {
     BSLS_ASSERT(path);
 
-    struct stat fileStats;
+    struct stat64 fileStats;
 
-    StatFuncType statFunc = followLinks ? stat : lstat;
+    StatFuncType statFunc = followLinks ? stat64 : lstat64;
 
     if (0 != statFunc(path, &fileStats)) {
         return false;                                                 // RETURN
@@ -1268,9 +1268,9 @@ int bdesu_FilesystemUtil::getLastModificationTime(bdet_Datetime *time,
     BSLS_ASSERT(time);
     BSLS_ASSERT(path);
 
-    struct stat fileStats;
+    struct stat64 fileStats;
 
-    if (0 != stat(path, &fileStats)) {
+    if (0 != stat64(path, &fileStats)) {
         return -1;                                                    // RETURN
     }
 

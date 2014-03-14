@@ -2512,6 +2512,7 @@ int main(int argc, char *argv[])
         if (verbose) P(bytesWritten);
 
         ASSERT(Util::getFileSize(fileName) == bytesWritten);
+        ASSERT(Util::isRegularFile(fileName));
 
         char inBuf[80];
         bsls::Types::Int64 bytesRead = 0;
