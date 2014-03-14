@@ -124,6 +124,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_ctime.h>
 #endif
 
+#ifndef INCLUDED_TIME_H
+#define INCLUDED_TIME_H
+#include <time.h>   // POSIX timespec
+#endif
+
 #ifdef BSLS_PLATFORM_OS_DARWIN
 
 #ifndef INCLUDED_MACH_CLOCK_TYPES
