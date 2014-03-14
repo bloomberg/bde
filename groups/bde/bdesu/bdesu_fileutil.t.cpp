@@ -141,13 +141,13 @@ static int test;    // test case number
 inline
 bool isBackslash (char t)
 {
-   return t == '\\';
+    return t == '\\';
 }
 
 inline
 bool isForwardSlash (char t)
 {
-   return t == '/';
+    return t == '/';
 }
 
 #endif

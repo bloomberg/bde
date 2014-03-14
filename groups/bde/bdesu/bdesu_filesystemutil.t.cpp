@@ -162,13 +162,13 @@ static int test;
 inline
 bool isBackslash (char t)
 {
-   return t == '\\';
+    return t == '\\';
 }
 
 inline
 bool isForwardSlash (char t)
 {
-   return t == '/';
+    return t == '/';
 }
 
 #endif
@@ -1856,7 +1856,7 @@ int main(int argc, char *argv[])
             veryVeryVerbose = false;
 
             ASSERT(0 == Obj::setWorkingDirectory(".."));
-                                        
+
             ASSERT(Obj::exists(fileNameWrite));
             ASSERT(Obj::exists(fileNameRead));
 
