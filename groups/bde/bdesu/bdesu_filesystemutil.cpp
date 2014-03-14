@@ -48,6 +48,10 @@ BDES_IDENT_RCSID(bdesu_filesystemutil_cpp,"$Id$ $CSID$")
 #include <sys/statvfs.h>
 #endif
 
+#ifdef BSLS_PLATFORM_OS_CYGWIN
+#define stat64   stat
+#define lstat64 lstat
+#endif
 
 namespace BloombergLP {
 
