@@ -1,5 +1,10 @@
 // bdlu_bitutil.cpp                                                   -*-C++-*-
 #include <bdlu_bitutil.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdlu_bitutil_cpp,"$Id$ $CSID$")
+
+
 #include <bslmf_assert.h>
 
 namespace BloombergLP {

@@ -72,17 +72,10 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// Exploit sign-extension to simulate leading 1's and 0's portably.
-// Loop over the number of bits per word, where that makes sense.  Use a
-// special generator function g(spec) that recognizes up to one fill pattern
-// of the form 0..0 or 1..1 to create integers of unspecified length more
-// easily.  Note that the behavior of shifting the number of bits per word on
-// a integer is undefined.  The general category partitioning is based on
-// boundary cases such as 0, 1, BITS_PER_WORD - 1, and BITS_PER_WORD.
-// Note that it was necessary to break 'main' up into separate files because
-// of unacceptably long build times on windows.
+// This component under test provides static methods that perform various bit
+// related computations.  This test driver tests each implemented function.
 //-----------------------------------------------------------------------------
-//
+// CLASS METHODS
 // [ 2] bool isBitSet(uint32_t value, int index);
 // [ 2] bool isBitSet(uint64_t value, int index);
 // [ 6] int log2(uint32_t value);
@@ -93,6 +86,8 @@ static void aSsErT(int c, const char *s, int i)
 // [ 5] int numLeadingUnsetBits(uint64_t value);
 // [ 5] int numTrailingUnsetBits(uint32_t value);
 // [ 5] int numTrailingUnsetBits(uint64_t value);
+// [ 7] uint32_t roundUp(uint32_t value, uint32_t boundary);
+// [ 7] uint64_t roundUp(uint64_t value, uint64_t boundary);
 // [ 6] uint32_t roundUpToBinaryPower(uint32_t value);
 // [ 6] uint64_t roundUpToBinaryPower(uint64_t value);
 // [ 1] int sizeInBits(INTEGER value);
@@ -100,6 +95,9 @@ static void aSsErT(int c, const char *s, int i)
 // [ 3] uint64_t withBitCleared(uint64_t value, int index);
 // [ 3] uint32_t withBitSet(uint32_t value, int index);
 // [ 3] uint64_t withBitSet(uint64_t value, int index);
+//-----------------------------------------------------------------------------
+// [ 8] USAGE EXAMPLE
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -130,23 +128,259 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 8: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, replace
+        //:   leading comment characters with spaces, replace 'assert' with
+        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
+        //:   operations.  (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "Testing Usage Examples" << endl
+                                  << "======================" << endl;
+///Usage
+///-----
+// The following usage examples illustrate how some of the methods are used.
+// Note that, in all of these examples, the low-order bit is considered bit '0'
+// and resides on the right edge of the bit string.
+//
+// First, use 'withBitSet' to demonstrate the bit ordering:
+//..
+    ASSERT(static_cast<uint32_t>(0x00000001)
+                   == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0),  0));
+    ASSERT(static_cast<uint32_t>(0x00000008)
+                   == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0),  3));
+    ASSERT(static_cast<uint32_t>(0x00800000)
+                   == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0), 23));
+    ASSERT(static_cast<uint32_t>(0x66676666)
+          == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0x66666666), 16));
+//..
+//  /*------------------------------------------------------------------------+
+//  | 'bdlu::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
+//  |                                                                         |
+//  | srcInteger in binary:                  01100110011001100110011001100110 |
+//  | set bit 16:                                           1                 |
+//  | result:                                01100110011001110110011001100110 |
+//  +------------------------------------------------------------------------*/
+//
+// Then, count the number of set bits in a value with 'numBitsSet':
+//..
+    ASSERT(0 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
+    ASSERT(2 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
+    ASSERT(8 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x30071101)));
+//..
+//  /*------------------------------------------------------------------------+
+//  | 'bdlu::BitUtil::numBitsSet(0x30071101)' in binary:                      |
+//  |                                                                         |
+//  | input in binary:                       00110000000001110001000100000001 |
+//  | that has 8 ones set.  result: 8                                         |
+//  +------------------------------------------------------------------------*/
+//
+// Finally, use 'numLeadingUnsetBits' to determine the number of unset bits
+// with higher index than the first set bit:
+//..
+    ASSERT(32 ==
+        bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000000)));
+    ASSERT(31 ==
+        bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000001)));
+    ASSERT(7 ==
+        bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01000000)));
+    ASSERT(7 ==
+        bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01620030)));
+//..
+//  /*------------------------------------------------------------------------+
+//  | 'bdlu::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
+//  |                                                                         |
+//  | input:                                 00000001011000100000000000110000 |
+//  | highest set bit:                              1                         |
+//  | number of unset bits leading this set bit == 7                          |
+//  +------------------------------------------------------------------------*/
+
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'roundUp'
+        //   Ensure the methods return the expected value.
+        //
+        // Concerns:
+        //: 1 the methods correctly perform the calculations
+        //: 2 QoI: asserted precondition violations are detected when enabled
+        //
+        // Plan:
+        //: 1 verify return value for input values 2^i - 1, 2^i, 2^i + 1 and
+        //:   all possible 'boundary' values where i = 1 .. 31 for 'uint32_t'
+        //:   and i = 1 .. 63 for 'uint64_t'
+        //:
+        //: 2 verify return values when all bits are set and all possible
+        //:   'boundary' values in the input value (C-1)
+        //:
+        //: 3 verify defensive checks are triggered for invalid attribute
+        //:   values (C-2)
+        //
+        // Testing:
+        //   uint32_t roundUp(uint32_t value, uint32_t boundary);
+        //   uint64_t roundUp(uint64_t value, uint64_t boundary);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'roundUp'"
+                          << "\n================="
+                          << endl;
+
+        for (int b = 0; b < 32; ++b) {
+            uint32_t boundary = (uint32_t)1 << b;
+            for (int i = 0; i < 32; ++i) {
+                for (int d = -1; d <= 1; ++d) {
+                    uint32_t value32 = ((uint32_t)1 << i) + d;
+                    uint32_t rv = Util::roundUp(value32, boundary);
+                    // NOTE: the only possible overflow scenario in the
+                    // following correctly results in 0 since 'boundary' is
+                    // a power of two
+                    uint32_t RV = (value32 % boundary
+                                   ? (value32 / boundary + 1) * boundary
+                                   : value32);
+                    LOOP3_ASSERT(b, i, d, rv == RV);
+                }
+            }
+        }
+        for (int b = 0; b < 64; ++b) {
+            uint64_t boundary = (uint64_t)1 << b;
+            for (int i = 0; i < 64; ++i) {
+                for (int d = -1; d <= 1; ++d) {
+                    uint64_t value64 = ((uint64_t)1 << i) + d;
+                    uint64_t rv = Util::roundUp(value64, boundary);
+                    // NOTE: the only possible overflow scenario in the
+                    // following correctly results in 0 since 'boundary' is
+                    // a power of two
+                    uint64_t RV = (value64 % boundary
+                                   ? (value64 / boundary + 1) * boundary
+                                   : value64);
+                    LOOP3_ASSERT(b, i, d, rv == RV);
+                }
+            }
+        }
+
+        { // verify all bits set
+            uint32_t value32 = (uint32_t)-1;
+            ASSERT(value32 == Util::roundUp(value32, (uint32_t)1));
+            for (int b = 1; b < 32; ++b) {
+                uint32_t boundary = (uint32_t)1 << b;
+                LOOP_ASSERT(b, 0 == Util::roundUp(value32, boundary));
+            }
+            uint64_t value64 = (uint64_t)-1;
+            ASSERT(value64 == Util::roundUp(value64, (uint64_t)1));
+            for (int b = 1; b < 64; ++b) {
+                uint64_t boundary = (uint64_t)1 << b;
+                LOOP_ASSERT(b, 0 == Util::roundUp(value64, boundary));
+            }
+        }
+
+        { // negative testing
+            bsls::AssertFailureHandlerGuard
+                                          hG(bsls::AssertTest::failTestDriver);
+
+            // '0 == boundary'
+            ASSERT_SAFE_FAIL(Util::roundUp((uint32_t)0, (uint32_t)0));
+            ASSERT_SAFE_FAIL(Util::roundUp((uint64_t)0, (uint64_t)0));
+
+            // more than one bit in 'boundary'
+            ASSERT_SAFE_FAIL(Util::roundUp((uint32_t)0, (uint32_t)3));
+            ASSERT_SAFE_FAIL(Util::roundUp((uint64_t)0, (uint64_t)3));
+        }
+
+      } break;
       case 6: {
-// [ 6] int log2(uint32_t value);
-// [ 6] int log2(uint64_t value);
-// [ 6] uint32_t roundUpToBinaryPower(uint32_t value);
-// [ 6] uint64_t roundUpToBinaryPower(uint64_t value);
+        // --------------------------------------------------------------------
+        // TESTING 'log2' and 'roundUpToBinaryPower'
+        //   Ensure the methods return the expected value.
+        //
+        // Concerns:
+        //: 1 the methods correctly perform the calculations
+        //: 2 QoI: asserted precondition violations are detected when enabled
+        //
+        // Plan:
+        //: 1 verify return value for input values 1 and 2
+        //:
+        //: 2 verify return value for input values 2^i - 1, 2^i, 2^i + 1 where
+        //:   i = 2 .. 30 for 'uint32_t' and i = 2 .. 62 for 'uint64_t'
+        //:
+        //: 3 for 'roundUpToBinaryPower', verify behavior at input value 0
+        //:
+        //: 4 verify return value for input values 2^x - 1, 2^x, 2^x + 1 where
+        //:   x = 31 for 'uint32_t' and x = 63 for 'uint64_t'
+        //:
+        //: 5 verify return values when all bits are set in the input value
+        //:   (C-1)
+        //:
+        //: 6 verify defensive checks are triggered for invalid attribute
+        //:   values (C-2)
+        //
+        // Testing:
+        //   int log2(uint32_t value);
+        //   int log2(uint64_t value);
+        //   uint32_t roundUpToBinaryPower(uint32_t value);
+        //   uint64_t roundUpToBinaryPower(uint64_t value);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'log2' and 'roundUpToBinaryPower'"
+                          << "\n========================================="
+                          << endl;
+
+        { // verify values 1 and 2
+            ASSERT(0 == Util::log2((uint32_t)1));
+            ASSERT(1 == Util::log2((uint32_t)2));
+            ASSERT(1 == Util::roundUpToBinaryPower((uint32_t)1));
+            ASSERT(2 == Util::roundUpToBinaryPower((uint32_t)2));
+            ASSERT(0 == Util::log2((uint64_t)1));
+            ASSERT(1 == Util::log2((uint64_t)2));
+            ASSERT(1 == Util::roundUpToBinaryPower((uint64_t)1));
+            ASSERT(2 == Util::roundUpToBinaryPower((uint64_t)2));
+        }
+        { // verify values that are >= 3 and <= (2 << (30|62)) + 1
+            for (int i = 2; i < 31; ++i) {
+                // NOTE: 2^2 - 1 == 3
+                uint32_t value32 = (uint32_t)1 << i;
+                LOOP_ASSERT(i, i == Util::log2(value32 - 1));
+                LOOP_ASSERT(i, i == Util::log2(value32));
+                LOOP_ASSERT(i, i + 1 == Util::log2(value32 + 1));
+                LOOP_ASSERT(i, value32
+                                   == Util::roundUpToBinaryPower(value32 - 1));
+                LOOP_ASSERT(i, value32 == Util::roundUpToBinaryPower(value32));
+                LOOP_ASSERT(i, value32 * 2
+                                   == Util::roundUpToBinaryPower(value32 + 1));
+            }
+            for (int i = 2; i < 63; ++i) {
+                // NOTE: 2^2 - 1 == 3
+                uint64_t value64 = (uint64_t)1 << i;
+                LOOP_ASSERT(i, i == Util::log2(value64 - 1));
+                LOOP_ASSERT(i, i == Util::log2(value64));
+                LOOP_ASSERT(i, i + 1 == Util::log2(value64 + 1));
+                LOOP_ASSERT(i, value64
+                                   == Util::roundUpToBinaryPower(value64 - 1));
+                LOOP_ASSERT(i, value64 == Util::roundUpToBinaryPower(value64));
+                LOOP_ASSERT(i, value64 * 2
+                                   == Util::roundUpToBinaryPower(value64 + 1));
+            }
+        }
+
+        { // verify value 0 for 'roundUpToBinaryPower'
+            // NOTE: 0 is undefined for 'log2'; see negative testing
+            ASSERT(0 == Util::roundUpToBinaryPower((uint32_t)0));
+            ASSERT(0 == Util::roundUpToBinaryPower((uint64_t)0));
+        }
 
         { // verify extreme values
-            uint32_t value32 = 0;
-            uint64_t value64 = 0;
-
-            // NOTE: 0 is undefined for 'log2'; see negative testing
-
-            ASSERT(0 == Util::roundUpToBinaryPower(value32));
-            ASSERT(0 == Util::roundUpToBinaryPower(value64));
-
-            value32 = (uint32_t)1 << 31;
-            value64 = (uint64_t)1 << 63;
+            uint32_t value32 = (uint32_t)1 << 31;
+            uint64_t value64 = (uint64_t)1 << 63;
 
             ASSERT(31 == Util::log2(value32 - 1));
             ASSERT(63 == Util::log2(value64 - 1));
@@ -162,9 +396,11 @@ int main(int argc, char *argv[])
             ASSERT(64 == Util::log2(value64 + 1));
             ASSERT(0 == Util::roundUpToBinaryPower(value32 + 1));
             ASSERT(0 == Util::roundUpToBinaryPower(value64 + 1));
+        }
 
-            value32 = (uint32_t)-1;
-            value64 = (uint64_t)-1;
+        { // verify all bits set
+            uint32_t value32 = (uint32_t)-1;
+            uint64_t value64 = (uint64_t)-1;
             ASSERT(32 == Util::log2(value32));
             ASSERT(64 == Util::log2(value64));
             ASSERT(0 == Util::roundUpToBinaryPower(value32));
@@ -185,6 +421,7 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING 'numLeadingUnsetBits' and 'numTrailingUnsetBits'
+        //   Ensure the methods return the expected value.
         //
         // Concerns:
         //: 1 methods correctly return the number of unset bits prior to a set
@@ -299,6 +536,7 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // TESTING 'numBitsSet'
+        //   Ensure the methods return the expected value.
         //
         // Concerns:
         //: 1 'numBitsSet' correctly returns the number of set bits
@@ -364,6 +602,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING 'withBitCleared' and 'withBitSet'
+        //   Ensure the methods return the expected value.
         //
         // Concerns:
         //: 1 the methods correctly adjust the bit in the specified index
@@ -449,6 +688,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING 'isBitSet'
+        //   Ensure the methods return the expected value.
         //
         // Concerns:
         //: 1 'isBitSet' correctly returns the state of the specified bit
@@ -541,6 +781,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // TESTING 'sizeInBits'
+        //   Ensure the methods return the expected value.
         //
         // Concerns:
         //: 1 'sizeInBits' correctly returns the size of variables in bits
