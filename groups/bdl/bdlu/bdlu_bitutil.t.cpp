@@ -6,18 +6,12 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
-#include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>
 
-#include <bsl_cctype.h>      // isspace()
-#include <bsl_climits.h>     // INT_MIN, INT_MAX
 #include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strcmp()
-
-#include <time.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
