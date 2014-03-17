@@ -1,3 +1,12 @@
+bde-core (2.20.3.0) unstable; urgency=low
+
+  * Bump changelog
+  * 3cdf306 [APPROVAL] origin/review/btes5-Windows-crash-bde2.20-drqs50341674 to releases/2.20.x
+  * 9bc6455 [APPROVAL] origin/review/bdeu-string-strrstr-drqs50095976 to releases/2.20.x
+  * bf78980 [APPROVAL] origin/review/qualify-types-with-bsl-drqs48025901 to releases/2.20.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 14 Mar 2014 14:14:17 -0400
+
 bde-core (2.20.2.0) unstable; urgency=low
 
   * Bump changelog
