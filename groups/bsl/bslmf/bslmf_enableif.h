@@ -221,7 +221,7 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // For the next example, we will demonstrate the use of the second template
 // parameter in the 'bsl::enable_if' template, which serves as the "result"
-// type if the test condition passes.  Suupose that we want to write a generic
+// type if the test condition passes.  Suppose that we want to write a generic
 // function to allow us to cast between pointers of different types.  If the
 // types are polymorphic, we can use 'dynamic_cast' to potentially cast between
 // two seemingly unrelated types.  However, if either type is not polymorphic
@@ -241,7 +241,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  template<class TO, class FROM>
-//  typename bslmf::EnableIf<not(bsl::is_polymorphic<FROM>::value &&
+//  typename bsl::enable_if<not(bsl::is_polymorphic<FROM>::value &&
 //                                            bsl::is_polymorphic<TO>::value),
 //                          TO>::type *
 //  smart_cast(FROM *from)
@@ -251,7 +251,7 @@ BSLS_IDENT("$Id: $")
 //      return static_cast<TO *>(from);
 //  }
 //..
-// Next we define a small number of classes to demonstrate that this casting
+// Next, we define a small number of classes to demonstrate that this casting
 // utility works correctly:
 //..
 //  class A {
@@ -354,7 +354,7 @@ BSLS_IDENT("$Id: $")
 //          // Create a 'MyVector' object having the same sequence of values as
 //          // found in the range described by the the specified iterators
 //          // '[first, last)'.  The behavior is undefined unless 'first' and
-//          // 'last' refer to a sequence of value of the (template parameter)
+//          // 'last' refer to a sequence of values of the (template parameter)
 //          // type 'TYPE' where 'first' is at a position at or before 'last'.
 //          // Note that this function is currently defined inline to work
 //          // around an issue with the Microsoft Visual Studio compiler.
@@ -379,7 +379,8 @@ BSLS_IDENT("$Id: $")
 //      // ACCESSORS
 //      const TYPE& operator[](int index) const;
 //          // Return a reference providing non-modifiable access to the
-//          // element held by this container at the specified 'index'.
+//          // element held by this container at the specified 'index'.  The
+//          // behavior is undefined unless 'index < size()'.
 //
 //      size_t size() const;
 //          // Return the number of elements held by this container.
