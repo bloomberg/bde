@@ -193,17 +193,17 @@ BSLS_IDENT("$Id: $")
 //  {
 //      MyContainer<int> x(3, 14);
 //      MyContainer<int> y(2, 78);
-//      ASSERT(14 == x.size());
-//      ASSERT( 3 == x.front());
-//      ASSERT(78 == y.size());
-//      ASSERT( 2 == y.front());
+//      assert(14 == x.size());
+//      assert( 3 == x.front());
+//      assert(78 == y.size());
+//      assert( 2 == y.front());
 //
 //      Swap(x, y);
 //
-//      ASSERT(78 == x.size());
-//      ASSERT( 2 == x.front());
-//      ASSERT(14 == y.size());
-//      ASSERT( 3 == y.front());
+//      assert(78 == x.size());
+//      assert( 2 == x.front());
+//      assert(14 == y.size());
+//      assert( 3 == y.front());
 // }
 //..
 //
@@ -286,9 +286,9 @@ BSLS_IDENT("$Id: $")
 //
 //      (void) pA;
 //
-//      ASSERT(&object == pA2);
-//      ASSERT(&object == pB2);
-//      ASSERT(&object == pC2);
+//      assert(&object == pA2);
+//      assert(&object == pB2);
+//      assert(&object == pC2);
 //
 //      // These lines would fail to compile
 //      // A *pA3 = smart_cast<A>(pB);
@@ -417,14 +417,14 @@ BSLS_IDENT("$Id: $")
 //      const MyVector<unsigned int> x(&TEST_DATA[0], &TEST_DATA[5]);
 //      const MyVector<unsigned int> y(13, 42);
 //
-//      ASSERT(5 == x.size());
+//      assert(5 == x.size());
 //      for(int i = 0; i != 5; ++i) {
-//          ASSERT(TEST_DATA[i] == x[i]);
+//          assert(TEST_DATA[i] == x[i]);
 //      }
 //
-//      ASSERT(42 == y.size());
+//      assert(42 == y.size());
 //      for(int i = 0; i != 42; ++i) {
-//          ASSERT(13 == y[i]);
+//          assert(13 == y[i]);
 //      }
 //  }
 //..
