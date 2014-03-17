@@ -1,4 +1,4 @@
-// bdlu_bitutil.h                                                   -*-C++-*-
+// bdlu_bitutil.h                                                     -*-C++-*-
 #ifndef INCLUDED_BDLU_BITUTIL
 #define INCLUDED_BDLU_BITUTIL
 
@@ -19,8 +19,8 @@ BSLS_IDENT("$Id: $")
 // that serves as a namespace for a collection of efficient, bit-level
 // procedures on 'uint32_t' and 'uint64_t'.
 //
-// Some of these functions have other common names.  Below is a list of
-// sets of related functions:
+// Some of these functions have other common names.  Below is a list of sets of
+// related functions:
 //
 //: * numLeadingUnsetBits: cntlz, clz, ffs, ffo, nlz, ctlz
 //:
@@ -193,7 +193,7 @@ struct BitUtil {
         // that the conversion will not be successful if and only if
         // '0 == value || (1 << (sizeInBits(value) - 1)) < value'.
 
-    template <typename INTEGER>
+    template <class INTEGER>
     static int sizeInBits(INTEGER value);
         // Return the number of bits in the specified 'value' of the (template
         // parameter) type 'INTEGER'.
@@ -213,9 +213,9 @@ struct BitUtil {
         // '0 <= index < sizeInBits(value)'.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                                // ----------------
                                // struct BitUtil
@@ -237,7 +237,7 @@ bool BitUtil::isBitSet(uint64_t value, int index)
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
 
-    return ((uint64_t)1 << index) & value;
+    return (static_cast<uint64_t>(1) << index) & value;
 }
 
 inline
@@ -427,7 +427,7 @@ uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
 {
     int index = numLeadingUnsetBits(value - 1);
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
-           ? (uint32_t)1 << (k_BITS_PER_INT32 - index)
+           ? static_cast<uint32_t>(1) << (k_BITS_PER_INT32 - index)
            : 0;
 }
 
@@ -436,11 +436,11 @@ uint64_t BitUtil::roundUpToBinaryPower(uint64_t value)
 {
     int index = numLeadingUnsetBits(value - 1);
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
-           ? (uint64_t)1 << (k_BITS_PER_INT64 - index)
+           ? static_cast<uint64_t>(1) << (k_BITS_PER_INT64 - index)
            : 0;
 }
 
-template <typename TYPE>
+template <class TYPE>
 inline
 int BitUtil::sizeInBits(TYPE)
 {
@@ -462,7 +462,7 @@ uint64_t BitUtil::withBitCleared(uint64_t value, int index)
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
 
-    return value & ~((uint64_t)1 << index);
+    return value & ~(static_cast<uint64_t>(1) << index);
 }
 
 inline
@@ -480,7 +480,7 @@ uint64_t BitUtil::withBitSet(uint64_t value, int index)
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
 
-    return value | ((uint64_t)1 << index);
+    return value | (static_cast<uint64_t>(1) << index);
 }
 
 }  // close package namespace
