@@ -37,31 +37,35 @@ using namespace BloombergLP;
 // [ 4] USAGE EXAMPLE 2
 // [ 5] USAGE EXAMPLE 3
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
 #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
@@ -70,57 +74,15 @@ static void aSsErT(bool b, const char *s, int i) {
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                    GLOBAL TEST TYPES AND FUNCTIONS
-//-----------------------------------------------------------------------------
-
-namespace {
-
-class DummyClass {
-};
-
-template <bool COND>
-void testFunction() {}
-
-template <bool COND>
-typename bslmf::EnableIf<COND, void>::type testFunction(){}
-
-
-template <bool COND>
-typename bslmf::EnableIf<COND, int>::type testMutuallyExclusiveFunction()
-{
-    return 1;
-}
-
-template <bool COND>
-typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
-{
-    return 2;
-}
-
-template <bool COND>
-void testFunctionBsl() {}
-
-template <bool COND>
-typename bsl::enable_if<COND, void>::type testFunctionBsl(){}
-
-
-template <bool COND>
-typename bsl::enable_if<COND, int>::type testMutuallyExclusiveFunctionBsl()
-{
-    return 1;
-}
-
-template <bool COND>
-typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
-{
-    return 2;
-}
-
-}  // close unnamed namespace
-
-//=============================================================================
 //                GLOBAL TYPES AND FUNCTIONS FOR USAGE EXAMPLE
 //-----------------------------------------------------------------------------
+
+#pragma bde_verify push    // Usage examples relax rules for didactic clarity
+#pragma bde_verify -CC01   // C-style casts are permitted for readability
+#pragma bde_verify -FABC01 // Functions ordered for expository purpose in usage
+#pragma bde_verify -FD01   // Function contracts replaced by expository text
+
+#pragma bde_verify set ok_unquoted from
 
 ///Usage
 //------
@@ -130,14 +92,14 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 //
 ///Example 1: Implementing a Simple Function with 'bsl::enable_if'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// For the first example we will implement a simple 'Swap' function template
-// to exchange two arbitrary values, as if declared as below:
+// For the first example we will implement a simple 'Swap' function template to
+// exchange two arbitrary values, as if declared as below:
 //..
-    template<class T>
-    void DummySwap(T& a, T&b)
+    template<class TYPE>
+    void DummySwap(TYPE& a, TYPE& b)
         // Exchange the values of the specified objects, 'a' and 'b'.
     {
-        T temp(a);
+        TYPE temp(a);
         a = b;
         b = temp;
     }
@@ -147,16 +109,16 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 // implementer to indicate that their class supports an optimized member-swap
 // method:
 //..
-    template<class T>
+    template<class TYPE>
     struct HasMemberSwap : bsl::false_type {
-        // This traits class indicates whether the specified template type
-        // parameter 'T' has a public 'swap' method to exchange values.
+        // This traits class indicates whether the (template  parameter) 'TYPE'
+        // has a public 'swap' method to exchange values.
     };
 //..
 // Now we can implement a generic 'Swap' function template that will invoke the
 // member swap operation for any type that specialized our trait.  The use of
 // 'bsl::enable_if' to declare the result type causes an attempt to deduce the
-// type 'T' to fail unless the specified condition is 'true', and this falls
+// type 'TYPE' to fail unless the specified condition is 'true', and this falls
 // under the "Substitution Failure Is Not An Error" (SFINAE) clause of the C++
 // standard, so the compiler will look for a more suitable overload rather than
 // fail with an error.  Note that we provide two overloaded declarations that
@@ -165,18 +127,18 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 // "enable-if" conditions are mutually exclusive, so that only one overload
 // will ever be present in an overload set.
 //..
-    template<class T>
-    typename bsl::enable_if<HasMemberSwap<T>::value>::type
-    Swap(T& a, T& b)
+    template<class TYPE>
+    typename bsl::enable_if<HasMemberSwap<TYPE>::value>::type
+    Swap(TYPE& a, TYPE& b)
     {
         a.swap(b);
     }
 
-    template<class T>
-    typename bsl::enable_if< ! HasMemberSwap<T>::value>::type
-    Swap(T& a, T& b)
+    template<class TYPE>
+    typename bsl::enable_if< ! HasMemberSwap<TYPE>::value>::type
+    Swap(TYPE& a, TYPE& b)
     {
-        T temp(a);
+        TYPE temp(a);
         a = b;
         b = temp;
     }
@@ -185,19 +147,23 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 // 'swap' operation by merely swapping the internal pointers, rather than
 // exchanging each element:
 //..
-    template<class T>
+    template<class TYPE>
     class MyContainer {
         // This is a simple container implementation for demonstration purposes
         // that is modeled after 'std::vector'.
-        T *d_storage;
+
+        // DATA
+        TYPE *d_storage;
         size_t d_length;
 
         // Copy operations are declared private and not defined.
+
+        // NOT IMPLEMENTED
         MyContainer(const MyContainer&);
         MyContainer& operator=(const MyContainer&);
 
       public:
-        MyContainer(const T& value, int n);
+        MyContainer(const TYPE& value, int n);
             // Create a 'MyContainer' object having the specified 'n' copies of
             // the specified 'value'.
 
@@ -210,7 +176,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
             // specified 'other'.  No memory will be allocated, and no
             // exceptions are thrown.
 
-        const T& front() const;
+        const TYPE& front() const;
             // Return a reference with 'const' access to the first element in
             // this container.
 
@@ -220,15 +186,15 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 //..
 // Then we specialize our 'HasMemberSwap' trait for this new container type.
 //..
-    template<class T>
-    struct HasMemberSwap<MyContainer<T> > : bsl::true_type {
+    template<class TYPE>
+    struct HasMemberSwap<MyContainer<TYPE> > : bsl::true_type {
     };
 //..
 // Next we implement the methods of this class:
 //..
-    template<class T>
-    MyContainer<T>::MyContainer(const T& value, int n)
-    : d_storage(new T[n])
+    template<class TYPE>
+    MyContainer<TYPE>::MyContainer(const TYPE& value, int n)
+    : d_storage(new TYPE[n])
     , d_length(n)
     {
         for (int i = 0; i !=n; ++i) {
@@ -236,27 +202,27 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         }
     }
 
-    template<class T>
-    MyContainer<T>::~MyContainer()
+    template<class TYPE>
+    MyContainer<TYPE>::~MyContainer()
     {
         delete[] d_storage;
     }
 
-    template<class T>
-    void MyContainer<T>::swap(MyContainer& other)
+    template<class TYPE>
+    void MyContainer<TYPE>::swap(MyContainer& other)
     {
         Swap(d_storage, other.d_storage);
         Swap(d_length,  other.d_length);
     }
 
-    template<class T>
-    const T& MyContainer<T>::front() const
+    template<class TYPE>
+    const TYPE& MyContainer<TYPE>::front() const
     {
         return d_storage[0];
     }
 
-    template<class T>
-    size_t MyContainer<T>::size() const
+    template<class TYPE>
+    size_t MyContainer<TYPE>::size() const
     {
         return d_length;
     }
@@ -393,14 +359,14 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 // function) to decorate, so we add an extra dummy argument using a pointer
 // type (produced from 'bslma::EnableIf::type') with a default null argument:
 //..
-    template<class T>
+    template<class TYPE>
     class MyVector {
         // This is a simple container implementation for demonstration purposes
         // that is modeled after 'std::vector'.
 
         // DATA
-        T           *d_storage;
-        std::size_t  d_length;
+        TYPE   *d_storage;
+        size_t  d_length;
 
         // NOT IMPLEMENTED
         MyVector(const MyVector&);
@@ -408,7 +374,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 
       public:
         // CREATORS
-        MyVector(const T& value, int n);
+        MyVector(const TYPE& value, int n);
             // Create a 'MyVector' object having the specified 'n' copies of
             // the specified 'value'.  The behavior is undefined unless
             // '0 <= n'.
@@ -422,7 +388,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
             // found in the range described by the the specified iterators
             // '[first, last)'.  The behavior is undefined unless 'first' and
             // 'last' refer to a sequence of value of the (template parameter)
-            // type 'T' where 'first' is at a position at or before 'last'.
+            // type 'TYPE' where 'first' is at a position at or before 'last'.
             // Note that this function is currently defined inline to work
             // around an issue with the Microsoft Visual Studio compiler.
 
@@ -432,8 +398,8 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
                  ++d_length;
             }
 
-            d_storage = new T[d_length];
-            for (std::size_t i = 0; i != d_length; ++i) {
+            d_storage = new TYPE[d_length];
+            for (size_t i = 0; i != d_length; ++i) {
                  d_storage[i] = *first;
                  ++first;
             }
@@ -443,23 +409,22 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
             // Destroy this container and all of its elements, reclaiming any
             // allocated memory.
 
-        const T& operator[](int index) const;
+        const TYPE& operator[](int index) const;
             // Return a reference providing non-modifiable access to the
             // element held by this container at the specified 'index'.
 
-        std::size_t size() const;
+        size_t size() const;
             // Return the number of elements held by this container.
     };
-
 //..
 // Note that there is no easy test for whether a type is an iterator, so we
 // assume any attempt to call a constructor with two arguments that are not
 // fundamental (such as int) must be passing iterators.  Now that we have
 // defined the class template, we implement its methods:
 //..
-    template<class T>
-    MyVector<T>::MyVector(const T& value, int n)
-    : d_storage(new T[n])
+    template<class TYPE>
+    MyVector<TYPE>::MyVector(const TYPE& value, int n)
+    : d_storage(new TYPE[n])
     , d_length(n)
     {
         for (int i = 0; i !=n; ++i) {
@@ -467,20 +432,20 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
         }
     }
 
-    template<class T>
-    MyVector<T>::~MyVector()
+    template<class TYPE>
+    MyVector<TYPE>::~MyVector()
     {
         delete[] d_storage;
     }
 
-    template<class T>
-    const T& MyVector<T>::operator[](int index) const
+    template<class TYPE>
+    const TYPE& MyVector<TYPE>::operator[](int index) const
     {
         return d_storage[index];
     }
 
-    template<class T>
-    std::size_t MyVector<T>::size() const
+    template<class TYPE>
+    size_t MyVector<TYPE>::size() const
     {
         return d_length;
     }
@@ -507,6 +472,57 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
     }
 //..
 
+#pragma pop  // end of usage example-example relaxed rules
+
+//=============================================================================
+//                    GLOBAL TEST TYPES AND FUNCTIONS
+//-----------------------------------------------------------------------------
+
+namespace {
+
+class DummyClass {
+};
+
+template <bool COND>
+void testFunction() {}
+
+template <bool COND>
+typename bslmf::EnableIf<COND, void>::type testFunction(){}
+
+
+template <bool COND>
+typename bslmf::EnableIf<COND, int>::type testMutuallyExclusiveFunction()
+{
+    return 1;
+}
+
+template <bool COND>
+typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
+{
+    return 2;
+}
+
+template <bool COND>
+void testFunctionBsl() {}
+
+template <bool COND>
+typename bsl::enable_if<COND, void>::type testFunctionBsl(){}
+
+
+template <bool COND>
+typename bsl::enable_if<COND, int>::type testMutuallyExclusiveFunctionBsl()
+{
+    return 1;
+}
+
+template <bool COND>
+typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
+{
+    return 2;
+}
+
+}  // close unnamed namespace
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -526,7 +542,7 @@ int main(int argc, char *argv[])
 
 
     switch (test) { case 0:  // Zero is always the leading case.
-     case 5: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3
         //   This case verifies that the usage example works as advertised.
@@ -542,9 +558,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 3
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n"
-                            "USAGE EXAMPLE 3\n"
-                            "===============\n");
+        if (verbose) printf("\nUSAGE EXAMPLE 3"
+                            "\n===============\n");
 
         TestContainerConstructor();
       } break;
@@ -564,9 +579,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n"
-                            "USAGE EXAMPLE 2\n"
-                            "===============\n");
+        if (verbose) printf("\nUSAGE EXAMPLE 2"
+                            "\n===============\n");
 
         TestSmartCast();
       } break;
@@ -586,15 +600,14 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n"
-                            "USAGE EXAMPLE 1\n"
-                            "===============\n");
+        if (verbose) printf("\nUSAGE EXAMPLE 1"
+                            "\n===============\n");
 
         TestSwap();
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bsl::enable_if'
+        // TESTING CLASS TEMPLATE 'bsl::enable_if'
         //   Test the 'bsl::enable_if' meta-function.
         //
         // Concerns:
@@ -609,7 +622,7 @@ int main(int argc, char *argv[])
         //:  1 For a set of possible types, instantiate 'bsl::enable_if' with
         //:    'true' as the first template argument and the said type as the
         //:    second template argument.  Verify each instantiation provides a
-        //:    'typeef' 'type' that is an alias to the second template
+        //:    'typedef' 'type' that is an alias to the second template
         //:    argument.  (C-1)
         //:
         //:  1 Instantiate 'bsl::enable_if' with 'true' as the first template
@@ -617,7 +630,7 @@ int main(int argc, char *argv[])
         //:    'bsl::enable_if' provides an 'typedef' 'type' that is an alias
         //:    to 'void'.  (C-1)
         //:
-        //:  2 Create two instances of a template function parameterized on a
+        //:  2 Create two instances of a function template parameterized on a
         //:    boolean, one returning 1, the other returning 2.  If 'true' is
         //:    supplied as the template parameter, only the first function is
         //:    part of the overload set, if 'false' is supplied then only the
@@ -645,8 +658,8 @@ int main(int argc, char *argv[])
         //   bsl::enable_if
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bsl::enable_if\n"
-                            "==============\n");
+        if (verbose) printf("\nTESTING CLASS TEMPLATE 'bsl::enable_if'"
+                            "\n=======================================\n");
 
         if (veryVerbose) printf("\nTest the return type.\n");
         {
@@ -718,7 +731,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // 'bslmf::EnableIf'
+        // TESTING CLASS TEMPLATE 'bslmf::EnableIf'
         //   Test the 'bslmf::EnableIf' meta-function.
         //
         // Concerns:
@@ -733,7 +746,7 @@ int main(int argc, char *argv[])
         //:  1 For a set of possible types, instantiate 'bslmf::EnableIf' with
         //:    'true' as the first template argument and the said type as the
         //:    second template argument.  Verify each instantiation provides a
-        //:    'typeef' 'type' that is an alias to the second template
+        //:    'typedef' 'type' that is an alias to the second template
         //:    argument.  (C-1)
         //:
         //:  1 Instantiate 'bslmf::EnableIf' with 'true' as the first template
@@ -741,7 +754,7 @@ int main(int argc, char *argv[])
         //:    'bslmf::EnableIf' provides an 'typedef' 'type' that is an alias
         //:    to 'void'.  (C-1)
         //:
-        //:  2 Create two instances of a template function parameterized on a
+        //:  2 Create two instances of a function template parameterized on a
         //:    boolean, one returning 1, the other returning 2.  If 'true' is
         //:    supplied as the template parameter, only the first function is
         //:    part of the overload set, if 'false' is supplied then only the
@@ -769,8 +782,8 @@ int main(int argc, char *argv[])
         //   bslmf::EnableIf
         // --------------------------------------------------------------------
 
-        if (verbose) printf("bslmf::EnableIf\n"
-                            "===============\n");
+        if (verbose) printf("\nTESTING CLASS TEMPLATE 'bslmf::EnableIf'"
+                            "\n========================================\n");
 
         if (veryVerbose) printf("\nTest the return type.\n");
         {
