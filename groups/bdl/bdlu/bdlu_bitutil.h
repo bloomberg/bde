@@ -22,11 +22,11 @@ BSLS_IDENT("$Id: $")
 // Some of these functions have other common names.  Below is a list of
 // sets of related functions:
 //
-//: * numLeadingUnsetBits, cntlz, clz, ffs, ffo, nlz, ctlz
+//: * numLeadingUnsetBits: cntlz, clz, ffs, ffo, nlz, ctlz
 //:
-//: * numTrailingUnsetBits, cnttz, ctz, ntz, cttz
+//: * numTrailingUnsetBits: cnttz, ctz, ntz, cttz
 //:
-//: * numBitsSet, popcnt, popcount
+//: * numBitsSet: popcnt, popcount
 //
 ///Usage
 ///-----
@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //                 == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0), 23));
 //  assert(static_cast<uint32_t>(0x66676666)
 //        == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0x66666666), 16));
-//..
+//
 //  /*------------------------------------------------------------------------+
 //  | 'bdlu::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
 //  |                                                                         |
@@ -52,20 +52,20 @@ BSLS_IDENT("$Id: $")
 //  | set bit 16:                                           1                 |
 //  | result:                                01100110011001110110011001100110 |
 //  +------------------------------------------------------------------------*/
-//
+//..
 // Then, count the number of set bits in a value with 'numBitsSet':
 //..
 //  assert(0 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
 //  assert(2 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
 //  assert(8 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x30071101)));
-//..
+//
 //  /*------------------------------------------------------------------------+
 //  | 'bdlu::BitUtil::numBitsSet(0x30071101)' in binary:                      |
 //  |                                                                         |
 //  | input in binary:                       00110000000001110001000100000001 |
 //  | that has 8 ones set.  result: 8                                         |
 //  +------------------------------------------------------------------------*/
-//
+//..
 // Finally, use 'numLeadingUnsetBits' to determine the number of unset bits
 // with higher index than the first set bit:
 //..
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 //      bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01000000)));
 //  assert(7 ==
 //      bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01620030)));
-//..
+//
 //  /*------------------------------------------------------------------------+
 //  | 'bdlu::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
 //  |                                                                         |
@@ -85,6 +85,7 @@ BSLS_IDENT("$Id: $")
 //  | highest set bit:                              1                         |
 //  | number of unset bits leading this set bit == 7                          |
 //  +------------------------------------------------------------------------*/
+//..
 
 #ifndef INCLUDED_STDINT
 #include <stdint.h>

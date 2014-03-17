@@ -158,28 +158,28 @@ int main(int argc, char *argv[])
                    == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0), 23));
     ASSERT(static_cast<uint32_t>(0x66676666)
           == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0x66666666), 16));
+
+    /*------------------------------------------------------------------------+
+    | 'bdlu::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
+    |                                                                         |
+    | srcInteger in binary:                  01100110011001100110011001100110 |
+    | set bit 16:                                           1                 |
+    | result:                                01100110011001110110011001100110 |
+    +------------------------------------------------------------------------*/
 //..
-//  /*------------------------------------------------------------------------+
-//  | 'bdlu::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
-//  |                                                                         |
-//  | srcInteger in binary:                  01100110011001100110011001100110 |
-//  | set bit 16:                                           1                 |
-//  | result:                                01100110011001110110011001100110 |
-//  +------------------------------------------------------------------------*/
-//
 // Then, count the number of set bits in a value with 'numBitsSet':
 //..
     ASSERT(0 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
     ASSERT(2 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
     ASSERT(8 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x30071101)));
+
+    /*------------------------------------------------------------------------+
+    | 'bdlu::BitUtil::numBitsSet(0x30071101)' in binary:                      |
+    |                                                                         |
+    | input in binary:                       00110000000001110001000100000001 |
+    | that has 8 ones set.  result: 8                                         |
+    +------------------------------------------------------------------------*/
 //..
-//  /*------------------------------------------------------------------------+
-//  | 'bdlu::BitUtil::numBitsSet(0x30071101)' in binary:                      |
-//  |                                                                         |
-//  | input in binary:                       00110000000001110001000100000001 |
-//  | that has 8 ones set.  result: 8                                         |
-//  +------------------------------------------------------------------------*/
-//
 // Finally, use 'numLeadingUnsetBits' to determine the number of unset bits
 // with higher index than the first set bit:
 //..
@@ -191,15 +191,15 @@ int main(int argc, char *argv[])
         bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01000000)));
     ASSERT(7 ==
         bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01620030)));
-//..
-//  /*------------------------------------------------------------------------+
-//  | 'bdlu::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
-//  |                                                                         |
-//  | input:                                 00000001011000100000000000110000 |
-//  | highest set bit:                              1                         |
-//  | number of unset bits leading this set bit == 7                          |
-//  +------------------------------------------------------------------------*/
 
+    /*------------------------------------------------------------------------+
+    | 'bdlu::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
+    |                                                                         |
+    | input:                                 00000001011000100000000000110000 |
+    | highest set bit:                              1                         |
+    | number of unset bits leading this set bit == 7                          |
+    +------------------------------------------------------------------------*/
+//..
       } break;
       case 7: {
         // --------------------------------------------------------------------
