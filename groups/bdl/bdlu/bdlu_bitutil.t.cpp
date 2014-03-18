@@ -238,14 +238,17 @@ int main(int argc, char *argv[])
             for (int i = 0; i < 32; ++i) {
                 for (int d = -1; d <= 1; ++d) {
                     uint32_t value32 = (static_cast<uint32_t>(1) << i) + d;
-                    uint32_t rv = Util::roundUp(value32, boundary);
                     // NOTE: the only possible overflow scenario in the
                     // following correctly results in 0 since 'boundary' is a
                     // power of two
-                    uint32_t RV = (value32 % boundary
-                                   ? (value32 / boundary + 1) * boundary
-                                   : value32);
-                    LOOP3_ASSERT(b, i, d, rv == RV);
+                    const uint32_t EXP = (value32 % boundary
+                                          ? (value32 / boundary + 1) * boundary
+                                          : value32);
+                    uint32_t rv = Util::roundUp(value32, boundary);
+                    if (veryVerbose) {
+                        T_ P_(value32); T_ P_(boundary); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP3_ASSERT(b, i, d, EXP == rv);
                 }
             }
         }
@@ -254,14 +257,17 @@ int main(int argc, char *argv[])
             for (int i = 0; i < 64; ++i) {
                 for (int d = -1; d <= 1; ++d) {
                     uint64_t value64 = (static_cast<uint64_t>(1) << i) + d;
-                    uint64_t rv = Util::roundUp(value64, boundary);
                     // NOTE: the only possible overflow scenario in the
                     // following correctly results in 0 since 'boundary' is a
                     // power of two
-                    uint64_t RV = (value64 % boundary
-                                   ? (value64 / boundary + 1) * boundary
-                                   : value64);
-                    LOOP3_ASSERT(b, i, d, rv == RV);
+                    const uint64_t EXP = (value64 % boundary
+                                          ? (value64 / boundary + 1) * boundary
+                                          : value64);
+                    uint64_t rv = Util::roundUp(value64, boundary);
+                    if (veryVerbose) {
+                        T_ P_(value64); T_ P_(boundary); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP3_ASSERT(b, i, d, EXP == rv);
                 }
             }
         }
@@ -272,14 +278,24 @@ int main(int argc, char *argv[])
                                             static_cast<uint32_t>(1)));
             for (int b = 1; b < 32; ++b) {
                 uint32_t boundary = static_cast<uint32_t>(1) << b;
-                LOOP_ASSERT(b, 0 == Util::roundUp(value32, boundary));
+                const int EXP = 0;
+                int rv = Util::roundUp(value32, boundary);
+                if (veryVerbose) {
+                    T_ P_(value32); T_ P_(boundary); T_ P_(rv); T_ P(EXP);
+                }
+                LOOP_ASSERT(b, EXP == rv);
             }
             uint64_t value64 = static_cast<uint64_t>(-1);
             ASSERT(value64 == Util::roundUp(value64,
                                             static_cast<uint64_t>(1)));
             for (int b = 1; b < 64; ++b) {
                 uint64_t boundary = static_cast<uint64_t>(1) << b;
-                LOOP_ASSERT(b, 0 == Util::roundUp(value64, boundary));
+                const int EXP = 0;
+                int rv = Util::roundUp(value64, boundary);
+                if (veryVerbose) {
+                    T_ P_(value64); T_ P_(boundary); T_ P_(rv); T_ P(EXP);
+                }
+                LOOP_ASSERT(b, EXP == rv);
             }
         }
 
@@ -351,27 +367,93 @@ int main(int argc, char *argv[])
         { // verify values that are >= 3 and <= (2 << (30|62)) + 1
             for (int i = 2; i < 31; ++i) {
                 // NOTE: 2^2 - 1 == 3
-                uint32_t value32 = static_cast<uint32_t>(1) << i;
-                LOOP_ASSERT(i, i == Util::log2(value32 - 1));
-                LOOP_ASSERT(i, i == Util::log2(value32));
-                LOOP_ASSERT(i, i + 1 == Util::log2(value32 + 1));
-                LOOP_ASSERT(i, value32
-                                   == Util::roundUpToBinaryPower(value32 - 1));
-                LOOP_ASSERT(i, value32 == Util::roundUpToBinaryPower(value32));
-                LOOP_ASSERT(i, value32 * 2
-                                   == Util::roundUpToBinaryPower(value32 + 1));
+                {
+                    uint32_t value32 = (static_cast<uint32_t>(1) << i) - 1;
+                    const int EXP = i;
+                    int rv = Util::log2(value32);
+                    if (veryVerbose) { T_ P_(value32); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint32_t value32 = (static_cast<uint32_t>(1) << i);
+                    const int EXP = i;
+                    int rv = Util::log2(value32);
+                    if (veryVerbose) { T_ P_(value32); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint32_t value32 = (static_cast<uint32_t>(1) << i) + 1;
+                    const int EXP = i + 1;
+                    int rv = Util::log2(value32);
+                    if (veryVerbose) { T_ P_(value32); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint32_t value32 = (static_cast<uint32_t>(1) << i) - 1;
+                    const uint32_t EXP = static_cast<uint32_t>(1) << i;
+                    uint32_t rv = Util::roundUpToBinaryPower(value32);
+                    if (veryVerbose) { T_ P_(value32); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint32_t value32 = (static_cast<uint32_t>(1) << i);
+                    const uint32_t EXP = static_cast<uint32_t>(1) << i;
+                    uint32_t rv = Util::roundUpToBinaryPower(value32);
+                    if (veryVerbose) { T_ P_(value32); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint32_t value32 = (static_cast<uint32_t>(1) << i) + 1;
+                    const uint32_t EXP = static_cast<uint32_t>(1) << (i + 1);
+                    uint32_t rv = Util::roundUpToBinaryPower(value32);
+                    if (veryVerbose) { T_ P_(value32); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
             }
             for (int i = 2; i < 63; ++i) {
                 // NOTE: 2^2 - 1 == 3
-                uint64_t value64 = static_cast<uint64_t>(1) << i;
-                LOOP_ASSERT(i, i == Util::log2(value64 - 1));
-                LOOP_ASSERT(i, i == Util::log2(value64));
-                LOOP_ASSERT(i, i + 1 == Util::log2(value64 + 1));
-                LOOP_ASSERT(i, value64
-                                   == Util::roundUpToBinaryPower(value64 - 1));
-                LOOP_ASSERT(i, value64 == Util::roundUpToBinaryPower(value64));
-                LOOP_ASSERT(i, value64 * 2
-                                   == Util::roundUpToBinaryPower(value64 + 1));
+                {
+                    uint64_t value64 = (static_cast<uint64_t>(1) << i) - 1;
+                    const int EXP = i;
+                    int rv = Util::log2(value64);
+                    if (veryVerbose) { T_ P_(value64); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint64_t value64 = (static_cast<uint64_t>(1) << i);
+                    const int EXP = i;
+                    int rv = Util::log2(value64);
+                    if (veryVerbose) { T_ P_(value64); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint64_t value64 = (static_cast<uint64_t>(1) << i) + 1;
+                    const int EXP = i + 1;
+                    int rv = Util::log2(value64);
+                    if (veryVerbose) { T_ P_(value64); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint64_t value64 = (static_cast<uint64_t>(1) << i) - 1;
+                    const uint64_t EXP = static_cast<uint64_t>(1) << i;
+                    uint64_t rv = Util::roundUpToBinaryPower(value64);
+                    if (veryVerbose) { T_ P_(value64); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint64_t value64 = (static_cast<uint64_t>(1) << i);
+                    const uint64_t EXP = static_cast<uint64_t>(1) << i;
+                    uint64_t rv = Util::roundUpToBinaryPower(value64);
+                    if (veryVerbose) { T_ P_(value64); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
+                {
+                    uint64_t value64 = (static_cast<uint64_t>(1) << i) + 1;
+                    const uint64_t EXP = static_cast<uint64_t>(1) << (i + 1);
+                    uint64_t rv = Util::roundUpToBinaryPower(value64);
+                    if (veryVerbose) { T_ P_(value64); T_ P_(rv); T_ P(EXP); }
+                    LOOP_ASSERT(i, EXP == rv);
+                }
             }
         }
 
@@ -466,10 +548,12 @@ int main(int argc, char *argv[])
                         uint32_t value32 = ((static_cast<uint32_t>(1) << i)
                                             | (static_cast<uint32_t>(1) << j)
                                             | (static_cast<uint32_t>(1) << k));
-                        LOOP2_ASSERT(value32,
-                                     Util::numLeadingUnsetBits(value32),
-                                     31 - i
-                                        == Util::numLeadingUnsetBits(value32));
+                        const int EXP = 31 - i;
+                        int rv = Util::numLeadingUnsetBits(value32);
+                        if (veryVerbose) {
+                            T_ P_(value32); T_ P_(rv); T_ P(EXP);
+                        }
+                        LOOP3_ASSERT(i, j, k, EXP == rv);
                     }
                 }
             }
@@ -479,10 +563,12 @@ int main(int argc, char *argv[])
                         uint64_t value64 = ((static_cast<uint64_t>(1) << i)
                                             | (static_cast<uint64_t>(1) << j)
                                             | (static_cast<uint64_t>(1) << k));
-                        LOOP2_ASSERT(value64,
-                                     Util::numLeadingUnsetBits(value64),
-                                     63 - i
-                                        == Util::numLeadingUnsetBits(value64));
+                        const int EXP = 63 - i;
+                        int rv = Util::numLeadingUnsetBits(value64);
+                        if (veryVerbose) {
+                            T_ P_(value64); T_ P_(rv); T_ P(EXP);
+                        }
+                        LOOP3_ASSERT(i, j, k, EXP == rv);
                     }
                 }
             }
@@ -514,9 +600,12 @@ int main(int argc, char *argv[])
                         uint32_t value32 = ((static_cast<uint32_t>(1) << i)
                                             | (static_cast<uint32_t>(1) << j)
                                             | (static_cast<uint32_t>(1) << k));
-                        LOOP2_ASSERT(value32,
-                                     Util::numTrailingUnsetBits(value32),
-                                     i == Util::numTrailingUnsetBits(value32));
+                        const int EXP = i;
+                        int rv = Util::numTrailingUnsetBits(value32);
+                        if (veryVerbose) {
+                            T_ P_(value32); T_ P_(rv); T_ P(EXP);
+                        }
+                        LOOP3_ASSERT(i, j, k, EXP == rv);
                     }
                 }
             }
@@ -526,9 +615,12 @@ int main(int argc, char *argv[])
                         uint64_t value64 = ((static_cast<uint64_t>(1) << i)
                                             | (static_cast<uint64_t>(1) << j)
                                             | (static_cast<uint64_t>(1) << k));
-                        LOOP2_ASSERT(value64,
-                                     Util::numTrailingUnsetBits(value64),
-                                     i == Util::numTrailingUnsetBits(value64));
+                        const int EXP = i;
+                        int rv = Util::numTrailingUnsetBits(value64);
+                        if (veryVerbose) {
+                            T_ P_(value64); T_ P_(rv); T_ P(EXP);
+                        }
+                        LOOP3_ASSERT(i, j, k, EXP == rv);
                     }
                 }
             }
@@ -575,11 +667,17 @@ int main(int argc, char *argv[])
         { // depth 1; one bit set
             for (int i = 0; i < 32; ++i) {
                 uint32_t value32 = static_cast<uint32_t>(1) << i;
-                ASSERT(1 == Util::numBitsSet(value32));
+                const int EXP = 1;
+                int rv = Util::numBitsSet(value32);
+                if (veryVerbose) { T_ P_(value32); T_ P_(rv); T_ P(EXP); }
+                LOOP_ASSERT(i, EXP == rv);
             }
             for (int i = 0; i < 64; ++i) {
                 uint64_t value64 = static_cast<uint64_t>(1) << i;
-                ASSERT(1 == Util::numBitsSet(value64));
+                const int EXP = 1;
+                int rv = Util::numBitsSet(value64);
+                if (veryVerbose) { T_ P_(value64); T_ P_(rv); T_ P(EXP); }
+                LOOP_ASSERT(i, EXP == rv);
             }
         }
 
@@ -588,14 +686,20 @@ int main(int argc, char *argv[])
                 for (int j = i + 1; j < 32; ++j) {
                     uint32_t value32 = ((static_cast<uint32_t>(1) << i)
                                         | (static_cast<uint32_t>(1) << j));
-                    ASSERT(2 == Util::numBitsSet(value32));
+                    const int EXP = 2;
+                    int rv = Util::numBitsSet(value32);
+                    if (veryVerbose) { T_ P_(value32); T_ P_(rv); T_ P(EXP); }
+                    LOOP2_ASSERT(i, j, EXP == rv);
                 }
             }
             for (int i = 0; i < 64; ++i) {
                 for (int j = i + 1; j < 64; ++j) {
                     uint64_t value64 = ((static_cast<uint64_t>(1) << i)
                                         | (static_cast<uint64_t>(1) << j));
-                    ASSERT(2 == Util::numBitsSet(value64));
+                    const int EXP = 2;
+                    int rv = Util::numBitsSet(value64);
+                    if (veryVerbose) { T_ P_(value64); T_ P_(rv); T_ P(EXP); }
+                    LOOP2_ASSERT(i, j, EXP == rv);
                 }
             }
         }
@@ -640,29 +744,81 @@ int main(int argc, char *argv[])
         { // starting from 0
             for (int index = 0; index < 32; ++index) {
                 uint32_t value32 = 0;
-                ASSERT(0 == Util::withBitCleared(value32, index));
-                ASSERT((static_cast<uint32_t>(1) << index)
-                                          == Util::withBitSet(value32, index));
+                {
+                    const uint32_t EXP = 0;
+                    uint32_t rv = Util::withBitCleared(value32, index);
+                    if (veryVerbose) {
+                        T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP_ASSERT(index, EXP == rv);
+                }
+                {
+                    const uint32_t EXP = static_cast<uint32_t>(1) << index;
+                    uint32_t rv = Util::withBitSet(value32, index);
+                    if (veryVerbose) {
+                        T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP_ASSERT(index, EXP == rv);
+                }
             }
             for (int index = 0; index < 64; ++index) {
                 uint64_t value64 = 0;
-                ASSERT(0 == Util::withBitCleared(value64, index));
-                ASSERT((static_cast<uint64_t>(1) << index)
-                                          == Util::withBitSet(value64, index));
+                {
+                    const uint64_t EXP = 0;
+                    uint64_t rv = Util::withBitCleared(value64, index);
+                    if (veryVerbose) {
+                        T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP_ASSERT(index, EXP == rv);
+                }
+                {
+                    const uint64_t EXP = static_cast<uint64_t>(1) << index;
+                    uint64_t rv = Util::withBitSet(value64, index);
+                    if (veryVerbose) {
+                        T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP_ASSERT(index, EXP == rv);
+                }
             }
         }
         { // starting from all-bits-set
             for (int index = 0; index < 32; ++index) {
                 uint32_t value32 = static_cast<uint32_t>(-1);
-                ASSERT(~(static_cast<uint32_t>(1) << index)
-                                      == Util::withBitCleared(value32, index));
-                ASSERT(value32 == Util::withBitSet(value32, index));
+                {
+                    const uint32_t EXP = ~(static_cast<uint32_t>(1) << index);
+                    uint32_t rv = Util::withBitCleared(value32, index);
+                    if (veryVerbose) {
+                        T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP_ASSERT(index, EXP == rv);
+                }
+                {
+                    const uint32_t EXP = value32;
+                    uint32_t rv = Util::withBitSet(value32, index);
+                    if (veryVerbose) {
+                        T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP_ASSERT(index, EXP == rv);
+                }
             }
             for (int index = 0; index < 64; ++index) {
                 uint64_t value64 = static_cast<uint64_t>(-1);
-                ASSERT(~(static_cast<uint64_t>(1) << index)
-                                      == Util::withBitCleared(value64, index));
-                ASSERT(value64 == Util::withBitSet(value64, index));
+                {
+                    const uint64_t EXP = ~(static_cast<uint64_t>(1) << index);
+                    uint64_t rv = Util::withBitCleared(value64, index);
+                    if (veryVerbose) {
+                        T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP_ASSERT(index, EXP == rv);
+                }
+                {
+                    const uint64_t EXP = value64;
+                    uint64_t rv = Util::withBitSet(value64, index);
+                    if (veryVerbose) {
+                        T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP_ASSERT(index, EXP == rv);
+                }
             }
         }
 
@@ -722,11 +878,21 @@ int main(int argc, char *argv[])
         { // depth 0; no bits set
             uint32_t value32 = 0;
             for (int index = 0; index < 32; ++index) {
-                ASSERT(false == Util::isBitSet(value32, index));
+                const bool EXP = false;
+                bool rv = Util::isBitSet(value32, index);
+                if (veryVerbose) {
+                    T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                }
+                LOOP_ASSERT(index, EXP == rv);
             }
             uint64_t value64 = 0;
             for (int index = 0; index < 64; ++index) {
-                ASSERT(false == Util::isBitSet(value64, index));
+                const bool EXP = false;
+                bool rv = Util::isBitSet(value64, index);
+                if (veryVerbose) {
+                    T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                }
+                LOOP_ASSERT(index, EXP == rv);
             }
         }
 
@@ -735,12 +901,24 @@ int main(int argc, char *argv[])
                 uint32_t value32 = static_cast<uint32_t>(1) << i;
                 for (int index = 0; index < 32; ++index) {
                     ASSERT((index == i) == Util::isBitSet(value32, index));
+                    const bool EXP = index == i;
+                    bool rv = Util::isBitSet(value32, index);
+                    if (veryVerbose) {
+                        T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP2_ASSERT(i, index, EXP == rv);
                 }
             }
             for (int i = 0; i < 64; ++i) {
                 uint64_t value64 = static_cast<uint64_t>(1) << i;
                 for (int index = 0; index < 64; ++index) {
                     ASSERT((index == i) == Util::isBitSet(value64, index));
+                    const bool EXP = index == i;
+                    bool rv = Util::isBitSet(value64, index);
+                    if (veryVerbose) {
+                        T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                    }
+                    LOOP2_ASSERT(i, index, EXP == rv);
                 }
             }
         }
@@ -751,8 +929,12 @@ int main(int argc, char *argv[])
                     uint32_t value32 = ((static_cast<uint32_t>(1) << i)
                                         | (static_cast<uint32_t>(1) << j));
                     for (int index = 0; index < 32; ++index) {
-                        ASSERT((index == i || index == j)
-                                            == Util::isBitSet(value32, index));
+                        const bool EXP = index == i || index == j;
+                        bool rv = Util::isBitSet(value32, index);
+                        if (veryVerbose) {
+                          T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                        }
+                        LOOP3_ASSERT(i, j, index, EXP == rv);
                     }
                 }
             }
@@ -761,8 +943,12 @@ int main(int argc, char *argv[])
                     uint64_t value64 = ((static_cast<uint64_t>(1) << i)
                                         | (static_cast<uint64_t>(1) << j));
                     for (int index = 0; index < 64; ++index) {
-                        ASSERT((index == i || index == j)
-                                            == Util::isBitSet(value64, index));
+                        const bool EXP = index == i || index == j;
+                        bool rv = Util::isBitSet(value64, index);
+                        if (veryVerbose) {
+                          T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                        }
+                        LOOP3_ASSERT(i, j, index, EXP == rv);
                     }
                 }
             }

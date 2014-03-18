@@ -7,8 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide efficient bit-manipulation functionality for 32-bit
-// 'uint32_t' and 64-bit 'uint64_t' unsigned integers.
+//@PURPOSE: Provide efficient bit-manipulation for 'uint32_t' and 'uint64_t'.
 //
 //@CLASSES:
 //  bdlu::BitUtil: namespace for 'uint32_t' and 'uint64_t' bit-level operations
