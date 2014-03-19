@@ -1,5 +1,5 @@
-// bdesu_filecloseproctor.cpp                                         -*-C++-*-
-#include <bdesu_filecloseproctor.h>
+// bdesu_filedescriptorguard.cpp                                      -*-C++-*-
+#include <bdesu_filedescriptorguard.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesu_filecloseproctor_cpp,"$Id$ $CSID$")
@@ -7,14 +7,15 @@ BDES_IDENT_RCSID(bdesu_filecloseproctor_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 // MANIPULATORS
-void bdesu_FileCloseProctor::closeAndRelease()
+void bdesu_FileDescriptorGuard::closeAndRelease()
 {
-    if (bdesu_FileUtil::INVALID_FD != d_descriptor) {
-        int rc = bdesu_FileUtil::close(d_descriptor);    (void) rc;
-        BSLS_ASSERT(0 == rc && "close failed");
+    BSLS_ASSERT(FsUtil::k_INVALID_FD != d_descriptor);
 
-        d_descriptor = bdesu_FileUtil::INVALID_FD;
-    }
+    int rc = FsUtil::close(d_descriptor);
+    BSLS_ASSERT(0 == rc && "close failed");
+    (void) rc;    // suppress unuwed warning in opt build
+
+    d_descriptor = FsUtil::k_INVALID_FD;
 }
 
 }  // close namespace BloombergLP

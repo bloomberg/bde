@@ -10,22 +10,19 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a RAII proctor class used to close files.
 //
 //@CLASSES:
-//  bdesu_FileCloseProctor: RAII proctor class used to close files
+//  bdesu_FileDescriptorGuard: RAII proctor class used to close files
 //
-//@SEE_ALSO: bdesu_fileutil
+//@SEE_ALSO: bdesu_filesystemutil
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: The component defines a proctor class, an object of which will
-// manage an open file and close it when it goes out of scope.  These proctor
-// objects are supplied with one of two types of file handles at construction,
-// and they use that handle to close the file when the proctor object is
-// destroyed.
-//
-// A 'release' method is provided, which will release the handle from
-// management by the proctor.  When a released proctor is destroyed, nothing
-// happens.  A 'closeAndRelease' method is also provided, which closes the
-// managed file handle and puts the proctor into a released state.
+//@DESCRIPTION: This component defines a class, 'bdesu_FileDescriptorGuard', an
+// object of which manages an open file descriptor, and closes it when the
+// guard goes out of scope and is destroyed.  A 'release' method is provided,
+// which will release the descriptor from management by the proctor.  When a
+// released proctor is destroyed, nothing happens.  A 'closeAndRelease' method
+// is also provided, which closes the managed file handle and puts the proctor
+// into a released state.
 //
 ///Usage
 ///-----
@@ -34,7 +31,7 @@ BDES_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - -
 // Suppose we want to open a file and do some I/O to it, and be sure the
 // file handle will be closed when we're done with it.  We  use an object
-// of type 'bdesu_FileCloseProctor' to facilitate this.
+// of type 'bdesu_FileDescriptorGuard' to facilitate this.
 //
 // First, we create a name for our temporary file and a few local varriables.
 //..
@@ -48,12 +45,12 @@ BDES_IDENT("$Id: $")
 //                                              txtPath,
 //                                              true,       // writable
 //                                              false);     // non-existsent
-//  assert(bdesu_FileUtil::INVALID_FD != fd);
+//  assert(bdesu_FileUtil::k_INVALID_FD != fd);
 //..
 // Next, we enter a scope and create a proctor object to manage 'fd':
 //..
 //  {
-//      bdesu_FileCloseProctor proctor(fd);
+//      bdesu_FileDescriptorGuard proctor(fd);
 //..
 // Then, we declare an essay we would like to write to the file:
 //..
@@ -108,8 +105,8 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDESU_FILEUTIL
-#include <bdesu_fileutil.h>
+#ifndef INCLUDED_BDESU_FILESYSTEMUTIL
+#include <bdesu_filesystemutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -118,85 +115,89 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                     // =============================
-                     // struct bdesu_FileCloseProctor
-                     // =============================
+                     // ================================
+                     // struct bdesu_FileDescriptorGuard
+                     // ================================
 
-struct bdesu_FileCloseProctor {
-    // Proctor to manage an open file.  The file can be represented by a
-    // 'FILE *' pointer or a 'bdesu_FileUtil::FileDescriptor' passed upon
-    // construction.  The file will be closed upon destruction, unless this
-    // proctor object has been released before that.  Note that an object of
-    // this proctor type can manage only one file at a time, through one of
-    // the two types of file handles that can be supplied at construction.
+struct bdesu_FileDescriptorGuard {
+    // This class implements a guard that conditionally closes an open file
+    // descriptor upon its destruction.
 
-    bdesu_FileUtil::FileDescriptor  d_descriptor;
+    // PRIVATE TYPE
+    typedef bdesu_FilesystemUtil FsUtil;
+
+    // DATA
+    FsUtil::FileDescriptor d_descriptor;  // Handle for the file being managed.
 
   private:
     // NOT IMPLEMENTED
-    bdesu_FileCloseProctor(const bdesu_FileCloseProctor&);
-    bdesu_FileCloseProctor& operator=(const bdesu_FileCloseProctor&);
+    bdesu_FileDescriptorGuard(const bdesu_FileDescriptorGuard&);
+    bdesu_FileDescriptorGuard& operator=(const bdesu_FileDescriptorGuard&);
 
   public:
     // CREATORS
     explicit
-    bdesu_FileCloseProctor(bdesu_FileUtil::FileDescriptor descriptor);
+    bdesu_FileDescriptorGuard(FsUtil::FileDescriptor descriptor);
         // Create a proctor object that will manage the specified 'descriptor',
-        // closing it upon destruction.  The behavior is undefined unless
-        // 'descriptor' refers to an opened file.
+        // closing it upon destruction (unless either 'realease' or
+        // 'closeAndRelease' has been called).  It is permissible for
+        // 'descriptor == FsUtil::k_INVALID_FD', in which case the guard
+        // created will not manage anything.
 
-    ~bdesu_FileCloseProctor();
+    ~bdesu_FileDescriptorGuard();
         // If this proctor object manages a file, close the file.
 
     // MANIPULATORS
     void closeAndRelease();
-        // If this proctor object manages a file, close the file, and release
-        // the file from management by this object.
+        // Close the file managed by this guard and release that file from
+        // management by this object.  The behavior is undefined unless this
+        // object is managing a file.
 
     void release();
-        // If this proctor object manages a file, release the file from
-        // management by this object.
+        // Release the file from management by this object (without closing
+        // it).  The behavior is undefined unless this object is managing a
+        // file.
 
     // ACCESSORS
-    bdesu_FileUtil::FileDescriptor descriptor() const;
-        // If this proctor manages a 'bdesu_FileUtil::FileDescriptor', return
-        // that file descriptor, and return 'bdesu_FileUtil::INVALID_FD'
-        // otherwise.
+    FsUtil::FileDescriptor descriptor() const;
+        // If this guard is managing a file, return the file descriptor
+        // referring to that file, and return
+        // 'bdesu_FileSystemUtil::INVALID_FD' otherwise.
 };
 
 // ============================================================================
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                              // ---------------------
-                              // struct bdesu_FileUtil
-                              // ---------------------
-
 // CREATORS
 inline
-bdesu_FileCloseProctor::bdesu_FileCloseProctor(
-                                     bdesu_FileUtil::FileDescriptor descriptor)
+bdesu_FileDescriptorGuard::bdesu_FileDescriptorGuard(
+                               bdesu_FilesystemUtil::FileDescriptor descriptor)
 : d_descriptor(descriptor)
 {
-    BSLS_ASSERT_OPT(bdesu_FileUtil::INVALID_FD != descriptor);
 }
 
 inline
-bdesu_FileCloseProctor::~bdesu_FileCloseProctor()
+bdesu_FileDescriptorGuard::~bdesu_FileDescriptorGuard()
 {
-    this->closeAndRelease();
+    if (FsUtil::k_INVALID_FD != d_descriptor) {
+        closeAndRelease();
+    }
 }
 
 // MANIPULATORS
 inline
-void bdesu_FileCloseProctor::release()
+void bdesu_FileDescriptorGuard::release()
 {
-    d_descriptor = bdesu_FileUtil::INVALID_FD;
+    BSLS_ASSERT(FsUtil::k_INVALID_FD != d_descriptor);
+
+    d_descriptor = FsUtil::k_INVALID_FD;
 }
 
 // ACCESSORS
 inline
-bdesu_FileUtil::FileDescriptor bdesu_FileCloseProctor::descriptor() const
+bdesu_FilesystemUtil::FileDescriptor bdesu_FileDescriptorGuard::descriptor()
+                                                                          const
 {
     return d_descriptor;
 }
