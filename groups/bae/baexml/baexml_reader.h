@@ -595,12 +595,11 @@ class baexml_Reader {
 // FREE OPERATORS
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, baexml_Reader::NodeType nt)
-    // Print the contents of the specified 'nt' node type to the specified
-    // 'stream' in human-readable form and return a modifiable reference to
-    // 'stream'.
+bsl::ostream& operator<<(bsl::ostream& stream, baexml_Reader::NodeType value)
+    // Print the specified node type 'value' to the specified 'stream' in
+    // human-readable form and return a modifiable reference to 'stream'.
 {
-    return stream << baexml_Reader::nodeTypeAsString(nt);
+    return stream << baexml_Reader::nodeTypeAsString(value);
 }
 
 // ===========================================================================
