@@ -596,17 +596,24 @@ void case_8_top()
                 if (bsl::strstr(lnBegin, "lib")) {
                     ln = lnBegin;
                 }
+                const char *snBegin = frame.sourceFileName().c_str();
+                const char *sn = snBegin + bsl::strlen(snBegin);
+                while (sn > snBegin && '/' != sn[-1] && '\\' != sn[-1]) {
+                    --sn;
+                }
 
                 if (!PLAT_WIN || verbose) {
                     fprintf(fp,
                             "(%d) %s+0x" SIZE_T_CONTROL_STRING " at 0x"
-                                              SIZE_T_CONTROL_STRING " in %s\n",
+                                     SIZE_T_CONTROL_STRING " in %s:%d in %s\n",
                             i,
                             frame.isSymbolNameKnown()
                                                    ? frame.symbolName().c_str()
                                                    : "-- unknown",
                             (UintPtr) frame.offsetFromSymbol(),
                             (UintPtr) frame.address(),
+                            sn,
+                            frame.lineNumber(),
                             ln);
                 }
             }
@@ -1007,19 +1014,19 @@ void bottom(bool demangle, double x)
                                 // case 3
                                 // ------
 
-static bool calledCase5TopDemangle = false;
-static bool calledCase5TopMangle   = false;
+static bool calledCase3TopDemangle = false;
+static bool calledCase3TopMangle   = false;
 
 static
 void case_3_Top(bool demangle)
 {
     if (demangle) {
-        ASSERT(!calledCase5TopDemangle);
-        calledCase5TopDemangle = true;
+        ASSERT(!calledCase3TopDemangle);
+        calledCase3TopDemangle = true;
     }
     else {
-        ASSERT(!calledCase5TopMangle);
-        calledCase5TopMangle = true;
+        ASSERT(!calledCase3TopMangle);
+        calledCase3TopMangle = true;
     }
 
     enum { MAX_FRAMES = 100 };
@@ -1160,6 +1167,8 @@ void top(bslma::Allocator *alloc)
 
         ASSERT(&ssC == &ssCRef);
         checkOutput(ssC.str(), matches);
+
+        if (veryVerbose) cout << ssC.str();
     }
 }
 
@@ -1707,34 +1716,44 @@ int main(int argc, char *argv[])
 
         enum { DATA_POINTS = 3 };
 
-        ST  stackTraces[DATA_POINTS];
-        int lineNumbers[DATA_POINTS];
+        // Note that 'traces' (stack TRACES), 'ln' (Line NumberS), and 'GET_ST"
+        // (GET Stack Trace) must have very short names since it is imperative
+        // that we be able do several things on a single 79 column line.
 
-        // Note that the '__LINE__' assignments *MUST* occur on the lines after
-        // the 'loadStackTraceFrameStack' calls.
+        ST  traces[DATA_POINTS];
+        int lns[   DATA_POINTS];
+
+#define GET_ST(st)                                                            \
+        rc = Util::loadStackTraceFromStack(st, 100, false);                   \
+        LOOP_ASSERT(rc, 0 == rc);
 
         int rc;
-        rc = Util::loadStackTraceFromStack(&stackTraces[0], 100, false);
-        LOOP_ASSERT(rc, 0 == rc);                  lineNumbers[0] = __LINE__;
 
-        rc = Util::loadStackTraceFromStack(&stackTraces[1], 100, false);
-        LOOP_ASSERT(rc, 0 == rc);                  lineNumbers[1] = __LINE__;
+        // We ensure here that the line number returned by the stack trace is
+        // the line number of the actual call, and not the line after it, or
+        // the line of the first executable statement after it.
 
-        rc = Util::loadStackTraceFromStack(&stackTraces[2], 100, false);
-        LOOP_ASSERT(rc, 0 == rc);                  lineNumbers[2] = __LINE__;
+        // We make the assignment conditional on the state of the stack trace
+        // just obtained, to prevent any clever compilers from anticipating the
+        // only assignment to lns[*] and assigning them at variable creation
+        // and putting *NO* executable statement where we're assigning
+        // '__LINE__'.
 
-        UintPtr lastAddress = 0;
-        IntPtr lastOffset   = 0;
-        int lastLineNumber  = 0;
+        GET_ST(&traces[0]); lns[0] = traces[0].length() > 0 ? __LINE__ : -1;
 
-        if (PLAT_WIN) {
-            --lineNumbers[0];
-            --lineNumbers[1];
-            --lineNumbers[2];
-        }
+        GET_ST(&traces[1]);
+        lns[1] = traces[1].length() > 0 ? __LINE__ - 1 : -1;
+
+        GET_ST(&traces[2]);
+
+        lns[2] = traces[2].length() > 0 ? __LINE__ - 2 : -1;
+
+        UintPtr lastAddress    = 0;
+        IntPtr  lastOffset     = 0;
+        int     lastLineNumber = 0;
 
         for (int i = 0; i < DATA_POINTS; ++i) {
-            baesu_StackTrace& stackTrace = stackTraces[i];
+            baesu_StackTrace& stackTrace = traces[i];
             const baesu_StackTraceFrame& frame = stackTrace[0];
 
             UintPtr thisAddress = (UintPtr) frame.address();
@@ -1761,18 +1780,18 @@ int main(int argc, char *argv[])
 
             if (DEBUG_ON && !FORMAT_ELF && !FORMAT_DLADDR) {
                 int lineNumber = frame.lineNumber();
-                LOOP3_ASSERT(i, lineNumber, lineNumbers[i],
-                                                 lineNumber == lineNumbers[i]);
+                LOOP3_ASSERT(i, lineNumber, lns[i], lineNumber == lns[i]);
                 LOOP2_ASSERT(lastLineNumber, lineNumber,
                                                   lastLineNumber < lineNumber);
                 lastLineNumber = lineNumber;
+
+                if (veryVerbose) { P_(lineNumber); P(lns[i]) }
             }
         }
 
         if (verbose || problem()) {
             for (int i = 0; i < DATA_POINTS; ++i) {
-                *out_p << '(' << i << ")(0): " <<
-                                          stackTraces[i][0] << endl;
+                *out_p << '(' << i << ")(0): " << traces[i][0] << endl;
             }
         }
       }  break;
@@ -1962,10 +1981,12 @@ int main(int argc, char *argv[])
         namespace TC = CASE_3;
 
         (void) (*foilOptimizer(TC::bottom))(false);    // no demangling
-        ASSERT(calledCase5TopMangle);
+
+        ASSERT(calledCase3TopMangle);
 
         (void) (*foilOptimizer(TC::bottom))(true);     // demangling
-        ASSERT(calledCase5TopDemangle);
+
+        ASSERT(calledCase3TopDemangle);
       } break;
       case 2: {
         // --------------------------------------------------------------------

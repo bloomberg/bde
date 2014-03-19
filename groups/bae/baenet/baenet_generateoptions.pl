@@ -101,7 +101,7 @@ sub mungeConfigSchemaFile($$)
 my $writable = 1;
 
 0 == system("bas_codegen.pl $xsdfile -m msg -p baenet -E -P $dummyPrefix "
-          . "--testD rivers=yes --dualSTL=yes --noAggregateConversion "
+          . "--testDrivers=y --dualSTL=yes --noAggregateConversion "
           . "--ignoreCase=yes") or
     die "bas_codegen.pl failed\n";
 

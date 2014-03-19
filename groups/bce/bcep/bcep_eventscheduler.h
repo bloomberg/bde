@@ -862,7 +862,8 @@ inline
 int bcep_EventScheduler::cancelEvent(const Event *handle)
 {
     const EventQueue::Pair *itemPtr =
-        reinterpret_cast<const EventQueue::Pair*>(handle);
+                        reinterpret_cast<const EventQueue::Pair*>(
+                                        reinterpret_cast<const void*>(handle));
 
     return d_eventQueue.remove(itemPtr);
 }
@@ -871,7 +872,8 @@ inline
 int bcep_EventScheduler::cancelEvent(const RecurringEvent *handle)
 {
     const RecurringEventQueue::Pair *itemPtr =
-        reinterpret_cast<const RecurringEventQueue::Pair*> (handle);
+                reinterpret_cast<const RecurringEventQueue::Pair*>(
+                                        reinterpret_cast<const void*>(handle));
 
     return d_recurringQueue.remove(itemPtr);
 }
@@ -888,14 +890,16 @@ inline
 void bcep_EventScheduler::releaseEventRaw(Event *handle)
 {
     d_eventQueue.releaseReferenceRaw(
-                                 reinterpret_cast<EventQueue::Pair*>(handle));
+                                  reinterpret_cast<EventQueue::Pair*>(
+                                             reinterpret_cast<void*>(handle)));
 }
 
 inline
 void bcep_EventScheduler::releaseEventRaw(RecurringEvent *handle)
 {
     d_recurringQueue.releaseReferenceRaw(
-                         reinterpret_cast<RecurringEventQueue::Pair*>(handle));
+                         reinterpret_cast<RecurringEventQueue::Pair*>(
+                                             reinterpret_cast<void*>(handle)));
 }
 
 inline
@@ -912,7 +916,8 @@ inline
 bcep_EventScheduler::Event*
 bcep_EventScheduler::addEventRefRaw(Event *handle) const
 {
-    EventQueue::Pair *h = reinterpret_cast<EventQueue::Pair*>(handle);
+    EventQueue::Pair *h = reinterpret_cast<EventQueue::Pair*>(
+                                              reinterpret_cast<void*>(handle));
     return reinterpret_cast<Event*>(d_eventQueue.addPairReferenceRaw(h));
 }
 
@@ -921,7 +926,8 @@ bcep_EventScheduler::RecurringEvent*
 bcep_EventScheduler::addRecurringEventRefRaw(RecurringEvent *handle) const
 {
     RecurringEventQueue::Pair *h =
-        reinterpret_cast<RecurringEventQueue::Pair*>(handle);
+                               reinterpret_cast<RecurringEventQueue::Pair*>(
+                                              reinterpret_cast<void*>(handle));
     return reinterpret_cast<RecurringEvent*>(
                                      d_recurringQueue.addPairReferenceRaw(h));
 }

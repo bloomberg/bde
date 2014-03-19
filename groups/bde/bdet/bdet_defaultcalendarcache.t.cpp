@@ -13,7 +13,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 
-#include <bsl_cstdlib.h>     // 'atoi'
+#include <bsl_cstdlib.h>      // 'atoi'
+#include <bsl_cstring.h>    // 'scrcmp'
 #include <bsl_iostream.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS

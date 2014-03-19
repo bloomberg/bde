@@ -600,11 +600,17 @@ inline
 void *operator new(bsl::size_t size, BloombergLP::bcema_Pool& pool)
 {
     using namespace BloombergLP;
+
+#ifdef BDE_BUILD_TARGET_SAFE
+    // gcc-4.8.1 introduced a new warning for unused typedefs, so this typedef
+    // should only be present in SAFE mode builds (where it is used).
+
     typedef BloombergLP::bsls::AlignmentUtil Util;
 
     BSLS_ASSERT_SAFE(static_cast<int>(size) <= pool.blockSize()
                   && Util::calculateAlignmentFromSize(size)
                        <= Util::calculateAlignmentFromSize(pool.blockSize()));
+#endif
 
     static_cast<void>(size);  // suppress "unused parameter" warnings
     return pool.allocate();

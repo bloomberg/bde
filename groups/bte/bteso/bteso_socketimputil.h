@@ -333,16 +333,28 @@ BDES_IDENT("$Id: $")
 #include <btescm_version.h>
 #endif
 
+#ifndef INCLUDED_BTESO_PLATFORM
+#include <bteso_platform.h>
+#endif
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+
+// The #include <winsock2.h> *must* precede any potential #include <windows.h>,
+// such as may occur with a transitive include of a platform header, even the
+// native STL.
+    #ifndef INCLUDED_WINSOCK2
+    #include <winsock2.h>                    // for WSABUF
+    #define INCLUDED_WINSOCK2
+    #endif
+
+#endif
+
 #ifndef INCLUDED_BTESO_IPV4ADDRESS
 #include <bteso_ipv4address.h>
 #endif
 
 #ifndef INCLUDED_BTESO_SOCKETHANDLE
 #include <bteso_sockethandle.h>
-#endif
-
-#ifndef INCLUDED_BTESO_PLATFORM
-#include <bteso_platform.h>
 #endif
 
 #ifndef INCLUDED_BTES_IOVEC
@@ -358,14 +370,11 @@ BDES_IDENT("$Id: $")
 #endif
 
 #ifdef BTESO_PLATFORM_WIN_SOCKETS
-    #ifndef INCLUDED_WINSOCK2
-    #include <winsock2.h>                    // for WSABUF
-    #define INCLUDED_WINSOCK2
-    #endif
 
     #ifndef INCLUDED_BSL_ALGORITHM
-    #include <bsl_algorithm.h>                     // for copy_n
+    #include <bsl_algorithm.h>               // for copy_n
     #endif
+
 #endif
 
 #ifdef BTESO_PLATFORM_BSD_SOCKETS

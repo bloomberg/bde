@@ -1,4 +1,4 @@
-// bcec_fixedqueue.t.cpp       -*-C++-*-
+// bcec_fixedqueue.t.cpp                                              -*-C++-*-
 
 #include <bcec_fixedqueue.h>
 #include <bcec_queue.h>
@@ -8,6 +8,7 @@
 #include <bcemt_configuration.h>
 #include <bcemt_lockguard.h>
 #include <bcemt_qlock.h>
+#include <bcemt_timedsemaphore.h>
 #include <bcema_sharedptr.h>
 #include <bcema_testallocator.h>
 #include <bcemt_threadgroup.h>
@@ -119,6 +120,43 @@ typedef bcec_FixedQueue<Element*> Obj;
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
 //-----------------------------------------------------------------------------
+
+class ExceptionTester
+{
+public:
+    static bces_AtomicInt64 s_throwFrom;
+
+    ExceptionTester() {}
+
+    ExceptionTester(const ExceptionTester& rhs) {
+        if (s_throwFrom &&
+            bcemt_ThreadUtil::selfIdAsUint64() == s_throwFrom) {
+            throw 1;
+        }
+    }
+
+    ExceptionTester& operator=(const ExceptionTester& rhs) {
+        return *this;
+    }
+};
+
+bces_AtomicInt64 ExceptionTester::s_throwFrom = -1;
+
+void exceptionProducer(bcec_FixedQueue<ExceptionTester> *tester,
+                       bcemt_TimedSemaphore             *sema,
+                       bces_AtomicInt                   *numCaught) {
+    enum { NUM_ITERATIONS = 2 };
+
+    for (int i = 0; i < NUM_ITERATIONS; ++i) {
+        try {
+            tester->pushBack(ExceptionTester());
+        } catch (...) {
+            ++(*numCaught);
+        }
+        sema->post();
+    }
+}
+
 namespace Backoff {
 
 void hardwork(int* item, int spin)
@@ -821,6 +859,8 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }
 
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
 namespace indexqueue_zerotst {
 
 struct Control {
@@ -936,6 +976,9 @@ void runtest(int numIterations, int numPushers, int numPoppers)
 }
 }
 
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
+
 namespace zerotst {
 
 struct Control {
@@ -1032,6 +1075,84 @@ int main(int argc, char *argv[])
                      bcemt_Configuration::recommendedDefaultThreadStackSize());
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 21: {
+#if defined(BDE_BUILD_TARGET_EXC) && \
+    !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+        // ---------------------------------------------------------
+        // Exception safety test
+        //
+        // Test that the queue provides the Strong exception safety
+        // guarantee.
+        // ---------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "CONCERN: Exception Safety" << endl
+                          << "=========================" << endl;
+
+        bcema_TestAllocator ta(veryVeryVerbose);
+        {
+            // a.  popping from a full queue with exception leaves a non-full
+            //     queue and unblocks a pusher
+
+            enum {QUEUE_LENGTH = 3};
+            bcec_FixedQueue<ExceptionTester> queue(QUEUE_LENGTH,
+                                                         &ta);
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 == queue.pushBack(ExceptionTester()));
+            ASSERT(0 != queue.tryPushBack(ExceptionTester()));
+
+            bcemt_TimedSemaphore sema;
+            bces_AtomicInt numCaught = 0;
+
+            bcemt_ThreadUtil::Handle producer;
+            int rc = bcemt_ThreadUtil::create(&producer,
+                                              bdef_BindUtil::bind(
+                                                         &exceptionProducer,
+                                                         &queue, &sema,
+                                                         &numCaught));
+            BSLS_ASSERT_OPT(0 == rc); // test invariant
+
+            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::selfIdAsUint64();
+            bool caught = false;
+            try {
+                ExceptionTester test = queue.popFront();
+            } catch (...) {
+                caught = true;
+            }
+            ASSERT(caught);
+            ASSERT(0 ==
+                   sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
+
+            ASSERT(QUEUE_LENGTH == queue.length());
+
+            // b.  pushing into a queue with exception does not increase the
+            // length of the queue
+            ExceptionTester::s_throwFrom = bcemt_ThreadUtil::idAsUint64(
+                                    bcemt_ThreadUtil::handleToId(producer));
+
+            // pop an item to unblock the pusher
+            ExceptionTester test = queue.popFront();
+            ASSERT(0 ==
+                   sema.timedWait(bdetu_SystemTime::now().addSeconds(1)));
+            ASSERT(1 == numCaught);
+
+            ASSERT(QUEUE_LENGTH - 1 == queue.length());
+            ASSERT(!queue.isFull());
+            ASSERT(0 == queue.tryPushBack(ExceptionTester()));
+
+            queue.disable();
+            queue.removeAll();
+            bcemt_ThreadUtil::join(producer);
+        }
+        ASSERT(0 < ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+#endif //  #if defined(BDE_BUILD_TARGET_EXC) && \
+           !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
+        break;
+      }
+
       case 20: {
         // ---------------------------------------------------------
         // Template Requirements Test
@@ -1039,6 +1160,10 @@ int main(int argc, char *argv[])
         // bcec_FixedQueue<T> should work for types T that have no default
         // constructor and a 1-arg copy constructor.
         // ---------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "CONCERN: Template Requirements" << endl
+                          << "==============================" << endl;
 
         bcec_FixedQueue<TestType> q(10);
 
@@ -1057,6 +1182,11 @@ int main(int argc, char *argv[])
         // the real length of the queue will always be between 0 and N,
         // so verify that the reported length is always in this range.
         // ---------------------------------------------------------
+
+
+        if (verbose) cout << endl
+                          << "CONCERN: length Stress-Test" << endl
+                          << "===========================" << endl;
 
         enum {
             NUM_PUSHPOP_THREADS = 6,
@@ -1195,6 +1325,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 16: {
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
         // ---------------------------------------------------------
         // Pushing zeros through the IndexQueue
         // ---------------------------------------------------------
@@ -1214,7 +1345,7 @@ int main(int argc, char *argv[])
                     NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
-
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
       } break;
       case 15: {
         // ---------------------------------------------------------
@@ -1249,7 +1380,7 @@ int main(int argc, char *argv[])
             mX.disable();
             ASSERT(!X.isEnabled());
             int data = D1;
-            ASSERT(-2 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
             ASSERT(0 == da.numBytesInUse());
             ASSERT(0 == mX.length());
 
@@ -1264,24 +1395,24 @@ int main(int argc, char *argv[])
             data = D3;
             ASSERT(0 == mX.tryPushBack(data));
             ASSERT(3 == mX.length());
-            ASSERT(-1 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
             ASSERT(0 == da.numBytesInUse());
             ASSERT(3 == mX.length());
 
             mX.disable();
             ASSERT(!X.isEnabled());
-            ASSERT(-1 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
 
             ASSERT(0 == mX.tryPopFront(&data));
             ASSERT(D1 == data);
 
-            ASSERT(-2 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
             ASSERT(0 == mX.tryPopFront(&data));
             ASSERT(D2 == data);
             ASSERT(0 == mX.tryPopFront(&data));
             ASSERT(D3 == data);
 
-            ASSERT(-1 == mX.tryPopFront(&data));
+            ASSERT(0 != mX.tryPopFront(&data));
         }
 
         ASSERT(0 == da.numBytesInUse());
@@ -1331,7 +1462,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == mX.length());
             ASSERT(1 == mX.size());
             data = D1;
-            ASSERT(-1 == mX.tryPushBack(data));
+            ASSERT(0 != mX.tryPushBack(data));
             ASSERT(0 == da.numBytesInUse());
             ASSERT(1 == mX.length());
             ASSERT(1 == mX.size());
@@ -1424,6 +1555,8 @@ int main(int argc, char *argv[])
       } break;
 
       case 10: {
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+
         // ---------------------------------------------------------
         // TESTING CONCERN: Memory leak if pushing while disabled
         //
@@ -1466,6 +1599,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == da.numBytesInUse());
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
 
       } break;
       case 9: {
@@ -2371,6 +2505,7 @@ int main(int argc, char *argv[])
       } break;
 
       case -6: {
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
         // --------------------------------------------------------------------
         // STRESS TEST
         // --------------------------------------------------------------------
@@ -2410,6 +2545,7 @@ int main(int argc, char *argv[])
                           << "NUM PUSHERS: " << numPushers << endl;
 
         disabletst::runtest(numPushers, 4099, false);
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
       } break;
       case -8: {
         // --------------------------------------------------------------------
@@ -2571,6 +2707,9 @@ int main(int argc, char *argv[])
       } break;
 
       case -10: {
+#if !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
+// Note that backoff level is not used in opengrok.
+
         // ---------------------------------------------------------
         // tuning backoff
         // ---------------------------------------------------------
@@ -2627,6 +2766,7 @@ int main(int argc, char *argv[])
              << " (" << user << "U, " << system << " S)"
              << endl;
         cout << "Elapsed wall time: " << wall << endl;
+#endif // !defined(BCE_USE_NEW_BCEC_FIXEDQUEUE_IMPLEMENTATION)
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -409,14 +409,20 @@ static void connectTcpCb(
         if (attempt->d_socket_p) {
             attempt->d_connector->d_eventManager_p->deregisterSocket(
                                                 attempt->d_socket_p->handle());
-            rc = attempt->d_socket_p->connectionStatus();
+            if (timeout) {
+                rc = -1;
+            } else if (attempt->d_socket_p->connectionStatus()) {
+                rc = -2;
+            } else {
+                rc = 0;
+            }
             if (rc) {
                 attempt->d_connector->d_socketFactory_p->deallocate(
-                                                      attempt->d_socket_p);
+                                                          attempt->d_socket_p);
                 attempt->d_socket_p = 0;
             }
         } else {
-            rc = -1;  // the socket was already closed
+            rc = -3;  // the socket was already closed
         }
     }
     if (rc) {

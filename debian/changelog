@@ -1,3 +1,99 @@
+bde-core (2.20.0.0) unstable; urgency=low
+
+  * Bump changelog
+  * 4d26631 [APPROVAL] pending/master/refactor-fileutil-drqs-45032518-and-45068181 to master
+  * 304543b [APPROVAL] origin/review/bump-versions-to-2.20 to master
+  * a577f0d [APPROVAL] bump-versions-to-2.20 to master
+  * e20b115 [APPROVAL] pending/master/bdesu_fdstreambuf-flushless-seek-drqs-48285269 to master
+  * 3c716b0 [APPROVAL] pending/master/update-bdema_testallocator-test-driver-drqs-48060259 to master
+  * aea0cf8 [APPROVAL] pending/master/bdesb_memoutstreambuf-int-overflow-drqs-45821171 to master
+  * bcc3b65 [APPROVAL] pending/master/bdeu_string-take-null-subString-drqs-41392275 to master
+  * 4dc548a [APPROVAL] pending/master/baesu_asserttrace-assertion-stack-trace-drqs-46150465 to master
+  * 8c7f9b3 [APPROVAL] pending/master/fixwindows-test-build to master
+  * 7368dad [APPROVAL] pending/master/btemt_sessionpool-restart-after-stop to master
+  * 79e9c26 [APPROVAL] pending/master/waf-build-support-drqs-48413481 to master
+  * bc80125 Initial conversion of utf8 work and new 'open' work to new component.
+  * 5d0abb6 bump version to 2.20, remove RELEASE_TYPE
+  * 1825dce [APPROVAL] origin/review/fix-baetzo-typo-drqs-48170582 to master
+  * 834dfbc [APPROVAL] pending/master/atomicringbuffer-drqs33150175 to master
+  * 7cbb814 [APPROVAL] fix-bteso_ipv4address-argordering to master
+  * 704bc92 [APPROVAL] pending/master/ip_parsing_failure_drqs-44521942 to master
+  * 23d1385 [APPROVAL] pending/master/baejsn_tokenizer-error-handling-double-backslash to master
+  * fefb75f [APPROVAL] pending/master/baenet-contentlength-drqs44276096 to master
+  * 9db41a0 [APPROVAL] pending/master/bcep_eventscheduler-align-errors-drqs-45348853 to master
+  * 5a106db [APPROVAL] origin/review/remove-non-ascii_drqs-46786879 to master
+  * 518889c [APPROVAL] pending/master/bbedc-deprec-icma-yearsDiff-drqs-43874656 to master
+  * 26af1ec [APPROVAL] pending/master/bdepu_typesparserimputil-parsedouble-fix-drqs-39908658 to master
+  * e4c6553 [APPROVAL] pending/master/d39909158 to master
+  * 4a80814 [APPROVAL] pending/master/bdepu_monthofyear_d40160585 to master
+  * 11322aa [APPROVAL] pending/master/bcec_TimeQueue-handles-doc-drqs-41459834 to master
+  * 54a54c9 [APPROVAL] pending/master/rwmutex_asserts_drqs-43798009 to master
+  * 9a64be7 [APPROVAL] pending/master/d44392440 to master
+  * 77b2915 [APPROVAL] pending/master/btemt_channelpool-constructors-Wreorder-gcc-warning to master
+  * 9ba7d8d [APPROVAL] pending/master/baesu_test-linenum-drqs-44592073 to master
+  * 4cef83a [APPROVAL] pending/master/baetzo-doc-improvements-drqs44730007 to master
+  * 7957317 [APPROVAL] pending/master/btes_ratelimiter-DocFix-drqs-46213246 to master
+  * 7c6b816 [APPROVAL] pending/master/bdet_calendarcache-assertion-test-failure-drqs-46783405 to master
+  * e15a3d1 [APPROVAL] pending/master/baesu-stta-freed-block-bug-drqs-46786675 to master
+  * e0b745b [APPROVAL] pending/master/fix-affect_drqs-47116796 to master
+  * 34f6b72 [APPROVAL] pending/master/bae_test_failures-drqs44228290 to master
+  * 77e3b02 [APPROVAL] pending/master/baesu_stacktraceframe-test-failure-drqs-46753188 to master
+  * 8e42788 Windows version.
+  * 7479cd4 Machine-independent pton function to wrap windows and non-windows versions.
+  * 7c5f0d1 [APPROVAL] pending/master/drqs-39472839-add-socks5-to-bte to master
+  * c716e06 [APPROVAL] pending/master/typo-aggregate-drqs44296040 to master
+  * 0c115b1 [APPROVAL] pending/master/bcemt-mutex-locked-component-drqs-34158704 to master
+  * b45e21f [APPROVAL] origin/review/bcema_sharedptr_bugfix_drqs_44868895 to master
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 30 Jan 2014 12:30:45 -0500
+
+bde-core (MERGE_BASE_master_2.19.x) git; urgency=low
+
+  * 8e7d4c1 [APPROVAL] pending/master/zoneinfo-cache-undefined-drqs44625092 to master
+  * 5e34839 [APPROVAL] pending/master/drqs-43702912-baejsn_decoder-printing-vector-error to master
+  * 81d5aba [APPROVAL] pending/master/concise-iso8601-format-drqs32610960 to master
+  * ac8a6bd [APPROVAL] pending/master/bcemt-mutex-locked-component-drqs-34158704 to master
+  * 6b3103b [APPROVAL] pending/master/pipecontrolchannel-errno-drqs-42730045 to master
+  * 3b14305 [APPROVAL] complete-bdet-calendar-types-drqs-43876556 to master
+  * 3bfd1a0 [APPROVAL] pending/master/drqs-42705714-baejsn_decoder-trailing-invalid-json to master
+  * d636a03 [APPROVAL] version-2.19.0 to master
+  * 506efb9 Bump version to 2.19
+  * ff7e60e [APPROVAL] pending/master/eliminate_unused_deprecations_drqs42106924 to master
+  * 4107d67 [APPROVAL] pending/master/drqs-43976570-bcema_blobutil-append to master
+  * 8775f7f [APPROVAL] pending/master/Correct_result_type_for_bdeu_CStringHash_drqs44283644 to master
+  * dbfa0c3 [APPROVAL] origin/review/bdesu_fileutil-mkdir-perms-drqs-42274478 to master
+  * e07dde0 [APPROVAL] origin/review/bdeu_arrayutil_drqs41506710 to master
+  * 01d9310 [APPROVAL] origin/review/bcec_queue-length-drqs-40058120 to master
+  * 151062f [APPROVAL] origin/review/bdesu_fileutil-open-doc-drqs-34791435 to master
+  * 9311a36 [APPROVAL] pending/master/drqs-40158465-sessionpool-reuseAddress to master
+  * cdefa12 [APPROVAL] pending/master/function-output-iterator-drqs24797357 to master
+  * 41a1e31 [APPROVAL] pending/master/bcemt-blobutil-drqs42722584 to master
+  * ba20a5b [APPROVAL] pending/master/layer_smart_pointers_over_bsl_drqs44171378 to master
+  * eff2af0 Clean up bdema_ManagedPtr conversion operator
+  * d9a0b94 [APPROVAL] pending/master/bdede_charconvertutf32-drqs-40378282 to master
+  * 6cbd8dd [APPROVAL] origin/review/baesu-stta-bdef_function-drqs-41138141 to master
+  * d56a704 [APPROVAL] origin/review/baesu-opt-test-driver-fails-drqs-40156115 to master
+  * 5aa17c4 [APPROVAL] origin/review/bcema-blobutil-drqs43955304 to master
+  * 96d00d7 [APPROVAL] origin/review/fix-usage-example-btes_leakybucket-drqs-41419016 to master
+  * 8acd6a9 [APPROVAL] origin/review/doc-update-bcema_aggregate-drqs-40263865 to master
+  * 8c639a3 [APPROVAL] origin/review/pipecontrolchannel-doc-drqs44277578 to master
+  * b162fea [APPROVAL] pending/master/drqs-43092807-baejsn_decoder-warning to master
+  * 1007b4f [APPROVAL] pending/master/baetzo-version-2-drqs43840870 to master
+  * 7b62d72 [APPROVAL] meta-packages-in-binary-arch-drqs-43603654 to master
+  * 88a526f [APPROVAL] origin/review/variable-prefix-d_-to-s_-core-drqs-42551602 to master
+  * 2bffb3e [APPROVAL] pending/master/instrument-code-for-bdex-misuse-drqs-43801809 to master
+  * a33bd1f [APPROVAL] pending/master/calendars-datelib-drqs-41890133 to master
+  * 8e1b4a8 Add support for Zoneinfo version '2' in baetzo.
+  * e11f7ca [APPROVAL] pending/master/connect_preconfigured_socket_drqs42875749 to master
+  * efe569b [APPROVAL] origin/review/drqs-36521873-channelpool-shutdownAll to master
+  * 7fd38b6 [APPROVAL] pending/master/asyncfileobserver-testfailures-drqs42038625-rebase to master
+  * ba09c57 [APPROVAL] feature-branch-drqs-42274593 to master
+  * 10ba85f [APPROVAL] pending/master/feature-branch-drqs-42274593 to master
+  * b5fc87b [APPROVAL] origin/review/drqs-36969632-SessionPool-source-port-binding-failure to master
+  * 8d01bde seed 'bdet' with the needed components (which will eventually go in 'bdlt')   bdecs_calendar                            -> bdet_calendar   bdecs_calendarcache                       -> bdet_calendarcache   bdecs_calendarloader                      -> bdet_calendarloader   bdecs_packedcalendar                      -> bdet_packedcalendar   bdec_dayofweekset                         -> bdet_dayofweekset   bdetu_datetimeinterval/bdetu_timeinterval -> bdet_intervalconversionutil   bdetu_datetime                            -> bdet_datetimeutil   bdetu_epoch                               -> bdet_epochutil   bdetu_systemtime                          -> bdet_systemtimeutil Note that the 'bdetu' components are brought in solely to support the calendar-timeout feature of 'bdecs_CalendarCache'.
+
+ -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Mon, 23 Sep 2013 14:36:56 -0400
+
 bde-core (2.18.0.000.1000) unstable; urgency=low
 
   * Bump changelog

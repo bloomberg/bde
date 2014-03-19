@@ -160,7 +160,7 @@ class bdet_Datetime;
                         // =================================
 
 struct baetzo_LocalTimeOffsetUtil {
-    // This 'struct' provides a namespace for a 'bdeut_systemtime' local time
+    // This 'struct' provides a namespace for a 'bdetu_systemtime' local time
     // offset callback, and functions that manage the timezone information
     // reported by that callback.  All public methods are *thread-safe*.
 

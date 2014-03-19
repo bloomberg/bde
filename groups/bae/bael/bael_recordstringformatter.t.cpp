@@ -60,16 +60,21 @@ using bsl::string;
 // [ 2] bael_RecordStringFormatter(*ba = 0);
 // [11] bael_RecordStringFormatter(const char *, *ba = 0);
 // [11] bael_RecordStringFormatter(bdet_DtI, *ba = 0);
+// [14] bael_RecordStringFormatter(bool, *ba = 0);
 // [11] bael_RecordStringFormatter(const char *, bdet_DtI, *ba = 0);
+// [14] bael_RecordStringFormatter(const char *, bool, *ba = 0);
 // [ 7] bael_RecordStringFormatter(const bael_RSF&, *ba = 0);
 // [ 2] ~bael_RecordStringFormatter();
 // MANIPULATORS
 // [ 9] const bael_RSF& operator=(const bael_RSF& other);
+// [14] void disablePublishInLocalTime();
+// [14] void enablePublishInLocalTime();
 // [ 2] void setFormat(const char *format);
 // [ 2] void setTimestampOffset(const bdet_DatetimeInterval& offset);
 // [10] template <class STREAM> STREAM& bdexStreamIn(STREAM&, int);
 // ACCESSORS
 // [ 2] const char *format() const;
+// [14] bool isPublishInLocalTimeEnabled() const;
 // [ 2] const bdet_DatetimeInterval& timestampOffset() const;
 // [12] void operator()(bsl::ostream&, const bael_Record&) const;
 // [10] template <class STREAM> STREAM& bdexStreamOut(STREAM&, int) const;
@@ -210,6 +215,178 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING: Records Show Calculated Local-Time Offset
+        //   Per DRQS 13681097, records observe DST time transitions when
+        //   'publishInLocalTime' attribute is 'true'.
+        //
+        // Concerns:
+        //: 1 The CTORs that take a 'publishInLocalTime' parameter create
+        //:   objects with the specified attribute.
+        //:
+        //: 2 The CTORs that do not take a 'publishInLocalTime' parameter
+        //:   create objects having a 'publishInLocalTime' attribute that is
+        //:   'false'.
+        //:
+        //: 3 The manipulators of the 'publishInLocalTime' attribute can set
+        //:   the unset that attribute, and the accessor for that attribute
+        //:   always returns the expected value.
+        //:
+        //: 4 The manipulators of the 'publishInLocalTime' attribute are
+        //:   idempotent.
+        //:
+        //: 5 Objects having the 'publishInLocalTime' attribute actually
+        //:   resolve the '%i' format specifcation in local time, irrespective
+        //:   of how that attribute was set (at construction or by
+        //:   manipulator).
+        //:
+        //: 6 Objects having the 'publishInLocalTime' attribute 'false' resolve
+        //:   the '%i' format specification with their specified offset.
+        //
+        // Plan:
+        //: 1 Create objects using the different
+        //:   constructors and verify that the 'publishInLocalTime' attribute
+        //:   has the expected value.  (C-1..2)
+        //: 
+        //: 2 Default create an object and use the manipulator to
+        //:   change the attribute, and then reset the attribute to the 
+        //:   original state.  Each use of a manipulator is done twice
+        //:   to confirm idempotence. (C-3..4)
+        //:
+        //: 3 Create an object with a distinguished local time offset and  
+        //:   verify that the '%i' format specification is resolved to
+        //:   the specifed offset or the actual local time offset according
+        //:   to the state of the 'publishInLocalTime' attribute.  (C-5..6)
+        //
+        // Testing:
+        //   bael_RecordStringFormatter(bool, *ba = 0);
+        //   bael_RecordStringFormatter(const char *, bool, *ba = 0);
+        //   void disablePublishInLocalTime();
+        //   void enablePublishInLocalTime();
+        //   bool isPublishInLocalTimeEnabled() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+                << endl
+                << "TESTING: Records Show Calculated Local-Time Offset" <<endl
+                << "==================================================" <<endl;
+
+        if (verbose) cout << "\nTest Constructors" << endl;
+        {
+            Obj mX0(true);        
+            if (veryVerbose) {
+                P(mX0.timestampOffset().totalMilliseconds());
+            }
+            ASSERT( mX0.isPublishInLocalTimeEnabled());
+
+            Obj mX1(false);   
+            if (veryVerbose) {   
+                P(mX1.timestampOffset().totalMilliseconds());
+            }
+                                  ASSERT(!mX1.isPublishInLocalTimeEnabled());
+            Obj mX2("%i", true);  ASSERT( mX2.isPublishInLocalTimeEnabled());
+            Obj mX3("%i", false); ASSERT(!mX3.isPublishInLocalTimeEnabled());
+
+            Obj mX4;              ASSERT(!mX4.isPublishInLocalTimeEnabled());
+            Obj mX5("%i");        ASSERT(!mX5.isPublishInLocalTimeEnabled());
+            Obj mX6("%i", bdet_DatetimeInterval(10));
+                                  ASSERT(!mX6.isPublishInLocalTimeEnabled());
+        }
+
+        if (verbose) cout << "\nTest Manipulators and Accessor" << endl;
+        {
+            Obj mX;                  ASSERT(!mX.isPublishInLocalTimeEnabled());
+
+            mX.enablePublishInLocalTime();
+                                     ASSERT( mX.isPublishInLocalTimeEnabled());
+            mX.enablePublishInLocalTime();
+                                     ASSERT( mX.isPublishInLocalTimeEnabled());
+            mX.disablePublishInLocalTime();
+                                     ASSERT(!mX.isPublishInLocalTimeEnabled());
+            mX.disablePublishInLocalTime();
+                                     ASSERT(!mX.isPublishInLocalTimeEnabled());
+        }
+
+        if (verbose) cout << "\nTest Fixed and Calculated Offsets" << endl;
+        {
+            Obj mX("%i", bdet_DatetimeInterval(10));
+                                     ASSERT(!mX.isPublishInLocalTimeEnabled());
+
+            bdet_Datetime         dtUtc(2014, 2, 19);
+
+
+            bael_RecordAttributes fixedFields(dtUtc,
+                                              0,
+                                              0,
+                                              "",
+                                              0,
+                                              "",
+                                              bael_Severity::BAEL_OFF,
+                                              "");
+            bael_Record           mRecord(fixedFields, bdem_List());
+            const bael_Record&    record = mRecord;
+
+            bdet_Datetime dtWithOffset(dtUtc); dtWithOffset.addDays(10);
+
+            if (veryVerbose) { P_(dtUtc) P(dtWithOffset); }
+
+            ostringstream ossExpected;
+            ossExpected
+                 << bsl::setw(4) << bsl::setfill('0') << dtWithOffset.year()
+                 << '-'
+                 << bsl::setw(2) << bsl::setfill('0') << dtWithOffset.month()
+                 << '-'
+                 << bsl::setw(2) << bsl::setfill('0') << dtWithOffset.day()
+                 << ' '
+                 << bsl::setw(2) << bsl::setfill('0') << dtWithOffset.hour()
+                 << ':'
+                 << bsl::setw(2) << bsl::setfill('0') << dtWithOffset.minute()
+                 << ':'
+                 << bsl::setw(2) << bsl::setfill('0') << dtWithOffset.second();
+
+            ostringstream ossActual;
+            mX(ossActual, record);
+
+            if (veryVerbose) { T_() P_(ossExpected.str()) P(ossActual.str()) }
+            ASSERT((ossExpected.str() == ossActual.str()));
+
+            ossExpected.str(""); ossActual.str("");
+
+            int localTimeOffsetInSeconds;
+            bdetu_SystemTime::loadLocalTimeOffset(&localTimeOffsetInSeconds,
+                                                  dtUtc);
+            ASSERT(10 * 24 * 60 * 60 != localTimeOffsetInSeconds);
+
+            if (veryVerbose) { P(localTimeOffsetInSeconds); }
+
+            bdet_Datetime dtWithLTO(dtUtc);
+            dtWithLTO.addSeconds(localTimeOffsetInSeconds);
+
+            if (veryVerbose) { P_(dtUtc) P(dtWithLTO); }
+
+            ossExpected
+                    << bsl::setw(4) << bsl::setfill('0') << dtWithLTO.year()
+                    << '-'
+                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.month()
+                    << '-'
+                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.day()
+                    << ' '
+                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.hour()
+                    << ':'
+                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.minute()
+                    << ':'
+                    << bsl::setw(2) << bsl::setfill('0') << dtWithLTO.second();
+
+            mX.enablePublishInLocalTime();
+            ASSERT( mX.isPublishInLocalTimeEnabled());
+
+            mX(ossActual, record);
+            if (veryVerbose) { T_() P_(ossExpected.str()) P(ossActual.str()) }
+            ASSERT((ossExpected.str() == ossActual.str()));
+        }
+
+      } break;
       case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -668,9 +845,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\n Testing allocation behavior." << endl;
         {
 
-            const char *TEST_MESSAGES[] = { 
-                MSG_1BYTE, 
-                MSG_20BYTE, 
+            const char *TEST_MESSAGES[] = {
+                MSG_1BYTE,
+                MSG_20BYTE,
                 MSG_200BYTE,
                 MSG_450BYTE,
                 MSG_550BYTE,
@@ -684,7 +861,7 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocator oa, da;
                 Obj x("%m", &oa); const Obj& X = x;
-            
+
                 bael_RecordAttributes fixedFields(bdet_Datetime(),
                                                   processID,
                                                   threadID,
@@ -695,15 +872,15 @@ int main(int argc, char *argv[])
                                                   MSG,
                                                   &oa);
                 fixedFields.setTimestamp(bdetu_SystemTime::nowAsDatetimeUtc());
-                
+
                 bdem_List   userFields(&oa);
                 bael_Record record(fixedFields, userFields);
 
-                bsl::ostringstream stream;                
+                bsl::ostringstream stream;
                 bslma::DefaultAllocatorGuard guard(&da);
 
                 bslma::TestAllocatorMonitor oam(&oa), dam(&da);
-                
+
                 X(stream, record);
 
                 bool expectIncrease = MSG_LEN > 500;

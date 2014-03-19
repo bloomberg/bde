@@ -743,7 +743,7 @@ int parseChunkedBody(bcema_Blob *result, const bcema_Blob& body)
 
     bcesb_InBlobStreamBuf isb(&body);
 
-    int chunkSize = 0;
+    bsls::Types::Int64 chunkSize = 0;
 
     do {
         int numBytesConsumed = 0;

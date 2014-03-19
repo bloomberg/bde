@@ -44,6 +44,8 @@ using bsl::cout; using bsl::flush; using bsl::endl; using bsl::cerr;
 // [ 8] void toFixedLength()
 // [ 9] const char *strstr()
 // [ 9] const char *strstrCaseless()
+// [ 9] const char *strrstr()
+// [ 9] const char *strrstrCaseless()
 // [10] void skipLeadingTrailing(const char **begin, const char **end)
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACROS
@@ -95,8 +97,8 @@ typedef bdeu_String Util;
 //                             MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -207,21 +209,16 @@ int main(int argc, char *argv[]) {
         //  4) Nothing happens when '*begin == *end'.
         //
         // Plan:
-        //  To address concerns 1 and 2, we enumerate through different lengths
-        //  of substrings (0 to 2) and match them against different lengths of
-        //  original strings (0 to substring length + 2).  The case of both the
-        //  substrings and the original strings are also permuted.  The
-        //  resulting address returned from the 'strstr' and
-        //  'strstrCaseless' is compared against the expected offset from the
-        //  original string to make sure concerns 1 and 2 are addressed.
+        //   Pass the end points of a variety of strings covering all 4
+        //   concerns.  In each case, observe where the end points wind up and
+        //   confirm they are as expected.
         //
-        // Testing:
-        //  void skipLeadingTrailing(const char **begin, const char **end)
+        // Testing
+        //   void skipLeadingTrailing(const char **begin, const char **end);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING 'strstr' and 'strstrCaseless" << endl
-                          << "====================================" << endl;
+        if (verbose) cout << "TESTING 'skipLeadingTrailing'\n"
+                             "=============================\n";
 
         static const struct {
             const int   d_lineNumber;  // line number
@@ -318,22 +315,27 @@ int main(int argc, char *argv[]) {
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'strstr', 'strstrCaseless':
+        // TESTING 'strstr', 'strstrCaseless', 'strrstr', 'strrstrCaseless':
         //
         // Concerns:
-        //  1.  Correctly returns the position of the first found substring or
-        //      '0' if not found.
-        //  2.  Correctly returns the starting position of the string when an
-        //      empty substring is passed in.
+        //  1.  Forward-search correctly returns the position of the first
+        //      found substring or '0' if not found.
+        //  2.  Forward-search correctly returns the starting position of the
+        //      string when an empty substring is passed in.
+        //  3.  Reverse-search correctly returns the position of the last
+        //      found substring or '0' if not found.
+        //  4.  Reverse-search correctly returns the starting position of the
+        //      string when an empty substring is passed in.
         //
         // Plan:
-        //  To address concerns 1 and 2, we enumerate through different lengths
-        //  of substrings (0 to 2) and match them against different lengths of
-        //  original strings (0 to substring length + 2).  The case of both the
-        //  substrings and the original strings are also permuted.  The
-        //  resulting address returned from the 'strstr' and
-        //  'strstrCaseless' is compared against the expected offset from the
-        //  original string to make sure concerns 1 and 2 are addressed.
+        //  To address concerns 1, 2, 3, and 4 we enumerate through different
+        //  lengths of substrings (0 to 2) and match them against different
+        //  lengths of original strings (0 to substring length + 2).  The case
+        //  of both the substrings and the original strings are also permuted.
+        //  The resulting address returned from 'strstr', 'strstrCaseless',
+        //  'strrstr', and 'strrstrCaseless' is compared against the expected
+        //  offset from the original string to make sure concerns 1, 2, 3, and
+        //  4 are addressed.
         //
         // Tactics:
         //      - Ad-Hoc Data Selection Method (original string)
@@ -342,11 +344,15 @@ int main(int argc, char *argv[]) {
         // Testing:
         //      - const char *strstr()
         //      - const char *strstrCaseless()
+        //      - const char *strrstr()
+        //      - const char *strrstrCaseless()
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING 'strstr' and 'strstrCaseless" << endl
-                          << "====================================" << endl;
+                          << "TESTING 'strstr', 'strstrCaseless, "
+                             "'strrstr', and 'strrstrCaseless" << endl
+                          << "==================================="
+                             "===============================" << endl;
 
         static const struct {
             const int   d_lineNumber;
@@ -369,180 +375,206 @@ int main(int argc, char *argv[]) {
                                           // position of the string.  Returns
                                           // -1 if not found.
 
+            const int   d_resultReverse;  // Result will be the position of the
+                                          // substring relative to the starting
+                                          // position of the string.  Returns
+                                          // -1 if not found.
+
+            const int   d_resultReverseCaseless; // Result will be the position
+                                                 // of the substring relative
+                                                 // to the starting position of
+                                                 // the string.  Returns -1 if
+                                                 // not found.
+
         } DATA[] = {
-            //LINE, STRING,   STRINGLEN, SUBSTRING,  SUBSTRINGLEN, RESULT,
-            //                                                   RESULTCASELESS
+            //In the table below, R1-4 correspond to the results from the
+            //'strstr', 'strstrCaseless', 'strrstr', and 'strrstrCaseless'.
+            //
+            //LINE, STR,     STRLEN,     SUBSTR,  SUBSTRLEN,  R1, R2, R3, R4
 
             //Substring length 0, caseless
-            { L_,   "",       0,         "",         0,            0,      0},
-            { L_,   "a",      1,         "",         0,            0,      0},
-            { L_,   "ab",     2,         "",         0,            0,      0},
-            { L_,   "abc",    3,         "",         0,            0,      0},
+            { L_,   "",      0,          0,       0,          0,  0,  0,  0},
+            { L_,   "a",     1,          0,       0,          0,  0,  1,  1},
+            { L_,   "ab",    2,          0,       0,          0,  0,  2,  2},
+            { L_,   "abc",   3,          0,       0,          0,  0,  3,  3},
 
             //Substring length 0, case sensitive
-            { L_,   "A",      1,         "",         0,            0,      0},
-            { L_,   "Ab",     2,         "",         0,            0,      0},
-            { L_,   "aB",     2,         "",         0,            0,      0},
-            { L_,   "AB",     2,         "",         0,            0,      0},
-            { L_,   "Abc",    3,         "",         0,            0,      0},
-            { L_,   "aBc",    3,         "",         0,            0,      0},
-            { L_,   "abC",    3,         "",         0,            0,      0},
-            { L_,   "ABc",    3,         "",         0,            0,      0},
-            { L_,   "aBC",    3,         "",         0,            0,      0},
-            { L_,   "AbC",    3,         "",         0,            0,      0},
-            { L_,   "ABC",    3,         "",         0,            0,      0},
+            { L_,   "A",     1,         "",       0,          0,  0,  1,  1},
+            { L_,   "Ab",    2,         "",       0,          0,  0,  2,  2},
+            { L_,   "aB",    2,         "",       0,          0,  0,  2,  2},
+            { L_,   "AB",    2,         "",       0,          0,  0,  2,  2},
+            { L_,   "Abc",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "aBc",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "abC",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "ABc",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "aBC",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "AbC",   3,         "",       0,          0,  0,  3,  3},
+            { L_,   "ABC",   3,         "",       0,          0,  0,  3,  3},
 
             //Substring length 1, caseless
-            { L_,   "",       0,         "a",        1,           -1,     -1},
-            { L_,   " ",      1,         "a",        1,           -1,     -1},
-            { L_,   "a",      1,         "a",        1,            0,      0},
-            { L_,   "b",      1,         "a",        1,           -1,     -1},
-            { L_,   "  ",     2,         "a",        1,           -1,     -1},
-            { L_,   "aa",     2,         "a",        1,            0,      0},
-            { L_,   "ab",     2,         "a",        1,            0,      0},
-            { L_,   "ba",     2,         "a",        1,            1,      1},
-            { L_,   "bb",     2,         "a",        1,           -1,     -1},
-            { L_,   "   ",    3,         "a",        1,           -1,     -1},
-            { L_,   "aaa",    3,         "a",        1,            0,      0},
-            { L_,   "aab",    3,         "a",        1,            0,      0},
-            { L_,   "aba",    3,         "a",        1,            0,      0},
-            { L_,   "baa",    3,         "a",        1,            1,      1},
-            { L_,   "bba",    3,         "a",        1,            2,      2},
-            { L_,   "bbb",    3,         "a",        1,           -1,     -1},
+            { L_,   "",      0,         "a",      1,         -1, -1, -1, -1},
+            { L_,   " ",     1,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "a",     1,         "a",      1,          0,  0,  0,  0},
+            { L_,   "b",     1,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "  ",    2,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "aa",    2,         "a",      1,          0,  0,  1,  1},
+            { L_,   "ab",    2,         "a",      1,          0,  0,  0,  0},
+            { L_,   "ba",    2,         "a",      1,          1,  1,  1,  1},
+            { L_,   "bb",    2,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "   ",   3,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "aaa",   3,         "a",      1,          0,  0,  2,  2},
+            { L_,   "aab",   3,         "a",      1,          0,  0,  1,  1},
+            { L_,   "abb",   3,         "a",      1,          0,  0,  0,  0},
+            { L_,   "aba",   3,         "a",      1,          0,  0,  2,  2},
+            { L_,   "baa",   3,         "a",      1,          1,  1,  2,  2},
+            { L_,   "bba",   3,         "a",      1,          2,  2,  2,  2},
+            { L_,   "bbb",   3,         "a",      1,         -1, -1, -1, -1},
+
+            //String embedded nulls
+            { L_,   "\0  ",  3,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "\0aa",  3,         "a",      1,          1,  1,  2,  2},
+            { L_,   "\0ab",  3,         "a",      1,          1,  1,  1,  1},
+            { L_,   "\0ba",  3,         "a",      1,          2,  2,  2,  2},
+            { L_,   "\0bb",  3,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "  \0",  3,         "a",      1,         -1, -1, -1, -1},
+            { L_,   "aa\0",  3,         "a",      1,          0,  0,  1,  1},
+            { L_,   "ab\0",  3,         "a",      1,          0,  0,  0,  0},
+            { L_,   "ba\0",  3,         "a",      1,          1,  1,  1,  1},
+            { L_,   "bb\0",  3,         "a",      1,         -1, -1, -1, -1},
 
             //Substring length 1, case sensitive
-            { L_,   "A",      1,         "a",        1,           -1,      0},
-            { L_,   "Aa",     2,         "a",        1,            1,      0},
-            { L_,   "aA",     2,         "a",        1,            0,      0},
-            { L_,   "AA",     2,         "a",        1,           -1,      0},
-            { L_,   "bA",     2,         "a",        1,           -1,      1},
-            { L_,   "Aaa",    3,         "a",        1,            1,      0},
-            { L_,   "aAa",    3,         "a",        1,            0,      0},
-            { L_,   "aaA",    3,         "a",        1,            0,      0},
-            { L_,   "AAa",    3,         "a",        1,            2,      0},
-            { L_,   "aAA",    3,         "a",        1,            0,      0},
-            { L_,   "AaA",    3,         "a",        1,            1,      0},
-            { L_,   "AAA",    3,         "a",        1,           -1,      0},
-            { L_,   "Aab",    3,         "a",        1,            1,      0},
-            { L_,   "aAb",    3,         "a",        1,            0,      0},
-            { L_,   "AAb",    3,         "a",        1,           -1,      0},
-            { L_,   "Aba",    3,         "a",        1,            2,      0},
-            { L_,   "abA",    3,         "a",        1,            0,      0},
-            { L_,   "AbA",    3,         "a",        1,           -1,      0},
-            { L_,   "bAa",    3,         "a",        1,            2,      1},
-            { L_,   "baA",    3,         "a",        1,            1,      1},
-            { L_,   "bAA",    3,         "a",        1,           -1,      1},
-            { L_,   "bbA",    3,         "a",        1,           -1,      2},
-            { L_,   "A",      1,         "A",        1,            0,      0},
-            { L_,   "Aa",     2,         "A",        1,            0,      0},
-            { L_,   "aA",     2,         "A",        1,            1,      0},
-            { L_,   "AA",     2,         "A",        1,            0,      0},
-            { L_,   "bA",     2,         "A",        1,            1,      1},
-            { L_,   "Aaa",    3,         "A",        1,            0,      0},
-            { L_,   "aAa",    3,         "A",        1,            1,      0},
-            { L_,   "aaA",    3,         "A",        1,            2,      0},
-            { L_,   "AAa",    3,         "A",        1,            0,      0},
-            { L_,   "aAA",    3,         "A",        1,            1,      0},
-            { L_,   "AaA",    3,         "A",        1,            0,      0},
-            { L_,   "AAA",    3,         "A",        1,            0,      0},
-            { L_,   "Aab",    3,         "A",        1,            0,      0},
-            { L_,   "aAb",    3,         "A",        1,            1,      0},
-            { L_,   "AAb",    3,         "A",        1,            0,      0},
-            { L_,   "Aba",    3,         "A",        1,            0,      0},
-            { L_,   "abA",    3,         "A",        1,            2,      0},
-            { L_,   "AbA",    3,         "A",        1,            0,      0},
-            { L_,   "bAa",    3,         "A",        1,            1,      1},
-            { L_,   "baA",    3,         "A",        1,            2,      1},
-            { L_,   "bAA",    3,         "A",        1,            1,      1},
-            { L_,   "bbA",    3,         "A",        1,            2,      2},
+            { L_,   "A",     1,         "a",      1,         -1,  0, -1,  0},
+            { L_,   "Aa",    2,         "a",      1,          1,  0,  1,  1},
+            { L_,   "aA",    2,         "a",      1,          0,  0,  0,  1},
+            { L_,   "AA",    2,         "a",      1,         -1,  0, -1,  1},
+            { L_,   "bA",    2,         "a",      1,         -1,  1, -1,  1},
+            { L_,   "Aaa",   3,         "a",      1,          1,  0,  2,  2},
+            { L_,   "aAa",   3,         "a",      1,          0,  0,  2,  2},
+            { L_,   "aaA",   3,         "a",      1,          0,  0,  1,  2},
+            { L_,   "AAa",   3,         "a",      1,          2,  0,  2,  2},
+            { L_,   "aAA",   3,         "a",      1,          0,  0,  0,  2},
+            { L_,   "AaA",   3,         "a",      1,          1,  0,  1,  2},
+            { L_,   "AAA",   3,         "a",      1,         -1,  0, -1,  2},
+            { L_,   "Aab",   3,         "a",      1,          1,  0,  1,  1},
+            { L_,   "aAb",   3,         "a",      1,          0,  0,  0,  1},
+            { L_,   "AAb",   3,         "a",      1,         -1,  0, -1,  1},
+            { L_,   "Aba",   3,         "a",      1,          2,  0,  2,  2},
+            { L_,   "abA",   3,         "a",      1,          0,  0,  0,  2},
+            { L_,   "AbA",   3,         "a",      1,         -1,  0, -1,  2},
+            { L_,   "bAa",   3,         "a",      1,          2,  1,  2,  2},
+            { L_,   "baA",   3,         "a",      1,          1,  1,  1,  2},
+            { L_,   "bAA",   3,         "a",      1,         -1,  1, -1,  2},
+            { L_,   "bbA",   3,         "a",      1,         -1,  2, -1,  2},
+            { L_,   "A",     1,         "A",      1,          0,  0,  0,  0},
+            { L_,   "Aa",    2,         "A",      1,          0,  0,  0,  1},
+            { L_,   "aA",    2,         "A",      1,          1,  0,  1,  1},
+            { L_,   "AA",    2,         "A",      1,          0,  0,  1,  1},
+            { L_,   "bA",    2,         "A",      1,          1,  1,  1,  1},
+            { L_,   "Aaa",   3,         "A",      1,          0,  0,  0,  2},
+            { L_,   "aAa",   3,         "A",      1,          1,  0,  1,  2},
+            { L_,   "aaA",   3,         "A",      1,          2,  0,  2,  2},
+            { L_,   "AAa",   3,         "A",      1,          0,  0,  1,  2},
+            { L_,   "aAA",   3,         "A",      1,          1,  0,  2,  2},
+            { L_,   "AaA",   3,         "A",      1,          0,  0,  2,  2},
+            { L_,   "AAA",   3,         "A",      1,          0,  0,  2,  2},
+            { L_,   "Aab",   3,         "A",      1,          0,  0,  0,  1},
+            { L_,   "aAb",   3,         "A",      1,          1,  0,  1,  1},
+            { L_,   "AAb",   3,         "A",      1,          0,  0,  1,  1},
+            { L_,   "Aba",   3,         "A",      1,          0,  0,  0,  2},
+            { L_,   "abA",   3,         "A",      1,          2,  0,  2,  2},
+            { L_,   "AbA",   3,         "A",      1,          0,  0,  2,  2},
+            { L_,   "bAa",   3,         "A",      1,          1,  1,  1,  2},
+            { L_,   "baA",   3,         "A",      1,          2,  1,  2,  2},
+            { L_,   "bAA",   3,         "A",      1,          1,  1,  2,  2},
+            { L_,   "bbA",   3,         "A",      1,          2,  2,  2,  2},
 
             //Substring length 2, caseless
-            { L_,   "",       0,         "ab",       2,           -1,     -1},
-            { L_,   " ",      1,         "ab",       2,           -1,     -1},
-            { L_,   "a",      1,         "ab",       2,           -1,     -1},
-            { L_,   "b",      1,         "ab",       2,           -1,     -1},
-            { L_,   "  ",     2,         "ab",       2,           -1,     -1},
-            { L_,   "aa",     2,         "ab",       2,           -1,     -1},
-            { L_,   "ab",     2,         "ab",       2,            0,      0},
-            { L_,   "ba",     2,         "ab",       2,           -1,     -1},
-            { L_,   "bb",     2,         "ab",       2,           -1,     -1},
-            { L_,   "   ",    3,         "ab",       2,           -1,     -1},
-            { L_,   "aaa",    3,         "ab",       2,           -1,     -1},
-            { L_,   "aab",    3,         "ab",       2,            1,      1},
-            { L_,   "aba",    3,         "ab",       2,            0,      0},
-            { L_,   "baa",    3,         "ab",       2,           -1,     -1},
-            { L_,   "bba",    3,         "ab",       2,           -1,     -1},
-            { L_,   "bbb",    3,         "ab",       2,           -1,     -1},
-            { L_,   "    ",   4,         "ab",       2,           -1,     -1},
-            { L_,   "aaab",   4,         "ab",       2,            2,      2},
-            { L_,   "aaba",   4,         "ab",       2,            1,      1},
-            { L_,   "abaa",   4,         "ab",       2,            0,      0},
-            { L_,   "abab",   4,         "ab",       2,            0,      0},
+            { L_,   "",      0,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   " ",     1,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "a",     1,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "b",     1,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "  ",    2,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "aa",    2,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "ab",    2,         "ab",     2,          0,  0,  0,  0},
+            { L_,   "ba",    2,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "bb",    2,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "   ",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "aaa",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "aab",   3,         "ab",     2,          1,  1,  1,  1},
+            { L_,   "aba",   3,         "ab",     2,          0,  0,  0,  0},
+            { L_,   "baa",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "bba",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "bbb",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "    ",  4,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "aaab",  4,         "ab",     2,          2,  2,  2,  2},
+            { L_,   "aaba",  4,         "ab",     2,          1,  1,  1,  1},
+            { L_,   "abaa",  4,         "ab",     2,          0,  0,  0,  0},
+            { L_,   "abab",  4,         "ab",     2,          0,  0,  2,  2},
 
             //Substring length 2, case sensitive
-            { L_,   "A",      1,         "ab",       2,           -1,     -1},
-            { L_,   "Aa",     2,         "ab",       2,           -1,     -1},
-            { L_,   "aA",     2,         "ab",       2,           -1,     -1},
-            { L_,   "AA",     2,         "ab",       2,           -1,     -1},
-            { L_,   "bA",     2,         "ab",       2,           -1,     -1},
-            { L_,   "Aaa",    3,         "ab",       2,           -1,     -1},
-            { L_,   "aAa",    3,         "ab",       2,           -1,     -1},
-            { L_,   "aaA",    3,         "ab",       2,           -1,     -1},
-            { L_,   "AAa",    3,         "ab",       2,           -1,     -1},
-            { L_,   "aAA",    3,         "ab",       2,           -1,     -1},
-            { L_,   "AaA",    3,         "ab",       2,           -1,     -1},
-            { L_,   "AAA",    3,         "ab",       2,           -1,     -1},
-            { L_,   "Aab",    3,         "ab",       2,            1,      1},
-            { L_,   "aAb",    3,         "ab",       2,           -1,      1},
-            { L_,   "AAb",    3,         "ab",       2,           -1,      1},
-            { L_,   "Aba",    3,         "ab",       2,           -1,      0},
-            { L_,   "abA",    3,         "ab",       2,            0,      0},
-            { L_,   "AbA",    3,         "ab",       2,           -1,      0},
-            { L_,   "bAa",    3,         "ab",       2,           -1,     -1},
-            { L_,   "baA",    3,         "ab",       2,           -1,     -1},
-            { L_,   "bAA",    3,         "ab",       2,           -1,     -1},
-            { L_,   "bbA",    3,         "ab",       2,           -1,     -1},
-            { L_,   "Aaab",   4,         "ab",       2,            2,      2},
-            { L_,   "aAab",   4,         "ab",       2,            2,      2},
-            { L_,   "aaAb",   4,         "ab",       2,           -1,      2},
-            { L_,   "Aaba",   4,         "ab",       2,            1,      1},
-            { L_,   "aAba",   4,         "ab",       2,           -1,      1},
-            { L_,   "aabA",   4,         "ab",       2,            1,      1},
-            { L_,   "Abab",   4,         "ab",       2,            2,      0},
-            { L_,   "abAb",   4,         "ab",       2,            0,      0},
-            { L_,   "AbAb",   4,         "ab",       2,           -1,      0},
-            { L_,   "A",      1,         "Ab",       2,           -1,     -1},
-            { L_,   "Aa",     2,         "Ab",       2,           -1,     -1},
-            { L_,   "aA",     2,         "Ab",       2,           -1,     -1},
-            { L_,   "AA",     2,         "Ab",       2,           -1,     -1},
-            { L_,   "bA",     2,         "Ab",       2,           -1,     -1},
-            { L_,   "Ab",     2,         "Ab",       2,            0,      0},
-            { L_,   "Aaa",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "aAa",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "aaA",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "AAa",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "aAA",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "AaA",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "AAA",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "Aab",    3,         "Ab",       2,           -1,      1},
-            { L_,   "aAb",    3,         "Ab",       2,            1,      1},
-            { L_,   "AAb",    3,         "Ab",       2,            1,      1},
-            { L_,   "Aba",    3,         "Ab",       2,            0,      0},
-            { L_,   "abA",    3,         "Ab",       2,           -1,      0},
-            { L_,   "AbA",    3,         "Ab",       2,            0,      0},
-            { L_,   "bAa",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "baA",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "bAA",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "bbA",    3,         "Ab",       2,           -1,     -1},
-            { L_,   "Aaab",   4,         "Ab",       2,           -1,      2},
-            { L_,   "aAab",   4,         "Ab",       2,           -1,      2},
-            { L_,   "aaAb",   4,         "Ab",       2,            2,      2},
-            { L_,   "Aaba",   4,         "Ab",       2,           -1,      1},
-            { L_,   "aAba",   4,         "Ab",       2,            1,      1},
-            { L_,   "aabA",   4,         "Ab",       2,           -1,      1},
-            { L_,   "Abab",   4,         "Ab",       2,            0,      0},
-            { L_,   "abAb",   4,         "Ab",       2,            2,      0},
-            { L_,   "AbAb",   4,         "Ab",       2,            0,      0},
+            { L_,   "A",     1,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "Aa",    2,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "aA",    2,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "AA",    2,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "bA",    2,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "Aaa",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "aAa",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "aaA",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "AAa",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "aAA",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "AaA",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "AAA",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "Aab",   3,         "ab",     2,          1,  1,  1,  1},
+            { L_,   "aAb",   3,         "ab",     2,         -1,  1, -1,  1},
+            { L_,   "AAb",   3,         "ab",     2,         -1,  1, -1,  1},
+            { L_,   "Aba",   3,         "ab",     2,         -1,  0, -1,  0},
+            { L_,   "abA",   3,         "ab",     2,          0,  0,  0,  0},
+            { L_,   "AbA",   3,         "ab",     2,         -1,  0, -1,  0},
+            { L_,   "bAa",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "baA",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "bAA",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "bbA",   3,         "ab",     2,         -1, -1, -1, -1},
+            { L_,   "Aaab",  4,         "ab",     2,          2,  2,  2,  2},
+            { L_,   "aAab",  4,         "ab",     2,          2,  2,  2,  2},
+            { L_,   "aaAb",  4,         "ab",     2,         -1,  2, -1,  2},
+            { L_,   "Aaba",  4,         "ab",     2,          1,  1,  1,  1},
+            { L_,   "aAba",  4,         "ab",     2,         -1,  1, -1,  1},
+            { L_,   "aabA",  4,         "ab",     2,          1,  1,  1,  1},
+            { L_,   "Abab",  4,         "ab",     2,          2,  0,  2,  2},
+            { L_,   "abAb",  4,         "ab",     2,          0,  0,  0,  2},
+            { L_,   "AbAb",  4,         "ab",     2,         -1,  0, -1,  2},
+            { L_,   "A",     1,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "Aa",    2,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "aA",    2,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "AA",    2,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "bA",    2,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "Ab",    2,         "Ab",     2,          0,  0,  0,  0},
+            { L_,   "Aaa",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "aAa",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "aaA",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "AAa",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "aAA",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "AaA",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "AAA",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "Aab",   3,         "Ab",     2,         -1,  1, -1,  1},
+            { L_,   "aAb",   3,         "Ab",     2,          1,  1,  1,  1},
+            { L_,   "AAb",   3,         "Ab",     2,          1,  1,  1,  1},
+            { L_,   "Aba",   3,         "Ab",     2,          0,  0,  0,  0},
+            { L_,   "abA",   3,         "Ab",     2,         -1,  0, -1,  0},
+            { L_,   "AbA",   3,         "Ab",     2,          0,  0,  0,  0},
+            { L_,   "bAa",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "baA",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "bAA",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "bbA",   3,         "Ab",     2,         -1, -1, -1, -1},
+            { L_,   "Aaab",  4,         "Ab",     2,         -1,  2, -1,  2},
+            { L_,   "aAab",  4,         "Ab",     2,         -1,  2, -1,  2},
+            { L_,   "aaAb",  4,         "Ab",     2,          2,  2,  2,  2},
+            { L_,   "Aaba",  4,         "Ab",     2,         -1,  1, -1,  1},
+            { L_,   "aAba",  4,         "Ab",     2,          1,  1,  1,  1},
+            { L_,   "aabA",  4,         "Ab",     2,         -1,  1, -1,  1},
+            { L_,   "Abab",  4,         "Ab",     2,          0,  0,  0,  2},
+            { L_,   "abAb",  4,         "Ab",     2,          2,  0,  2,  2},
+            { L_,   "AbAb",  4,         "Ab",     2,          0,  0,  2,  2},
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -554,17 +586,26 @@ int main(int argc, char *argv[]) {
             const int   SUBSTRINGLEN   = DATA[i].d_subStringLen;
             const int   RESULT         = DATA[i].d_result;
             const int   RESULTCASELESS = DATA[i].d_resultCaseless;
+            const int   RESULTREVERSE  = DATA[i].d_resultReverse;
+            const int   RESULTREVERSECASELESS
+                                       = DATA[i].d_resultReverseCaseless;
 
             if (veryVeryVerbose) {
-                T_; T_; P(STRING);
+                if (STRING) {
+                    T_; T_; P(STRING);
+                }
                 T_; T_; P(STRINGLEN);
-                T_; T_; P(SUBSTRING);
+                if (SUBSTRING) {
+                    T_; T_; P(SUBSTRING);
+                }
                 T_; T_; P(SUBSTRINGLEN);
                 T_; T_; P(RESULT);
                 T_; T_; P(RESULTCASELESS);
+                T_; T_; P(RESULTREVERSE);
+                T_; T_; P(RESULTREVERSECASELESS);
             }
 
-            // Run strstr and strstrCaseless
+            // Run strstr, strstrCaseless, strrstr, and strrstrCaseless
             const char* strstrResult = bdeu_String::strstr(STRING,
                                                            STRINGLEN,
                                                            SUBSTRING,
@@ -572,6 +613,17 @@ int main(int argc, char *argv[]) {
 
             const char* strstrCaselessResult = bdeu_String
                                                 ::strstrCaseless(STRING,
+                                                                 STRINGLEN,
+                                                                 SUBSTRING,
+                                                                 SUBSTRINGLEN);
+
+            const char* strrstrResult = bdeu_String::strrstr(STRING,
+                                                             STRINGLEN,
+                                                             SUBSTRING,
+                                                             SUBSTRINGLEN);
+
+            const char* strrstrCaselessResult = bdeu_String
+                                               ::strrstrCaseless(STRING,
                                                                  STRINGLEN,
                                                                  SUBSTRING,
                                                                  SUBSTRINGLEN);
@@ -585,14 +637,13 @@ int main(int argc, char *argv[]) {
                     T_; T_; bsl::cout << "STRING + RESULT: "
                                       << bsl::hex
                                       << (const void*) (STRING + RESULT)
-                                      << bsl::endl;
+                                      << bsl::dec << bsl::endl;
                     T_; T_; bsl::cout << "STRSTRRESULT: "
                                       << bsl::hex
                                       << (const void*) strstrResult
-                                      << bsl::endl;
+                                      << bsl::dec << bsl::endl;
                 }
                 ASSERT(strstrResult == STRING + RESULT);
-
             }
 
             if (-1 == RESULTCASELESS) {
@@ -603,14 +654,52 @@ int main(int argc, char *argv[]) {
                     T_; T_; P(RESULTCASELESS);
                     T_; T_; bsl::cout << "STRING + RESULTCASELESS: "
                                       << bsl::hex
-                                      << (const void*) (STRING + RESULTCASELESS)
-                                      << bsl::endl;
+                                      << (const void*) (STRING+RESULTCASELESS)
+                                      << bsl::dec << bsl::endl;
                     T_; T_; bsl::cout << "STRSTRCASELESSRESULT: "
                                       << bsl::hex
                                       << (const void*) strstrCaselessResult
-                                      << bsl::endl;
+                                      << bsl::dec << bsl::endl;
                 }
                 ASSERT (strstrCaselessResult == STRING + RESULTCASELESS);
+            }
+
+            if (-1 == RESULTREVERSE) {
+                ASSERT (0 == strrstrResult);
+            }
+            else {
+                if (veryVeryVerbose) {
+                    T_; T_; P(RESULT);
+                    T_; T_; bsl::cout << "STRING + RESULTREVERSE: "
+                                      << bsl::hex
+                                      << (const void*) (STRING + RESULTREVERSE)
+                                      << bsl::dec << bsl::endl;
+                    T_; T_; bsl::cout << "STRRSTRRESULT: "
+                                      << bsl::hex
+                                      << (const void*) strrstrResult
+                                      << bsl::dec << bsl::endl;
+                }
+                ASSERT(strrstrResult == STRING + RESULTREVERSE);
+            }
+
+            if (-1 == RESULTREVERSECASELESS) {
+                ASSERT (0 == strrstrCaselessResult);
+            }
+            else {
+                if (veryVeryVerbose) {
+                    T_; T_; P(RESULTREVERSECASELESS);
+                    T_; T_; bsl::cout << "STRING + RESULTREVERSECASELESS: "
+                                      << bsl::hex
+                                      << (const void*)
+                                                 (STRING+RESULTREVERSECASELESS)
+                                      << bsl::dec << bsl::endl;
+                    T_; T_; bsl::cout << "STRRSTRCASELESSRESULT: "
+                                      << bsl::hex
+                                      << (const void*) strrstrCaselessResult
+                                      << bsl::dec << bsl::endl;
+                }
+                ASSERT (strrstrCaselessResult == STRING +
+                                                        RESULTREVERSECASELESS);
             }
         }
       } break;
@@ -751,7 +840,7 @@ int main(int argc, char *argv[]) {
             "1234567890abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+-=`{}|[]\\\t\n ",
         0};
 
-        for(int i = 0; STRINGS[i]; ++i) {
+        for (int i = 0; STRINGS[i]; ++i) {
             int LEN  = bsl::strlen(STRINGS[i]);
             for (int l = 0; l < 2 * LEN; ++l) {
                 LOOP2_ASSERT(i, l,

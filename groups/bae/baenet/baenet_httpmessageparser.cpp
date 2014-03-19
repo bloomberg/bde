@@ -55,7 +55,6 @@ enum {
 
 enum {
     MAX_HEADER_LENGTH = 8192
-  , MAX_CONTENT_LENGTH = 500 * 1024 * 1024
 };
 
 // HELPER FUNCTIONS
@@ -238,7 +237,7 @@ int baenet_HttpMessageParser::processHeader(bsl::ostream& errorStream)
         return BAENET_FAILURE;
     }
 
-    const bdeut_NullableValue<int>& contentLength
+    const bdeut_NullableValue<bsls::Types::Int64>& contentLength
                                   = d_header_sp->basicFields().contentLength();
 
     if (0 == numTransferEncodings) {
@@ -249,16 +248,6 @@ int baenet_HttpMessageParser::processHeader(bsl::ostream& errorStream)
     }
 
     if (baenet_HttpTransferEncoding::BAENET_IDENTITY == d_transferEncoding) {
-        if (!contentLength.isNull()) {
-            if ((unsigned)contentLength.value() > MAX_CONTENT_LENGTH) {
-                errorStream << "Content length ("
-                            << contentLength.value()
-                            <<") is not in valid range (0 - "
-                            << MAX_CONTENT_LENGTH << ")" <<bsl::endl;
-                return BAENET_FAILURE;
-            }
-        }
-
         if (canHaveMessageBody(d_startLine)) {
             d_numBytesRemaining = contentLength.isNull()
                                   ? UNKNOWN_REMAINING_LENGTH

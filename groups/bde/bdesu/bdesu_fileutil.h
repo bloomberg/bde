@@ -9,10 +9,12 @@ BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
+//@DEPRECATED: Use 'bdesu_filesystemutil' instead.
+//
 //@CLASSES:
 //  bdesu_FileUtil: struct which scopes file system utilities
 //
-//@SEE_ALSO: bdesu_pathutil
+//@SEE_ALSO: bdesu_pathutil, bdesu_filesystemutil
 //
 //@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov)
 //
@@ -30,7 +32,7 @@ BDES_IDENT("$Id: $")
 //:   process.  [Doc 1] [Doc 2]
 //:
 //: o On at least some flavors of Unix, you can't lock a file for writing using
-//:   file descriptor opened in read-only mode.
+//:   a file descriptor opened in read-only mode.
 //
 ///Platform-Specific Atomicity Caveats
 ///-----------------------------------
@@ -47,9 +49,9 @@ BDES_IDENT("$Id: $")
 // containing log files:
 //..
 //  #ifdef BSLS_PLATFORM_OS_WINDOWS
-//    bsl::string logPath = "temp\\logs";
+//    bsl::string logPath = "temp.1\\logs";
 //  #else
-//    bsl::string logPath = "tmp/logs";
+//    bsl::string logPath = "temp.1/logs";
 //  #endif
 //..
 // Suppose that we want to separate files into "old" and "new" subdirectories
@@ -77,7 +79,7 @@ BDES_IDENT("$Id: $")
 //..
 //  bdet_Datetime modTime;
 //  bsl::string   fileName;
-//  for (bsl::vector<bdesu_Path>::iterator it = logFiles.begin();
+//  for (bsl::vector<bsl::string>::iterator it = logFiles.begin();
 //                                               it != logFiles.end(); ++it) {
 //    assert(0 == bdesu_FileUtil::getLastModificationTime(&modTime, *it));
 //    assert(0 == bdesu_PathUtil::getLeaf(&fileName, *it));
@@ -325,12 +327,12 @@ struct bdesu_FileUtil {
 
     static int createDirectories(
             const bsl::string&  path,
-            bool                leafIsDirectory = false);
+            bool                isLeafDirectory = false);
     static int createDirectories(
             const char         *path,
-            bool                leafIsDirectory = false);
+            bool                isLeafDirectory = false);
         // Create any directories in 'path' which do not exist.  If the
-        // optionally specified 'leafIsDirectory' is 'true', then treat the
+        // optionally specified 'isLeafDirectory' is 'true', then treat the
         // last filename in the path as a directory and attempt to create it.
         // Otherwise, treat the last filename as a regular file and ignore it.
         // Return 0 on success, and a non-zero value if any needed directories
@@ -633,7 +635,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const bsl::string& path)
 }
 
 inline
-bdesu_FileUtil::Offset getAvailableSpace(const bsl::string& path)
+bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(
+                                                       const bsl::string& path)
 {
     return getAvailableSpace(path.c_str());
 }

@@ -16,6 +16,9 @@ BDES_IDENT_RCSID(bcep_eventscheduler_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_vector.h>
 
+// Implementation note: When casting, we often cast through 'void *' or
+// 'const void *' to avoid getting alignment warnings.
+
 namespace BloombergLP {
 
 // STATIC FUNCTIONS
@@ -350,7 +353,8 @@ int bcep_EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
                                            d_dispatcherThread));
 
     const RecurringEventQueue::Pair *itemPtr =
-                   reinterpret_cast<const RecurringEventQueue::Pair *>(handle);
+                       reinterpret_cast<const RecurringEventQueue::Pair *>(
+                                       reinterpret_cast<const void *>(handle));
 
     int ret = d_recurringQueue.remove(itemPtr);
 
@@ -386,7 +390,8 @@ int bcep_EventScheduler::cancelEventAndWait(const Event *handle)
                                            d_dispatcherThread));
 
     const EventQueue::Pair *itemPtr =
-                            reinterpret_cast<const EventQueue::Pair *>(handle);
+                             reinterpret_cast<const EventQueue::Pair *>(
+                                       reinterpret_cast<const void *>(handle));
 
     int ret = d_eventQueue.remove(itemPtr);
     if (EventQueue::BCEC_NOT_FOUND != ret) {
@@ -436,8 +441,8 @@ int bcep_EventScheduler::cancelEventAndWait(RecurringEventHandle *handle)
 int bcep_EventScheduler::rescheduleEvent(const Event              *handle,
                                          const bdet_TimeInterval&  newTime)
 {
-    const EventQueue::Pair *h =
-                            reinterpret_cast<const EventQueue::Pair *>(handle);
+    const EventQueue::Pair *h = reinterpret_cast<const EventQueue::Pair *>(
+                                       reinterpret_cast<const void *>(handle));
 
     bool isNewTop;
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
@@ -458,7 +463,8 @@ int bcep_EventScheduler::rescheduleEventAndWait(
                                            d_dispatcherThread));
 
     const EventQueue::Pair *h =
-                            reinterpret_cast<const EventQueue::Pair *>(handle);
+                            reinterpret_cast<const EventQueue::Pair *>(
+                                       reinterpret_cast<const void *>(handle));
     int ret;
 
     {

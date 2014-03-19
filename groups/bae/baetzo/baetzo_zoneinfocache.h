@@ -245,7 +245,10 @@ class baetzo_ZoneinfoCache {
         // specified 'loader' to populate the cache, as-needed, with time zone
         // information.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // allocator is used.  In order the populate the cache for a time zone
+        // identifier, 'loader' must return a 'baetzo_Zoneinfo' object that is
+        // well-formed (see 'baetzo_ZoneinfoUtil::isWellFormed') and whose
+        // 'identifier' matches the supplied time zone identifier.
 
     ~baetzo_ZoneinfoCache();
         // Destroy this object.

@@ -1390,7 +1390,8 @@ int parseEnclosedString(bdeut_StringRef            *result,
     return ret;
 }
 
-int parseInt(int *object, const char **begin, const char *end)
+template<class Int>
+int parseInt(Int *object, const char **begin, const char *end)
 {
     enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
 
@@ -1422,6 +1423,27 @@ int parseInt(int *object, const char **begin, const char *end)
     *object *= sign;
 
     *begin = p;
+
+    return BAENET_SUCCESS;
+}
+
+template<class Int>
+int parseIntValue(Int *object, const bdeut_StringRef& str)
+{
+    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
+
+    const char *begin = str.begin();
+    const char *end   = str.end();
+
+    if (0 != parseInt(object, &begin, end)) {
+        return BAENET_FAILURE;
+    }
+
+    skipWhitespace(&begin, end);
+
+    if (begin != end) {
+        return BAENET_FAILURE;
+    }
 
     return BAENET_SUCCESS;
 }
@@ -2205,22 +2227,13 @@ int baenet_HttpParserUtil::parseStartLine(baenet_HttpStatusLine  *result,
 int baenet_HttpParserUtil::parseFieldValue(int                    *object,
                                            const bdeut_StringRef&  str)
 {
-    enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
+    return parseIntValue(object, str);
+}
 
-    const char *begin = str.begin();
-    const char *end   = str.end();
-
-    if (0 != parseInt(object, &begin, end)) {
-        return BAENET_FAILURE;
-    }
-
-    skipWhitespace(&begin, end);
-
-    if (begin != end) {
-        return BAENET_FAILURE;
-    }
-
-    return BAENET_SUCCESS;
+int baenet_HttpParserUtil::parseFieldValue(bsls::Types::Int64     *object,
+                                           const bdeut_StringRef&  str)
+{
+    return parseIntValue(object, str);
 }
 
 int baenet_HttpParserUtil::parseFieldValue(bsl::string            *result,
@@ -2598,9 +2611,9 @@ int baenet_HttpParserUtil::parseFieldValue(baenet_HttpHost        *result,
     return BAENET_SUCCESS;
 }
 
-int baenet_HttpParserUtil::parseChunkHeader(int            *result,
-                                            int            *numBytesConsumed,
-                                            bsl::streambuf *buffer)
+int baenet_HttpParserUtil::parseChunkHeader(bsls::Types::Int64 *result,
+                                            int                *numBytesConsumed,
+                                            bsl::streambuf     *buffer)
 {
     enum { BAENET_SUCCESS = 0, BAENET_FAILURE = -1 };
     enum { CR = '\r', LF = '\n' };
@@ -2627,7 +2640,8 @@ int baenet_HttpParserUtil::parseChunkHeader(int            *result,
     if (eof != c && NOT_HEX == hexCharTable[c]) {
         return BAENET_FAILURE;
     }
-    int value = 0, bytesRead = 0;
+    bsls::Types::Int64 value = 0;
+    int bytesRead = 0;
 
     while (eof != c && NOT_HEX != hexCharTable[c]) {
         value <<= 4;

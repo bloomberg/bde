@@ -61,8 +61,8 @@ struct bdescm_Version {
     static const char *s_ident;
     static const char *s_what;
 
-#define BDESCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
-#define BDESCM_CONCAT(a,b,c,d,e,f)  BDESCM_CONCAT2(a,b,c,d,e,f)
+#define BDESCM_CONCAT2(a,b,c,d,e) a ## b ## c ## d ## e
+#define BDESCM_CONCAT(a,b,c,d,e)  BDESCM_CONCAT2(a,b,c,d,e)
 
 // 'BDESCM_S_VERSION' is a symbol whose name warns users of version mismatch
 // linking errors.  Note that the exact string "compiles_this_object" must be
@@ -72,8 +72,7 @@ struct bdescm_Version {
                        s_version_BDE_,                 \
                        BDE_VERSION_MAJOR, _,           \
                        BDE_VERSION_MINOR,              \
-                       BDE_VERSION_RELEASETYPE_SYMBOL, \
-                       _compiles_this_object)
+                       _compiled_this_object)
 
     static const char *BDESCM_S_VERSION;
 

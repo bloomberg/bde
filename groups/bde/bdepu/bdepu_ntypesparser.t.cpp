@@ -1,18 +1,21 @@
+
 // bdepu_ntypesparser.t.cpp              -*-C++-*-
 
 #include <bdepu_ntypesparser.h>
 #include <bdepu_parserimputil.h>
 
-#include <bsls_platform.h>
-#include <bslma_testallocator.h>
-#include <bsl_vector.h>
-#include <bdet_datetime.h>
+#include <bdeimp_fuzzy.h>
 #include <bdet_date.h>
+#include <bdet_datetime.h>
 #include <bdet_time.h>
 
-#include <bsl_algorithm.h>
+#include <bslma_testallocator.h>
+#include <bsls_platform.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_iostream.h>
+#include <bsl_vector.h>
+
 #include <bsl_c_stdlib.h>
 
 using namespace BloombergLP;
@@ -200,22 +203,6 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 typedef bsls::Types::Int64 Int64;
-
-//=============================================================================
-//                  FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
-
-template <typename TYPE>
-TYPE myabs(const TYPE& x)
-{
-    return x < 0 ? -x : x;
-}
-
-template <typename TYPE>
-bool near(const TYPE& lhs, const TYPE& rhs)
-{
-    return myabs(lhs - rhs) / (myabs(lhs) + myabs(rhs)) < 0.001;
-}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -3252,9 +3239,13 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(LINE, overshoot, 0 == overshoot);
                         LOOP_ASSERT(LINE, LENGTH == result.size());
                         LOOP_ASSERT(LINE,
-                                       LENGTH < 1 || near(result[0], MATCH_0));
+                                    LENGTH < 1 || (
+                                        !BloombergLP::bdeimp_Fuzzy::compare(
+                                                         result[0], MATCH_0)));
                         LOOP_ASSERT(LINE,
-                                       LENGTH < 2 || near(result[1], MATCH_1));
+                                    LENGTH < 2 || (
+                                        !BloombergLP::bdeimp_Fuzzy::compare(
+                                                         result[1], MATCH_1)));
                     }
                 }
 
@@ -3273,9 +3264,13 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(LINE, overshoot, 0 == overshoot);
                         LOOP_ASSERT(LINE, LENGTH == result.size());
                         LOOP_ASSERT(LINE,
-                                       LENGTH < 1 || near(result[0], MATCH_0));
+                                    LENGTH < 1 || (
+                                        !BloombergLP::bdeimp_Fuzzy::compare(
+                                                         result[0], MATCH_0)));
                         LOOP_ASSERT(LINE,
-                                       LENGTH < 2 || near(result[1], MATCH_1));
+                                    LENGTH < 2 || (
+                                        !BloombergLP::bdeimp_Fuzzy::compare(
+                                                         result[1], MATCH_1)));
                     }
                 }
             }

@@ -228,12 +228,21 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // Return 'true' if the specified 'a' and 'b' thread id identify the
         // same thread, and 'false' otherwise.
 
+    static bsls::Types::Uint64 idAsUint64(const Id& threadId);
+        // Return the unique integral identifier of a thread uniquely
+        // identified by the specified 'threadId' within the current process.
+        // Note that this representation is particularly useful for logging
+        // purposes.  Also note that this value is only valid until the thread
+        // terminates and may be reused thereafter.
+
     static int idAsInt(const Id& threadId);
         // Return the unique integral identifier of a thread uniquely
         // identified by the specified 'threadId' within the current process.
-        // This representation is particularly useful for logging purposes.
-        // Note that this value is only valid until the thread terminates and
-        // may be reused thereafter.
+        // Note that this representation is particularly useful for logging
+        // purposes.  Also note that this value is only valid until the thread
+        // terminates and may be reused thereafter.
+        //
+        // DEPRECATED: use 'idAsUint64'.
 
     static NativeHandle nativeHandle(const Handle& threadHandle);
         // Return the platform specific identifier associated with the thread
@@ -371,13 +380,22 @@ bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::handleToId(
 }
 
 inline
+bsls::Types::Uint64
+bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::idAsUint64(
+                                                             const Id& threadId)
+{
+    return static_cast<bsls::Types::Uint64>(threadId);
+}
+
+
+inline
 int
 bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::idAsInt(const Id& threadId)
 {
     // Our interface is not good if the id is a pointer.  The two casts will
     // avoid a compilation error though.  TBD
 
-    return (int)(bsls::Types::IntPtr)threadId;
+    return static_cast<int>(idAsUint64(threadId));
 }
 
 inline
@@ -406,14 +424,14 @@ inline
 bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::selfIdAsInt()
 {
-    return (bsls::Types::Uint64)selfId();
+    return idAsInt(selfId());
 }
 
 inline
 bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::selfIdAsUint64()
 {
-    return (bsls::Types::Uint64)selfId();
+    return idAsUint64(selfId());
 }
 
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***

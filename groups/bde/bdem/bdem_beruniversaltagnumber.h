@@ -510,8 +510,6 @@ bdem_BerUniversalTagNumber::select(
                                   int                           formattingMode,
                                   const bdem_BerEncoderOptions *options)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-
     bdem_BerUniversalTagNumber_Imp imp(formattingMode, options);
     int retVal = bdeat_TypeCategoryUtil::accessByCategory(object, imp);
     return (bdem_BerUniversalTagNumber::Value) retVal;
@@ -524,8 +522,6 @@ bdem_BerUniversalTagNumber::select(const TYPE&  object,
                                    int          formattingMode,
                                    int         *alternateTag)
 {
-    typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
-
     bdem_BerUniversalTagNumber_Imp imp(formattingMode);
     int retVal = bdeat_TypeCategoryUtil::accessByCategory(object, imp);
 

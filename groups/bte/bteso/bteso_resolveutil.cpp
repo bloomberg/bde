@@ -80,7 +80,7 @@ struct hostent *gethostbyname_r(
     struct hostent *host = gethostbyname(name);
     if (host == 0) {
         *h_errnop = h_errno;
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     char  **alias;
@@ -155,7 +155,7 @@ struct servent *getservbyname_r(const char        *name,
 
     struct servent *server = getservbyname((char *)name, (char *)proto);
     if (server == 0) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     char  **alias;
@@ -211,6 +211,13 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
                             const char                     *hostName,
                             int                             numAddresses,
                             int                            *errorCode)
+    // Populate the specified vector 'hostAddresses' with the set of IP
+    // addresses that refer to the specifed host 'hostName', but only take the
+    // the first 'numAddresses' addresses found.  Return 0 on success and a
+    // non-zero value otherwise, and set '*errorCode' to the platform-dependent
+    // error code encountered if the hostname could not be resolve.  On
+    // success, '*errorCode' is not modified.  's_callback_p' is set to this
+    // function by default.
 {
     BSLS_ASSERT(hostAddresses);
     BSLS_ASSERT(hostName);
@@ -241,7 +248,7 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
         if (errorCode) {
             *errorCode = h_errno;
         }
-        return -1;
+        return -1;                                                    // RETURN
     }
 #else // BSLS_PLATFORM_OS_SOLARIS || BSLS_PLATFORM_OS_LINUX ||
       // BSLS_PLATFORM_OS_CYGWIN || BSLS_PLATFORM_OS_HPUX
@@ -309,7 +316,8 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
     // otherwise.  However, the definition of 'buffer' does not matter, but
     // the lifetime of 'buffer' must extend beyond that of 'hostEntry'.
 
-    for (int i = 0; i < numAddresses && hostEntry.h_addr_list[i]; ++i) {
+    for (int i = 0; hostEntry.h_addr_list[i]
+              && static_cast<int>(hostAddresses->size()) < numAddresses; ++i) {
         if (AF_INET == hostEntry.h_addrtype) {
             // Set address to buffer if four bytes pointed to by
             // 'hostEntry.h_addr_list[i]', reinterpreted as 'int' for
@@ -319,12 +327,10 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
             int address;  // in network byte order
             bsl::memcpy(&address, hostEntry.h_addr_list[i], sizeof(int));
 
-            hostAddresses->resize(i + 1);
+            hostAddresses->resize(hostAddresses->size() + 1);
             hostAddresses->back().setIpAddress(address);
         } else {
-            // AF_INET6 not supported.
-
-            return -1;
+            ;  // AF_INET6, AF_IRDA, AF_BTH, etc. ignored
         }
     }
 
@@ -340,16 +346,16 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
         return -1;
     }
 
-    addrinfo *iter = buffer;
-    for (int i = 0; i < numAddresses && iter; iter = iter->ai_next) {
-        (*hostAddresses).resize(i + 1);
+    for (addrinfo *iter = buffer;
+            iter && static_cast<int>(hostAddresses->size()) < numAddresses;
+                                                        iter = iter->ai_next) {
         sockaddr_in *addr_in = (sockaddr_in*)(iter->ai_addr);
         if (AF_INET == addr_in->sin_family) {
+            hostAddresses->resize(hostAddresses->size() + 1);
             hostAddresses->back().setIpAddress(addr_in->sin_addr.s_addr);
-            ++i;
         }
         else {
-            // AF_INET6, AF_IRDA, AF_BTH, etc. not supported.
+            ;  // AF_INET6, AF_IRDA, AF_BTH, etc. not supported.
         }
 
     }
@@ -371,7 +377,7 @@ int defaultResolveByNameImp(bsl::vector<bteso_IPv4Address> *hostAddresses,
 bteso_ResolveUtil::ResolveByNameCallback s_callback_p =
                                                       &defaultResolveByNameImp;
 
-}  // closing unnamed namespace
+}  // close unnamed namespace
 
                           // ------------------------
                           // struct bteso_ResolveUtil
@@ -393,7 +399,7 @@ int bteso_ResolveUtil::getAddress(bteso_IPv4Address *result,
     bsl::vector<bteso_IPv4Address> buffer(&allocator);
 
     if (s_callback_p(&buffer, hostName, 1, errorCode) || buffer.size() < 1) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     result->setIpAddress(buffer.front().ipAddress());
@@ -418,7 +424,7 @@ int bteso_ResolveUtil::getAddressDefault(bteso_IPv4Address *result,
                                 hostName,
                                 1,
                                 errorCode) || buffer.size() < 1) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     result->setIpAddress(buffer.front().ipAddress());
@@ -461,7 +467,7 @@ int bteso_ResolveUtil::getServicePort(bteso_IPv4Address *result,
         if (errorCode) {
             *errorCode = h_errno;  // or errno ??  Insufficient AIX doc!!!
         }
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     result->setPortNumber(serverEntry.s_port);
@@ -582,7 +588,7 @@ int bteso_ResolveUtil::getHostnameByAddress(
         if (errorCode) {
             *errorCode = h_errno;
         }
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     *canonicalHostname = hent.h_name;

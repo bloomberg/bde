@@ -507,12 +507,21 @@ struct bcemt_ThreadUtil {
         // 'self'.  Note that this value is valid only until the thread
         // terminates, and may be reused thereafter.
 
+    static bsls::Types::Uint64 idAsUint64(const Id& threadId);
+        // Return the unique integral identifier of a thread uniquely
+        // identified by the specified 'threadId' within the current process.
+        // Note that this representation is particularly useful for logging
+        // purposes.  Also note that this value is only valid until the thread
+        // terminates and may be reused thereafter.
+
     static int idAsInt(const Id& threadId);
         // Return the unique integral identifier of a thread uniquely
         // identified by the specified 'threadId' within the current process.
         // Note that this representation is particularly useful for logging
         // purposes.  Also note that this value is only valid until the thread
         // terminates and may be reused thereafter.
+        //
+        // DEPRECATED: use 'idAsUint64'.
 
     static const Handle& invalidHandle();
         // Return a reference to the non-modifiable 'Handle' object that is
@@ -727,6 +736,15 @@ bcemt_ThreadUtil::Id bcemt_ThreadUtil::handleToId(
 {
     return Imp::handleToId(handle);
 }
+
+
+inline
+bsls::Types::Uint64 bcemt_ThreadUtil::idAsUint64(
+                                                 const bcemt_ThreadUtil::Id& id)
+{
+    return Imp::idAsUint64(id);
+}
+
 
 inline
 int bcemt_ThreadUtil::idAsInt(const bcemt_ThreadUtil::Id& id)

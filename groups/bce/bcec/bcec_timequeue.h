@@ -24,7 +24,7 @@ BDES_IDENT("$Id: $")
 // conditions where time items are added and removed very frequently.
 //
 // Class 'bcec_TimeQueue<DATA>' provides a public interface which is similar in
-// structure and intent to 'bcec_queue<DATA>', with the exception that each
+// structure and intent to 'bcec_Queue<DATA>', with the exception that each
 // item stored in the 'bcec_TimeQueue' is of type 'bcec_TimeQueueItem<DATA>'.
 // This structure contains a single 'bdet_TimeInterval' value along with the
 // 'DATA' value.
@@ -44,21 +44,30 @@ BDES_IDENT("$Id: $")
 // the time value for a specific 'bcec_TimeQueueItem' without removing it from
 // the queue.
 //
-///'poolTimerMemory' flag
-///----------------------
-// Clients can provide a memory hint to 'bcec_TimeQueue' asking it to pool the
-// memory that it uses for the timers in it's internal data structures.  Note
-// that it is inefficient to provide a generic pool allocator as
-// 'bcec_TimeQueue' contains multiple data structures having differing memory
-// requirements.  The performance benefit from pooling the timer memory varies
-// across platforms but in the normal use case where many timers are registered
-// and fired multiple times the processing time of adding and removing timers
-// improves by 2 - 10 %.  The total number of memory allocations also drop
-// significantly if 'poolTimerMemory' is 'true', however, it may result in
-// higher peak memory depending on the usage pattern of the queue.
+///'bcec_TimeQueue::Handle' Uniqueness, Reuse and 'numIndexBits'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - =
+// 'bcec_TimeQueue::Handle' is an alias for a 32-bit 'int' type.  A handle
+// consists of two parts, the "index section" and the "iteration section".
+// The index section, which is the low-order 'numIndexBits' (which defaults to
+// 'numIndexBits == 17'), uniquely identifies the node.  Once a node is added,
+// it never ceases to exist - it may be freed, but it will be kept on a free
+// list to be eventually recycled, and the same index section will always
+// identify that node.  The iteration section, the high-order
+// '32 - numIndexBits', is changed every time a node is freed, so that an
+// out-of-date handle can be identified as out-of-date.  But since the
+// iteration section has only a finite number of bits, if a node is freed and
+// re-added enough times, old handle values will eventually be reused.
+//
+// Up to '2 ** numIndexBits - 1' nodes can exist in a given time queue.  A
+// given handle won't be reused for a node until that node has been freed and
+// reused '2 ** (32 - numIndexBits) - 1' times.
+//
+// 'numIndexBits' is an optional parameter to the time queue constructors.  If
+// unspecified, it has a value of 17.  The behavior is undefined unless the
+// specified 'numIndexBits' is in the range '8 <= numIndexBits <= 24'.
 //
 ///Thread Safety
-///-------------
+///- - - - - - -
 // It is safe to access or modify two distinct 'bcec_TimeQueue' objects
 // simultaneously, each from a separate thread.  It is safe to access or modify
 // a single 'bcec_TimeQueue' object simultaneously from two or more separate
@@ -85,12 +94,6 @@ BDES_IDENT("$Id: $")
 // Connection times out.  A more sophisticated implementation of 'my_Session'
 // would attempt recovery, perhaps by closing and reopening the physical
 // Connection.
-//
-///'numIndexBits'
-///-------------
-// The 'bcec_TimeQueue' component is constructed using a user-supplied
-// 'numIndexBits'.  The number of bits used to store the index controls the
-// range of available indices.
 //
 ///Forward declarations:
 ///- - - - - - - - - - -
@@ -600,9 +603,8 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
 
-template <typename DATA> class bcec_TimeQueueItem;
-
-
+template <typename DATA>
+class bcec_TimeQueueItem;
 
                              // ====================
                              // class bcec_TimeQueue
@@ -610,7 +612,7 @@ template <typename DATA> class bcec_TimeQueueItem;
 template <typename DATA>
 class bcec_TimeQueue {
     // This parameterized class provides a public interface which is
-    // similar in structure and intent to 'bcec_queue<DATA>', with the
+    // similar in structure and intent to 'bcec_Queue<DATA>', with the
     // exception that each item stored in the 'bcec_TimeQueue' has an
     // associated time value.  Items are retrieved or exchanged by proxy of a
     // 'bcec_TimeQueueItem<DATA>', and are referred to by an opaque data type
@@ -632,11 +634,13 @@ class bcec_TimeQueue {
   public:
     // TYPES
     typedef int Handle;
-        // Provide an opaque "handle" for a specific item in the
-        // 'bcec_TimeQueue', as a return value when the item is inserted into
-        // the queue.  Clients use this value to gain direct access to the
-        // corresponding element; see member functions 'add', 'update', and
-        // 'remove'.
+        // 'Handle' defines an alias for uniquely identifying a valid node in
+        // the time queue.  Handles are returned when nodes are added to the
+        // time queue, and must be supplied to the 'update' and 'remove'
+        // methods to identify existing nodes.  When a node is removed, the
+        // handle value becomes invalid, though invalidated handle values are
+        // eventually reused.  See the component-level documentation for more
+        // details.
 
     class Key {
         // This type is a wrapper around a void pointer that will be supplied
@@ -648,20 +652,31 @@ class bcec_TimeQueue {
       public:
         // CREATORS
         explicit Key(const void *key)
-        : d_key(key) { }
+        : d_key(key)
+            // Create a 'Key' object having the specified 'key' value.
+        {}
 
         explicit Key(int key)
-        : d_key(reinterpret_cast<const void*>(key)) { }
+        : d_key(reinterpret_cast<const void*>(key))
+            // Create a 'Key' object having the specified 'key' value cast to a
+            // 'void *'.
+        {}
 
-        ~Key() { }
+        ~Key()
+            // Destroy this 'Key' object.
+        {}
 
         // ACCESSORS
         bool operator==(const Key& rhs) const
+            // Return 'true' if this object has the same value as the specified
+            // 'rhs' object, and 'false' otherwise.
         {
             return d_key == rhs.d_key;
         }
 
         bool operator!=(const Key& rhs) const
+            // Return 'true' if this object does not have the same value as the
+            // specified 'rhs' object, and 'false' otherwise.
         {
             return d_key != rhs.d_key;
         }
@@ -683,20 +698,24 @@ class bcec_TimeQueue {
         Node                     *d_next_p;
         bsls::ObjectBuffer<DATA>  d_data;
 
+        // CREATORS
+        Node()
+        : d_index(0)
+        , d_key(0)
+        , d_prev_p(0)
+        , d_next_p(0)
+            // Create a 'Node' having a time value of 0.
+        {
+        }
+
+        explicit
         Node(const bdet_TimeInterval& time)
         : d_index(0)
         , d_time(time)
         , d_key(0)
         , d_prev_p(0)
         , d_next_p(0)
-        {
-        }
-
-        Node()
-        : d_index(0)
-        , d_key(0)
-        , d_prev_p(0)
-        , d_next_p(0)
+            // Create a 'Node' having the specified 'time' value.
         {
         }
     };
@@ -708,7 +727,6 @@ class bcec_TimeQueue {
         // Internal typedefs for the iterator used to navigate the time index.
 
     // PRIVATE DATA MEMBERS
-    const int                d_numIndexBits;
     const int                d_indexMask;
     const int                d_indexIterationMask;
     const int                d_indexIterationInc;
@@ -751,6 +769,7 @@ class bcec_TimeQueue {
         // calling 'freeNode'.  Note that the caller must not have acquired the
         // lock to this queue.
 
+  private:
     // NOT IMPLEMENTED
     bcec_TimeQueue(const bcec_TimeQueue&);
     bcec_TimeQueue& operator=(const bcec_TimeQueue&);
@@ -760,16 +779,14 @@ class bcec_TimeQueue {
     explicit bcec_TimeQueue(bslma::Allocator *basicAllocator = 0);
     explicit bcec_TimeQueue(int               numIndexBits,
                             bslma::Allocator *basicAllocator = 0);
-        // Construct an empty time queue.  Optionally specify 'numIndexBits' to
+        // Create an empty time queue.  Optionally specify 'numIndexBits' to
         // configure the number of index bits used by this object.  If
         // 'numIndexBits' is not specified a default value of 17 is used.
-        // Optionally specify 'poolTimerMemory' to indicate whether to pool the
-        // memory used for timers.  The behavior is undefined unless
-        // 'numIndexBits' is in the valid range, i.e., between 8 and 24.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  See component-level documentation for more information
-        // regarding 'numIndexBits'.
+        // used.  The behavior is undefined unless '8 <= numIndexBits <= 24'.
+        // See the component-level documentation for more information regarding
+        // 'numIndexBits'.
 
     explicit bcec_TimeQueue(bool              poolTimerMemory,
                             bslma::Allocator *basicAllocator = 0);
@@ -780,7 +797,7 @@ class bcec_TimeQueue {
         // that the 'poolTimerMemory' (optional) argument controlled whether
         // additional memory used by an internal 'bsl::map' was pooled.  When
         // 'bsl::map' was modified to pool its own nodes, this option became
-        // irrelevant.
+        // irrelevant and is now ignored.
 
     ~bcec_TimeQueue();
         // Destroy this time queue.
@@ -948,6 +965,7 @@ class bcec_TimeQueueItem {
 
   public:
     // CREATORS
+    explicit
     bcec_TimeQueueItem(bslma::Allocator                *basicAllocator = 0);
     bcec_TimeQueueItem(const bdet_TimeInterval&         time,
                        const DATA&                      data,
@@ -964,7 +982,7 @@ class bcec_TimeQueueItem {
         // 'basicAllocator' is zero, then use the currently installed default
         // allocator.
 
-    bcec_TimeQueueItem(bcec_TimeQueueItem<DATA> const&  original,
+    bcec_TimeQueueItem(const bcec_TimeQueueItem<DATA>&  original,
                        bslma::Allocator                *basicAllocator = 0);
         // Create a copy of the 'original' time queue item.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -983,6 +1001,7 @@ class bcec_TimeQueueItem {
     {
         // this definition was moved into the class declaration
         // to work around a Visual Studio .NET 2003 bug.
+
         return d_handle;
     }
 
@@ -1001,6 +1020,7 @@ class bcec_TimeQueueItem {
     {
         // this definition was moved into the class declaration
         // to work around a Visual Studio .NET 2003 bug.
+
         return d_handle;
     }
 
@@ -1018,10 +1038,12 @@ class bcec_TimeQueueItem {
 
 // PRIVATE MANIPULATORS
 template <typename DATA>
-inline void bcec_TimeQueue<DATA>::freeNode(Node *node)
+inline
+void bcec_TimeQueue<DATA>::freeNode(Node *node)
 {
     node->d_index = ((node->d_index + d_indexIterationInc) &
-                    d_indexIterationMask) | (node->d_index & d_indexMask);
+                         d_indexIterationMask) | (node->d_index & d_indexMask);
+
     if (!(node->d_index & d_indexIterationMask)) {
         node->d_index += d_indexIterationInc;
     }
@@ -1068,8 +1090,7 @@ void bcec_TimeQueue<DATA>::putFreeNodeList(Node *begin)
 // CREATORS
 template <typename DATA>
 bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma::Allocator *basicAllocator)
-: d_numIndexBits(BCEC_NUM_INDEX_BITS_DEFAULT)
-, d_indexMask((1<<d_numIndexBits) - 1)
+: d_indexMask((1 << BCEC_NUM_INDEX_BITS_DEFAULT) - 1)
 , d_indexIterationMask(~(int)d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1083,8 +1104,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bslma::Allocator *basicAllocator)
 template <typename DATA>
 bcec_TimeQueue<DATA>::bcec_TimeQueue(bool              poolTimerMemory,
                                      bslma::Allocator *basicAllocator)
-: d_numIndexBits(BCEC_NUM_INDEX_BITS_DEFAULT)
-, d_indexMask((1<<d_numIndexBits) - 1)
+: d_indexMask((1 << BCEC_NUM_INDEX_BITS_DEFAULT) - 1)
 , d_indexIterationMask(~(int)d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1102,8 +1122,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bool              poolTimerMemory,
 template <typename DATA>
 bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
                                      bslma::Allocator *basicAllocator)
-: d_numIndexBits(numIndexBits)
-, d_indexMask((1<<d_numIndexBits) - 1)
+: d_indexMask((1 << numIndexBits) - 1)
 , d_indexIterationMask(~d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1120,8 +1139,7 @@ template <typename DATA>
 bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
                                      bool              poolTimerMemory,
                                      bslma::Allocator *basicAllocator)
-: d_numIndexBits(numIndexBits)
-, d_indexMask((1<<d_numIndexBits) - 1)
+: d_indexMask((1 << numIndexBits) - 1)
 , d_indexIterationMask(~d_indexMask)
 , d_indexIterationInc(d_indexMask + 1)
 , d_nodeArray(basicAllocator)
@@ -1155,7 +1173,8 @@ bcec_TimeQueue<DATA>::~bcec_TimeQueue()
 
 // MANIPULATORS
 template <typename DATA>
-inline typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
+inline
+typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
                                            const bdet_TimeInterval&  time,
                                            const DATA&               data,
                                            int                      *isNewTop,
@@ -1177,6 +1196,11 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
 
     Node *node;
     if (d_nextFreeNode_p) {
+        // All allocation of nodes goes through this routine, which is guarded
+        // by the mutex.  So no other thread will remove anything from the free
+        // list while this code is executing.  However, other threads may add
+        // to the free list.
+
         node = d_nextFreeNode_p;
         Node *next = node->d_next_p;
         while (node != d_nextFreeNode_p.testAndSwap(node, next)) {
@@ -1187,8 +1211,9 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
     else {
         // The number of nodes cannot grow to a size larger than the range of
         // available indices.
+
         if ((int)d_nodeArray.size() >= d_indexMask - 1) {
-            return -1;
+            return -1;                                                // RETURN
         }
 
         node = new (*d_allocator_p) Node;
@@ -1232,7 +1257,8 @@ typename bcec_TimeQueue<DATA>:: Handle bcec_TimeQueue<DATA>::add(
 }
 
 template <typename DATA>
-inline typename bcec_TimeQueue<DATA>::Handle bcec_TimeQueue<DATA>::add(
+inline
+typename bcec_TimeQueue<DATA>::Handle bcec_TimeQueue<DATA>::add(
                                     const bcec_TimeQueueItem<DATA>&  item,
                                     int                             *isNewTop,
                                     int                             *newLength)
@@ -1249,7 +1275,7 @@ int bcec_TimeQueue<DATA>::popFront(bcec_TimeQueueItem<DATA> *buffer,
     MapIter it = d_map.begin();
 
     if (d_map.end() == it) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     Node *node = it->second;
 
@@ -1423,14 +1449,14 @@ int bcec_TimeQueue<DATA>::remove(
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
     int index = ((int)handle & d_indexMask) - 1;
     if (index < 0 || index >= (int)d_nodeArray.size()) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     Node *node = d_nodeArray[index];
 
     if (node->d_index != (int)handle
      || node->d_key != key
      || 0 == node->d_prev_p) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     if (item) {
@@ -1531,12 +1557,12 @@ int bcec_TimeQueue<DATA>::update(
     int index = ((int)handle & d_indexMask) - 1;
 
     if (index < 0 || (unsigned) index >= d_nodeArray.size()) {
-        return 1;
+        return 1;                                                     // RETURN
     }
     Node *node = d_nodeArray[index];
 
     if (node->d_index != (int)handle || node->d_key != key) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     if (node->d_prev_p != node) {
@@ -1599,12 +1625,12 @@ bool bcec_TimeQueue<DATA>::isRegisteredHandle(
     int index = (handle & d_indexMask) - 1;
 
     if ( 0 > index || index >= (int)d_nodeArray.size()) {
-        return false;
+        return false;                                                 // RETURN
     }
     Node *node = d_nodeArray[index];
 
     if (node->d_index != (int)handle || node->d_key != key) {
-        return false;
+        return false;                                                 // RETURN
     }
 
     return true;
@@ -1617,7 +1643,7 @@ int bcec_TimeQueue<DATA>::minTime(bdet_TimeInterval *buffer) const
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
 
     if (d_map.empty()) {
-        return 1;
+        return 1;                                                     // RETURN
     }
 
     *buffer = d_map.begin()->first;
@@ -1702,7 +1728,7 @@ DATA& bcec_TimeQueueItem<DATA>::data()
     return d_data;
 }
 
-/*
+#if 0
 // this definition was moved into the class declaration
 // to work around a Visual Studio .NET 2003 bug.
 template <typename DATA>
@@ -1712,7 +1738,7 @@ bcec_TimeQueueItem<DATA>::handle()
 {
     return d_handle;
 }
-*/
+#endif
 
 template <typename DATA>
 inline
@@ -1737,7 +1763,7 @@ const DATA& bcec_TimeQueueItem<DATA>::data() const
     return d_data;
 }
 
-/*
+#if 0
 // this definition was moved into the class declaration
 // to work around a Visual Studio .NET 2003 bug.
 template <typename DATA>
@@ -1747,7 +1773,7 @@ bcec_TimeQueueItem<DATA>::handle() const
 {
     return d_handle;
 }
-*/
+#endif
 
 template <typename DATA>
 inline

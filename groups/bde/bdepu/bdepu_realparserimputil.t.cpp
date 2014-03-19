@@ -786,11 +786,11 @@ int main(int argc, char *argv[])
                 { L_,            4,    0, 0x9C40000000000000uLL,          14 },
                 { L_,           -1,    0, 0xCCCCCCCCCCCCCCCCuLL,          -3 },
                 { L_,           -2,    0, 0xA3D70A3D70A3D708uLL,          -6 },
-                { L_,           -3,    0, 0x83126E978D4FDF38uLL,          -9 },
+                { L_,           -3,    0, 0x83126E978D4FDF39uLL,          -9 },
                 { L_,           -4,    0, 0xD1B71758E2196524uLL,         -13 },
-                { L_,    646456992,    0, 0xE883A0C5C3B394DBuLL,  2147483644 },
+                { L_,    646456992,    0, 0xE883A0C5C3B394F3uLL,  2147483644 },
                 { L_,    646456993,    1,                                    },
-                { L_,   -646456992,    0, 0x8CEDD5D5E3D631BAuLL, -2147483643 },
+                { L_,   -646456992,    0, 0x8CEDD5D5E3D631C8uLL, -2147483643 },
                 { L_,   -646456993,    0, 0x0000000000000000uLL,           0 },
 
                 // TBD more vectors
@@ -826,6 +826,7 @@ int main(int argc, char *argv[])
                         P(binExp);
                     }
                 }
+
                 LOOP_ASSERT(LINE, FAIL == !!rv);
                 LOOP_ASSERT(LINE, FAIL ? 1 : BINFRAC == binFrac);
                 LOOP_ASSERT(LINE, FAIL ? 1 : BINEXP == binExp);
@@ -889,7 +890,7 @@ int main(int argc, char *argv[])
                 //line  bS  binFrac                binExp  fail  value
                 //----  --  ---------------------  ------  ----  ----------
                 { L_,    0, 0x0000000000000000uLL,      0,    0,       0.0 },
-                { L_,    0, 0x0000000000000000uLL,   1024,    1,           },
+                { L_,    0, 0x0000000000000000uLL,   1024,    0,       0.0 },
                 { L_,    0, 0x1000000000000000uLL,  -1023,    0,       0.0 },
 
                 { L_,    0, 0x8000000000000000uLL,      1,    0,       1.0 },

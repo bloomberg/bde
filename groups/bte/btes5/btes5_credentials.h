@@ -95,6 +95,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_algorithm.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
