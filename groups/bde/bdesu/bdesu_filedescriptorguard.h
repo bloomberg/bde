@@ -1,16 +1,16 @@
-// bdesu_filecloseproctor.h                                           -*-C++-*-
-#ifndef INCLUDED_BDESU_FILECLOSEPROCTOR
-#define INCLUDED_BDESU_FILECLOSEPROCTOR
+// bdesu_filedescriptorguard.h                                        -*-C++-*-
+#ifndef INCLUDED_BDESU_FILEDESCIPTORGUARD
+#define INCLUDED_BDESU_FILEDESCIPTORGUARD
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a RAII proctor class used to close files.
+//@PURPOSE: Provide a RAII guard class used to close files.
 //
 //@CLASSES:
-//  bdesu_FileDescriptorGuard: RAII proctor class used to close files
+//  bdesu_FileDescriptorGuard: RAII guard class used to close files
 //
 //@SEE_ALSO: bdesu_filesystemutil
 //
@@ -19,9 +19,9 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a class, 'bdesu_FileDescriptorGuard', an
 // object of which manages an open file descriptor, and closes it when the
 // guard goes out of scope and is destroyed.  A 'release' method is provided,
-// which will release the descriptor from management by the proctor.  When a
-// released proctor is destroyed, nothing happens.  A 'closeAndRelease' method
-// is also provided, which closes the managed file handle and puts the proctor
+// which will release the descriptor from management by the guard.  When a
+// released guard is destroyed, nothing happens.  A 'closeAndRelease' method
+// is also provided, which closes the managed file handle and puts the guard
 // into a released state.
 //
 ///Usage
@@ -29,28 +29,27 @@ BDES_IDENT("$Id: $")
 //
 ///Example 1: Close a File Descriptor
 /// - - - - - - - - - - - - - - - - -
-// Suppose we want to open a file and do some I/O to it, and be sure the
-// file handle will be closed when we're done with it.  We  use an object
-// of type 'bdesu_FileDescriptorGuard' to facilitate this.
+// Suppose we want to open a file and perform some I/O operations.  We use an
+// object of type 'bdesu_FileHandleGuard' to ensure this handle is closed after
+// the operations are complete.
 //
-// First, we create a name for our temporary file and a few local varriables.
+// First, we create a name for our temporary file name and a few local
+// varriables.
 //..
-//  const bsl::string txtPath = "essay.txt";
+//  const bsl::string fileName = "essay.txt";
 //  int rc;
-//  char buffer[1000];
 //..
 // Then, we open the file:
 //..
-//  bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(
-//                                              txtPath,
-//                                              true,       // writable
-//                                              false);     // non-existsent
-//  assert(bdesu_FileUtil::k_INVALID_FD != fd);
+//  Util::FileDescriptor fd = Util::open(fileName,
+//                                       Util::e_CREATE,
+//                                       Util::e_READ_WRITE);
+//  assert(Util::k_INVALID_FD != fd);
 //..
-// Next, we enter a scope and create a proctor object to manage 'fd':
+// Next, we enter a lexical scope and create a guard object to manage 'fd':
 //..
 //  {
-//      bdesu_FileDescriptorGuard proctor(fd);
+//      bdesu_FileDescriptorGuard guard(fd);
 //..
 // Then, we declare an essay we would like to write to the file:
 //..
@@ -71,34 +70,21 @@ BDES_IDENT("$Id: $")
 //..
 // Next, we write our essay to the file:
 //..
-//      rc = bdesu_FileUtil::write(fd, essay, sizeof(essay));
+//      rc = Util::write(fd, essay, sizeof(essay));
 //      assert(sizeof(essay) == rc);
 //..
-// Then, we seek back to the beginning of the file.
-//..
-//      Util::Offset off = Util::seek(fd, 0, Util::BDESU_SEEK_FROM_BEGINNING);
-//      assert(0 == off);
-//..
-// Next, we read the file back and see if it's the same thing we wrote before:
-//..
-//      bsl::memset(buffer, 0, sizeof(buffer));
-//      rc = bdesu_FileUtil::read(fd, buffer, sizeof(buffer));
-//      assert(sizeof(essay) == rc);
-//      assert(! bsl::strcmp(essay, buffer));
-//..
-// Now, 'proctor' goes out of scope, and its destructor closes the file
+// Now, 'guard' goes out of scope, and its destructor closes the file
 // descriptor.
 //..
 //  }
 //..
-// Finally, we observe that further attempts to write to 'fd' fail because the
+// Finally, we observe that further attempts to access 'fd' fail because the
 // descriptor has been closed:
 //..
-//  const char finalWord[] = { "No matter where you go, there you are.\n"
-//                             "                Buckaroo Banzai\n" };
-//
-//  rc = bdesu_FileUtil::write(fd, finalWord, sizeof(finalWord));
-//  assert(rc < 0);
+//  Util::Offset off = Util::seek(fd,
+//                                0,
+//                                Util::e_SEEK_FROM_BEGINNING);
+//  assert(-1 == off);
 //..
 
 #ifndef INCLUDED_BDESCM_VERSION
@@ -123,11 +109,9 @@ struct bdesu_FileDescriptorGuard {
     // This class implements a guard that conditionally closes an open file
     // descriptor upon its destruction.
 
-    // PRIVATE TYPE
-    typedef bdesu_FilesystemUtil FsUtil;
-
     // DATA
-    FsUtil::FileDescriptor d_descriptor;  // Handle for the file being managed.
+    bdesu_FilesystemUtil::FileDescriptor d_descriptor;    // handle for the
+                                                          // merged file
 
   private:
     // NOT IMPLEMENTED
@@ -137,15 +121,15 @@ struct bdesu_FileDescriptorGuard {
   public:
     // CREATORS
     explicit
-    bdesu_FileDescriptorGuard(FsUtil::FileDescriptor descriptor);
-        // Create a proctor object that will manage the specified 'descriptor',
+    bdesu_FileDescriptorGuard(bdesu_FilesystemUtil::FileDescriptor descriptor);
+        // Create a guard object that will manage the specified 'descriptor',
         // closing it upon destruction (unless either 'realease' or
         // 'closeAndRelease' has been called).  It is permissible for
-        // 'descriptor == FsUtil::k_INVALID_FD', in which case the guard
-        // created will not manage anything.
+        // 'descriptor' to be 'bdesu_FilesystemUtil::k_INVALID_FD', in which
+        // case the guard created will not manage anything.
 
     ~bdesu_FileDescriptorGuard();
-        // If this proctor object manages a file, close the file.
+        // If this guard object manages a file, close that file.
 
     // MANIPULATORS
     void closeAndRelease();
@@ -153,13 +137,13 @@ struct bdesu_FileDescriptorGuard {
         // management by this object.  The behavior is undefined unless this
         // object is managing a file.
 
-    void release();
+    bdesu_FilesystemUtil::FileDescriptor release();
         // Release the file from management by this object (without closing
-        // it).  The behavior is undefined unless this object is managing a
-        // file.
+        // it) and return the formerly managed descriptor.  The behavior is
+        // undefined unless this object is managing a file.
 
     // ACCESSORS
-    FsUtil::FileDescriptor descriptor() const;
+    bdesu_FilesystemUtil::FileDescriptor descriptor() const;
         // If this guard is managing a file, return the file descriptor
         // referring to that file, and return
         // 'bdesu_FileSystemUtil::INVALID_FD' otherwise.
@@ -180,18 +164,21 @@ bdesu_FileDescriptorGuard::bdesu_FileDescriptorGuard(
 inline
 bdesu_FileDescriptorGuard::~bdesu_FileDescriptorGuard()
 {
-    if (FsUtil::k_INVALID_FD != d_descriptor) {
+    if (bdesu_FilesystemUtil::k_INVALID_FD != d_descriptor) {
         closeAndRelease();
     }
 }
 
 // MANIPULATORS
 inline
-void bdesu_FileDescriptorGuard::release()
+bdesu_FilesystemUtil::FileDescriptor bdesu_FileDescriptorGuard::release()
 {
-    BSLS_ASSERT(FsUtil::k_INVALID_FD != d_descriptor);
+    BSLS_ASSERT(bdesu_FilesystemUtil::k_INVALID_FD != d_descriptor);
 
-    d_descriptor = FsUtil::k_INVALID_FD;
+    bdesu_FilesystemUtil::FileDescriptor ret = d_descriptor;
+    d_descriptor = bdesu_FilesystemUtil::k_INVALID_FD;
+
+    return ret;
 }
 
 // ACCESSORS

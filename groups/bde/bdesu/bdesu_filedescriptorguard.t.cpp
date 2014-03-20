@@ -7,9 +7,13 @@
 #include <bsl_cstdlib.h>    // atoi
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bsl_sstream.h>
 
 #if BSLS_PLATFORM_OS_UNIX
+# include <unistd.h>
 # include <errno.h>
+#else
+# include <windows.h>
 #endif
 
 using namespace BloombergLP;
@@ -91,6 +95,15 @@ enum { PLAT_WINDOWS = 1 };
 enum { PLAT_WINDOWS = 0 };
 #endif
 
+int localGetPId()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return static_cast<int>(GetCurrentProcessId());
+#else
+    return static_cast<int>(getpid());
+#endif
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -104,11 +117,22 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    char rootPath[100];
-    bsl::sprintf(rootPath,
-                 "%s.filecloseproctor.%d",
-                 PLAT_WINDOWS ? "temp" : "tmp",
-                 test);
+    bsl::string rootPath;
+    {
+#ifdef BSLS_PLATFORM_OS_UNIX
+        char host[80];
+        ASSERT(0 ==::gethostname(host, sizeof(host)));
+#else
+        const char *host = "win";     // 'gethostname' is very difficult on
+                                      // Windows, and we usually aren't using
+                                      // nfs there anyway.
+#endif
+        bsl::ostringstream oss;
+        oss << (PLAT_WINDOWS ? "temp." : "tmp.");
+        oss << "bdesu_filedescriptorguard.";
+        oss << test << '.' << host << '.' << localGetPId();
+        rootPath = oss.str();
+    }
     Util::remove(rootPath, true);
     bsl::string logPath = rootPath;
     bdesu_PathUtil::appendRaw(&logPath, "log");
@@ -148,7 +172,7 @@ int main(int argc, char *argv[])
                                          Util::e_READ_WRITE);
     ASSERT(Util::k_INVALID_FD != fd);
 
-// Next, we enter a lexical scope and create a proctor object to manage 'fd':
+// Next, we enter a lexical scope and create a guard object to manage 'fd':
 
     {
         bdesu_FileDescriptorGuard guard(fd);
@@ -177,6 +201,7 @@ int main(int argc, char *argv[])
 
 // Now, 'guard' goes out of scope, and its destructor closes the file
 // descriptor.
+
     }
 
 // Finally, we observe that further attempts to access 'fd' fail because the
@@ -276,7 +301,7 @@ int main(int argc, char *argv[])
             Obj guard(fd);
             ASSERT(guard.descriptor() == fd);
 
-            guard.release();
+            ASSERT(guard.release() == fd);
             ASSERT(Util::k_INVALID_FD == guard.descriptor());
         }
 
@@ -303,7 +328,7 @@ int main(int argc, char *argv[])
             Obj guard(fd);
             ASSERT(guard.descriptor() == fd);
 
-            guard.release();
+            ASSERT(guard.release() == fd);
             ASSERT(Util::k_INVALID_FD == guard.descriptor());
         }
 
@@ -396,6 +421,11 @@ int main(int argc, char *argv[])
       }
     }
 
+    // Sometimes the first remove fails but succeeds at removing leaf files,
+    // then the second remove will succeed.  Sometimes both fail, but the test
+    // directories will be cleaned up in a sweep anyway.
+
+    Util::remove(rootPath, true);
     Util::remove(rootPath, true);
 
     if (testStatus > 0) {

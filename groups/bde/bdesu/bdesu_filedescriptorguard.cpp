@@ -9,13 +9,13 @@ namespace BloombergLP {
 // MANIPULATORS
 void bdesu_FileDescriptorGuard::closeAndRelease()
 {
-    BSLS_ASSERT(FsUtil::k_INVALID_FD != d_descriptor);
+    BSLS_ASSERT(bdesu_FilesystemUtil::k_INVALID_FD != d_descriptor);
 
-    int rc = FsUtil::close(d_descriptor);
+    int rc = bdesu_FilesystemUtil::close(d_descriptor);
     BSLS_ASSERT(0 == rc && "close failed");
     (void) rc;    // suppress unuwed warning in opt build
 
-    d_descriptor = FsUtil::k_INVALID_FD;
+    d_descriptor = bdesu_FilesystemUtil::k_INVALID_FD;
 }
 
 }  // close namespace BloombergLP
