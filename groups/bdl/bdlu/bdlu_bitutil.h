@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide efficient bit-manipulation for 'uint32_t' and 'uint64_t'.
+//@PURPOSE: Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
 //
 //@CLASSES:
 //  bdlu::BitUtil: namespace for 'uint32_t' and 'uint64_t' bit-level operations
@@ -16,10 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a utility 'struct', 'bdlu::BitUtil',
 // that serves as a namespace for a collection of efficient, bit-level
-// procedures on 'uint32_t' and 'uint64_t'.
+// procedures on 'uint32_t' and 'uint64_t'.  In particular, 'BitUtil' supplies
+// single bit manipulation, bit counting, and mathematical functions that can
+// be optimized with bitwise operations.
 //
-// Some of these functions have other common names.  Below is a list of sets of
-// related functions:
+// Some of the methods provided in 'BitUtil' have other common names.  Below is
+// a list of mappings from the name used in 'BitUtil' to these related
+// function names:
 //
 //: * numLeadingUnsetBits: cntlz, clz, ffs, ffo, nlz, ctlz
 //:
@@ -29,11 +32,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following usage examples illustrate how some of the methods are used.
-// Note that, in all of these examples, the low-order bit is considered bit '0'
-// and resides on the right edge of the bit string.
+// The following usage examples illustrate how some of the methods provided by
+// this component are used.  Note that, in all of these examples, the low-order
+// bit is considered bit 0 and resides on the right edge of the bit string.
 //
-// First, use 'withBitSet' to demonstrate the bit ordering:
+// First, we use 'withBitSet' to demonstrate the ordering of bits:
 //..
 //  assert(static_cast<uint32_t>(0x00000001)
 //                 == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0),  0));
@@ -47,12 +50,12 @@ BSLS_IDENT("$Id: $")
 //  /*------------------------------------------------------------------------+
 //  | 'bdlu::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
 //  |                                                                         |
-//  | srcInteger in binary:                  01100110011001100110011001100110 |
+//  | input in binary:                       01100110011001100110011001100110 |
 //  | set bit 16:                                           1                 |
 //  | result:                                01100110011001110110011001100110 |
 //  +------------------------------------------------------------------------*/
 //..
-// Then, count the number of set bits in a value with 'numBitsSet':
+// Then, we count the number of set bits in a value with 'numBitsSet':
 //..
 //  assert(0 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
 //  assert(2 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
@@ -65,8 +68,8 @@ BSLS_IDENT("$Id: $")
 //  | that has 8 ones set.  result: 8                                         |
 //  +------------------------------------------------------------------------*/
 //..
-// Finally, use 'numLeadingUnsetBits' to determine the number of unset bits
-// with higher index than the first set bit:
+// Finally, we use 'numLeadingUnsetBits' to determine the number of unset bits
+// with a higher index than the first set bit:
 //..
 //  assert(32 ==
 //      bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000000)));
@@ -80,16 +83,11 @@ BSLS_IDENT("$Id: $")
 //  /*------------------------------------------------------------------------+
 //  | 'bdlu::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
 //  |                                                                         |
-//  | input:                                 00000001011000100000000000110000 |
+//  | input in binary:                       00000001011000100000000000110000 |
 //  | highest set bit:                              1                         |
 //  | number of unset bits leading this set bit == 7                          |
 //  +------------------------------------------------------------------------*/
 //..
-
-#ifndef INCLUDED_STDINT
-#include <stdint.h>
-#define INCLUDED_STDINT
-#endif
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -118,6 +116,11 @@ BSLS_IDENT("$Id: $")
 #endif
 #endif
 
+#ifndef INCLUDED_STDINT
+#include <stdint.h>
+#define INCLUDED_STDINT
+#endif
+
 namespace BloombergLP {
 namespace bdlu {
 
@@ -133,8 +136,8 @@ struct BitUtil {
   private:
     // PRIVATE CONSTANTS
     enum {
-        k_BITS_PER_INT32  = 32,  // bits used to represent an 'int32_t'
-        k_BITS_PER_INT64  = 64,  // bits used to represent an 'int64_t'
+        k_BITS_PER_INT32 = 32,  // bits used to represent an 'int32_t'
+        k_BITS_PER_INT64 = 64,  // bits used to represent an 'int64_t'
     };
 
     // PRIVATE CLASS METHODS
@@ -178,19 +181,18 @@ struct BitUtil {
     static uint32_t roundUp(uint32_t value, uint32_t boundary);
     static uint64_t roundUp(uint64_t value, uint64_t boundary);
         // Return the least multiple of the specified 'boundary' that is
-        // greater than or equal to the specified 'value', and 0 if the
-        // conversion was not successful.  Note that the conversion will not be
-        // successful if and only if '0 != value % boundary' and
-        // '(1 << sizeInBits(value)) <= (value / boundary + 1) * boundary'.
-        // The behavior is undefined unless '0 < boundary' and
-        // '1 == numBitsSet(boundary)'.
+        // greater than or equal to the specified 'value', and 0 if
+        // '0 == value' or the conversion was not successful.  The behavior is
+        // undefined unless '1 == numBitsSet(boundary)'.  Note that the
+        // conversion will succeed if and only if '0 == value % boundary' or
+        // '(1 << sizeInBits(value)) > (value / boundary + 1) * boundary'.
 
     static uint32_t roundUpToBinaryPower(uint32_t value);
     static uint64_t roundUpToBinaryPower(uint64_t value);
         // Return the least power of 2 that is greater than or equal to the
         // specified 'value', and 0 if the conversion was not successful.  Note
-        // that the conversion will not be successful if and only if
-        // '0 == value || (1 << (sizeInBits(value) - 1)) < value'.
+        // that the conversion will succeed if and only if
+        // '0 < value <= (1 << (sizeInBits(value) - 1))'
 
     template <class INTEGER>
     static int sizeInBits(INTEGER value);
@@ -216,9 +218,9 @@ struct BitUtil {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                               // ----------------
+                               // --------------
                                // struct BitUtil
-                               // ----------------
+                               // --------------
 
 // CLASS METHODS
 inline
@@ -374,8 +376,7 @@ int BitUtil::numTrailingUnsetBits(uint32_t value)
 
     // Other possibility:
     //..
-    //  return (__builtin_ffs(value) - 1)
-    //       ^ ((-!value) & ~k_BITS_PER_INT32);
+    //  return (__builtin_ffs(value) - 1) ^ ((-!value) & ~k_BITS_PER_INT32);
     //..
 #else
     return privateNumTrailingUnsetBits(value);
@@ -397,8 +398,7 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
 
     // Other possibility:
     //..
-    //  return (__builtin_ffsll(value) - 1)
-    //       ^ ((-!value) & ~k_BITS_PER_INT64);
+    //  return (__builtin_ffsll(value) - 1) ^ ((-!value) & ~k_BITS_PER_INT64);
     //..
 #else
     return privateNumTrailingUnsetBits(value);
@@ -408,23 +408,23 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
 inline
 uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
 {
-    BSLS_ASSERT_SAFE(0 <  boundary);
     BSLS_ASSERT_SAFE(1 == numBitsSet(boundary));
+
     return ((value - 1) | (boundary - 1)) + 1;
 }
 
 inline
 uint64_t BitUtil::roundUp(uint64_t value, uint64_t boundary)
 {
-    BSLS_ASSERT_SAFE(0LL < boundary);
     BSLS_ASSERT_SAFE(1 ==  numBitsSet(boundary));
+
     return ((value - 1) | (boundary - 1)) + 1;
 }
 
 inline
 uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
 {
-    int index = numLeadingUnsetBits(value - 1);
+    const int index = numLeadingUnsetBits(value - 1);
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
            ? static_cast<uint32_t>(1) << (k_BITS_PER_INT32 - index)
            : 0;
@@ -433,7 +433,7 @@ uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
 inline
 uint64_t BitUtil::roundUpToBinaryPower(uint64_t value)
 {
-    int index = numLeadingUnsetBits(value - 1);
+    const int index = numLeadingUnsetBits(value - 1);
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
            ? static_cast<uint64_t>(1) << (k_BITS_PER_INT64 - index)
            : 0;

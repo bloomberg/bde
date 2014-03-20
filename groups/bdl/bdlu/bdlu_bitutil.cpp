@@ -4,7 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlu_bitutil_cpp,"$Id$ $CSID$")
 
-
 #include <bslmf_assert.h>
 
 namespace BloombergLP {
@@ -13,9 +12,9 @@ namespace bdlu {
 BSLMF_ASSERT(4 == sizeof(uint32_t));
 BSLMF_ASSERT(8 == sizeof(uint64_t));
 
-                        // ----------------
+                        // --------------
                         // struct BitUtil
-                        // ----------------
+                        // --------------
 
 // PRIVATE CLASS METHODS
 int BitUtil::privateNumLeadingUnsetBits(uint32_t value)

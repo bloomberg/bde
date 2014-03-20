@@ -23,7 +23,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// This component under test provides static methods that perform various bit
+// The component under test provides static methods that perform various bit
 // related computations.  This test driver tests each implemented function.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            // '0 == boundary'
+            // less than one bit in 'boundary'
             ASSERT_SAFE_FAIL(Util::roundUp(static_cast<uint32_t>(0),
                                            static_cast<uint32_t>(0)));
             ASSERT_SAFE_FAIL(Util::roundUp(static_cast<uint64_t>(0),
@@ -1053,8 +1053,7 @@ int main(int argc, char *argv[])
     }
 
     if (testStatus > 0) {
-        cerr << "Error, non-zero test status = "
-             << testStatus << "." << endl;
+        cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
 
     return testStatus;
