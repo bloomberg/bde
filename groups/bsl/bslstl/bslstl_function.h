@@ -295,8 +295,10 @@ class Function_Rep {
             // of bytes needed to hold the destroyed object.  Some managers
             // also deallocate memory.
 
-      , e_GET_SIZE
-            // Return the size of the object.  ('rep' and 'input' are ignored.)
+      , e_GET_SOO_SIZE
+            // Return the size of the object, as modified by the SOO convention
+            // described in the 'SooObjSize' metafunction.  ('rep' and 'input'
+            // are ignored.)
 
       , e_GET_TARGET
             // Return a pointer to the object in 'rep'.
@@ -344,7 +346,7 @@ class Function_Rep {
         // the 'InplaceBuffer'.  Anything bigger than 'sizeof(InplaceBuffer)'
         // will be stored out-of-place and its address will be stored in
         // 'd_object_p'.  Discriminating between the two representations can
-        // be done by the manager with the opcode 'e_GET_SIZE'.
+        // be done by the manager with the opcode 'e_GET_SOO_SIZE'.
         //
         // Note that union members other than 'd_object_p' are just fillers to
         // make sure that a function or member function pointer can fit
@@ -363,11 +365,57 @@ class Function_Rep {
         void                *d_minbuf[4];    // force minimum size
     };
 
-    template <class T>
-    struct FitsInplace : integral_constant<bool,
-                                           sizeof(T) <= sizeof(InplaceBuffer)>
+    static const std::size_t k_NON_SOO_SMALL_SIZE = ~sizeof(InplaceBuffer);
+        // This value is added to the size of a small stateful functor to
+        // indicate that, despite being small, it should not be allocated
+        // inplace using the small object optimization (SOO), e.g., because it
+        // does not have a nothrow move constructor and cannot, therefore, be
+        // swapped safely.  When a size larger than this constant is seen, the
+        // actual object size can be determined by subtracting this constant.
+        // A useful quality of this encoding is that if
+        // 'SZ <= sizeof(InplaceBuffer)' for some object size 'SZ', then
+        // 'SZ + k_NON_SOO_SMALL_SIZE > sizeof(InplaceBuffer)', so th
+
+    BSLMF_ASSERT(k_NON_SOO_SMALL_SIZE > 0);  // Assert unsigned size_t
+
+    template <class TP>
+    struct SooObjSize
     {
-        // Metafunction to determine whether the specified 'T' template
+        // Metafunction to determine the size of an object for the purposes of
+        // the small object optimization (SOO).  The 'VALUE' member is encoded
+        // as follows:
+        //
+        //:  o If 'TP' is not larger than 'InplaceBuffer' but should
+        //:    not be allocated inplace for other reasons, then
+        //:    'VALUE == sizeof(TP) + k_NON_SOO_SMALL_SIZE'.
+        //:  o Otherwise, if 'TP' is an empty class, 'VALUE == 0'.
+        //:  o Otherwise, 'VALUE == sizeof(TP)'.
+        //
+        // Note that the 'Soo' prefix is used to indicate that an identifier
+        // uses the above protocol.  Thus a variable called 'SooSize' is
+        // assumed to be encoded as above, whereas a variable called 'size'
+        // can generally be assumed not to be encoded that way.
+
+        static const std::size_t OBJSIZE = Function_ObjSize<TP>::VALUE;
+
+        static const std::size_t VALUE =
+            (OBJSIZE > sizeof(InplaceBuffer)                   ? OBJSIZE :
+             bslmf::IsBitwiseMoveable<TP>::value               ? OBJSIZE :
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+             // Check if nothrow move constructible.  The use of '::new' lets
+             // us check the constructor without also checking the destructor.
+             // This is especially important in gcc 4.7 and before because
+             // destructors are not implicitly noexcept in those compilers.
+             noexcept(::new((void*) 0) TP(std::declval<TP>())) ? OBJSIZE :
+#endif
+             sizeof(TP) + k_NON_SOO_SMALL_SIZE);
+    };
+
+    template <class TP>
+    struct FitsInplace : integral_constant<bool,
+                                           sizeof(TP) <= sizeof(InplaceBuffer)>
+    {
+        // Metafunction to determine whether the specified 'TP' template
         // parameter fits within the 'InplaceBuffer'.
 
         // TBD: 'FitsInplace' should also take alignment into account, but
@@ -381,20 +429,20 @@ class Function_Rep {
     template <class ALLOC>
     friend struct Function_AllocTraits;
 
-    void *initRep(std::size_t funcSize, bslma::Allocator* alloc,
+    void *initRep(std::size_t sooFuncSize, bslma::Allocator* alloc,
                   integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>);
-    template <class T>
-    void *initRep(std::size_t funcSize, const bsl::allocator<T>& alloc,
+    template <class TP>
+    void *initRep(std::size_t sooFuncSize, const bsl::allocator<TP>& alloc,
                   integral_constant<AllocCategory, e_BSL_ALLOCATOR>);
     template <class ALLOC>
-    void *initRep(std::size_t funcSize, const ALLOC& alloc,
+    void *initRep(std::size_t sooFuncSize, const ALLOC& alloc,
                   integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>);
     template <class ALLOC>
-    void *initRep(std::size_t funcSize, const ALLOC& alloc,
+    void *initRep(std::size_t sooFuncSize, const ALLOC& alloc,
                   integral_constant<AllocCategory, e_ERASED_STATELESS_ALLOC>);
         // Initialize this object's 'd_objbuf', 'd_allocator_p', and
         // 'd_allocManager_p' fields, allocating (if necessary) enough storage
-        // to hold a function object of the specified 'funcSize' and holding a
+        // to hold a function object of the specified 'sooFuncSize' and holding a
         // copy of 'alloc'.  If the function and allocator fit within
         // 'd_objbuf', then no memory is allocated.  The actual wrapped
         // function object is not initialized, nor is 'd_funcManager_p' set.
@@ -460,8 +508,8 @@ class Function_Rep {
 public:
     // ACCESSORS
     const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
-    template<class T> T* target() BSLS_NOTHROW_SPEC;
-    template<class T> const T* target() const BSLS_NOTHROW_SPEC;
+    template<class TP> TP* target() BSLS_NOTHROW_SPEC;
+    template<class TP> const TP* target() const BSLS_NOTHROW_SPEC;
     bslma::Allocator *allocator() const;
 };
 
@@ -691,6 +739,13 @@ void swap(function<RET(ARGS...)>&, function<RET(ARGS...)>&);
 // ===========================================================================
 
 
+                        // ----------------------
+                        // class Function_ObjSize
+                        // ----------------------
+
+template <class TYPE>
+const std::size_t bsl::Function_ObjSize<TYPE>::VALUE;
+
                         // -----------------------
                         // class bad_function_call
                         // -----------------------
@@ -700,10 +755,6 @@ bsl::bad_function_call::bad_function_call() BSLS_NOTHROW_SPEC
     : std::exception()
 {
 }
-
-                        // --------------------------------
-                        // class Function_PairBufDesc
-                        // --------------------------------
 
 namespace bsl {
 
@@ -809,6 +860,10 @@ public:
 
 } // close namespace bsl
 
+                        // --------------------------------
+                        // class Function_PairBufDesc
+                        // --------------------------------
+
 // CREATORS
 inline
 bsl::Function_PairBufDesc::Function_PairBufDesc(std::size_t t1Size,
@@ -853,20 +908,39 @@ inline void const *bsl::Function_PairBufDesc::second(void const *buffer) const
                         // class bsl::Function_Rep
                         // -----------------------
 
+template <class TP>
+const std::size_t bsl::Function_Rep::SooObjSize<TP>::OBJSIZE;
+
+template <class TP>
+const std::size_t bsl::Function_Rep::SooObjSize<TP>::VALUE;
+
 template <class FUNC>
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
                                    Function_Rep  *rep,
                                    PtrOrSize_t    input)
 {
-    static const std::size_t k_FUNC_SIZE = Function_ObjSize<FUNC>::VALUE;
+    static const std::size_t k_SOO_FUNC_SIZE = SooObjSize<FUNC>::VALUE;
+    static const std::size_t k_IS_INPLACE =
+        k_SOO_FUNC_SIZE <= sizeof(InplaceBuffer);
+
+    // If functor is empty, empty it should have a one-byte footprint.
+    BSLMF_ASSERT(0 != k_SOO_FUNC_SIZE || 1 == sizeof(FUNC));
 
     // If wrapped function fits in 'd_objbuf', then it is inplace; otherwise,
     // its heap-allocated address is found in 'd_objbuf.d_object_p'.  There
     // is no need to computed this using metaprogramming; the compiler will
     // optimize away the conditional test anyway.
-    void *wrappedFunc_p = (k_FUNC_SIZE <= sizeof(InplaceBuffer) ?
+    void *wrappedFunc_p = (k_IS_INPLACE ?
                            &rep->d_objbuf : rep->d_objbuf.d_object_p);
+
+    char savedFuncByte;
+    if (0 == k_SOO_FUNC_SIZE) {
+        // We are allocating zero bytes for an empty functor.  Save the memory
+        // contents of the (one-byte) functor footprint in case an operation
+        // does something silly like zero the footprint or memcpy into it.
+        savedFuncByte = static_cast<char*>(wrappedFunc_p)[0];
+    }
 
     switch (opCode) {
 
@@ -874,47 +948,59 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           // Move-construct function object.  There is no point to optimizing
           // this operation for bitwise moveable types.  If the type is
           // trivially moveable, then the move operation below will do it
-          // trivially.  Do not call constructor if functor is an empty class,
-          // as it might try to do something silly like zeroing itself out.
-          if (k_FUNC_SIZE) {
-              FUNC &srcFunc =
-                  *static_cast<FUNC*>(const_cast<void*>(input.asPtr()));
+          // trivially.  
+
+          FUNC &srcFunc =
+              *static_cast<FUNC*>(const_cast<void*>(input.asPtr()));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-              return ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
+          return ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
 #else
-              return ::new (wrappedFunc_p) FUNC(srcFunc);
+          return ::new (wrappedFunc_p) FUNC(srcFunc);
 #endif
+          if (0 == k_SOO_FUNC_SIZE) {
+              // Restore the footprint of an empty functor in case the
+              // constructor did something silly like zero it or memcpy into
+              // it.
+              static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
           }
       } break;
 
       case e_COPY_CONSTRUCT: {
+
           // Copy-construct function object.  There is no point to optimizing
           // this operation for bitwise copyable types.  If the type is
           // trivially copyiable, then the copy operation below will do it
-          // trivially.  Do not call constructor if functor is an empty class,
-          // as it might try to do something silly like zeroing itself out.
-          if (k_FUNC_SIZE) {
-              const FUNC &srcFunc = *static_cast<const FUNC*>(input.asPtr());
-              return ::new (wrappedFunc_p) FUNC(srcFunc);
+          // trivially.
+          const FUNC &srcFunc = *static_cast<const FUNC*>(input.asPtr());
+          return ::new (wrappedFunc_p) FUNC(srcFunc);
+          if (0 == k_SOO_FUNC_SIZE) {
+              // Restore the footprint of an empty functor in case the
+              // constructor did something silly like zero it or memcpy into
+              // it.
+              static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
           }
       } break;
 
       case e_DESTROY: {
-          // Call destructor for functor.  Do not call destructor if
-          // functor is an empty class, as it might try to do something
-          // silly like zeroing itself out.
-          if (k_FUNC_SIZE) {
-              reinterpret_cast<FUNC*>(wrappedFunc_p)->~FUNC();
+
+          // Call destructor for functor.
+          reinterpret_cast<FUNC*>(wrappedFunc_p)->~FUNC();
+
+          if (0 == k_SOO_FUNC_SIZE) {
+              // Restore the footprint of an empty functor in case the
+              // destructor did something silly like zero it or memcpy into
+              // it.
+              static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
           }
 
           // Return size of destroyed function object
-          return k_FUNC_SIZE;
+          return k_SOO_FUNC_SIZE;
       } break;
 
-      case e_GET_SIZE:    return k_FUNC_SIZE;
-      case e_GET_TARGET:  return wrappedFunc_p;
-      case e_GET_TYPE_ID: return &typeid(FUNC);
+      case e_GET_SOO_SIZE: return k_SOO_FUNC_SIZE;
+      case e_GET_TARGET:   return wrappedFunc_p;
+      case e_GET_TYPE_ID:  return &typeid(FUNC);
 
       case e_INIT_REP: {
           BSLS_ASSERT(0 && "Opcode not implemented for function manager");
@@ -944,15 +1030,15 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
         // Allocator cannot deallocate itself, so make a copy of the allocator
         // on the stack and use the copy for deallocation.
         Adaptor allocCopy(*static_cast<Adaptor*>(rep->d_allocator_p));
-        std::size_t funcSize = input.asSize_t();
+        std::size_t sooFuncSize = input.asSize_t();
 
         rep->d_allocator_p->~Allocator();  // destroy allocator
 
-        if (funcSize > sizeof(InplaceBuffer)) {
+        if (sooFuncSize > sizeof(InplaceBuffer)) {
             // Deallocate memory holding function and allocator
             allocCopy.deallocate(rep->d_objbuf.d_object_p);
         }
-        else if (funcSize + sizeof(Adaptor) > sizeof(InplaceBuffer)) {
+        else if (sooFuncSize + sizeof(Adaptor) > sizeof(InplaceBuffer)) {
             // Function is inplace but allocator is not.
             // Deallocate space used by allocator.
             allocCopy.deallocate(rep->d_allocator_p);
@@ -963,22 +1049,27 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
         return sizeof(Adaptor);
       }
 
-      case e_GET_SIZE:    return sizeof(Adaptor);
+      case e_GET_SOO_SIZE: {
+        // The SOO size of the adaptor is always the same as the true size of
+        // the adaptor because it is always nothrow moveable.
+        return sizeof(Adaptor);
+      }
+
       case e_GET_TARGET:  return rep->d_allocator_p;
       case e_GET_TYPE_ID: return &typeid(Adaptor);
 
       case e_INIT_REP: {
-          const bslma::Allocator *inputAlloc =
-              static_cast<const bslma::Allocator *>(input.asPtr());
-          const Adaptor *inputAdaptor =
-              dynamic_cast<const Adaptor*>(inputAlloc);
-          BSLS_ASSERT(inputAdaptor);
+        const bslma::Allocator *inputAlloc =
+            static_cast<const bslma::Allocator *>(input.asPtr());
+        const Adaptor *inputAdaptor =
+            dynamic_cast<const Adaptor*>(inputAlloc);
+        BSLS_ASSERT(inputAdaptor);
 
-          std::size_t funcSize = rep->d_funcManager_p ?
-              rep->d_funcManager_p(e_GET_SIZE, rep, PtrOrSize_t()).asSize_t() :
-              0;
+        std::size_t sooFuncSize = rep->d_funcManager_p ?
+            rep->d_funcManager_p(e_GET_SOO_SIZE, rep,
+                                 PtrOrSize_t()).asSize_t() : 0;
 
-          rep->initRep(funcSize, inputAdaptor->adaptedAllocator(),
+        rep->initRep(sooFuncSize, inputAdaptor->adaptedAllocator(),
                   integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>());
 
       } break;
@@ -988,14 +1079,19 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
 }
 
 inline
-void *bsl::Function_Rep::initRep(std::size_t funcSize, bslma::Allocator *alloc,
-                           integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>)
+void *bsl::Function_Rep::initRep(std::size_t       sooFuncSize,
+                                 bslma::Allocator *alloc,
+                                 integral_constant<AllocCategory,
+                                                   e_BSLMA_ALLOC_PTR>)
 {
     void *function_p;
-    if (funcSize <= sizeof(InplaceBuffer)) {
+    if (sooFuncSize <= sizeof(InplaceBuffer)) {
         function_p = &d_objbuf;
     }
     else {
+        std::size_t funcSize = (sooFuncSize >= k_NON_SOO_SMALL_SIZE ?
+                                sooFuncSize - k_NON_SOO_SMALL_SIZE :
+                                sooFuncSize);
         function_p = alloc->allocate(funcSize);
         d_objbuf.d_object_p = function_p;
     }
@@ -1006,27 +1102,35 @@ void *bsl::Function_Rep::initRep(std::size_t funcSize, bslma::Allocator *alloc,
     return function_p;
 }
 
-template <class T>
+template <class TP>
 inline
-void *bsl::Function_Rep::initRep(std::size_t          funcSize,
-                             const bsl::allocator<T>& alloc,
-                             integral_constant<AllocCategory, e_BSL_ALLOCATOR>)
+void *bsl::Function_Rep::initRep(std::size_t               sooFuncSize,
+                                 const bsl::allocator<TP>& alloc,
+                                 integral_constant<AllocCategory,
+                                                   e_BSL_ALLOCATOR>)
 {
-    return initRep(funcSize, alloc.mechanism(),
+    return initRep(sooFuncSize, alloc.mechanism(),
                    integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 }
 
 template <class ALLOC>
 inline
-void *bsl::Function_Rep::initRep(std::size_t funcSize, const ALLOC& alloc,
-                     integral_constant<AllocCategory, e_ERASED_STATEFUL_ALLOC>)
+void *bsl::Function_Rep::initRep(std::size_t sooFuncSize,
+                                 const ALLOC& alloc,
+                                 integral_constant<AllocCategory,
+                                                   e_ERASED_STATEFUL_ALLOC>)
 {
     typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
 
     static const std::size_t allocSize = sizeof(Adaptor);
 
-    bool isInplaceFunc = funcSize               <= sizeof(InplaceBuffer);
-    bool isInplacePair = (funcSize + allocSize) <= sizeof(InplaceBuffer);
+    std::size_t funcSize = (sooFuncSize >= k_NON_SOO_SMALL_SIZE ?
+                            sooFuncSize - k_NON_SOO_SMALL_SIZE :
+                            sooFuncSize);
+
+    bool isInplaceFunc = sooFuncSize <= sizeof(InplaceBuffer);
+    bool isInplacePair = (isInplaceFunc &&
+                          (funcSize + allocSize) <= sizeof(InplaceBuffer));
 
     void *function_p;
     void *allocator_p;
@@ -1040,7 +1144,7 @@ void *bsl::Function_Rep::initRep(std::size_t funcSize, const ALLOC& alloc,
     // out-of-place.
     //
     // Although this is a run-time 'if' statement, the compiler will usually
-    // optimize away the conditional when 'funcSize' is known at compile time
+    // optimize away the conditional when 'sooFuncSize' is known at compile time
     // and this function is inlined. (Besides, it's cheap even if not
     // optimized away).
     if (isInplacePair) {
@@ -1074,14 +1178,16 @@ void *bsl::Function_Rep::initRep(std::size_t funcSize, const ALLOC& alloc,
 
 template <class ALLOC>
 inline
-void *bsl::Function_Rep::initRep(std::size_t funcSize, const ALLOC& alloc,
-                    integral_constant<AllocCategory, e_ERASED_STATELESS_ALLOC>)
+void *bsl::Function_Rep::initRep(std::size_t sooFuncSize,
+                                 const ALLOC& alloc,
+                                 integral_constant<AllocCategory,
+                                                   e_ERASED_STATELESS_ALLOC>)
 {
     // Since ALLOC is an empty type, we need only one instance of it.
     // This single instance is wrapped in an adaptor.
     static bslma::AllocatorAdaptor<ALLOC> allocInstance(alloc);
 
-    return initRep(funcSize, &allocInstance,
+    return initRep(sooFuncSize, &allocInstance,
                    integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 }
 
@@ -1092,9 +1198,9 @@ bool bsl::Function_Rep::equalAlloc(bslma::Allocator* alloc,
     return alloc == d_allocator_p;
 }
 
-template <class T>
+template <class TP>
 inline
-bool bsl::Function_Rep::equalAlloc(const bsl::allocator<T>& alloc,
+bool bsl::Function_Rep::equalAlloc(const bsl::allocator<TP>& alloc,
                        integral_constant<AllocCategory, e_BSL_ALLOCATOR>) const
 {
     return alloc.mechanism() == d_allocator_p;
@@ -1141,12 +1247,12 @@ void bsl::Function_Rep::copyRep(const Function_Rep&                   other,
     typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
 
     // Compute function size.
-    std::size_t funcSize =
-        other.d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t();
+    std::size_t sooFuncSize =
+        other.d_funcManager_p(e_GET_SOO_SIZE, this, PtrOrSize_t()).asSize_t();
 
-    initRep(funcSize, alloc, atp);
+    initRep(sooFuncSize, alloc, atp);
 
-    void *otherFunction_p = (funcSize <= sizeof(InplaceBuffer) ?
+    void *otherFunction_p = (sooFuncSize <= sizeof(InplaceBuffer) ?
                              &other.d_objbuf : other.d_objbuf.d_object_p);
 
     d_funcManager_p = other.d_funcManager_p;
@@ -1155,22 +1261,22 @@ void bsl::Function_Rep::copyRep(const Function_Rep&                   other,
     d_funcManager_p(e_COPY_CONSTRUCT, this, otherFunction_p);
 }
 
-template<class T>
-T* bsl::Function_Rep::target() BSLS_NOTHROW_SPEC
+template<class TP>
+TP* bsl::Function_Rep::target() BSLS_NOTHROW_SPEC
 {
-    if ((! d_funcManager_p) || target_type() != typeid(T)) {
+    if ((! d_funcManager_p) || target_type() != typeid(TP)) {
         return NULL;
     }
 
     PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
-    return static_cast<T*>(const_cast<void*>(target.asPtr()));
+    return static_cast<TP*>(const_cast<void*>(target.asPtr()));
 }
 
-template<class T>
+template<class TP>
 inline
-const T* bsl::Function_Rep::target() const BSLS_NOTHROW_SPEC
+const TP* bsl::Function_Rep::target() const BSLS_NOTHROW_SPEC
 {
-    return const_cast<Function_Rep*>(this)->target<T>();
+    return const_cast<Function_Rep*>(this)->target<TP>();
 }
 
 inline
@@ -1294,11 +1400,11 @@ void bsl::function<RET(ARGS...)>::copyInit(const ALLOC&    alloc,
     d_funcManager_p = other.d_funcManager_p;
     d_invoker_p     = other.d_invoker_p;
 
-    std::size_t funcSize = d_funcManager_p ?
-        d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
+    std::size_t sooFuncSize = d_funcManager_p ?
+        d_funcManager_p(e_GET_SOO_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
 
     typedef Function_AllocTraits<ALLOC> Traits;
-    initRep(funcSize,
+    initRep(sooFuncSize,
             typename Traits::Type(alloc), typename Traits::Category());
 
     if (d_funcManager_p) {
@@ -1319,10 +1425,10 @@ void bsl::function<RET(ARGS...)>::moveInit(function& other)
     d_invoker_p     = other.d_invoker_p;
 
     if (d_funcManager_p) {
-        std::size_t funcSize = d_funcManager_p(e_GET_SIZE, &other,
-                                               PtrOrSize_t()).asSize_t();
+        std::size_t sooFuncSize = d_funcManager_p(e_GET_SOO_SIZE, &other,
+                                                  PtrOrSize_t()).asSize_t();
 
-        if (funcSize <= sizeof(InplaceBuffer)) {
+        if (sooFuncSize <= sizeof(InplaceBuffer)) {
             // Function is inplace.
 
             // Initialize the rep using other's allocator.
@@ -1394,9 +1500,9 @@ bsl::function<RET(ARGS...)>::function(FUNC func)
 
     d_invoker_p = getInvoker(func, FuncSelection());
 
-    std::size_t funcSize = d_invoker_p ? Function_ObjSize<FUNC>::VALUE : 0;
+    std::size_t sooFuncSize = d_invoker_p ? SooObjSize<FUNC>::VALUE : 0;
 
-    initRep(funcSize, bslma::Default::defaultAllocator(),
+    initRep(sooFuncSize, bslma::Default::defaultAllocator(),
             integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 
     if (d_invoker_p) {
@@ -1456,8 +1562,8 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 
     d_invoker_p = getInvoker(func, FuncSelection());
 
-    std::size_t funcSize = d_invoker_p ? Function_ObjSize<FUNC>::VALUE : 0;
-    initRep(funcSize, typename AllocTraits::Type(alloc),
+    std::size_t sooFuncSize = d_invoker_p ? SooObjSize<FUNC>::VALUE : 0;
+    initRep(sooFuncSize, typename AllocTraits::Type(alloc),
             typename AllocTraits::Category());
 
     if (d_invoker_p) {
@@ -1504,14 +1610,14 @@ bsl::function<RET(ARGS...)>::~function()
     BSLS_ASSERT(d_invoker_p || ! d_funcManager_p);
 
     // Integral function size cast to pointer type.
-    PtrOrSize_t funcSize;
+    PtrOrSize_t sooFuncSize;
 
     if (d_funcManager_p) {
         // Destroy returns the size of the object that was destroyed.
-        funcSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
+        sooFuncSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, funcSize);
+    d_allocManager_p(e_DESTROY, this, sooFuncSize);
 }
 
 // MANIPULATORS

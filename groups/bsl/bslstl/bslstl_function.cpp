@@ -5,6 +5,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+// Storage for class constants:
+const std::size_t bsl::Function_ObjSize<void>::VALUE;
+
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
                                        Function_Rep  *rep,
@@ -20,26 +23,26 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
       } break;
 
       case e_DESTROY: {
-        std::size_t funcSize = input.asSize_t();
-        if (funcSize > sizeof(InplaceBuffer)) {
+        std::size_t sooFuncSize = input.asSize_t();
+        if (sooFuncSize > sizeof(InplaceBuffer)) {
             rep->d_allocator_p->deallocate(rep->d_objbuf.d_object_p);
         }
         return PtrOrSize_t();
       } break;
 
-      case e_GET_SIZE:    return PtrOrSize_t();
-      case e_GET_TARGET:  return rep->d_allocator_p;
-      case e_GET_TYPE_ID: return &typeid(bslma::Allocator);
+      case e_GET_SOO_SIZE: return PtrOrSize_t();
+      case e_GET_TARGET:   return rep->d_allocator_p;
+      case e_GET_TYPE_ID:  return &typeid(bslma::Allocator);
 
       case e_INIT_REP: {
           bslma::Allocator *inputAlloc = static_cast<bslma::Allocator *>(
               const_cast<void *>(input.asPtr()));
 
-          std::size_t funcSize = rep->d_funcManager_p ?
-              rep->d_funcManager_p(e_GET_SIZE, rep, PtrOrSize_t()).asSize_t() :
-              0;
+          std::size_t sooFuncSize = rep->d_funcManager_p ?
+              rep->d_funcManager_p(e_GET_SOO_SIZE, rep,
+                                   PtrOrSize_t()).asSize_t() : 0;
 
-          rep->initRep(funcSize, inputAlloc,
+          rep->initRep(sooFuncSize, inputAlloc,
                        integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
 
       } break;

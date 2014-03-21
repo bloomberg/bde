@@ -4,6 +4,7 @@
 
 #include <bslmf_issame.h>
 #include <bslmf_removeconst.h>
+#include <bslmf_isbitwisemoveable.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_defaultallocatorguard.h>
@@ -326,6 +327,14 @@ struct EmptyFunctor
 {
     // Stateless functor
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    // Nothrow copiable and moveable
+    EmptyFunctor(const EmptyFunctor&) noexcept { }
+#else
+    // Bitwise moveable
+    BSLMF_NESTED_TRAIT_DECLARATION(EmptyFunctor, bslmf::IsBitwiseMoveable);
+#endif
+
     enum { IS_STATELESS = true };
 
     explicit EmptyFunctor(int /* ignored */ = 0)
@@ -376,6 +385,9 @@ class SmallFunctor
     int d_value;  // Arbitrary state to distinguish one instance from another
 
 public:
+    // BITWISE MOVEABLE
+    BSLMF_NESTED_TRAIT_DECLARATION(SmallFunctor, bslmf::IsBitwiseMoveable);
+
     enum { IS_STATELESS = false };
 
     explicit SmallFunctor(int v) : d_value(v) { }
@@ -425,6 +437,9 @@ class MediumFunctor : public SmallFunctor
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor)];
     
 public:
+    // BITWISE MOVEABLE
+    BSLMF_NESTED_TRAIT_DECLARATION(MediumFunctor, bslmf::IsBitwiseMoveable);
+
     explicit MediumFunctor(int v) : SmallFunctor(v)
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
 
@@ -444,6 +459,9 @@ class LargeFunctor : public SmallFunctor
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor) + 1];
     
 public:
+    // BITWISE MOVEABLE
+    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctor, bslmf::IsBitwiseMoveable);
+
     explicit LargeFunctor(int v) : SmallFunctor(v)
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
 
