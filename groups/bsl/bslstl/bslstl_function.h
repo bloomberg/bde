@@ -954,9 +954,9 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
               *static_cast<FUNC*>(const_cast<void*>(input.asPtr()));
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-          return ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
+          ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
 #else
-          return ::new (wrappedFunc_p) FUNC(srcFunc);
+          ::new (wrappedFunc_p) FUNC(srcFunc);
 #endif
           if (0 == k_SOO_FUNC_SIZE) {
               // Restore the footprint of an empty functor in case the
@@ -964,6 +964,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
               // it.
               static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
           }
+          return wrappedFunc_p;
       } break;
 
       case e_COPY_CONSTRUCT: {
@@ -973,13 +974,14 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           // trivially copyiable, then the copy operation below will do it
           // trivially.
           const FUNC &srcFunc = *static_cast<const FUNC*>(input.asPtr());
-          return ::new (wrappedFunc_p) FUNC(srcFunc);
+          ::new (wrappedFunc_p) FUNC(srcFunc);
           if (0 == k_SOO_FUNC_SIZE) {
               // Restore the footprint of an empty functor in case the
               // constructor did something silly like zero it or memcpy into
               // it.
               static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
           }
+          return wrappedFunc_p;
       } break;
 
       case e_DESTROY: {
@@ -1570,8 +1572,8 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
         d_funcManager_p = &functionManager<FUNC>;
         d_funcManager_p(e_MOVE_CONSTRUCT, this, &func);
     }
-    else {
-        // Empty 'func' object
+   else {
+        // Empty 'function' object
         d_funcManager_p = NULL;
     }
 }

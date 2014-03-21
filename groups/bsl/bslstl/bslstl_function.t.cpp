@@ -329,7 +329,8 @@ struct EmptyFunctor
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
     // Nothrow copiable and moveable
-    EmptyFunctor(const EmptyFunctor&) noexcept { }
+    EmptyFunctor(const EmptyFunctor&) noexcept
+        { std::memset(this, 0xdd, sizeof(*this)); }
 #else
     // Bitwise moveable
     BSLMF_NESTED_TRAIT_DECLARATION(EmptyFunctor, bslmf::IsBitwiseMoveable);
@@ -454,7 +455,7 @@ public:
 
 class LargeFunctor : public SmallFunctor
 {
-    // Functor that barely does not fit into the small object buffer.
+    // Functor that is barely too large to fit into the small object buffer.
 
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(SmallFunctor) + 1];
     
@@ -471,6 +472,55 @@ public:
         { return a.value() == b.value(); }
 
     friend bool operator!=(const LargeFunctor& a, const LargeFunctor& b)
+        { return a.value() != b.value(); }
+};
+
+class NothrowMoveFunctor : public SmallFunctor
+{
+    // A small functor that has a nothrow move constructor
+    
+public:
+    explicit NothrowMoveFunctor(int v) : SmallFunctor(v) { }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    // Nothrow move and copy constructible
+    NothrowMoveFunctor(const NothrowMoveFunctor& other) noexcept
+        : SmallFunctor(other) { }
+#else
+    // Bitwise moveable -- use if 'noexcept' is not supported.
+    BSLMF_NESTED_TRAIT_DECLARATION(NothrowMoveFunctor,
+                                   bslmf::IsBitwiseMoveable);
+#endif
+
+    ~NothrowMoveFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
+
+    friend bool operator==(const NothrowMoveFunctor& a,
+                           const NothrowMoveFunctor& b)
+        { return a.value() == b.value(); }
+
+    friend bool operator!=(const NothrowMoveFunctor& a,
+                           const NothrowMoveFunctor& b)
+        { return a.value() != b.value(); }
+};
+
+class ThrowingMoveFunctor : public SmallFunctor
+{
+    // A small functor that whose move constructor is not marked 'noexcept'
+    
+public:
+    explicit ThrowingMoveFunctor(int v) : SmallFunctor(v) { }
+
+    ThrowingMoveFunctor(const ThrowingMoveFunctor& other)
+        : SmallFunctor(other) { if (value() == (int) 0xdeadbeaf) throw other; }
+
+    ~ThrowingMoveFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
+
+    friend bool operator==(const ThrowingMoveFunctor& a,
+                           const ThrowingMoveFunctor& b)
+        { return a.value() == b.value(); }
+
+    friend bool operator!=(const ThrowingMoveFunctor& a,
+                           const ThrowingMoveFunctor& b)
         { return a.value() != b.value(); }
 };
 
@@ -1016,8 +1066,8 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
     bool isEmpty = isNullPtr(func);
 
     const std::size_t funcSize = (bsl::is_empty<FUNC>::value ? 0 :
-                                         isEmpty                    ? 0 :
-                                         sizeof(FUNC));
+                                  isEmpty                    ? 0 :
+                                  sizeof(FUNC));
     const std::size_t allocSize = CheckAlloc<ALLOC>::k_SIZE;
     const std::size_t maxOverhead = CheckAlloc<ALLOC>::k_MAX_OVERHEAD;
 
@@ -1042,7 +1092,7 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
       } break;
 
       case e_OUTOFPLACE_BOTH: {
-        ASSERT(funcSize > sizeof(SmallObjectBuffer));
+        // ASSERT(funcSize > sizeof(SmallObjectBuffer));
         numBlocksUsed = 1;
         minBytesUsed = funcSize + allocSize;
         maxBytesUsed = minBytesUsed + maxOverhead;
@@ -1797,7 +1847,7 @@ int main(int argc, char *argv[])
 
       case 8: {
         // --------------------------------------------------------------------
-        // CONSTRUCTOR function(allocator_arg_t, const ALLOC& alloc, FUNC func)
+        // CONSTRUCTOR 'function(allocator_arg_t,const ALLOC& alloc,FUNC func)'
         //
         // Concerns:
         //: 1 Constructing a 'function' using this constructor yields an empty
@@ -1823,12 +1873,12 @@ int main(int argc, char *argv[])
         //:   'allocator' accessor will return a pointer to an object of type
         //:   'bslma::AllocatorAdaptor<ALLOC>' which wraps a copy of 'alloc'.
         //: 8 If 'alloc' is other than an STL-style allocator with state and
-        //:   'FUNC' fits in the small object buffer, no memory is allocated
-        //:   by this constructor.
+        //:   'FUNC' is eligible for the small object optimization, no
+        //:   memory is allocated by this constructor.
         //: 9 If 'alloc' is other than an STL-style allocator with state and
-        //:   'FUNC' does not fit in the small object buffer, one block of
-        //:   memory of sufficient size to hold 'FUNC' is allocated from the
-        //:   allocator by this constructor.
+        //:   'FUNC' is not eligible for the small object optimization, one
+        //:   block of memory of sufficient size to hold 'FUNC' is allocated
+        //:   from the allocator by this constructor.
         //: 10 If 'alloc' is an STL-style allocator such that the allocator
         //:   adaptor and 'FUNC' both fit within the small object buffer, then
         //:   no memory is allocated by this constructor.
@@ -1836,12 +1886,12 @@ int main(int argc, char *argv[])
         //:   adaptor and 'FUNC' do not both fit within the small object
         //:   buffer, then one block of memory is allocated from 'alloc'
         //:   itself.
-        //: 12 In step 8, if 'FUNC' by itself fits within the small object
-        //:   buffer, then the allocated memory is only large enough to hold
-        //:   the allocator adaptor.
-        //: 13 In step 8, if 'FUNC' by itself does not fit within the small
-        //:   object buffer, then the allocated memory is large enough to hold
-        //:   both 'func' and the allocator adaptor.
+        //: 12 In step 11, if 'FUNC' by itself is elibible for the small object
+        //:   optimization, then the allocated memory is only large enough to
+        //:   hold the allocator adaptor.
+        //: 13 In step 11, if 'FUNC' by itself is not elibible for the small
+        //:   object optimization, then the allocated memory is large enough
+        //:   to hold both 'func' and the allocator adaptor.
         //: 14 If memory is allocated, the destructor frees it.
         //: 15 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
@@ -1877,13 +1927,13 @@ int main(int argc, char *argv[])
         //:   allocator and that the allocator wrapped by the adaptor is equal
         //:   to the original STL-style allocator.
         //: 8 For concern 8, test the results of steps 2-4 to verify that when
-        //:   'func' fits into the small object buffer, no memory is allocated
-        //:   either from the global allocator or from the allocator used to
-        //:   construct the 'function' object.
+        //:   'func' is elibible for the small object optimization, no memory
+        //:   is allocated either from the global allocator or from the
+        //:   allocator used to construct the 'function' object.
         //: 9 For concern 9, test the results of steps 2-4 to verify that when
-        //:   'func' does not fit into the small object buffer, one block of
-        //:   memory of sufficient size to hold 'FUNC' is allocated from the
-        //:   allocator.
+        //:   'func' is not elibible the small object optimization, one block
+        //:   of memory of sufficient size to hold 'FUNC' is allocated from
+        //:   the allocator.
         //: 10 For concern 10, perform step 7 using alloctors of various sizes
         //:   from very small to one where, combined with 'FUNC', barely fits
         //:   within the small object buffer and verify, in each case, that no
@@ -1895,13 +1945,13 @@ int main(int argc, char *argv[])
         //:   from the allocator used to construct the 'function' and that no
         //:   memory was allocated from the global allocator.
         //: 12 For concern 12, look at the memory allocation from step 11 and
-        //:   verify that, when 'FUNC' fits within the small object buffer,
-        //:   that the allocated memory is only large enough to hold the
-        //:   allocator adaptor.
+        //:   verify that, when 'FUNC' is elibible for the small object
+        //:   optimization, that the allocated memory is only large enough to
+        //:   hold the allocator adaptor.
         //: 13 For concern 13, look at the memory allocation from step 11 and
-        //:   verify that, when 'FUNC' does not fit within the small object
-        //:   buffer, that the allocated memory is large enough to hold both
-        //:   'FUNC' and the allocator adaptor.
+        //:   verify that, when 'FUNC' is not elibible for the small object
+        //:   optimization, that the allocated memory is large enough to hold
+        //:   both 'FUNC' and the allocator adaptor.
         //: 14 For concern 14, check at the end of each step, when the
         //:   'function' object is destroyed, that all memory is returned to
         //:   the allocator.
@@ -1917,8 +1967,8 @@ int main(int argc, char *argv[])
         //      function(allocator_arg_t, const ALLOC& alloc, FUNC func);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nCONSTRUCTOR function(allocator_arg_t, "
-                            "const ALLOC& alloc, FUNC func)"
+        if (verbose) printf("\nCONSTRUCTOR 'function(allocator_arg_t,"
+                            "const ALLOC& alloc,FUNC func)'"
                             "\n======================================"
                             "==============================\n");
 
@@ -1999,6 +2049,33 @@ int main(int argc, char *argv[])
         TEST(SmallSTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
         TEST(MediumSTLAllocator<char>, LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
         TEST(LargeSTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
+
+        if (veryVerbose) std::printf("FUNC is NothrowMoveFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , NothrowMoveFunctor(0), e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , NothrowMoveFunctor(0), e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , NothrowMoveFunctor(0), e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , NothrowMoveFunctor(0), e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , NothrowMoveFunctor(0), e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, NothrowMoveFunctor(0),
+                                                          e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0),
+                                                          e_INPLACE_FUNC_ONLY);
+
+        if (veryVerbose) std::printf("FUNC is ThrowingMoveFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , ThrowingMoveFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
+        TEST(bsl::allocator<char>    , ThrowingMoveFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , ThrowingMoveFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , ThrowingMoveFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , ThrowingMoveFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, ThrowingMoveFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
+        TEST(LargeSTLAllocator<char> , ThrowingMoveFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
 
 #undef TEST
 
@@ -2771,8 +2848,11 @@ int main(int argc, char *argv[])
         //:  3 'operator bool' returns true for non-empty function objects.
         //:  4 'bslma::Default::defaultAllocator()' is stored as the
         //:    allocator.
-        //:  5 No memory is allocated unless the invocable is too large for
-        //:    the small-object optimization.
+        //:  5 No memory is allocated unless the invocable is ineligible for
+        //:    the small-object optimization.  An invocable is eligible for
+        //:    the small-object optimization if it fits within the small
+        //:    object buffer and is either bitwise moveable or has a nothrow
+        //:    move constructor.
         //:  6 The destructor releases allocated memory, if any.
         //:  7 For a non-empty 'function', the 'target_type' accessor returns
         //:    the 'type_info' of the invocable specified at construction.
@@ -2797,11 +2877,12 @@ int main(int argc, char *argv[])
         //:    use the test allocator as well.  Verify that none of the
         //:    constructors result in memory being allocated from the test
         //:    allocator except in the case of the functor object.  Using
-        //:    various sized functors, verify that only functors that are too
-        //:    large for the small-object optimization result in any
-        //:    allocations, and that those large functors result result in
-        //:    exactly one block being allocated.  Verify that the destructor
-        //:    releases any allocated memory.
+        //:    various functors, verify that only functors that are too large
+        //:    for the small-object optimization or which have throwing move
+        //:    constructors (and are not bitwise moveable) result in any
+        //:    allocations, and that those allocations amount to exactly one
+        //:    block.  Verify that the destructor releases any allocated
+        //:    memory.
         //:  5 For concern 7, verify that the return value of 'target_type'
         //:    matches the expected 'type_info'.
         //:  6 For concern 8, verify that, for the non-empty 'function'
@@ -2953,6 +3034,41 @@ int main(int argc, char *argv[])
                    ftor == *F.target<LargeFunctor>());
             ASSERT(f.target<LargeFunctor>() &&
                    ftor == *f.target<LargeFunctor>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with nothrow-move functor\n");
+        globalAllocMonitor.reset();
+        {
+            // This functor is eligible for the small-object optimization.
+            NothrowMoveFunctor ftor(42);
+            Obj f(ftor); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(globalAllocMonitor.isTotalSame());
+            ASSERT(typeid(NothrowMoveFunctor) == F.target_type());
+            ASSERT(F.target<NothrowMoveFunctor>() &&
+                   ftor == *F.target<NothrowMoveFunctor>());
+            ASSERT(f.target<NothrowMoveFunctor>() &&
+                   ftor == *f.target<NothrowMoveFunctor>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with throwing-move functor\n");
+        globalAllocMonitor.reset();
+        {
+            // This functor is NOT eligible for the small-object optimization.
+            long long preBlocks = globalTestAllocator.numBlocksInUse();
+            ThrowingMoveFunctor ftor(21);
+            Obj f(ftor); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(preBlocks + 1 == globalTestAllocator.numBlocksInUse());
+            ASSERT(typeid(ThrowingMoveFunctor) == F.target_type());
+            ASSERT(F.target<ThrowingMoveFunctor>() &&
+                   ftor == *F.target<ThrowingMoveFunctor>());
+            ASSERT(f.target<ThrowingMoveFunctor>() &&
+                   ftor == *f.target<ThrowingMoveFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
