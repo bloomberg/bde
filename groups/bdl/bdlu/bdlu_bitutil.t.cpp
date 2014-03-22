@@ -309,11 +309,17 @@ int main(int argc, char *argv[])
             // one bit set in 'boundary'
             for (int b = 0; b < 32; ++b) {
                 uint32_t boundary = static_cast<uint32_t>(1) << b;
+                if (veryVerbose) {
+                    T_ P(boundary);
+                }
                 ASSERT_SAFE_PASS(Util::roundUp(static_cast<uint32_t>(0),
                                                boundary));
             }
             for (int b = 0; b < 64; ++b) {
                 uint64_t boundary = static_cast<uint64_t>(1) << b;
+                if (veryVerbose) {
+                    T_ P(boundary);
+                }
                 ASSERT_SAFE_PASS(Util::roundUp(static_cast<uint64_t>(0),
                                                boundary));
             }
