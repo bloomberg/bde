@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
             for (int b = 1; b < 32; ++b) {
                 uint32_t boundary = static_cast<uint32_t>(1) << b;
                 const int EXP = 0;
-                int rv = Util::roundUp(value32, boundary);
+                uint32_t rv = Util::roundUp(value32, boundary);
                 if (veryVerbose) {
                     T_ P_(value32); T_ P_(boundary); T_ P_(rv); T_ P(EXP);
                 }
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
             for (int b = 1; b < 64; ++b) {
                 uint64_t boundary = static_cast<uint64_t>(1) << b;
                 const int EXP = 0;
-                int rv = Util::roundUp(value64, boundary);
+                uint64_t rv = Util::roundUp(value64, boundary);
                 if (veryVerbose) {
                     T_ P_(value64); T_ P_(boundary); T_ P_(rv); T_ P(EXP);
                 }

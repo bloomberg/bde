@@ -392,7 +392,7 @@ template <class TYPE>
 inline
 int BitUtil::sizeInBits(TYPE)
 {
-    return CHAR_BIT * sizeof(TYPE);
+    return static_cast<int>(CHAR_BIT * sizeof(TYPE));
 }
 
 inline
