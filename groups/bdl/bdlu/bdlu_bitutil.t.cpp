@@ -24,7 +24,10 @@ using namespace bsl;
 //                                Overview
 //                                --------
 // The component under test provides static methods that perform various bit
-// related computations.  This test driver tests each implemented function.
+// related computations.  The goal of this 'bdlu::BitUtil' test suite are to
+// verify that the methods return the expected values.  The test techniques
+// incorporated to obtain this goal are boundary value testing and depth
+// enumeration testing.
 //-----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 2] bool isBitSet(uint32_t value, int index);
@@ -210,19 +213,19 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 the methods correctly perform the calculations
-        //: 2 QoI: asserted precondition violations are detected when enabled
+        //: 1 The methods correctly perform the calculations.
+        //: 2 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 verify return value for input values 2^i - 1, 2^i, 2^i + 1 and
+        //: 1 Verify return value for input values 2^i - 1, 2^i, 2^i + 1 and
         //:   all possible 'boundary' values where i = 1 .. 31 for 'uint32_t'
-        //:   and i = 1 .. 63 for 'uint64_t'
+        //:   and i = 1 .. 63 for 'uint64_t'.
         //:
-        //: 2 verify return values when all bits are set and all possible
-        //:   'boundary' values in the input value (C-1)
+        //: 2 Verify return values when all bits are set and all possible
+        //:   'boundary' values in the input value.  (C-1)
         //:
-        //: 3 verify defensive checks are triggered for invalid attribute
-        //:   values (C-2)
+        //: 3 Verify defensive checks are triggered for invalid attribute
+        //:   values.  (C-2)
         //
         // Testing:
         //   uint32_t roundUp(uint32_t value, uint32_t boundary);
@@ -303,6 +306,18 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
+            // one bit set in 'boundary'
+            for (int b = 0; b < 32; ++b) {
+                uint32_t boundary = static_cast<uint32_t>(1) << b;
+                ASSERT_SAFE_PASS(Util::roundUp(static_cast<uint32_t>(0),
+                                               boundary));
+            }
+            for (int b = 0; b < 64; ++b) {
+                uint64_t boundary = static_cast<uint64_t>(1) << b;
+                ASSERT_SAFE_PASS(Util::roundUp(static_cast<uint64_t>(0),
+                                               boundary));
+            }
+
             // less than one bit in 'boundary'
             ASSERT_SAFE_FAIL(Util::roundUp(static_cast<uint32_t>(0),
                                            static_cast<uint32_t>(0)));
@@ -323,25 +338,25 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 the methods correctly perform the calculations
-        //: 2 QoI: asserted precondition violations are detected when enabled
+        //: 1 The methods correctly perform the calculations.
+        //: 2 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 verify return value for input values 1 and 2
+        //: 1 Verify return value for input values 1 and 2.
         //:
-        //: 2 verify return value for input values 2^i - 1, 2^i, 2^i + 1 where
-        //:   i = 2 .. 30 for 'uint32_t' and i = 2 .. 62 for 'uint64_t'
+        //: 2 Verify return value for input values 2^i - 1, 2^i, 2^i + 1 where
+        //:   i = 2 .. 30 for 'uint32_t' and i = 2 .. 62 for 'uint64_t'.
         //:
-        //: 3 for 'roundUpToBinaryPower', verify behavior at input value 0
+        //: 3 For 'roundUpToBinaryPower', verify behavior at input value 0.
         //:
-        //: 4 verify return value for input values 2^x - 1, 2^x, 2^x + 1 where
-        //:   x = 31 for 'uint32_t' and x = 63 for 'uint64_t'
+        //: 4 Verify return value for input values 2^x - 1, 2^x, 2^x + 1 where
+        //:   x = 31 for 'uint32_t' and x = 63 for 'uint64_t'.
         //:
-        //: 5 verify return values when all bits are set in the input value
+        //: 5 Verify return values when all bits are set in the input value.
         //:   (C-1)
         //:
-        //: 6 verify defensive checks are triggered for invalid attribute
-        //:   values (C-2)
+        //: 6 Verify defensive checks are triggered for invalid attribute
+        //:   values.  (C-2)
         //
         // Testing:
         //   int log2(uint32_t value);
@@ -496,11 +511,11 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            uint32_t value32 = 0;  (void)value32;
-            uint64_t value64 = 0;  (void)value64;
+            ASSERT_SAFE_FAIL(Util::log2(static_cast<uint32_t>(0)));
+            ASSERT_SAFE_FAIL(Util::log2(static_cast<uint64_t>(0)));
 
-            ASSERT_SAFE_FAIL(Util::log2(value32));
-            ASSERT_SAFE_FAIL(Util::log2(value64));
+            ASSERT_SAFE_PASS(Util::log2(static_cast<uint32_t>(1)));
+            ASSERT_SAFE_PASS(Util::log2(static_cast<uint64_t>(1)));
         }
       } break;
       case 5: {
@@ -509,14 +524,14 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 methods correctly return the number of unset bits prior to a set
-        //:   bit for the specified direction
+        //: 1 Methods correctly return the number of unset bits prior to a set
+        //:   bit for the specified direction.
         //
         // Plan:
-        //: 1 verify return values for depth enumerated test vectors with known
-        //:   expected result
+        //: 1 Verify return values for depth enumerated test vectors with known
+        //:   expected result.
         //:
-        //: 2 verify result for case where all bits are set (C-1)
+        //: 2 Verify result for case where all bits are set.  (C-1)
         //
         // Testing:
         //   int numLeadingUnsetBits(uint32_t value);
@@ -640,13 +655,13 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 'numBitsSet' correctly returns the number of set bits
+        //: 1 'numBitsSet' correctly returns the number of set bits.
         //
         // Plan:
-        //: 1 verify return values for depth enumerated test vectors with known
-        //:   expected result
+        //: 1 Verify return values for depth enumerated test vectors with known
+        //:   expected result.
         //:
-        //: 2 verify result for case where all bits are set (C-1)
+        //: 2 Verify result for case where all bits are set.  (C-1)
         //
         // Testing:
         //   int numBitsSet(uint32_t value);
@@ -718,17 +733,17 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 the methods correctly adjust the bit in the specified index
-        //: 2 the methods do not adjust the bits in other index positions
-        //: 3 the methods work for all index positions
-        //: 4 QoI: asserted precondition violations are detected when enabled
+        //: 1 The methods correctly adjust the bit in the specified index.
+        //: 2 The methods do not adjust the bits in other index positions.
+        //: 3 The methods work for all index positions.
+        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 starting with the values 0 and all-bits-set, for every index
-        //:   perform both operations and verify the result values (C-1..3)
+        //: 1 Starting with the values 0 and all-bits-set, for every index
+        //:   perform both operations and verify the result values.  (C-1..3)
         //:
-        //: 2 verify defensive checks are triggered for invalid attribute
-        //:   values (C-4)
+        //: 2 Verify defensive checks are triggered for invalid attribute
+        //:   values.  (C-4)
         //
         // Testing:
         //   uint32_t withBitCleared(uint32_t value, int index);
@@ -856,15 +871,15 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 'isBitSet' correctly returns the state of the specified bit
-        //: 2 QoI: asserted precondition violations are detected when enabled
+        //: 1 'isBitSet' correctly returns the state of the specified bit.
+        //: 2 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 verify return values for depth enumerated test vectors with known
-        //:   expected result (C-1)
+        //: 1 Verify return values for depth enumerated test vectors with known
+        //:   expected result.  (C-1)
         //:
-        //: 2 verify defensive checks are triggered for invalid attribute
-        //:   values (C-2)
+        //: 2 Verify defensive checks are triggered for invalid attribute
+        //:   values.  (C-2)
         //
         // Testing:
         //   bool isBitSet(uint32_t value, int index);
@@ -979,10 +994,10 @@ int main(int argc, char *argv[])
         //   Ensure the methods return the expected value.
         //
         // Concerns:
-        //: 1 'sizeInBits' correctly returns the size of variables in bits
+        //: 1 'sizeInBits' correctly returns the size of variables in bits.
         //
         // Plan:
-        //: 1 verify results on various sized types (C-1)
+        //: 1 Verify results on various sized types.  (C-1)
         //
         // Testing:
         //   int sizeInBits(INTEGER value);

@@ -21,8 +21,8 @@ BSLS_IDENT("$Id: $")
 // be optimized with bitwise operations.
 //
 // Some of the methods provided in 'BitUtil' have other common names.  Below is
-// a list of mappings from the name used in 'BitUtil' to these related
-// function names:
+// a list of mappings from the name used in 'BitUtil' to these related function
+// names:
 //
 //: * numLeadingUnsetBits: cntlz, clz, ffs, ffo, nlz, ctlz
 //:
