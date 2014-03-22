@@ -141,6 +141,10 @@ struct BitUtil {
     };
 
     // PRIVATE CLASS METHODS
+    static int privateNumBitsSet(uint32_t value);
+    static int privateNumBitsSet(uint64_t value);
+        // Return the number of 1 bits in the specified 'value'.
+
     static int privateNumLeadingUnsetBits(uint32_t value);
     static int privateNumLeadingUnsetBits(uint64_t value);
         // Return the number of consecutive 0 bits starting from the
@@ -265,34 +269,7 @@ int BitUtil::numBitsSet(uint32_t value)
 #elif defined(BSLS_PLATFORM_CMP_GNU)
     return __builtin_popcount(value);
 #else
-
-    // First we use a tricky way of getting every 2-bit half-nibble to
-    // represent the number of bits that were set in those two bits.
-
-    value -= (value >> 1) & 0x55555555;
-
-    // Henceforth, we just accumulate the sum down into lower and lower bits.
-
-    {
-        const int mask = 0x33333333;
-        value = ((value >> 2) & mask) + (value & mask);
-    }
-
-    // Any 4-bit nibble is now guaranteed to be '<= 4', so we don't have to
-    // mask both sides of the addition.  We must mask after the addition so
-    // 8-bit bytes are the sum of bits in those 8 bits.
-
-    value = ((value >> 4) + value) & 0x0f0f0f0f;
-
-    // It is no longer necessary to mask the additions, because it is
-    // impossible for any bit groups to add up to more than 256 and carry, thus
-    // interfering with adjacent groups.  Each 8-bit byte is independent from
-    // now on.
-
-    value = (value >>  8) + value;
-    value = (value >> 16) + value;
-
-    return value & 0x000000ff;
+    return privateNumBitsSet(value);
 #endif
 }
 
@@ -304,35 +281,7 @@ int BitUtil::numBitsSet(uint64_t value)
 #elif defined(BSLS_PLATFORM_CMP_GNU)
     return __builtin_popcountll(value);
 #else
-
-    // First we use a tricky way of getting every 2-bit half-nibble to
-    // represent the number of bits that were set in those two bits.
-
-    value -= (value >> 1) & 0x5555555555555555LL;
-
-    // Henceforth, we just accumulate the sum down into lower and lower bits.
-
-    {
-        const uint64_t mask = 0x3333333333333333LL;
-        value = ((value >> 2) & mask) + (value & mask);
-    }
-
-    // Any 4-bit nibble is now guaranteed to be '<= 4', so we don't have to
-    // mask both sides of the addition.  We must mask after the addition so
-    // 8-bit bytes are the sum of bits in those 8 bits.
-
-    value = ((value >> 4) + value) & 0x0f0f0f0f0f0f0f0fLL;
-
-    // It is no longer necessary to mask the additions, because it is
-    // impossible for any bit groups to add up to more than 256 and carry, thus
-    // interfering with adjacent groups.  Each 8-bit byte is independent from
-    // now on.
-
-    value = (value >>  8) + value;
-    value = (value >> 16) + value;
-    value = (value >> 32) + value;
-
-    return static_cast<int>(value & 0xff);
+    return privateNumBitsSet(value);
 #endif
 }
 
