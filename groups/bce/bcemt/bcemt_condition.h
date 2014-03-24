@@ -186,9 +186,9 @@ class bcemt_Condition {
 
   public:
     // CREATORS
-    bcemt_Condition();
     explicit
-    bcemt_Condition(bdetu_SystemClockType::Type clockType);
+    bcemt_Condition(bdetu_SystemClockType::Type clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
         // Create a condition variable object.  Optionally specify a
         // 'clockType' indicating the type of the system clock against which
         // the 'bdet_TimeInterval' timeouts passed to the 'timedWait' method
@@ -251,12 +251,6 @@ class bcemt_Condition {
                            // ---------------------
 
 // CREATORS
-inline
-bcemt_Condition::bcemt_Condition()
-: d_imp()
-{
-}
-
 inline
 bcemt_Condition::bcemt_Condition(bdetu_SystemClockType::Type clockType)
 : d_imp(clockType)

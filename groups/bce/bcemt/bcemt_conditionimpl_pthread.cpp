@@ -34,7 +34,8 @@ public:
         // Create the 'pthread_condattr_t' structure and initialize it with the
         // specified 'clockType'.
     {
-        pthread_condattr_init(&d_attr);
+        int rc = pthread_condattr_init(&d_attr);
+        (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on ENOMEM
 
         clockid_t clockId;
         switch (clockType) {
@@ -48,13 +49,16 @@ public:
             BSLS_ASSERT_OPT("Invalid ClockType parameter value" && 0);
         }
 
-        pthread_condattr_setclock(&d_attr, clockId);
+        rc = pthread_condattr_setclock(&d_attr, clockId);
+        (void) rc; BSLS_ASSERT(0 == rc);  // only documented failure is for bad
+                                          // input
     }
 
     ~CondAttr()
         // Destroy the 'pthread_condattr_t' structure.
     {
-        pthread_condattr_destroy(&d_attr);
+        int rc = pthread_condattr_destroy(&d_attr);
+        (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on invalid 'd_attr'
     }
 
     const pthread_condattr_t & conditonAttributes() const
@@ -72,7 +76,8 @@ void initializeCondition(pthread_cond_t              *cond,
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     (void) clockType;
-    pthread_cond_init(cond, 0);
+    int rc = pthread_cond_init(cond, 0);
+    (void) rc; BSLS_ASSERT(0 == rc);
 #else
     CondAttr attr(clockType);
     int rc = pthread_cond_init(cond, &attr.conditonAttributes());
@@ -100,6 +105,12 @@ int bcemt_ConditionImpl<bces_Platform::PosixThreads>::timedWait(
                                              const bdet_TimeInterval&  timeout)
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
+    // This implementation is very sensitive to the 'd_clockType'.  For
+    // safety, we will assert the value is one of the two currently expected
+    // values.
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == d_clockType
+                || bdetu_SystemClockType::e_MONOTONIC == d_clockType);
+
     bdet_TimeInterval realTimeout(timeout);
 
     if (d_clockType != bdetu_SystemClockType::e_REALTIME) {

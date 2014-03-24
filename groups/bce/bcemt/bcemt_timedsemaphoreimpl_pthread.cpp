@@ -43,7 +43,8 @@ public:
         // Create the 'pthread_condattr_t' structure and initialize it with the
         // specified 'clockType'.
     {
-        pthread_condattr_init(&d_attr);
+        int rc = pthread_condattr_init(&d_attr);
+        (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on ENOMEM
 
         clockid_t clockId;
         switch (clockType) {
@@ -63,7 +64,8 @@ public:
     ~CondAttr()
         // Destroy the 'pthread_condattr_t' structure.
     {
-        pthread_condattr_destroy(&d_attr);
+        int rc = pthread_condattr_destroy(&d_attr);
+        (void) rc; BSLS_ASSERT(0 == rc);  // can only fail on invalid 'd_attr'
     }
 
     const pthread_condattr_t& conditonAttributes() const
@@ -83,7 +85,8 @@ void initializeCondition(pthread_cond_t              *cond,
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
     (void) clockType;
-    pthread_cond_init(cond, 0);
+    int rc = pthread_cond_init(cond, 0);
+    (void) rc; BSLS_ASSERT(0 == rc);
 #else
     CondAttr attr(clockType);
     int rc = pthread_cond_init(cond, &attr.conditonAttributes());

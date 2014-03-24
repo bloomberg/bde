@@ -93,9 +93,9 @@ class bcemt_ConditionImpl<bces_Platform::Win32Threads> {
 
   public:
     // CREATORS
-    bcemt_ConditionImpl();
     explicit
-    bcemt_ConditionImpl(bdetu_SystemClockType::Type clockType);
+    bcemt_ConditionImpl(bdetu_SystemClockType::Type clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
         // Create a condition variable object.  Optionally specify a
         // 'clockType' indicating the type of the system clock against which
         // the 'bdet_TimeInterval' timeouts passed to the 'timedWait' method
@@ -156,14 +156,6 @@ class bcemt_ConditionImpl<bces_Platform::Win32Threads> {
              // ------------------------------------------------------
 
 // CREATORS
-inline
-bcemt_ConditionImpl<bces_Platform::Win32Threads>::bcemt_ConditionImpl()
-: d_waitSluice(&bslma::MallocFreeAllocator::singleton())
-{
-    // We use the malloc/free allocator singleton so as not to produce "noise"
-    // in any tests involving the global allocator or global new/delete.
-}
-
 inline
 bcemt_ConditionImpl<bces_Platform::Win32Threads>::bcemt_ConditionImpl(
                                          bdetu_SystemClockType::Type clockType)

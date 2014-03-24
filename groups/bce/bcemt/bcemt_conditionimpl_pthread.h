@@ -106,9 +106,9 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
 
   public:
     // CREATORS
-    bcemt_ConditionImpl();
     explicit
-    bcemt_ConditionImpl(bdetu_SystemClockType::Type clockType);
+    bcemt_ConditionImpl(bdetu_SystemClockType::Type clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
         // Create a condition variable object.  Optionally specify a
         // 'clockType' indicating the type of the system clock against which
         // the 'bdet_TimeInterval' timeouts passed to the 'timedWait' method
@@ -169,15 +169,6 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
              // ------------------------------------------------------
 
 // CREATORS
-inline
-bcemt_ConditionImpl<bces_Platform::PosixThreads>::bcemt_ConditionImpl()
-#ifdef BSLS_PLATFORM_OS_DARWIN
-: d_clockType(bdetu_SystemClockType::e_REALTIME)
-#endif
-{
-    pthread_cond_init(&d_cond, 0);
-}
-
 inline
 bcemt_ConditionImpl<bces_Platform::PosixThreads>::~bcemt_ConditionImpl()
 {
