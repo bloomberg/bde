@@ -58,8 +58,6 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-///Usage
-///-----
 // In this section we show intended use of this component.
 //
 ///Example 1: Direct look at metafunction results
@@ -113,7 +111,7 @@ BSLS_IDENT("$Id: $")
 // This example illustrates the use of 'ForwardingType' to efficiently
 // implement a wrapper class that holds a function pointer and logs information
 // about each call to the pointed-to-function through the wrapper.  The
-// pointed-to-function takes three arguments whose types a4re specified via
+// pointed-to-function takes three arguments whose types are specified via
 // template arguments.  The first argument is required to be convertible to
 // 'int'.  The class definition looks as follows:
 //..
@@ -304,11 +302,11 @@ struct ForwardingTypeUtil;
 template <class TYPE, int CATEGORY, bool IS_REFERENCE>
 struct ForwardingType_Imp;
 
-                        // ============================
-                        // class ForwardingTypeDispatch
-                        // ============================
+                        // =============================
+                        // class ForwardingType_Dispatch
+                        // =============================
 
-struct ForwardingTypeDispatch {
+struct ForwardingType_Dispatch {
     // Namespace for type dispatch categories
 
     enum {
@@ -326,11 +324,13 @@ struct ForwardingTypeDispatch {
 
 template <class TYPE>
 struct ForwardingType {
-    // This template metafunction has a member 'Type' computed such that is used to specialize 'TYPE' such that arguments of type
-    // 'TYPE' can be efficiently forwarded by reference or pointer.
-
-    // Inheritance is used just to make the 'ForwardingType_Category' enum
-    // visible without qualification.
+    // This template metafunction has a member 'Type' computed such that, for a
+    // specified 'TYPE' paramter, a function with argument of 'TYPE' can be
+    // called efficiently from another function (e.g., a wrapper) by declaring
+    // the corresponding parameter of the other wrapper as
+    // 'ForwardingType<TYPE>::Type'. The 'Type' member is computed to minimize
+    // the number of expensive copies while forwarding the arguments as
+    // faithfully as possible.
 
 private:
     typedef typename bsl::remove_reference<TYPE>::type UnrefType;
@@ -339,18 +339,18 @@ private:
         k_IS_REFERENCE = bsl::is_reference<TYPE>::value,
 
         k_CATEGORY = (bsl::is_function<UnrefType>::value    ?
-                                         ForwardingTypeDispatch::e_FUNCTION   :
+                                         ForwardingType_Dispatch::e_FUNCTION   :
                       bsl::is_array<UnrefType>::value       ?
-                                         ForwardingTypeDispatch::e_ARRAY      :
+                                         ForwardingType_Dispatch::e_ARRAY      :
                       bsl::is_rvalue_reference<TYPE>::value ?
-                                         ForwardingTypeDispatch::e_RVALUE_REF :
+                                         ForwardingType_Dispatch::e_RVALUE_REF :
                       bsl::is_fundamental<TYPE>::value ||
                       bsl::is_pointer<TYPE>::value ||
                       bsl::is_member_pointer<TYPE>::value ||
                       IsFunctionPointer<TYPE>::value ||
                       bsl::is_enum<TYPE>::value             ?
-                                         ForwardingTypeDispatch::e_BASIC      :
-                                         ForwardingTypeDispatch::e_CLASS)
+                                         ForwardingType_Dispatch::e_BASIC      :
+                                         ForwardingType_Dispatch::e_CLASS)
     };
 
     typedef ForwardingType_Imp<UnrefType, k_CATEGORY, k_IS_REFERENCE> Imp;
@@ -400,7 +400,7 @@ struct ForwardingTypeUtil {
 
 template <class TYPE>
 struct ConstForwardingType : public ForwardingType<TYPE> {
-    //@DEPRECATED: Use 'ForwardingType' instead.
+    //!DEPRECATED!: Use 'ForwardingType' instead.
 };
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -429,7 +429,7 @@ ForwardingTypeUtil<TYPE>::forwardToTarget(
 // PARTIAL SPECIALIZATIONS
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingTypeDispatch::e_RVALUE_REF, true>
+                          ForwardingType_Dispatch::e_RVALUE_REF, true>
 {
     // Rvalue reference is forwarded as a reference to const lvalue.
 
@@ -448,7 +448,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 
 template <class UNREF_TYPE, bool IS_REFERENCE>
 struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingTypeDispatch::e_FUNCTION, IS_REFERENCE>
+                          ForwardingType_Dispatch::e_FUNCTION, IS_REFERENCE>
 {
     // Function and function reference is forwarded as function reference.
 
@@ -461,7 +461,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 
 template <class UNREF_TYPE, std::size_t NUM_ELEMENTS, bool IS_REFERENCE>
 struct ForwardingType_Imp<UNREF_TYPE [NUM_ELEMENTS],
-                          ForwardingTypeDispatch::e_ARRAY, IS_REFERENCE>
+                          ForwardingType_Dispatch::e_ARRAY, IS_REFERENCE>
 {
     // Array of known size and reference to array of known size is forwarded as
     // pointer to array element type.
@@ -475,7 +475,7 @@ struct ForwardingType_Imp<UNREF_TYPE [NUM_ELEMENTS],
 
 template <class UNREF_TYPE, bool IS_REFERENCE>
 struct ForwardingType_Imp<UNREF_TYPE [],
-                          ForwardingTypeDispatch::e_ARRAY, IS_REFERENCE> {
+                          ForwardingType_Dispatch::e_ARRAY, IS_REFERENCE> {
     // Array of unknown size and reference to array of unknown size is
     // forwarded as pointer to array element type.
 
@@ -489,7 +489,7 @@ struct ForwardingType_Imp<UNREF_TYPE [],
 
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingTypeDispatch::e_BASIC, false> {
+                          ForwardingType_Dispatch::e_BASIC, false> {
     // Rvalue of basic type is forwarded with cvq removed.
 
     typedef typename bsl::remove_cv<UNREF_TYPE>::type Type;
@@ -502,7 +502,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingTypeDispatch::e_BASIC, true> {
+                          ForwardingType_Dispatch::e_BASIC, true> {
     // Lvalue reference to basic type is forwarded unchanged.
 
     typedef UNREF_TYPE& Type;
@@ -514,7 +514,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingTypeDispatch::e_CLASS, false> {
+                          ForwardingType_Dispatch::e_CLASS, false> {
     // Rvalue of user type (i.e., class or union) is forwarded as a const
     // reference.
 
@@ -541,7 +541,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingTypeDispatch::e_CLASS, true> {
+                          ForwardingType_Dispatch::e_CLASS, true> {
     typedef UNREF_TYPE& Type;
     typedef UNREF_TYPE& TargetType;
     static TargetType forwardToTarget(Type v)
@@ -576,7 +576,7 @@ struct ForwardingType_Imp<UNREF_TYPE,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
