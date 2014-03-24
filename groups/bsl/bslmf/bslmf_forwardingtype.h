@@ -58,6 +58,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+///Usage
+///-----
 // In this section we show intended use of this component.
 //
 ///Example 1: Direct look at metafunction results
@@ -69,6 +71,7 @@ BSLS_IDENT("$Id: $")
 //  typedef MyType& MyTypeRef;
 //
 //  void main()
+//      // Usage example.
 //  {
 //      typedef int                    T1;
 //      typedef int&                   T2;
@@ -110,7 +113,7 @@ BSLS_IDENT("$Id: $")
 // This example illustrates the use of 'ForwardingType' to efficiently
 // implement a wrapper class that holds a function pointer and logs information
 // about each call to the pointed-to-function through the wrapper.  The
-// pointed-to-function takes three arguments whose types are specified via
+// pointed-to-function takes three arguments whose types a4re specified via
 // template arguments.  The first argument is required to be convertible to
 // 'int'.  The class definition looks as follows:
 //..
@@ -125,6 +128,7 @@ BSLS_IDENT("$Id: $")
 //
 //  public:
 //      LoggingWrapper(RET (*function_p)(ARG1, ARG2, ARG3))
+//          // Construct wrapper to specified 'function_p' pointer.
 //        : d_function_p(function_p) { }
 //
 //      RET operator()(ARG1, ARG2, ARG3) const;
@@ -142,6 +146,7 @@ BSLS_IDENT("$Id: $")
 //      RET invoke(typename bslmf::ForwardingType<ARG1>::Type a1,
 //                 typename bslmf::ForwardingType<ARG2>::Type a2,
 //                 typename bslmf::ForwardingType<ARG3>::Type a3) const;
+//          // Invoke the wrapped function.
 //  };
 //..
 // Next, we define logging functions that simply count the number of
@@ -150,7 +155,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  int invocations = 0, returns = 0;
 //  void logInvocation(int /* ignored */) { ++invocations; }
+//      // Log the invocation of the wrapped function.
 //  void logReturn(int /* ignored */) { ++returns; }
+//      // Log a return from the wrapped function.
 //..
 // Next, we implement 'operator()' to call the logging functions and call
 // 'invoke()':
@@ -192,17 +199,26 @@ BSLS_IDENT("$Id: $")
 //      int d_value;
 //      int d_copies;
 //  public:
-//      ArgType(int v = 0) : d_value(v), d_copies(0) { }
+//      explicit ArgType(int v = 0) : d_value(v), d_copies(0) { }
+//          // Construct. Optionally specify 'v'.
+//
 //      ArgType(const ArgType& other)
+//          // Copy-construct from the specified 'other'.
 //        : d_value(other.d_value)
 //        , d_copies(other.d_copies + 1) { }
 //
-//      int value() const { return d_value; }
 //      int copies() const { return d_copies; }
+//          // Return the number of copies that this object is from the
+//          // original.
+//
+//      int value() const { return d_value; }
+//          // Return the value of this object.
 //  };
 //
 //  int myFunc(const short& i, ArgType& x, ArgType y)
-//      // Assign 'x' the value of 'y' and return the 'value()' of 'x'.
+//      // Assign the specified 'x' the value of the specified 'y' and return
+//      // the 'value()' of 'x'.  Verify that the specified 'i' matches
+//      // 'y.copies()'.
 //  {
 //      assert(i == y.copies());
 //      x = y;
@@ -217,7 +233,9 @@ BSLS_IDENT("$Id: $")
 // 'ArgType' had a move constructor, then the number of copies would be only 1,
 // since the final forwarding would be a move instead of a copy.
 //..
-//  void main() {
+//  void main()
+//      // Usage Example
+//  {
 //      ArgType x(0);
 //      ArgType y(99);
 //
@@ -233,8 +251,20 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISARRAY
+#include <bslmf_isarray.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -243,14 +273,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNCTION
-#include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISARRAY
-#include <bslmf_isarray.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
@@ -263,10 +285,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_CONDITIONAL
-#include <bslmf_conditional.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -363,16 +381,15 @@ struct ForwardingTypeUtil {
 
     static TargetType
     forwardToTarget(typename ForwardingType<TYPE>::Type v);
-        // Return 'std::forward<TYPE>(v)' for the specified 'v' argument of
-        // type 'ForwardingType<TYPE>::Type', where 'v' is assumed to
-        // originally have been an argument of 'TYPE' after forwarding through
-        // an intermediate call chain.  Specifically, if 'TYPE' is an rvalue
-        // type, return an rvalue reference to 'v', otherwise return 'v'
-        // unchanged, thus converting an rvalue copy into an rvalue move when
-        // possible.  For compilers that do not supprt rvalue references,
-        // return 'v' unchanged.  This function is intended to be called to
-        // forward an argument to the final target function of a forwarding
-        // call chain.
+        // Return (for the specified 'v' parameter) 'std::forward<TYPE>(v)',
+        // where 'v' is assumed to originally have been an argument of 'TYPE'
+        // after forwarding through an intermediate call chain.  Specifically,
+        // if 'TYPE' is an rvalue type, return an rvalue reference to 'v',
+        // otherwise return 'v' unchanged, thus converting an rvalue copy into
+        // an rvalue move when possible.  For compilers that do not supprt
+        // rvalue references, return 'v' unchanged.  This function is intended
+        // to be called to forward an argument to the final target function of
+        // a forwarding call chain.
 };
 
                         // =========================
@@ -383,8 +400,7 @@ struct ForwardingTypeUtil {
 
 template <class TYPE>
 struct ConstForwardingType : public ForwardingType<TYPE> {
-    // @DEPRECATED
-    // Use 'ForwardingType' instead.
+    //@DEPRECATED: Use 'ForwardingType' instead.
 };
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -392,6 +408,9 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 // ============================================================================
 //                           IMPLEMENTATION
 // ============================================================================
+
+#pragma bdeverify push  // Relax some bdeverify rules in the imp section
+#pragma bdeverify -CD01 // Allow member function defind in class definition
 
 template <class TYPE>
 inline typename ForwardingTypeUtil<TYPE>::TargetType
@@ -531,20 +550,12 @@ struct ForwardingType_Imp<UNREF_TYPE,
 };
 
 }  // close package namespace
+}  // close enterprise namespace
 
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ============================================================================
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
-
-#ifdef bslmf_ConstForwardingType
-#undef bslmf_ConstForwardingType
-#endif
-#pragma bdeverify push
-#pragma bdeverify -SLM01 // Non-standard macro leaks from header
-#define bslmf_ConstForwardingType bslmf::ConstForwardingType
-    // This alias is defined for backward compatibility.
-#pragma bdeverify pop
 
 #ifdef bslmf_ForwardingType
 #undef bslmf_ForwardingType
@@ -553,7 +564,14 @@ struct ForwardingType_Imp<UNREF_TYPE,
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
-}  // close enterprise namespace
+#ifdef bslmf_ConstForwardingType
+#undef bslmf_ConstForwardingType
+#endif
+#pragma bdeverify -SLM01 // Allow non-standard macro to leak from header
+#define bslmf_ConstForwardingType bslmf::ConstForwardingType
+    // This alias is defined for backward compatibility.
+
+#pragma bdeverify pop // Restore bdeverify rules
 
 #endif
 
