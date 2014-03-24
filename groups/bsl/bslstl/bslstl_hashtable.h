@@ -1522,6 +1522,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -1949,15 +1953,22 @@ class HashTable {
     // Note that all methods of 'ImplParameters' are implemented inline because
     // out-of-line implementations cause an ICE in the MSVC++ 2008 compiler.
 
+  public:  // TBD made public for testing purposes only
     struct ImplParameters : private BaseHasher, private BaseComparator
     {
         // This class holds all the parameterized parts of a 'HashTable' class,
         // efficiently exploiting the empty base optimization without adding
         // unforeseen namespace associations to the 'HashTable' class itself
-        // due to the structural inheritance.
-        //
+        // due to the structural inheritance.  Note that it must use a nested
+        // traits declaration as there is no valid C++ syntax to specialize a
+        // nested type of a class template.
 
-      private:
+        BSLMF_NESTED_TRAIT_DECLARATION_IF(
+                  ImplParameters,
+                  bslma::UsesBslmaAllocator,
+                  (bsl::is_convertible<bslma::Allocator *, ALLOCATOR>::value));
+
+     private:
         // NOT IMPLEMENTED
         ImplParameters(const ImplParameters&); // = delete;
         ImplParameters& operator=(const ImplParameters&); // = delete;
@@ -4323,15 +4334,6 @@ struct UsesBslmaAllocator<bslstl::HashTable<KEY_CONFIG,
                                             HASHER,
                                             COMPARATOR,
                                             ALLOCATOR> >
-: bsl::is_convertible<Allocator*, ALLOCATOR>::type
-{};
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-struct UsesBslmaAllocator<typename bslstl::HashTable<KEY_CONFIG,
-                                                     HASHER,
-                                                     COMPARATOR,
-                                                     ALLOCATOR>::
-                                                                ImplParameters>
 : bsl::is_convertible<Allocator*, ALLOCATOR>::type
 {};
 

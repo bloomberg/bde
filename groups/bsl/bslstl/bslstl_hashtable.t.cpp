@@ -11171,6 +11171,33 @@ void mainTestCaseUsageExample()
 }
 
 //=============================================================================
+//                            STATIC ASSERTIONS
+//-----------------------------------------------------------------------------
+namespace static_assertions {
+
+typedef bslstl::HashTable<BasicKeyConfig<int>,
+                          ::bsl::hash<int>,
+                          ::bsl::equal_to<int> > TestAsTrue1;
+
+typedef bslstl::HashTable<BasicKeyConfig<int>,
+                          ::bsl::hash<int>,
+                          ::bsl::equal_to<int>,
+                          bsltf::StdTestAllocator<int> > TaseAsFalse;
+
+typedef bslstl::HashTable<BasicKeyConfig<int>,
+                          ::bsl::hash<int>,
+                          ::bsl::equal_to<int>,
+                          bsltf::StdStatefulAllocator<int,
+                                                      true,
+                                                      false,
+                                                      false,
+                                                      false> > TestAsFalse2;
+
+BSLMF_ASSERT(bslma::UsesBslmaAllocator<TestAsTrue1::ImplParameters>::value);
+BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TaseAsFalse::ImplParameters>::value);
+BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TestAsFalse2::ImplParameters>::value);
+}
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
