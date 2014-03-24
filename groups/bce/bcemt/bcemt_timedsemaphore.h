@@ -28,12 +28,25 @@ BDES_IDENT("$Id: $")
 // implemented efficiently on all platforms, so that method is *intentionally*
 // not provided.
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // This example illustrates a very simple queue where potential clients can
 // push integers to a queue, and later retrieve the integer values from the
-// queue in FIFO order.  It illustrates two potential uses of semaphores:
-// to enforce exclusive access, and to allow resource sharing.
+// queue in FIFO order.  It illustrates two potential uses of semaphores: to
+// enforce exclusive access, and to allow resource sharing.
 //..
 //  class IntQueue {
 //      // FIFO queue of integer values.
@@ -163,7 +176,7 @@ class bcemt_TimedSemaphore {
         // specify a 'clockType' indicating the type of the system clock
         // against which the 'bdet_TimeInterval' timeouts passed to the
         // 'timedWait' method are to be interpreted.  If 'clockType' is not
-        // specified then the realtime system clock is assumed.
+        // specified then the realtime system clock is used.
 
     explicit
     bcemt_TimedSemaphore(int                         count,
@@ -173,7 +186,7 @@ class bcemt_TimedSemaphore {
         // Optionally specify a 'clockType' indicating the type of the system
         // clock against which the 'bdet_TimeInterval' timeouts passed to the
         // 'timedWait' method are to be interpreted.  If 'clockType' is not
-        // specified then the realtime system clock is assumed.
+        // specified then the realtime system clock is used.
 
     ~bcemt_TimedSemaphore();
         // Destroy this timed semaphore.
@@ -188,11 +201,13 @@ class bcemt_TimedSemaphore {
 
     int timedWait(const bdet_TimeInterval& timeout);
         // Block until the count of this semaphore is a positive value, or
-        // until the specified 'timeout' expires.  The 'timeout' value should
-        // be obtained from the clock type this object was constructed with.
-        // If the 'timeout' did not expire before the count attained a positive
-        // value, atomically decrement the count and return 0; otherwise,
-        // return a non-zero value with no effect on the count.
+        // until the specified 'timeout' expires.  The 'timeout' is an absolute
+        // time represented as an interval from some epoch, which is detemined
+        // by the clock indicated at construction (see {Supported Clock-Types}
+        // in the component documentation).  If the 'timeout' did not expire
+        // before the count attained a positive value, atomically decrement the
+        // count and return 0; otherwise, return a non-zero value with no
+        // effect on the count.
 
     int tryWait();
         // If the count of this timed semaphore is positive, atomically
@@ -204,9 +219,9 @@ class bcemt_TimedSemaphore {
         // then atomically decrement the count and return.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // --------------------------
                          // class bcemt_TimedSemaphore
@@ -268,11 +283,11 @@ void bcemt_TimedSemaphore::wait()
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

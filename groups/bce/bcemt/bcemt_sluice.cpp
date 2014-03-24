@@ -173,32 +173,6 @@ int bcemt_Sluice::timedWait(const void               *token,
     }
 }
 
-void bcemt_Sluice::signalOne()
-{
-    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
-
-    GenerationDescriptor *g = d_signaledGeneration;
-    if (0 == g) {
-        g = d_pendingGeneration;
-        if (0 == g) {
-            // There are no threads to signal.  We are done.
-            return;
-        }
-        d_signaledGeneration = g;
-        d_pendingGeneration  = 0;
-    }
-
-    const int numThreads  = g->d_numThreads;
-    const int numSignaled = ++g->d_numSignaled;
-
-    if (numThreads == numSignaled) {
-        d_signaledGeneration = 0;
-    }
-
-    lock.release()->unlock();
-    g->d_sema.post();
-}
-
 void bcemt_Sluice::signalAll()
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
@@ -232,6 +206,32 @@ void bcemt_Sluice::signalAll()
     if (p) {
         p->d_sema.post(pcount);
     }
+}
+
+void bcemt_Sluice::signalOne()
+{
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
+    GenerationDescriptor *g = d_signaledGeneration;
+    if (0 == g) {
+        g = d_pendingGeneration;
+        if (0 == g) {
+            // There are no threads to signal.  We are done.
+            return;
+        }
+        d_signaledGeneration = g;
+        d_pendingGeneration  = 0;
+    }
+
+    const int numThreads  = g->d_numThreads;
+    const int numSignaled = ++g->d_numSignaled;
+
+    if (numThreads == numSignaled) {
+        d_signaledGeneration = 0;
+    }
+
+    lock.release()->unlock();
+    g->d_sema.post();
 }
 
 }  // close namespace BloombergLP

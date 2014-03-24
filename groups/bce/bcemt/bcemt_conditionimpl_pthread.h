@@ -24,6 +24,19 @@ BDES_IDENT("$Id: $")
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bcemt_Condition'.
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // This component is an implementation detail of 'bcemt' and is *not* intended
@@ -76,9 +89,9 @@ class bdet_TimeInterval;
 
 template <>
 class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
-    // This class provides a full specialization of 'bcemt_Condition'
-    // for pthreads.  The implementation provided here defines an efficient
-    // proxy for the 'pthread_cond_t' pthread type, and related operations.
+    // This class provides a full specialization of 'bcemt_Condition' for
+    // pthreads.  The implementation provided here defines an efficient proxy
+    // for the 'pthread_cond_t' pthread type, and related operations.
 
     // DATA
     pthread_cond_t d_cond;  // provides post/wait for condition
@@ -100,7 +113,7 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
         // 'clockType' indicating the type of the system clock against which
         // the 'bdet_TimeInterval' timeouts passed to the 'timedWait' method
         // are to be interpreted.  If 'clockType' is not specified then the
-        // realtime system clock is assumed.
+        // realtime system clock is used.
 
     ~bcemt_ConditionImpl();
         // Destroy condition variable this object.
@@ -119,29 +132,37 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
         // current thread until this condition object is "signaled" (i.e., one
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
         // until the specified 'timeout', then re-acquire a lock on the
-        // 'mutex'.  The 'timeout' value should be obtained from the clock type
-        // this object was constructed with.  Return 0 on success, -1 on
-        // timeout, and a non-zero value different from -1 if an error occurs.
-        // The behavior is undefined unless 'mutex' is locked by the calling
-        // thread prior to calling this method.  Note that 'mutex' remains
-        // locked by the calling thread upon returning from this function with
-        // success or timeout, but is *not* guaranteed to remain locked
-        // otherwise.  Also note that spurious wakeups are rare but possible,
-        // i.e., this method may succeed (return 0) and return control to the
-        // thread without the condition object being signaled.
+        // 'mutex'.  The 'timeout' is an absolute time represented as an
+        // interval from some epoch, which is detemined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).  Return 0 on success, -1 on timeout, and a non-zero
+        // value different from -1 if an error occurs.  The behavior is
+        // undefined unless 'mutex' is locked by the calling thread prior to
+        // calling this method.  Note that 'mutex' remains locked by the
+        // calling thread upon returning from this function with success or
+        // timeout, but is *not* guaranteed to remain locked otherwise.  Also
+        // note that spurious wakeups are rare but possible, i.e., this method
+        // may succeed (return 0) and return control to the thread without the
+        // condition object being signaled.
 
     int wait(bcemt_Mutex *mutex);
-        // Atomically unlock the specified 'mutex' and suspend execution of
-        // current thread until this condition object is "signaled"('signal',
-        // 'broadcast') then re-acquire the lock on the specified 'mutex', and
-        // return 0 upon success and non-zero otherwise.  Note that the
-        // behavior is undefined unless specified 'mutex' is locked by the
-        // calling thread prior to calling this method.
+        // Atomically unlock the specified 'mutex' and suspend execution of the
+        // current thread until this condition object is "signaled" (i.e.,
+        // either 'signal' or 'broadcast' is invoked on this object in another
+        // thread), then re-acquire a lock on the 'mutex'.  Return 0 on
+        // success, and a non-zero value otherwise.  Spurious wakeups are rare
+        // but possible; i.e., this method may succeed (return 0), and return
+        // control to the thread without the condition object being signaled.
+        // The behavior is undefined unless 'mutex' is locked by the calling
+        // thread prior to calling this method.  Note that 'mutex' remains
+        // locked by the calling thread upon successfully returning from this
+        // function, but is *not* guaranteed to remain locked if an error
+        // occurs.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
              // ------------------------------------------------------
              // class bcemt_ConditionImpl<bces_Platform::PosixThreads>
@@ -188,11 +209,11 @@ int bcemt_ConditionImpl<bces_Platform::PosixThreads>::wait(bcemt_Mutex *mutex)
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -59,6 +59,19 @@ BDES_IDENT("$Id: $")
 // waiting thread should always check the predicate *after* (as well as before)
 // the call to the 'wait' function.
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // Suppose we have a 'bcemt_Condition' object, 'condition', and a boolean
@@ -180,7 +193,7 @@ class bcemt_Condition {
         // 'clockType' indicating the type of the system clock against which
         // the 'bdet_TimeInterval' timeouts passed to the 'timedWait' method
         // are to be interpreted.  If 'clockType' is not specified then the
-        // realtime system clock is assumed.
+        // realtime system clock is used.
 
     ~bcemt_Condition();
         // Destroy this condition variable object.
@@ -201,16 +214,18 @@ class bcemt_Condition {
         // current thread until this condition object is "signaled" (i.e., one
         // of the 'signal' or 'broadcast' methods is invoked on this object) or
         // until the specified 'timeout', then re-acquire a lock on the
-        // 'mutex'.  The 'timeout' value should be obtained from the clock type
-        // this object was constructed with.  Return 0 on success, -1 on
-        // timeout, and a non-zero value different from -1 if an error occurs.
-        // The behavior is undefined unless 'mutex' is locked by the calling
-        // thread prior to calling this method.  Note that 'mutex' remains
-        // locked by the calling thread upon returning from this function with
-        // success or timeout, but is *not* guaranteed to remain locked
-        // otherwise.  Also note that spurious wakeups are rare but possible,
-        // i.e., this method may succeed (return 0) and return control to the
-        // thread without the condition object being signaled.
+        // 'mutex'.  The 'timeout' is an absolute time represented as an
+        // interval from some epoch, which is detemined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).  Return 0 on success, -1 on timeout, and a non-zero
+        // value different from -1 if an error occurs.  The behavior is
+        // undefined unless 'mutex' is locked by the calling thread prior to
+        // calling this method.  Note that 'mutex' remains locked by the
+        // calling thread upon returning from this function with success or
+        // timeout, but is *not* guaranteed to remain locked otherwise.  Also
+        // note that spurious wakeups are rare but possible, i.e., this method
+        // may succeed (return 0) and return control to the thread without the
+        // condition object being signaled.
 
     int wait(bcemt_Mutex *mutex);
         // Atomically unlock the specified 'mutex' and suspend execution of the
@@ -227,9 +242,9 @@ class bcemt_Condition {
         // occurs.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                            // ---------------------
                            // class bcemt_Condition
@@ -283,11 +298,11 @@ int bcemt_Condition::wait(bcemt_Mutex *mutex)
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

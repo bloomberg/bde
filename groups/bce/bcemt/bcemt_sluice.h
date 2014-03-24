@@ -26,6 +26,19 @@ BDES_IDENT("$Id: $")
 // guarantee against starvation; newly-entering threads will not indefinitely
 // prevent threads that previously entered from being signaled.
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // 'bcemt_Sluice' is intended to be used to implement other synchronization
@@ -104,8 +117,8 @@ class bcemt_Sluice {
         // for returning the descriptor to the pool.
 
         // DATA
-        int                   d_numThreads;   // number of threads entered,
-                                              // but not yet finished waiting
+        int                   d_numThreads;   // number of threads entered, but
+                                              // not yet finished waiting
 
         int                   d_numSignaled;  // number of threads signaled,
                                               // but not yet finished waiting
@@ -157,10 +170,10 @@ class bcemt_Sluice {
         // Create a sluice.  Optionally specify a 'clockType' indicating the
         // type of the system clock against which the 'bdet_TimeInterval'
         // timeouts passed to the 'timedWait' method are to be interpreted.  If
-        // 'clockType' is not specified then the realtime system clock is
-        // assumed.  Optionally specify a 'basicAllocator' used to supply
-        // memory.  If basicAllocator is 0, the currently installed default
-        // allocator is used.
+        // 'clockType' is not specified then the realtime system clock is used.
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ~bcemt_Sluice();
         // Destroy this sluice.
@@ -172,22 +185,24 @@ class bcemt_Sluice {
         // 'timedWait' is invoked with the token before this sluice is
         // destroyed.
 
-    void signalOne();
-        // Signal one thread that has entered this sluice and has not yet been
-        // released.
-
     void signalAll();
         // Signal all threads that have entered this sluice and have not yet
         // been released.
 
+    void signalOne();
+        // Signal one thread that has entered this sluice and has not yet been
+        // released.
+
     int timedWait(const void *token, const bdet_TimeInterval& timeout);
         // Wait for the specified 'token' to be signaled, or until the
-        // specified 'timeout' expires.  The 'timeout' value should be obtained
-        // from the clock type this object was constructed with.  Return 0 on
-        // success, and a non-zero value on timeout.  The 'token' is released
-        // whether or not a timeout occurred.  The behavior is undefined unless
-        // 'token' was obtained from a call to 'enter' by this thread, and was
-        // not subsequently released (via a call to 'timedWait' or 'wait').
+        // specified 'timeout' expires.  The 'timeout' is an absolute time
+        // represented as an interval from some epoch, which is detemined by
+        // the clock indicated at construction (see {Supported Clock-Types} in
+        // the component documentation).  Return 0 on success, and a non-zero
+        // value on timeout.  The 'token' is released whether or not a timeout
+        // occurred.  The behavior is undefined unless 'token' was obtained
+        // from a call to 'enter' by this thread, and was not subsequently
+        // released (via a call to 'timedWait' or 'wait').
 
     void wait(const void *token);
         // Wait for the specified 'token' to be signaled, and release the
@@ -200,11 +215,11 @@ class bcemt_Sluice {
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -1,4 +1,4 @@
-// bcemt_barrier.h                 -*-C++-*-
+// bcemt_barrier.h                                                    -*-C++-*-
 #ifndef INCLUDED_BCEMT_BARRIER
 #define INCLUDED_BCEMT_BARRIER
 
@@ -39,6 +39,19 @@ BDES_IDENT("$Id: $")
 // Note also that the behavior is undefined if a barrier is destroyed while one
 // or more threads are waiting on it.
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // The following example demonstrates the use of a 'bcemt_Barrier' to create
@@ -47,8 +60,8 @@ BDES_IDENT("$Id: $")
 // If any given trade fails to process for any reason, then all the trades must
 // be cancelled.
 //
-// The example is driven through function 'processBasketTrade', which takes
-// as its argument a reference to a 'BasketTrade' structure.  The 'BasketTrade'
+// The example is driven through function 'processBasketTrade', which takes as
+// its argument a reference to a 'BasketTrade' structure.  The 'BasketTrade'
 // structure contains a collection of 'Trade' objects; the 'processBasketTrade'
 // function creates a separate thread to manage each 'Trade' object.
 //
@@ -74,16 +87,15 @@ BDES_IDENT("$Id: $")
 //     bsl::vector<Trade> d_trades; // array of trades that comprise the basket
 // };
 //..
-// Functions 'validateTrade', 'insertToDatabase', and 'submitToExchange'
-// define functionality for the three stages of trade processing.  Again, the
+// Functions 'validateTrade', 'insertToDatabase', and 'submitToExchange' define
+// functionality for the three stages of trade processing.  Again, the
 // 'bcemt_Barrier' will be used so that no individual trade moves forward to
 // the next stage before all trades have completed the given stage.  So, for
 // instance, no individual trade can call the 'insertToDatabase' function until
 // all trades have successfully completed the 'validateTrade' function.
 //
-// Functions 'deleteFromDatabase' and 'cancelAtExchange' are used for
-// rolling back all trades in the event that any one trade fails to move
-// forward.
+// Functions 'deleteFromDatabase' and 'cancelAtExchange' are used for rolling
+// back all trades in the event that any one trade fails to move forward.
 //
 // The implementation of these functions is left incomplete for our example.
 //..
@@ -128,12 +140,12 @@ BDES_IDENT("$Id: $")
 // }
 //..
 // The 'processTrade' function handles a single trade within a Trade Basket.
-// Because this function is called within a 'bcemt_Thread' callback (see
-// the 'tradeProcessingThread' function, below), its arguments are passed in a
+// Because this function is called within a 'bcemt_Thread' callback (see the
+// 'tradeProcessingThread' function, below), its arguments are passed in a
 // single structure.  The 'processTrade' function validates a trade, stores the
 // trade into a database, and registers that trade with an exchange.  At each
-// step, the
-// 'processTrade' function synchronizes with other trades in the Trade Basket.
+// step, the 'processTrade' function synchronizes with other trades in the
+// Trade Basket.
 //..
 // struct TradeThreadArgument {
 //     bsl::vector<Trade> *d_trades_p;
@@ -229,11 +241,10 @@ BDES_IDENT("$Id: $")
 //     assert(0 < numTrades && MAX_BASKET_TRADES >= numTrades);
 //
 //..
-// Construct the barrier that will be used by the processing threads.
-// Since a thread will be created for each trade in the basket, use
-// the number of trades as the barrier count.  When 'bcemt_Barrier::wait()' is
-// called, the barrier will require 'numTrades' objects to wait before all are
-// released.
+// Construct the barrier that will be used by the processing threads.  Since a
+// thread will be created for each trade in the basket, use the number of
+// trades as the barrier count.  When 'bcemt_Barrier::wait()' is called, the
+// barrier will require 'numTrades' objects to wait before all are released.
 //..
 //     bcemt_Barrier barrier(numTrades);
 //     bool errorFlag = 0;
@@ -297,8 +308,8 @@ class bcemt_Barrier {
                                   // blocked threads.
     const int       d_numThreads; // number of threads required to be waiting
                                   // before this barrier can be signaled.
-    int             d_numWaiting; // number of threads currently waiting
-                                  // for this barrier to be signaled.
+    int             d_numWaiting; // number of threads currently waiting for
+                                  // this barrier to be signaled.
     int             d_sigCount;   // counted of number of times this barrier
                                   // has been signaled.
     int             d_numPending; // Number of threads that have been signaled
@@ -319,8 +330,8 @@ class bcemt_Barrier {
         // unblock.  Optionally specify a 'clockType' indicating the type of
         // the system clock against which the 'bdet_TimeInterval' timeouts
         // passed to the 'timedWait' method are to be interpreted.  If
-        // 'clockType' is not specified then the realtime system clock is
-        // assumed.  The behavior is undefined unless '0 < numThreads'.
+        // 'clockType' is not specified then the realtime system clock is used.
+        // The behavior is undefined unless '0 < numThreads'.
 
     ~bcemt_Barrier();
         // Wait for all *signaled* threads to unblock and destroy this barrier.
@@ -329,14 +340,6 @@ class bcemt_Barrier {
         // one or more threads are waiting on it.
 
     // MANIPULATORS
-    void wait();
-        // Block until the required number of threads have called either 'wait'
-        // or 'timedWait' on this barrier.  Then *signal* all the threads that
-        // are currently waiting on this barrier to unblock and reset the state
-        // of this barrier to its initial state.  Note that generally 'wait'
-        // and 'timedWait' should not be used together, for reasons explained
-        // in the documentation of 'timedWait'.
-
     int timedWait(const bdet_TimeInterval &timeout);
         // Block until the required number of threads have called 'wait' or
         // 'timedWait' on this barrier, or until the specified 'timeout'
@@ -346,12 +349,22 @@ class bcemt_Barrier {
         // times out before the required number of threads are waiting, the
         // thread is released to proceed and ceases to contribute to the number
         // of threads waiting.  Return a non-zero value if a timeout or error
-        // occurs.  The 'timeout' value should be obtained from the clock type
-        // this object was constructed with.  Note that 'timedWait' and 'wait'
-        // should not generally be used together; if one or more threads called
-        // 'wait' while others called 'timedWait', then if the thread(s) that
-        // called 'timedWait' were to time out and not retry, the threads thst
-        // called 'wait' would never unblock.
+        // occurs.  The 'timeout' is an absolute time represented as an
+        // interval from some epoch, which is detemined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).  Note that 'timedWait' and 'wait' should not
+        // generally be used together; if one or more threads called 'wait'
+        // while others called 'timedWait', then if the thread(s) that called
+        // 'timedWait' were to time out and not retry, the threads that called
+        // 'wait' would never unblock.
+
+    void wait();
+        // Block until the required number of threads have called either 'wait'
+        // or 'timedWait' on this barrier.  Then *signal* all the threads that
+        // are currently waiting on this barrier to unblock and reset the state
+        // of this barrier to its initial state.  Note that generally 'wait'
+        // and 'timedWait' should not be used together, for reasons explained
+        // in the documentation of 'timedWait'.
 
     // ACCESSORS
     int numThreads() const;
@@ -359,9 +372,9 @@ class bcemt_Barrier {
         // all waiting threads will unblock.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CREATORS
 inline
@@ -387,11 +400,11 @@ int bcemt_Barrier::numThreads() const
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2002
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
