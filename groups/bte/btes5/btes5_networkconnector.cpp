@@ -408,9 +408,10 @@ static void connectTcpCb(
 
         bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
 
-        const void *timer = attempt->d_proxyTimer;
-        if (!timeout && bdet_TimeInterval() != attempt->d_proxyTimeout) {
+        void *& timer = attempt->d_proxyTimer;
+        if (timer) {
             attempt->d_connector->d_eventManager_p->deregisterTimer(timer);
+            timer = 0;
         }
 
 
@@ -595,6 +596,7 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
 
         rc = attempt->d_socket_p->connect(server);
         if (!rc) {
+            attempt->d_proxyTimer = 0;
             connectTcpCb(attempt, false); // immediate success
             break;
         } else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
