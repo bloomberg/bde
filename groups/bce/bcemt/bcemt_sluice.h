@@ -129,7 +129,7 @@ class bcemt_Sluice {
                                               // descriptor in the pool
 
         // CREATORS
-        explicit GenerationDescriptor(bdetu_SystemClockType::Type clockType);
+        explicit GenerationDescriptor(bdetu_SystemClockType::Enum clockType);
             // Create a generation descriptor object with the specified
             // 'clockType'.
     };
@@ -149,7 +149,7 @@ class bcemt_Sluice {
     GenerationDescriptor *d_descriptorPool;      // pool of available
                                                  // generation descriptors
 
-    bdetu_SystemClockType::Type
+    bdetu_SystemClockType::Enum
                           d_clockType;           // the type of clock used for
                                                  // timeout in 'timedWait'
 
@@ -165,7 +165,7 @@ class bcemt_Sluice {
     explicit
     bcemt_Sluice(bslma::Allocator           *basicAllocator = 0);
     explicit
-    bcemt_Sluice(bdetu_SystemClockType::Type  clockType,
+    bcemt_Sluice(bdetu_SystemClockType::Enum  clockType,
                  bslma::Allocator            *basicAllocator = 0);
         // Create a sluice.  Optionally specify a 'clockType' indicating the
         // type of the system clock against which the 'bdet_TimeInterval'

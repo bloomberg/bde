@@ -308,7 +308,7 @@ struct ThreadInfo3 {
     MyBarrier                   *d_barrier;
     Obj                         *d_sem;
     int                          d_numIterations;
-    bdetu_SystemClockType::Type  d_clockType;
+    bdetu_SystemClockType::Enum  d_clockType;
 };
 
 extern "C" void *thread3Post(void *arg) {
@@ -352,7 +352,7 @@ extern "C" void *thread3Wait(void * arg) {
     return 0;
 }
 
-void testCase3(bdetu_SystemClockType::Type clockType)
+void testCase3(bdetu_SystemClockType::Enum clockType)
 {
     bcemt_ThreadUtil::Handle threads[10];
     MyBarrier barrier(10);

@@ -97,7 +97,7 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
     pthread_cond_t d_cond;  // provides post/wait for condition
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
-    bdetu_SystemClockType::Type d_clockType; // clock type used in 'timedWait'
+    bdetu_SystemClockType::Enum d_clockType; // clock type used in 'timedWait'
 #endif
 
     // NOT IMPLEMENTED
@@ -107,7 +107,7 @@ class bcemt_ConditionImpl<bces_Platform::PosixThreads> {
   public:
     // CREATORS
     explicit
-    bcemt_ConditionImpl(bdetu_SystemClockType::Type clockType
+    bcemt_ConditionImpl(bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a condition variable object.  Optionally specify a
         // 'clockType' indicating the type of the system clock against which

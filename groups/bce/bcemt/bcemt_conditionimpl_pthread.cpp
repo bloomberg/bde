@@ -30,7 +30,7 @@ class CondAttr {
     CondAttr& operator=(const CondAttr&);
 
 public:
-    CondAttr(bdetu_SystemClockType::Type clockType)
+    CondAttr(bdetu_SystemClockType::Enum clockType)
         // Create the 'pthread_condattr_t' structure and initialize it with the
         // specified 'clockType'.
     {
@@ -71,7 +71,7 @@ public:
 
 static
 void initializeCondition(pthread_cond_t              *cond,
-                         bdetu_SystemClockType::Type  clockType)
+                         bdetu_SystemClockType::Enum  clockType)
     // Initialize the specified 'cond' variable with the specified 'clockType'.
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
@@ -91,7 +91,7 @@ void initializeCondition(pthread_cond_t              *cond,
 
 // CREATORS
 bcemt_ConditionImpl<bces_Platform::PosixThreads>::bcemt_ConditionImpl(
-                                         bdetu_SystemClockType::Type clockType)
+                                         bdetu_SystemClockType::Enum clockType)
 #ifdef BSLS_PLATFORM_OS_DARWIN
 : d_clockType(clockType)
 #endif

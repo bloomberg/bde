@@ -187,7 +187,7 @@ class bcemt_Condition {
   public:
     // CREATORS
     explicit
-    bcemt_Condition(bdetu_SystemClockType::Type clockType
+    bcemt_Condition(bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a condition variable object.  Optionally specify a
         // 'clockType' indicating the type of the system clock against which
@@ -252,7 +252,7 @@ class bcemt_Condition {
 
 // CREATORS
 inline
-bcemt_Condition::bcemt_Condition(bdetu_SystemClockType::Type clockType)
+bcemt_Condition::bcemt_Condition(bdetu_SystemClockType::Enum clockType)
 : d_imp(clockType)
 {
 }

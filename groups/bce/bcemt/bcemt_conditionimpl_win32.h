@@ -94,7 +94,7 @@ class bcemt_ConditionImpl<bces_Platform::Win32Threads> {
   public:
     // CREATORS
     explicit
-    bcemt_ConditionImpl(bdetu_SystemClockType::Type clockType
+    bcemt_ConditionImpl(bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a condition variable object.  Optionally specify a
         // 'clockType' indicating the type of the system clock against which
@@ -158,7 +158,7 @@ class bcemt_ConditionImpl<bces_Platform::Win32Threads> {
 // CREATORS
 inline
 bcemt_ConditionImpl<bces_Platform::Win32Threads>::bcemt_ConditionImpl(
-                                         bdetu_SystemClockType::Type clockType)
+                                         bdetu_SystemClockType::Enum clockType)
 : d_waitSluice(clockType, &bslma::MallocFreeAllocator::singleton())
 {
     // We use the malloc/free allocator singleton so as not to produce "noise"

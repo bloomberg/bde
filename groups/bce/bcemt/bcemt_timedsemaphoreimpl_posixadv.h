@@ -89,7 +89,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore> {
     // DATA
     sem_t                       d_sem;        // POSIX timed semaphore
 
-    bdetu_SystemClockType::Type d_clockType;  // clock type used for timeout in
+    bdetu_SystemClockType::Enum d_clockType;  // clock type used for timeout in
                                               // 'timedWait'
 
     // NOT IMPLEMENTED
@@ -99,7 +99,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore> {
   public:
     // CREATORS
     explicit
-    bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Type clockType
+    bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
@@ -109,7 +109,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore> {
 
     explicit
     bcemt_TimedSemaphoreImpl(int                         count,
-                             bdetu_SystemClockType::Type clockType
+                             bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
@@ -159,7 +159,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore> {
 // CREATORS
 inline
 bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore>::
-                bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Type clockType)
+                bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
     ::sem_init(&d_sem, 0, 0);
@@ -167,7 +167,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore>::
 
 inline
 bcemt_TimedSemaphoreImpl<bces_Platform::PosixAdvTimedSemaphore>::
-     bcemt_TimedSemaphoreImpl(int count, bdetu_SystemClockType::Type clockType)
+     bcemt_TimedSemaphoreImpl(int count, bdetu_SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
     ::sem_init(&d_sem, 0, count);

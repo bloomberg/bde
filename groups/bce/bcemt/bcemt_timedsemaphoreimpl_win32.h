@@ -120,7 +120,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore> {
 
     // DATA
     void *d_handle;  // handle to Window's implementation of timed semaphore
-    bdetu_SystemClockType::Type d_clockType; // clock used in timedWait
+    bdetu_SystemClockType::Enum d_clockType; // clock used in timedWait
 
     // NOT IMPLEMENTED
     bcemt_TimedSemaphoreImpl(const bcemt_TimedSemaphoreImpl&);
@@ -129,7 +129,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore> {
   public:
     // CREATORS
     explicit
-    bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Type clockType
+    bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
@@ -139,7 +139,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore> {
 
     explicit
     bcemt_TimedSemaphoreImpl(int                         count,
-                             bdetu_SystemClockType::Type clockType
+                             bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
@@ -189,7 +189,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore> {
 // CREATORS
 inline
 bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore>::
-                bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Type clockType)
+                bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
     d_handle = CreateSemaphoreA(NULL, 0, INT_MAX, NULL);
@@ -197,7 +197,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore>::
 
 inline
 bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore>::
-     bcemt_TimedSemaphoreImpl(int count, bdetu_SystemClockType::Type clockType)
+     bcemt_TimedSemaphoreImpl(int count, bdetu_SystemClockType::Enum clockType)
 : d_clockType(clockType)
 {
     d_handle = CreateSemaphoreA(NULL, count, INT_MAX, NULL);

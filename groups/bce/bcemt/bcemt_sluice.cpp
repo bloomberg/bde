@@ -22,7 +22,7 @@ namespace BloombergLP {
 
 // CREATORS
 bcemt_Sluice::GenerationDescriptor::GenerationDescriptor(
-                                         bdetu_SystemClockType::Type clockType)
+                                         bdetu_SystemClockType::Enum clockType)
 : d_numThreads(0)
 , d_numSignaled(0)
 , d_sema(0, clockType)
@@ -44,7 +44,7 @@ bcemt_Sluice::bcemt_Sluice(bslma::Allocator *basicAllocator)
 {
 }
 
-bcemt_Sluice::bcemt_Sluice(bdetu_SystemClockType::Type  clockType,
+bcemt_Sluice::bcemt_Sluice(bdetu_SystemClockType::Enum  clockType,
                            bslma::Allocator            *basicAllocator)
 : d_signaledGeneration(0)
 , d_pendingGeneration(0)

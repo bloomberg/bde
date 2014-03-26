@@ -125,12 +125,12 @@ struct ThreadArgs {
     bces_AtomicInt d_numTimedOut; // number of threads that time out on
                                   // a call to 'timedWait'
 
-    bdetu_SystemClockType::Type d_clockType;
+    bdetu_SystemClockType::Enum d_clockType;
                                   // clock type to use for 'timedWait' method
 
     ThreadArgs(int                         barrierCount,
                int                         timeOut = 0,
-               bdetu_SystemClockType::Type clock
+               bdetu_SystemClockType::Enum clock
                                            = bdetu_SystemClockType::e_REALTIME)
         : d_barrier(barrierCount, clock)
         , d_waitCount(0)
@@ -285,10 +285,10 @@ struct ThreadArgs4 {
 
     int            d_nThreads;    // number of worker threads
 
-    bdetu_SystemClockType::Type d_clockType;
+    bdetu_SystemClockType::Enum d_clockType;
                                   // clock type used for 'timedWait' method
 
-    ThreadArgs4(int nThreads, int timeOut, bdetu_SystemClockType::Type clock)
+    ThreadArgs4(int nThreads, int timeOut, bdetu_SystemClockType::Enum clock)
     : d_barrier(nThreads + 1, clock)
     , d_timeOut(timeOut)
     , d_stopCount(0)

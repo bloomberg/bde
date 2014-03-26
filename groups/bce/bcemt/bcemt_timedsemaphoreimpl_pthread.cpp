@@ -39,7 +39,7 @@ class CondAttr {
     CondAttr& operator=(const CondAttr&);
 
 public:
-    CondAttr(bdetu_SystemClockType::Type clockType)
+    CondAttr(bdetu_SystemClockType::Enum clockType)
         // Create the 'pthread_condattr_t' structure and initialize it with the
         // specified 'clockType'.
     {
@@ -80,7 +80,7 @@ public:
 
 static
 void initializeCondition(pthread_cond_t              *cond,
-                         bdetu_SystemClockType::Type  clockType)
+                         bdetu_SystemClockType::Enum  clockType)
     // Initialize the specified 'cond' variable with the specified 'clockType'.
 {
 #ifdef BSLS_PLATFORM_OS_DARWIN
@@ -116,7 +116,7 @@ int decrementIfPositive(bces_AtomicInt *a)
 
 // CREATORS
 bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
-                bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Type clockType)
+                bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Enum clockType)
 : d_resources(0)
 , d_waiters(0)
 #ifdef BSLS_PLATFORM_OS_DARWIN
@@ -128,7 +128,7 @@ bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
 }
 
 bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
-     bcemt_TimedSemaphoreImpl(int count, bdetu_SystemClockType::Type clockType)
+     bcemt_TimedSemaphoreImpl(int count, bdetu_SystemClockType::Enum clockType)
 : d_resources(count)
 , d_waiters(0)
 #ifdef BSLS_PLATFORM_OS_DARWIN

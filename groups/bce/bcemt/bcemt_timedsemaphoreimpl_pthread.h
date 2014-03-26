@@ -92,7 +92,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore> {
     pthread_cond_t  d_condition;  // condition
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
-    bdetu_SystemClockType::Type d_clockType;
+    bdetu_SystemClockType::Enum d_clockType;
 #endif
 
     // NOT IMPLEMENTED
@@ -112,7 +112,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore> {
   public:
     // CREATORS
     explicit
-    bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Type clockType
+    bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
@@ -122,7 +122,7 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore> {
 
     explicit
     bcemt_TimedSemaphoreImpl(int                         count,
-                             bdetu_SystemClockType::Type clockType
+                             bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system

@@ -324,7 +324,7 @@ class bcemt_Barrier {
     explicit
     bcemt_Barrier(
              int                         numThreads,
-             bdetu_SystemClockType::Type clockType
+             bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a barrier that requires the specified 'numThreads' to
         // unblock.  Optionally specify a 'clockType' indicating the type of
@@ -379,7 +379,7 @@ class bcemt_Barrier {
 // CREATORS
 inline
 bcemt_Barrier::bcemt_Barrier(int                         numThreads,
-                             bdetu_SystemClockType::Type clockType)
+                             bdetu_SystemClockType::Enum clockType)
 : d_mutex()
 , d_cond(clockType)
 , d_numThreads(numThreads)

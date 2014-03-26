@@ -170,7 +170,7 @@ class bcemt_TimedSemaphore {
   public:
     // CREATORS
     explicit
-    bcemt_TimedSemaphore(bdetu_SystemClockType::Type clockType
+    bcemt_TimedSemaphore(bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having a count of 0.  Optionally
         // specify a 'clockType' indicating the type of the system clock
@@ -180,7 +180,7 @@ class bcemt_TimedSemaphore {
 
     explicit
     bcemt_TimedSemaphore(int                         count,
-                         bdetu_SystemClockType::Type clockType
+                         bdetu_SystemClockType::Enum clockType
                                           = bdetu_SystemClockType::e_REALTIME);
         // Create a timed semaphore initially having the specified 'count'.
         // Optionally specify a 'clockType' indicating the type of the system
@@ -230,7 +230,7 @@ class bcemt_TimedSemaphore {
 // CREATORS
 inline
 bcemt_TimedSemaphore::bcemt_TimedSemaphore(
-                                         bdetu_SystemClockType::Type clockType)
+                                         bdetu_SystemClockType::Enum clockType)
 : d_impl(clockType)
 {
 }
@@ -238,7 +238,7 @@ bcemt_TimedSemaphore::bcemt_TimedSemaphore(
 inline
 bcemt_TimedSemaphore::bcemt_TimedSemaphore(
                                          int                         count,
-                                         bdetu_SystemClockType::Type clockType)
+                                         bdetu_SystemClockType::Enum clockType)
 : d_impl(count, clockType)
 {
 }
