@@ -24,7 +24,8 @@ BDES_IDENT("$Id: $")
 // The amount of lag time is obtained from the 'lagTime' method.  Note that
 // this component uses the monotonic system clock and hence may not be
 // appropriate for applications that must be synchronized to the realtime
-// (wall) clock.
+// (wall) clock (for example, distributed periodic computation of aggregate
+// values that are then compared presuming nearly identical computation time).
 //
 ///Comparison With Sleep
 ///---------------------
