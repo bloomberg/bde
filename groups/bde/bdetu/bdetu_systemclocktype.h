@@ -7,48 +7,60 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an enumeration of (and operations on) clock types.
+//@PURPOSE: Enumerate the set of clock types.
 //
 //@CLASSES:
-//  bdetu_SystemClockType: namespace for clock types enumeration (and its
-//                         operations)
+//  bdetu_SystemClockType: namespace for a clock type 'enum'
+//
+//@SEE_ALSO: bdetu_systemtime, bcemt_condition, bcemt_timedsemaphore
 //
 //@AUTHOR: Alexei Zakharov, Jeffrey Mendelsohn (jmendelsohn4)
 //
-//@SEE_ALSO: bdetu_systemtime
+//@DESCRIPTION: This component provides a namespace for the 'enum' type
+// 'bdetu_SystemTimeClock::Enum', which enumerates the set of clock types.  A
+// 'bdetu_SystemTimeClock' is particularly important when providing time-out
+// values to synchronization methods like 'timedWait' (e.g., see
+// 'bcemt_condition') where those time-outs must be consistent in environments
+// where the system clocks may be changed.
 //
-//@DESCRIPTION: This component provides a 'struct', 'bdetu_SystemTimeClock',
-// which serves as a namespace for enumerating clock types along with a
-// standard set of supporting operations.  These operations include converting
-// an enumerated value to its corresponding string representation, writing the
-// string form directly to a standard 'bsl::ostream', and reading from and
-// writing to a 'bdex' stream.
-//
-// The clock types defined map closely to the clock types supported by the
-// POSIX Standard:
+///Enumerators
+///-----------
 //..
-// SystemClockType value    POSIX value
-// e_REALTIME               CLOCK_REALTIME
-// e_MONOTONIC              CLOCK_MONOTONIC
+//  Name          Description
+//  -----------   -------------------------------------------------------------
+//  e_REALTIME    System clock that measures real ("wall") time and is affected
+//                by all adjustments including discontinuous jumps "backwards".
+//
+//  e_MONOTONIC   System clock representing monotonic time since some
+//                unspecified starting point that is affected by incremental
+//                adjustments but the values returned by this clock are
+//                monotonic non-decreasing.
 //..
 //
 ///USAGE
 ///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
 // The following snippets of code provide a simple illustration of using
-// 'bdetu_SystemClockType'.  First we create a variable, 'clock', of type
-// 'bdetu_SystemClockType::Type', and initialize it to the value
+// 'bdetu_SystemClockType'.
+//
+// First, we create a variable 'value' of type 'bdetu_SystemClockType::Enum'
+// and initialize it with the enumerator value
 // 'bdetu_SystemClockType::e_MONOTONIC':
 //..
-//  bdetu_SystemClockType::Type clock = bdetu_SystemClockType::e_MONOTONIC;
+//  bdetu_SystemClockType::Enum value = bdetu_SystemClockType::e_MONOTONIC;
 //..
-// Next store its representation in a variable, 'rep', of type 'const char *':
+// Now, we store the address of its ASCII representation in a pointer variable,
+// 'asciiValue', of type 'const char *':
 //..
-//  const char *rep = bdetu_SystemClockType::toAscii(clock);
-//  assert(0 == bsl::strcmp(rep, "MONOTONIC"));
+//  const char *asciiValue = bdetu_SystemClockTypetoAscii(value);
+//  assert(0 == bsl::strcmp(asciiValue, "MONOTONIC"));
 //..
-// Finally, we print the value of 'clock' to 'stdout':
+// Finally, we print 'value' to 'bsl::cout'.
 //..
-//  bsl::cout << clock << bsl::endl;
+//  bsl::cout << value << bsl::endl;
 //..
 // This statement produces the following output on 'stdout':
 //..
@@ -59,16 +71,8 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDEX_VERSIONFUNCTIONS
-#include <bdex_versionfunctions.h>
-#endif
-
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
 namespace BloombergLP {
@@ -78,199 +82,104 @@ namespace BloombergLP {
                         // ============================
 
 struct bdetu_SystemClockType {
-    // This 'struct' provides a namespace for enumerating system clock values
-    // as well as standard operations thereon, which include conversion to a
-    // corresponding character string representation, writing the string form
-    // directly to a standard 'ostream', and reading from and writing to a
-    // 'bdex' stream.
+    // This 'struct' provides a namespace for enumerating the set of system
+    // clock type for use in distinguishing which system clock to use for
+    // measuring time.  See 'Enum' in the TYPES sub-section for details.
+    //
+    // This class:
+    //: o supports a complete set of *enumeration* operations
+    //:   o except for 'bdex' serialization
+    //: o is 'const' *thread-safe*
+    // For terminology see 'bsldoc_glossary'.
 
   public:
     // TYPES
-    enum Type {
+    enum Enum {
         // Enumeration clock type values.
 
-        e_REALTIME =  1,  // wall time (includes all system adjustments)
+        e_REALTIME,     // Clock corresponding to "wall" time (includes all
+                        // system adjustments).
 
-        e_MONOTONIC = 2   // monotonic non-decreasing clock which includes
-                          // a subset, dependant upon platform, of the
-                          // adjustments to the realtime clock
+        e_MONOTONIC,    // Monotonic non-decreasing clock which includes a
+                        // subset, dependant upon platform, of the adjustments
+                        // to the realtime clock.
     };
 
     // CLASS METHODS
-    static int maxSupportedBdexVersion();
-        // Return the most current 'bdex' streaming version number supported by
-        // this class.  (See the package-group-level documentation for more
-        // information on 'bdex' streaming of container types.)
+    static bsl::ostream& print(bsl::ostream&               stream,
+                               bdetu_SystemClockType::Enum value,
+                               int                         level          = 0,
+                               int                         spacesPerLevel = 4);
+        // Write the string representation of the specified enumeration 'value'
+        // to the specified output 'stream', and return a reference to
+        // 'stream'.  Optionally specify an initial indentation 'level', whose
+        // absolute value is incremented recursively for nested objects.  If
+        // 'level' is specified, optionally specify 'spacesPerLevel', whose
+        // absolute value indicates the number of spaces per indentation level
+        // for this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  See 'toAscii' for
+        // what constitutes the string representation of a
+        // 'bdetu_SystemClockType::Enum' value.
 
-    static const char *toAscii(bdetu_SystemClockType::Type clock);
-        // Return the character-string representation of the enumerator
-        // corresponding to the specified 'clock'.
-
-    template <class STREAM>
-    static STREAM& bdexStreamIn(STREAM&                      stream,
-                                bdetu_SystemClockType::Type& clock,
-                                int                          version);
-        // Assign, to the specified 'clock', the value read from the specified
-        // input 'stream' using the specified 'version' format, and return a
-        // reference to the modifiable 'stream'.  If 'stream' is initially
-        // invalid, this operation has no effect.  If 'stream' becomes invalid
-        // during this operation, 'clock' is valid, but its value is undefined.
-        // If 'version' is not supported, 'stream' is marked invalid and
-        // 'clock' is unaltered.  Note that no version is read from 'stream'.
-        // (See the 'bdex' package-level documentation for more information on
-        // 'bdex' streaming of value-semantic types and containers.)
-
-    template <class STREAM>
-    static STREAM& bdexStreamOut(STREAM&                     stream,
-                                 bdetu_SystemClockType::Type clock,
-                                 int                         version);
-        // Write the specified 'clock' value to the specified output 'stream'
-        // using the specified 'version' format, and return a reference to the
-        // modifiable 'stream'.  If 'stream' is initially invalid, this
-        // operation has no effect.  If 'version' is not supported, 'stream' is
-        // invalidated.  Note that in no event is 'version' written to
-        // 'stream'.  (See the 'bdex' package-level documentation for more
-        // information on 'bdex' streaming of value-semantic types and
-        // containers.)
+    static const char *toAscii(bdetu_SystemClockType::Enum value);
+        // Return the non-modifiable string representation corresponding to the
+        // specified enumeration 'value', if it exists, and a unique (error)
+        // string otherwise.  The string representation of 'value' matches its
+        // corresponding enumerator name with the "e_" prefix elided.  For
+        // example:
+        //..
+        //  bsl::cout << bdetu_SystemClockType::toAscii(
+        //                                 bdetu_SystemClockType::e_MONOTONIC);
+        //..
+        // will print the following on standard output:
+        //..
+        //  MONOTONIC
+        //..
+        // Note that specifying a 'value' that does not match any of the
+        // enumerators will result in a string representation that is distinct
+        // from any of those corresponding to the enumerators, but is otherwise
+        // unspecified.
 };
 
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream& lhs, bdetu_SystemClockType::Type rhs);
-    // Format, to the specified 'lhs' output stream, the abbreviated
-    // character-string representation corresponding to the specified 'rhs'
-    // clock value, and return a reference to the modifiable 'lhs'
-    // stream.
+bsl::ostream& operator<<(bsl::ostream&               stream,
+                         bdetu_SystemClockType::Enum value);
+    // Write the string representation of the specified enumeration 'value' to
+    // the specified output 'stream' in a single-line format, and return a
+    // reference to 'stream'.  See 'toAscii' for what constitutes the string
+    // representation of a 'bdetu_SystemClockType::Enum' value.  Note that this
+    // method has the same behavior as
+    //..
+    //  bdetu_SystemClockType::print(stream, value, 0, -1);
+    //..
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ----------------------------
                         // struct bdetu_SystemClockType
                         // ----------------------------
 
-// CLASS METHODS
-inline
-int bdetu_SystemClockType::maxSupportedBdexVersion()
-{
-    return 1;
-}
-
-template <class STREAM>
-STREAM& bdetu_SystemClockType::bdexStreamIn(
-                                          STREAM&                      stream,
-                                          bdetu_SystemClockType::Type& clock,
-                                          int                          version)
-{
-    if (stream) {
-        switch(version) {
-          case 1: {
-            char newValue;
-            stream.getInt8(newValue);     // get the value as a single byte
-            if (stream) {
-                if (newValue >= e_REALTIME && newValue <= e_MONOTONIC) {
-                    clock = bdetu_SystemClockType::Type(newValue);
-                }
-                else {
-                    stream.invalidate();  // bad value in stream
-                }
-            }
-          } break;
-          default: {
-            stream.invalidate();          // unrecognized version number
-          } break;
-       }
-    }
-    return stream;
-}
-
-template <class STREAM>
-STREAM& bdetu_SystemClockType::bdexStreamOut(
-                                           STREAM&                     stream,
-                                           bdetu_SystemClockType::Type clock,
-                                           int                         version)
-{
-    if (stream) {
-        switch (version) {
-          case 1: {
-
-            // Write the value as one byte.
-
-            stream.putInt8(static_cast<char>(clock));
-
-          } break;
-          default: {
-            stream.invalidate();          // unrecognized version number
-          } break;
-        }
-    }
-    return stream;
-}
-
 // FREE OPERATORS
 inline
-bsl::ostream& operator<<(bsl::ostream& lhs, bdetu_SystemClockType::Type rhs)
+bsl::ostream& operator<<(bsl::ostream&               stream,
+                         bdetu_SystemClockType::Enum value)
 {
-    return lhs << bdetu_SystemClockType::toAscii(rhs);
+    return bdetu_SystemClockType::print(stream, value, 0, -1);
 }
-
-                     // --------------------------------
-                     // namespace bdex_InStreamFunctions
-                     // --------------------------------
-
-namespace bdex_InStreamFunctions {
-
-template <typename STREAM>
-inline
-STREAM& streamIn(STREAM&                      stream,
-                 bdetu_SystemClockType::Type& value,
-                 int                          version)
-{
-    return bdetu_SystemClockType::bdexStreamIn(stream, value, version);
-}
-
-}  // close namespace bdex_InStreamFunctions
-
-                     // -------------------------------
-                     // namespace bdex_VersionFunctions
-                     // -------------------------------
-
-namespace bdex_VersionFunctions {
-
-inline
-int maxSupportedVersion(bdetu_SystemClockType::Type)
-{
-    return bdetu_SystemClockType::maxSupportedBdexVersion();
-}
-
-}  // close namespace bdex_VersionFunctions
-
-                     // ---------------------------------
-                     // namespace bdex_OutStreamFunctions
-                     // ---------------------------------
-
-namespace bdex_OutStreamFunctions {
-
-template <typename STREAM>
-inline
-STREAM& streamOut(STREAM&                            stream,
-                  const bdetu_SystemClockType::Type& value,
-                  int                                version)
-{
-    return bdetu_SystemClockType::bdexStreamOut(stream, value, version);
-}
-
-}  // close namespace bdex_OutStreamFunctions
 
 }  // close namespace BloombergLP
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

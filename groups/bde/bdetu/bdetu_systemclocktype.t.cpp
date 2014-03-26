@@ -2,41 +2,52 @@
 
 #include <bdetu_systemclocktype.h>
 
-#include <bdex_instreamfunctions.h>
-#include <bdex_outstreamfunctions.h>
-#include <bdex_testinstream.h>
-#include <bdex_testinstreamexception.h>
-#include <bdex_testoutstream.h>
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
 
-#include <bsls_assert.h>
-
+#include <bsl_cstdlib.h>       // 'atoi'
+#include <bsl_cstring.h>       // 'strcmp', 'memcmp', 'memcpy'
+#include <bsl_ios.h>
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strcmp()
-
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
-//                                TEST PLAN
-//-----------------------------------------------------------------------------
-//                                Overview
-//                                --------
-// Standard enumeration test plan.
+//                                  TEST PLAN
 // ----------------------------------------------------------------------------
-// [ 1] enum bdetu_SystemClockType::Type { ... };
-// [ 1] static const char *toAscii(bdetu_SystemClockType::Type value);
-// [ 2] STREAM& bdexStreamOut(STREAM&, bdetu_SystemClockType::Type value, int);
-// [ 2] STREAM& bdexStreamIn(STREAM&, bdetu_SystemClockType::Type& value, int);
+//                                  Overview
+//                                  --------
+// The component under test implements a single enumeration having sequential
+// enumerator values that start from 0.
 //
-// [ 1] operator<<(ostream&, bdetu_SystemClockType::Type rhs);
-//---------------------------------------------------------------------------
-// [ 3] USAGE example
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// We will therefore follow our standard 3-step approach to testing enumeration
+// types, with certain test cases omitted:
+//: o [ 4] -- BDEX streaming is not (yet) implemented for this type.
+//
+// Global Concerns:
+//: o No methods or free operators allocate memory.
+//
+// Global Assumptions:
+//: o All CLASS METHODS and the '<<' free operator are 'const' thread-safe.
+// ----------------------------------------------------------------------------
+// TYPES
+// [ 1] enum Enum { ... };
+//
+// CLASS METHODS
+// [ 3] ostream& print(ostream& s, Enum val, int level = 0, int sPL = 4);
+// [ 1] const char *toAscii(bdetu_SystemClockType::Enum val);
+//
+// FREE OPERATORS
+// [ 2] operator<<(ostream& s, bdetu_SystemClockType::Enum val);
+// ----------------------------------------------------------------------------
+// [ 5] USAGE EXAMPLE
+
+// ============================================================================
+//                       STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -46,89 +57,131 @@ static void aSsErT(int c, const char *s, int i) {
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                     STANDARD BDE LOOP-ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
 
 #define LOOP2_ASSERT(I,J,X) { \
     if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-        << J << "\n"; aSsErT(1, #X, __LINE__); } }
+              << J << "\n"; aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+#define LOOP3_ASSERT(I,J,K,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
+              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP4_ASSERT(I,J,K,L,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP5_ASSERT(I,J,K,L,M,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
+       #M << ": " << M << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
+       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
+       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+// ============================================================================
+//                       SEMI-STANDARD TEST OUTPUT MACROS
+// ----------------------------------------------------------------------------
+
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
-//==========================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//--------------------------------------------------------------------------
+// =========================================================================
+//                        GLOBAL TYPEDEFS FOR TESTING
+// -------------------------------------------------------------------------
 
-typedef bdetu_SystemClockType Class;
-typedef Class::Type           Enum;
-typedef bdex_TestInStream     In;
-typedef bdex_TestOutStream    Out;
+typedef bdetu_SystemClockType::Enum Enum;
+typedef bdetu_SystemClockType       Obj;
 
-//==========================================================================
-//                              MAIN PROGRAM
-//--------------------------------------------------------------------------
+// =========================================================================
+//                       GLOBAL CONSTANTS FOR TESTING
+// -------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
+const int NUM_ENUMERATORS = 2;
 
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+#define UNKNOWN_FORMAT "(* UNKNOWN *)"
+
+// =========================================================================
+//                               MAIN PROGRAM
+// -------------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    switch (test) { case 0:
-      case 3: {
+    bslma::TestAllocator defaultAllocator(veryVeryVerbose);
+    bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
+
+    bslma::TestAllocator globalAllocator(veryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    switch (test) { case 0:  // Zero is always the leading case.
+      case 5: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
         //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run as shown.  (P-1)
         //
         // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //: 1 Incorporate usage example from header into test driver, replace
+        //:   leading comment characters with spaces, replace 'assert' with
+        //:   'ASSERT', and insert 'if (veryVerbose)' before all output
+        //:   operations.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Usage Example"
-                          << "\n=====================" << endl;
+        if (verbose) cout << endl << "Testing Usage Examples" << endl
+                                  << "======================" << endl;
 
 ///Usage
 ///-----
-// The following snippets of code provide a simple illustration of using
-// 'bdetu_SystemClockType'.  First we create a variable, 'clock', of type
-// 'bdetu_SystemClockType::Type', and initialize it to the value
+// In this section we show intended usage of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The following snippets of code provide a simple illustration of
+// 'bdetu_SystemClockType' usage.
+//
+// First, we create a variable 'value' of type 'bdetu_SystemClockType::Enum'
+// and initialize it with the enumerator value
 // 'bdetu_SystemClockType::e_MONOTONIC':
 //..
-    bdetu_SystemClockType::Type clock = bdetu_SystemClockType::e_MONOTONIC;
+    bdetu_SystemClockType::Enum value = bdetu_SystemClockType::e_MONOTONIC;
 //..
-// Next, store its representation in a variable, 'rep', of type 'const char *':
+// Next, we store a pointer to its ASCII representation in a variable
+// 'asciiValue' of type 'const char *':
 //..
-    const char *rep = bdetu_SystemClockType::toAscii(clock);
-    ASSERT(0 == bsl::strcmp(rep, "MONOTONIC"));
+    const char *asciiValue = bdetu_SystemClockType::toAscii(value);
+    ASSERT(0 == bsl::strcmp(asciiValue, "MONOTONIC"));
 //..
-// Finally, we print the value of 'clock' to 'stdout':
+// Finally, we print 'value' to 'bsl::cout'.
 //..
-
-if (verbose) {  // added in test driver
-
-    bsl::cout << clock << bsl::endl;
-
-}               // added in test driver
+if (veryVerbose)
+    bsl::cout << value << bsl::endl;
 //..
 // This statement produces the following output on 'stdout':
 //..
@@ -136,374 +189,367 @@ if (verbose) {  // added in test driver
 //..
 
       } break;
-      case 2: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING STREAMING OPERATORS:
-        //   The 'bdex' streaming concerns for this 'enum' component are
-        //   standard.  We thoroughly test "normal" functionality using the
-        //   available bdex functions.  We next step through the sequence of
-        //   possible "abnormal" stream states (empty, invalid, incomplete,
-        //   and corrupted), appropriately selecting data sets as described
-        //   below.  In all cases, exception neutrality is confirmed using the
-        //   specially instrumented 'bdex_TestInStream' and a pair of standard
-        //   macros, 'BEGIN_BDEX_EXCEPTION_TEST' and
-        //   'END_BDEX_EXCEPTION_TEST', which configure the
-        //   'bdex_TestInStream' object appropriately in a loop.
+        // TESTING 'bdex' STREAMING
+        //   'bdex' streaming is not yet implemented for this enumeration.
+        //
+        // Concerns:
+        //   Not applicable.
         //
         // Plan:
-        //   Let L represents the number of valid enumerator values.
-        //   Let S represent the set of consecutive integers { 1 .. L }
-        //   Let T represent the set of consecutive integers { 0 .. L + 1 }
-        //
-        //   VALID STREAMS
-        //     Verify that each valid enumerator value in S can be written to
-        //     and successfully read from a valid 'bdex' data stream into an
-        //     variable of the enumeration type with any initial value in T
-        //     leaving the stream in a valid state.
-        //
-        //   EMPTY AND INVALID STREAMS
-        //     For each valid and invalid initial enumerator value in T,
-        //     create a variable of the enumeration type and attempt to stream
-        //     into it from an empty and then invalid stream.  Verify that the
-        //     variable has its initial value, and that the stream is invalid.
-        //
-        //   INCOMPLETE (BUT OTHERWISE VALID) DATA
-        //     Write 3 identical valid enumerator values to an output stream
-        //     buffer, which will then be of total length N.  For each partial
-        //     stream length from 0 to N - 1, construct an input stream and
-        //     attempt to read into variables of the enumerator type
-        //     initialized with 3 other identical values.  Verify that values
-        //     of variables are successfully modified, partially modified (and
-        //     therefore reset to the default value), or left entirely
-        //     unmodified.  Also verify that the stream becomes invalid
-        //     immediately after the first incomplete read.
-        //
-        //   CORRUPTED DATA
-        //     Use the underlying stream package to simulate a typical valid
-        //     (control) stream and verify that it can be streamed into a
-        //     variable of the enumeration type successfully.  Then for each of
-        //     the two data fields in the stream (beginning with the version
-        //     number), provide two similar tests with the data field corrupted
-        //     ("too small" and "too large").  After each test, verify the
-        //     variable has the default value, and that the input stream has
-        //     gone invalid.
+        //   Not applicable.
         //
         // Testing:
-        //   template <class STREAM>
-        //   static STREAM& bdexStreamOut(STREAM&                     stream,
-        //                                bdetu_SystemClockType::Type value,
-        //                                int                         version);
-        //   template <class STREAM>
-        //   static STREAM& bdexStreamIn(STREAM&                      stream,
-        //                               bdetu_SystemClockType::Type& value,
-        //                               int                          version);
+        //   Not applicable.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Streaming Operators" << endl
-                                  << "===========================" << endl;
-
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING 'print'
+        //
+        // Concerns:
+        //: 1 The 'print' method writes the output to the specified stream.
+        //:   (P-1)
+        //: 2 The 'print' method writes the string representation of each
+        //:   enumerator in the intended format.  (P-1)
+        //: 3 The 'print' method writes a distinguished string when passed an
+        //:   out-of-band value.  (P-2)
+        //: 4 There is no output when the stream is invalid.  (P-3)
+        //: 5 The 'print' method has the expected signature.  (P-4)
+        //
+        // Plan:
+        //: 1 Verify that the 'print' method produces the expected results for
+        //:   each enumerator.  (C-1, C-2)
+        //: 2 Verify that the 'print' method writes a distinguished string when
+        //:   passed an out-of-band value.  (C-3)
+        //: 3 Verify that there is no output when the stream is invalid.  (C-4)
+        //: 4 Take the address of the 'print' (class) method and use the
+        //:   result to initialize a variable of the appropriate type.  (C-5)
+        //
+        // Testing:
+        //   ostream& print(ostream& s, Enum val, int level = 0, int sPL = 4);
         // --------------------------------------------------------------------
 
-        const int VERSION = Class::maxSupportedBdexVersion();
+        if (verbose) cout << endl << "Testing 'print'" << endl
+                                  << "===============" << endl;
 
-        if (verbose) cout <<
-            "\nTesting ('<<') and ('>>') on valid streams and data." << endl;
-        if (verbose) cout << "\tFor normal (correct) conditions." << endl;
-        {
-            BSLMF_ASSERT(Class::e_REALTIME < Class::e_MONOTONIC);
+        static const struct {
+            int         d_lineNum;  // source line number
+            int         d_level;    // level
+            int         d_spl;      // spaces per level
+            Enum        d_value;    // enumerator value
+            const char *d_exp;      // expected result
+        } DATA[] = {
+#define NL "\n"
+            //line  level  spl    enumerator value        expected result
+            //----  -----  ---  ----------------------    -----------------
+            { L_,     0,    4,  Obj::e_REALTIME,          "REALTIME" NL      },
+            { L_,     0,    4,  Obj::e_MONOTONIC,         "MONOTONIC" NL     },
 
-            for (int i = Class::e_REALTIME; i <= Class::e_MONOTONIC; ++i) {
-                const Enum X = Enum(i);  if (veryVerbose) { P_(i);  P(X); }
-                Out out;
-                bdex_OutStreamFunctions::streamOut(out, X, VERSION);
-                const char *const OD  = out.data();
-                const int         LOD = out.length();
+            { L_,     0,    4,  (Enum)NUM_ENUMERATORS,    UNKNOWN_FORMAT NL  },
+            { L_,     0,    4,  (Enum)-1,                 UNKNOWN_FORMAT NL  },
+            { L_,     0,    4,  (Enum)-5,                 UNKNOWN_FORMAT NL  },
+            { L_,     0,    4,  (Enum)99,                 UNKNOWN_FORMAT NL  },
 
-                // Verify that each new value overwrites every old value
-                // and that the input stream is emptied, but remains valid.
+            { L_,     0,   -1,  Obj::e_REALTIME,         "REALTIME"          },
+            { L_,     0,    0,  Obj::e_REALTIME,         "REALTIME" NL       },
+            { L_,     0,    2,  Obj::e_REALTIME,         "REALTIME" NL       },
+            { L_,     1,    1,  Obj::e_REALTIME,         " REALTIME" NL      },
+            { L_,     1,    2,  Obj::e_REALTIME,         "  REALTIME" NL     },
+            { L_,    -1,    2,  Obj::e_REALTIME,         "REALTIME" NL       },
+            { L_,    -2,    1,  Obj::e_REALTIME,         "REALTIME" NL       },
+            { L_,     2,    1,  Obj::e_REALTIME,         "  REALTIME" NL          },
+            { L_,     1,    3,  Obj::e_REALTIME,         "   REALTIME" NL    },
+#undef NL
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-                for (int j = Class::e_REALTIME; j <= Class::e_MONOTONIC; ++j) {
-                    In in(OD, LOD);  In &testInStream = in;
-                    in.setSuppressVersionCheck(1);
-                    LOOP2_ASSERT(i, j, in);  LOOP2_ASSERT(i, j, !in.isEmpty());
+        const int   SIZE = 128;         // big enough to hold output string
+        const char  XX   = (char)0xFF;  // value of an unset 'char'
+              char  buf[SIZE];          // output buffer
 
-                    Enum t = Enum(j);
-                  BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                    LOOP2_ASSERT(i, j, (X == t) == (i == j));
-                    bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                  } END_BDEX_EXCEPTION_TEST
-                    LOOP2_ASSERT(i, j, X == t);
-                    LOOP2_ASSERT(i, j, in);  LOOP2_ASSERT(i, j, in.isEmpty());
-                }
+              char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
+        const char *CTRL = mCtrl;
+
+        if (verbose) cout << "\nTesting 'print'." << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE  = DATA[ti].d_lineNum;
+            const int   LEVEL = DATA[ti].d_level;
+            const int   SPL   = DATA[ti].d_spl;
+            const Enum  VALUE = DATA[ti].d_value;
+            const char *EXP   = DATA[ti].d_exp;
+
+            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
+
+            if (veryVerbose) { T_; P_(ti); P(VALUE); }
+            if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
+
+            ostrstream out(buf, sizeof buf);
+            Obj::print(out, VALUE, LEVEL, SPL) << ends;
+
+            if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
+
+            const int SZ = strlen(EXP) + 1;
+            LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
+                                                          // enough.
+            LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf, EXP, SZ));
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
+                                                CTRL + SZ, SIZE - SZ));
+
+            if (0 == LEVEL && 4 == SPL) {
+                if (veryVerbose)
+                    cout << "\tRepeat for 'print' default arguments." << endl;
+
+                memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char'
+                                          // values.
+
+                ostrstream out(buf, sizeof buf);
+                Obj::print(out, VALUE) << ends;
+
+                if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
+
+                LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for
+                                                              // overrun.
+                LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf, EXP, SZ));
+                LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
+                                                    CTRL + SZ, SIZE - SZ));
             }
         }
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\tNothing is written to a bad stream." << endl;
 
-        if (verbose) cout << "\tOn empty and invalid streams." << endl;
-        {
-            Out out;
-            const char *const  OD = out.data();
-            const int         LOD = out.length();
-            ASSERT(0 == LOD);
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE  = DATA[ti].d_lineNum;
+            const int   LEVEL = DATA[ti].d_level;
+            const int   SPL   = DATA[ti].d_spl;
+            const Enum  VALUE = DATA[ti].d_value;
+            const char *EXP   = DATA[ti].d_exp;
 
-            for (int i = Class::e_REALTIME - 1;
-                 i <= Class::e_MONOTONIC + 1;
-                 ++i) {
-                In in(OD, LOD);      In &testInStream = in;
-                in.setSuppressVersionCheck(1);
-                LOOP_ASSERT(i, in);  LOOP_ASSERT(i, in.isEmpty());
+            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
-                // Ensure that reading from an empty or invalid input stream
-                // leaves the stream invalid and the target object unchanged.
+            if (veryVerbose) { T_; P_(ti); P(VALUE); }
 
-                const Enum X = Enum(i);  Enum t(X);  LOOP_ASSERT(i, X == t);
-              BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-                bdex_InStreamFunctions::streamIn(in, t, VERSION);
-                LOOP_ASSERT(i, !in);     LOOP_ASSERT(i, X == t);
-              } END_BDEX_EXCEPTION_TEST
-            }
+            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            Obj::print(out, VALUE, LEVEL, SPL);
+
+            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
         }
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) cout << "\nVerify 'print' signature." << endl;
 
-        if (verbose) cout <<
-             "\tOn incomplete (but otherwise valid) data." << endl;
         {
-            const Enum W1 = Enum(2), X1 = Enum(2), Y1 = Enum(1);
-            const Enum W2 = Enum(1), X2 = Enum(1), Y2 = Enum(2);
-            const Enum W3 = Enum(2), X3 = Enum(2), Y3 = Enum(1);
+            typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum, int, int);
 
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, X1, VERSION);
-            const int LOD1 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X2, VERSION);
-            const int LOD2 = out.length();
-            bdex_OutStreamFunctions::streamOut(out, X3, VERSION);
-            const int LOD  = out.length();
-            const char *const     OD   = out.data();
-
-            for (int i = 0; i < LOD; ++i) {
-                In in(OD, i);  In &testInStream = in;
-                in.setSuppressVersionCheck(1);
-              BEGIN_BDEX_EXCEPTION_TEST { in.reset();
-                LOOP_ASSERT(i, in); LOOP_ASSERT(i, !i == in.isEmpty());
-                Enum t1(W1), t2(W2), t3(W3);
-
-                if (i < LOD1) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                         if (0 == i) LOOP_ASSERT(i, W1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else if (i < LOD2) {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                      if (LOD1 == i) LOOP_ASSERT(i, W2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, W3 == t3);
-                }
-                else {
-                    bdex_InStreamFunctions::streamIn(in, t1, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X1 == t1);
-                    bdex_InStreamFunctions::streamIn(in, t2, VERSION);
-                    LOOP_ASSERT(i,  in);  LOOP_ASSERT(i, X2 == t2);
-                    bdex_InStreamFunctions::streamIn(in, t3, VERSION);
-                    LOOP_ASSERT(i, !in);
-                                      if (LOD2 == i) LOOP_ASSERT(i, W3 == t3);
-                }
-
-                                LOOP_ASSERT(i, Y1 != t1);
-                t1 = Y1;        LOOP_ASSERT(i, Y1 == t1);
-
-                                LOOP_ASSERT(i, Y2 != t2);
-                t2 = Y2;        LOOP_ASSERT(i, Y2 == t2);
-
-                                LOOP_ASSERT(i, Y3 != t3);
-                t3 = Y3;        LOOP_ASSERT(i, Y3 == t3);
-              } END_BDEX_EXCEPTION_TEST
-            }
+            const FuncPtr FP = &Obj::print;
         }
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING OUTPUT ('<<') OPERATOR
+        //
+        // Concerns:
+        //: 1 The '<<' operator writes the output to the specified stream.
+        //:   (P-1)
+        //: 2 The '<<' operator writes the string representation of each
+        //:   enumerator in the intended format.  (P-1)
+        //: 3 The '<<' operator writes a distinguished string when passed an
+        //:   out-of-band value.  (P-2)
+        //: 4 The output produced by 'stream << value' is the same as that
+        //:   produced by 'Obj::print(stream, value, 0, -1)'.  (P-3)
+        //: 5 There is no output when the stream is invalid.  (P-4)
+        //: 6 The '<<' operator has the expected signature.  (P-5)
+        //
+        // Plan:
+        //: 1 Verify that the '<<' operator produces the expected results for
+        //:   each enumerator.  (C-1, C-2)
+        //: 2 Verify that the '<<' operator writes a distinguished string when
+        //:   passed an out-of-band value.  (C-3)
+        //: 3 Verify that 'stream << value' writes the same output as
+        //:   'Obj::print(stream, value, 0, -1)'.  (C-4)
+        //: 4 Verify that there is no output when the stream is invalid.  (C-5)
+        //: 5 Take the address of the '<<' (free) operator and use the result
+        //:   to initialize a variable of the appropriate type.  (C-6)
+        //
+        // Testing:
+        //   operator<<(ostream& s, bdetu_SystemClockType::Enum val);
+        // --------------------------------------------------------------------
 
-        if (verbose) cout << "\tOn corrupted data." << endl;
+        if (verbose) cout << endl << "Testing '<<' operator" << endl
+                                  << "=====================" << endl;
 
-        const Enum W = Enum(0), X = Enum(1), Y = Enum(2);
-        ASSERT(Class::e_MONOTONIC == Y);
+        static const struct {
+            int         d_lineNum;  // source line number
+            Enum        d_value;    // enumerator value
+            const char *d_exp;      // expected result
+        } DATA[] = {
+            //line       enumerator value         expected result
+            //----    -----------------------     ---------------
+            { L_,     Obj::e_REALTIME,            "REALTIME"         },
+            { L_,     Obj::e_MONOTONIC,           "MONOTONIC"        },
 
-        // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+            { L_,     (Enum)NUM_ENUMERATORS,      UNKNOWN_FORMAT     },
+            { L_,     (Enum)-1,                   UNKNOWN_FORMAT     },
+            { L_,     (Enum)-5,                   UNKNOWN_FORMAT     },
+            { L_,     (Enum)99,                   UNKNOWN_FORMAT     },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "\t\tGood stream (for control)." << endl;
+        const int   SIZE = 128;         // big enough to hold output string
+        const char  XX   = (char)0xFF;  // value of an unset 'char'
+              char  buf[SIZE];          // output buffer
 
-        {
-            const char version    = 1;
-            const char enumerator = char(Y);
+              char  mCtrl[SIZE];  memset(mCtrl, XX, SIZE);
+        const char *CTRL = mCtrl;
 
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+        if (verbose) cout << "\nTesting '<<' operator." << endl;
 
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t);
-            In in(OD, LOD);     ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);   ASSERT(in);
-                                ASSERT(W != t); ASSERT(X != t);
-         }
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE  = DATA[ti].d_lineNum;
+            const Enum  VALUE = DATA[ti].d_value;
+            const char *EXP   = DATA[ti].d_exp;
 
-        // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
 
-        if (verbose) cout << "\t\tBad version number." << endl;
+            if (veryVerbose) { T_; P_(ti); P(VALUE); }
+            if (veryVerbose) cout << "EXPECTED FORMAT: " << EXP << endl;
 
-        {
-            const char version    = -1;          // BAD: too small
-            const char enumerator = char(Y);
+            ostrstream out(buf, sizeof buf);
+            out << VALUE << ends;
 
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+            if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl;
 
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-            In in(OD, LOD);     ASSERT(in);
-            in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, version);   ASSERT(!in);
-                                ASSERT(W != t); ASSERT(X == t);
+            const int SZ = strlen(EXP) + 1;
+            LOOP2_ASSERT(LINE, ti, SZ  < SIZE);           // Buffer is large
+                                                          // enough.
+            LOOP2_ASSERT(LINE, ti, XX == buf[SIZE - 1]);  // Check for overrun.
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf, EXP, SZ));
+            LOOP2_ASSERT(LINE, ti,  0 == memcmp(buf + SZ,
+                                                CTRL + SZ, SIZE - SZ));
         }
-        {
-            const char version    = 5;           // BAD: too large
-            const char enumerator = char(Y);
 
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
+        if (verbose) cout << "\tNothing is written to a bad stream." << endl;
 
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-            In in(OD, LOD);     ASSERT(in);
-            in.setQuiet(!veryVerbose);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, version);   ASSERT(!in);
-                                ASSERT(W != t); ASSERT(X == t);
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE  = DATA[ti].d_lineNum;
+            const Enum  VALUE = DATA[ti].d_value;
+            const char *EXP   = DATA[ti].d_exp;
+
+            memcpy(buf, CTRL, SIZE);  // Preset 'buf' to unset 'char' values.
+
+            if (veryVerbose) { T_; P_(ti); P(VALUE); }
+
+            ostrstream out(buf, sizeof buf);  out.setstate(ios::badbit);
+            out << VALUE;
+
+            LOOP2_ASSERT(LINE, ti, 0 == memcmp(buf, CTRL, SIZE));
         }
 
-        // -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
-
-        if (verbose) cout << "\t\tBad enumerator value." << endl;
+        if (verbose) cout << "\nVerify '<<' operator signature." << endl;
 
         {
-            const char enumerator = char(-1);     // BAD: too small
+            typedef bsl::ostream& (*FuncPtr)(bsl::ostream&, Enum);
 
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD =  out.data();
-            const int         LOD = out.length();
-
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t);
-            In in(OD, LOD);     ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);   ASSERT(!in);
-                                ASSERT(W != t); ASSERT(X == t);
-        }
-        {
-            const char enumerator = char(Class::e_MONOTONIC + 1);
-                                                              // BAD: too large
-
-            Out out;
-            bdex_OutStreamFunctions::streamOut(out, enumerator, VERSION);
-            const char *const OD  = out.data();
-            const int         LOD = out.length();
-
-            Enum t(X);          ASSERT(W != t); ASSERT(X == t); ASSERT(Y != t);
-            In in(OD, LOD);     ASSERT(in);
-            in.setSuppressVersionCheck(1);
-            bdex_InStreamFunctions::streamIn(in, t, VERSION);   ASSERT(!in);
-                                ASSERT(W != t); ASSERT(X == t);
+            const FuncPtr FP = &operator<<;
         }
 
       } break;
       case 1: {
-        // ----------------------------------------------------------------
+        // -------------------------------------------------------------------
+        // TESTING 'enum' AND 'toAscii'
+        //
+        // Concerns:
+        //: 1 The enumerator values are sequential, starting from 0.  (P-1)
+        //: 2 The 'toAscii' method returns the expected string representation
+        //:   for each enumerator.  (P-2)
+        //: 3 The 'toAscii' method returns a distinguished string when passed
+        //:   an out-of-band value.  (P-3)
+        //: 4 The string returned by 'toAscii' is non-modifiable.  (P-4)
+        //: 5 The 'toAscii' method has the expected signature.  (P-4)
+        //
+        // Plan:
+        //: 1 Verify that the enumerator values are sequential, starting from
+        //:   0.  (C-1)
+        //: 2 Verify that the 'toAscii' method returns the expected string
+        //:   representation for each enumerator.  (C-2)
+        //: 3 Verify that the 'toAscii' method returns a distinguished string
+        //:   when passed an out-of-band value.  (C-3)
+        //: 4 Take the address of the 'toAscii' (class) method and use the
+        //:   result to initialize a variable of the appropriate type.
+        //:   (C-4, C-5)
+        //
         // Testing:
-        //   static const char *toAscii(bdetu_SystemClockType::Type clock);
-        //   operator<<(ostream&, bdetu_SystemClockType::Type rhs);
-        // ----------------------------------------------------------------
+        //   enum Enum { ... };
+        //   const char *toAscii(bdetu_SystemClockType::Enum val);
+        // -------------------------------------------------------------------
 
-        if (verbose) cout << endl << "BASIC TEST" << endl
-                                  << "==========" << endl;
+        if (verbose) cout << endl << "Testing 'enum' and 'toAscii'" << endl
+                                  << "============================" << endl;
 
         static const struct {
-            int         d_line;      // line number
-            int         d_intClock;  // enumerated Value as int
-            const char *d_exp;       // expected String Rep.
+            int         d_lineNum;  // source line number
+            Enum        d_value;    // enumerator value
+            const char *d_exp;      // expected result
         } DATA[] = {
-            // line    Enumerated Value         Expected output
-            // ----    ----------------         ---------------
-            {  L_,     Class::e_REALTIME,       "REALTIME"                   },
-            {  L_,     Class::e_MONOTONIC,      "MONOTONIC"                  },
-#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-            {  L_,     0,                         "(* Unknown Enumerator *)" },
-            {  L_,     Class::e_MONOTONIC + 1,    "(* Unknown Enumerator *)" },
-            {  L_,     19,                        "(* Unknown Enumerator *)" },
-#endif
-        };
+            // line         enumerator value        expected result
+            // ----    -----------------------      -----------------
+            {  L_,     Obj::e_REALTIME,             "REALTIME"        },
+            {  L_,     Obj::e_MONOTONIC,            "MONOTONIC"       },
 
+            {  L_,     (Enum)NUM_ENUMERATORS,       UNKNOWN_FORMAT    },
+            {  L_,     (Enum)-1,                    UNKNOWN_FORMAT    },
+            {  L_,     (Enum)-5,                    UNKNOWN_FORMAT    },
+            {  L_,     (Enum)99,                    UNKNOWN_FORMAT    }
+        };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) cout << "Testing 'toAscii'." << endl;
-        {
-            for (int i = 0 ; i < NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
-                const Enum  CLOCK = (Enum) DATA[i].d_intClock;
-                const char *EXP   = DATA[i].d_exp;
+        if (verbose) cout << "\nVerify enumerator values are sequential."
+                          << endl;
 
-                const char *res = Class::toAscii(CLOCK);
-                if (veryVerbose) { cout << '\t'; P_(i); P_(CLOCK); P(res); }
-                LOOP2_ASSERT(LINE, i, 0 == strcmp(EXP, res));
-            }
+        for (int ti = 0; ti < NUM_ENUMERATORS; ++ti) {
+            const Enum VALUE = DATA[ti].d_value;
+
+            if (veryVerbose) { T_; P_(ti); P(VALUE); }
+
+            LOOP_ASSERT(ti, ti == VALUE);
         }
 
-        if (verbose) cout << "Testing 'operator<<'." << endl;
+        if (verbose) cout << "\nTesting 'toAscii'." << endl;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int   LINE  = DATA[ti].d_lineNum;
+            const Enum  VALUE = DATA[ti].d_value;
+            const char *EXP   = DATA[ti].d_exp;
+
+            const char *result = Obj::toAscii(VALUE);
+
+            if (veryVerbose) { T_; P_(ti); P_(VALUE); P_(EXP); P(result); }
+
+            LOOP2_ASSERT(LINE, ti, strlen(EXP) == strlen(result));
+            LOOP2_ASSERT(LINE, ti,           0 == strcmp(EXP, result));
+        }
+
+        if (verbose) cout << "\nVerify 'toAscii' signature." << endl;
+
         {
-            const int   SIZE = 100;
-            char        buf[SIZE];
-            const char  XX = (char) 0xFF;   // Value for an unset char.
-            char        mCtrl[SIZE];           memset(mCtrl, XX, SIZE);
-            const char *CTRL = mCtrl;
+            typedef const char *(*FuncPtr)(Enum);
 
-            for (int i = 0 ; i < NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
-                const Enum  CLOCK = (Enum) DATA[i].d_intClock;
-                const char *EXP   = DATA[i].d_exp;
-
-                memset(buf, XX, SIZE);
-                ostrstream out(buf, SIZE);
-                out << CLOCK << ends;
-
-                const int SZ = strlen(EXP) + 1;
-                if (veryVerbose) { cout << '\t'; P_(i); P(buf); }
-                LOOP2_ASSERT(LINE, i, XX == buf[SIZE - 1]);
-                LOOP2_ASSERT(LINE, i,  0 == memcmp(buf, EXP, SZ));
-                LOOP2_ASSERT(LINE, i,
-                             0 == memcmp(buf + SZ, CTRL + SZ, SIZE - SZ));
-            }
+            const FuncPtr FP = &Obj::toAscii;
         }
 
       } break;
       default: {
-          cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-          testStatus = -1;
+        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+        testStatus = -1;
       }
     }
+
+    ASSERT(0 == defaultAllocator.numBlocksTotal());
+    ASSERT(0 ==  globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
@@ -511,11 +557,11 @@ if (verbose) {  // added in test driver
     return testStatus;
 }
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -22,7 +22,7 @@ BDES_IDENT("$Id: $")
 // component provides access to a monotonic clock, a realtime (wall) clock, and
 // also a dynamically replaceable callback mechanism for determining system
 // time; note that this mechanism is in addition to the two clocks and does not
-// affect the 'now(bdetu_SystemClockType::Type clockType)',
+// affect the 'now(bdetu_SystemClockType::Enum clockType)',
 // 'nowMonotonicClock', and 'nowRealtimeClock' methods.
 //
 // For applications that choose to define their own mechanism for determining
@@ -388,7 +388,7 @@ struct bdetu_SystemTime {
         // return value is an absolute offset since the epoch, and has the same
         // value in all time zones.
 
-    static bdet_TimeInterval now(bdetu_SystemClockType::Type clockType);
+    static bdet_TimeInterval now(bdetu_SystemClockType::Enum clockType);
         // Return the 'bdet_TimeInterval' value representing the current system
         // time according to the specified 'clock'.
 
@@ -516,7 +516,7 @@ bdet_TimeInterval bdetu_SystemTime::now()
 }
 
 inline
-bdet_TimeInterval bdetu_SystemTime::now(bdetu_SystemClockType::Type clockType)
+bdet_TimeInterval bdetu_SystemTime::now(bdetu_SystemClockType::Enum clockType)
 {
     switch (clockType) {
       case bdetu_SystemClockType::e_MONOTONIC: return nowMonotonicClock();

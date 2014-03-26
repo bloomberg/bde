@@ -32,7 +32,7 @@ using namespace bsl;  // automatically added by script
 // [ 6] bdet_Datetime nowAsDatetime();
 // [12] bdet_Datetime nowAsDatetimeGMT();
 // [ 5] bdet_TimeInterval now();
-// [15] bdet_TimeInterval now(bdetu_SystemClockType::Type);
+// [15] bdet_TimeInterval now(bdetu_SystemClockType::Enum);
 // [14] bdet_TimeInterval nowMonotonicClock();
 // [14] bdet_TimeInterval nowRealtimeClock();
 // [ 3] void loadCurrentTime(bdet_TimeInterval *result);
@@ -528,22 +528,22 @@ int main(int argc, char *argv[])
     } break;
     case 15: {
       // --------------------------------------------------------------------
-      // TESTING 'now(bdetu_SystemClockType::Type)' METHOD
+      // TESTING 'now(bdetu_SystemClockType::Enum)' METHOD
       //  The methods return a 'bdet_TimeInterval' value representing the
       //  current system time using the specified system clock.
       //
       // Plan:
-      //  Verify the value returned for each 'bdetu_SystemClockType::Type'
+      //  Verify the value returned for each 'bdetu_SystemClockType::Enum'
       //  closely approximates the implied class method that implementes
       //  the selected clock type (i.e. 'nowRealtimeClock')
       //
       //
       // Testing:
-      //  bdet_TimeInterval now(bdetu_SystemClockType::Type);
+      //  bdet_TimeInterval now(bdetu_SystemClockType::Enum);
       // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTesting 'now(bdetu_SystemClockType::Type)'"
+            cout << "\nTesting 'now(bdetu_SystemClockType::Enum)'"
                     "\n==========================================" << endl;
 
         {
