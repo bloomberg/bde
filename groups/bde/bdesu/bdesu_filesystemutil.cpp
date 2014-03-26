@@ -49,13 +49,35 @@ BDES_IDENT_RCSID(bdesu_filesystemutil_cpp,"$Id$ $CSID$")
 #endif
 
 #ifdef BSLS_PLATFORM_OS_CYGWIN
-#define stat64   stat
-#define lstat64 lstat
+
+namespace {
+    typedef struct stat   StatResult;
+}  // close unnamed namespace
+extern "C" {
+    typedef int (*StatFuncType)(const char *, StatResult *);
+}
+
+static const StatFuncType statFunc  = ::stat;
+static const StatFuncType lStatFunc = ::lstat;
+
+#else
+
+namespace {
+    typedef struct stat64 StatResult;
+}  // close unnamed namespace
+extern "C" {
+    typedef int (*StatFuncType)(const char *, StatResult *);
+}
+
+static const StatFuncType statFunc  = ::stat64;
+static const StatFuncType lStatFunc = ::lstat64;
+
 #endif
 
 namespace BloombergLP {
 
 namespace {
+
 
 // STATIC HELPER FUNCTIONS
 static
@@ -172,14 +194,6 @@ int removeFile(const char *path)
 
 #else
 // unix-specific helper functions
-
-extern "C" {
-    // Need a special 'typedef' because some compilers put the 'extern'
-    // into the function type itself...but provide no way to declare
-    // a function pointer of extern type local to a function.
-
-    typedef int (*StatFuncType)(const char *, struct stat64 *);
-}
 
 static
 int localFcntlLock(int descriptor, int cmd, int type)
@@ -520,7 +534,6 @@ int bdesu_FilesystemUtil::sync(char *address, int numBytes, bool)
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
     BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
                      bdesu_MemoryUtil::pageSize());
-
 
     // The meaning of the 'sync' flag (cause this function to be
     // synchronous vs. asynchronous) does not appear to be supported by
@@ -1090,7 +1103,7 @@ int bdesu_FilesystemUtil::remove(const char *path, bool recursive)
 
          struct dirent& entry = entryHolder.d_entry;
          struct dirent *entry_p;
-         struct stat64 dummy;
+         StatResult dummy;
          int rc;
          do {
             rc = readdir_r(dir, &entry, &entry_p);
@@ -1103,7 +1116,7 @@ int bdesu_FilesystemUtil::remove(const char *path, bool recursive)
             }
 
             bdesu_PathUtil::appendRaw(&workingPath, entry.d_name);
-            if (0 == lstat64(workingPath.c_str(), &dummy) &&
+            if (0 == ::lStatFunc(workingPath.c_str(), &dummy) &&
                 0 != remove(workingPath.c_str(), true)) {
                return -1;                                             // RETURN
             }
@@ -1240,11 +1253,11 @@ bool bdesu_FilesystemUtil::isRegularFile(const char *path, bool followLinks)
 {
     BSLS_ASSERT(path);
 
-    struct stat64 fileStats;
+    StatResult fileStats;
 
-    StatFuncType statFunc = followLinks ? stat64 : lstat64;
+    StatFuncType statFuncPtr = followLinks ? ::statFunc : ::lStatFunc;
 
-    if (0 != statFunc(path, &fileStats)) {
+    if (0 != statFuncPtr(path, &fileStats)) {
         return false;                                                 // RETURN
     }
 
@@ -1255,11 +1268,11 @@ bool bdesu_FilesystemUtil::isDirectory(const char *path, bool followLinks)
 {
     BSLS_ASSERT(path);
 
-    struct stat64 fileStats;
+    StatResult fileStats;
 
-    StatFuncType statFunc = followLinks ? stat64 : lstat64;
+    StatFuncType statFuncPtr = followLinks ? ::statFunc : ::lStatFunc;
 
-    if (0 != statFunc(path, &fileStats)) {
+    if (0 != statFuncPtr(path, &fileStats)) {
         return false;                                                 // RETURN
     }
 
@@ -1272,9 +1285,9 @@ int bdesu_FilesystemUtil::getLastModificationTime(bdet_Datetime *time,
     BSLS_ASSERT(time);
     BSLS_ASSERT(path);
 
-    struct stat64 fileStats;
+    StatResult fileStats;
 
-    if (0 != stat64(path, &fileStats)) {
+    if (0 != ::statFunc(path, &fileStats)) {
         return -1;                                                    // RETURN
     }
 
@@ -1355,15 +1368,9 @@ bdesu_FilesystemUtil::getAvailableSpace(FileDescriptor descriptor)
 bdesu_FilesystemUtil::Offset bdesu_FilesystemUtil::getFileSize(
                                                               const char *path)
 {
-#if defined(BSLS_PLATFORM_OS_CYGWIN)
-    struct stat fileStats;
+    StatResult fileStats;
 
-    if (0 != stat(path, &fileStats)) {
-#else
-    struct stat64 fileStats;
-
-    if (0 != stat64(path, &fileStats)) {
-#endif
+    if (0 != ::statFunc(path, &fileStats)) {
         return -1;                                                    // RETURN
     }
 
