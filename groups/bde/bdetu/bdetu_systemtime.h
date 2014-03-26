@@ -17,13 +17,11 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Khalid Shafiq (kshafiq), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component provides static methods for retrieving system
-// time.  The system time is expressed as a time interval between the current
-// time and a pre-determined historical time, 00:00 UTC, January 1, 1970.  This
-// component provides access to a monotonic clock, a realtime (wall) clock, and
-// also a dynamically replaceable callback mechanism for determining system
-// time; note that this mechanism is in addition to the two clocks and does not
-// affect the 'now(bdetu_SystemClockType::Enum clockType)',
-// 'nowMonotonicClock', and 'nowRealtimeClock' methods.
+// time.  This component provides access to a monotonic clock, a realtime
+// (wall) clock, and also a dynamically replaceable callback mechanism for
+// determining system time; note that this mechanism does not affect the
+// 'now(bdetu_SystemClockType::Enum clockType)', 'nowMonotonicClock', and
+// 'nowRealtimeClock' methods.
 //
 // For applications that choose to define their own mechanism for determining
 // system time, this component provides the ability to install a custom
@@ -342,10 +340,9 @@ namespace BloombergLP {
                             // ======================
 
 struct bdetu_SystemTime {
-    // This 'struct' provides a namespace for stateful system-time-retrieval
-    // procedures.  These methods are alias-safe and exception-neutral.  The
-    // use of a *subset* of these procedures is thread-safe (see
-    // 'Thread Safety').
+    // This 'struct' provides a namespace for system-time-retrieval procedures
+    // including a configurable global callback mechanism.  The use of a
+    // *subset* of these procedures is thread-safe (see 'Thread Safety').
 
     // TYPES
     typedef void (*LoadLocalTimeOffsetCallback)(
@@ -418,11 +415,13 @@ struct bdetu_SystemTime {
 
     static bdet_TimeInterval nowMonotonicClock();
         // Return the 'bdet_TimeInterval' value representing the current system
-        // time according to the monotonic clock.
+        // time according to the monotonic clock.  Note that, depending on
+        // platform, this may be more efficient than 'now(e_MONOTONIC)'.
 
     static bdet_TimeInterval nowRealtimeClock();
         // Return the 'bdet_TimeInterval' value representing the current system
-        // time according to the realtime (wall) clock.
+        // time according to the realtime (wall) clock.  Note that, depending
+        // on platform, this may be more efficient than 'now(e_REALTIME)'.
 
                         // ** load methods **
 
@@ -485,9 +484,9 @@ struct bdetu_SystemTime {
         // Return the currently installed 'SystemTimeCallback' function.
 };
 
-// ==========================================================================
+// ============================================================================
 //                       INLINE FUNCTION DEFINITIONS
-// ==========================================================================
+// ============================================================================
 
                             // ----------------------
                             // class bdetu_SystemTime
