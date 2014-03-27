@@ -411,14 +411,14 @@ class Function_Rep {
              sizeof(TP) + k_NON_SOO_SMALL_SIZE);
     };
 
-    template <class TP>
-    struct FitsInplace : integral_constant<bool,
-                                           sizeof(TP) <= sizeof(InplaceBuffer)>
+    template <class FN>
+    struct InplaceFunc :
+        integral_constant<bool, SooObjSize<FN>::VALUE <= sizeof(InplaceBuffer)>
     {
-        // Metafunction to determine whether the specified 'TP' template
-        // parameter fits within the 'InplaceBuffer'.
+        // Metafunction to determine whether the specified 'FN' template
+        // parameter should be allocated within the 'InplaceBuffer'.
 
-        // TBD: 'FitsInplace' should also take alignment into account, but
+        // TBD: 'InplaceFunc' should also take alignment into account, but
         // since we don't (yet) have the ability to specify alignment when
         // allocating memory, there's nothing we can do at this point.
     };
@@ -630,7 +630,7 @@ class function<RET(ARGS...)> :
 
     template <class FUNC>
     static Invoker *getInvoker(const FUNC&,
-                              bslmf::SelectTraitCase<FitsInplace>);
+                               bslmf::SelectTraitCase<InplaceFunc>);
         // Return the invoker for an in-place functor.
 
     template <class FUNC>
@@ -1381,7 +1381,7 @@ template <class RET, class... ARGS>
 template <class FUNC>
 typename bsl::function<RET(ARGS...)>::Invoker *
 bsl::function<RET(ARGS...)>::getInvoker(const FUNC&,
-                                        bslmf::SelectTraitCase<FitsInplace>)
+                                        bslmf::SelectTraitCase<InplaceFunc>)
 {
     return &inplaceFunctorInvoker<FUNC>;
 }
@@ -1498,7 +1498,7 @@ bsl::function<RET(ARGS...)>::function(FUNC func)
     typedef typename bslmf::SelectTrait<FUNC,
                                         bslmf::IsFunctionPointer,
                                         bslmf::IsMemberFunctionPointer,
-                                        FitsInplace>::Type FuncSelection;
+                                        InplaceFunc>::Type FuncSelection;
 
     d_invoker_p = getInvoker(func, FuncSelection());
 
@@ -1560,7 +1560,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
     typedef typename bslmf::SelectTrait<FUNC,
                                         bslmf::IsFunctionPointer,
                                         bslmf::IsMemberFunctionPointer,
-                                        FitsInplace>::Type FuncSelection;
+                                        InplaceFunc>::Type FuncSelection;
 
     d_invoker_p = getInvoker(func, FuncSelection());
 
