@@ -530,13 +530,27 @@ bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
-                                         const bdet_TimeInterval& absoluteTime)
+                                      const bdet_TimeInterval&    absoluteTime,
+                                      bdetu_SystemClockType::Enum clockType)
 {
     // ASSERT that the interval is between January 1, 1970 00:00.000 and
     // the end of December 31, 9999 (i.e., less than January 1, 10000).
 
     BSLS_ASSERT(absoluteTime >= bdet_TimeInterval(0, 0));
     BSLS_ASSERT(absoluteTime <  bdet_TimeInterval(253402300800LL, 0));
+
+    // This implementation is very sensitive to the 'clockType'.  For
+    // safety, we will assert the value is one of the two currently expected
+    // values.
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == clockType
+                || bdetu_SystemClockType::e_MONOTONIC == clockType);
+
+    if (clockType != bdetu_SystemClockType::e_REALTIME) {
+        // since we will be operating with the realtime clock, adjust
+        // the timeout value to make it consistent with the realtime clock
+        absoluteTime += bdetu_SystemTime::nowRealtimeClock()
+                                            - bdetu_SystemTime::now(clockType);
+    }
 
     HANDLE timer = CreateWaitableTimer(0, false, 0);
     if (0 == timer) {

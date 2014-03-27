@@ -24,6 +24,19 @@ BDES_IDENT("$Id: $")
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bcemt_ThreadUtil'.
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // This component is an implementation detail of 'bcemt' and is *not* intended
@@ -44,6 +57,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BCEMT_THREADATTRIBUTES
 #include <bcemt_threadattributes.h>
+#endif
+
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -194,24 +211,41 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // depends on many factors including system scheduling, and system
         // timer resolution.
 
+    static int sleepUntil(const bdet_TimeInterval&    absoluteTime,
+                          bdetu_SystemClockType::Enum clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
+        // Suspend execution of the current thread until the specified
+        // 'absoluteTime'.  Optionally specify 'clockType' which determines the
+        // epoch from which the interval 'absoluteTime' is measured (see
+        // {Supported Clock-Types} in the component documentation).  Return 0
+        // on success, and a non-zero value otherwise.  The behavior is
+        // undefined unless 'absoluteTime' represents a time after January 1,
+        // 1970 and before the end of December 31, 9999 (i.e., a time interval
+        // greater than or equal to 0, and less than 253,402,300,800 seconds).
+        // Note that the actual time suspended depends on many factors
+        // including system scheduling and system timer resolution.
+
     static int sleepUntil(
                       const bdet_TimeInterval& absoluteTime,
-                      bool                     retryOnSignalInterrupt = false);
+                      bool                     retryOnSignalInterrupt = false,
+                      bdetu_SystemClockType::Enum clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
         // Suspend execution of the current thread until the specified
-        // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
-        // January 1, 1970).  Optionally specify 'retryOnSignalInterrupt'
+        // 'absoluteTime'.  Optionally specify 'retryOnSignalInterrupt'
         // indicating whether to put this thread to sleep again if the
-        // operating system interupts the sleep because of a signal.  Return 0
-        // on success, and a non-zero value otherwise.  If
-        // 'retryOnSignalInterrupt' is 'true', an interupt from a signal will 
-        // be ignored and the current the thread will be put back to sleep
-        // until 'absoluteTime', otherwise this call will return 0 to the
-        // calling thread immediately.  The behavior is undefined unless
-        // 'absoluteTime' represents a time after January 1, 1970 and before
-        // the end of December 31, 9999 (i.e., a time interval greater than or
-        // equal to 0, and less than 253,402,300,800 seconds).  Note that the
-        // actual time suspended depends on many factors including system
-        // scheduling and system timer resolution.
+        // operating system interupts the sleep because of a signal.
+        // Optionally specify 'clockType' which determines the epoch from which
+        // the interval 'absoluteTime' is measured (see {Supported Clock-Types}
+        // in the component documentation).  Return 0 on success, and a
+        // non-zero value otherwise.  If 'retryOnSignalInterrupt' is 'true', an
+        // interupt from a signal will be ignored and the current the thread
+        // will be put back to sleep until 'absoluteTime', otherwise this call
+        // will return 0 to the calling thread immediately.  The behavior is
+        // undefined unless 'absoluteTime' represents a time after January 1,
+        // 1970 and before the end of December 31, 9999 (i.e., a time interval
+        // greater than or equal to 0, and less than 253,402,300,800 seconds).
+        // Note that the actual time suspended depends on many factors
+        // including system scheduling and system timer resolution.
 
     static void yield();
         // Put the current thread to the end of the scheduler's queue and
@@ -348,6 +382,14 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::join(
 }
 
 inline
+int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
+                                      const bdet_TimeInterval&    absoluteTime,
+                                      bdetu_SystemClockType::Enum clockType)
+{
+    return sleepUntil(absoluteTime, false, clockType);
+}
+
+inline
 void bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::yield()
 {
     sched_yield();
@@ -471,11 +513,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::setSpecific(
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

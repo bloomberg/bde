@@ -452,8 +452,9 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::microSleep(
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
-                               const bdet_TimeInterval& absoluteTime,
-                               bool                     retryOnSignalInterupt)
+                             const bdet_TimeInterval&    absoluteTime,
+                             bool                        retryOnSignalInterupt,
+                             bdetu_SystemClockType::Enum clockType)
 {
     // ASSERT that the interval is between January 1, 1970 00:00.000 and
     // the end of December 31, 9999 (i.e., less than January 1, 10000).
@@ -485,6 +486,19 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     //: o http://felinemenace.org/~nemo/mach/manpages/
     //: o http://boredzo.org/blog/archives/2006-11-26/how-to-use-mach-clocks/
     //: o Mac OS X Interals: A Systems Approach (On Safari-Online)
+
+    // This implementation is very sensitive to the 'clockType'.  For
+    // safety, we will assert the value is one of the two currently expected
+    // values.
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == clockType
+                || bdetu_SystemClockType::e_MONOTONIC == clockType);
+
+    if (clockType != bdetu_SystemClockType::e_REALTIME) {
+        // since we will be operating with the realtime clock, adjust
+        // the timeout value to make it consistent with the realtime clock
+        absoluteTime += bdetu_SystemTime::nowRealtimeClock()
+                                            - bdetu_SystemTime::now(clockType);
+    }
 
     clock_serv_t clock;
 
@@ -522,7 +536,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
 
     int result;
     do {
-        result = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &clockTime, 0);
+        result = clock_nanosleep(clockType, TIMER_ABSTIME, &clockTime, 0);
 
     } while (EINTR == result && retryOnSignalInterupt);
 
@@ -537,11 +551,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
