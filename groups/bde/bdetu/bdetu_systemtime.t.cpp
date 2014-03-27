@@ -528,23 +528,29 @@ int main(int argc, char *argv[])
     } break;
     case 15: {
       // --------------------------------------------------------------------
-      // TESTING 'now(bdetu_SystemClockType::Enum)' METHOD
-      //  The methods return a 'bdet_TimeInterval' value representing the
-      //  current system time using the specified system clock.
+      // TESTING 'now(bdetu_SystemClockType::Enum)'
+      //  Ensure the returned 'bdet_TimeInterval' value represents the current
+      //  system time as per the specified 'bdetu_SystemClockType::Enum'.
+      //
+      // Concerns:
+      //: 1 'now(e_REALTIME)' provides the current "wall" time.
+      //: 2 'now(e_MONOTONIC)' provides the current monotonic clock time.
       //
       // Plan:
-      //  Verify the value returned for each 'bdetu_SystemClockType::Enum'
-      //  closely approximates the implied class method that implementes
-      //  the selected clock type (i.e. 'nowRealtimeClock')
-      //
+      //: 1 Verify 'now(e_REALTIME)' closely approximates the value returned by
+      //:   'nowRealtimeClock'.  (C-1)
+      //:
+      //: 2 Verify 'now(e_MONOTONIC)' closely approximates the value returned
+      //:   by 'nowMonotonicClock'.  (C-2)
       //
       // Testing:
       //  bdet_TimeInterval now(bdetu_SystemClockType::Enum);
       // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nTesting 'now(bdetu_SystemClockType::Enum)'"
-                    "\n==========================================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING 'now(bdetu_SystemClockType::Enum)'"
+                                                                       << endl
+                          << "=======================================" << endl;
 
         {
             bdet_TimeInterval first = bdetu_SystemTime::nowMonotonicClock();
@@ -561,27 +567,30 @@ int main(int argc, char *argv[])
     } break;
     case 14: {
       // --------------------------------------------------------------------
-      // TESTING 'nowMonotonicClock' and 'nowRealtimeClock' METHODS
-      //  The methods return a 'bdet_TimeInterval' value representing the
-      //  current system time using either a monotonic or realtime (wall)
-      //  system clock.  We have to verify that each subsequent call to the
-      //  methods reports a time that is non-decreasing.
+      // TESTING 'nowMonotonicClock' and 'nowRealtimeClock'
+      //  Ensure the returned 'bdet_TimeInterval' value represents the current
+      //  system time.
+      //
+      // Concerns:
+      //: 1 'nowRealtimeClock' provides the current "wall" time.
+      //: 2 'nowMonotonicClock' provides time values that are non-decreasing.
       //
       // Plan:
-      //  First verify 'nowRealtimeClock' closely approximates the value
-      //  returned by 'now' using the default callback function.  Then verify
-      //  'nowMonotonicClock' is non-decreasing.
-      //
+      //: 1 Verify 'nowRealtimeClock' closely approximates the value returned
+      //:   by 'now' using the default callback function.  (C-1)
+      //:
+      //: 2 Verify the value returned by 'nowMonotonicClock' is non-decreasing
+      //:   over a large set of attempts.  (C-2)
       //
       // Testing:
       //  bdet_TimeInterval nowMonotonicClock()
       //  bdet_TimeInterval nowRealtimeClock()
       // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "\nTesting 'nowMonotonicClock' and 'nowRealtimeClock'"
-                    "\n=================================================="
-                 << endl;
+        if (verbose) cout << endl
+                          << "TESTING 'nowMonotonicClock' and "
+                                                 "'nowRealtimeClock'" << endl
+                          << "=======================================" << endl;
 
         {
             bdet_TimeInterval realtime = bdetu_SystemTime::nowRealtimeClock();
