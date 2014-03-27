@@ -524,6 +524,27 @@ public:
         { return a.value() != b.value(); }
 };
 
+class ThrowingEmptyFunctor : public EmptyFunctor
+{
+    // An empty functor that whose move constructor is not marked 'noexcept'
+    
+public:
+    explicit ThrowingEmptyFunctor(int v = 0) : EmptyFunctor(v) { }
+
+    ThrowingEmptyFunctor(const ThrowingEmptyFunctor& other)
+        : EmptyFunctor(other) { if (this == (void*) 0xdeadbeaf) throw other; }
+
+    ~ThrowingEmptyFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
+
+    friend bool operator==(const ThrowingEmptyFunctor&,
+                           const ThrowingEmptyFunctor&)
+        { return true; }
+
+    friend bool operator!=(const ThrowingEmptyFunctor&,
+                           const ThrowingEmptyFunctor&)
+        { return false; }
+};
+
 // Using the curiously-recurring template pattern with a template template
 // parameter, we can implement the boiler-plate part of an STL-style
 // allocator.
@@ -1063,11 +1084,9 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
 
     typedef bsl::function<int(IntWrapper,int)> Obj;
 
-    bool isEmpty = isNullPtr(func);
-
-    const std::size_t funcSize = (bsl::is_empty<FUNC>::value ? 0 :
-                                  isEmpty                    ? 0 :
-                                  sizeof(FUNC));
+    const std::size_t inplaceFuncSize = (bsl::is_empty<FUNC>::value ? 0 :
+                                         isNullPtr(func)            ? 0 :
+                                         sizeof(FUNC));
     const std::size_t allocSize = CheckAlloc<ALLOC>::k_SIZE;
     const std::size_t maxOverhead = CheckAlloc<ALLOC>::k_MAX_OVERHEAD;
 
@@ -1077,24 +1096,23 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
     
     switch (inplace) {
       case e_INPLACE_BOTH: {
-        ASSERT(funcSize + allocSize <= sizeof(SmallObjectBuffer));
+        ASSERT(inplaceFuncSize + allocSize <= sizeof(SmallObjectBuffer));
         numBlocksUsed = 0;
         minBytesUsed = 0;
         maxBytesUsed = 0;
       } break;
 
       case e_INPLACE_FUNC_ONLY: {
-        ASSERT(funcSize <= sizeof(SmallObjectBuffer));
-        ASSERT(funcSize + allocSize > sizeof(SmallObjectBuffer));
+        ASSERT(inplaceFuncSize <= sizeof(SmallObjectBuffer));
+        ASSERT(inplaceFuncSize + allocSize > sizeof(SmallObjectBuffer));
         numBlocksUsed = 1;
         minBytesUsed = allocSize;
         maxBytesUsed = minBytesUsed + maxOverhead;
       } break;
 
       case e_OUTOFPLACE_BOTH: {
-        // ASSERT(funcSize > sizeof(SmallObjectBuffer));
         numBlocksUsed = 1;
-        minBytesUsed = funcSize + allocSize;
+        minBytesUsed = sizeof(FUNC) + allocSize;
         maxBytesUsed = minBytesUsed + maxOverhead;
       } break;
     } // end switch
@@ -1104,7 +1122,7 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
     {
         ALLOC alloc(&ta);
         Obj f(bsl::allocator_arg, alloc, func);
-        ASSERT(isEmpty == !f);
+        ASSERT(isNullPtr(func) == !f);
         ASSERT(CheckAlloc<ALLOC>::sameAlloc(alloc, f.allocator()));
         if (f) {
             ASSERT(typeid(func) == f.target_type());
@@ -1679,6 +1697,28 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
         TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
 
+        if (veryVerbose) std::printf("FUNC is NothrowMoveFunctor(0x3000)\n");
+        TEST(bslma::TestAllocator *  , NothrowMoveFunctor(0x3000));
+        TEST(bsl::allocator<char>    , NothrowMoveFunctor(0x3000));
+        TEST(EmptySTLAllocator<char> , NothrowMoveFunctor(0x3000));
+        TEST(TinySTLAllocator<char>  , NothrowMoveFunctor(0x3000));
+        TEST(SmallSTLAllocator<char> , NothrowMoveFunctor(0x3000));
+        TEST(MediumSTLAllocator<char>, NothrowMoveFunctor(0x3000));
+        TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0x3000));
+
+        if (veryVerbose) std::printf("FUNC is ThrowingMoveFunctor(0x7000)\n");
+        TEST(bslma::TestAllocator *  , ThrowingMoveFunctor(0x7000));
+        TEST(bsl::allocator<char>    , ThrowingMoveFunctor(0x7000));
+        TEST(EmptySTLAllocator<char> , ThrowingMoveFunctor(0x7000));
+        TEST(TinySTLAllocator<char>  , ThrowingMoveFunctor(0x7000));
+        TEST(SmallSTLAllocator<char> , ThrowingMoveFunctor(0x7000));
+        TEST(MediumSTLAllocator<char>, ThrowingMoveFunctor(0x7000));
+        TEST(LargeSTLAllocator<char> , ThrowingMoveFunctor(0x7000));
+
+        if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor()\n");
+        TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
+        TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
+
 #undef TEST
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1709,7 +1749,7 @@ int main(int argc, char *argv[])
         //:   allocator (or default allocator if none specified).
         //: 8 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
-        //:   various sizes.
+        //:   various sizes with or without throwing move constructors.
         //: 9 The above concerns apply to allocators arguments which are
         //:   pointers to type derived from 'bslma::Allocator',
         //:   'bsl::allocator' instantiations, stateless STL-style allocators,
@@ -1841,6 +1881,28 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
         TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
 
+        if (veryVerbose) std::printf("FUNC is NothrowMoveFunctor(0x3000)\n");
+        TEST(bslma::TestAllocator *  , NothrowMoveFunctor(0x3000));
+        TEST(bsl::allocator<char>    , NothrowMoveFunctor(0x3000));
+        TEST(EmptySTLAllocator<char> , NothrowMoveFunctor(0x3000));
+        TEST(TinySTLAllocator<char>  , NothrowMoveFunctor(0x3000));
+        TEST(SmallSTLAllocator<char> , NothrowMoveFunctor(0x3000));
+        TEST(MediumSTLAllocator<char>, NothrowMoveFunctor(0x3000));
+        TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0x3000));
+
+        if (veryVerbose) std::printf("FUNC is ThrowingMoveFunctor(0x7000)\n");
+        TEST(bslma::TestAllocator *  , ThrowingMoveFunctor(0x7000));
+        TEST(bsl::allocator<char>    , ThrowingMoveFunctor(0x7000));
+        TEST(EmptySTLAllocator<char> , ThrowingMoveFunctor(0x7000));
+        TEST(TinySTLAllocator<char>  , ThrowingMoveFunctor(0x7000));
+        TEST(SmallSTLAllocator<char> , ThrowingMoveFunctor(0x7000));
+        TEST(MediumSTLAllocator<char>, ThrowingMoveFunctor(0x7000));
+        TEST(LargeSTLAllocator<char> , ThrowingMoveFunctor(0x7000));
+
+        if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor()\n");
+        TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
+        TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
+
 #undef TEST
 
       } break;
@@ -1895,7 +1957,7 @@ int main(int argc, char *argv[])
         //: 14 If memory is allocated, the destructor frees it.
         //: 15 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
-        //:   various sizes.
+        //:   various sizes, with or without throwing move constructors.
         //
         // Plan:
         //: 1 For concern 1, construct 'function' objects using a null pointer
@@ -1961,7 +2023,7 @@ int main(int argc, char *argv[])
         //:   of the allocator types described in the previous step in
         //:   combination with each of the following invokable types: pointer
         //:   to function, pointer to member function, and functor types of
-        //:   various sizes.
+        //:   of all varieties.
         //
         // Testing
         //      function(allocator_arg_t, const ALLOC& alloc, FUNC func);
@@ -2075,6 +2137,12 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, ThrowingMoveFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
         TEST(LargeSTLAllocator<char> , ThrowingMoveFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
+
+        if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor(0),
+                                                            e_OUTOFPLACE_BOTH);
+        TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
 
 #undef TEST
@@ -3069,6 +3137,24 @@ int main(int argc, char *argv[])
                    ftor == *F.target<ThrowingMoveFunctor>());
             ASSERT(f.target<ThrowingMoveFunctor>() &&
                    ftor == *f.target<ThrowingMoveFunctor>());
+            ASSERT(&globalTestAllocator == f.allocator());
+        }
+        ASSERT(globalAllocMonitor.isInUseSame());
+
+        if (veryVerbose) printf("Construct with throwing empty functor\n");
+        globalAllocMonitor.reset();
+        {
+            // This functor is NOT eligible for the small-object optimization.
+            long long preBlocks = globalTestAllocator.numBlocksInUse();
+            ThrowingEmptyFunctor ftor(21);
+            Obj f(ftor); const Obj& F = f;
+            ASSERT(F);
+            ASSERT(preBlocks + 1 == globalTestAllocator.numBlocksInUse());
+            ASSERT(typeid(ThrowingEmptyFunctor) == F.target_type());
+            ASSERT(F.target<ThrowingEmptyFunctor>() &&
+                   ftor == *F.target<ThrowingEmptyFunctor>());
+            ASSERT(f.target<ThrowingEmptyFunctor>() &&
+                   ftor == *f.target<ThrowingEmptyFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
