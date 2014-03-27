@@ -5,9 +5,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-// Storage for class constants:
-const std::size_t bsl::Function_ObjSize<void>::VALUE;
-
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
                                        Function_Rep  *rep,
@@ -30,7 +27,7 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
         return PtrOrSize_t();
       } break;
 
-      case e_GET_SOO_SIZE: return PtrOrSize_t();
+      case e_GET_SIZE:     return PtrOrSize_t();
       case e_GET_TARGET:   return rep->d_allocator_p;
       case e_GET_TYPE_ID:  return &typeid(bslma::Allocator);
 
@@ -39,7 +36,7 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
               const_cast<void *>(input.asPtr()));
 
           std::size_t sooFuncSize = rep->d_funcManager_p ?
-              rep->d_funcManager_p(e_GET_SOO_SIZE, rep,
+              rep->d_funcManager_p(e_GET_SIZE, rep,
                                    PtrOrSize_t()).asSize_t() : 0;
 
           rep->initRep(sooFuncSize, inputAlloc,
@@ -66,7 +63,7 @@ bsl::Function_Rep::target_type() const BSLS_NOTHROW_SPEC
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
