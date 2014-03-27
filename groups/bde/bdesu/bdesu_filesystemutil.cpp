@@ -53,24 +53,44 @@ BDES_IDENT_RCSID(bdesu_filesystemutil_cpp,"$Id$ $CSID$")
 namespace {
     typedef struct stat   StatResult;
 }  // close unnamed namespace
-extern "C" {
-    typedef int (*StatFuncType)(const char *, StatResult *);
-}
-
-static const StatFuncType statFunc  = ::stat;
-static const StatFuncType lStatFunc = ::lstat;
 
 #else
 
 namespace {
     typedef struct stat64 StatResult;
 }  // close unnamed namespace
-extern "C" {
-    typedef int (*StatFuncType)(const char *, StatResult *);
+
+#endif
+
+static inline
+int performStat(const char *fileName, StatResult *statResult)
+    // Run the appropriate 'stat' or 'stat64' function on the specified
+    // 'fileName', returning the results in the specified 'statResult'.
+{
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+    return stat  (fileName, statResult);
+#else
+    return stat64(fileName, statResult);
+#endif
 }
 
-static const StatFuncType statFunc  = ::stat64;
-static const StatFuncType lStatFunc = ::lstat64;
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+
+static inline
+int performStat(const char *fileName, StatResult *statResult, bool followLinks)
+    // Run the appropriate 'stat' or 'stat64' function on the specified
+    // 'fileName', returning the results in the specified 'statResult', where
+    // the specified 'followLinks' indicates whether symlinks are to be
+    // followed.
+{
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+    return followLinks ?  stat(fileName, statResult)
+                       : lstat(fileName, statResult);
+#else
+    return followLinks ?  stat64(fileName, statResult)
+                       : lstat64(fileName, statResult);
+#endif
+}
 
 #endif
 
@@ -1116,7 +1136,7 @@ int bdesu_FilesystemUtil::remove(const char *path, bool recursive)
             }
 
             bdesu_PathUtil::appendRaw(&workingPath, entry.d_name);
-            if (0 == ::lStatFunc(workingPath.c_str(), &dummy) &&
+            if (0 == ::performStat(workingPath.c_str(), &dummy, false) &&
                 0 != remove(workingPath.c_str(), true)) {
                return -1;                                             // RETURN
             }
@@ -1255,9 +1275,7 @@ bool bdesu_FilesystemUtil::isRegularFile(const char *path, bool followLinks)
 
     StatResult fileStats;
 
-    StatFuncType statFuncPtr = followLinks ? ::statFunc : ::lStatFunc;
-
-    if (0 != statFuncPtr(path, &fileStats)) {
+    if (0 != ::performStat(path, &fileStats, followLinks)) {
         return false;                                                 // RETURN
     }
 
@@ -1270,9 +1288,7 @@ bool bdesu_FilesystemUtil::isDirectory(const char *path, bool followLinks)
 
     StatResult fileStats;
 
-    StatFuncType statFuncPtr = followLinks ? ::statFunc : ::lStatFunc;
-
-    if (0 != statFuncPtr(path, &fileStats)) {
+    if (0 != ::performStat(path, &fileStats, followLinks)) {
         return false;                                                 // RETURN
     }
 
@@ -1287,7 +1303,7 @@ int bdesu_FilesystemUtil::getLastModificationTime(bdet_Datetime *time,
 
     StatResult fileStats;
 
-    if (0 != ::statFunc(path, &fileStats)) {
+    if (0 != ::performStat(path, &fileStats)) {
         return -1;                                                    // RETURN
     }
 
@@ -1370,7 +1386,7 @@ bdesu_FilesystemUtil::Offset bdesu_FilesystemUtil::getFileSize(
 {
     StatResult fileStats;
 
-    if (0 != ::statFunc(path, &fileStats)) {
+    if (0 != ::performStat(path, &fileStats)) {
         return -1;                                                    // RETURN
     }
 

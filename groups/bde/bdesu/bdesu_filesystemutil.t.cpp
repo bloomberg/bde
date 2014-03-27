@@ -207,29 +207,26 @@ void localForkExec(bsl::string command)
     if (0 == fork()) {
         // child process
 
-        int systemSts = ::system(command.c_str());
-
-        ASSERT(0 == systemSts);
-
-        exit(systemSts);
-#if 0
         bsl::vector<char *>  argvec;
-        command.push_back('\0');
         const char          *endp = command.data() + command.length();
+        BSLS_ASSERT_OPT(*endp == 0);
 
-        for (char *pc = &command[0]; pc < endp; ++pc) {
+        char *pc;
+        for (pc = &command[0]; pc < endp; ) {
             argvec.push_back(pc);
             while (*pc && ' ' != *pc) {
                 ++pc;
             }
-            *pc = 0;
+            if (pc < endp) {
+                *pc++ = 0;
+            }
         }
+        BSLS_ASSERT_OPT(endp == pc);
         argvec.push_back(0);
 
         execv(argvec[0], argvec.data());
 
-        ASSERT(0 && "execv failed");
-#endif
+        BSLS_ASSERT_OPT(0 && "execv failed");
     }
 #else
     STARTUPINFO sui;

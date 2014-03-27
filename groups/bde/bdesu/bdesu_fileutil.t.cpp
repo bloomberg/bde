@@ -184,14 +184,9 @@ void localForkExec(bsl::string command)
     if (0 == fork()) {
         // child process
 
-        const int systemSts = ::system(command.c_str());
-        ASSERT(0 == systemSts);
-
-        exit(systemSts);
-#if 0
-        bsl::vector<char *> argvec;
-        const char * const endp = command.data() + command.length();
-        ASSERT(0 == *endp);
+        bsl::vector<char *>  argvec;
+        const char          *endp = command.data() + command.length();
+        BSLS_ASSERT_OPT(*endp == 0);
 
         char *pc;
         for (pc = &command[0]; pc < endp; ) {
@@ -203,12 +198,12 @@ void localForkExec(bsl::string command)
                 *pc++ = 0;
             }
         }
-        ASSERT(endp == pc);
+        BSLS_ASSERT_OPT(endp == pc);
+        argvec.push_back(0);
 
         execv(argvec[0], argvec.data());
 
-        ASSERT(0 && "execv failed");
-#endif
+        BSLS_ASSERT_OPT(0 && "execv failed");
     }
 #else
     STARTUPINFO sui;
