@@ -1,0 +1,74 @@
+The package has been dowloaded from http://speleotrove.com/decimal/#decNumber .
+The latest version downloaded is 3.68 of the ICU licensed package.
+
+o Download source code from http://speleotrove.com/decimal/#decNumber .  Be
+  very certain that you download the ICU licensed distribution only!  Our use
+  is not compatible with the GPL (the other available license).  The first
+  release of bdl+decnumber is based on the 3.68 version.
+
+o In general, I would not recommend bulk-updating our coee from the
+  distribution; however since it may become necessary, I outline a possible
+  process below
+
+o Note that you cannot necessarily just overwrite files in our repository with
+  newer files from the distribution, as some of these files have been updated
+  to suit our needs:
+    decNumberLocal.h
+    decContext.h
+
+o The base version is stored in the 'original' directory as a ZIP file with the
+   version name in its filename 'decNumber-icu-3.68.zip' and you may use the
+   sources from the archive to diff against.
+
+o NOTE that the PDF documentation has been removed from the original archive,
+  otherwise it would be too large )binary file) for comfort (in a version
+  control system).  You may find the PDF documentation in the 'doc' directory.
+
+o NOTE that if you need to download and archive a new version of the
+  base-souces you *must* also remove any large binary file from that archive
+  before putting it into git; and also make sure its file name has the proper
+  version number included.
+
+o You will need to check the differences between the base version (3.68 now)
+  and your downloaded version for the updated files and figure out how to apply
+  those changes to our version - and if we need further updates to the file(s).
+  To aid this process I will describe (in this file) the nature of our
+  update(s) our assumptions.
+
+o You will also need to look at the differences between the new files and our
+  files for those files that we have not edited - to make sure that we do not
+  miss a breaking change, or a new dependency etc.
+
+o Make sure you check the errata and apply any bugfixes listed there:
+  http://speleotrove.com/decimal/decnumerr.html
+  No errata changes have been applied to this version (3.68).  If you do apply
+  such changes list them in this file.
+
+o Pay special attention to possible new settings (MACROS) that need to be added
+  or changed in decNumberLocal.h
+
+o Note that due to the way our build system works the "included .c files" must
+  go into the 'common' subdirectory (so our build system does not try to build
+  tehm and fail).
+
+o Apply the necessary changes to our git repository.
+
+o Do *not* copy in files that are not used.
+
+o Make sure everything still builds and runs on all supported platforms.
+
+o Update this file to reflect the new state of the art.
+
+                        Our local changes in detail
+                        ===========================
+
+o decNumberLocal.h:
+ ------------------
+
+    o Added ther use if bsls_platform.h to determine endianness
+
+o decContext.h:
+ --------------
+
+    o Added code so that we can build on Windows with old Microsoft Visual
+      Studio 2008 that has no stdint.h (C99) header
