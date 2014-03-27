@@ -1522,10 +1522,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -1863,6 +1859,9 @@ void swap(HashTable_ComparatorWrapper<FUNCTOR> &lhs,
                            // ===============
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+class HashTable_ImplParameters;
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 class HashTable {
     // This class template implements a value-semantic container type holding
     // an unordered sequence of (possibly duplicate) elements, that can be
@@ -1918,232 +1917,20 @@ class HashTable {
     typedef typename AllocatorTraits::size_type    SizeType;
 
   private:
-#if 0
-    typedef typename
-                  bslalg::FunctorAdapter<HashTable_HashWrapper<HASHER> >::Type
-                                                                    BaseHasher;
-    typedef typename
-         bslalg::FunctorAdapter<HashTable_ComparatorWrapper<COMPARATOR> >::Type
-                                                                BaseComparator;
-#else
-    // It looks like the 'CallableVariable' adaptation would be more
-    // appropriately addressed as part of the 'bslalg::FunctorAdapter' wrapper
-    // than intrusively in this component, and in similar ways by any other
-    // container trying to support the full range of standard conforming
-    // functors.  Given that our intent is to support standard predicates, it
-    // may be appropriate to handle calling non-const 'operator()' overloads
-    // (via a mutable member) too.
-
-    typedef
-    typename bslalg::FunctorAdapter<
-                     HashTable_HashWrapper<
-                               typename CallableVariable<HASHER>::type> >::Type
-                                                                    BaseHasher;
-    typedef
-    typename bslalg::FunctorAdapter<
-                     HashTable_ComparatorWrapper<
-                           typename CallableVariable<COMPARATOR>::type> >::Type
-                                                                BaseComparator;
-#endif
-
     // PRIVATE TYPES
-
-#pragma bdeverify push
-#pragma bdeverify -CD01
-    // Note that all methods of 'ImplParameters' are implemented inline because
-    // out-of-line implementations cause an ICE in the MSVC++ 2008 compiler.
-
-  public:  // TBD made public for testing purposes only
-    struct ImplParameters : private BaseHasher, private BaseComparator
-    {
-        // This class holds all the parameterized parts of a 'HashTable' class,
-        // efficiently exploiting the empty base optimization without adding
-        // unforeseen namespace associations to the 'HashTable' class itself
-        // due to the structural inheritance.  Note that it must use a nested
-        // traits declaration as there is no valid C++ syntax to specialize a
-        // nested type of a class template.
-
-        BSLMF_NESTED_TRAIT_DECLARATION_IF(
-                  ImplParameters,
-                  bslma::UsesBslmaAllocator,
-                  (bsl::is_convertible<bslma::Allocator *, ALLOCATOR>::value));
-
-     private:
-        // NOT IMPLEMENTED
-        ImplParameters(const ImplParameters&); // = delete;
-        ImplParameters& operator=(const ImplParameters&); // = delete;
-
-      public:
-        typedef HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
-                                                                 HashTableType;
-        typedef typename HashTableType::AllocatorTraits::
-                                template rebind_traits<NodeType> ReboundTraits;
-        typedef typename ReboundTraits::allocator_type           NodeAllocator;
-
-        typedef BidirectionalNodePool<typename HashTableType::ValueType,
-                                      NodeAllocator>               NodeFactory;
-
-        // Assert consistency checks against Machiavellian users, specializing
-        // an allocator for a specific type to have different propagation
-        // traits to the primary template.
-
-        BSLMF_ASSERT(
-           ReboundTraits::propagate_on_container_copy_assignment::value ==
-           HashTableType::AllocatorTraits::
-                                propagate_on_container_copy_assignment::value);
-
-        BSLMF_ASSERT(
-           ReboundTraits::propagate_on_container_move_assignment::value ==
-           HashTableType::AllocatorTraits::
-                                propagate_on_container_move_assignment::value);
-
-        BSLMF_ASSERT(
-           ReboundTraits::propagate_on_container_swap::value ==
-           HashTableType::AllocatorTraits::propagate_on_container_swap::value);
-
-        // PUBLIC DATA
-        NodeFactory  d_nodeFactory;    // nested 'struct's have public data by
-                                       // convention, but should always be
-                                       // accessed through the public methods.
-
-        // CREATORS
-        explicit ImplParameters(const ALLOCATOR& allocator)
-            // Create an 'ImplParameters' object having default constructed
-            // 'HASHER' and 'COMPARATOR' functors, and using the specified
-            // 'allocator' to provide a 'BidirectionalNodePool'.
-        : BaseHasher()
-        , BaseComparator()
-        , d_nodeFactory(allocator)
-        {
-        }
-
-        ImplParameters(const HASHER&     hash,
-                       const COMPARATOR& compare,
-                       const ALLOCATOR&  allocator)
-            // Create an 'ImplParameters' object having the specified 'hash',
-            // and 'compare' functors, and using the specified 'allocator' to
-            // provide a 'BidirectionalNodePool'.
-        : BaseHasher(hash)
-        , BaseComparator(compare)
-        , d_nodeFactory(allocator)
-        {
-        }
-
-        ImplParameters(const ImplParameters& original,
-                       const ALLOCATOR&      allocator)
-            // Create an 'ImplParameters' object having the same 'hasher' and
-            // 'comparator' attributes as the specified 'original', and
-            // providing a 'BidirectionalNodePool' using the specified
-            // 'allocator'.
-        : BaseHasher(static_cast<const BaseHasher&>(original))
-        , BaseComparator(static_cast<const BaseComparator&>(original))
-        , d_nodeFactory(allocator)
-        {
-        }
-
-        // MANIPULATORS
-        NodeFactory& nodeFactory()
-            // Return a modifiable reference to the 'nodeFactory' owned by this
-            // object.
-        {
-            return d_nodeFactory;
-        }
-
-        void quickSwapExchangeAllocators(ImplParameters *other)
-            // Efficiently exchange the value, functor, and allocator of this
-            // object with those of the specified 'other' object.  This method
-            // provides the no-throw exception-safety guarantee.
-        {
-            BSLS_ASSERT_SAFE(other);
-
-            bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
-                                   static_cast<BaseHasher*>(other));
-
-            bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
-                                   static_cast<BaseComparator*>(other));
-
-            nodeFactory().swapExchangeAllocators(other->nodeFactory());
-        }
-
-        void quickSwapRetainAllocators(ImplParameters *other)
-            // Efficiently exchange the value and functors this object with
-            // those of the specified 'other' object.  This method provides the
-            // no-throw exception-safety guarantee.  The behavior is undefined
-            // unless this object was created with the same allocator as
-            // 'other'.
-        {
-            BSLS_ASSERT_SAFE(other);
-
-            bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
-                                   static_cast<BaseHasher*>(other));
-
-            bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
-                                   static_cast<BaseComparator*>(other));
-
-            nodeFactory().swapRetainAllocators(other->nodeFactory());
-        }
-
-        // ACCESSORS
-        const BaseComparator& comparator() const
-            // Return a non-modifiable reference to the 'comparator' functor
-            // owned by this object.
-        {
-            return *this;
-        }
-
-        template <class DEDUCED_KEY>
-        native_std::size_t hashCodeForKey(DEDUCED_KEY& key) const
-            // Return the hash code for the specified 'key' using a copy of the
-            // hash functor supplied at construction.  Note that this function
-            // is provided as common way to resolve const_cast issues in the
-            // case that the stored hash functor has a function call operator
-            // that is not declared as 'const'.
-        {
-            return static_cast<const BaseHasher &>(*this)(key);
-        }
-
-        const BaseHasher& hasher() const
-            // Return a non-modifiable reference to the 'hasher' functor owned
-            // by this object.
-        {
-            return *this;
-        }
-
-        const NodeFactory& nodeFactory() const
-            // Return a non-modifiable reference to the 'nodeFactory' owned by
-            // this object.
-        {
-            return d_nodeFactory;
-        }
-
-        const COMPARATOR& originalComparator() const
-            // Return a non-modifiable reference to the 'comparator' functor
-            // owned by this object.
-        {
-            return static_cast<const BaseComparator *>(this)->functor();
-        }
-
-        const HASHER& originalHasher() const
-            // Return a non-modifiable reference to the 'hasher' functor owned
-            // by this object.
-        {
-            return static_cast<const BaseHasher *>(this)->functor();
-        }
-    };
-#pragma bdeverify pop
+    typedef
+    HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>
+                                                                ImplParameters;
 
   private:
     // DATA
     ImplParameters      d_parameters;    // policies governing table behavior
     bslalg::HashTableAnchor
                         d_anchor;        // list root and bucket array
-
     SizeType            d_size;          // number of elements in this table
-
     SizeType            d_capacity;      // max number of elements before a
                                          // rehash is required (computed from
                                          // 'd_maxLoadFactor')
-
     float               d_maxLoadFactor; // maximum permitted load factor
 
   private:
@@ -2784,6 +2571,160 @@ struct HashTable_Util {
         // 'bucketArraySize', that was allocated by the specified 'allocator'.
 };
 
+                   // ==============================
+                   // class HashTable_ImplParameters
+                   // ==============================
+
+    // It looks like the 'CallableVariable' adaptation would be more
+    // appropriately addressed as part of the 'bslalg::FunctorAdapter' wrapper
+    // than intrusively in this component, and in similar ways by any other
+    // container trying to support the full range of standard conforming
+    // functors.  Given that our intent is to support standard predicates, it
+    // may be appropriate to handle calling non-const 'operator()' overloads
+    // (via a mutable member) too.
+
+template <class HASHER>
+struct HashTable_BaseHasher
+     : bslalg::FunctorAdapter<HashTable_HashWrapper<
+                                     typename CallableVariable<HASHER>::type> >
+{
+};
+
+template <class COMPARATOR>
+struct HashTable_Comparator
+     : bslalg::FunctorAdapter<HashTable_ComparatorWrapper<
+                                 typename CallableVariable<COMPARATOR>::type> >
+{
+};
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+class HashTable_ImplParameters
+    : private HashTable_BaseHasher<HASHER>::Type
+    , private HashTable_Comparator<COMPARATOR>::Type
+{
+    // This class holds all the parameterized parts of a 'HashTable' class,
+    // efficiently exploiting the empty base optimization without adding
+    // unforeseen namespace associations to the 'HashTable' class itself due to
+    // the structural inheritance.
+
+    typedef typename HashTable_BaseHasher<HASHER>::Type     BaseHasher;
+    typedef typename HashTable_Comparator<COMPARATOR>::Type BaseComparator;
+
+    // typedefs stolen from HashTable
+    typedef ALLOCATOR                              AllocatorType;
+    typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
+    typedef typename KEY_CONFIG::ValueType         ValueType;
+    typedef bslalg::BidirectionalNode<ValueType>   NodeType;
+
+  public:
+    // PUBLIC TYPES
+    typedef HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR> HashTableType;
+    typedef typename HashTableType::AllocatorTraits::
+                                template rebind_traits<NodeType> ReboundTraits;
+    typedef typename ReboundTraits::allocator_type               NodeAllocator;
+
+    typedef
+    BidirectionalNodePool<typename HashTableType::ValueType, NodeAllocator>
+                                                                   NodeFactory;
+
+  private:
+    // DATA
+    NodeFactory  d_nodeFactory;     // nested 'struct's have public data by
+                                    // convention, but should always be
+                                    // accessed through the public methods.
+
+  private:
+    // NOT IMPLEMENTED
+    HashTable_ImplParameters(const HashTable_ImplParameters&); // = delete;
+    HashTable_ImplParameters& operator=(const HashTable_ImplParameters&);
+        // = delete;
+
+    // CONSISTENCY CHECKS
+
+    // Assert consistency checks against Machiavellian users, specializing an
+    // allocator for a specific type to have different propagation traits to
+    // the primary template.
+
+    BSLMF_ASSERT(
+       ReboundTraits::propagate_on_container_copy_assignment::value ==
+       HashTableType::AllocatorTraits::
+                            propagate_on_container_copy_assignment::value);
+
+    BSLMF_ASSERT(
+       ReboundTraits::propagate_on_container_move_assignment::value ==
+       HashTableType::AllocatorTraits::
+                            propagate_on_container_move_assignment::value);
+
+    BSLMF_ASSERT(
+       ReboundTraits::propagate_on_container_swap::value ==
+       HashTableType::AllocatorTraits::propagate_on_container_swap::value);
+
+  public:
+    // CREATORS
+    explicit HashTable_ImplParameters(const ALLOCATOR& allocator);
+        // Create an 'ImplParameters' object having default constructed
+        // 'HASHER' and 'COMPARATOR' functors, and using the specified
+        // 'allocator' to provide a 'BidirectionalNodePool'.
+
+    HashTable_ImplParameters(const HASHER&       hash,
+                               const COMPARATOR& compare,
+                               const ALLOCATOR&  allocator);
+        // Create an 'ImplParameters' object having the specified 'hash', and
+        // 'compare' functors, and using the specified 'allocator' to provide a
+        // 'BidirectionalNodePool'.
+
+    HashTable_ImplParameters(const HashTable_ImplParameters& original,
+                               const ALLOCATOR&              allocator);
+        // Create an 'ImplParameters' object having the same 'hasher' and
+        // 'comparator' attributes as the specified 'original', and providing a
+        // 'BidirectionalNodePool' using the specified 'allocator'.
+
+    // MANIPULATORS
+    NodeFactory& nodeFactory();
+        // Return a modifiable reference to the 'nodeFactory' owned by this
+        // object.
+
+    void quickSwapExchangeAllocators(HashTable_ImplParameters *other);
+        // Efficiently exchange the value, functor, and allocator of this
+        // object with those of the specified 'other' object.  This method
+        // provides the no-throw exception-safety guarantee.
+
+    void quickSwapRetainAllocators(HashTable_ImplParameters *other);
+        // Efficiently exchange the value and functors this object with those
+        // of the specified 'other' object.  This method provides the no-throw
+        // exception-safety guarantee.  The behavior is undefined unless this
+        // object was created with the same allocator as 'other'.
+
+    // ACCESSORS
+    const BaseComparator& comparator() const;
+        // Return a non-modifiable reference to the 'comparator' functor owned
+        // by this object.
+
+    template <class DEDUCED_KEY>
+    native_std::size_t hashCodeForKey(DEDUCED_KEY& key) const;
+        // Return the hash code for the specified 'key' using a copy of the
+        // hash functor supplied at construction.  Note that this function is
+        // provided as common way to resolve const_cast issues in the case that
+        // the stored hash functor has a function call operator that is not
+        // declared as 'const'.
+
+    const BaseHasher& hasher() const;
+        // Return a non-modifiable reference to the 'hasher' functor owned by
+        // this object.
+
+    const NodeFactory& nodeFactory() const;
+        // Return a non-modifiable reference to the 'nodeFactory' owned by this
+        // object.
+
+    const COMPARATOR& originalComparator() const;
+        // Return a non-modifiable reference to the 'comparator' functor owned
+        // by this object.
+
+    const HASHER& originalHasher() const;
+        // Return a non-modifiable reference to the 'hasher' functor owned by
+        // this object.
+};
+
 #pragma bde_verify pop  // Flag specific exceptions to the documentation rules
 
 // ============================================================================
@@ -3176,6 +3117,161 @@ void HashTable_Util::destroyBucketArray(
                                        data,
                                        static_cast<SizeType>(bucketArraySize));
     }
+}
+
+                //-------------------------------
+                // class HashTable_ImplParameters
+                //-------------------------------
+
+    // CREATORS
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable_ImplParameters(const ALLOCATOR& allocator)
+: BaseHasher()
+, BaseComparator()
+, d_nodeFactory(allocator)
+{
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable_ImplParameters(const HASHER&     hash,
+                         const COMPARATOR& compare,
+                         const ALLOCATOR&  allocator)
+: BaseHasher(hash)
+, BaseComparator(compare)
+, d_nodeFactory(allocator)
+{
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+HashTable_ImplParameters(const HashTable_ImplParameters& original,
+                         const ALLOCATOR&                allocator)
+: BaseHasher(static_cast<const BaseHasher&>(original))
+, BaseComparator(static_cast<const BaseComparator&>(original))
+, d_nodeFactory(allocator)
+{
+}
+
+// MANIPULATORS
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+typename HashTable_ImplParameters<KEY_CONFIG,
+                                  HASHER,
+                                  COMPARATOR,
+                                  ALLOCATOR>::NodeFactory &
+HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+nodeFactory()
+{
+    return d_nodeFactory;
+}
+
+
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+void HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+quickSwapExchangeAllocators(HashTable_ImplParameters *other)
+{
+    BSLS_ASSERT_SAFE(other);
+
+    bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
+                           static_cast<BaseHasher*>(other));
+
+    bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
+                           static_cast<BaseComparator*>(other));
+
+    nodeFactory().swapExchangeAllocators(other->nodeFactory());
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+void HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+quickSwapRetainAllocators(HashTable_ImplParameters *other)
+{
+    BSLS_ASSERT_SAFE(other);
+
+    bslalg::SwapUtil::swap(static_cast<BaseHasher*>(this),
+                           static_cast<BaseHasher*>(other));
+
+    bslalg::SwapUtil::swap(static_cast<BaseComparator*>(this),
+                           static_cast<BaseComparator*>(other));
+
+    nodeFactory().swapRetainAllocators(other->nodeFactory());
+}
+
+// ACCESSORS
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+const typename HashTable_ImplParameters<KEY_CONFIG,
+                                        HASHER,
+                                        COMPARATOR,
+                                        ALLOCATOR>::BaseComparator &
+HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+comparator() const
+{
+    return *this;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class DEDUCED_KEY>
+inline
+native_std::size_t HashTable_ImplParameters<KEY_CONFIG,
+                                            HASHER,
+                                            COMPARATOR,
+                                            ALLOCATOR>::
+hashCodeForKey(DEDUCED_KEY& key) const
+{
+    return static_cast<const BaseHasher &>(*this)(key);
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+const typename HashTable_ImplParameters<KEY_CONFIG,
+                                        HASHER,
+                                        COMPARATOR,
+                                        ALLOCATOR>::BaseHasher &
+HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::hasher()
+                                                                         const
+{
+    return *this;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+const typename HashTable_ImplParameters<KEY_CONFIG,
+                                        HASHER,
+                                        COMPARATOR,
+                                        ALLOCATOR>::NodeFactory &
+HashTable_ImplParameters<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::
+nodeFactory() const
+{
+    return d_nodeFactory;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+const COMPARATOR&
+HashTable_ImplParameters<KEY_CONFIG,
+                         HASHER,
+                         COMPARATOR,
+                         ALLOCATOR>::originalComparator() const
+{
+    return static_cast<const BaseComparator *>(this)->functor();
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+inline
+const HASHER& HashTable_ImplParameters<KEY_CONFIG,
+                                       HASHER,
+                                       COMPARATOR,
+                                       ALLOCATOR>::originalHasher() const
+{
+    return static_cast<const BaseHasher *>(this)->functor();
 }
 
                         //----------------
@@ -4334,8 +4430,16 @@ struct UsesBslmaAllocator<bslstl::HashTable<KEY_CONFIG,
                                             HASHER,
                                             COMPARATOR,
                                             ALLOCATOR> >
-: bsl::is_convertible<Allocator*, ALLOCATOR>::type
-{};
+    : bsl::is_convertible<Allocator*, ALLOCATOR>::type {
+};
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+struct UsesBslmaAllocator<bslstl::HashTable_ImplParameters<KEY_CONFIG,
+                                                             HASHER,
+                                                             COMPARATOR,
+                                                             ALLOCATOR> >
+    : bsl::is_convertible<Allocator*, ALLOCATOR>::type {
+};
 
 }  // close namespace bslma
 

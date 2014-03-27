@@ -1734,6 +1734,43 @@ if (verbose) {
     }
 }  // close namespace UsageExamples
 
+// Type trait specializations to suppress warnings on allocator usage.  We omit
+// these details from the actual usage examples as the necessary opening and
+// closing of multiple namespaces would distract from the narrative.
+
+namespace BloombergLP {
+namespace bslma {
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+struct UsesBslmaAllocator<UsageExamples::MyHashedMap<KEY,
+                                                      VALUE,
+                                                      HASH,
+                                                      EQUAL,
+                                                      ALLOCATOR> >
+: bsl::is_convertible<Allocator*, ALLOCATOR>::type {};
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+struct UsesBslmaAllocator<UsageExamples::MyHashedMultiMap<KEY,
+                                                           VALUE,
+                                                           HASH,
+                                                           EQUAL,
+                                                           ALLOCATOR> >
+     : bsl::is_convertible<Allocator*, ALLOCATOR>::type {};
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+struct UsesBslmaAllocator<UsageExamples::MyHashedSet<KEY,
+                                                      HASH,
+                                                      EQUAL,
+                                                      ALLOCATOR> >
+     : bsl::is_convertible<Allocator*, ALLOCATOR>::type {};
+
+
+template <>
+struct UsesBslmaAllocator<UsageExamples::MySalesRecordContainer>
+     : bsl::true_type {};
+
+}  // close traits namespace
+}  // close enterprise namespace
 #pragma bde_verify pop  // Suppress idiomatic issues with usage examples
 
 // ============================================================================
@@ -5024,7 +5061,7 @@ struct TestDriver_StatefulAllocatorConfiguation
     // callable-parameter concerns.
 };
 
-#if 0
+#if defined(BSLSTL_ALLOCATOR_TRAITS_COMPUTES_ALLOCTOR_PROPAGATION)
 // bsl::allocator_traits does not yet detect and support the allocator
 // propagation predicate traits; these test configurations will be fully
 // specced out once support is available
@@ -11175,28 +11212,32 @@ void mainTestCaseUsageExample()
 //-----------------------------------------------------------------------------
 namespace static_assertions {
 
-typedef bslstl::HashTable<BasicKeyConfig<int>,
-                          ::bsl::hash<int>,
-                          ::bsl::equal_to<int> > TestAsTrue1;
+typedef bslstl::HashTable_ImplParameters<BasicKeyConfig<int>,
+                                         ::bsl::hash<int>,
+                                         ::bsl::equal_to<int>,
+                                         ::bsl::allocator<int> > TestAsTrue;
 
-typedef bslstl::HashTable<BasicKeyConfig<int>,
-                          ::bsl::hash<int>,
-                          ::bsl::equal_to<int>,
-                          bsltf::StdTestAllocator<int> > TaseAsFalse;
+typedef bslstl::HashTable_ImplParameters<BasicKeyConfig<int>,
+                                        ::bsl::hash<int>,
+                                        ::bsl::equal_to<int>,
+                                        bsltf::StdTestAllocator<int> >
+                                                                   TaseAsFalse;
 
-typedef bslstl::HashTable<BasicKeyConfig<int>,
-                          ::bsl::hash<int>,
-                          ::bsl::equal_to<int>,
-                          bsltf::StdStatefulAllocator<int,
-                                                      true,
-                                                      false,
-                                                      false,
-                                                      false> > TestAsFalse2;
+typedef bslstl::HashTable_ImplParameters<BasicKeyConfig<int>,
+                                         ::bsl::hash<int>,
+                                         ::bsl::equal_to<int>,
+                                         bsltf::StdStatefulAllocator<int,
+                                                                     true,
+                                                                     false,
+                                                                     false,
+                                                                     false> >
+                                                                  TestAsFalse2;
 
-BSLMF_ASSERT(bslma::UsesBslmaAllocator<TestAsTrue1::ImplParameters>::value);
-BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TaseAsFalse::ImplParameters>::value);
-BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TestAsFalse2::ImplParameters>::value);
-}
+BSLMF_ASSERT( bslma::UsesBslmaAllocator<TestAsTrue>::value);
+BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TaseAsFalse>::value);
+BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TestAsFalse2>::value);
+
+}  // close namespace static_assertions
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
