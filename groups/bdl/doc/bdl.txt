@@ -11,10 +11,11 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdl' package group currently has 3 packages having 3 levels of physical
+ The 'bdl' package group currently has 4 packages having 3 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
 ..
   3. bdlma
+     bdl+decnumber
 
   2. bdls
 
@@ -23,6 +24,9 @@
 
 /Package Synopsis
 /----------------
+: 'bdl+decnumber':
+:      Provide third-party decimal floating point library (IBM decNumber).
+:
 : 'bdlma':
 :      Provide allocators, pools, and other memory-management tools.
 :
