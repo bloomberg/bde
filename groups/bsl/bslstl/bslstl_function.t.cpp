@@ -1280,6 +1280,14 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
     }
 
     bool isEmpty = isNullPtr(func);
+    bool usesSmallObjectOptimization = false;
+
+    // Construct a 'FUNC' object in a moved-from state.
+    FUNC movedFromFunc(func);
+    {
+        FUNC movedToFunc(std::move(movedFromFunc));
+        ASSERT(movedToFunc == func);
+    }
 
     bslma::TestAllocator ta;
     ALLOC alloc(&ta);
@@ -1291,6 +1299,30 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
     // empty) source and post-move destination and measure the total memory
     // usage.
     bsls::Types::Int64 destNumBlocksUsed, destNumBytesUsed;
+    {
+        Obj postMoveDest(bsl::allocator_arg, alloc, func);
+        char *ctarget = reinterpret_cast<char*>(postMoveDest.target<FUNC>());
+        if (reinterpret_cast<char*>(&postMoveDest) <= ctarget &&
+            ctarget < reinterpret_cast<char*>(&postMoveDest + 1)) {
+            // Wrapped functor falls within the footprint of the function
+            // object.  Thus, the small object optimization is in use.
+            // After the move, the source 'function' wraps a 'FUNC' object in
+            // a moved-from state.
+            usesSmallObjectOptimization = true;
+            Obj postMoveSource(bsl::allocator_arg, alloc, movedFromFunc);
+            destNumBlocksUsed = ta.numBlocksInUse();
+            destNumBytesUsed = ta.numBytesInUse();
+        }
+        else {
+            // Functor is allocated out-of-place, so ownership of it moves
+            // rather than being move-construted.  The result of the move is
+            // that the source is empty and the destination hold the functor.
+            Obj postMoveSource(bsl::allocator_arg, alloc);
+            destNumBlocksUsed = ta.numBlocksInUse();
+            destNumBytesUsed = ta.numBytesInUse();
+        }
+    }
+#if 0
     if (sizeof(FUNC) > sizeof(SmallObjectBuffer))
     {
         // Functor is allocated out-of-place, so ownership of it moves rather
@@ -1311,6 +1343,8 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
         destNumBlocksUsed = ta.numBlocksInUse();
         destNumBytesUsed = ta.numBytesInUse();
     }
+#endif
+
     ASSERT(ta.numBlocksInUse() == 0);
     ASSERT(ta.numBytesInUse()  == 0);
     ASSERT(globalAllocMonitor.isInUseSame());
@@ -1345,7 +1379,17 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
         Obj& dest = *reinterpret_cast<Obj*>(destBuf.d_bytes);
         
         ASSERT(CheckAlloc<ALLOC>::sameAlloc(alloc, source.allocator()));
-        if (sizeof(func) > sizeof(SmallObjectBuffer)) {
+        if (usesSmallObjectOptimization) {
+            // Wrapped functor is allocated within the small buffer.  The
+            // source functor would be moved-from, but not empty.
+            // Check if the functor within 'source' has the expected
+            // moved-from functor value.
+            ASSERT(source);
+
+            // func2 is in a moved-from-func state.
+            ASSERT(movedFromFunc == *source.target<FUNC>());
+        }
+        else if (! isEmpty) {
             // Wrapped functor is allocated outside of the small buffer.  It
             // is moved as a whole by pointer-movement, leaving the source
             // empty.
@@ -1354,20 +1398,6 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
             // Since function was moved by pointer, the address of the wrapped
             // function will not have changed.
             ASSERT(dest.target<FUNC>() == sourceTarget);
-        }
-        else if (! isEmpty) {
-            // Wrapped functor is allocated within the small buffer.  The
-            // source functor would be moved-from, but not empty.
-            // Check if the functor within 'source' has the expected
-            // moved-from functor value.
-            ASSERT(source);
-
-            FUNC func2(func);
-            FUNC func3(std::move(func2));
-            ASSERT(func3 == func);
-
-            // func2 is in a moved-from-func state.
-            ASSERT(func2 == *source.target<FUNC>());
         }
 
         ASSERT(CheckAlloc<ALLOC>::sameAlloc(alloc, dest.allocator()));
@@ -1534,6 +1564,58 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+
+      case 11: {
+        // --------------------------------------------------------------------
+        // SWAP
+        // 
+        // Concerns:
+        //: 1 Swapping two 'function' objects has the same affect as
+        //:   constructing the same objects but with the constructor arguments
+        //:   to one substituted for the constructor arguments to the other.
+        //: 2 The previous concern applies for every combination of function
+        //:   types wrapped by the two objects being swapped.
+        //: 3 The previous concerns apply for each of the different types of
+        //:   allocators. Note that the allocators to both objects must
+        //:   compare equal in order for them to be swapped.
+        //: 4 The memory consumption, both from allocators and not from
+        //:   allocators is unchanged by the swap operation.
+        //: 5 The namespace-scope function, 'bsl::swap' invokes
+        //:   'bsl::function<F>::swap' when invoked with two 'function'
+        //:   objects.
+        //
+        // Plan:
+        //: 1 For concern 1, create two 'function' objects, 'a' and b', and
+        //:   swap them.  Verify that the wrapped function type for 'b'
+        //:   matches the original wrapped function type for 'a' and vice
+        //:   versa.  Verify that the wrapped function object in 'b' compares
+        //:   equal to the wrapped function object originally in 'a'.  Also
+        //:   verify that the allocators of both objects are compare equal to
+        //:   their original values.  (Since the allocators of 'a' and 'b'
+        //:   were the same before the swap, it is unimportant whether the
+        //:   allocators are swapped or not.)
+        //: 2 For concern 2, repeat the previous step for the cross product of
+        //:   wrapped function types for 'a' and 'b', i.e., 'a' wraps a
+        //:   pointer=to-function while 'b' wraps a medium-sized functor that
+        //:   doesn't throw on move, etc..  The common logic for all tests is
+        //:   encapsulated in a function template.'
+        //: 3 For concern 3, repeat step 2, instantiating the templates with
+        //:   each different allocator type.
+        //: 4 For concern 4, instrument use test allocators to verify that any
+        //:   memory allocated during the swap is matched by an equal
+        //:   deallocation, for a net no-change in memory use.
+        //: 5 For concern 5, test that 'bsl::swap' will swap a pair of
+        //:   function objects.  It is not necessary to test more than one
+        //:   pair of function objects in order to have reasonable certainty
+        //:   that forwarding is happening.
+        //
+        // TESTING
+        //      void swap(function& other);
+        //      void bsl::swap(function<RET(ARGS...)>& a,
+        //                     function<RET(ARGS...)>& b);
+        // --------------------------------------------------------------------
+
+      } break;
 
       case 10: {
         // --------------------------------------------------------------------

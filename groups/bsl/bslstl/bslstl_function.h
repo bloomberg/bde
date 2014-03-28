@@ -686,7 +686,7 @@ public:
     // template<class FUNC>
     // function& operator=(reference_wrapper<FUNC>) BSLS_NOTHROW_SPEC;
 
-    void swap(function&) BSLS_NOTHROW_SPEC;
+    void swap(function& other) BSLS_NOTHROW_SPEC;
     template<class FUNC, class ALLOC> void assign(FUNC&&, const ALLOC&);
 
     RET operator()(ARGS...) const;
@@ -715,7 +715,7 @@ template <class RET, class... ARGS>
 bool operator!=(nullptr_t, const function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 
 template <class RET, class... ARGS>
-void swap(function<RET(ARGS...)>&, function<RET(ARGS...)>&);
+void swap(function<RET(ARGS...)>& a, function<RET(ARGS...)>& b);
 
 #endif
 
