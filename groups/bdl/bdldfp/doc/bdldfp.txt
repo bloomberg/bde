@@ -9,7 +9,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdldfp' package currently has 5 components having 4 levels of physical
+ The 'bdldfp' package currently has 6 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -22,6 +22,7 @@
   2. bdldfp_decimalimplutil
 
   1. bdldfp_decimalplatform
+     bdldfp_uint128
 ..
 
 /Component Synopsis
@@ -40,3 +41,6 @@
 :
 : 'bdldfp_decimalutil':
 :      Provide utilities dealing with floating point decimal objects.
+:
+: 'bdldfp_uint128':
+:      Provide a representation of a 128-bit 'int' for bitwise operations.
