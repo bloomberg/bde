@@ -1970,7 +1970,7 @@ class HashTable {
         // 'size / newNumBuckets <= maxLoadFactor'.  Note that the caller is
         // responsible for correctly computing the 'capacity' supported by the
         // new number of buckets.  This allows for a minor optimization where
-        // the value is computed only once per rehash,
+        // the value is computed only once per rehash.
 
     void removeAllAndDeallocate();
         // Erase all the nodes in this hash-table, and deallocate their memory
@@ -2039,7 +2039,7 @@ class HashTable {
         // functors to organize elements in the table, which will initially
         // have at least the specified 'initialNumBuckets' and a
         // 'maxLoadFactor' of the specified 'initialMaxLoadFactor'.  Optionally
-        // specify an 'basicAllocator' used to supply memory.  If
+        // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is not supplied, a default-constructed object of
         // the (template parameter) type 'ALLOCATOR' is used.  If the
         // 'ALLOCATOR' is 'bsl::allocator' (the default), then
@@ -2426,8 +2426,8 @@ class HashTable_ArrayProctor {
 
     ~HashTable_ArrayProctor();
         // Destroy the hash-table data structure managed by this proctor and
-        // reclaim all of its resources, unless there a call to 'release' this
-        // proctor.
+        // reclaim all of its resources, unless was there a call to 'release'
+        // this proctor.
 
     // MANIPULATORS
     void release();
@@ -2662,22 +2662,22 @@ class HashTable_ImplParameters
   public:
     // CREATORS
     explicit HashTable_ImplParameters(const ALLOCATOR& allocator);
-        // Create an 'ImplParameters' object having default constructed
-        // 'HASHER' and 'COMPARATOR' functors, and using the specified
-        // 'allocator' to provide a 'BidirectionalNodePool'.
+        // Create a 'HashTable_ImplParameters' object having default
+        // constructed 'HASHER' and 'COMPARATOR' functors, and using the
+        // specified 'allocator' to provide a 'BidirectionalNodePool'.
 
-    HashTable_ImplParameters(const HASHER&       hash,
-                               const COMPARATOR& compare,
-                               const ALLOCATOR&  allocator);
-        // Create an 'ImplParameters' object having the specified 'hash', and
-        // 'compare' functors, and using the specified 'allocator' to provide a
-        // 'BidirectionalNodePool'.
+    HashTable_ImplParameters(const HASHER&     hash,
+                             const COMPARATOR& compare,
+                             const ALLOCATOR&  allocator);
+        // Create a 'HashTable_ImplParameters' object having the specified
+        // 'hash' and 'compare' functors, and using the specified 'allocator'
+        // to provide a 'BidirectionalNodePool'.
 
     HashTable_ImplParameters(const HashTable_ImplParameters& original,
-                               const ALLOCATOR&              allocator);
-        // Create an 'ImplParameters' object having the same 'hasher' and
-        // 'comparator' attributes as the specified 'original', and providing a
-        // 'BidirectionalNodePool' using the specified 'allocator'.
+                             const ALLOCATOR&                allocator);
+        // Create a 'HashTable_ImplParameters' object having the same 'hasher'
+        // and 'comparator' attributes as the specified 'original', and
+        // providing a 'BidirectionalNodePool' using the specified 'allocator'.
 
     // MANIPULATORS
     NodeFactory& nodeFactory();
@@ -2704,9 +2704,9 @@ class HashTable_ImplParameters
     native_std::size_t hashCodeForKey(DEDUCED_KEY& key) const;
         // Return the hash code for the specified 'key' using a copy of the
         // hash functor supplied at construction.  Note that this function is
-        // provided as common way to resolve const_cast issues in the case that
-        // the stored hash functor has a function call operator that is not
-        // declared as 'const'.
+        // provided as a common way to resolve const_cast issues in the case
+        // that the stored hash functor has a function call operator that is
+        // not declared as 'const'.
 
     const BaseHasher& hasher() const;
         // Return a non-modifiable reference to the 'hasher' functor owned by
@@ -3479,8 +3479,8 @@ rehashIntoExactlyNumBuckets(SizeType newNumBuckets, SizeType capacity)
         // An object of this proctor class guarantees that, if an exception is
         // thrown by a user-supplied hash functor, the container remains in a
         // valid, usable (but unspecified) state.  In fact, that state will be
-        // an empty, as there is no reliable way to re-index a bucket array if
-        // the hash functor is throwing, and the array is potentially corrupted
+        // empty, as there is no reliable way to re-index a bucket array if the
+        // hash functor is throwing, and the array is potentially corrupted
         // following a failed ImpUtil::rehash call.
 
       private:
@@ -4303,7 +4303,7 @@ typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::maxNumBuckets() const
 {
     // This estimate is still on the high side, we should actually pick the
-    // preceding entry from our table of primary numbers used for valid bucket
+    // preceding entry from our table of prime numbers used for valid bucket
     // array sizes.  There is no easy way to find that value at the moment
     // though.
 

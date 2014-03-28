@@ -147,7 +147,7 @@ size_t HashTable_ImpDetails::nextPrime(size_t n)
         2719929503u
 
     };
-    static const size_t s_nPrimes = sizeof(s_primes)/sizeof(&s_primes[0]);
+    static const size_t s_nPrimes = sizeof(s_primes)/sizeof(s_primes[0]);
     static const size_t *const s_beginPrimes = s_primes;
     static const size_t *const s_endPrimes   = s_primes + s_nPrimes;
 

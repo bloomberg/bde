@@ -1933,7 +1933,7 @@ class AwkwardMaplikeElement {
     // with a KEY_CONFIG policy for a HashTable that supplies a non-equality
     // comparable key-type, using 'data' for the 'extractKey' method, while the
     // class itself *is* equality-comparable (as required of a value semantic
-    // type) so that a HashTable of these objects should have a well- defined
+    // type) so that a HashTable of these objects should have a well-defined
     // 'operator=='.  Note that this class is a specific example for a specific
     // problem, rather than a template providing the general test type for keys
     // distinct from values, as the template test facility requires an explicit
@@ -2249,10 +2249,13 @@ class ThrowingEqualityComparator {
         // Set the 'id' of this object to the specified 'value'.
 
     void setThrowInterval(size_t value);
-        // Set the number of times 'operator()' may be called after throwing an
-        // exception before another such call would throw to the specified
-        // 'value'.  If '0 == value' then disable throwing of exceptions by
+        // Set to the specified 'value' the number of times 'operator()' may be
+        // called after throwing an exception before another such call would
+        // throw.  If '0 == value' then disable throwing of exceptions by
         // 'operator()'.
+        //
+        // TBD: Document behavior if 'value' is less than the number of times
+        // 'operator()' has already been called.
 
     // ACCESSORS
     bool operator() (const TYPE& lhs, const TYPE& rhs) const;
@@ -2322,14 +2325,15 @@ class ThrowingHashFunctor {
         // 'id' contributes to the value produced by the 'operator()' method,
         // so the 'id' of a 'ThrowingHashFunctor' should not be changed for
         // functors that are installed in 'HashTable' objects.
-        // TBD document behavior is 'value' is less than the number of times
-        // 'operator()' has already been called.
 
     void setThrowInterval(size_t value);
-        // Set the number of times 'operator()' may be called after throwing an
-        // exception before another such call would throw to the specified
-        // 'value'.  If '0 == value' then disable throwing of exceptions by
+        // Set to the specified 'value' the number of times 'operator()' may be
+        // called after throwing an exception before another such call would
+        // throw.  If '0 == value' then disable throwing of exceptions by
         // 'operator()'.
+        //
+        // TBD: Document behavior if 'value' is less than the number of times
+        // 'operator()' has already been called.
 
     // ACCESSORS
     native_std::size_t operator() (const TYPE& obj) const;
@@ -2440,9 +2444,9 @@ class GenericComparator {
     // ACCESSORS
     template <class ARG1_TYPE, class ARG2_TYPE>
     bsltf::EvilBooleanType operator() (ARG1_TYPE& arg1, ARG2_TYPE& arg2);
-        // Return 'true' if the specified 'arg1' has the same value as the
-        // specified 'arg2', for some unspecified definition that defaults to
-        // 'operator==', but may use some other functionality.
+        // Return a value convertible to 'true' if the specified 'arg1' has the
+        // same value as the specified 'arg2', for some unspecified definition
+        // that defaults to 'operator==', but may use some other functionality.
 };
 
                        // ===================
@@ -2570,13 +2574,13 @@ struct FunctionPointerPolicies {
     typedef bool   ComparisonFunction(const KEY&, const KEY&);
 
     static bool compare(const KEY& lhs, const KEY& rhs);
-        // Return 'true' of the specified 'lhs' has the same value as the
+        // Return 'true' if the specified 'lhs' has the same value as the
         // specified 'rhs' when compared using the 'bsltf' test facility
         // 'BSLTF_EQ', and 'false' otherwise.
 
     static size_t hash(const KEY& k);
         // Return the hash value of the specified 'k' according to the 'bsltf'
-        // hash functor, 'TestFacilityHasher<KEY>'..
+        // hash functor, 'TestFacilityHasher<KEY>'.
 };
 
                        // ========================
@@ -2997,7 +3001,7 @@ bool isEqualComparator(const COMPARATOR&, const COMPARATOR&);
     // may be overloaded for specific hasher types that can support the idea of
     // setting a state value.  It is assumed that any comparator that does not
     // overload this functor is stateless, and so equivalent to any other
-    // hasher.
+    // comparator.
 
 template <class RESULT, class ARG1, class ARG2>
 bool isEqualComparator(RESULT (*const &a)(ARG1, ARG2),
@@ -3710,8 +3714,8 @@ make(bslma::Allocator *basicAllocator)
 {
     // This method is a little bit of overkill (heavy on the assertions) as a
     // left-over from when we were trying hard to nail down a tricky bug that
-    // manifest only on the IBM AIX compiler.  It should probably be cleaned up
-    // for final release.
+    // manifests only on the IBM AIX compiler.  It should probably be cleaned
+    // up for final release.
 
     typedef bsltf::StdTestAllocatorConfiguration BsltfAllocConfig;
 
@@ -4120,7 +4124,7 @@ template <class TYPE>
 inline
 bslma::TestAllocator *
 extractTestAllocator(bsl::allocator<TYPE>& alloc)
-    // Return that address of the test allocator wrapped by the specified
+    // Return the address of the test allocator wrapped by the specified
     // 'alloc', and a null pointer value if 'alloc' does not wrap a
     // 'bslma::TestAllocator'.
 {
@@ -4131,7 +4135,7 @@ template <class TYPE>
 inline
 bslma::TestAllocator *
 extractTestAllocator(bsltf::StdTestAllocator<TYPE>&)
-    // Return that address of the test allocator wrapped by the standard test
+    // Return the address of the test allocator wrapped by the standard test
     // allocator singleton, and a null pointer value if the standard test
     // allocator singleton 'alloc' does not currently wrap a
     // 'bslma::TestAllocator'.
@@ -4602,7 +4606,7 @@ const int& BsltfConfig<ELEMENT>::extractKey(const ValueType& value)
     // patterns of this test driver, we can ensure that no two hash
     // computations happen while the first result is still held as a reference.
     // Unfortunately, we have no such guarantee on simultaneous evaluations in
-    // the HashTable facility itself, so we cycle through a cache of 46
+    // the HashTable facility itself, so we cycle through a cache of 64
     // results, as no reference should be so long lived that we see 64 live
     // references.  Note that an early version of this test driver demonstrated
     // that we could have at least 16 live references, before the limit was
@@ -4823,7 +4827,7 @@ struct TestDriver_DegenerateConfiguation
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
-    // This configuration utilities awkward functors, that abuse the implicitly
+    // This configuration utilizes awkward functors, that abuse the implicitly
     // declared operations (such as the address-of and comma operators) and
     // return awkward types from predicates, rather than a simple 'bool'.
     // However, this configuration does support the 'swap' operation in order
@@ -4842,10 +4846,10 @@ struct TestDriver_DegenerateConfiguationWithNoSwap
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
-    // This configuration utilities awkward functors, that abuse the implicitly
+    // This configuration utilizes awkward functors, that abuse the implicitly
     // declared operations (such as the address-of and comma operators) and
     // return awkward types from predicates, rather than a simple 'bool'.  As
-    // those configuration does not support swapping of the functor types, it
+    // this configuration does not support swapping of the functor types, it
     // does not support as broad a range of test cases as some of the other
     // configurations.
 };
@@ -4959,7 +4963,7 @@ struct TestDriver_GenericFunctors
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
-    // This configuration test functors whose function-call operator is a
+    // This configuration tests functors whose function-call operator is a
     // function template that will deduce type as appropriate from the
     // arguments supplied to the function call.
 };
@@ -4973,8 +4977,8 @@ struct TestDriver_ModifiableFunctors
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
-    // This configuration test functors whose arguments to the function- call
-    // operator are passed by non-modifiable reference, but honor the spirit of
+    // This configuration test functors whose arguments to the function-call
+    // operator are passed by non-'const' reference, but honor the spirit of
     // the rule by not actually making any modifications to those arguments.
     // This is something we test only because standard conformance requires it.
 };
@@ -8017,7 +8021,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase9()
 
     // Repeatedly running the strong exception safety test can be expensive, so
     // we toggle a boolean variable to alternate tests in the cycle.  This
-    // retains a fairly exhaustive coverage, while significant improving test
+    // retains a fairly exhaustive coverage, while significantly improving test
     // timings.
 
     bool testForStrongExceptionSafety = false;
@@ -8753,9 +8757,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
                 ASSERTV(MAX_LF, LENGTH, CONFIG, X.size(),
                         2 * LENGTH == X.size());
 
-                // The second loop adds another duplicate in front of each the
-                // items from the previous loop, and not in the middle of any
-                // subranges.
+                // The second loop adds another duplicate in front of each of
+                // the items from the previous loop, and not in the middle of
+                // any subranges.
                 for (SizeType tj = 0; tj < LENGTH; ++tj) {
                     Link *RESULT = mX.insert(VALUES[tj]);
                     ASSERT(0 != RESULT);
@@ -9547,7 +9551,7 @@ void mainTestCase2()
     //   the runtime concerns and test plan are documented.  The test harness
     //   will be instantiated and run with a variety of types to address the
     //   template parameter concerns below.  We note that the bootstrap case
-    //   has the widest variety of parameterized concerns to test, as latest
+    //   has the widest variety of parameterized concerns to test, as later
     //   test cases may be able to place additional requirements on the types
     //   that they operate with, but the primary bootstrap has to validate
     //   bringing any valid container into any valid state for any of the later
@@ -10496,7 +10500,7 @@ void mainTestCase9()
                   BSLSTL_HASHTABLE_TESTCASE9_TYPES);
 
 #if 0
-    // degenerate functors are not CopyAssignable, and rely on the copy/swap
+    // Degenerate functors are not CopyAssignable, and rely on the copy/swap
     // idiom for the copy-assignment operator to function.
 
     if (verbose) printf("\nTesting degenerate functors without swap"
