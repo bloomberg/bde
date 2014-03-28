@@ -169,16 +169,16 @@ class basic_istringstream
 
     // CREATORS
     explicit
-    basic_istringstream(const allocator_type& allocator = allocator_type());
+    basic_istringstream(const allocator_type& basicAllocator = allocator_type());
     explicit
     basic_istringstream(ios_base::openmode    modeBitMask,
-                        const allocator_type& allocator = allocator_type());
+                        const allocator_type& basicAllocator = allocator_type());
     explicit
     basic_istringstream(const StringType&     initialString,
-                        const allocator_type& allocator = allocator_type());
+                        const allocator_type& basicAllocator = allocator_type());
     basic_istringstream(const StringType&     initialString,
                         ios_base::openmode    modeBitMask,
-                        const allocator_type& allocator = allocator_type());
+                        const allocator_type& basicAllocator = allocator_type());
         // Create a 'basic_istringstream' object.  Optionally specify a
         // 'modeBitMask' indicating whether the underlying stream-buffer may
         // also be written to ('rdbuf' is created using
@@ -187,13 +187,13 @@ class basic_istringstream
         // an 'initialString' indicating the sequence of characters from which
         // input will be streamed.  If 'initialString' is not supplied, there
         // will not be data to stream (until a subsequent call to the 'str'
-        // manipulator).  Optionally specify an 'allocator' used to supply
-        // memory.  If 'allocator' is not supplied, a default-constructed
+        // manipulator).  Optionally specify the 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is not supplied, a default-constructed
         // object of the (template parameter) 'ALLOCATOR' type is used.  If the
         // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), then
-        // 'allocator', if supplied, shall be convertible to
+        // 'basicAllocator', if supplied, shall be convertible to
         // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
     //! ~basic_istringstream() = default;
@@ -232,8 +232,8 @@ typedef basic_istringstream<wchar_t, char_traits<wchar_t>, allocator<wchar_t> >
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-basic_istringstream(const allocator_type& allocator)
-: BaseType(ios_base::in, allocator)
+basic_istringstream(const allocator_type& basicAllocator)
+: BaseType(ios_base::in, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -242,8 +242,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(ios_base::openmode    modeBitMask,
-                    const allocator_type& allocator)
-: BaseType(modeBitMask | ios_base::in, allocator)
+                    const allocator_type& basicAllocator)
+: BaseType(modeBitMask | ios_base::in, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -252,8 +252,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(const StringType&     initialString,
-                    const allocator_type& allocator)
-: BaseType(initialString, ios_base::in, allocator)
+                    const allocator_type& basicAllocator)
+: BaseType(initialString, ios_base::in, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -263,8 +263,8 @@ inline
 basic_istringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_istringstream(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type& allocator)
-: BaseType(initialString, modeBitMask | ios_base::in, allocator)
+                    const allocator_type& basicAllocator)
+: BaseType(initialString, modeBitMask | ios_base::in, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }

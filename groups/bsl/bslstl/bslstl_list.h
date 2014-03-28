@@ -810,9 +810,9 @@ class list
         size_type d_size;  // allocated size
 
         // CREATORS
-        explicit AllocAndSizeWrapper(const NodeAlloc& allocator,
+        explicit AllocAndSizeWrapper(const NodeAlloc& basicAllocator,
                                      size_type size)
-        : NodeAlloc(allocator), d_size(size)
+        : NodeAlloc(basicAllocator), d_size(size)
             // Create an allocator wrapper having the specified allocator type
             // 'allocator' and the specified allocated 'size'.
         {
@@ -996,9 +996,9 @@ class list
 
     // 23.3.5.2 construct/copy/destroy:
 
-    explicit list(const ALLOCATOR& allocator = ALLOCATOR());
+    explicit list(const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create an empty list that allocates memory using the specified
-        // 'allocator'.
+        // 'basicAllocator'.
 
     explicit list(size_type n);
         // Create a list containing the specified 'n' elements and using a
@@ -1007,19 +1007,19 @@ class list
 
     list(size_type n,
          const VALUE& value,
-         const ALLOCATOR& allocator = ALLOCATOR());
-        // Create a list using the specified 'allocator' and insert the
+         const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create a list using the specified 'basicAllocator' and insert the
         // specified 'n' number of elements created by "copy-insertion" from
         // 'value'.
 
     template <class InputIter>
     list(InputIter first,
          InputIter last,
-         const ALLOCATOR& allocator = ALLOCATOR(),
+         const ALLOCATOR& basicAllocator = ALLOCATOR(),
          typename enable_if<
              !is_fundamental<InputIter>::value && !is_enum<InputIter>::value
          >::type * = 0)
-        // Create a list using the specified 'allocator' and insert the number
+        // Create a list using the specified 'basicAllocator' and insert the number
         // of elements determined by the size of the specified range
         // '[first, last)'.  Each initial element is created by
         // "copy-insertion" from the corresponding element in '[first, last)'.
@@ -1054,9 +1054,9 @@ class list
         // Each element in the resulting list is constructed by
         // "copy-insertion" from the corresponding element in 'original'.
 
-    list(const list& original, const ALLOCATOR& allocator);
+    list(const list& original, const ALLOCATOR& basicAllocator);
         // Create a list having the same value as that of the specified
-        // 'original' that will use the specified 'allocator' to supply memory.
+        // 'original' that will use the specified 'basicAllocator' to supply memory.
         // Each element in the resulting list is constructed by
         // "copy-insertion" from the corresponding element in 'allocator'.
 
@@ -1069,10 +1069,10 @@ class list
         // may allocate memory and may, therefore, throw an allocation-related
         // exception.
 
-    list(list&& original, const ALLOCATOR& allocator);
+    list(list&& original, const ALLOCATOR& basicAllocator);
         // Create a new list using the contents from the specified list
-        // 'original' and using a copy of the specified 'allocator'.  If
-        // 'allocator == original.get_allocator()', then no copy or move
+        // 'original' and using a copy of the specified 'basicAllocator'.  If
+        // 'basicAllocator == original.get_allocator()', then no copy or move
         // constructors are called for individual elements.  Otherwise, each
         // element in the resulting list is constructed by "copy-insertion"
         // from the corresponding element in 'original'.  After the
@@ -2017,8 +2017,8 @@ list<VALUE, ALLOCATOR>::size_ref() const
 
 // 23.3.5.2 construct/copy/destroy:
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>::list(const ALLOCATOR& allocator)
-: d_alloc_and_size(allocator, 0)
+list<VALUE, ALLOCATOR>::list(const ALLOCATOR& basicAllocator)
+: d_alloc_and_size(basicAllocator, 0)
 {
     create_sentinel();
 }
@@ -2045,8 +2045,8 @@ list<VALUE, ALLOCATOR>::list(size_type n)
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(size_type n,
                              const VALUE& value,
-                             const ALLOCATOR& allocator)
-: d_alloc_and_size(allocator, size_type(-1))
+                             const ALLOCATOR& basicAllocator)
+: d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2074,8 +2074,8 @@ list<VALUE, ALLOCATOR>::list(const list& original)
 }
 
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>::list(const list& original, const ALLOCATOR& allocator)
-: d_alloc_and_size(allocator, size_type(-1))
+list<VALUE, ALLOCATOR>::list(const list& original, const ALLOCATOR& basicAllocator)
+: d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2101,12 +2101,12 @@ list<VALUE, ALLOCATOR>::list(list&& original)
 }
 
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>::list(list&& original, const ALLOCATOR& allocator)
-: d_alloc_and_size(allocator, size_type(-1))
+list<VALUE, ALLOCATOR>::list(list&& original, const ALLOCATOR& basicAllocator)
+: d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
-    if (allocator == original.allocator()) {
+    if (basicAllocator == original.allocator()) {
         create_sentinel();
         size_ref() = 0;  // '*this' is now in a valid state.
         quick_swap(original);

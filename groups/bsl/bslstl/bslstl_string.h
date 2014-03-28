@@ -1300,21 +1300,21 @@ class basic_string
                    // *** 21.3.2 construct/copy/destroy: ***
 
     explicit
-    basic_string(const ALLOCATOR& allocator = ALLOCATOR());
-        // Create an empty string.  Optionally specify an 'allocator' used to
-        // supply memory.  If 'allocator' is not specified, a
+    basic_string(const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create an empty string.  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.
 
     basic_string(const basic_string& original);
-    basic_string(const basic_string& original, const ALLOCATOR& allocator);
+    basic_string(const basic_string& original, const ALLOCATOR& basicAllocator);
         // Create a string that has the same value as the specified 'original'
-        // string.  Optionally specify an 'allocator' used to supply memory.
-        // If 'allocator' is not specified, then a default-constructed
+        // string.  Optionally specify the 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is not specified, then a default-constructed
         // allocator is used.  Note that it is important to have two copy
         // constructors instead of a single:
         //..
         //  basic_string(const basic_string& original,
-        //               const ALLCOATOR&    allocator = ALLOCATOR());
+        //               const ALLCOATOR&    basicAllocator = ALLOCATOR());
         //..
         // When the copy constructor with the default allocator is used, xlC10
         // get confused and refuses to use the return value optimization, which
@@ -1324,68 +1324,68 @@ class basic_string
     basic_string(const basic_string& original,
                  size_type           position,
                  size_type           numChars = npos,
-                 const ALLOCATOR&    allocator = ALLOCATOR());
+                 const ALLOCATOR&    basicAllocator = ALLOCATOR());
         // Create a string that has the same value as the substring of the
         // optionally specified 'numChars' length starting at the specified
         // 'position' in the specified 'original' string.  If 'numChars' equals
         // 'npos', then the remaining length of the string is used (i.e.,
         // 'numChars' is set to 'original.length() - position').  Optionally
-        // specify an 'allocator' used to supply memory.  If 'allocator' is not
+        // specify the 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // specified, a default-constructed allocator is used.  Throw
         // 'out_of_range' if 'position > original.length()' or
         // 'numChars != npos' and 'position + numChars < original.length()'.
 
     basic_string(const CHAR_TYPE  *characterString,
-                 const ALLOCATOR&  allocator = ALLOCATOR());
+                 const ALLOCATOR&  basicAllocator = ALLOCATOR());
     basic_string(const CHAR_TYPE  *characterString,
                  size_type         numChars,
-                 const ALLOCATOR&  allocator = ALLOCATOR());
+                 const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a string that has the same value as the substring of the
         // optionally specified 'numChars' length starting at the specified
         // 'position' in the specified 'characterString'.  If 'numChars' is not
         // specified, 'CHAR_TRAITS::length(characterString)' is used.
-        // Optionally specify an 'allocator' used to supply memory.  If
-        // 'allocator' is not specified, a default-constructed allocator is
+        // Optionally specify the 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not specified, a default-constructed allocator is
         // used.  Throw 'out_of_range' if 'numChars >= npos'.
 
     basic_string(size_type        numChars,
                  CHAR_TYPE        character,
-                 const ALLOCATOR& allocator = ALLOCATOR());
+                 const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a string of the specified 'numChars' length whose every
-        // position contains the specified 'character'.  Optionally specify an
-        // 'allocator' used to supply memory.  If 'allocator' is not specified,
+        // position contains the specified 'character'.  Optionally specify the
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not specified,
         // a default-constructed allocator is used.
 
     template <typename INPUT_ITER>
     basic_string(INPUT_ITER       first,
                  INPUT_ITER       last,
-                 const ALLOCATOR& allocator = ALLOCATOR());
+                 const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a string from the characters in the range starting at the
         // specified 'first' and ending at the specified 'last' iterators of
-        // the parameterized 'INPUT_ITER' type.  Optionally specify an
-        // 'allocator' used to supply memory.  If 'allocator' is not specified,
+        // the parameterized 'INPUT_ITER' type.  Optionally specify the
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not specified,
         // a default-constructed allocator is used.  The behavior is undefined
         // unless '[first, last)' is a valid iterator range.
 
     template <typename ALLOC2>
     basic_string(
         const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
-        const ALLOCATOR&                              allocator = ALLOCATOR());
+        const ALLOCATOR&                              basicAllocator = ALLOCATOR());
         // Create a string that has the same value as the specified 'original'
         // string, where the type 'original' is the string type native to the
         // compiler's library, instantiated with the same character type and
         // traits type, but not necessarily the same allocator type.  The
         // resulting string will contain the same sequence of characters as
-        // 'original'.  Optionally specify an 'allocator' used to supply
-        // memory.  If 'allocator' is not specified, then a default-constructed
+        // 'original'.  Optionally specify the 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is not specified, then a default-constructed
         // allocator is used.
 
     basic_string(const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
-                 const ALLOCATOR& allocator = ALLOCATOR());
+                 const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a string that has the same value as the specified 'strRef'
         // string.  The resulting string will contain the same sequence of
-        // characters as 'strRef'.  Optionally specify an 'allocator' used to
-        // supply memory.  If 'allocator' is not specified, then a
+        // characters as 'strRef'.  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not specified, then a
         // default-constructed allocator is used.
 
     ~basic_string();
@@ -3285,9 +3285,9 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-                                                    const ALLOCATOR& allocator)
+                                                    const ALLOCATOR& basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     CHAR_TRAITS::assign(*begin(), CHAR_TYPE());
 }
@@ -3307,9 +3307,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                  const basic_string& original,
-                                                 const ALLOCATOR&    allocator)
+                                                 const ALLOCATOR&    basicAllocator)
 : Imp(original)
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     if (!this->isShortString()) {
         // Copy long string to either short or long.
@@ -3322,9 +3322,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                  const basic_string& original,
                                                  size_type           position,
                                                  size_type           numChars,
-                                                 const ALLOCATOR&    allocator)
+                                                 const ALLOCATOR&    basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     assign(original, position, numChars);
 }
@@ -3332,9 +3332,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
-                                             const ALLOCATOR&  allocator)
+                                             const ALLOCATOR&  basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     BSLS_ASSERT_SAFE(characterString);
 
@@ -3345,9 +3345,9 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              size_type         numChars,
-                                             const ALLOCATOR&  allocator)
+                                             const ALLOCATOR&  basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     BSLS_ASSERT_SAFE(characterString || 0 == numChars);
 
@@ -3358,9 +3358,9 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                    size_type         numChars,
                                                    CHAR_TYPE         character,
-                                                   const ALLOCATOR&  allocator)
+                                                   const ALLOCATOR&  basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     assign(numChars, character);
 }
@@ -3371,9 +3371,9 @@ inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                     INPUT_ITER       first,
                                                     INPUT_ITER       last,
-                                                    const ALLOCATOR& allocator)
+                                                    const ALLOCATOR& basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     privateInitDispatch(first, last);
 }
@@ -3382,9 +3382,9 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 template <typename ALLOC2>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
        const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
-       const ALLOCATOR&                                              allocator)
+       const ALLOCATOR&                                              basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     this->assign(original.data(), original.length());
 }
@@ -3393,9 +3393,9 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                 const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
-                const ALLOCATOR&                                     allocator)
+                const ALLOCATOR&                                     basicAllocator)
 : Imp()
-, BloombergLP::bslalg::ContainerBase<allocator_type>(allocator)
+, BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
     assign(strRef.begin(), strRef.end());
 }

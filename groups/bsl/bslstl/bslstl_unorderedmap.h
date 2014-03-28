@@ -1029,7 +1029,7 @@ class unordered_map {
                    size_type             initialNumBuckets = 0,
                    const hasher&         hash              = hasher(),
                    const key_equal&      keyEqual          = key_equal(),
-                   const allocator_type& allocator         = allocator_type());
+                   const allocator_type& basicAllocator    = allocator_type());
         // Create an empty unordered map having a 'max_load_factor' of 1.0.
         // Optionally specify an 'initialNumBuckets' indicating the minimum
         // initial size of the array of buckets of this unordered map.  If
@@ -1041,25 +1041,25 @@ class unordered_map {
         // specify a key-equality functor 'keyEqual' used to determine whether
         // two keys have the same value.  If 'keyEqual' is not supplied, a
         // default-constructed object of type 'key_equal' is used.  Optionally
-        // specify an 'allocator' used to supply memory.  If 'allocator' is not
+        // specify the 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // supplied, a default-constructed object of the (template parameter)
         // type 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'allocator' shall be
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.  Note
         // that more than 'initialNumBuckets' buckets may be created in order
         // to preserve the bucket allocation strategy of the hash-table (but
         // never fewer).
 
-    explicit unordered_map(const allocator_type& allocator);
+    explicit unordered_map(const allocator_type& basicAllocator);
         // Create an empty unordered map, having a 'max_load_factor' of 1.0,
-        // that uses the specified 'allocator' to supply memory.  Use a
+        // that uses the specified 'basicAllocator' to supply memory.  Use a
         // default-constructed object of type 'hasher' to generate hash values
         // for the key-value pairs contained in this unordered map, and use a
         // default-constructed object of type 'key_equal' to determine whether
         // two keys have the same value.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'allocator' shall be
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.
 
     unordered_map(const unordered_map& original);
@@ -1072,11 +1072,11 @@ class unordered_map {
         // used to supply memory.
 
     unordered_map(const unordered_map&  original,
-                  const allocator_type& allocator);
+                  const allocator_type& basicAllocator);
         // Create an unordered map having the same value, hasher, key-equality
         // comparator, and 'max_load_factor' as the specified 'original', and
-        // using the specified 'allocator' to supply memory.  If the
-        // 'allocator_type' is 'bsl::allocator' (the default), then 'allocator'
+        // using the specified 'basicAllocator' to supply memory.  If the
+        // 'allocator_type' is 'bsl::allocator' (the default), then 'basicAllocator'
         // shall be convertible to 'bslma::Allocator *'.
 
     template <class INPUT_ITERATOR>
@@ -1085,7 +1085,7 @@ class unordered_map {
                   size_type             initialNumBuckets = 0,
                   const hasher&         hash              = hasher(),
                   const key_equal&      keyEqual          = key_equal(),
-                  const allocator_type& allocator         = allocator_type());
+                  const allocator_type& basicAllocator    = allocator_type());
         // Create an empty unordered map, having a 'max_load_factor' of 1.0,
         // and then create a 'value_type' object for each iterator in the range
         // starting at the specified 'first' iterator and ending immediately
@@ -1485,8 +1485,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
 unordered_map(size_type             initialNumBuckets,
               const hasher&         hash,
               const key_equal&      keyEqual,
-              const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+              const allocator_type& basicAllocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1498,8 +1498,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                        size_type             initialNumBuckets,
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
-                                       const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                                       const allocator_type& basicAllocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this->insert(first, last);
 }
@@ -1517,8 +1517,8 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
-                                               const allocator_type& allocator)
-: d_impl(allocator)
+                                               const allocator_type& basicAllocator)
+: d_impl(basicAllocator)
 {
 }
 
@@ -1526,8 +1526,8 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                                const unordered_map&  original,
-                                               const allocator_type& allocator)
-: d_impl(original.d_impl, allocator)
+                                               const allocator_type& basicAllocator)
+: d_impl(original.d_impl, basicAllocator)
 {
 }
 

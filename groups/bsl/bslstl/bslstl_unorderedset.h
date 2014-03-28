@@ -677,7 +677,7 @@ class unordered_set
     explicit unordered_set(size_type             initialNumBuckets = 0,
                            const hasher&         hash = hasher(),
                            const key_equal&      keyEqual = key_equal(),
-                           const allocator_type& allocator = allocator_type());
+                           const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered set.  Optionally specify an
         // 'initialNumBuckets' indicating the initial size of the array of
         // buckets of this container.  If 'initialNumBuckets' is not supplied,
@@ -688,35 +688,35 @@ class unordered_set
         // used.  Optionally specify a key-equality functor 'keyEqual' used to
         // verify that two key values are the same.  If 'keyEqual' is not
         // supplied, a default-constructed object of type 'key_equal' is used.
-        // Optionally specify an 'allocator' used to supply memory.  If
-        // 'allocator' is not supplied, a default-constructed object of the
+        // Optionally specify the 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not supplied, a default-constructed object of the
         // (template parameter) type 'allocator_type' is used.  If the
-        // 'allocator_type' is 'bsl::allocator' (the default), then 'allocator'
+        // 'allocator_type' is 'bsl::allocator' (the default), then 'basicAllocator'
         // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
-    explicit unordered_set(const allocator_type& allocator);
-        // Construct an empty unordered set that uses the specified 'allocator'
+    explicit unordered_set(const allocator_type& basicAllocator);
+        // Construct an empty unordered set that uses the specified 'basicAllocator'
         // to supply memory.  Use a default-constructed object of type 'hasher'
         // to generate hash values for the key extracted from the values
         // contained in this object.  Also, use a default-constructed object of
         // type 'key_equal' to verify that two key values are the same.  If the
-        // 'allocator_type' is 'bsl::allocator' (the default), then 'allocator'
+        // 'allocator_type' is 'bsl::allocator' (the default), then 'basicAllocator'
         // shall be convertible to 'bslma::Allocator *'.
 
     unordered_set(const unordered_set&  original);
     unordered_set(const unordered_set&  original,
-                  const allocator_type& allocator);
+                  const allocator_type& basicAllocator);
         // Construct an unordered set having the same value as that of the
         // specified 'original'.  Use a default-constructed object of type
         // 'hasher' to generate hash values for the key extracted from the
         // values contained in this object.  Also, use a default-constructed
         // object of type 'key_equal' to verify that two key values are the
-        // same.  Optionally specify an 'allocator' used to supply memory.  If
-        // 'allocator' is not supplied, a default-constructed object of type
+        // same.  Optionally specify the 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not supplied, a default-constructed object of type
         // 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'allocator' shall be
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.
 
     template <class INPUT_ITERATOR>
@@ -725,7 +725,7 @@ class unordered_set
                   size_type             initialNumBuckets = 0,
                   const hasher&         hash = hasher(),
                   const key_equal&      keyEqual = key_equal(),
-                  const allocator_type& allocator = allocator_type());
+                  const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered set and insert each 'value_type' object
         // in the sequence starting at the specified 'first' element, and
         // ending immediately before the specified 'last' element, ignoring
@@ -739,13 +739,13 @@ class unordered_set
         // 'hasher' is used.  Optionally specify a key-equality functor
         // 'keyEqual' used to verify that two key values are the same.  If
         // 'keyEqual' is not supplied, a default-constructed object of type
-        // 'key_equal' is used.  Optionally specify an 'allocator' used to
-        // supply memory.  If 'allocator' is not supplied, a
+        // 'key_equal' is used.  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'allocator' shall be
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.  The
         // (template parameter) type 'INPUT_ITERATOR' shall meet the
         // requirements of an input iterator defined in the C++11 standard
@@ -1070,8 +1070,8 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                        size_type             initialNumBuckets,
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
-                                       const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                                       const allocator_type& basicAllocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1084,8 +1084,8 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                        size_type             initialNumBuckets,
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
-                                       const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                                       const allocator_type& basicAllocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this->insert(first, last);
 }
@@ -1093,8 +1093,8 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
-                                               const allocator_type& allocator)
-: d_impl(allocator)
+                                               const allocator_type& basicAllocator)
+: d_impl(basicAllocator)
 {
 }
 
@@ -1102,8 +1102,8 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                                const unordered_set&  original,
-                                               const allocator_type& allocator)
-: d_impl(original.d_impl, allocator)
+                                               const allocator_type& basicAllocator)
+: d_impl(original.d_impl, basicAllocator)
 {
 }
 

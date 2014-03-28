@@ -453,15 +453,16 @@ struct allocator_traits {
   private:
     // 'IsBslma' is 'true_type' if the parameterized 'ALLOCATOR_TYPE' is
     // constructible from 'bslma::Allocator*'.  In other words, its 'VALUE' is
-    // true if 'ALLOCATOR_TYPE' is a wrapper around 'bslma::Allocator*'.
+    // 'true' if 'ALLOCATOR_TYPE' is a wrapper around 'bslma::Allocator *'.
     typedef typename is_convertible<BloombergLP::bslma::Allocator*,
                                     ALLOCATOR_TYPE>::type IsBslma;
 
     static
-    ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE& allocator,
+    ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE& stdAllocator,
                                          false_type);
-        // Return 'allocator'.  Note that this function is called only when
-        // 'ALLOCATOR_TYPE' is not a bslma allocator.
+        // Return the specified 'stdAllocator'.  Note that this function is
+        // called only when the (template parameter) 'ALLOCATOR_TYPE' is not
+        // a bslma allocator.
 
     static
     ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE&, true_type);
@@ -474,10 +475,11 @@ struct allocator_traits {
         // 'ALLOCATOR_TYPE' is not a bslma allocator.
 
     static
-    BloombergLP::bslma::Allocator *mechanism(const ALLOCATOR_TYPE& allocator,
-                                             true_type);
+    BloombergLP::bslma::Allocator *mechanism(
+                                           const ALLOCATOR_TYPE& bslAllocator,
+                                           true_type);
         // Return the address of the 'bslma::Allocator' that implements the
-        // mechanism for the specified 'allocator', i.e.,
+        // mechanism for the specified 'bslAllocator', i.e.,
         // 'allocator.mechanism()'.  Note that this function is called only
         // when 'ALLOCATOR_TYPE' is bslma allocator.
 
@@ -691,10 +693,10 @@ struct allocator_traits {
 template <class ALLOCATOR_TYPE>
 inline
 ALLOCATOR_TYPE allocator_traits<ALLOCATOR_TYPE>::selectOnCopyConstruct(
-                                               const ALLOCATOR_TYPE& allocator,
-                                               false_type)
+                                            const ALLOCATOR_TYPE& stdAllocator,
+                                            false_type)
 {
-    return allocator;
+	return stdAllocator;
 }
 
 template <class ALLOCATOR_TYPE>
@@ -718,10 +720,10 @@ allocator_traits<ALLOCATOR_TYPE>::mechanism(const ALLOCATOR_TYPE&,
 template <class ALLOCATOR_TYPE>
 inline
 BloombergLP::bslma::Allocator *
-allocator_traits<ALLOCATOR_TYPE>::mechanism(const ALLOCATOR_TYPE& allocator,
+allocator_traits<ALLOCATOR_TYPE>::mechanism(const ALLOCATOR_TYPE& bslAllocator,
                                             true_type)
 {
-    return allocator.mechanism();
+	return bslAllocator.mechanism();
 }
 
 template <class ALLOCATOR_TYPE>

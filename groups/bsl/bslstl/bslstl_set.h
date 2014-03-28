@@ -578,9 +578,9 @@ class set {
         NodeFactory d_pool;  // pool of 'Node' objects
 
         explicit DataWrapper(const COMPARATOR&  comparator,
-                             const ALLOCATOR&   allocator);
+                             const ALLOCATOR&   basicAllocator);
             // Create a 'DataWrapper' object with the specified 'comparator'
-            // and 'allocator'.
+            // and 'basicAllocator'.
     };
 
     // DATA
@@ -643,20 +643,20 @@ class set {
   public:
     // CREATORS
     explicit set(const COMPARATOR& comparator = COMPARATOR(),
-                 const ALLOCATOR&  allocator  = ALLOCATOR())
+                 const ALLOCATOR&  basicAllocator  = ALLOCATOR())
         // Construct an empty set.  Optionally specify a 'comparator' used to
         // order keys contained in this object.  If 'comparator' is not
         // supplied, a default-constructed object of the (template parameter)
-        // type 'COMPARATOR' is used.  Optionally specify an 'allocator' used
-        // to supply memory.  If 'allocator' is not supplied, a
+        // type 'COMPARATOR' is used.  Optionally specify the 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'ALLOCATOR' is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
+        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied, shall
         // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' and 'allocator' is not
+        // argument is of type 'bsl::allocator' and 'basicAllocator' is not
         // supplied, the currently installed default allocator will be used
         // to supply memory.
-    : d_compAndAlloc(comparator, allocator)
+    : d_compAndAlloc(comparator, basicAllocator)
     , d_tree()
     {
         // The implementation is placed here in the class definition to
@@ -666,12 +666,12 @@ class set {
         // container and the comparator is defined after the new class.
     }
 
-    explicit set(const ALLOCATOR& allocator);
-        // Construct an empty set that will use the specified 'allocator' to
+    explicit set(const ALLOCATOR& basicAllocator);
+        // Construct an empty set that will use the specified 'basicAllocator' to
         // supply memory.  Use a default-constructed object of the (template
         // parameter) type 'COMPARATOR' to order the keys contained in this
         // set.  If the template parameter 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default) then 'allocator' shall be convertible
+        // 'bsl::allocator' (the default) then 'basicAllocator' shall be convertible
         // to 'bslma::Allocator *'.
 
     set(const set& original);
@@ -686,12 +686,12 @@ class set {
         // requires that the (template parameter) type 'KEY' be
         // "copy-constructible" (see {Requirements on 'KEY'}).
 
-    set(const set& original, const ALLOCATOR& allocator);
+    set(const set& original, const ALLOCATOR& basicAllocator);
         // Construct a set having the same value as that of the specified
-        // 'original' that will use the specified 'allocator' to supply memory.
+        // 'original' that will use the specified 'basicAllocator' to supply memory.
         // Use a copy of 'original.key_comp()' to order the keys contained in
         // this set.  If the template parameter 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default) then 'allocator' shall be convertible
+        // 'bsl::allocator' (the default) then 'basicAllocator' shall be convertible
         // to 'bslma::Allocator *'.  This method requires that the (template
         // parameter) type 'KEY' be "copy-constructible" (see {Requirements on
         // 'KEY'}).
@@ -700,21 +700,21 @@ class set {
     set(INPUT_ITERATOR    first,
         INPUT_ITERATOR    last,
         const COMPARATOR& comparator = COMPARATOR(),
-        const ALLOCATOR&  allocator  = ALLOCATOR());
+        const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Construct a set, and insert each 'value_type' object in the sequence
         // starting at the specified 'first' element, and ending immediately
         // before the specified 'last' element, ignoring those keys that
         // appears earlier in the sequence.  Optionally specify a 'comparator'
         // used to order keys contained in this object.  If 'comparator' is not
         // supplied, a default-constructed object of the (template parameter)
-        // type 'COMPARATOR' is used.  Optionally specify a 'allocator' used to
-        // supply memory.  If 'allocator' is not supplied, a
+        // type 'COMPARATOR' is used.  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'ALLOCATOR' is used.  If the template parameter 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' (the default) then 'allocator', if
+        // is of type 'bsl::allocator' (the default) then 'basicAllocator', if
         // supplied, shall be convertible to 'bslma::Allocator *'.  If the
         // template parameter 'ALLOCATOR' argument is of type 'bsl::allocator'
-        // and 'allocator' is not supplied, the currently installed default
+        // and 'basicAllocator' is not supplied, the currently installed default
         // allocator will be used to supply memory.  If the sequence 'first'
         // and 'last' is ordered according to the identified 'comparator' then
         // this operation will have O[N] complexity, where N is the number of
@@ -1105,9 +1105,9 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
                                                   const COMPARATOR& comparator,
-                                                  const ALLOCATOR&  allocator)
+                                                  const ALLOCATOR&  basicAllocator)
 : ::bsl::set<KEY, COMPARATOR, ALLOCATOR>::Comparator(comparator)
-, d_pool(allocator)
+, d_pool(basicAllocator)
 {
 }
 
@@ -1171,8 +1171,8 @@ inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
                                      INPUT_ITERATOR    last,
                                      const COMPARATOR& comparator,
-                                     const ALLOCATOR&  allocator)
-: d_compAndAlloc(comparator, allocator)
+                                     const ALLOCATOR&  basicAllocator)
+: d_compAndAlloc(comparator, basicAllocator)
 , d_tree()
 {
     if (first != last) {
@@ -1232,8 +1232,8 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(const set& original)
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& allocator)
-: d_compAndAlloc(COMPARATOR(), allocator)
+set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& basicAllocator)
+: d_compAndAlloc(COMPARATOR(), basicAllocator)
 , d_tree()
 {
 }
@@ -1241,8 +1241,8 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& allocator)
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const set&       original,
-                                     const ALLOCATOR& allocator)
-: d_compAndAlloc(original.comparator().keyComparator(), allocator)
+                                     const ALLOCATOR& basicAllocator)
+: d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {
     if (0 < original.size()) {

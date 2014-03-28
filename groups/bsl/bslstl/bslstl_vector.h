@@ -909,17 +909,17 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
                   // *** 23.2.5.1 construct/copy/destroy: ***
 
     explicit
-    Vector_Imp(const ALLOCATOR& allocator = ALLOCATOR());
-        // Create an empty vector.  Optionally specify an 'allocator' used to
-        // supply memory.  If 'allocator' is not specified, a
+        Vector_Imp(const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create an empty vector.  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.
 
     explicit
     Vector_Imp(size_type         initialSize,
-               const ALLOCATOR&  allocator = ALLOCATOR());
+               const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a vector of the specified 'initialSize' whose every element
-        // is default-constructed.  Optionally specify an 'allocator' used to
-        // supply memory.  If 'allocator' is not specified, a
+        // is default-constructed.  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.  Throw 'std::length_error' if
         // 'initialSize > max_size()'.  This method requires that the (template
         // parameter) type 'VALUE_TYPE' be "default-constructible" (see
@@ -928,10 +928,10 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     explicit
     Vector_Imp(size_type         initialSize,
                const VALUE_TYPE& value,
-               const ALLOCATOR&  allocator = ALLOCATOR());
+               const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a vector of the specified 'initialSize' whose every element
-        // equals the specified 'value'.  Optionally specify an 'allocator'
-        // used to supply memory.  If 'allocator' is not specified, a
+        // equals the specified 'value'.  Optionally specify the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.  Throw 'std::length_error' if
         // 'initialSize > max_size()'.  This method requires that the (template
         // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
@@ -940,12 +940,12 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     template <class INPUT_ITER>
     Vector_Imp(INPUT_ITER       first,
                INPUT_ITER       last,
-               const ALLOCATOR& allocator = ALLOCATOR());
+               const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a vector initially containing copies of the values in the
         // range starting at the specified 'first' and ending immediately
         // before the specified 'last' iterators of the parameterized
-        // 'INPUT_ITER' type.  Optionally specify an 'allocator' used to supply
-        // memory.  If 'allocator' is not specified, a default-constructed
+        // 'INPUT_ITER' type.  Optionally specify the 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is not specified, a default-constructed
         // allocator is used.  Throw 'std::length_error' if the number of
         // elements in '[ first, last )' exceeds the value returned by the
         // method 'max_size'.  This method requires that the (template
@@ -953,10 +953,10 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // {Requirements on 'VALUE_TYPE'}).
 
     Vector_Imp(const Vector_Imp& original);
-    Vector_Imp(const Vector_Imp& original, const ALLOCATOR& allocator);
+    Vector_Imp(const Vector_Imp& original, const ALLOCATOR& basicAllocator);
         // Create a vector that has the same value as the specified 'original'
-        // vector.  Optionally specify an 'allocator' used to supply memory.
-        // If 'allocator' is not specified, then if 'ALLOCATOR' is convertible
+        // vector.  Optionally specify the 'basicAllocator' used to supply memory.
+        // If 'basicAllocator' is not specified, then if 'ALLOCATOR' is convertible
         // from 'bslma::Allocator *', the currently installed default allocator
         // is used, otherwise the 'original' allocator is used (as mandated per
         // the ISO standard).  This method requires that the (template
@@ -2417,17 +2417,17 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateReserveEmpty(
                   // *** 23.2.4.1 construct/copy/destroy: ***
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(const ALLOCATOR& allocator)
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(const ALLOCATOR& basicAllocator)
 : Vector_ImpBase<VALUE_TYPE>()
-, VectorContainerBase(allocator)
+, VectorContainerBase(basicAllocator)
 {
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type        initialSize,
-                                              const ALLOCATOR& allocator)
+                                              const ALLOCATOR& basicAllocator)
 : Vector_ImpBase<VALUE_TYPE>()
-, VectorContainerBase(allocator)
+, VectorContainerBase(basicAllocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(initialSize > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2453,9 +2453,9 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type        initialSize,
 template <class VALUE_TYPE, class ALLOCATOR>
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type         initialSize,
                                               const VALUE_TYPE& value,
-                                              const ALLOCATOR&  allocator)
+                                              const ALLOCATOR&  basicAllocator)
 : Vector_ImpBase<VALUE_TYPE>()
-, VectorContainerBase(allocator)
+, VectorContainerBase(basicAllocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(initialSize > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2483,9 +2483,9 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(INPUT_ITER       first,
                                               INPUT_ITER       last,
-                                              const ALLOCATOR& allocator)
+                                              const ALLOCATOR& basicAllocator)
 : Vector_ImpBase<VALUE_TYPE>()
-, VectorContainerBase(allocator)
+, VectorContainerBase(basicAllocator)
 {
     insert(this->begin(), first, last);
 }
@@ -2516,9 +2516,9 @@ Vector_Imp(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& original)
 template <class VALUE_TYPE, class ALLOCATOR>
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::
 Vector_Imp(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& original,
-           const ALLOCATOR&                         allocator)
+           const ALLOCATOR&                         basicAllocator)
 : Vector_ImpBase<VALUE_TYPE>()
-, VectorContainerBase(allocator)
+, VectorContainerBase(basicAllocator)
 {
     if (original.size() > 0) {
         privateReserveEmpty(original.size());

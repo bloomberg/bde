@@ -698,48 +698,48 @@ class deque : public  Deque_Base<VALUE_TYPE>
     // *** 23.2.1.1 construct/copy/destroy: ***
 
     explicit
-    deque(const ALLOCATOR& allocator = ALLOCATOR());
-        // Create an empty deque.  Optionally specified an 'allocator' used to
-        // supply memory.  If 'allocator' is not specified, a
+    deque(const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create an empty deque.  Optionally specified the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.
 
     explicit
     deque(size_type         numElements,
-          const ALLOCATOR&  allocator = ALLOCATOR());
+          const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a deque of the specified 'numElements' length whose every
-        // element is default-constructed.  Optionally specify an 'allocator'
-        // used to supply memory.  If 'allocator' is not specified, a
+        // element is default-constructed.  Optionally specify the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.  Throw 'bsl::length_error' if
         // 'numElements > max_size()'.
 
     deque(size_type         numElements,
           const VALUE_TYPE& value,
-          const ALLOCATOR&  allocator = ALLOCATOR());
+		  const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a deque of the specified 'numElements' length whose every
-        // element equals the specified 'value'.  Optionally specify an
-        // 'allocator' used to supply memory.  If 'allocator' is not specified,
+        // element equals the specified 'value'.  Optionally specify the
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not specified,
         // a default-constructed allocator is used.  Throw 'bsl::length_error'
         // if 'numElements > max_size()'.
 
     template <class INPUT_ITER>
     deque(INPUT_ITER       first,
           INPUT_ITER       last,
-          const ALLOCATOR& allocator = ALLOCATOR());
+		  const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a deque initially containing copies of the values in the
         // range starting at the specified 'first' and ending immediately
         // before the specified 'last' iterators of the parameterized
-        // 'INPUT_ITER' type.  Optionally specify an 'allocator' used to supply
-        // memory.  If 'allocator' is not specified, a default-constructed
+        // 'INPUT_ITER' type.  Optionally specify the 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is not specified, a default-constructed
         // allocator is used.  Throw 'bsl::length_error' if the number of
         // elements in '[ first, last )' exceeds the size returned by
         // 'max_size'.
 
     deque(const deque&     original);
     deque(const deque&     original,
-          const ALLOCATOR& allocator);
+          const ALLOCATOR& basicAllocator);
         // Create a deque that has the same value as the specified 'original'
-        // deque.  Optionally specify an 'allocator' used to supply memory.  If
-        // 'allocator' is not specified, then if 'ALLOCATOR' is convertible
+        // deque.  Optionally specify the 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not specified, then if 'ALLOCATOR' is convertible
         // from 'bslma::Allocator *', the currently installed default allocator
         // is used, otherwise the 'original' allocator is used (as mandated per
         // the ISO standard).
@@ -1369,9 +1369,9 @@ Deque_Base<VALUE_TYPE>::back() const
 // PRIVATE CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-deque<VALUE_TYPE,ALLOCATOR>::deque(RawInit, const ALLOCATOR& allocator)
+deque<VALUE_TYPE, ALLOCATOR>::deque(RawInit, const ALLOCATOR& basicAllocator)
 : Deque_Base<VALUE_TYPE>()
-, ContainerBase(allocator)
+, ContainerBase(basicAllocator)
 {
     this->d_blocks = 0;
 }
@@ -1988,9 +1988,9 @@ deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
 
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
-deque<VALUE_TYPE,ALLOCATOR>::deque(const ALLOCATOR& allocator)
+deque<VALUE_TYPE, ALLOCATOR>::deque(const ALLOCATOR& basicAllocator)
 : Deque_Base<VALUE_TYPE>()
-, ContainerBase(allocator)
+, ContainerBase(basicAllocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(0);
@@ -1999,9 +1999,9 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(const ALLOCATOR& allocator)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
-                                   const ALLOCATOR&  allocator)
+                                   const ALLOCATOR&  basicAllocator)
 : Deque_Base<VALUE_TYPE>()
-, ContainerBase(allocator)
+, ContainerBase(basicAllocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2017,9 +2017,9 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
                                    const VALUE_TYPE& value,
-                                   const ALLOCATOR&  allocator)
+								   const ALLOCATOR&  basicAllocator)
 : Deque_Base<VALUE_TYPE>()
-, ContainerBase(allocator)
+, ContainerBase(basicAllocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(numElements > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2036,9 +2036,9 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 deque<VALUE_TYPE,ALLOCATOR>::deque(INPUT_ITER       first,
                                    INPUT_ITER       last,
-                                   const ALLOCATOR& allocator)
+								   const ALLOCATOR& basicAllocator)
 : Deque_Base<VALUE_TYPE>()
-, ContainerBase(allocator)
+, ContainerBase(basicAllocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(0);
@@ -2061,10 +2061,10 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(const deque<VALUE_TYPE,ALLOCATOR>& rhs)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(
-                                  const deque<VALUE_TYPE,ALLOCATOR>& rhs,
-                                  const ALLOCATOR&                   allocator)
+                             const deque<VALUE_TYPE,ALLOCATOR>& rhs,
+                             const ALLOCATOR&                   basicAllocator)
 : Deque_Base<VALUE_TYPE>()
-, ContainerBase(allocator)
+, ContainerBase(basicAllocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
     temp.privateInit(rhs.size());

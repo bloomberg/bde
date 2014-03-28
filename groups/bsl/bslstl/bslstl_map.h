@@ -523,9 +523,9 @@ class map {
         NodeFactory d_pool;  // pool of 'Node' objects
 
         explicit DataWrapper(const COMPARATOR&  comparator,
-                             const ALLOCATOR&   allocator);
+                             const ALLOCATOR&   basicAllocator);
             // Create a 'DataWrapper' object with the specified 'comparator'
-            // and 'allocator'.
+            // and 'basicAllocator'.
     };
 
     // DATA
@@ -640,19 +640,19 @@ class map {
   public:
     // CREATORS
     explicit map(const COMPARATOR& comparator = COMPARATOR(),
-                 const ALLOCATOR&  allocator  = ALLOCATOR())
+                 const ALLOCATOR&  basicAllocator  = ALLOCATOR())
         // Construct an empty map.  Optionally specify a 'comparator' used to
         // order key-value pairs contained in this object.  If 'comparator' is
         // not supplied, a default-constructed object of the (template
-        // parameter) type 'COMPARATOR' is used.  Optionally specify an
-        // 'allocator' used to supply memory.  If 'allocator' is not supplied,
+        // parameter) type 'COMPARATOR' is used.  Optionally specify the
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not supplied,
         // a default-constructed object of the (template parameter) type
         // 'ALLOCATOR' is used.  If the 'ALLOCATOR' is 'bsl::allocator' (the
-        // default), then 'allocator', if supplied, shall be convertible to
+        // default), then 'basicAllocator', if supplied, shall be convertible to
         // 'bslma::Allocator *'.  If the 'ALLOCATOR' is 'bsl::allocator' and
-        // 'allocator' is not supplied, the currently installed default
+        // 'basicAllocator' is not supplied, the currently installed default
         // allocator will be used to supply memory.
-    : d_compAndAlloc(comparator, allocator)
+    : d_compAndAlloc(comparator, basicAllocator)
     , d_tree()
     {
         // The implementation is placed here in the class definition to
@@ -662,12 +662,12 @@ class map {
         // container and the comparator is defined after the new class.
     }
 
-    explicit map(const ALLOCATOR& allocator);
-        // Construct an empty map that will use the specified 'allocator' to
+    explicit map(const ALLOCATOR& basicAllocator);
+        // Construct an empty map that will use the specified 'basicAllocator' to
         // supply memory.  Use a default-constructed object of the (template
         // parameter) type 'COMPARATOR' to order the key-value pairs contained
         // in this map.  If the (template parameter) type 'ALLOCATOR' is of
-        // 'bsl::allocator' (the default) then 'allocator' shall be convertible
+        // 'bsl::allocator' (the default) then 'basicAllocator' shall be convertible
         // to 'bslma::Allocator *'.
 
     map(const map& original);
@@ -683,12 +683,12 @@ class map {
         // both be "copy-constructible" (see {Requirements on 'KEY' and
         // 'VALUE'}).
 
-    map(const map& original, const ALLOCATOR& allocator);
+    map(const map& original, const ALLOCATOR& basicAllocator);
         // Construct a map having the same value as that of the specified
-        // 'original' that will use the specified 'allocator' to supply memory.
+        // 'original' that will use the specified 'basicAllocator' to supply memory.
         // Use a copy of 'original.key_comp()' to order the key-value pairs
         // contained in this map.  If the (template parameter) type 'ALLOCATOR'
-        // is 'bsl::allocator' (the default) then 'allocator' shall be
+        // is 'bsl::allocator' (the default) then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.  This method requires that the
         // (template parameter) types 'KEY' and 'VALUE' types both be
         // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
@@ -697,7 +697,7 @@ class map {
     map(INPUT_ITERATOR    first,
         INPUT_ITERATOR    last,
         const COMPARATOR& comparator = COMPARATOR(),
-        const ALLOCATOR&  allocator  = ALLOCATOR());
+        const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Construct a map, and insert each 'value_type' object in the sequence
         // starting at the specified 'first' element, and ending immediately
         // before the specified 'last' element, ignoring those pairs having a
@@ -705,12 +705,12 @@ class map {
         // 'comparator' used to order key-value pairs contained in this object.
         // If 'comparator' is not supplied, a default-constructed object of the
         // (template parameter) type 'COMPARATOR' is used.  Optionally specify
-        // a 'allocator' used to supply memory.  If 'allocator' is not
+        // the 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // supplied, a default-constructed object of the (template parameter)
         // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' (the default) then 'allocator', if supplied, shall
+        // 'bsl::allocator' (the default) then 'basicAllocator', if supplied, shall
         // be convertible to 'bslma::Allocator *'.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.  If the
         // sequence 'first' and 'last' is ordered according to the identified
         // 'comparator' then this operation will have O[N] complexity, where N
@@ -1141,9 +1141,9 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
                                                   const COMPARATOR& comparator,
-                                                  const ALLOCATOR&  allocator)
+                                                  const ALLOCATOR&  basicAllocator)
 : ::bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator(comparator)
-, d_pool(allocator)
+, d_pool(basicAllocator)
 {
 }
 
@@ -1222,8 +1222,8 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::comparator() const
 // CREATORS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
-map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& allocator)
-: d_compAndAlloc(COMPARATOR(), allocator)
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const ALLOCATOR& basicAllocator)
+: d_compAndAlloc(COMPARATOR(), basicAllocator)
 , d_tree()
 {
 }
@@ -1247,8 +1247,8 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map& original)
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(const map&       original,
-                                            const ALLOCATOR& allocator)
-: d_compAndAlloc(original.comparator().keyComparator(), allocator)
+                                            const ALLOCATOR& basicAllocator)
+: d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {
     if (0 < original.size()) {
@@ -1265,8 +1265,8 @@ inline
 map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(INPUT_ITERATOR    first,
                                             INPUT_ITERATOR    last,
                                             const COMPARATOR& comparator,
-                                            const ALLOCATOR&  allocator)
-: d_compAndAlloc(comparator, allocator)
+                                            const ALLOCATOR&  basicAllocator)
+: d_compAndAlloc(comparator, basicAllocator)
 , d_tree()
 {
     if (first != last) {

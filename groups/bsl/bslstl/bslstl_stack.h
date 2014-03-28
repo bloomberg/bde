@@ -376,11 +376,11 @@ class stack {
 
     template <class ALLOCATOR>
     explicit
-    stack(const ALLOCATOR& allocator,
+    stack(const ALLOCATOR& basicAllocator,
           typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type * = 0);
-        // Construct an empty stack, and use 'allocator' to supply memory.  If
+        // Construct an empty stack, and use the specified 'basicAllocator' to supply memory.  If
         // 'CONTAINER::allocator_type' does not exist, this constructor may not
         // be used.
 
@@ -391,11 +391,11 @@ class stack {
 
     template <class ALLOCATOR>
     stack(const CONTAINER& container,
-          const ALLOCATOR& allocator,
+          const ALLOCATOR& basicAllocator,
           typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
                              ALLOCATOR>::type * = 0);
         // Construct a stack whose underlying container has the value of the
-        // specified 'container', and use the specified 'allocator' to supply
+        // specified 'container', and use the specified 'basicAllocator' to supply
         // memory.  If 'CONTAINER::allocator_type' does not exist, this
         // constructor may not be used.
 
@@ -404,11 +404,11 @@ class stack {
 
     template <class ALLOCATOR>
     stack(const stack&     original,
-          const ALLOCATOR& allocator,
+          const ALLOCATOR& basicAllocator,
           typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
                              ALLOCATOR>::type * = 0);
         // Construct a stack having the same value as the specified stack
-        // 'original', and use the specified 'allocator' to supply memory.  If
+        // 'original', and use the specified 'basicAllocator' to supply memory.  If
         // 'CONTAINER::allocator_type' does not exist, this constructor may not
         // be used.
 
@@ -418,7 +418,7 @@ class stack {
 
     template <class ALLOCATOR>
     stack(CONTAINER&&      container,
-          const ALLOCATOR& allocator,
+          const ALLOCATOR& basicAllocator,
           typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
                              ALLOCATOR>::type * = 0);
         // TBD
@@ -429,7 +429,7 @@ class stack {
         // TBD
     template <class ALLOCATOR>
     stack(stack&&          original,
-          const ALLOCATOR& allocator,
+          const ALLOCATOR& basicAllocator,
           typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
                              ALLOCATOR>::type * = 0);
         // TBD
@@ -610,11 +610,11 @@ stack<VALUE, CONTAINER>::stack()
 template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-stack<VALUE, CONTAINER>::stack(const ALLOCATOR& allocator,
+stack<VALUE, CONTAINER>::stack(const ALLOCATOR& basicAllocator,
                                typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(allocator)
+: d_container(basicAllocator)
 , c(d_container)
 {}
 
@@ -630,11 +630,11 @@ template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(
                            const CONTAINER& container,
-                           const ALLOCATOR& allocator,
+                           const ALLOCATOR& basicAllocator,
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(container, allocator)
+: d_container(container, basicAllocator)
 , c(d_container)
 {}
 
@@ -650,11 +650,11 @@ template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(
                            const stack&     original,
-                           const ALLOCATOR& allocator,
+                           const ALLOCATOR& basicAllocator,
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(original.d_container, allocator)
+: d_container(original.d_container, basicAllocator)
 , c(d_container)
 {}
 
@@ -672,11 +672,11 @@ template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(
                            CONTAINER&&                               container,
-                           const ALLOCATOR& allocator,
+                           const ALLOCATOR& basicAllocator,
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(std::move(container), allocator)
+: d_container(std::move(container), basicAllocator)
 , c(d_container)
 {}
 
@@ -692,11 +692,11 @@ template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(
                            stack&&          original,
-                           const ALLOCATOR& allocator,
+                           const ALLOCATOR& basicAllocator,
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
                                       ALLOCATOR>::type *)
-: d_container(std::move(original.d_container), allocator)
+: d_container(std::move(original.d_container), basicAllocator)
 , c(d_container)
 {}
 

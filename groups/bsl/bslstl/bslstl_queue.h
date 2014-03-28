@@ -284,40 +284,40 @@ class queue
 
     template <class ALLOCATOR>
     explicit
-    queue(const ALLOCATOR& allocator,
+    queue(const ALLOCATOR& basicAllocator,
           typename enable_if<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty queue that holds a default-constructed container
         // of the parameterized 'CONTAINER' type, and will use the specified
-        // 'allocator' to supply memory.  Note that the 'ALLOCATOR' parameter
+        // 'basicAllocator' to supply memory.  Note that the 'ALLOCATOR' parameter
         // type has to be convertible to the allocator of the 'CONTAINER'
         // parameter type, 'CONTAINER::allocator_type'.  Otherwise this
         // constructor is disabled.
 
     template <class ALLOCATOR>
     queue(const CONTAINER& container,
-          const ALLOCATOR& allocator,
+          const ALLOCATOR& basicAllocator,
           typename enable_if<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty queue that holds the specified 'container', and
-        // will use the specified 'allocator' to supply memory.  Note that the
+        // will use the specified 'basicAllocator' to supply memory.  Note that the
         // 'ALLOCATOR' parameter type has to be convertible to the allocator of
         // the 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.
         // Otherwise this constructor is disabled.
 
     template <class ALLOCATOR>
     queue(const queue& original,
-          const ALLOCATOR& allocator,
+          const ALLOCATOR& basicAllocator,
           typename enable_if<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct a queue having the same value as that of the specified
-        // 'original' that will use the specified 'allocator' to supply memory.
+        // 'original' that will use the specified 'basicAllocator' to supply memory.
         // Note that the 'ALLOCATOR' parameter type has to be convertible to
         // the allocator of the 'CONTAINER' parameter type,
         // 'CONTAINER::allocator_type'.  Otherwise this constructor is
@@ -460,12 +460,12 @@ queue<VALUE, CONTAINER>::queue(const queue& original)
 template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE, CONTAINER>::queue(const ALLOCATOR& allocator,
+queue<VALUE, CONTAINER>::queue(const ALLOCATOR& basicAllocator,
                                typename enable_if<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
-: c(allocator)
+: c(basicAllocator)
 {
 }
 
@@ -473,12 +473,12 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const CONTAINER& container,
-                               const ALLOCATOR& allocator,
+                               const ALLOCATOR& basicAllocator,
                                typename enable_if<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
-: c(container, allocator)
+: c(container, basicAllocator)
 {
 }
 
@@ -486,12 +486,12 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const queue&     queue,
-                               const ALLOCATOR& allocator,
+                               const ALLOCATOR& basicAllocator,
                                typename enable_if<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
-: c(queue.c, allocator)
+: c(queue.c, basicAllocator)
 {
 }
 

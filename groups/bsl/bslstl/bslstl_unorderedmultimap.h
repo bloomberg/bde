@@ -653,7 +653,7 @@ class unordered_multimap
                            size_type             initialNumBuckets = 0,
                            const hasher&         hash = hasher(),
                            const key_equal&      keyEqual = key_equal(),
-                           const allocator_type& allocator = allocator_type());
+                           const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered multi map.  Optionally specify an
         // 'initialNumBuckets' indicating the initial size of the array of
         // buckets of this container.  If 'initialNumBuckets' is not supplied,
@@ -664,35 +664,35 @@ class unordered_multimap
         // Optionally specify a key-equality functor 'keyEqual' used to verify
         // that two key values are the same.  If 'keyEqual' is not supplied, a
         // default-constructed object of type 'key_equal' is used.  Optionally
-        // specify an 'allocator' used to supply memory.  If 'allocator' is not
+        // specify the 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // supplied, a default-constructed object of the (template parameter)
         // type 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'allocator' shall be
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
-    explicit unordered_multimap(const allocator_type& allocator);
+    explicit unordered_multimap(const allocator_type& basicAllocator);
         // Construct an empty unordered multi map that uses the specified
-        // 'allocator' to supply memory.  Use a default-constructed object of
+        // 'basicAllocator' to supply memory.  Use a default-constructed object of
         // type 'hasher' to generate hash values for the key-value pairs
         // contained in this object.  Also, use a default-constructed object of
         // type 'key_equal' to verify that two key values are the same.  If the
-        // 'allocator_type' is 'bsl::allocator' (the default), then 'allocator'
+        // 'allocator_type' is 'bsl::allocator' (the default), then 'basicAllocator'
         // shall be convertible to 'bslma::Allocator *'.
 
     unordered_multimap(const unordered_multimap& original);
     unordered_multimap(const unordered_multimap& original,
-                       const allocator_type&     allocator);
+                       const allocator_type&     basicAllocator);
         // Construct an unordered multi map having the same value as that of
         // the specified 'original'.  Use a default-constructed object of type
         // 'hasher' to generate hash values for the key-value pairs contained
         // in this object.  Also, use a default-constructed object of type
         // 'key_equal' to verify that two key values are the same.  Optionally
-        // specify an 'allocator' used to supply memory.  If 'allocator' is not
+        // specify the 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // supplied, a default-constructed object of type 'allocator_type' is
         // used.  If the 'allocator_type' is 'bsl::allocator' (the default),
-        // then 'allocator' shall be convertible to 'bslma::Allocator *'.
+        // then 'basicAllocator' shall be convertible to 'bslma::Allocator *'.
 
     template <class INPUT_ITERATOR>
     unordered_multimap(INPUT_ITERATOR        first,
@@ -700,7 +700,7 @@ class unordered_multimap
                        size_type             initialNumBuckets = 0,
                        const hasher&         hash = hasher(),
                        const key_equal&      keyEqual = key_equal(),
-                       const allocator_type& allocator = allocator_type());
+                       const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered multi map and insert each 'value_type'
         // object in the sequence starting at the specified 'first' element,
         // and ending immediately before the specified 'last' element.
@@ -713,12 +713,12 @@ class unordered_multimap
         // Optionally specify a key-equality functor 'keyEqual' used to verify
         // that two key values are the same.  If 'keyEqual' is not supplied, a
         // default-constructed object of type 'key_equal' is used.  Optionally
-        // specify an 'allocator' used to supply memory.  If 'allocator' is not
+        // specify the 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // supplied, a default-constructed object of the (template parameter)
         // type 'allocator_type' is used.  If the 'allocator_type' is
-        // 'bsl::allocator' (the default), then 'allocator' shall be
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.  If the 'allocator_type' is
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.  The
         // (template parameter) type 'INPUT_ITERATOR' shall meet the
         // requirements of an input iterator defined in the C++11 standard
@@ -1047,8 +1047,8 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
                                        size_type             initialNumBuckets,
                                        const hasher&         hash,
                                        const key_equal&      keyEqual,
-                                       const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                                       const allocator_type& basicAllocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1060,8 +1060,8 @@ unordered_multimap(INPUT_ITERATOR        first,
                    size_type             initialNumBuckets,
                    const hasher&         hash,
                    const key_equal&      keyEqual,
-                   const allocator_type& allocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, allocator)
+                   const allocator_type& basicAllocator)
+: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this->insert(first, last);
 }
@@ -1078,8 +1078,8 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
-                                               const allocator_type& allocator)
-: d_impl(allocator)
+                                               const allocator_type& basicAllocator)
+: d_impl(basicAllocator)
 {
 }
 
@@ -1087,8 +1087,8 @@ template <class KEY, class VALUE, class HASH, class EQUAL,
           class ALLOCATOR>
 unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
                                            const unordered_multimap& original,
-                                           const allocator_type&     allocator)
-: d_impl(original.d_impl, allocator)
+                                           const allocator_type&     basicAllocator)
+: d_impl(original.d_impl, basicAllocator)
 {
 }
 
