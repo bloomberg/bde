@@ -10,4 +10,5 @@
  'bdldfp_decimalutil'.  Note that the not all the decNumber source files are
  included, only those that we really need.  The bdl+decnumber library wraps the
  decNumber library, at version 3.68, available under the ICU license.  Example
- files and pdf documentation were removed to conserve space.
+ files and pdf documentation were removed to conserve space.  The source is
+ available from 'http://speleotrove.com/decimal/#decNumber'.
