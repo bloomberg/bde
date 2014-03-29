@@ -5,6 +5,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
+{
+    return "bad_function_call";
+}
+
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
                                        Function_Rep  *rep,

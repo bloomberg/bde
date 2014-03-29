@@ -149,6 +149,10 @@ class bad_function_call : public std::exception {
 
 public:
     bad_function_call() BSLS_NOTHROW_SPEC;
+        // Constructs this exception object.
+
+    const char* what() const BSLS_NOTHROW_SPEC;
+        // Returns "bad_function_call".
 };
 
                         // ================================
@@ -1647,8 +1651,16 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&&)
 //     BSLS_NOTHROW_SPEC
 
 template <class RET, class... ARGS>
-void bsl::function<RET(ARGS...)>::swap(function&) BSLS_NOTHROW_SPEC
+void bsl::function<RET(ARGS...)>::swap(function& other) BSLS_NOTHROW_SPEC
 {
+    // TBD: This is a temporary implementation.  The real implementation will
+    // avoid the possibility of exceptions being thrown and taking advantage
+    // of bitwise-moveable.
+    function temp(std::move(other));
+    other.~function();
+    ::new((void*) &other) function(std::move(*this));
+    this->~function();
+    ::new((void*) this) function(std::move(temp));
 }
 
 template <class RET, class... ARGS>
@@ -1682,24 +1694,24 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 
 // FREE FUNCTIONS
 template <class RET, class... ARGS>
-bool operator==(const bsl::function<RET(ARGS...)>&,
-                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+bool bsl::operator==(const bsl::function<RET(ARGS...)>&,
+                     bsl::nullptr_t) BSLS_NOTHROW_SPEC;
 
 template <class RET, class... ARGS>
-bool operator==(bsl::nullptr_t,
-                const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
+bool bsl::operator==(bsl::nullptr_t,
+                     const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 
 template <class RET, class... ARGS>
-bool operator!=(const bsl::function<RET(ARGS...)>&,
-                bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+bool bsl::operator!=(const bsl::function<RET(ARGS...)>&,
+                     bsl::nullptr_t) BSLS_NOTHROW_SPEC;
 
 template <class RET, class... ARGS>
-bool operator!=(bsl::nullptr_t,
-                const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
+bool bsl::operator!=(bsl::nullptr_t,
+                     const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
 
 template <class RET, class... ARGS>
 inline
-void swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
+void bsl::swap(bsl::function<RET(ARGS...)>& a, bsl::function<RET(ARGS...)>& b)
 {
     a.swap(b);
 }

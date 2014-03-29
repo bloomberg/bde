@@ -261,6 +261,10 @@ public:
 
     void voidIncrement0() { }
     BSLS_MACROREPEAT(9, VOID_INCREMENT_FUNC)
+
+    int sub1(int arg) {
+        return value() - arg;
+    }
 };
 
 inline bool operator==(const IntWrapper& a, const IntWrapper& b)
@@ -316,10 +320,15 @@ struct SmallObjectBuffer {
     void *d_padding[4];  // Size of 4 pointers
 };
 
-// Simple function
+// Simple functions
 int simpleFunc(const IntWrapper& iw, int v)
 {
     return iw.value() + v;
+}
+
+int simpleFunc2(const IntWrapper& iw, int v)
+{
+    return iw.value() - v;
 }
 
 // Simple functor with no state
@@ -544,6 +553,9 @@ public:
                            const ThrowingEmptyFunctor&)
         { return false; }
 };
+
+// Common function type used in most tests
+typedef bsl::function<int(const IntWrapper&, int)> Obj;
 
 // Using the curiously-recurring template pattern with a template template
 // parameter, we can implement the boiler-plate part of an STL-style
@@ -1542,6 +1554,96 @@ void testMoveCtor(FUNC func, const char *sourceAllocName)
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
+template <class FUNC>
+bool AreEqualFunctions(const Obj& inA, const Obj& inB)
+    // Given a known invocable type specified by 'FUNC', return true if the
+    // specified 'inA' and the specified 'inB' 'function's are both empty or
+    // both wrap invocables of type 'FUNC' having the same value.
+{
+    if (&inA == &inB) {
+        return true;
+    }
+
+    if (! inA || ! inB) {
+        // One or both are empty
+        if (static_cast<bool>(inA) == static_cast<bool>(inB)) {
+            return true;  // Both are empty
+        }
+        else {
+            return false; // One is empty and the other is not
+        }
+    }
+
+    if (typeid(FUNC) != inA.target_type() ||
+        typeid(FUNC) != inB.target_type()) {
+        return false; // One or both wrap invocables of the wrong type.
+    }
+
+    // Get the targets
+    const FUNC *targetA = inA.target<FUNC>();
+    const FUNC *targetB = inB.target<FUNC>();
+
+    // Neither 'function' is empty, so neither should have a NULL target.
+    ASSERT(targetA && targetB);
+    ASSERT(targetA != targetB);  // Different objects have different targets
+
+    return *targetA == *targetB;
+}
+
+template <class ALLOC>
+void testSwap(const Obj& inA,
+              const Obj& inB,
+              bool (*    areEqualA_p)(const Obj&, const Obj&),
+              bool (*    areEqualB_p)(const Obj&, const Obj&),
+              int        lineA,
+              int        lineB)
+    // Test 'function::swap'.
+{
+    bslma::TestAllocator testAlloc;
+    ALLOC alloc(&testAlloc);
+
+    // Make copies of inA and inB.
+    Obj a( bsl::allocator_arg, alloc, inA);
+    Obj a2(bsl::allocator_arg, alloc, inA);
+    Obj b( bsl::allocator_arg, alloc, inB);
+    Obj b2(bsl::allocator_arg, alloc, inB);
+
+    bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
+    bslma::TestAllocatorMonitor testAllocMonitor(&testAlloc);
+
+    a.swap(b);
+    LOOP2_ASSERT(lineA, lineB, areEqualA_p(a2, b));
+    LOOP2_ASSERT(lineA, lineB, areEqualB_p(b2, a));
+    LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC>::sameAlloc(alloc,
+                                                            a.allocator()));
+    LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC>::sameAlloc(alloc,
+                                                            b.allocator()));
+    LOOP2_ASSERT(lineA, lineB, globalAllocMonitor.isInUseSame());
+    LOOP2_ASSERT(lineA, lineB, testAllocMonitor.isInUseSame());
+    if (a2) {
+        LOOP2_ASSERT(lineA, lineB, a2(1, 2) == b(1, 2));
+    }
+    if (b2) {
+        LOOP2_ASSERT(lineA, lineB, b2(1, 2) == a(1, 2));
+    }
+
+    // Swap back using namespace-scope swap
+    swap(b, a);
+    LOOP2_ASSERT(lineA, lineB, areEqualA_p(a2, a));
+    LOOP2_ASSERT(lineA, lineB, areEqualB_p(b2, b));
+    LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC>::sameAlloc(alloc,
+                                                            a.allocator()));
+    LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC>::sameAlloc(alloc,
+                                                            b.allocator()));
+    LOOP2_ASSERT(lineA, lineB, globalAllocMonitor.isInUseSame());
+    LOOP2_ASSERT(lineA, lineB, testAllocMonitor.isInUseSame());
+    if (a2) {
+        LOOP2_ASSERT(lineA, lineB, a2(2, 3) == a(2, 3));
+    }
+    if (b2) {
+        LOOP2_ASSERT(lineA, lineB, b2(2, 3) == b(2, 3));
+    }
+}
 
 //=============================================================================
 //                  USAGE EXAMPLES
@@ -1573,38 +1675,50 @@ int main(int argc, char *argv[])
         //: 1 Swapping two 'function' objects has the same affect as
         //:   constructing the same objects but with the constructor arguments
         //:   to one substituted for the constructor arguments to the other.
-        //: 2 The previous concern applies for every combination of function
-        //:   types wrapped by the two objects being swapped.
-        //: 3 The previous concerns apply for each of the different types of
+        //: 2 Memory consumption, both from allocators and from the global
+        //:   heap, is unchanged by the swap operation.
+        //: 3 The above concerns apply for each of the different type of
         //:   allocators. Note that the allocators to both objects must
         //:   compare equal in order for them to be swapped.
-        //: 4 The memory consumption, both from allocators and not from
-        //:   allocators is unchanged by the swap operation.
+        //: 4 The above concerns apply to functions constructed with allocator
+        //:   constructor arguments that are pointers to type derived from
+        //:   'bslma::Allocator', 'bsl::allocator' instantiations, stateless
+        //:   STL-style allocators, and stateful STL-style allocators of
+        //:   various sizes.  The original and copy can use different
+        //:   allocators.
         //: 5 The namespace-scope function, 'bsl::swap' invokes
         //:   'bsl::function<F>::swap' when invoked with two 'function'
         //:   objects.
         //
         // Plan:
-        //: 1 For concern 1, create two 'function' objects, 'a' and b', and
-        //:   swap them.  Verify that the wrapped function type for 'b'
-        //:   matches the original wrapped function type for 'a' and vice
-        //:   versa.  Verify that the wrapped function object in 'b' compares
-        //:   equal to the wrapped function object originally in 'a'.  Also
-        //:   verify that the allocators of both objects are compare equal to
-        //:   their original values.  (Since the allocators of 'a' and 'b'
-        //:   were the same before the swap, it is unimportant whether the
-        //:   allocators are swapped or not.)
-        //: 2 For concern 2, repeat the previous step for the cross product of
-        //:   wrapped function types for 'a' and 'b', i.e., 'a' wraps a
-        //:   pointer=to-function while 'b' wraps a medium-sized functor that
-        //:   doesn't throw on move, etc..  The common logic for all tests is
-        //:   encapsulated in a function template.'
-        //: 3 For concern 3, repeat step 2, instantiating the templates with
-        //:   each different allocator type.
-        //: 4 For concern 4, instrument use test allocators to verify that any
-        //:   memory allocated during the swap is matched by an equal
-        //:   deallocation, for a net no-change in memory use.
-        //: 5 For concern 5, test that 'bsl::swap' will swap a pair of
+        //: 1 For concern 1, create two different 'function' objects, 'a',
+        //:   'b', wrapping invocables of type 'FA' and 'FB', respectively.
+        //:   Construct another pair of function objects 'a2' and 'b2', using
+        //:   the same arguments as 'a' and b', respectively.  Swap 'a' with
+        //:   'b'.  Verify that, after the swap, 'a.target_type() ==
+        //:   b2.target_type()', '*a.target<FB>() == *b2.target<FB>()',
+        //:   'b.target_type() == a2.target_type()', '*b.target<FB>() ==
+        //:   *a2.target<FB>()'. Also verify that the allocators of both
+        //:   objects are compare equal to their original values.  (Since the
+        //:   allocators of 'a' and 'b' were the same before the swap, it is
+        //:   unimportant whether the allocators are swapped or not.)
+        //: 2 For concern 2, check the memory in use by the allocator and by
+        //:   the global heap after constructing 'a', 'b', 'a2', and 'b2' and
+        //:   verify that the amount of memory in use after the swap is the
+        //:   same as before the swap.
+        //: 3 For concerns 3 and 4, package the above steps into a function
+        //:   template, 'testSwap', which is instantiated on an allocator type
+        //:   and takes two 'function' object arguments.  'testSwap' copies
+        //:   the input arguments using the specified allocator type before
+        //:   swapping them.  Create two arrays where each array element
+        //:   contains a function object and a pointer to a function that can
+        //:   compare that function for equality.  Each function object is
+        //:   constructed with a different invocable and the comparison
+        //:   function is instantiated with the type of that invocable.  Loop
+        //:   through the 3-way cross product of the two arrays and the
+        //:   different allocator categories and call 'testSwap' to perform
+        //:   the test.
+        //: 4 For concern 5, test that 'bsl::swap' will swap a pair of
         //:   function objects.  It is not necessary to test more than one
         //:   pair of function objects in order to have reasonable certainty
         //:   that forwarding is happening.
@@ -1614,6 +1728,87 @@ int main(int argc, char *argv[])
         //      void bsl::swap(function<RET(ARGS...)>& a,
         //                     function<RET(ARGS...)>& b);
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSWAP"
+                            "\n====\n");
+
+        typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
+        typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
+        typedef bool (*AreEqualFuncPtr_t)(const Obj&, const Obj&);
+
+        // Null function pointers
+        static const SimpleFuncPtr_t    nullFuncPtr    = 0;
+        static const SimpleMemFuncPtr_t nullMemFuncPtr = 0;
+
+        struct TestData {
+            // Data for one dimension of test
+
+            int               d_line;           // Line number
+            Obj               d_function;       // Object to swap
+            AreEqualFuncPtr_t d_areEqualFunc_p; // comparison function
+        };
+
+#define TEST_ITEM(F, V)                          \
+        { L_, Obj(F(V)),    &AreEqualFunctions<F> }
+
+        TestData dataA[] = {
+            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc        ),
+            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::add1 ),
+            TEST_ITEM(EmptyFunctor         , 0                 ),
+            TEST_ITEM(SmallFunctor         , 0x2000            ),
+            TEST_ITEM(MediumFunctor        , 0x4000            ),
+            TEST_ITEM(LargeFunctor         , 0x6000            ),
+            TEST_ITEM(NothrowMoveFunctor   , 0x3000            ),
+            TEST_ITEM(ThrowingMoveFunctor  , 0x7000            ),
+            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+        };
+
+        int dataASize = sizeof(dataA) / sizeof(TestData);
+
+        TestData dataB[] = {
+            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc2       ),
+            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::sub1 ),
+            TEST_ITEM(EmptyFunctor         , 0                 ),
+            TEST_ITEM(SmallFunctor         , 0x3000            ),
+            TEST_ITEM(MediumFunctor        , 0x5000            ),
+            TEST_ITEM(LargeFunctor         , 0x7000            ),
+            TEST_ITEM(NothrowMoveFunctor   , 0x4000            ),
+            TEST_ITEM(ThrowingMoveFunctor  , 0x6000            ),
+            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+        };
+
+#undef TEST_ITEM
+
+        int dataBSize = sizeof(dataB) / sizeof(TestData);
+
+        for (int i = 0; i < dataASize; ++i) {
+            const int lineA             = dataA[i].d_line;
+            const Obj& funcA            = dataA[i].d_function;
+            AreEqualFuncPtr_t areEqualA = dataA[i].d_areEqualFunc_p;
+            for (int j = 0; j < dataBSize; ++j) {
+                const int lineB             = dataB[j].d_line;
+                const Obj& funcB            = dataB[j].d_function;
+                AreEqualFuncPtr_t areEqualB = dataB[j].d_areEqualFunc_p;
+
+#define TEST(ALLOC)                                                           \
+     testSwap<ALLOC>(funcA, funcB, areEqualA, areEqualB, lineA, lineB);
+
+                TEST(bslma::TestAllocator *  );
+                TEST(bsl::allocator<char>    );
+                TEST(EmptySTLAllocator<char> );
+                TEST(TinySTLAllocator<char>  );
+                TEST(SmallSTLAllocator<char> );
+                TEST(MediumSTLAllocator<char>);
+                TEST(LargeSTLAllocator<char> );
+
+#undef TEST
+
+            }
+        }
 
       } break;
 
@@ -1643,8 +1838,8 @@ int main(int argc, char *argv[])
         //:   fit in the small-object buffer).
         //: 8 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
-        //:   various sizes.
-        //: 9 The above concerns apply to allocators arguments which are
+        //:   various sizes with or without throwing move constructors.
+        //: 9 The above concerns apply to allocators arguments that are
         //:   pointers to type derived from 'bslma::Allocator',
         //:   'bsl::allocator' instantiations, stateless STL-style allocators,
         //:   and stateful STL-style allocators of various sizes.  The
@@ -1832,7 +2027,7 @@ int main(int argc, char *argv[])
         //: 8 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
         //:   various sizes with or without throwing move constructors.
-        //: 9 The above concerns apply to allocators arguments which are
+        //: 9 The above concerns apply to allocators arguments that are
         //:   pointers to type derived from 'bslma::Allocator',
         //:   'bsl::allocator' instantiations, stateless STL-style allocators,
         //:   and stateful STL-style allocators of various sizes.  The
@@ -3057,22 +3252,21 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nCONSTRUCTOR function(FUNC)"
                             "\n==========================\n");
 
-        typedef bsl::function<int(const IntWrapper&, int)> Obj;
-        typedef int (*simpleFuncPtr_t)(const IntWrapper&, int);
-        typedef int (IntWrapper::*simpleMemFuncPtr_t)(int) const;
+        typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
+        typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
 
         bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
         if (veryVerbose) printf("Construct with null pointer to function\n");
         globalAllocMonitor.reset();
         {
-            const simpleFuncPtr_t nullFuncPtr = NULL;
+            const SimpleFuncPtr_t nullFuncPtr = NULL;
             Obj f(nullFuncPtr); const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<simpleFuncPtr_t>());
-            ASSERT(NULL == f.target<simpleFuncPtr_t>());
+            ASSERT(NULL == F.target<SimpleFuncPtr_t>());
+            ASSERT(NULL == f.target<SimpleFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -3082,13 +3276,13 @@ int main(int argc, char *argv[])
         }
         globalAllocMonitor.reset();
         {
-            const simpleMemFuncPtr_t nullMemFuncPtr = NULL;
+            const SimpleMemFuncPtr_t nullMemFuncPtr = NULL;
             Obj f(nullMemFuncPtr); const Obj& F = f;
             ASSERT(! F);
             ASSERT(globalAllocMonitor.isTotalSame());
             ASSERT(typeid(void) == F.target_type());
-            ASSERT(NULL == F.target<simpleMemFuncPtr_t>());
-            ASSERT(NULL == f.target<simpleMemFuncPtr_t>());
+            ASSERT(NULL == F.target<SimpleMemFuncPtr_t>());
+            ASSERT(NULL == f.target<SimpleMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -3099,11 +3293,11 @@ int main(int argc, char *argv[])
             Obj f(simpleFunc); const Obj& F = f;
             ASSERT(F);
             ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(simpleFuncPtr_t) == F.target_type());
-            ASSERT(F.target<simpleFuncPtr_t>() &&
-                   &simpleFunc == *F.target<simpleFuncPtr_t>());
-            ASSERT(f.target<simpleFuncPtr_t>() &&
-                   &simpleFunc == *f.target<simpleFuncPtr_t>());
+            ASSERT(typeid(SimpleFuncPtr_t) == F.target_type());
+            ASSERT(F.target<SimpleFuncPtr_t>() &&
+                   &simpleFunc == *F.target<SimpleFuncPtr_t>());
+            ASSERT(f.target<SimpleFuncPtr_t>() &&
+                   &simpleFunc == *f.target<SimpleFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -3114,11 +3308,11 @@ int main(int argc, char *argv[])
             Obj f(&IntWrapper::add1); const Obj& F = f;
             ASSERT(F);
             ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(simpleMemFuncPtr_t) == F.target_type());
-            ASSERT(F.target<simpleMemFuncPtr_t>() &&
-                   &IntWrapper::add1 == *F.target<simpleMemFuncPtr_t>());
-            ASSERT(f.target<simpleMemFuncPtr_t>() &&
-                   &IntWrapper::add1 == *f.target<simpleMemFuncPtr_t>());
+            ASSERT(typeid(SimpleMemFuncPtr_t) == F.target_type());
+            ASSERT(F.target<SimpleMemFuncPtr_t>() &&
+                   &IntWrapper::add1 == *F.target<SimpleMemFuncPtr_t>());
+            ASSERT(f.target<SimpleMemFuncPtr_t>() &&
+                   &IntWrapper::add1 == *f.target<SimpleMemFuncPtr_t>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());
@@ -3296,8 +3490,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nPRIMARY MANIPULATORS"
                             "\n====================\n");
-
-        typedef bsl::function<int(const IntWrapper&, int)> Obj;
 
         bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
