@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //  | 'bdlu::BitUtil::numBitsSet(0x30071101)' in binary:                      |
 //  |                                                                         |
 //  | input in binary:                       00110000000001110001000100000001 |
-//  | that has 8 ones set.  result: 8                                         |
+//  | that has 8 bits set.  result: 8                                         |
 //  +------------------------------------------------------------------------*/
 //..
 // Finally, we use 'numLeadingUnsetBits' to determine the number of unset bits
@@ -205,16 +205,16 @@ struct BitUtil {
 
     static uint32_t withBitCleared(uint32_t value, int index);
     static uint64_t withBitCleared(uint64_t value, int index);
-        // Return the result of replacing the bit at the specified 'index'
-        // position in the specified 'value' with 0, transferring all other
-        // bits from 'value' unchanged.  The behavior is undefined unless
+        // Return the result of replacing the bit at the specified 'index' in
+        // the specified 'value' with 0, transferring all other bits from
+        // 'value' unchanged.  The behavior is undefined unless
         // '0 <= index < sizeInBits(value)'.
 
     static uint32_t withBitSet(uint32_t value, int index);
     static uint64_t withBitSet(uint64_t value, int index);
-        // Return the result of replacing the bit at the specified 'index'
-        // position in the specified 'value' with 1, transferring all other
-        // bits from 'value' unchanged.  The behavior is undefined unless
+        // Return the result of replacing the bit at the specified 'index' in
+        // the specified 'value' with 1, transferring all other bits from
+        // 'value' unchanged.  The behavior is undefined unless
         // '0 <= index < sizeInBits(value)'.
 };
 
@@ -246,7 +246,7 @@ bool BitUtil::isBitSet(uint64_t value, int index)
 }
 
 inline
-int BitUtil::log2(unsigned value)
+int BitUtil::log2(uint32_t value)
 {
     BSLS_ASSERT_SAFE(0 < value);
 
@@ -291,7 +291,7 @@ int BitUtil::numLeadingUnsetBits(uint32_t value)
 #if defined(BSLS_PLATFORM_CMP_IBM)
     return __cntlz4(value);
 #elif defined(BSLS_PLATFORM_CMP_GNU)
-    // __builtin_clz(0) is undefined
+    // '__builtin_clz(0)' is undefined
     return __builtin_clz(value | 1) + static_cast<int>(!value);
 #else
     return privateNumLeadingUnsetBits(value);
@@ -304,7 +304,7 @@ int BitUtil::numLeadingUnsetBits(uint64_t value)
 #if defined(BSLS_PLATFORM_CMP_IBM)
     return __cntlz8(value);
 #elif defined(BSLS_PLATFORM_CMP_GNU)
-    // __builtin_clzll(0) is undefined
+    // '__builtin_clzll(0)' is undefined
     return __builtin_clzll(value | 1) + static_cast<int>(!value);
 #else
     return privateNumLeadingUnsetBits(value);
@@ -365,7 +365,7 @@ uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
 inline
 uint64_t BitUtil::roundUp(uint64_t value, uint64_t boundary)
 {
-    BSLS_ASSERT_SAFE(1 ==  numBitsSet(boundary));
+    BSLS_ASSERT_SAFE(1 == numBitsSet(boundary));
 
     return ((value - 1) | (boundary - 1)) + 1;
 }
