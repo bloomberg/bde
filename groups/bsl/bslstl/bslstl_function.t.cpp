@@ -512,6 +512,8 @@ public:
         { return a.value() != b.value(); }
 };
 
+static const int k_THROW_ON_MOVE = 0xdeadbeaf;
+
 class ThrowingMoveFunctor : public SmallFunctor
 {
     // A small functor that whose move constructor is not marked 'noexcept'
@@ -520,7 +522,8 @@ public:
     explicit ThrowingMoveFunctor(int v) : SmallFunctor(v) { }
 
     ThrowingMoveFunctor(const ThrowingMoveFunctor& other)
-        : SmallFunctor(other) { if (value() == (int) 0xdeadbeaf) throw other; }
+        : SmallFunctor(other)
+        { if (value() == k_THROW_ON_MOVE) throw k_THROW_ON_MOVE; }
 
     ~ThrowingMoveFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
@@ -541,7 +544,8 @@ public:
     explicit ThrowingEmptyFunctor(int v = 0) : EmptyFunctor(v) { }
 
     ThrowingEmptyFunctor(const ThrowingEmptyFunctor& other)
-        : EmptyFunctor(other) { if (this == (void*) 0xdeadbeaf) throw other; }
+        : EmptyFunctor(other)
+        { if (this == (void*) k_THROW_ON_MOVE) throw k_THROW_ON_MOVE; }
 
     ~ThrowingEmptyFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
@@ -1762,6 +1766,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(LargeFunctor         , 0x6000            ),
             TEST_ITEM(NothrowMoveFunctor   , 0x3000            ),
             TEST_ITEM(ThrowingMoveFunctor  , 0x7000            ),
+//          TEST_ITEM(ThrowingMoveFunctor  , k_THROW_ON_MOVE   ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
         };
 
