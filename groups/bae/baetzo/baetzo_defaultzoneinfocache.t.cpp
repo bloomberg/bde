@@ -977,6 +977,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT( L_, RESULT,
                         0 == strcmp(RESULT, "/bb/data/datetime/zoneinfo/")
                      || 0 == strcmp(RESULT, "/usr/share/lib/zoneinfo/")
+                     || 0 == strcmp(RESULT, "/usr/share/zoneinfo/")
                      || 0 == strcmp(RESULT, "."));
 
             LOOP2_ASSERT(L_, defaultAllocator.numBytesInUse(),
@@ -1070,6 +1071,7 @@ int main(int argc, char *argv[])
 
             L_,       "/bb/data/datetime/zoneinfo/",  // Bloomberg-specific
             L_,       "/usr/share/lib/zoneinfo/",
+            L_,       "/usr/share/zoneinfo/",
         };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 

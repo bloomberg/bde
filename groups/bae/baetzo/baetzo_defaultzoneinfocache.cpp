@@ -28,6 +28,7 @@ static const char *BAETZO_DATA_LOCATIONS[] = {
 #ifndef BSLS_PLATFORM_OS_WINDOWS
     "/bb/data/datetime/zoneinfo/"  // Bloomberg-specific
   , "/usr/share/lib/zoneinfo/"
+  , "/usr/share/zoneinfo/"
   , 0
 #else
     0
