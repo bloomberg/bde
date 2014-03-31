@@ -48,8 +48,6 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <sys/statvfs.h>
 #endif
 
-namespace BloombergLP {
-
 // STATIC HELPER FUNCTIONS
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
@@ -97,6 +95,8 @@ int performStat(const char *fileName, StatResult *statResult, bool followLinks)
 }
 
 #endif
+
+namespace BloombergLP {
 
 static
 void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
