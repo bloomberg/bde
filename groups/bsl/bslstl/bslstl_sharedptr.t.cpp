@@ -1994,7 +1994,6 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
         // Construct a test shared ptr rep object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
-        // AJM ADDED EXPLICIT, REMOVE THIS COMMENT IF NO NEW ISSUES ARISE
 
   public:
     // CREATORS
@@ -2010,7 +2009,7 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
     ~TestSharedPtrRep();
         // Destroy this test shared ptr rep object.
 
-    // MANIPULATORS
+    // VIRTUAL (OVERIDE) MANIPULATORS
     virtual void disposeObject();
         // Release the value stored by this representation.
 
@@ -2022,10 +2021,11 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
         // (if any) if the deleter has the same type as that described by the
         // specified 'type', and a null pointer otherwise.
 
-    // ACCESSORS
+    // VIRTUAL (OVERIDE) ACCESSORS
     virtual void *originalPtr() const;
         // Return the original pointer stored by this representation.
 
+    // ACCESSORS
     int disposeObjectCount() const;
         // Return the number of time 'releaseValue' was called.
 
@@ -7653,8 +7653,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONSTRUCTORS"
                             "\n====================\n");
 
-        if (verbose) printf("\nTesting null ptr constructor"
-                            "\n----------------------------\n");
+        if (verbose) printf("\nTesting null pointer literal constructors"
+                            "\n-----------------------------------------\n");
 
         bslma::TestAllocator ta(veryVeryVerbose);
 
@@ -7671,18 +7671,6 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
 
-            std::auto_ptr<TObj> apY(0);
-            Obj y(apY, &ta); const Obj& Y = y;
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == Y.numReferences());
-            ASSERT(numAllocations == ta.numAllocations());
-
-            Obj y2(makeAuto(), &ta); const Obj& Y2 = y2;
-            (void) Y2;  // Suppress 'unused variable' warning
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == Y.numReferences());
-            ASSERT(numAllocations == ta.numAllocations());
-
             Obj z(0, &ta, &ta); const Obj& Z = z;
             ASSERT(0 == Z.ptr());
             ASSERT(0 == Z.numReferences());
@@ -7690,8 +7678,9 @@ int main(int argc, char *argv[])
         }
         ASSERT(numDeallocations == ta.numDeallocations());
 
-        if (verbose) printf("\nTesting (cast) null ptr constructor"
-                            "\n-----------------------------------\n");
+
+        if (verbose) printf("\nTesting (typed) null pointer constructors"
+                            "\n-----------------------------------------\n");
 
         numDefaultDeallocations = defaultAllocator.numDeallocations();
         numDefaultAllocations   = defaultAllocator.numAllocations();
@@ -7711,6 +7700,18 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.ptr());
             ASSERT(1 == X.numReferences());
             ASSERT(++numAllocations == ta.numAllocations());
+
+            std::auto_ptr<TObj> apY(0);
+            Obj y(apY, &ta); const Obj& Y = y;
+            ASSERT(0 == Y.ptr());
+            ASSERT(0 == Y.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
+
+            Obj y2(makeAuto(), &ta); const Obj& Y2 = y2;
+            (void) Y2;  // Suppress 'unused variable' warning
+            ASSERT(0 == Y.ptr());
+            ASSERT(0 == Y.numReferences());
+            ASSERT(numAllocations == ta.numAllocations());
 
             Obj z(static_cast<TObj *>(0), &ta, &ta); const Obj& Z = z;
             ASSERT(0 == Z.ptr());
@@ -7748,6 +7749,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT((numDeallocations+2) == ta.numDeallocations());
 
+
         if (verbose)
             printf("\nTesting auto_ptr constructor (with allocator)"
                    "\n---------------------------------------------\n");
@@ -7776,6 +7778,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT((++numDeallocations) == ta.numDeallocations());
+
 
         if (verbose)
             printf("\nTesting auto_ptr rvalue constructor (with allocator)"
@@ -7837,6 +7840,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations + 2 == ta.numDeallocations());
 
+
         if (verbose)
             printf("\nTesting constructor (with deleter object)"
                    "\n-----------------------------------------\n");
@@ -7863,6 +7867,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations + 1 == ta.numDeallocations());
+
 
         if (verbose)
             printf("\nTesting constructor (with deleter function pointer)"
@@ -8065,6 +8070,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations+1 == ta.numDeallocations());
 
+
         if (verbose) printf(
              "\nTesting ctor (with function pointer and derived allocator)"
              "\n----------------------------------------------------------\n");
@@ -8210,7 +8216,6 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations+1 == ta.numDeallocations());
 
 
-#if 1 //defined(BSLSTL_SWITCH_OVER_TO_PASS_DELETER_BY_VALUE)
         if (verbose) printf(
                "\nTesting ctor (with function type and standard allocator)"
                "\n--------------------------------------------------------\n");
@@ -8268,9 +8273,8 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations+1 == ta.numDeallocations());
-#endif
 
-#endif  // BSLS_PLATFORM_CMP_IBM
+#endif  // ! BSLS_PLATFORM_CMP_IBM
 
         if (verbose) printf("\nTesting constructor (with rep)"
                             "\n------------------------------\n");

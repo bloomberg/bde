@@ -2093,81 +2093,6 @@ class shared_ptr {
         // shared reference to that object.  Note that if 'rhs' is null, then
         // this shared pointer will also be empty after the assignment.
 
-    // MANIPULATORS
-    template <class COMPATIBLE_TYPE>
-    void load(COMPATIBLE_TYPE *ptr);
-        // Modify this shared pointer to manage the modifiable object of the
-        // parameterized 'COMPATIBLE_TYPE' at the specified 'ptr' address and
-        // refer to '(ELEMENT_TYPE *)ptr'.  If this shared pointer is already
-        // managing a (possibly shared) object, then release the shared
-        // reference to that shared object, and destroy it using its associated
-        // deleter if this shared pointer held the last shared reference to
-        // that object.  The shared object held by 'ptr' will be destroyed,
-        // when the last shared reference is released, by calling 'delete ptr'.
-        // The currently installed default allocator is used to allocate and
-        // deallocate the internal representation of this shared pointer.  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
-        // 'ELEMENT_TYPE *' then a compiler diagnostic will be emitted
-        // indicating the error.  Note that if '0 == ptr', then this shared
-        // pointer will be reset to the empty state.
-
-    template <class COMPATIBLE_TYPE>
-    void load(COMPATIBLE_TYPE               *ptr,
-              BloombergLP::bslma::Allocator *basicAllocator);
-        // Modify this shared pointer to manage the modifiable object of the
-        // (template parameter) type 'COMPATIBLE_TYPE' at the specified 'ptr'
-        // address and refer to '(ELEMENT_TYPE *)ptr'.  If this shared pointer
-        // is already managing a (possibly shared) object, then release the
-        // shared reference to that shared object, and destroy it using its
-        // associated deleter if this shared pointer held the last shared
-        // reference to that object.  Optionally specify an 'basicAllocator'
-        // used to allocate and deallocate the internal representation of this
-        // shared pointer and to destroy the shared object when all references
-        // have been released.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  If 'COMPATIBLE_TYPE *' is not
-        // implicitly convertible to 'ELEMENT_TYPE *' then a compiler
-        // diagnostic will be emitted indicating the error.  Note that if
-        // '0 == ptr', then this shared pointer will be reset to the empty
-        // state and 'basicAllocator' will be ignored.
-
-    template <class COMPATIBLE_TYPE, class DELETER>
-    void load(COMPATIBLE_TYPE               *ptr,
-              const DELETER&                 deleter,
-              BloombergLP::bslma::Allocator *basicAllocator);
-        // Modify this shared pointer to manage the modifiable object of the
-        // (template parameter) type 'COMPATIBLE_TYPE' at the specified 'ptr'
-        // address and to refer to '(ELEMENT_TYPE *)ptr', using the specified
-        // 'deleter' to delete the shared object when all references have been
-        // released and the specified 'basicAllocator' to allocate and
-        // deallocate the internal representation of the shared pointer.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  If this shared pointer is already managing a (possibly
-        // shared) object, then release the shared reference to that shared
-        // object, and destroy it using its associated deleter if this shared
-        // pointer held the last shared reference to that object.  If 'DELETER'
-        // is a reference type, then 'deleter' is assumed to be a function-like
-        // deleter that may be invoked to destroy the object referred to by a
-        // single argument of type 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)'
-        // will be called to destroy the shared object).  If 'DELETER' is a
-        // pointer type, then 'deleter' is assumed to be a pointer to a factory
-        // object that exposes a member function that can be invoked as
-        // 'deleteObject(ptr)' that will be called to destroy the object at the
-        // 'ptr' address (i.e., 'deleter->deleteObject(ptr)' will be called to
-        // delete the shared object).  (See the "Deleters" section in the
-        // component-level documentation.)  If 'COMPATIBLE_TYPE *' is not
-        // implicitly convertible to 'ELEMENT_TYPE *' then a compiler
-        // diagnostic will be emitted indicating the error.  Note that, for
-        // factory deleters, the 'deleter' must remain valid until all
-        // references to 'ptr' have been released.  Also note that if 'ptr' is
-        // 0, then this shared pointer is reset to the empty state and both
-        // 'deleter' and 'basicAllocator' are ignored.  Also note that this
-        // function is logically equivalent to:
-        //..
-        //  *this = shared_ptr<ELEMENT_TYPE>(ptr, deleter, allocator);
-        //..
-        // and that, for the same reasons as explained in the constructor, the
-        // third 'basicAllocator' argument is not optional.
-
     void reset();
         // Reset this shared pointer to the empty state.  If this shared
         // pointer is managing a (possibly shared) object, then release the
@@ -2239,39 +2164,14 @@ class shared_ptr {
         // that the behavior of this method is the same as
         // 'loadAlias(source, ptr)'.
 
-    void clear();
-        // [!DEPRECATED!] Use 'reset' instead.
-        //
-        // Reset this shared pointer to the empty state.  If this shared
-        // pointer is managing a (possibly shared) object, then release the
-        // reference to the shared object, calling the deleter to destroy the
-        // shared object if this pointer is the last reference.  Note that the
-        // behavior of this method is the same as 'reset()'.
+    void swap(shared_ptr& object);
+        // Efficiently exchange the states of this shared pointer and the other
+        // specified 'object' such that each will refer to the object formerly
+        // referred to by the other and each will manage the object formerly
+        // managed to by the other.
 
-    template <class ANY_TYPE>
-    void loadAlias(const shared_ptr<ANY_TYPE>&  source,
-                   ELEMENT_TYPE                *object);
-        // Modify this shared pointer to manage the same modifiable object (if
-        // any) as the specified 'source' shared pointer to the (template
-        // parameter) type 'ANY_TYPE', and refer to the modifiable object at
-        // the specified 'object' address (i.e., make this shared pointer an
-        // "alias" of 'source').  If this shared pointer is already managing a
-        // (possibly shared) object, then release the shared reference to that
-        // shared object, and destroy it using its associated deleter if this
-        // shared pointer held the last shared reference to that object.  Note
-        // that typically the objects referred to by 'source' and 'object' have
-        // identical lifetimes (e.g., one might be a part of the other) so that
-        // the deleter for 'source' will destroy them both, but they do not
-        // necessarily have the same type.  Note that if either 'source' is
-        // unset or 'object' is null, then this shared pointer will be reset to
-        // the empty state.  Also note that this function is logically
-        // equivalent to:
-        //..
-        //  *this = shared_ptr<ELEMENT_TYPE>(source, object);
-        //..
-        // Further note that the behavior of this method is the same as
-        // 'reset(source, object)'.
 
+    // ADDITIONAL BSL MANIPULATORS
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create "in-place" in a large enough contiguous memory region both an
         // internal representation for this shared pointer and a
@@ -2421,6 +2321,30 @@ class shared_ptr {
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
+    template <class ANY_TYPE>
+    void loadAlias(const shared_ptr<ANY_TYPE>&  source,
+                   ELEMENT_TYPE                *object);
+        // Modify this shared pointer to manage the same modifiable object (if
+        // any) as the specified 'source' shared pointer to the (template
+        // parameter) type 'ANY_TYPE', and refer to the modifiable object at
+        // the specified 'object' address (i.e., make this shared pointer an
+        // "alias" of 'source').  If this shared pointer is already managing a
+        // (possibly shared) object, then release the shared reference to that
+        // shared object, and destroy it using its associated deleter if this
+        // shared pointer held the last shared reference to that object.  Note
+        // that typically the objects referred to by 'source' and 'object' have
+        // identical lifetimes (e.g., one might be a part of the other) so that
+        // the deleter for 'source' will destroy them both, but they do not
+        // necessarily have the same type.  Note that if either 'source' is
+        // unset or 'object' is null, then this shared pointer will be reset to
+        // the empty state.  Also note that this function is logically
+        // equivalent to:
+        //..
+        //  *this = shared_ptr<ELEMENT_TYPE>(source, object);
+        //..
+        // Further note that the behavior of this method is the same as
+        // 'reset(source, object)'.
+
     pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *> release();
         // Return the pair consisting of the addresses of the modifiable
         // 'ELEMENT_TYPE' object referred to, and the representation shared by,
@@ -2436,11 +2360,96 @@ class shared_ptr {
         // Also note that this function returns a pair of null pointers if this
         // shared pointer is empty.
 
-    void swap(shared_ptr& object);
-        // Efficiently exchange the states of this shared pointer and the other
-        // specified 'object' such that each will refer to the object formerly
-        // referred to by the other and each will manage the object formerly
-        // managed to by the other.
+
+    // DEPRECATED BDE LEGACY MANIPULATORS
+    void clear();
+        // [!DEPRECATED!] Use 'reset' instead.
+        //
+        // Reset this shared pointer to the empty state.  If this shared
+        // pointer is managing a (possibly shared) object, then release the
+        // reference to the shared object, calling the deleter to destroy the
+        // shared object if this pointer is the last reference.  Note that the
+        // behavior of this method is the same as 'reset()'.
+
+    template <class COMPATIBLE_TYPE>
+    void load(COMPATIBLE_TYPE *ptr);
+        // [!DEPRECATED!] Use 'reset' instead.
+        //
+        // Modify this shared pointer to manage the modifiable object of the
+        // parameterized 'COMPATIBLE_TYPE' at the specified 'ptr' address and
+        // refer to '(ELEMENT_TYPE *)ptr'.  If this shared pointer is already
+        // managing a (possibly shared) object, then release the shared
+        // reference to that shared object, and destroy it using its associated
+        // deleter if this shared pointer held the last shared reference to
+        // that object.  The shared object held by 'ptr' will be destroyed,
+        // when the last shared reference is released, by calling 'delete ptr'.
+        // The currently installed default allocator is used to allocate and
+        // deallocate the internal representation of this shared pointer.  If
+        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
+        // 'ELEMENT_TYPE *' then a compiler diagnostic will be emitted
+        // indicating the error.  Note that if '0 == ptr', then this shared
+        // pointer will be reset to the empty state.
+
+    template <class COMPATIBLE_TYPE>
+    void load(COMPATIBLE_TYPE               *ptr,
+              BloombergLP::bslma::Allocator *basicAllocator);
+        // [!DEPRECATED!] Use 'reset' instead.
+        //
+        // Modify this shared pointer to manage the modifiable object of the
+        // (template parameter) type 'COMPATIBLE_TYPE' at the specified 'ptr'
+        // address and refer to '(ELEMENT_TYPE *)ptr'.  If this shared pointer
+        // is already managing a (possibly shared) object, then release the
+        // shared reference to that shared object, and destroy it using its
+        // associated deleter if this shared pointer held the last shared
+        // reference to that object.  Optionally specify an 'basicAllocator'
+        // used to allocate and deallocate the internal representation of this
+        // shared pointer and to destroy the shared object when all references
+        // have been released.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  If 'COMPATIBLE_TYPE *' is not
+        // implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // diagnostic will be emitted indicating the error.  Note that if
+        // '0 == ptr', then this shared pointer will be reset to the empty
+        // state and 'basicAllocator' will be ignored.
+
+    template <class COMPATIBLE_TYPE, class DELETER>
+    void load(COMPATIBLE_TYPE               *ptr,
+              const DELETER&                 deleter,
+              BloombergLP::bslma::Allocator *basicAllocator);
+        // [!DEPRECATED!] Use 'reset' instead.
+        //
+        // Modify this shared pointer to manage the modifiable object of the
+        // (template parameter) type 'COMPATIBLE_TYPE' at the specified 'ptr'
+        // address and to refer to '(ELEMENT_TYPE *)ptr', using the specified
+        // 'deleter' to delete the shared object when all references have been
+        // released and the specified 'basicAllocator' to allocate and
+        // deallocate the internal representation of the shared pointer.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  If this shared pointer is already managing a (possibly
+        // shared) object, then release the shared reference to that shared
+        // object, and destroy it using its associated deleter if this shared
+        // pointer held the last shared reference to that object.  If 'DELETER'
+        // is a reference type, then 'deleter' is assumed to be a function-like
+        // deleter that may be invoked to destroy the object referred to by a
+        // single argument of type 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)'
+        // will be called to destroy the shared object).  If 'DELETER' is a
+        // pointer type, then 'deleter' is assumed to be a pointer to a factory
+        // object that exposes a member function that can be invoked as
+        // 'deleteObject(ptr)' that will be called to destroy the object at the
+        // 'ptr' address (i.e., 'deleter->deleteObject(ptr)' will be called to
+        // delete the shared object).  (See the "Deleters" section in the
+        // component-level documentation.)  If 'COMPATIBLE_TYPE *' is not
+        // implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // diagnostic will be emitted indicating the error.  Note that, for
+        // factory deleters, the 'deleter' must remain valid until all
+        // references to 'ptr' have been released.  Also note that if 'ptr' is
+        // 0, then this shared pointer is reset to the empty state and both
+        // 'deleter' and 'basicAllocator' are ignored.  Also note that this
+        // function is logically equivalent to:
+        //..
+        //  *this = shared_ptr<ELEMENT_TYPE>(ptr, deleter, allocator);
+        //..
+        // and that, for the same reasons as explained in the constructor, the
+        // third 'basicAllocator' argument is not optional.
 
     // ACCESSORS
     operator BoolType() const;
@@ -2450,16 +2459,6 @@ class shared_ptr {
         // pointer to be used within a conditional context (e.g., within an
         // 'if' or 'while' statement), but does *not* allow shared pointers to
         // be compared (e.g., via '<' or '>').
-
-    typename add_lvalue_reference<ELEMENT_TYPE>::type
-    operator[](ptrdiff_t index) const;
-        // Return a reference to the modifiable object at the specified 'index'
-        // offset in object referred to by this shared pointer.  The behavior
-        // is undefined unless this shared pointer is not empty, 'ELEMENT_TYPE'
-        // is not 'void' (a compiler error will be generated if this operator
-        // is instantiated within the 'shared_ptr<void>' class), and this
-        // shared pointer refers to an array of 'ELEMENT_TYPE' objects.  Note
-        // that this is logically equivalent to '*(ptr() + index)'.
 
     typename add_lvalue_reference<ELEMENT_TYPE>::type
     operator*() const;
@@ -2479,17 +2478,6 @@ class shared_ptr {
         // Return the address of the modifiable object referred to by this
         // shared pointer, or 0 if this shared pointer is empty.
 
-    BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> managedPtr() const;
-        // Return a managed pointer that refers to the same object as this
-        // shared pointer and which has a deleter that decrements the reference
-        // count for the shared object.
-
-    int numReferences() const;
-        // Return a "snapshot" of the number of shared pointers (including this
-        // one) that share ownership of the object referred to by this shared
-        // pointer.  Note that the behavior of this function is the same as
-        // 'use_count'.
-
     template<class ANY_TYPE>
     bool owner_before(const shared_ptr<ANY_TYPE>& other) const;
     template<class ANY_TYPE>
@@ -2502,16 +2490,6 @@ class shared_ptr {
         // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
         // otherwise.
 
-    ELEMENT_TYPE *ptr() const;
-        // Return the address of the modifiable object referred to by this
-        // shared pointer, or 0 if this shared pointer is empty.  Note that the
-        // behavior of this function is the same as 'get'.
-
-    BloombergLP::bslma::SharedPtrRep *rep() const;
-        // Return the address of the modifiable
-        // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
-        // pointer, or 0 if this shared pointer is empty.
-
     bool unique() const;
         // Return 'true' if this shared pointer does not share ownership of the
         // object it refers to with any other shared pointer, and 'false'
@@ -2521,6 +2499,43 @@ class shared_ptr {
         // Return a "snapshot" of the number of shared pointers (including this
         // one) that share ownership of the object referred to by this shared
         // pointer.
+
+    // ADDITIONAL BSL ACCESSORS
+    typename add_lvalue_reference<ELEMENT_TYPE>::type
+    operator[](ptrdiff_t index) const;
+        // Return a reference to the modifiable object at the specified 'index'
+        // offset in object referred to by this shared pointer.  The behavior
+        // is undefined unless this shared pointer is not empty, 'ELEMENT_TYPE'
+        // is not 'void' (a compiler error will be generated if this operator
+        // is instantiated within the 'shared_ptr<void>' class), and this
+        // shared pointer refers to an array of 'ELEMENT_TYPE' objects.  Note
+        // that this is logically equivalent to '*(ptr() + index)'.
+
+    BloombergLP::bslma::ManagedPtr<ELEMENT_TYPE> managedPtr() const;
+        // Return a managed pointer that refers to the same object as this
+        // shared pointer and which has a deleter that decrements the reference
+        // count for the shared object.
+
+    BloombergLP::bslma::SharedPtrRep *rep() const;
+        // Return the address of the modifiable
+        // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
+        // pointer, or 0 if this shared pointer is empty.
+
+    // DEPRECATED BDE LEGACY ACCESSORS
+    int numReferences() const;
+        // [!DEPRECATED!] Use 'use_count' instead.
+        //
+        // Return a "snapshot" of the number of shared pointers (including this
+        // one) that share ownership of the object referred to by this shared
+        // pointer.  Note that the behavior of this function is the same as
+        // 'use_count'.
+
+    ELEMENT_TYPE *ptr() const;
+        // [!DEPRECATED!] Use 'get' instead.
+        //
+        // Return the address of the modifiable object referred to by this
+        // shared pointer, or 0 if this shared pointer is empty.  Note that the
+        // behavior of this function is the same as 'get'.
 };
 
 // FREE OPERATORS
