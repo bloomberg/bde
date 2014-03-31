@@ -4977,7 +4977,7 @@ struct TestDriver_ModifiableFunctors
                      , ::bsl::allocator<ELEMENT>
                      >
        > {
-    // This configuration test functors whose arguments to the function-call
+    // This configuration tests functors whose arguments to the function-call
     // operator are passed by non-'const' reference, but honor the spirit of
     // the rule by not actually making any modifications to those arguments.
     // This is something we test only because standard conformance requires it.

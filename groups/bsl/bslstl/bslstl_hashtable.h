@@ -2426,7 +2426,7 @@ class HashTable_ArrayProctor {
 
     ~HashTable_ArrayProctor();
         // Destroy the hash-table data structure managed by this proctor and
-        // reclaim all of its resources, unless was there a call to 'release'
+        // reclaim all of its resources, unless there was a call to 'release'
         // this proctor.
 
     // MANIPULATORS
