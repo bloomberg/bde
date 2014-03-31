@@ -296,7 +296,7 @@ bsl::string tempFileName(int         testCase,
 
     char tmpPathBuf[MAX_PATH] = { "." }, tmpNameBuf[MAX_PATH];
     GetTempFileName(tmpPathBuf, tplt, 0, tmpNameBuf);
-    result = tmpNameBuf;
+    bsl::string result(tmpNameBuf);
 #endif
 
     // Test Invariant:
@@ -1185,8 +1185,6 @@ int main(int argc, char *argv[])
                                  "=============================\n";
 
             ASSERT(0 == bdesu_FileUtil::setWorkingDirectory(origWorkingDir));
-
-            if (veryVerbose) P(localGetcwd());
 
             LOOP_ASSERT(fileNameWrite, bdesu_FileUtil::exists(fileNameWrite));
             LOOP_ASSERT(fileNameRead, bdesu_FileUtil::exists(fileNameRead));

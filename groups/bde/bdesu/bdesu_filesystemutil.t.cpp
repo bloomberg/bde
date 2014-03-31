@@ -321,7 +321,7 @@ bsl::string tempFileName(int         testCase,
 
     char tmpPathBuf[MAX_PATH] = { "." }, tmpNameBuf[MAX_PATH];
     GetTempFileName(tmpPathBuf, tplt, 0, tmpNameBuf);
-    result = tmpNameBuf;
+    bsl::string result(tmpNameBuf);
 #endif
 
     // Test Invariant:
@@ -2668,7 +2668,7 @@ int main(int argc, char *argv[])
             Obj::findMatchingPaths(&lookup, path.c_str());
             string rollup = ::rollupPaths(lookup);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            replace_if(rollup.begin(), rollup.end(), ::isForwardslash, *PS);
+            replace_if(rollup.begin(), rollup.end(), ::isForwardSlash, *PS);
 #endif
             LOOP2_ASSERT(path, rollup, path == rollup);
 
@@ -2698,7 +2698,7 @@ int main(int argc, char *argv[])
             Obj::findMatchingPaths(&lookup, path.c_str());
             string rollup = ::rollupPaths(lookup);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            replace_if(rollup.begin(), rollup.end(), ::isForwardslash, *PS);
+            replace_if(rollup.begin(), rollup.end(), ::isForwardSlash, *PS);
 #endif
             LOOP2_ASSERT(path, rollup, path == rollup);
 
@@ -2714,7 +2714,7 @@ int main(int argc, char *argv[])
 
             string pattern(p.pattern);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            replace_if(pattern.begin(), pattern.end(), ::isForwardslash, *PS);
+            replace_if(pattern.begin(), pattern.end(), ::isForwardSlash, *PS);
 #endif
 
             if (veryVerbose) { T_() T_() cout << "Looking up "; P(path) }

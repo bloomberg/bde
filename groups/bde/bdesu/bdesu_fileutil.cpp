@@ -48,6 +48,12 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <sys/statvfs.h>
 #endif
 
+namespace BloombergLP {
+
+// STATIC HELPER FUNCTIONS
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+
 #ifdef BSLS_PLATFORM_OS_CYGWIN
 
 namespace {
@@ -74,8 +80,6 @@ int performStat(const char *fileName, StatResult *statResult)
 #endif
 }
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-
 static inline
 int performStat(const char *fileName, StatResult *statResult, bool followLinks)
     // Run the appropriate 'stat' or 'stat64' function on the specified
@@ -94,11 +98,6 @@ int performStat(const char *fileName, StatResult *statResult, bool followLinks)
 
 #endif
 
-namespace BloombergLP {
-
-namespace {
-
-// STATIC HELPER FUNCTIONS
 static
 void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
     // A 'thunk' to be bound to a vector that can be called to push an item to
@@ -239,8 +238,6 @@ int removeFile(const char *path)
 }
 
 #endif
-
-}  // close unnamed namespace
 
                               // ---------------------
                               // struct bdesu_FileUtil
