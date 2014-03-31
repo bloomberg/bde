@@ -1,8 +1,8 @@
 Looking for BSL?
 ===================
 
-BSL is now distributed as part of the larger set of BDE libraries in this repository. If you arrived at this page by following a link to (https://github.com/bloomberg/bsl), you should update
-that link to (https://github.com/bloomberg/bde).
+BSL is now distributed as part of the larger set of BDE libraries in this repository. If you arrived at this page by following a link to https://github.com/bloomberg/bsl, you should update
+that link to https://github.com/bloomberg/bde.
 
 BDE Libraries
 =============
