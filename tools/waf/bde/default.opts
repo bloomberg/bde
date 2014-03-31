@@ -324,12 +324,14 @@ windows         dbg DBG_LIBSUFFIX   = d
 
 !! unix-                opt OPT_CFLAGS      = -O -DNDEBUG
 !! unix-*-*-*-gcc       opt OPT_CFLAGS      = -O2 -fno-strict-aliasing -DNDEBUG
+!! unix-*-ppc64-*-gcc   opt OPT_CFLAGS      = -O2 -DNDEBUG
 
 !! unix-*-*-*-gcc       opt OPT_EXTRA_64_CXXFLAGS =
 !! unix-*-*-*-gcc        64 OPT_EXTRA_64_CXXFLAGS = -fno-gcse
 
 !! unix-                opt OPT_CXXFLAGS    = -O -DNDEBUG
 !! unix-*-*-*-gcc       opt OPT_CXXFLAGS    = -O2 $(OPT_EXTRA_64_CXXFLAGS) -fno-strict-aliasing -DNDEBUG
+!! unix-*-ppc64-*-gcc   opt OPT_CXXFLAGS    = -O2 $(OPT_EXTRA_64_CXXFLAGS) -DNDEBUG
 !! unix-SunOS-*-*-cc    opt OPT_CXXFLAGS    = -O -DNDEBUG -xbuiltin=%all -xprefetch=no%auto,explicit
 !! unix-AIX-*-*-xlc opt     OPT_CXXFLAGS    = -O -DNDEBUG -qalias=noansi
 
@@ -471,6 +473,8 @@ unix-*-*-*-gcc-4.2   _  GCCEXTRAWFLAGS  =   \
 !! *-*-armv6l-*-gcc     _   CC64FLAGS   = -march=armv6zk
 !! *-*-armv7l-*-gcc     _   CC64FLAGS   = -march=armv7-a
 !! *-*-armv7b-*-gcc     _   CC64FLAGS   = -march=armv7-a
+!! *-*-ppc64-*-gcc      _   CC64FLAGS   = -m32 -mpowerpc64 -mhard-dfp -mcpu=power7 -mtune=power7
+!! *-*-ppc64-*-gcc      64  CC64FLAGS   = -m64 -mpowerpc64 -mhard-dfp -mcpu=power7 -mtune=power7
 
 # DRQS 10505346 -- switch to -xtarget=ultra3 for Sun, -qarch=pwr4 -qtune=pwr5 for AIX
 #old flags
