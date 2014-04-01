@@ -27,9 +27,10 @@ BSLS_IDENT("$Id: $")
 
 #include <stdexcept>
 
-namespace bsl {
-
+namespace bsl
+{
     // Import selected symbols into bsl namespace
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::terminate_handler;
     using native_std::unexpected_handler;
     using native_std::bad_exception;
@@ -48,7 +49,17 @@ namespace bsl {
     using native_std::uncaught_exception;
     using native_std::underflow_error;
     using native_std::unexpected;
-
+#else
+    using native_std::domain_error;
+    using native_std::invalid_argument;
+    using native_std::length_error;
+    using native_std::logic_error;
+    using native_std::out_of_range;
+    using native_std::overflow_error;
+    using native_std::range_error;
+    using native_std::runtime_error;
+    using native_std::underflow_error;
+#endif
 }  // close namespace bsl
 
 #endif

@@ -21,15 +21,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
-
 #include <iomanip>
 
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
@@ -68,6 +65,14 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
+#else
+    using native_std::resetiosflags;
+    using native_std::setbase;
+    using native_std::setfill;
+    using native_std::setiosflags;
+    using native_std::setprecision;
+    using native_std::setw;
+#endif
 }
 
 #endif
