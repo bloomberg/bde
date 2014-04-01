@@ -21,6 +21,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -91,93 +95,93 @@ namespace bsl
     using native_std::nounitbuf;
     using native_std::nouppercase;
 #else
-    inline bsl::ios_base& boolalpha(ios_base& str) { 
-        return native_std::boolalpha(str); 
-    } 
+    inline bsl::ios_base& boolalpha(ios_base& str) {
+        return native_std::boolalpha(str);
+    }
 
     inline bsl::ios_base& dec(ios_base& str) {
-        return native_std::dec(str); 
-    } 
+        return native_std::dec(str);
+    }
 
     inline bsl::ios_base& fixed(ios_base& str) {
-        return native_std::fixed(str); 
-    } 
+        return native_std::fixed(str);
+    }
 
     inline bsl::ios_base& hex(ios_base& str) {
-        return native_std::hex(str); 
-    } 
+        return native_std::hex(str);
+    }
 
-    inline bsl::ios_base& internal(ios_base& str) { 
-        return native_std::internal(str); 
-    } 
+    inline bsl::ios_base& internal(ios_base& str) {
+        return native_std::internal(str);
+    }
 
-    inline bsl::ios_base& left(ios_base& str) { 
-        return native_std::left(str); 
-    } 
-        
-    inline bsl::ios_base& oct(ios_base& str) { 
-        return native_std::oct(str); 
-    } 
+    inline bsl::ios_base& left(ios_base& str) {
+        return native_std::left(str);
+    }
 
-    inline bsl::ios_base& right(ios_base& str) { 
-        return native_std::right(str); 
-    } 
+    inline bsl::ios_base& oct(ios_base& str) {
+        return native_std::oct(str);
+    }
 
-    inline bsl::ios_base& scientific(ios_base& str) { 
-        return native_std::scientific(str); 
-    } 
+    inline bsl::ios_base& right(ios_base& str) {
+        return native_std::right(str);
+    }
 
-    inline bsl::ios_base& showbase(ios_base& str) { 
-        return native_std::showbase(str); 
-    } 
+    inline bsl::ios_base& scientific(ios_base& str) {
+        return native_std::scientific(str);
+    }
 
-    inline bsl::ios_base& showpoint(ios_base& str) { 
-        return native_std::showpoint(str); 
-    } 
+    inline bsl::ios_base& showbase(ios_base& str) {
+        return native_std::showbase(str);
+    }
 
-    inline bsl::ios_base& showpos(ios_base& str) { 
-        return native_std::showpos(str); 
-    } 
+    inline bsl::ios_base& showpoint(ios_base& str) {
+        return native_std::showpoint(str);
+    }
 
-    inline bsl::ios_base& skipws(ios_base& str) { 
-        return native_std::skipws(str); 
-    } 
+    inline bsl::ios_base& showpos(ios_base& str) {
+        return native_std::showpos(str);
+    }
+
+    inline bsl::ios_base& skipws(ios_base& str) {
+        return native_std::skipws(str);
+    }
 
     inline bsl::ios_base& unitbuf(ios_base& str) {
-        return native_std::unitbuf(str); 
-    } 
+        return native_std::unitbuf(str);
+    }
 
     inline bsl::ios_base& uppercase(ios_base& str) {
-        return native_std::uppercase(str); 
-    } 
+        return native_std::uppercase(str);
+    }
 
     inline bsl::ios_base& noboolalpha(ios_base& str) {
-        return native_std::noboolalpha(str); 
-    } 
+        return native_std::noboolalpha(str);
+    }
 
-    inline bsl::ios_base& noshowbase(ios_base& str) { 
+    inline bsl::ios_base& noshowbase(ios_base& str) {
         return native_std::noshowbase(str);
-    } 
+    }
 
-    inline bsl::ios_base& noshowpoint(ios_base& str) { 
-        return native_std::noshowpoint(str); 
-    } 
+    inline bsl::ios_base& noshowpoint(ios_base& str) {
+        return native_std::noshowpoint(str);
+    }
 
-    inline bsl::ios_base& noshowpos(ios_base& str) { 
-        return native_std::noshowpos(str); 
-    } 
+    inline bsl::ios_base& noshowpos(ios_base& str) {
+        return native_std::noshowpos(str);
+    }
 
-    inline bsl::ios_base& noskipws(ios_base& str) { 
-        return native_std::noskipws(str); 
-    } 
+    inline bsl::ios_base& noskipws(ios_base& str) {
+        return native_std::noskipws(str);
+    }
 
-    inline bsl::ios_base& nounitbuf(ios_base& str) { 
-        return native_std::nounitbuf(str); 
-    } 
+    inline bsl::ios_base& nounitbuf(ios_base& str) {
+        return native_std::nounitbuf(str);
+    }
 
-    inline bsl::ios_base& nouppercase(ios_base& str) { 
-        return native_std::nouppercase(str); 
-    } 
+    inline bsl::ios_base& nouppercase(ios_base& str) {
+        return native_std::nouppercase(str);
+    }
 #endif
 }
 

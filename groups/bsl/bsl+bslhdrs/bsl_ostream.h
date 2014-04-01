@@ -21,10 +21,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
-
 #include <ostream>
 
 namespace bsl
@@ -48,7 +44,6 @@ namespace bsl
     using native_std::istreambuf_iterator;
     using native_std::iterator;
     using native_std::locale;
-    using native_std::num_get;
     using native_std::numpunct;
     using native_std::numpunct_byname;
     using native_std::ostream;
