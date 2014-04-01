@@ -39,6 +39,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::terminate_handler;
     using native_std::unexpected_handler;
     using native_std::bad_exception;
@@ -64,6 +65,11 @@ namespace bsl
     using native_std::uncaught_exception;
     using native_std::unexpected;
     using native_std::use_facet;
+#else
+    using native_std::basic_streambuf;
+    using native_std::streambuf;
+    using native_std::wstreambuf;
+#endif
 }
 
 #endif

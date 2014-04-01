@@ -19,19 +19,32 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSL_IOS
+#include <bsl_ios.h>
+#endif
+
+#ifndef INCLUDED_BSL_ISTREAM
+#include <bsl_istream.h>
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include <bsl_ostream.h>
+#endif
+
+#ifndef INCLUDED_BSL_STREAMBUF
+#include <bsl_streambuf.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
-
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
 
 #include <iostream>
 
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
@@ -79,6 +92,16 @@ namespace bsl
     using native_std::wclog;
     using native_std::wcout;
     using native_std::ws;
+#else
+    using native_std::cerr;
+    using native_std::cin;
+    using native_std::clog;
+    using native_std::cout;
+    using native_std::wcerr;
+    using native_std::wcin;
+    using native_std::wclog;
+    using native_std::wcout;
+#endif
 }
 
 #endif

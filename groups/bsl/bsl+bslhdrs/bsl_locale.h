@@ -23,15 +23,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
-
 #include <locale>
 
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
@@ -84,6 +81,36 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
+#else
+    using native_std::codecvt;
+    using native_std::codecvt_base;
+    using native_std::codecvt_byname;
+    using native_std::collate;
+    using native_std::collate_byname;
+    using native_std::ctype;
+    using native_std::ctype_base;
+    using native_std::ctype_byname;
+    using native_std::has_facet;
+    using native_std::locale;
+    using native_std::messages;
+    using native_std::messages_base;
+    using native_std::messages_byname;
+    using native_std::money_base;
+    using native_std::money_get;
+    using native_std::moneypunct;
+    using native_std::moneypunct_byname;
+    using native_std::money_put;
+    using native_std::num_get;
+    using native_std::numpunct;
+    using native_std::numpunct_byname;
+    using native_std::num_put;
+    using native_std::time_base;
+    using native_std::time_get;
+    using native_std::time_get_byname;
+    using native_std::time_put;
+    using native_std::time_put_byname;
+    using native_std::use_facet;
+#endif
 }
 
 #endif

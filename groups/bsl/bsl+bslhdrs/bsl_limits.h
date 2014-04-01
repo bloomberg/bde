@@ -28,6 +28,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::numeric_limits;
     using native_std::float_round_style;
     using native_std::float_denorm_style;
@@ -39,6 +40,19 @@ namespace bsl
     using native_std::denorm_indeterminate;
     using native_std::denorm_absent;
     using native_std::denorm_present;
+#else
+    using native_std::denorm_absent;
+    using native_std::denorm_indeterminate;
+    using native_std::denorm_present;
+    using native_std::float_denorm_style;
+    using native_std::float_round_style;
+    using native_std::numeric_limits;
+    using native_std::round_indeterminate;
+    using native_std::round_to_nearest;
+    using native_std::round_toward_infinity;
+    using native_std::round_toward_neg_infinity;
+    using native_std::round_toward_zero;
+#endif
 }
 
 #endif
