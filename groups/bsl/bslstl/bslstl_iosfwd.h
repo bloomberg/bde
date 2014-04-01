@@ -34,7 +34,11 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#include <iosfwd>
+namespace std {
+
+template <class CHAR_TYPE> struct char_traits;
+
+}  // close namespace std
 
 namespace bsl {
 

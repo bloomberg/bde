@@ -8,7 +8,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsl_cctype.h>
 #include <bsl_iomanip.h>
-#include <bsl_ios.h>
 
 namespace BloombergLP {
 
