@@ -298,7 +298,7 @@ int aSsErT(int v, const char *cv,
 }
 
 //-----------------------------------------------------------------------------
-// Encode a 4-byte UTF-8 value, print as a sequence of deimal ints.
+// Encode a 4-byte UTF-8 value, print as a sequence of decimal ints.
 //-----------------------------------------------------------------------------
 
 #if 0
@@ -1574,12 +1574,12 @@ void testFunction1()
 
     ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
 
-    // Next, we calculate and confirm the difference betwen the number of utf16
-    // words output and the number of bytes input.  The Greek chars are double
-    // octets that will become single shorts, the Chinese chars are encoded as
-    // utf8 triple octets that will turn into single 16-bit words, the same for
-    // the Hindi chars, and the quad chars are quadruple octets that will turn
-    // into double shorts.
+    // Next, we calculate and confirm the difference between the number of
+    // utf16 words output and the number of bytes input.  The Greek chars are
+    // double octets that will become single shorts, the Chinese chars are
+    // encoded as utf8 triple octets that will turn into single 16-bit words,
+    // the same for the Hindi chars, and the quad chars are quadruple octets
+    // that will turn into double shorts.
 
     enum { SHRINKAGE = NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
                        NUM_GREEK_CHARS   * (2-1) + NUM_QUAD_CHARS  * (4-2) };
@@ -4626,7 +4626,7 @@ int main(int argc, char**argv)
 
         ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
 
-        // Next, we calculate and confirm the difference betwen the number of
+        // Next, we calculate and confirm the difference between the number of
         // utf16 words output and the number of bytes input.  The ascii chars
         // will take 1 16-bit word apiece, the Greek chars are double octets
         // that will become single shorts, the Chinese chars are encoded as
@@ -4701,7 +4701,7 @@ int main(int argc, char**argv)
                                                      &numChars,
                                                      &numBytes);
 
-// Then, we observe no errors or warnigns occurred, and numbers of chars and
+// Then, we observe no errors or warnings occurred, and numbers of chars and
 // bytes were as expected.  note that both 'numChars' and 'numBytes' include
 // the terminating 0.
 
@@ -4725,7 +4725,7 @@ int main(int argc, char**argv)
 
 // Next, in preparation for translation back to UTF-16, we create a buffer of
 // shorts and the variable 'numWords' to track the number of UTF-16 words
-// occuppied by the result.
+// occupied by the result.
 
         unsigned short secondUtf16String[6];
         bsl::size_t numWords;
@@ -4777,11 +4777,11 @@ int main(int argc, char**argv)
         //   concatenate them into a single input string.  We then take all
         //   possible substrings of this combination, and feed them into the
         //   translator, and make predictions about what has to be true, and
-        //   verify these predicitons with assertions.
+        //   verify these predictions with assertions.
         //
         //   The effectiveness of these tests are enhanced by running them in
         //   safe mode, so we see that internal asserts within the translator
-        //   are not triggerring.
+        //   are not triggering.
         //
         //   Note when comparing this TC to the one before it that there are
         //   far fewer ways for utf16 to go wrong than there are for utf8.
@@ -4796,7 +4796,7 @@ int main(int argc, char**argv)
             { 0x4e2d, 0, 0 },                           // -- Valid Triple
             { 0xda13, 0xdd25, 0 },                      // -- Valid Quad
 
-            // Sequences above here are definatly OK.  Sequences following
+            // Sequences above here are definitely OK.  Sequences following
             // might be bad, might be OK, depending what's around them.
 
             { 0xdd25, 0, 0 },                           // unexpected cont
@@ -5021,11 +5021,11 @@ int main(int argc, char**argv)
         //   concatenate them into a single input string.  We then take all
         //   possible substrings of this combination, and feed them into the
         //   translator, and make predictions about what has to be true, and
-        //   verify these predicitons with assertions.
+        //   verify these predictions with assertions.
         //
         //   The effectiveness of these tests are enhanced by running them in
         //   safe mode, so we see that internal asserts within the translator
-        //   are not triggerring.
+        //   are not triggering.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "UTF8 -> UTF16: PILE OF BROKEN GLASS TEST\n"
@@ -5247,7 +5247,7 @@ int main(int argc, char**argv)
         //
         // Concern:
         //   That the length estimator always estimates a length >= the actual
-        //   length requived.
+        //   length required.
         //
         // Plan:
         //   Set up da "broken glass playground" consisting of all possible
@@ -10796,8 +10796,8 @@ bool testOneErrorCharConversion(
                                                    // word sequence being
                                                    // tested.
 
-    // The 'testOneErrorCharConversion' templated functionis the common part of
-    // all the subtests in test 4.  It verifies that the error conversion
+    // The 'testOneErrorCharConversion' templated function is the common part
+    // of all the subtests in test 4.  It verifies that the error conversion
     // occurs as expected (using the 'RUN_AND_CHECK' macro, which also verifies
     // that the data surrounding the output buffer are unchanged) and that the
     // source buffer is unchanged.  It performs this verification for the error

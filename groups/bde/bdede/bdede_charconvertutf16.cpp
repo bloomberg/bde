@@ -242,7 +242,7 @@ struct Capacity {
 struct NoopCapacity {
     // Functor passed to 'localUtf8ToUtf16' and 'localUtf16ToUtf8' in cases
     // where we don't want to monitor capacity available in output, all
-    // operations on this object are to become no-ops, all if-blocks controled
+    // operations on this object are to become no-ops, all if-blocks controlled
     // by '<' are 'if '<capacity> < <value>' with no 'else' and will expand to
     // no code.
 
@@ -772,7 +772,7 @@ int localUtf8ToUtf16(UTF16_CHAR  *dstBuffer,
                      bsl::size_t *numWordsWritten,
                      UTF16_CHAR   errorCharacter)
     // Translate from the specified null-terminated utf8 buffer 'srcBuffer' to
-    // the specifed null-termintaed utf16 buffer 'dstBuffer' of specified
+    // the specified null-terminated utf16 buffer 'dstBuffer' of specified
     // capacity 'dstBufferSize'.  Return the number of unicode characters in
     // the specified '*numCharsWritten' and the number of 'UTF16_CHAR's written
     // in '*numWordsWritten'.  The specified 'errorCharacter' is output in
@@ -1031,7 +1031,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
                      bsl::size_t      *numBytesWritten,
                      char              errorCharacter)
     // Translate from the specified null-terminated utf16 buffer 'srcBuffer' to
-    // the specifed null-termintaed utf8 buffer 'dstBuffer' of specified
+    // the specified null-terminated utf8 buffer 'dstBuffer' of specified
     // capacity 'dstBufferSize'.  Return the number of unicode characters
     // translated in the specified '*numCharsWritten' and the number of bytes
     // written in the specified '*numBytesWritten'.  Return a bit-wise or of
