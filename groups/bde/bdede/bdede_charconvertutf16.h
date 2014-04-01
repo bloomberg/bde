@@ -30,9 +30,9 @@ BDES_IDENT("$Id: $")
 ///History and Motivation
 ///----------------------
 // UTF-8 is a character encoding that allows 32-bit character sets like Unicode
-// to be represented using null-terminated (8-bit) byte strings (NTBS), while
-// allowing "standard ASCII" strings to be used "as-is".  Note that UTF-8 is
-// described in detail in RFC 3629 (http://www.ietf.org/rfc/rfc3629.txt).
+// to be represented using (8-bit) byte strings (NTBS), while allowing
+// "standard ASCII" strings to be used "as-is".  Note that UTF-8 is described
+// in detail in RFC 3629 (http://www.ietf.org/rfc/rfc3629.txt).
 //
 // UTF-16 is a 16-bit character encoding that allows Unicode characters up to
 // 0x10ffff to be encoded using one or two 16-bit values.  Note that UTF-16 is
@@ -43,8 +43,8 @@ BDES_IDENT("$Id: $")
 // containers, however, like the 'glib' conversion routines, make two passes: a
 // size estimation pass, after which the output container is sized
 // appropriately if necessary, and then the translation pass.  Note that
-// inadditional to this, another input length measuring pass may be necessary
-// if null terminated sequences are passed as input to 'bslstl::StringRef's or
+// in addition to this, another input length measuring pass may be necessary if
+// null terminated sequences are passed as input to 'bslstl::StringRef's or
 // 'bslstl::StringRefWide's.
 //
 // The methods that output to a 'vector', 'string', or 'wstring' will all grow
@@ -477,7 +477,7 @@ struct bdede_CharConvertUtf16 {
         // character ('0 < errorCharacter < 0x80').  Also note that the string
         // length will be sized to the length of the output, such that
         // 'strlen(dstString->c_str()) == dstString->length()'.  Also note
-        // that any words of input with a value of 0 will be interpeted as
+        // that any words of input with a value of 0 will be interpreted as
         // end-of-input.
 
     static int utf16ToUtf8(bsl::string                  *dstString,
@@ -502,7 +502,7 @@ struct bdede_CharConvertUtf16 {
         // behavior is undefined unless 'errorCharacter' is either zero or a
         // valid single-byte encoded UTF-8 character
         // ('0 < errorCharacter < 0x80').  Note that any words of input with a
-        // value of 0 will be interpeted as end-of-input.
+        // value of 0 will be interpreted as end-of-input.
 
     static int utf16ToUtf8(bsl::vector<char>    *dstVector,
                            const unsigned short *srcString,
@@ -526,7 +526,7 @@ struct bdede_CharConvertUtf16 {
         // behavior is undefined unless 'srcString' is null-terminated and
         // 'errorCharacter' is either zero or a valid single-byte encoded UTF-8
         // character ('0 < errorCharacter < 0x80').  Note that any words of
-        // input with a value of 0 will be interpeted as end-of-input.
+        // input with a value of 0 will be interpreted as end-of-input.
 
     static int utf16ToUtf8(bsl::vector<char>            *dstVector,
                            const bslstl::StringRefWide&  srcStringRef,
@@ -550,7 +550,7 @@ struct bdede_CharConvertUtf16 {
         // behavior is undefined unless 'errorCharacter' is either zero or a
         // valid single-byte encoded UTF-8 character
         // ('0 < errorCharacter < 0x80').  Note that any words of input with a
-        // value of 0 will be interpeted as end-of-input.
+        // value of 0 will be interpreted as end-of-input.
 
     static int utf16ToUtf8(char                 *dstBuffer,
                            bsl::size_t           dstCapacity,
@@ -599,7 +599,8 @@ struct bdede_CharConvertUtf16 {
         // *bytes* output exceed three times the number of *short words* input.
         // Also note that, if 'dstCapacity > 0', then, after completion,
         // 'strlen(dstBuffer) + 1 == *numBytesWritten'.  Also note that any
-        // words of input with a value of 0 will be interpeted as end-of-input.
+        // words of input with a value of 0 will be interpreted as
+        // end-of-input.
 
     static int utf16ToUtf8(char                         *dstBuffer,
                            bsl::size_t                   dstCapacity,
@@ -647,7 +648,8 @@ struct bdede_CharConvertUtf16 {
         // *bytes* output exceed three times the number of *short words* input.
         // Also note that, if 'dstCapacity > 0', then, after completion,
         // 'strlen(dstBuffer) + 1 == *numBytesWritten'.  Also note that any
-        // words of input with a value of 0 will be interpeted as end-of-input.
+        // words of input with a value of 0 will be interpreted as
+        // end-of-input.
 };
 
 }  // close namespace BloombergLP
