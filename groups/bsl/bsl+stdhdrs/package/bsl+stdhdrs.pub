@@ -69,7 +69,6 @@ ctype.h         ctype.h.SUNWCCh
 errno.h         errno.h.SUNWCCh
 float.h         float.h.SUNWCCh
 iso646.h        iso646.h.SUNWCCh
-                istream.h.SUNWCCh
 limits.h        limits.h.SUNWCCh
 locale.h        locale.h.SUNWCCh
 pthread.h
