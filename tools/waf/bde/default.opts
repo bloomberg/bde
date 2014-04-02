@@ -466,8 +466,8 @@ unix-*-*-*-gcc-4.2   _  GCCEXTRAWFLAGS  =   \
 *                       _   CC64FLAGS   =
 *-*-*-*-gcc             _   CC64FLAGS   = -m32
 !! *-*-*-*-gcc          64  CC64FLAGS   = -m64
-!! *-*-x86_64-*-gcc     _   CC64FLAGS   = -m32 -march=pentium2 -mtune=opteron
-!! *-*-x86_64-*-gcc     64  CC64FLAGS   = -m64 -mtune=opteron
+!! *-*-x86_64-*-gcc     _   CC64FLAGS   = -m64
+!! *-*-x86_64-*-gcc     64  CC64FLAGS   = -m64
 !! *-*-armv6l-*-gcc     _   CC64FLAGS   = -march=armv6zk
 !! *-*-armv7l-*-gcc     _   CC64FLAGS   = -march=armv7-a
 !! *-*-armv7b-*-gcc     _   CC64FLAGS   = -march=armv7-a
