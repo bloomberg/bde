@@ -728,15 +728,15 @@ class unordered_multiset
     // CREATORS
     explicit unordered_multiset(
                            size_type             initialNumBuckets = 0,
-                           const hasher&         hash = hasher(),
+                           const hasher&         hashFunction = hasher(),
                            const key_equal&      keyEqual = key_equal(),
                            const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered multi-set.  Optionally specify an
         // 'initialNumBuckets' indicating the initial size of the array of
         // buckets of this container.  If 'initialNumBuckets' is not supplied,
         // an implementation defined value is used.  Optionally specify a
-        // 'hasher' used to generate the hash values associated to the
-        // keys extracted from the values contained in this object.  If 'hash'
+        // 'hashFunction' used to generate the hash values associated to the
+        // keys extracted from the values contained in this object.  If 'hashFunction'
         // is not supplied, a default-constructed object of type 'hasher' is
         // used.  Optionally specify a key-equality functor 'keyEqual' used to
         // verify that two key values are the same.  If 'keyEqual' is not
@@ -776,7 +776,7 @@ class unordered_multiset
     unordered_multiset(INPUT_ITERATOR        first,
                        INPUT_ITERATOR        last,
                        size_type             initialNumBuckets = 0,
-                       const hasher&         hash = hasher(),
+                       const hasher&         hashFunction = hasher(),
                        const key_equal&      keyEqual = key_equal(),
                        const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered multi-set and insert each 'value_type'
@@ -786,9 +786,9 @@ class unordered_multiset
         // Optionally specify an 'initialNumBuckets' indicating the initial
         // size of the array of buckets of this container.  If
         // 'initialNumBuckets' is not supplied, an implementation defined value
-        // is used.  Optionally specify a 'hasher' used to generate hash values
+        // is used.  Optionally specify a 'hashFunction' used to generate hash values
         // for the keys extracted from the values contained in this object.  If
-        // 'hash' is not supplied, a default-constructed object of type
+        // 'hashFunction' is not supplied, a default-constructed object of type
         // 'hasher' is used.  Optionally specify a key-equality functor
         // 'keyEqual' used to verify that two key values are the same.  If
         // 'keyEqual' is not supplied, a default-constructed object of type
@@ -1127,10 +1127,10 @@ void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& x,
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::
 unordered_multiset(size_type             initialNumBuckets,
-                   const hasher&         hash,
+                   const hasher&         hashFunction,
                    const key_equal&      keyEqual,
                    const allocator_type& basicAllocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1140,10 +1140,10 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                        INPUT_ITERATOR        first,
                                        INPUT_ITERATOR        last,
                                        size_type             initialNumBuckets,
-                                       const hasher&         hash,
+                                       const hasher&         hashFunction,
                                        const key_equal&      keyEqual,
                                        const allocator_type& basicAllocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this->insert(first, last);
 }

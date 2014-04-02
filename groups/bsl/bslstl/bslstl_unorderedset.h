@@ -675,15 +675,15 @@ class unordered_set
   public:
     // CREATORS
     explicit unordered_set(size_type             initialNumBuckets = 0,
-                           const hasher&         hash = hasher(),
+                           const hasher&         hashFunction = hasher(),
                            const key_equal&      keyEqual = key_equal(),
                            const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered set.  Optionally specify an
         // 'initialNumBuckets' indicating the initial size of the array of
         // buckets of this container.  If 'initialNumBuckets' is not supplied,
         // an implementation defined value is used.  Optionally specify a
-        // 'hasher' used to generate the hash values associated to the
-        // keys extracted from the values contained in this object.  If 'hash'
+        // 'hashFunction' used to generate the hash values associated to the
+        // keys extracted from the values contained in this object.  If 'hashFunction'
         // is not supplied, a default-constructed object of type 'hasher' is
         // used.  Optionally specify a key-equality functor 'keyEqual' used to
         // verify that two key values are the same.  If 'keyEqual' is not
@@ -723,7 +723,7 @@ class unordered_set
     unordered_set(INPUT_ITERATOR        first,
                   INPUT_ITERATOR        last,
                   size_type             initialNumBuckets = 0,
-                  const hasher&         hash = hasher(),
+                  const hasher&         hashFunction = hasher(),
                   const key_equal&      keyEqual = key_equal(),
                   const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered set and insert each 'value_type' object
@@ -733,9 +733,9 @@ class unordered_set
         // Optionally specify an 'initialNumBuckets' indicating the initial
         // size of the array of buckets of this container.  If
         // 'initialNumBuckets' is not supplied, an implementation defined value
-        // is used.  Optionally specify a 'hash' used to generate hash values
+        // is used.  Optionally specify a 'hashFunction' used to generate hash values
         // for the keys extracted from the values contained in this object.  If
-        // 'hash' is not supplied, a default-constructed object of type
+        // 'hashFunction' is not supplied, a default-constructed object of type
         // 'hasher' is used.  Optionally specify a key-equality functor
         // 'keyEqual' used to verify that two key values are the same.  If
         // 'keyEqual' is not supplied, a default-constructed object of type
@@ -1068,10 +1068,10 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                        size_type             initialNumBuckets,
-                                       const hasher&         hash,
+                                       const hasher&         hashFunction,
                                        const key_equal&      keyEqual,
                                        const allocator_type& basicAllocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1082,10 +1082,10 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                        INPUT_ITERATOR        first,
                                        INPUT_ITERATOR        last,
                                        size_type             initialNumBuckets,
-                                       const hasher&         hash,
+                                       const hasher&         hashFunction,
                                        const key_equal&      keyEqual,
                                        const allocator_type& basicAllocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this->insert(first, last);
 }

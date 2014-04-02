@@ -1004,8 +1004,8 @@ class Deque_BlockCreator {
   public:
     // CREATORS
     explicit
-    Deque_BlockCreator(deque<VALUE_TYPE, ALLOCATOR> *deque);
-        // Construct a block allocator for the specified 'deque'.
+    Deque_BlockCreator(deque<VALUE_TYPE, ALLOCATOR> *deque_p);
+        // Construct a block allocator for the specified 'deque_p'.
 
     ~Deque_BlockCreator();
         // Free any blocks that have been allocated by this allocator but have
@@ -1053,8 +1053,8 @@ class Deque_ClearGuard {
   public:
     // CREATORS
     explicit
-    Deque_ClearGuard(deque<VALUE_TYPE, ALLOCATOR> *deque);
-        // Initializes object to guard zero items from the specified 'deque'.
+    Deque_ClearGuard(deque<VALUE_TYPE, ALLOCATOR> *deque_p);
+        // Initializes object to guard zero items from the specified 'deque_p'.
 
     ~Deque_ClearGuard();
         // Call the method 'clear' on the deque supplied at construction,
@@ -1101,9 +1101,9 @@ class Deque_Guard {
 
   public:
     // CREATORS
-    Deque_Guard(deque<VALUE_TYPE, ALLOCATOR> *deque,
+    Deque_Guard(deque<VALUE_TYPE, ALLOCATOR> *deque_p,
                 bool                          isTail);
-        // Initializes object to guard zero items from the specified 'deque'.
+        // Initializes object to guard zero items from the specified 'deque_p'.
         // This guards either the tail or the head, as determined by the
         // specified 'isTail' boolean.
 
@@ -2719,8 +2719,8 @@ void swap(deque<VALUE_TYPE, ALLOCATOR>& a,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::Deque_BlockCreator(
-                                           deque<VALUE_TYPE, ALLOCATOR> *deque)
-: d_deque_p(deque)
+                                           deque<VALUE_TYPE, ALLOCATOR> *deque_p)
+: d_deque_p(deque_p)
 , d_boundary(0)
 {
 }
@@ -2883,8 +2883,8 @@ void Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::release()
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 Deque_ClearGuard<VALUE_TYPE, ALLOCATOR>::Deque_ClearGuard(
-                                           deque<VALUE_TYPE, ALLOCATOR> *deque)
-: d_deque_p(deque)
+                                           deque<VALUE_TYPE, ALLOCATOR> *deque_p)
+: d_deque_p(deque_p)
 {
 }
 
@@ -2913,9 +2913,9 @@ void Deque_ClearGuard<VALUE_TYPE, ALLOCATOR>::release()
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 Deque_Guard<VALUE_TYPE, ALLOCATOR>::Deque_Guard(
-                                          deque<VALUE_TYPE, ALLOCATOR> *deque,
+                                          deque<VALUE_TYPE, ALLOCATOR> *deque_p,
                                           bool                          isTail)
-: d_deque_p(deque)
+: d_deque_p(deque_p)
 , d_count(0)
 , d_isTail(isTail)
 {

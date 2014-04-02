@@ -1027,16 +1027,16 @@ class unordered_map {
     // CREATORS
     explicit unordered_map(
                    size_type             initialNumBuckets = 0,
-                   const hasher&         hash              = hasher(),
+                   const hasher&         hashFunction      = hasher(),
                    const key_equal&      keyEqual          = key_equal(),
                    const allocator_type& basicAllocator    = allocator_type());
         // Create an empty unordered map having a 'max_load_factor' of 1.0.
         // Optionally specify an 'initialNumBuckets' indicating the minimum
         // initial size of the array of buckets of this unordered map.  If
         // 'initialNumBuckets' is not supplied, one empty bucket shall be used
-        // and no memory allocated.  Optionally specify a 'hasher' used to
+        // and no memory allocated.  Optionally specify a 'hashFunction' used to
         // generate the hash values associated with the key-value pairs
-        // contained in this unordered map.  If 'hash' is not supplied, a
+        // contained in this unordered map.  If 'hashFunction' is not supplied, a
         // default-constructed object of type 'hasher' is used.  Optionally
         // specify a key-equality functor 'keyEqual' used to determine whether
         // two keys have the same value.  If 'keyEqual' is not supplied, a
@@ -1083,7 +1083,7 @@ class unordered_map {
     unordered_map(INPUT_ITERATOR        first,
                   INPUT_ITERATOR        last,
                   size_type             initialNumBuckets = 0,
-                  const hasher&         hash              = hasher(),
+                  const hasher&         hashFunction      = hasher(),
                   const key_equal&      keyEqual          = key_equal(),
                   const allocator_type& basicAllocator    = allocator_type());
         // Create an empty unordered map, having a 'max_load_factor' of 1.0,
@@ -1096,9 +1096,9 @@ class unordered_map {
         // indicating the minimum initial size of the array of buckets of this
         // unordered map.  If 'initialNumBuckets' is not supplied, and 'first'
         // and 'last' denote an empty range, a single empty bucket shall be
-        // supplied.  Optionally specify a 'hasher' used to generate hash
+        // supplied.  Optionally specify a 'hashFunction' used to generate hash
         // values associated with the key-value pairs contained in this
-        // unordered map.  If 'hash' is not supplied, a default-constructed
+        // unordered map.  If 'hashFunction' is not supplied, a default-constructed
         // object of type 'hasher' is used.  Optionally specify a key-equality
         // functor 'keyEqual' used to verify that two key values are the same.
         // If 'keyEqual' is not supplied, a default-constructed object of type
@@ -1483,10 +1483,10 @@ template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
 unordered_map(size_type             initialNumBuckets,
-              const hasher&         hash,
+              const hasher&         hashFunction,
               const key_equal&      keyEqual,
               const allocator_type& basicAllocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
 }
 
@@ -1496,10 +1496,10 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_map(
                                        INPUT_ITERATOR        first,
                                        INPUT_ITERATOR        last,
                                        size_type             initialNumBuckets,
-                                       const hasher&         hash,
+                                       const hasher&         hashFunction,
                                        const key_equal&      keyEqual,
                                        const allocator_type& basicAllocator)
-: d_impl(hash, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+: d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
     this->insert(first, last);
 }
