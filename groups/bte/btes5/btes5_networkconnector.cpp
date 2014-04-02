@@ -596,8 +596,13 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
 
         rc = attempt->d_socket_p->connect(server);
         if (!rc) {
+            // on immediate success call 'connectTcpCb' in the event manager
+            // thread to avoid nested locks
+
             attempt->d_proxyTimer = 0;
-            connectTcpCb(attempt, false); // immediate success
+            const bool hasTimedOut = false;
+            attempt->d_connector->d_eventManager_p->execute(
+                      bdef_BindUtil::bind(connectTcpCb, attempt, hasTimedOut));
             break;
         } else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
             bteso_EventManager::Callback
