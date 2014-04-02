@@ -1,11 +1,14 @@
 // bdldfp_decimalutil.t.cpp                                           -*-C++-*-
 #include <bdldfp_decimalutil.h>
 
+#include <bdldfp_decimalconvertutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_stopwatch.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -13,6 +16,10 @@
 #include <bsl_climits.h>
 #include <bsl_limits.h>
 #include <bsl_cmath.h>
+#include <bsl_vector.h>
+#include <bsl_string.h>
+#include <bsl_unordered_map.h>
+#include <bsl_fstream.h>
 
 #include <typeinfo>
 
@@ -128,6 +135,81 @@ namespace BDEC = BloombergLP::bdldfp;
 
 #endif
 
+//=============================================================================
+//                          PERFORMANCE TEST HELPERS
+//-----------------------------------------------------------------------------
+
+// Accumulate data per symbol.
+struct SymbolDataDecimal64 {
+    BDEC::Decimal64    d_low;
+    BDEC::Decimal64    d_high;
+    BDEC::Decimal64    d_valueTraded;
+    double             d_vwap;
+    unsigned long long d_volume;
+};
+
+struct SymbolDataDouble {
+    double             d_low;
+    double             d_high;
+    double             d_valueTraded;
+    double             d_vwap;
+    unsigned long long d_volume;
+};
+
+struct TradeDataPoint {
+    bsl::string        d_symbol;
+    unsigned long long d_mantissa;
+    int                d_exponent;
+    bsl::string        d_price;
+    unsigned long long d_quantity;
+};
+
+void parseDecimal(unsigned long long *mantissa,
+                  int                *exponent,
+                  const bsl::string&  input)
+{
+    // Load into the specified 'mantissa' and 'exponent' values corresponding
+    // to the decimal number represented by the specified 'input'. The
+    // behavior is undefined if 's' is not a valid decimal number. For
+    // example, 123.45 = 12345 * 10 ^ -2, and thus the string '123.45' would
+    // return a 'mantissa' of '12345' and an 'exponent' to '-2'.
+    bsl::string::const_iterator pos =
+                                    bsl::find(input.begin(), input.end(), '.');
+    *exponent = -static_cast<int>(bsl::distance(pos, input.end()));
+
+    bsl::string mantissa_str(input.begin(), pos);
+    mantissa_str += bsl::string(pos + 1, input.end());
+
+    *mantissa = atoi(mantissa_str.c_str());
+}
+
+unsigned int split(bsl::vector<bsl::string>& strs,
+                   const bsl::string&        input,
+                   char                      ch)
+{
+    // Split the specified 'input' by a separator character given by the
+    // specified 'ch', storing each section of 'input' in the order they
+    // appear into the specified 'strs'.
+    bsl::string::const_iterator pos =
+                                     bsl::find(input.begin(), input.end(), ch);
+
+    bsl::string::const_iterator initialPos = input.begin();
+    strs.clear();
+
+    // Decompose statement
+    while (pos != input.end()) {
+        strs.push_back(bsl::string(initialPos, pos - initialPos));
+        initialPos = pos + 1;
+
+        pos = bsl::find(initialPos, input.end(), ch);
+    }
+
+    // Add the last one
+    strs.push_back(bsl::string(initialPos,
+                                 bsl::min(pos, input.end()) - initialPos + 1));
+
+    return static_cast<unsigned int>(strs.size());
+}
 
 //=============================================================================
 //                               USAGE EXAMPLE
@@ -139,7 +221,7 @@ namespace UsageExample {
 
 // TODO: Find out why the 17 digit variants are failing tests.
 const long long mantissas[] = {
-                          //-12345678901234567ll,
+//                            -12345678901234567ll,
                             - 2345678901234567ll,
                             - 1234567890123456ll,
                             -  234567890123456ll,
@@ -205,26 +287,26 @@ const long long mantissas[] = {
                                234567890123456ll,
                               1234567890123456ll,
                               2345678901234567ll,
-                           //12345678901234567ll,
+//                             12345678901234567ll,
                         };
 const int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
 
-const int exps[] =            {
-                                          -321,
-                                          -129,
-                                          - 23,
-                                          - 10,
-                                          -  7,
-                                          -  2,
-                                             0,
-                                             2,
-                                             7,
-                                            10,
-                                            23,
-                                           129,
-                                           321,
-                        };
-const int numExps      = sizeof(exps) / sizeof(*mantissas);
+const int exps[] = {
+                 -321,
+                 -129,
+                 - 23,
+                 - 10,
+                 -  7,
+                 -  2,
+                    0,
+                    2,
+                    7,
+                   10,
+                   23,
+                  129,
+                  321,
+};
+const int numExps = sizeof(exps) / sizeof(*mantissas);
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -455,8 +537,6 @@ int main(int argc, char* argv[])
                                                                    exps[tiE]));
                 }
             }
-
-
         }
     } break;
     case 8: {
@@ -2219,6 +2299,603 @@ int main(int argc, char* argv[])
 
 
         }
+    } break;
+
+    case -1: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance Test of Random Trading Data.
+        //
+        // Test the performance of a real-world application of decimal
+        // floating point values that is intense on calls to makeDecimal64 and
+        // binary arithmetic operations such as 'operator*' and 'operator/'.
+        // We test an example of aggregating data about tickers, such as the
+        // lows and highs in a trading day, volume, and weighted averages.  We
+        // wish to determine the number of tickers that may be processed per
+        // second, using randomized data.
+        // --------------------------------------------------------------------
+        bsl::vector<TradeDataPoint> data;
+        typedef bsl::vector<TradeDataPoint>::size_type size_type;
+
+        int numDiffTickers =     100;  // Number of different symbols.
+        int numTickerData  = 1000000;  // Number of data points.
+
+        for (int i = 0; i < numTickerData; ++i) {
+            TradeDataPoint p;
+            p.d_symbol = static_cast<char>(rand() % numDiffTickers);
+            p.d_exponent = (rand() % 5) - 3;
+            p.d_mantissa = rand() % 100000;
+            p.d_quantity = 10 * (rand() % 1000);
+            data.push_back(p);
+        }
+
+        // Find all distinct symbols.
+        int numSymbols = 0;
+        bsl::unordered_map<bsl::string, int> symbol2Index;
+        for (size_type i = 0; i < data.size(); ++i) {
+            const bsl::string& symbol = data[i].d_symbol;
+            if (symbol2Index.find(symbol) == symbol2Index.end()) {
+                symbol2Index[symbol] = ++numSymbols;
+            }
+        }
+
+        // Initialize data.
+        bsl::vector<SymbolDataDecimal64> symbolData;
+        for (int i = 0; i < numSymbols; ++i) {
+            SymbolDataDecimal64 d;
+            Util::parseDecimal64(&d.d_low , "+inf");
+            Util::parseDecimal64(&d.d_high, "-inf");
+            d.d_valueTraded = BDEC::Decimal64(0);
+            d.d_vwap = 0.0;
+            d.d_volume = 0;
+            symbolData.push_back(d);
+        }
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        for (size_type i = 0; i < data.size(); ++i) {
+
+            const bsl::string& symbol = data[i].d_symbol;
+            const int index = symbol2Index[symbol];
+
+            // Parse the price.
+            BDEC::Decimal64 price =
+                BloombergLP::bdldfp::DecimalUtil::makeDecimal64(
+                    data[i].d_mantissa, data[i].d_exponent);
+
+            // Update the aggregate data.
+            if (price < symbolData[index].d_low) {
+                symbolData[index].d_low = price;
+            }
+            else if (price > symbolData[index].d_high) {
+                symbolData[index].d_high = price;
+            }
+            symbolData[index].d_valueTraded += price * data[i].d_quantity;
+            symbolData[index].d_volume += data[i].d_quantity;
+            symbolData[index].d_vwap =
+                BloombergLP::bdldfp::DecimalConvertUtil::decimalToDouble
+                (symbolData[index].d_valueTraded /
+                 symbolData[index].d_volume);
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        const double dataPerSecond = numTickerData / totalTime;
+
+        bsl::cout << "Performance test: " << dataPerSecond
+                  << " ticker data operations per second." << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
+    } break;
+
+    case -2: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance Test of Random Trading Data.
+        //
+        // Test the performance of a real-world application of decimal
+        // floating point values that is intense on calls to makeDecimal64 and
+        // binary arithmetic operations such as 'operator*' and 'operator/'.
+        // This test is performed with binary floating-point values (i.e.,
+        // doubles) for comparison purposes.
+        // --------------------------------------------------------------------
+        bsl::vector<TradeDataPoint> data;
+        typedef bsl::vector<TradeDataPoint>::size_type size_type;
+
+        int numDiffTickers =     100;  // Number of different symbols.
+        int numTickerData  = 1000000;  // Number of data points.
+
+        for (int i = 0; i < numTickerData; ++i) {
+            TradeDataPoint p;
+            p.d_symbol = static_cast<char>(rand() % numDiffTickers);
+            p.d_exponent = (rand() % 5) - 3;
+            p.d_mantissa = rand() % 100000;
+            p.d_quantity = 10 * (rand() % 1000);
+            data.push_back(p);
+        }
+
+        // Find all distinct symbols.
+        int numSymbols = 0;
+        bsl::unordered_map<bsl::string, int> symbol2Index;
+        for (size_type i = 0; i < data.size(); ++i) {
+            const bsl::string& symbol = data[i].d_symbol;
+            if (symbol2Index.find(symbol) == symbol2Index.end()) {
+                symbol2Index[symbol] = ++numSymbols;
+            }
+        }
+
+        // Initialize data.
+        bsl::vector<SymbolDataDouble> symbolData;
+        for (int i = 0; i < numSymbols; ++i) {
+            SymbolDataDouble d;
+            d.d_low  = 1.0/0.0;     //  Infinity
+            d.d_high = -(1.0/0.0);  // -Infinity
+            d.d_valueTraded = 0.0;
+            d.d_vwap = 0.0;
+            d.d_volume = 0;
+            symbolData.push_back(d);
+        }
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        for (size_type i = 0; i < data.size(); ++i) {
+
+            const bsl::string& symbol = data[i].d_symbol;
+            const int index = symbol2Index[symbol];
+
+            // Parse the price.
+            double price = static_cast<double>(data[i].d_mantissa)
+                         * pow(10.0, data[i].d_exponent);
+
+            // Update the aggregate data.
+            if (price < symbolData[index].d_low) {
+                symbolData[index].d_low = price;
+            }
+            else if (price > symbolData[index].d_high) {
+                symbolData[index].d_high = price;
+            }
+            symbolData[index].d_valueTraded += price
+                                     * static_cast<double>(data[i].d_quantity);
+            symbolData[index].d_volume += data[i].d_quantity;
+            symbolData[index].d_vwap =
+                (symbolData[index].d_valueTraded /
+                 static_cast<double>(symbolData[index].d_volume));
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        const double dataPerSecond = numTickerData / totalTime;
+
+        bsl::cout << "Performance test: " << dataPerSecond
+                  << " ticker data operations per second." << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
+    } break;
+
+    case -3: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance Test of Real-World Trading Data.
+        //
+        // Test the performance of a real-world application of decimal
+        // floating point values that is intense on calls to makeDecimal64 and
+        // binary arithmetic operations such as 'operator*' and 'operator/'.
+        // We test an example of aggregating data about tickers, such as the
+        // lows and highs in a trading day, volume, and weighted averages.  We
+        // wish to determine the number of tickers that may be processed per
+        // second, using data from an input file.
+        // TBD: obtain volume information for the example file so we avoid
+        // generating random numbers.  This will also give a more accurate
+        // approximation for how we will be sampling the test space.
+        // --------------------------------------------------------------------
+        bsl::vector<TradeDataPoint> data;
+        typedef bsl::vector<TradeDataPoint>::size_type size_type;
+
+        const int numIterations = 1;
+
+        ASSERT(argc >= 3);  // argv[2] is the filename.
+
+        bsl::string line;
+        bsl::ifstream myfile(argv[2]);
+        if (myfile.is_open()) {
+            while(getline(myfile, line)) {
+                bsl::vector<bsl::string> seglist;
+                split(seglist, line, '|');
+
+                TradeDataPoint p;
+                p.d_symbol = seglist[0];
+                p.d_price = seglist[1];
+                p.d_quantity = 10 * (rand() % 1000);
+
+                parseDecimal(&p.d_mantissa, &p.d_exponent, p.d_price);
+
+                data.push_back(p);
+            }
+        } else {
+            cout << "Unable to open " << argv[2] << endl;
+        }
+
+        const int numData = numIterations * static_cast<int>(data.size());
+
+        // Find all distinct symbols.
+        int numSymbols = 0;
+        bsl::unordered_map<bsl::string, int> symbol2Index;
+        for (size_type i = 0; i < data.size(); ++i) {
+            const bsl::string& symbol = data[i].d_symbol;
+            if (symbol2Index.find(symbol) == symbol2Index.end()) {
+                symbol2Index[symbol] = ++numSymbols;
+            }
+        }
+
+        // Initialize data.
+        bsl::vector<SymbolDataDecimal64> symbolData;
+        for (int i = 0; i < numSymbols; ++i) {
+            SymbolDataDecimal64 d;
+            Util::parseDecimal64(&d.d_low , "+inf");
+            Util::parseDecimal64(&d.d_high, "-inf");
+            d.d_valueTraded = BDEC::Decimal64(0);
+            d.d_vwap = 0.0;
+            d.d_volume = 0;
+            symbolData.push_back(d);
+        }
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        for (int iteration = 0; iteration < numIterations; ++iteration) {
+            for (size_type i = 0; i < data.size(); ++i) {
+
+                const bsl::string& symbol = data[i].d_symbol;
+                const int index = symbol2Index[symbol];
+
+                // Parse the price.
+                BDEC::Decimal64 price =
+                    BloombergLP::bdldfp::DecimalUtil::makeDecimal64(
+                                       data[i].d_mantissa, data[i].d_exponent);
+
+                // Update the aggregate data.
+                if (price < symbolData[index].d_low) {
+                    symbolData[index].d_low = price;
+                }
+                else if (price > symbolData[index].d_high) {
+                    symbolData[index].d_high = price;
+                }
+                symbolData[index].d_valueTraded += price * data[i].d_quantity;
+                symbolData[index].d_volume += data[i].d_quantity;
+                symbolData[index].d_vwap =
+                    BloombergLP::bdldfp::DecimalConvertUtil::decimalToDouble
+                    (symbolData[index].d_valueTraded /
+                     symbolData[index].d_volume);
+            }
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        const double dataPerSecond = numData / totalTime;
+
+        bsl::cout << "Performance test: " << dataPerSecond
+                  << " ticker data operations per second." << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
+    } break;
+
+    case -4: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance Test of Real-World Trading Data.
+        //
+        // Test the performance of a real-world application of decimal
+        // floating point values that is intense on calls to makeDecimal64 and
+        // binary arithmetic operations such as 'operator*' and 'operator/'.
+        // We test an example of aggregating data about tickers, such as the
+        // lows and highs in a trading day, volume, and weighted averages.  We
+        // wish to determine the number of tickers that may be processed per
+        // second, using data from an input file.
+        // TBD: obtain volume information for the example file so we avoid
+        // generating random numbers.  This will also give a more accurate
+        // approximation for how we will be sampling the test space.
+        // --------------------------------------------------------------------
+        bsl::vector<TradeDataPoint> data;
+        typedef bsl::vector<TradeDataPoint>::size_type size_type;
+
+        const int numIterations = 1;
+
+        ASSERT(argc >= 3);  // argv[2] is the filename.
+
+        bsl::string line;
+        bsl::ifstream myfile(argv[2]);
+        if (myfile.is_open()) {
+            while(getline(myfile, line)) {
+                bsl::vector<bsl::string> seglist;
+                split(seglist, line, '|');
+
+                TradeDataPoint p;
+                p.d_symbol = seglist[0];
+                p.d_price = seglist[1];
+                p.d_quantity = 10 * (rand() % 1000);
+
+                parseDecimal(&p.d_mantissa, &p.d_exponent, p.d_price);
+
+                data.push_back(p);
+            }
+        } else {
+            cout << "Unable to open " << argv[2] << endl;
+        }
+
+        const int numData = numIterations * static_cast<int>(data.size());
+
+        // Find all distinct symbols.
+        int numSymbols = 0;
+        bsl::unordered_map<bsl::string, int> symbol2Index;
+        for (size_type i = 0; i < data.size(); ++i) {
+            const bsl::string& symbol = data[i].d_symbol;
+            if (symbol2Index.find(symbol) == symbol2Index.end()) {
+                symbol2Index[symbol] = ++numSymbols;
+            }
+        }
+
+        // Initialize data.
+        bsl::vector<SymbolDataDouble> symbolData;
+        for (int i = 0; i < numSymbols; ++i) {
+            SymbolDataDouble d;
+            d.d_low  = 1.0/0.0;
+            d.d_high = -(1.0/0.0);
+            d.d_valueTraded = 0.0;
+            d.d_vwap = 0.0;
+            d.d_volume = 0;
+            symbolData.push_back(d);
+        }
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        for (int iteration = 0; iteration < numIterations; ++iteration) {
+            for (size_type i = 0; i < data.size(); ++i) {
+
+                const bsl::string& symbol = data[i].d_symbol;
+                const int index = symbol2Index[symbol];
+
+                // Parse the price.
+                double price = static_cast<double>(data[i].d_mantissa)
+                             * pow(10.0, data[i].d_exponent);
+
+                // Update the aggregate data.
+                if (price < symbolData[index].d_low) {
+                    symbolData[index].d_low = price;
+                }
+                else if (price > symbolData[index].d_high) {
+                    symbolData[index].d_high = price;
+                }
+                symbolData[index].d_valueTraded += price
+                                     * static_cast<double>(data[i].d_quantity);
+                symbolData[index].d_volume += data[i].d_quantity;
+                symbolData[index].d_vwap =
+                    (symbolData[index].d_valueTraded /
+                     static_cast<double>(symbolData[index].d_volume));
+            }
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        const double dataPerSecond = numData / totalTime;
+
+        bsl::cout << "Performance test: " << dataPerSecond
+                  << " ticker data operations per second." << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
+    } break;
+
+    case -5: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance test of 'makeDecimal64'.
+        //
+        // Test the performance of 'makeDecimal64' by doing a configurable
+        // number of iterations of calls using a stopwatch to record the
+        // elapsed time and compute the number of operations 'makeDecimal64'
+        // performs per second.  An array of mantissas and exponents are used.
+        // --------------------------------------------------------------------
+        int numIterations = 10000;
+        int numOperations = numIterations * numMantissas * numExps;
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        BDEC::Decimal64 total = BDEC::Decimal64(0.0);
+        for (int iter = 0; iter < numIterations; ++iter) {
+            for (int mi = 0; mi < numMantissas; ++mi) {
+                for (int ei = 0; ei < numExps; ++ei) {
+                    BDEC::Decimal64 num =
+                                  Util::makeDecimal64(mantissas[mi], exps[ei]);
+                    total += num;
+                }
+            }
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        // This prevents the compiler from optimizing away the test.
+        if (verbose2) {
+            if (total >= BDEC::Decimal64(0.0)) {
+                bsl::cout << "Total is non-negative" << bsl::endl;
+            }
+            else {
+                bsl::cout << "Total is negative" << bsl::endl;
+            }
+        }
+
+        const double operationsPerSecond = numOperations / totalTime;
+
+        bsl::cout << "Performance test: " << operationsPerSecond
+                  << " makeDecimal64 operations per second." << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
+    } break;
+
+    case -6: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance test of 'makeDecimalRaw128'.
+        //
+        // Test the performance of 'makeDecimalRaw128' by doing a configurable
+        // number of iterations of calls using a stopwatch to record the
+        // elapsed time and compute the number of operations
+        // 'makeDecimalRaw128' performs per second.  An array of mantissas and
+        // exponents are used.
+        // --------------------------------------------------------------------
+        int numIterations = 10000;
+        int numOperations = numIterations * numMantissas * numExps;
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        BDEC::Decimal128 total = BDEC::Decimal128(0.0);
+        for (int iter = 0; iter < numIterations; ++iter) {
+            for (int mi = 0; mi < numMantissas; ++mi) {
+
+                for (int ei = 0; ei < numExps; ++ei) {
+
+                    if (exps[ei] < -6176 || exps[ei] > 6111) {
+                        continue;
+                    }
+
+                    BDEC::Decimal128 num =
+                              Util::makeDecimalRaw128(mantissas[mi], exps[ei]);
+                    total += num;
+                }
+            }
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        // This prevents the compiler from optimizing away the test.
+        if (verbose2) {
+            if (total >= BDEC::Decimal64(0.0)) {
+                bsl::cout << "Total is non-negative" << bsl::endl;
+            }
+            else {
+                bsl::cout << "Total is negative" << bsl::endl;
+            }
+        }
+
+        const double operationsPerSecond = numOperations / totalTime;
+
+        bsl::cout << "Performance test: " << operationsPerSecond
+                  << " makeDecimal128 operations per second." << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
+    } break;
+
+    case -7: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance test of 'makeDecimalRaw64'.
+        //
+        // Test the performance of 'makeDecimalRaw64' by doing a configurable
+        // number of iterations of calls using a stopwatch to record the
+        // elapsed time and compute the number of operations
+        // 'makeDecimalRaw64' performs per second.  An array of mantissas and
+        // exponents are used.
+        // --------------------------------------------------------------------
+        int numIterations = 10000;
+        int numOperations = numIterations * numMantissas * numExps;
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        BDEC::Decimal64 total = BDEC::Decimal64(0.0);
+        for (int iter = 0; iter < numIterations; ++iter) {
+            for (int mi = 0; mi < numMantissas; ++mi) {
+
+                if (mantissas[mi] < -9999999999999999ll ||
+                    mantissas[mi] >  9999999999999999ll) {
+                    continue;
+                }
+
+                for (int ei = 0; ei < numExps; ++ei) {
+
+                    if (exps[ei] < -398 || exps[ei] > 369) {
+                        continue;
+                    }
+
+                    BDEC::Decimal64 num =
+                               Util::makeDecimalRaw64(mantissas[mi], exps[ei]);
+                    total += num;
+                }
+            }
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        // This prevents the compiler from optimizing away the test.
+        if (verbose2) {
+            if (total >= BDEC::Decimal64(0.0)) {
+                bsl::cout << "Total is non-negative" << bsl::endl;
+            }
+            else {
+                bsl::cout << "Total is negative" << bsl::endl;
+            }
+        }
+
+        const double operationsPerSecond = numOperations / totalTime;
+
+        bsl::cout << "Performance test: " << operationsPerSecond
+                  << " makeDecimal64 operations per second." << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
+    } break;
+
+    case -8: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance test of 'makeDecimalRaw32'.
+        //
+        // Test the performance of 'makeDecimalRaw32' by doing a configurable
+        // number of iterations of calls using a stopwatch to record the
+        // elapsed time and compute the number of operations
+        // 'makeDecimalRaw32' performs per second.  An array of mantissas and
+        // exponents are used.
+        // --------------------------------------------------------------------
+        int numIterations = 10000;
+        int numOperations = numIterations * numMantissas * numExps;
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        BDEC::Decimal64 total = BDEC::Decimal64(0.0);
+        for (int iter = 0; iter < numIterations; ++iter) {
+            for (int mi = 0; mi < numMantissas; ++mi) {
+
+                if (mantissas[mi] < -9999999 || mantissas[mi] > 9999999) {
+                    continue;
+                }
+
+                for (int ei = 0; ei < numExps; ++ei) {
+
+                    if (exps[ei] < -101 || exps[ei] > 90) {
+                        continue;
+                    }
+
+                    BDEC::Decimal32 num =
+                               Util::makeDecimalRaw32(
+                                    static_cast<int>(mantissas[mi]), exps[ei]);
+                    total += BDEC::Decimal64(num);
+                }
+            }
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        // This prevents the compiler from optimizing away the test.
+        if (verbose2) {
+            if (total >= BDEC::Decimal64(0.0)) {
+                bsl::cout << "Total is non-negative" << bsl::endl;
+            }
+            else {
+                bsl::cout << "Total is negative" << bsl::endl;
+            }
+        }
+
+        const double operationsPerSecond = numOperations / totalTime;
+
+        bsl::cout << "Performance test: " << operationsPerSecond
+                  << " makeDecimal32 operations per second." << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
 
     default: {
