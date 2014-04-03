@@ -142,6 +142,9 @@ struct btes5_NetworkConnector::Attempt {
     //: 2 The access to 'd_socket_p' is protected by 'd_socketLock' since it
     //:   can otherwise be closed (deallocated) while another function tries to
     //:   use it.  Since it's a pointer, 0 is used to indicate socket absence.
+    //:   In addition, 'd_socketLock' is also used to serialize access to
+    //:   'd_proxyTimer' since it may be set (registered) in a thread different
+    //:   from the callback which uses it.
 
     // DATA
     const ConnectionStateCallback   d_callback;      // client callback
@@ -396,16 +399,22 @@ static void connectTcpCb(
     btes5_NetworkConnector::AttemptHandle attempt(connectionAttempt);
         // copy shared ptr because deregisterSocket removes the reference
 
-    if (!timeout && bdet_TimeInterval() != attempt->d_proxyTimeout) {
-        attempt->d_connector->d_eventManager_p
-            ->deregisterTimer(attempt->d_proxyTimer);
-    }
-
     const bsl::size_t index = attempt->d_indices[0]; // current proxy index
-
     int rc;
     {
+        // This callback may be invoked from the event manager thread before
+        // the timeout event is scheduled by the client thread.  Therefore,
+        // lock to insure the proxy connection timer is registered.
+
         bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
+
+        void *& timer = attempt->d_proxyTimer;
+        if (timer) {
+            attempt->d_connector->d_eventManager_p->deregisterTimer(timer);
+            timer = 0;
+        }
+
+
         if (attempt->d_socket_p) {
             attempt->d_connector->d_eventManager_p->deregisterSocket(
                                                 attempt->d_socket_p->handle());
@@ -569,32 +578,40 @@ static void tcpConnect(const btes5_NetworkConnector::AttemptHandle& attempt)
         }
         int rc;
         server.setPortNumber(destination.port());
-        {
-            bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
-            attempt->d_socket_p = makeSocket(
-                                       attempt->d_connector->d_socketFactory_p,
-                                       &error,
-                                       attempt->d_connector->d_minSourcePort,
-                                       attempt->d_connector->d_maxSourcePort);
-            if (!attempt->d_socket_p) {
-                continue; // try again if more servers
-            }
-            rc = attempt->d_socket_p->connect(server);
+
+        // Since we can be either in client or event manager thread, lock
+        // socket-related operations to prevent races with event
+        // manager-invoked callbacks accessing 'd_socket_p' and 'd_proxyTimer'.
+
+        bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
+
+        attempt->d_socket_p = makeSocket(
+                                   attempt->d_connector->d_socketFactory_p,
+                                   &error,
+                                   attempt->d_connector->d_minSourcePort,
+                                   attempt->d_connector->d_maxSourcePort);
+        if (!attempt->d_socket_p) {
+            continue; // try again if more servers
         }
+
+        rc = attempt->d_socket_p->connect(server);
         if (!rc) {
-            connectTcpCb(attempt, false); // immediate success
+            // on immediate success call 'connectTcpCb' in the event manager
+            // thread to avoid nested locks
+
+            attempt->d_proxyTimer = 0;
+            const bool hasTimedOut = false;
+            attempt->d_connector->d_eventManager_p->execute(
+                      bdef_BindUtil::bind(connectTcpCb, attempt, hasTimedOut));
             break;
         } else if (bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK == rc) {
             bteso_EventManager::Callback
                 cb = bdef_BindUtil::bind(connectTcpCb, attempt, false);
-            {
-                bcemt_LockGuard<bcemt_Mutex> guard(&attempt->d_socketLock);
-                if (attempt->d_socket_p) {
-                    rc = attempt->d_connector->d_eventManager_p
-                        ->registerSocketEvent(attempt->d_socket_p->handle(),
-                                              bteso_EventType::BTESO_CONNECT,
-                                              cb);
-                }
+            if (attempt->d_socket_p) {
+                rc = attempt->d_connector->d_eventManager_p
+                    ->registerSocketEvent(attempt->d_socket_p->handle(),
+                                          bteso_EventType::BTESO_CONNECT,
+                                          cb);
             }
 
             if (bdet_TimeInterval() != attempt->d_proxyTimeout) {
@@ -652,6 +669,7 @@ btes5_NetworkConnector::Attempt::Attempt(
 , d_server(server, allocator)
 , d_connector(connector)
 , d_timer(0)
+, d_proxyTimer(0)
 , d_level(0)
 , d_indices(connector->d_socks5Servers.levelCount(), 0, allocator)
 , d_socket_p(0)
