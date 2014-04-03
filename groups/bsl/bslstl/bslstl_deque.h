@@ -707,42 +707,42 @@ class deque : public  Deque_Base<VALUE_TYPE>
     deque(size_type         numElements,
           const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a deque of the specified 'numElements' length whose every
-        // element is default-constructed.  Optionally specify the 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is not specified, a
-        // default-constructed allocator is used.  Throw 'bsl::length_error' if
-        // 'numElements > max_size()'.
+        // element is default-constructed.  Optionally specify the
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // specified, a default-constructed allocator is used.  Throw
+        // 'bsl::length_error' if 'numElements > max_size()'.
 
     deque(size_type         numElements,
           const VALUE_TYPE& value,
-		  const ALLOCATOR&  basicAllocator = ALLOCATOR());
+          const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a deque of the specified 'numElements' length whose every
         // element equals the specified 'value'.  Optionally specify the
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not specified,
-        // a default-constructed allocator is used.  Throw 'bsl::length_error'
-        // if 'numElements > max_size()'.
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // specified, a default-constructed allocator is used.  Throw
+        // 'bsl::length_error' if 'numElements > max_size()'.
 
     template <class INPUT_ITER>
     deque(INPUT_ITER       first,
           INPUT_ITER       last,
-		  const ALLOCATOR& basicAllocator = ALLOCATOR());
+          const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a deque initially containing copies of the values in the
         // range starting at the specified 'first' and ending immediately
         // before the specified 'last' iterators of the parameterized
-        // 'INPUT_ITER' type.  Optionally specify the 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is not specified, a default-constructed
-        // allocator is used.  Throw 'bsl::length_error' if the number of
-        // elements in '[ first, last )' exceeds the size returned by
-        // 'max_size'.
+        // 'INPUT_ITER' type.  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not specified, a
+        // default-constructed allocator is used.  Throw 'bsl::length_error' if
+        // the number of elements in '[ first, last )' exceeds the size
+        // returned by 'max_size'.
 
     deque(const deque&     original);
     deque(const deque&     original,
           const ALLOCATOR& basicAllocator);
         // Create a deque that has the same value as the specified 'original'
-        // deque.  Optionally specify the 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not specified, then if 'ALLOCATOR' is convertible
-        // from 'bslma::Allocator *', the currently installed default allocator
-        // is used, otherwise the 'original' allocator is used (as mandated per
-        // the ISO standard).
+        // deque.  Optionally specify the 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is not specified, then if 'ALLOCATOR'
+        // is convertible from 'bslma::Allocator *', the currently installed
+        // default allocator is used, otherwise the 'original' allocator is
+        // used (as mandated per the ISO standard).
 
     ~deque();
         // Destroy this deque object.
@@ -2017,7 +2017,7 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(size_type         numElements,
                                    const VALUE_TYPE& value,
-								   const ALLOCATOR&  basicAllocator)
+                                   const ALLOCATOR&  basicAllocator)
 : Deque_Base<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
@@ -2036,7 +2036,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 deque<VALUE_TYPE,ALLOCATOR>::deque(INPUT_ITER       first,
                                    INPUT_ITER       last,
-								   const ALLOCATOR& basicAllocator)
+                                   const ALLOCATOR& basicAllocator)
 : Deque_Base<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
@@ -2719,7 +2719,7 @@ void swap(deque<VALUE_TYPE, ALLOCATOR>& a,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::Deque_BlockCreator(
-                                           deque<VALUE_TYPE, ALLOCATOR> *deque_p)
+                                         deque<VALUE_TYPE, ALLOCATOR> *deque_p)
 : d_deque_p(deque_p)
 , d_boundary(0)
 {
@@ -2883,7 +2883,7 @@ void Deque_BlockCreator<VALUE_TYPE, ALLOCATOR>::release()
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 Deque_ClearGuard<VALUE_TYPE, ALLOCATOR>::Deque_ClearGuard(
-                                           deque<VALUE_TYPE, ALLOCATOR> *deque_p)
+                                         deque<VALUE_TYPE, ALLOCATOR> *deque_p)
 : d_deque_p(deque_p)
 {
 }
@@ -2913,8 +2913,8 @@ void Deque_ClearGuard<VALUE_TYPE, ALLOCATOR>::release()
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 Deque_Guard<VALUE_TYPE, ALLOCATOR>::Deque_Guard(
-                                          deque<VALUE_TYPE, ALLOCATOR> *deque_p,
-                                          bool                          isTail)
+                                         deque<VALUE_TYPE, ALLOCATOR> *deque_p,
+                                         bool                          isTail)
 : d_deque_p(deque_p)
 , d_count(0)
 , d_isTail(isTail)

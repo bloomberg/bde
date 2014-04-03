@@ -712,9 +712,9 @@ class multimap {
         // to order key-value pairs contained in this object.  If 'comparator'
         // is not supplied, a default-constructed object of the (template
         // parameter) type 'COMPARATOR' is used.  Optionally specify the
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not supplied,
-        // a default-constructed object of the (template parameter) type
-        // ALLOCATOR' is  used.  If the 'ALLOCATOR' argument is of type
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // supplied, a default-constructed object of the (template parameter)
+        // type ALLOCATOR' is used.  If the 'ALLOCATOR' argument is of type
         // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
         // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
         // argument is of type 'bsl::allocator' and 'basicAllocator' is not
@@ -731,12 +731,12 @@ class multimap {
     }
 
     explicit multimap(const ALLOCATOR& basicAllocator);
-        // Construct an empty multimap that will use the specified 'basicAllocator'
-        // to supply memory.  Use a default-constructed object of the (template
-        // parameter) type 'COMPARATOR' to order the key-value pairs contained
-        // in this multimap.  If the template parameter 'ALLOCATOR' argument is
-        // of type 'bsl::allocator' (the default) then 'basicAllocator' shall be
-        // convertible to 'bslma::Allocator *'.
+        // Construct an empty multimap that will use the specified
+        // 'basicAllocator' to supply memory.  Use a default-constructed object
+        // of the (template parameter) type 'COMPARATOR' to order the key-value
+        // pairs contained in this multimap.  If the template parameter
+        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default) then
+        // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.
 
     multimap(const multimap& original);
         // Construct a multimap having the same value as the specified
@@ -744,22 +744,22 @@ class multimap {
         // key-value pairs contained in this multimap.  Use the allocator
         // returned by 'bsl::allocator_traits<ALLOCATOR>::
         // select_on_container_copy_construction(original.allocator())' to
-        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
-        // of type 'bsl::allocator' (the default), the currently installed
-        // default allocator will be used to supply memory.  This method
-        // requires that the (template parameter) types 'KEY' and 'VALUE'
-        // both be "copy-constructible" (see {Requirements on 'KEY' and
-        // 'VALUE'}).
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is of
+        // type 'bsl::allocator' (the default), the currently installed default
+        // allocator will be used to supply memory.  This method requires that
+        // the (template parameter) types 'KEY' and 'VALUE' both be
+        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
 
     multimap(const multimap& original, const ALLOCATOR& basicAllocator);
         // Construct a multimap having the same value as that of the specified
-        // 'original' that will use the specified 'basicAllocator' to supply memory.
-        // Use a copy of 'original.key_comp()' to order the key-value pairs
-        // contained in this multimap.  If the template parameter 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default) then 'basicAllocator'
-        // shall be convertible to 'bslma::Allocator *'.  This method requires
-        // that the (template parameter) types 'KEY' and 'VALUE' both be
-        // "copy-constructible" (see {Requirements on 'KEY' and 'VALUE'}).
+        // 'original' that will use the specified 'basicAllocator' to supply
+        // memory.  Use a copy of 'original.key_comp()' to order the key-value
+        // pairs contained in this multimap.  If the template parameter
+        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default) then
+        // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.  This
+        // method requires that the (template parameter) types 'KEY' and
+        // 'VALUE' both be "copy-constructible" (see {Requirements on 'KEY' and
+        // 'VALUE'}).
 
     template <class INPUT_ITERATOR>
     multimap(INPUT_ITERATOR    first,
@@ -774,8 +774,8 @@ class multimap {
         // this object.  If 'comparator' is not supplied, a default-constructed
         // object of the (template parameter) type 'COMPARATOR' is used.
         // Optionally specify the 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied, a default-constructed object of the
-        // (template parameter) type 'ALLOCATOR' is used.  If the template
+        // 'basicAllocator' is not supplied, a default-constructed object of
+        // the (template parameter) type 'ALLOCATOR' is used.  If the template
         // parameter 'ALLOCATOR' argument is of type 'bsl::allocator' (the
         // default) then 'basicAllocator', if supplied, shall be convertible to
         // 'bslma::Allocator *'.  If the template parameter 'ALLOCATOR'
@@ -1182,8 +1182,8 @@ void swap(multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
-                                                  const COMPARATOR& comparator,
-                                                  const ALLOCATOR&  basicAllocator)
+                                              const COMPARATOR& comparator,
+                                              const ALLOCATOR&  basicAllocator)
 : ::bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::Comparator(comparator)
 , d_pool(basicAllocator)
 {
@@ -1247,10 +1247,10 @@ template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 template <class INPUT_ITERATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
-                                                  INPUT_ITERATOR    first,
-                                                  INPUT_ITERATOR    last,
-                                                  const COMPARATOR& comparator,
-                                                  const ALLOCATOR&  basicAllocator)
+                                              INPUT_ITERATOR    first,
+                                              INPUT_ITERATOR    last,
+                                              const COMPARATOR& comparator,
+                                              const ALLOCATOR&  basicAllocator)
 : d_compAndAlloc(comparator, basicAllocator)
 , d_tree()
 {
@@ -1308,7 +1308,7 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(const multimap& original)
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
-                                                    const ALLOCATOR& basicAllocator)
+                                               const ALLOCATOR& basicAllocator)
 : d_compAndAlloc(COMPARATOR(), basicAllocator)
 , d_tree()
 {
@@ -1317,8 +1317,8 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
-                                                    const multimap&  original,
-                                                    const ALLOCATOR& basicAllocator)
+                                               const multimap&  original,
+                                               const ALLOCATOR& basicAllocator)
 : d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {

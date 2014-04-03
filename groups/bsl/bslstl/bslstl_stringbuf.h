@@ -446,9 +446,9 @@ class basic_stringbuf
         // that this buffer will access or manipulate.  If 'initialString' is
         // not supplied, the initial sequence of characters will be empty.
         // Optionally specify the 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied, a default-constructed object of the
-        // (template parameter) 'ALLOCATOR' type is used.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default), then
+        // 'basicAllocator' is not supplied, a default-constructed object of
+        // the (template parameter) 'ALLOCATOR' type is used.  If the
+        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), then
         // 'basicAllocator', if supplied, shall be convertible to
         // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
@@ -462,9 +462,9 @@ class basic_stringbuf
         // Reset the internally buffered sequence of characters to the
         // specified 'value'.  Update the beginning and end of both the input
         // and output sequences to be the beginning and end of the updated
-        // buffer, update the current input position to be the beginning of
-        // the updated buffer, and update the current output position to be the
-        // end of the updated buffer.
+        // buffer, update the current input position to be the beginning of the
+        // updated buffer, and update the current output position to be the end
+        // of the updated buffer.
 
     // ACCESSORS
     StringType str() const;
@@ -748,9 +748,9 @@ native_std::streamsize
         return 0;                                                     // RETURN
     }
 
-    // Additional characters may become available for reading when the
-    // input area is extended to account for any characters newly written
-    // to the output sequence.
+    // Additional characters may become available for reading when the input
+    // area is extended to account for any characters newly written to the
+    // output sequence.
     extendInputArea();
 
     if (this->gptr() != this->egptr()) {

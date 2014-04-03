@@ -169,32 +169,37 @@ class basic_istringstream
 
     // CREATORS
     explicit
-    basic_istringstream(const allocator_type& basicAllocator = allocator_type());
+    basic_istringstream(
+                      const allocator_type& basicAllocator = allocator_type());
     explicit
-    basic_istringstream(ios_base::openmode    modeBitMask,
-                        const allocator_type& basicAllocator = allocator_type());
+    basic_istringstream(
+                      ios_base::openmode    modeBitMask,
+                      const allocator_type& basicAllocator = allocator_type());
     explicit
-    basic_istringstream(const StringType&     initialString,
-                        const allocator_type& basicAllocator = allocator_type());
-    basic_istringstream(const StringType&     initialString,
-                        ios_base::openmode    modeBitMask,
-                        const allocator_type& basicAllocator = allocator_type());
+    basic_istringstream(
+                      const StringType&     initialString,
+                      const allocator_type& basicAllocator = allocator_type());
+    basic_istringstream(
+                      const StringType&     initialString,
+                      ios_base::openmode    modeBitMask,
+                      const allocator_type& basicAllocator = allocator_type());
         // Create a 'basic_istringstream' object.  Optionally specify a
         // 'modeBitMask' indicating whether the underlying stream-buffer may
         // also be written to ('rdbuf' is created using
         // 'modeBitMask | ios_base::in').  If 'modeBitMask' is not supplied,
-        // 'rdbuf' will be created using 'ios_base::in'.  Optionally specify
-        // an 'initialString' indicating the sequence of characters from which
+        // 'rdbuf' will be created using 'ios_base::in'.  Optionally specify an
+        // 'initialString' indicating the sequence of characters from which
         // input will be streamed.  If 'initialString' is not supplied, there
         // will not be data to stream (until a subsequent call to the 'str'
-        // manipulator).  Optionally specify the 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is not supplied, a default-constructed
-        // object of the (template parameter) 'ALLOCATOR' type is used.  If the
-        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), then
-        // 'basicAllocator', if supplied, shall be convertible to
-        // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator will be used to supply memory.
+        // manipulator).  Optionally specify the 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is not supplied, a
+        // default-constructed object of the (template parameter) 'ALLOCATOR'
+        // type is used.  If the 'ALLOCATOR' argument is of type
+        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
+        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
 
     //! ~basic_istringstream() = default;
         // Destroy this object.

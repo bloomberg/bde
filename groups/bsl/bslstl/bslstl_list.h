@@ -903,9 +903,9 @@ class list
 
     void create_sentinel();
         // Create the 'd_sentinel' node of this list.  The 'd_sentinel' node
-        // does not hold a value.  When first created it's forward and
-        // backward pointers point to itself, creating a circular linked list.
-        // This function also sets this list's size to zero.
+        // does not hold a value.  When first created it's forward and backward
+        // pointers point to itself, creating a circular linked list.  This
+        // function also sets this list's size to zero.
 
     void destroy_all();
         // Erase all elements, destroy and deallocate the 'd_sentinel' node,
@@ -984,12 +984,12 @@ class list
     NodePtr sort_imp(NodePtr       *pnode1,
                      size_type      size,
                      const COMPARE& comp);
-        // Sort the sequence of 'size' nodes starting with '*pnode1'.
-        // Modifies '*pnode1' to refer to the first node of the sorted
-        // sequence.  If an exception is thrown, all nodes remain properly
-        // linked, but their order is unspecified.  The behavior is undefined
-        // unless '*pnode1' begins a sequence of at least 'size' nodes, none
-        // of which are sentinel nodes.
+        // Sort the sequence of 'size' nodes starting with '*pnode1'.  Modifies
+        // '*pnode1' to refer to the first node of the sorted sequence.  If an
+        // exception is thrown, all nodes remain properly linked, but their
+        // order is unspecified.  The behavior is undefined unless '*pnode1'
+        // begins a sequence of at least 'size' nodes, none of which are
+        // sentinel nodes.
 
   public:
     // CREATORS
@@ -1019,8 +1019,8 @@ class list
          typename enable_if<
              !is_fundamental<InputIter>::value && !is_enum<InputIter>::value
          >::type * = 0)
-        // Create a list using the specified 'basicAllocator' and insert the number
-        // of elements determined by the size of the specified range
+        // Create a list using the specified 'basicAllocator' and insert the
+        // number of elements determined by the size of the specified range
         // '[first, last)'.  Each initial element is created by
         // "copy-insertion" from the corresponding element in '[first, last)'.
         // Does not participate in overload resolution unless 'InputIter' is an
@@ -1056,8 +1056,8 @@ class list
 
     list(const list& original, const ALLOCATOR& basicAllocator);
         // Create a list having the same value as that of the specified
-        // 'original' that will use the specified 'basicAllocator' to supply memory.
-        // Each element in the resulting list is constructed by
+        // 'original' that will use the specified 'basicAllocator' to supply
+        // memory.  Each element in the resulting list is constructed by
         // "copy-insertion" from the corresponding element in 'allocator'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1252,8 +1252,8 @@ class list
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... ARGS>
     void emplace_back(ARGS&&... args);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified 'args'.
+        // Insert a new element at the back of this list and construct it using
+        // "emplace-construction" from the specified 'args'.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -1689,10 +1689,10 @@ template <class VALUE>
 inline
 void bsl::List_Node<VALUE>::init()
 {
-    // If 'List_Node' is ever enhanced to allow for generalized pointers
-    // (e.g., a 'NodePtr' that is not a raw pointer), then this function
-    // will be responsible for constructing 'd_prev' and 'd_next', rather
-    // than just setting them to null:
+    // If 'List_Node' is ever enhanced to allow for generalized pointers (e.g.,
+    // a 'NodePtr' that is not a raw pointer), then this function will be
+    // responsible for constructing 'd_prev' and 'd_next', rather than just
+    // setting them to null:
     //
     //    new ((void*) BloombergLP::bsls::Util::addressOf(d_prev))
     //                                                        NodePtr(nullptr);
@@ -1706,10 +1706,9 @@ template <class VALUE>
 inline
 void bsl::List_Node<VALUE>::destroy()
 {
-    // If 'List_Node' is ever enhanced to allow for generalized pointers
-    // (e.g., a 'NodePtr' that is not a raw pointer), then this function
-    // will be responsible for calling the destructors for 'd_prev' and
-    // 'd_next':
+    // If 'List_Node' is ever enhanced to allow for generalized pointers (e.g.,
+    // a 'NodePtr' that is not a raw pointer), then this function will be
+    // responsible for calling the destructors for 'd_prev' and 'd_next':
     //
     //    d_prev.~NodePtr();
     //    d_next.~NodePtr();
@@ -1922,8 +1921,8 @@ list<VALUE, ALLOCATOR>::merge_imp(NodePtr node1,
     // state, with no disconnected nodes, before the comparison functor is
     // called.
 
-    // Having the two sublists be contiguous parts of the same list has
-    // the following advantages:
+    // Having the two sublists be contiguous parts of the same list has the
+    // following advantages:
     // 1. When we reach the end of a sublist, there is no "finalization"
     //    step where the end of the remaining sublist must be spliced onto the
     //    merged list.
@@ -2074,7 +2073,8 @@ list<VALUE, ALLOCATOR>::list(const list& original)
 }
 
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>::list(const list& original, const ALLOCATOR& basicAllocator)
+list<VALUE, ALLOCATOR>::list(const list&      original,
+                             const ALLOCATOR& basicAllocator)
 : d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).

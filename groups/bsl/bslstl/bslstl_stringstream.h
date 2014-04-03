@@ -177,28 +177,32 @@ class basic_stringstream
 
     // CREATORS
     explicit
-    basic_stringstream(const allocator_type& basicAllocator = allocator_type());
+    basic_stringstream(
+                      const allocator_type& basicAllocator = allocator_type());
     explicit
-    basic_stringstream(ios_base::openmode    modeBitMask,
-                       const allocator_type& basicAllocator = allocator_type());
+    basic_stringstream(
+                      ios_base::openmode    modeBitMask,
+                      const allocator_type& basicAllocator = allocator_type());
     explicit
-    basic_stringstream(const StringType&     initialString,
-                       const allocator_type& basicAllocator = allocator_type());
-    basic_stringstream(const StringType&     initialString,
-                       ios_base::openmode    modeBitMask,
-                       const allocator_type& basicAllocator = allocator_type());
+    basic_stringstream(
+                      const StringType&     initialString,
+                      const allocator_type& basicAllocator = allocator_type());
+    basic_stringstream(
+                      const StringType&     initialString,
+                      ios_base::openmode    modeBitMask,
+                      const allocator_type& basicAllocator = allocator_type());
         // Create a 'basic_stringstream' object.  Optionally specify a
-        // 'modeBitMask' indicating whether the underlying stream-buffer may
-        // be read from, written to, or both ('rdbuf' is created using
+        // 'modeBitMask' indicating whether the underlying stream-buffer may be
+        // read from, written to, or both ('rdbuf' is created using
         // 'modeBitMask').  If 'modeBitMask' is not supplied, 'rdbuf' will be
-        // created using 'ios_base::in | ios_base::out'.  Optionally specify
-        // an 'initialString' indicating the initial sequence of characters
-        // that this stream may access or manipulate.  If 'initialString' is
-        // not supplied, the initial sequence of characters will be empty.
+        // created using 'ios_base::in | ios_base::out'.  Optionally specify an
+        // 'initialString' indicating the initial sequence of characters that
+        // this stream may access or manipulate.  If 'initialString' is not
+        // supplied, the initial sequence of characters will be empty.
         // Optionally specify the 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied, a default-constructed object of the
-        // (template parameter) 'ALLOCATOR' type is used.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default), then
+        // 'basicAllocator' is not supplied, a default-constructed object of
+        // the (template parameter) 'ALLOCATOR' type is used.  If the
+        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), then
         // 'basicAllocator', if supplied, shall be convertible to
         // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently

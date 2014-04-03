@@ -1168,8 +1168,8 @@ class basic_string
         // starting at the specified 'outPosition' by the specified 'numChars'
         // starting at the specified 'characterString', and return a reference
         // providing modifiable access to this string.  The behavior is
-        // undefined unless 'outPosition <= length()',
-        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars',
+        // undefined unless 'outPosition <= length()', 'outNumChars <=
+        // length()', 'outPosition <= length() - outNumChars',
         // 'numChars <= max_size()', and
         // 'length() - outNumChars <= max_size() - numChars'.  Note that this
         // method is alias-safe, i.e., it works correctly even if
@@ -1279,10 +1279,10 @@ class basic_string
         // Lexicographically compare the substring of this string starting at
         // the specified 'lhsPosition' of length 'lhsNumChars' with the string
         // constructed from the specified 'numChars' characters in the array
-        // starting at the specified 'other' address, and return a
-        // negative value if this string is less than 'other', a positive value
-        // if it is more than 'other', and 0 in case of equality.  The behavior
-        // is undefined unless 'lhsPosition <= length()',
+        // starting at the specified 'other' address, and return a negative
+        // value if this string is less than 'other', a positive value if it is
+        // more than 'other', and 0 in case of equality.  The behavior is
+        // undefined unless 'lhsPosition <= length()',
         // 'lhsNumChars <= length()', and
         // 'lhsPosition <= length() - lhsNumChars'.
 
@@ -1303,17 +1303,18 @@ class basic_string
 
     explicit
     basic_string(const ALLOCATOR& basicAllocator = ALLOCATOR());
-        // Create an empty string.  Optionally specify the 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not specified, a
+        // Create an empty string.  Optionally specify the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed allocator is used.
 
     basic_string(const basic_string& original);
-    basic_string(const basic_string& original, const ALLOCATOR& basicAllocator);
+    basic_string(const basic_string& original,
+                 const ALLOCATOR& basicAllocator);
         // Create a string that has the same value as the specified 'original'
-        // string.  Optionally specify the 'basicAllocator' used to supply memory.
-        // If 'basicAllocator' is not specified, then a default-constructed
-        // allocator is used.  Note that it is important to have two copy
-        // constructors instead of a single:
+        // string.  Optionally specify the 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is not specified, then a
+        // default-constructed allocator is used.  Note that it is important to
+        // have two copy constructors instead of a single:
         //..
         //  basic_string(const basic_string& original,
         //               const ALLCOATOR&    basicAllocator = ALLOCATOR());
@@ -1332,9 +1333,9 @@ class basic_string
         // 'position' in the specified 'original' string.  If 'numChars' equals
         // 'npos', then the remaining length of the string is used (i.e.,
         // 'numChars' is set to 'original.length() - position').  Optionally
-        // specify the 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
-        // specified, a default-constructed allocator is used.  Throw
-        // 'out_of_range' if 'position > original.length()' or
+        // specify the 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not specified, a default-constructed allocator
+        // is used.  Throw 'out_of_range' if 'position > original.length()' or
         // 'numChars != npos' and 'position + numChars < original.length()'.
 
     basic_string(const CHAR_TYPE  *characterString,
@@ -1347,16 +1348,16 @@ class basic_string
         // 'position' in the specified 'characterString'.  If 'numChars' is not
         // specified, 'CHAR_TRAITS::length(characterString)' is used.
         // Optionally specify the 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not specified, a default-constructed allocator is
-        // used.  Throw 'out_of_range' if 'numChars >= npos'.
+        // 'basicAllocator' is not specified, a default-constructed allocator
+        // is used.  Throw 'out_of_range' if 'numChars >= npos'.
 
     basic_string(size_type        numChars,
                  CHAR_TYPE        character,
                  const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a string of the specified 'numChars' length whose every
         // position contains the specified 'character'.  Optionally specify the
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not specified,
-        // a default-constructed allocator is used.
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // specified, a default-constructed allocator is used.
 
     template <typename INPUT_ITER>
     basic_string(INPUT_ITER       first,
@@ -1365,29 +1366,29 @@ class basic_string
         // Create a string from the characters in the range starting at the
         // specified 'first' and ending at the specified 'last' iterators of
         // the parameterized 'INPUT_ITER' type.  Optionally specify the
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not specified,
-        // a default-constructed allocator is used.  The behavior is undefined
-        // unless '[first, last)' is a valid iterator range.
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // specified, a default-constructed allocator is used.  The behavior is
+        // undefined unless '[first, last)' is a valid iterator range.
 
     template <typename ALLOC2>
     basic_string(
         const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
-        const ALLOCATOR&                              basicAllocator = ALLOCATOR());
+        const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a string that has the same value as the specified 'original'
         // string, where the type 'original' is the string type native to the
         // compiler's library, instantiated with the same character type and
         // traits type, but not necessarily the same allocator type.  The
         // resulting string will contain the same sequence of characters as
         // 'original'.  Optionally specify the 'basicAllocator' used to supply
-        // memory.  If 'basicAllocator' is not specified, then a default-constructed
-        // allocator is used.
+        // memory.  If 'basicAllocator' is not specified, then a
+        // default-constructed allocator is used.
 
     basic_string(const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
                  const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a string that has the same value as the specified 'strRef'
         // string.  The resulting string will contain the same sequence of
-        // characters as 'strRef'.  Optionally specify the 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not specified, then a
+        // characters as 'strRef'.  Optionally specify the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not specified, then a
         // default-constructed allocator is used.
 
     ~basic_string();
@@ -1540,8 +1541,9 @@ class basic_string
         // Append the specified 'character' at the end of this string.
 
     basic_string& assign(const basic_string& replacement);
-        // Assign to this string the value of the specified 'replacement' string, and
-        // return a reference providing modifiable access to this string.
+        // Assign to this string the value of the specified 'replacement'
+        // string, and return a reference providing modifiable access to this
+        // string.
 
     basic_string& assign(const basic_string& replacement,
                          size_type           position,
@@ -1549,8 +1551,9 @@ class basic_string
         // Assign to this string the value of the substring of the specified
         // 'numChars' length or 'replacement.length() - position', whichever is
         // smaller, starting at the specified 'position' in the specified
-        // 'replacement' string, and return a reference providing modifiable access to this
-        // string.  Throw 'out_of_range' if 'position > other.length()'.
+        // 'replacement' string, and return a reference providing modifiable
+        // access to this string.  Throw 'out_of_range' if
+        // 'position > other.length()'.
 
     basic_string& assign(const CHAR_TYPE *characterString);
         // Assign to this string the value of the specified null-terminated
@@ -1582,8 +1585,8 @@ class basic_string
 
     basic_string& insert(size_type position, const basic_string& other);
         // Insert at the specified 'position' in this string a copy of the
-        // specified 'other' string, and return a reference providing modifiable
-        // access to this string.  Throw 'out_of_range' if
+        // specified 'other' string, and return a reference providing
+        // modifiable access to this string.  Throw 'out_of_range' if
         // 'position > length()'.
 
     basic_string& insert(size_type           outPosition,
@@ -1745,9 +1748,10 @@ class basic_string
                           const basic_string& replacement);
         // Replace the substring in the range starting at the specified 'first'
         // position and ending right before the specified 'last' position, by
-        // the specified 'replacement'.  Return a reference providing modifiable
-        // access to this string.  The behavior is undefined unless 'first' and
-        // 'last' both belong to '[cbegin(), cend()]' and 'first <= last'.
+        // the specified 'replacement'.  Return a reference providing
+        // modifiable access to this string.  The behavior is undefined unless
+        // 'first' and 'last' both belong to '[cbegin(), cend()]' and
+        // 'first <= last'.
 
     basic_string& replace(const_iterator   first,
                           const_iterator   last,
@@ -1908,23 +1912,24 @@ class basic_string
 
     size_type find(const basic_string& substring,
                    size_type           position = 0) const;
-        // Return the starting position of the *first* occurrence of the specified
-        // 'substring', if such a substring can be found in this string (on or
-        // *after* the optionally specified 'position' if such a 'position' is
-        // specified) using 'CHAR_TRAITS::eq' to compare characters, and return
-        // 'npos' otherwise.
+        // Return the starting position of the *first* occurrence of the
+        // specified 'substring', if such a substring can be found in this
+        // string (on or *after* the optionally specified 'position' if such a
+        // 'position' is specified) using 'CHAR_TRAITS::eq' to compare
+        // characters, and return 'npos' otherwise.
 
     size_type find(const CHAR_TYPE *substring,
                    size_type        position,
                    size_type        numChars) const;
     size_type find(const CHAR_TYPE *substring,
                    size_type        position = 0) const;
-        // Return the starting position of the *first* occurrence of the specified
-        // 'substring' of the optionally specified 'numChars' length, if such a substring
-        // can be found in this string (on or *after* the optionally specified
-        // 'position' if such a 'position' is specified) using 'CHAR_TRAITS::eq' to
-        // compare characters, and return 'npos' otherwise.  If 'numChars' is not
-        // specified, 'CHAR_TRAITS::length(substring)' is used.
+        // Return the starting position of the *first* occurrence of the
+        // specified 'substring' of the optionally specified 'numChars' length,
+        // if such a substring can be found in this string (on or *after* the
+        // optionally specified 'position' if such a 'position' is specified)
+        // using 'CHAR_TRAITS::eq' to compare characters, and return 'npos'
+        // otherwise.  If 'numChars' is not specified,
+        // 'CHAR_TRAITS::length(substring)' is used.
 
     size_type find(CHAR_TYPE character, size_type position = 0) const;
         // Return the position of the *first* occurrence of the specified
@@ -1934,11 +1939,12 @@ class basic_string
 
     size_type rfind(const basic_string& substring,
                     size_type           position = npos) const;
-        // Return the starting position of the *last* occurrence of the specified
-        // 'substring' within this string, if such a sequence can be found in this
-        // string (on or *before* the optionally specified 'position' if such a
-        // 'position' is specified) using 'CHAR_TRAITS::eq' to compare characters,
-        // and return 'npos' otherwise.
+        // Return the starting position of the *last* occurrence of the
+        // specified 'substring' within this string, if such a sequence can be
+        // found in this string (on or *before* the optionally specified
+        // 'position' if such a 'position' is specified) using
+        // 'CHAR_TRAITS::eq' to compare characters, and return 'npos'
+        // otherwise.
 
     size_type rfind(const CHAR_TYPE *characterString,
                     size_type        position,
@@ -1962,8 +1968,8 @@ class basic_string
     size_type find_first_of(const basic_string& characterString,
                             size_type           position = 0) const;
         // Return the position of the *first* occurrence of a character
-        // belonging to the specified 'characterString', if such an occurrence can be
-        // found in this string (on or *after* the optionally specified
+        // belonging to the specified 'characterString', if such an occurrence
+        // can be found in this string (on or *after* the optionally specified
         // 'position' if such a 'position' is specified), and return 'npos'
         // otherwise.
 
@@ -1990,8 +1996,8 @@ class basic_string
     size_type find_last_of(const basic_string& characterString,
                            size_type           position = npos) const;
         // Return the position of the *last* occurrence of a character
-        // belonging to the specified 'characterString', if such an occurrence can be
-        // found in this string (on or *before* the optionally specified
+        // belonging to the specified 'characterString', if such an occurrence
+        // can be found in this string (on or *before* the optionally specified
         // 'position' if such a 'position' is specified), and return 'npos'
         // otherwise.
 
@@ -2018,8 +2024,8 @@ class basic_string
     size_type find_first_not_of(const basic_string& characterString,
                                 size_type           position = 0) const;
         // Return the position of the *first* occurrence of a character *not*
-        // belonging to the specified 'characterString', if such an occurrence can be
-        // found in this string (on or *after* the optionally specified
+        // belonging to the specified 'characterString', if such an occurrence
+        // can be found in this string (on or *after* the optionally specified
         // 'position' if such a 'position' is specified), and return 'npos'
         // otherwise.
 
@@ -2047,8 +2053,8 @@ class basic_string
     size_type find_last_not_of(const basic_string& characterString,
                                size_type           position = npos) const;
         // Return the position of the *last* occurrence of a character *not*
-        // belonging to the specified 'characterString', if such an occurrence can be
-        // found in this string (on or *before* the optionally specified
+        // belonging to the specified 'characterString', if such an occurrence
+        // can be found in this string (on or *before* the optionally specified
         // 'position' if such a 'position' is specified), and return 'npos'
         // otherwise.
 
@@ -2094,8 +2100,8 @@ class basic_string
                 size_type           numChars,
                 const basic_string& other) const;
         // Lexicographically compare the substring of this string starting at
-        // the specified 'lhsPosition' of length 'lhsNumChars' or
-        // 'length() - lhsPosition', whichever is smaller, with the specified
+        // the specified 'lhsPosition' of length 'lhsNumChars' or 'length() -
+        // lhsPosition', whichever is smaller, with the specified
         // 'other' string (using 'CHAR_TRAITS::lt' to compare characters), and
         // return a negative value if this string is less than 'other', a
         // positive value if it is more than 'other', and 0 in case of
@@ -3286,7 +3292,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-                                                    const ALLOCATOR& basicAllocator)
+                                               const ALLOCATOR& basicAllocator)
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
@@ -3307,8 +3313,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-                                                 const basic_string& original,
-                                                 const ALLOCATOR&    basicAllocator)
+                                            const basic_string& original,
+                                            const ALLOCATOR&    basicAllocator)
 : Imp(original)
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
@@ -3320,10 +3326,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-                                                 const basic_string& original,
-                                                 size_type           position,
-                                                 size_type           numChars,
-                                                 const ALLOCATOR&    basicAllocator)
+                                            const basic_string& original,
+                                            size_type           position,
+                                            size_type           numChars,
+                                            const ALLOCATOR&    basicAllocator)
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
@@ -3357,9 +3363,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-                                                   size_type         numChars,
-                                                   CHAR_TYPE         character,
-                                                   const ALLOCATOR&  basicAllocator)
+                                              size_type         numChars,
+                                              CHAR_TYPE         character,
+                                              const ALLOCATOR&  basicAllocator)
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
@@ -3370,9 +3376,9 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 template <typename INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-                                                    INPUT_ITER       first,
-                                                    INPUT_ITER       last,
-                                                    const ALLOCATOR& basicAllocator)
+                                               INPUT_ITER       first,
+                                               INPUT_ITER       last,
+                                               const ALLOCATOR& basicAllocator)
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
@@ -3382,8 +3388,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 template <typename ALLOC2>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-       const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
-       const ALLOCATOR&                                              basicAllocator)
+  const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
+  const ALLOCATOR&                                              basicAllocator)
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
@@ -3393,8 +3399,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
-                const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
-                const ALLOCATOR&                                     basicAllocator)
+           const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
+           const ALLOCATOR&                                     basicAllocator)
 : Imp()
 , BloombergLP::bslalg::ContainerBase<allocator_type>(basicAllocator)
 {
@@ -3710,7 +3716,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::push_back(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
-                                                    const basic_string& replacement)
+                                               const basic_string& replacement)
 {
     return assign(replacement, size_type(0), npos);
 }
@@ -3718,11 +3724,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
-                                                  const basic_string& replacement,
-                                                  size_type           position,
-                                                  size_type           numChars)
+                                               const basic_string& replacement,
+                                               size_type           position,
+                                               size_type           numChars)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > replacement.length())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                            position > replacement.length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                  "string<...>::assign(string const&,pos,n): invalid position");
@@ -4159,9 +4166,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(size_type outPosition,
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
-                                                    const_iterator      first,
-                                                    const_iterator      last,
-                                                    const basic_string& replacement)
+                                               const_iterator      first,
+                                               const_iterator      last,
+                                               const basic_string& replacement)
 {
     BSLS_ASSERT_SAFE(first >= cbegin());
     BSLS_ASSERT_SAFE(first <= cend());
@@ -4628,8 +4635,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(CHAR_TYPE character,
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
-                                            const basic_string& characterString,
-                                            size_type           position) const
+                                           const basic_string& characterString,
+                                           size_type           position) const
 {
     return find_first_of(string.data(), position, string.length());
 }
@@ -4682,8 +4689,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
-                                            const basic_string& characterString,
-                                            size_type           position) const
+                                           const basic_string& characterString,
+                                           size_type           position) const
 {
     return find_last_of(string.data(), position, string.length());
 }
@@ -4740,8 +4747,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
-                                            const basic_string& characterString,
-                                            size_type           position) const
+                                           const basic_string& characterString,
+                                           size_type           position) const
 {
     return find_first_not_of(string.data(), position, string.length());
 }
@@ -4795,8 +4802,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
-                                            const basic_string& characterString,
-                                            size_type           position) const
+                                           const basic_string& characterString,
+                                           size_type           position) const
 {
     return find_last_not_of(string.data(), position, string.length());
 }

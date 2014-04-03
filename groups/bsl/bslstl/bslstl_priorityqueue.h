@@ -443,12 +443,12 @@ class priority_queue
                                                ALLOCATOR>::VALUE>::type * = 0);
         // Create an empty priority queue that adapts a default-constructed
         // container of the parameterized 'CONTAINER' type and will use the
-        // specified 'basicAllocator' to supply memory.  Use a default-constructed
-        // comparator of the parameterized 'COMPARATOR' type to order the
-        // priorities of elements.  Note that the 'ALLOCATOR' parameter type
-        // has to be convertible to the allocator of the 'CONTAINER' parameter
-        // type, 'CONTAINER::allocator_type'.  Otherwise this constructor is
-        // disabled.
+        // specified 'basicAllocator' to supply memory.  Use a
+        // default-constructed comparator of the parameterized 'COMPARATOR'
+        // type to order the priorities of elements.  Note that the 'ALLOCATOR'
+        // parameter type has to be convertible to the allocator of the
+        // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.  Otherwise
+        // this constructor is disabled.
 
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR& comparator,
@@ -475,9 +475,9 @@ class priority_queue
                            BloombergLP::bslstl::PriorityQueue_HasAllocatorType<
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
-        // Create a priority queue that will use the specified 'basicAllocator' to
-        // supply memory, and the specified 'comparator' to order priorities of
-        // elements in the specified 'container'.  Note that the 'ALLOCATOR'
+        // Create a priority queue that will use the specified 'basicAllocator'
+        // to supply memory, and the specified 'comparator' to order priorities
+        // of elements in the specified 'container'.  Note that the 'ALLOCATOR'
         // parameter type has to be convertible to the allocator of the
         // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.  Otherwise
         // this constructor is disabled.
@@ -490,9 +490,9 @@ class priority_queue
                                                CONTAINER,
                                                ALLOCATOR>::VALUE>::type * = 0);
         // Create a priority queue having the same value as the specified
-        // 'original' that will use the specified 'basicAllocator' to supply memory.
-        // Use the comparator from 'original' to order the priorities of
-        // elements.  Note that the 'ALLOCATOR' parameter type has to be
+        // 'original' that will use the specified 'basicAllocator' to supply
+        // memory.  Use the comparator from 'original' to order the priorities
+        // of elements.  Note that the 'ALLOCATOR' parameter type has to be
         // convertible to the allocator of the 'CONTAINER' parameter type,
         // 'CONTAINER::allocator_type'.  Otherwise this constructor is
         // disabled.

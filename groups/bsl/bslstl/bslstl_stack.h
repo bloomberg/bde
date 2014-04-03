@@ -297,8 +297,8 @@ template <class CONTAINER>
 class Stack_HasAllocatorType {
     // This 'class' computes a public constant 'VALUE', which is 'true' if the
     // passed 'CONTAINER' defines a type 'CONTAINER::allocator_type' and
-    // 'false' otherwise.  This is used in conjunction with 'enable_if'
-    // to make methods of 'stack' that take allocator arguments exist if
+    // 'false' otherwise.  This is used in conjunction with 'enable_if' to make
+    // methods of 'stack' that take allocator arguments exist if
     // 'CONTAINER::allocator_type' is present, and remove them from the
     // constructor overload set otherwise.
 
@@ -377,12 +377,11 @@ class stack {
     template <class ALLOCATOR>
     explicit
     stack(const ALLOCATOR& basicAllocator,
-          typename enable_if<
-                                      Stack_HasAllocatorType<CONTAINER>::VALUE,
-                                      ALLOCATOR>::type * = 0);
-        // Construct an empty stack, and use the specified 'basicAllocator' to supply memory.  If
-        // 'CONTAINER::allocator_type' does not exist, this constructor may not
-        // be used.
+          typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
+                             ALLOCATOR>::type * = 0);
+        // Construct an empty stack, and use the specified 'basicAllocator' to
+        // supply memory.  If 'CONTAINER::allocator_type' does not exist, this
+        // constructor may not be used.
 
     explicit
     stack(const CONTAINER& container);
@@ -395,8 +394,8 @@ class stack {
           typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
                              ALLOCATOR>::type * = 0);
         // Construct a stack whose underlying container has the value of the
-        // specified 'container', and use the specified 'basicAllocator' to supply
-        // memory.  If 'CONTAINER::allocator_type' does not exist, this
+        // specified 'container', and use the specified 'basicAllocator' to
+        // supply memory.  If 'CONTAINER::allocator_type' does not exist, this
         // constructor may not be used.
 
     stack(const stack& original);
@@ -408,9 +407,9 @@ class stack {
           typename enable_if<Stack_HasAllocatorType<CONTAINER>::VALUE,
                              ALLOCATOR>::type * = 0);
         // Construct a stack having the same value as the specified stack
-        // 'original', and use the specified 'basicAllocator' to supply memory.  If
-        // 'CONTAINER::allocator_type' does not exist, this constructor may not
-        // be used.
+        // 'original', and use the specified 'basicAllocator' to supply memory.
+        // If 'CONTAINER::allocator_type' does not exist, this constructor may
+        // not be used.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     explicit
@@ -662,7 +661,7 @@ stack<VALUE, CONTAINER>::stack(
 
 template <class VALUE, class CONTAINER>
 inline
-stack<VALUE, CONTAINER>::stack(CONTAINER&&           container)
+stack<VALUE, CONTAINER>::stack(CONTAINER&& container)
 : d_container(std::move(container))
 , c(d_container)
 {}
@@ -671,7 +670,7 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 stack<VALUE, CONTAINER>::stack(
-                           CONTAINER&&                               container,
+                           CONTAINER&&      container,
                            const ALLOCATOR& basicAllocator,
                            typename enable_if<
                                       Stack_HasAllocatorType<CONTAINER>::VALUE,
@@ -682,7 +681,7 @@ stack<VALUE, CONTAINER>::stack(
 
 template <class VALUE, class CONTAINER>
 inline
-stack<VALUE, CONTAINER>::stack(stack&&               original)
+stack<VALUE, CONTAINER>::stack(stack&& original)
 : d_container(std::move(original.d_container))
 , c(d_container)
 {}

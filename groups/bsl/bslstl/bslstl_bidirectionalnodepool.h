@@ -265,7 +265,7 @@ class BidirectionalNodePool {
         // memory used by the nodes of the type 'BidirectionalNode<VALUE>' in
         // the pool.  Any memory allocated for the nodes' 'value' attribute of
         // the (template parameter) type 'VALUE' will be leaked unless the
-        // nodes are explictly destroyed via the 'destroyNode' method.
+        // nodes are explicitly destroyed via the 'destroyNode' method.
 
     // MANIPULATORS
     AllocatorType& allocator();

@@ -168,16 +168,16 @@ class basic_ostringstream
 
     // CREATORS
     explicit
-    basic_ostringstream(const allocator_type& basicAllocator = allocator_type());
+    basic_ostringstream(const allocator_type& basicAllocator=allocator_type());
     explicit
     basic_ostringstream(ios_base::openmode    modeBitMask,
-                        const allocator_type& basicAllocator = allocator_type());
+                        const allocator_type& basicAllocator=allocator_type());
     explicit
     basic_ostringstream(const StringType&     initialString,
-                        const allocator_type& basicAllocator = allocator_type());
+                        const allocator_type& basicAllocator=allocator_type());
     basic_ostringstream(const StringType&     initialString,
                         ios_base::openmode    modeBitMask,
-                        const allocator_type& basicAllocator = allocator_type());
+                        const allocator_type& basicAllocator=allocator_type());
         // Create a 'basic_ostringstream' object.  Optionally specify a
         // 'modeBitMask' indicating whether the underlying stream-buffer may
         // also be read from ('rdbuf' is created using
@@ -186,14 +186,15 @@ class basic_ostringstream
         // an 'initialString' indicating the value that will be returned by a
         // call to 'str' prior to any streaming operations performed on this
         // object.  If 'initialString' is not supplied, 'str' will initially
-        // return an empty string.  Optionally specify the 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied, a
+        // return an empty string.  Optionally specify the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) 'ALLOCATOR'
         // type is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' and 'basicAllocator' is not supplied, the
-        // currently installed default allocator will be used to supply memory.
+        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
+        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
 
     //! ~basic_ostringstream() = default;
         // Destroy this object.

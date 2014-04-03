@@ -291,10 +291,10 @@ class queue
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty queue that holds a default-constructed container
         // of the parameterized 'CONTAINER' type, and will use the specified
-        // 'basicAllocator' to supply memory.  Note that the 'ALLOCATOR' parameter
-        // type has to be convertible to the allocator of the 'CONTAINER'
-        // parameter type, 'CONTAINER::allocator_type'.  Otherwise this
-        // constructor is disabled.
+        // 'basicAllocator' to supply memory.  Note that the 'ALLOCATOR'
+        // parameter type has to be convertible to the allocator of the
+        // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.  Otherwise
+        // this constructor is disabled.
 
     template <class ALLOCATOR>
     queue(const CONTAINER& container,
@@ -304,10 +304,11 @@ class queue
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty queue that holds the specified 'container', and
-        // will use the specified 'basicAllocator' to supply memory.  Note that the
-        // 'ALLOCATOR' parameter type has to be convertible to the allocator of
-        // the 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.
-        // Otherwise this constructor is disabled.
+        // will use the specified 'basicAllocator' to supply memory.  Note that
+        // the 'ALLOCATOR' parameter type has to be convertible to the
+        // allocator of the 'CONTAINER' parameter type,
+        // 'CONTAINER::allocator_type'.  Otherwise this constructor is
+        // disabled.
 
     template <class ALLOCATOR>
     queue(const queue& original,
@@ -317,9 +318,9 @@ class queue
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct a queue having the same value as that of the specified
-        // 'original' that will use the specified 'basicAllocator' to supply memory.
-        // Note that the 'ALLOCATOR' parameter type has to be convertible to
-        // the allocator of the 'CONTAINER' parameter type,
+        // 'original' that will use the specified 'basicAllocator' to supply
+        // memory.  Note that the 'ALLOCATOR' parameter type has to be
+        // convertible to the allocator of the 'CONTAINER' parameter type,
         // 'CONTAINER::allocator_type'.  Otherwise this constructor is
         // disabled.
 

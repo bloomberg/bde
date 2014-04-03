@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // tested for equality.  It is even possible to instantiate
 // 'unordered_multiset' with a key type that does not have an accessible
 // copy-constructor, in which case the 'unordered_multiset' will not be
-// copyable.  Note that the equality comparsion operator 'operator==' for each
+// copyable.  Note that the equality comparison operator 'operator==' for each
 // element is used to determine when two 'unordered_multiset' objects have the
 // same value, and not the equality comparator supplied at construction.
 //
@@ -446,7 +446,7 @@ BSLS_IDENT("$Id: $")
 //          && lhs.d_project  == rhs.d_project;
 //  }
 //..
-// Notice that many of the required methods of the hash and comparitor types
+// Notice that many of the required methods of the hash and comparator types
 // are compiler generated.  (The declaration of those methods are commented out
 // and suffixed by an '= default' comment.)
 //
@@ -727,36 +727,38 @@ class unordered_multiset
   public:
     // CREATORS
     explicit unordered_multiset(
-                           size_type             initialNumBuckets = 0,
-                           const hasher&         hashFunction = hasher(),
-                           const key_equal&      keyEqual = key_equal(),
-                           const allocator_type& basicAllocator = allocator_type());
+                      size_type             initialNumBuckets = 0,
+                      const hasher&         hashFunction = hasher(),
+                      const key_equal&      keyEqual = key_equal(),
+                      const allocator_type& basicAllocator = allocator_type());
         // Construct an empty unordered multi-set.  Optionally specify an
         // 'initialNumBuckets' indicating the initial size of the array of
         // buckets of this container.  If 'initialNumBuckets' is not supplied,
         // an implementation defined value is used.  Optionally specify a
         // 'hashFunction' used to generate the hash values associated to the
-        // keys extracted from the values contained in this object.  If 'hashFunction'
-        // is not supplied, a default-constructed object of type 'hasher' is
-        // used.  Optionally specify a key-equality functor 'keyEqual' used to
-        // verify that two key values are the same.  If 'keyEqual' is not
-        // supplied, a default-constructed object of type 'key_equal' is used.
-        // Optionally specify the 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied, a default-constructed object of the
-        // (template parameter) type 'allocator_type' is used.  If the
-        // 'allocator_type' is 'bsl::allocator' (the default), then 'basicAllocator'
-        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
+        // keys extracted from the values contained in this object.  If
+        // 'hashFunction' is not supplied, a default-constructed object of type
+        // 'hasher' is used.  Optionally specify a key-equality functor
+        // 'keyEqual' used to verify that two key values are the same.  If
+        // 'keyEqual' is not supplied, a default-constructed object of type
+        // 'key_equal' is used.  Optionally specify the 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is not supplied, a
+        // default-constructed object of the (template parameter) type
+        // 'allocator_type' is used.  If the 'allocator_type' is
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
+        // convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' is
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
     explicit unordered_multiset(const allocator_type& basicAllocator);
         // Construct an empty unordered multi-set that uses the specified
-        // 'basicAllocator' to supply memory.  Use a default-constructed object of
-        // type 'hasher' to generate hash values for the key extracted from the
-        // values contained in this object.  Also, use a default-constructed
-        // object of type 'key_equal' to verify that two key values are the
-        // same.  If the 'allocator_type' is 'bsl::allocator' (the default),
-        // then 'basicAllocator' shall be convertible to 'bslma::Allocator *'.
+        // 'basicAllocator' to supply memory.  Use a default-constructed object
+        // of type 'hasher' to generate hash values for the key extracted from
+        // the values contained in this object.  Also, use a
+        // default-constructed object of type 'key_equal' to verify that two
+        // key values are the same.  If the 'allocator_type' is
+        // 'bsl::allocator' (the default), then 'basicAllocator' shall be
+        // convertible to 'bslma::Allocator *'.
 
     unordered_multiset(const unordered_multiset& original);
     unordered_multiset(const unordered_multiset& original,
@@ -766,9 +768,9 @@ class unordered_multiset
         // 'hasher' to generate hash values for the key extracted from the
         // values contained in this object.  Also, use a default-constructed
         // object of type 'key_equal' to verify that two key values are the
-        // same.  Optionally specify the 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is not supplied, a default-constructed object of type
-        // 'allocator_type' is used.  If the 'allocator_type' is
+        // same.  Optionally specify the 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is not supplied, a default-constructed
+        // object of type 'allocator_type' is used.  If the 'allocator_type' is
         // 'bsl::allocator' (the default), then 'basicAllocator' shall be
         // convertible to 'bslma::Allocator *'.
 
@@ -778,7 +780,7 @@ class unordered_multiset
                        size_type             initialNumBuckets = 0,
                        const hasher&         hashFunction = hasher(),
                        const key_equal&      keyEqual = key_equal(),
-                       const allocator_type& basicAllocator = allocator_type());
+                       const allocator_type& basicAllocator =allocator_type());
         // Construct an empty unordered multi-set and insert each 'value_type'
         // object in the sequence starting at the specified 'first' element,
         // and ending immediately before the specified 'last' element, ignoring
@@ -786,14 +788,14 @@ class unordered_multiset
         // Optionally specify an 'initialNumBuckets' indicating the initial
         // size of the array of buckets of this container.  If
         // 'initialNumBuckets' is not supplied, an implementation defined value
-        // is used.  Optionally specify a 'hashFunction' used to generate hash values
-        // for the keys extracted from the values contained in this object.  If
-        // 'hashFunction' is not supplied, a default-constructed object of type
-        // 'hasher' is used.  Optionally specify a key-equality functor
-        // 'keyEqual' used to verify that two key values are the same.  If
-        // 'keyEqual' is not supplied, a default-constructed object of type
-        // 'key_equal' is used.  Optionally specify the 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is not supplied, a
+        // is used.  Optionally specify a 'hashFunction' used to generate hash
+        // values for the keys extracted from the values contained in this
+        // object.  If 'hashFunction' is not supplied, a default-constructed
+        // object of type 'hasher' is used.  Optionally specify a key-equality
+        // functor 'keyEqual' used to verify that two key values are the same.
+        // If 'keyEqual' is not supplied, a default-constructed object of type
+        // 'key_equal' is used.  Optionally specify the 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'allocator_type' is used.  If the 'allocator_type' is
         // 'bsl::allocator' (the default), then 'basicAllocator' shall be
@@ -1150,15 +1152,15 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
-                                               const allocator_type& basicAllocator)
+                                          const allocator_type& basicAllocator)
 : d_impl(basicAllocator)
 {
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
-                                           const unordered_multiset& original,
-                                           const allocator_type&     basicAllocator)
+                                      const unordered_multiset& original,
+                                      const allocator_type&     basicAllocator)
 : d_impl(original.d_impl, basicAllocator)
 {
 }
