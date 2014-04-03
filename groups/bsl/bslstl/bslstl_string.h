@@ -3816,7 +3816,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type            numChars)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(outPosition > length())
-     || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > string.length())) {
+     || BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > other.length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                 "string<...>::insert(pos,string const&...): invalid position");
@@ -4039,8 +4039,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
     if (outNumChars > length() - outPosition) {
         outNumChars = length() - outPosition;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(string.length() > outNumChars
-                   && string.length() - outNumChars > max_size() - length())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                 replacement.length()               > outNumChars
+              && replacement.length() - outNumChars > max_size() - length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                 "string<...>::replace(pos,string const&...): string too long");
@@ -4068,7 +4069,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
     if (outNumChars > length() - outPosition) {
         outNumChars = length() - outPosition;
     }
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position > string.length())) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                            position > replacement.length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                "string<...>::replace(pos,string const&...): invalid position");
@@ -4177,9 +4179,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(string.length() > outNumChars)
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                            replacement.length() > outNumChars)
      && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                      string.length() - outNumChars > max_size() - length())) {
+                 replacement.length() - outNumChars > max_size() - length())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                     "string<...>::replace(string const&...): string too long");
@@ -4638,7 +4641,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                            const basic_string& characterString,
                                            size_type           position) const
 {
-    return find_first_of(string.data(), position, string.length());
+    return find_first_of(characterString.data(),
+                         position,
+                         characterString.length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -4692,7 +4697,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                            const basic_string& characterString,
                                            size_type           position) const
 {
-    return find_last_of(string.data(), position, string.length());
+    return find_last_of(characterString.data(),
+                        position,
+                        characterString.length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -4750,7 +4757,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                            const basic_string& characterString,
                                            size_type           position) const
 {
-    return find_first_not_of(string.data(), position, string.length());
+    return find_first_not_of(characterString.data(),
+                             position,
+                             characterString.length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -4805,7 +4814,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                            const basic_string& characterString,
                                            size_type           position) const
 {
-    return find_last_not_of(string.data(), position, string.length());
+    return find_last_not_of(characterString.data(),
+                            position,
+                            characterString.length());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
