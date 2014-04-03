@@ -411,12 +411,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_PAIR
-#include <bslstl_pair.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_MAPCOMPARATOR
 #include <bslstl_mapcomparator.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_PAIR
+#include <bslstl_pair.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
@@ -435,10 +435,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_treenodepool.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
 #endif
@@ -453,6 +449,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLALG_RBTREEUTIL
 #include <bslalg_rbtreeutil.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
@@ -517,8 +517,8 @@ class map {
         // that if the allocator is stateless, it takes up no space.
         //
         // TBD: This struct should eventually be replaced by the use of a
-        // general EBO-enabled component that provides a 'pair'-like
-        // interface or a 'tuple'.
+        // general EBO-enabled component that provides a 'pair'-like interface
+        // or a 'tuple'.
 
         NodeFactory d_pool;  // pool of 'Node' objects
 
@@ -578,9 +578,9 @@ class map {
 
       public:
         typedef bool result_type;
-            // This 'typedef' is an alias for the result type of a call to
-            // the overload of 'operator()' (the comparison function) provided
-            // by a 'map::value_compare' object.
+            // This 'typedef' is an alias for the result type of a call to the
+            // overload of 'operator()' (the comparison function) provided by a
+            // 'map::value_compare' object.
 
         typedef value_type first_argument_type;
             // This 'typedef' is an alias for the type of the first parameter
@@ -605,22 +605,22 @@ class map {
     // PRIVATE CLASS METHODS
     static Node *toNode(BloombergLP::bslalg::RbTreeNode *node);
         // Return an address providing modifiable access to the specified
-        // 'node'.  The behavior is undefined unless 'node' is the address of
-        // a 'Node' object.
+        // 'node'.  The behavior is undefined unless 'node' is the address of a
+        // 'Node' object.
 
     static const Node *toNode(const BloombergLP::bslalg::RbTreeNode *node);
         // Return an address providing non-modifiable access to the specified
-        // 'node'.  The behavior is undefined unless 'node' is the address of
-        // a 'Node' object.
+        // 'node'.  The behavior is undefined unless 'node' is the address of a
+        // 'Node' object.
 
     // PRIVATE MANIPULATORS
     NodeFactory& nodeFactory();
-        // Return a reference providing modifiable access to the
-        // node allocator for this map.
+        // Return a reference providing modifiable access to the node allocator
+        // for this map.
 
     Comparator& comparator();
-        // Return a reference providing modifiable access to the
-        // comparator for this map.
+        // Return a reference providing modifiable access to the comparator for
+        // this map.
 
     void quickSwap(map& other);
         // Efficiently exchange the value and comparator of this object with
@@ -630,12 +630,12 @@ class map {
 
     // PRIVATE ACCESSORS
     const NodeFactory& nodeFactory() const;
-        // Return a reference providing non-modifiable access to the
-        // node allocator for this map.
+        // Return a reference providing non-modifiable access to the node
+        // allocator for this map.
 
     const Comparator& comparator() const;
-        // Return a reference providing non-modifiable access to the
-        // comparator for this map.
+        // Return a reference providing non-modifiable access to the comparator
+        // for this map.
 
   public:
     // CREATORS
@@ -818,16 +818,14 @@ class map {
         // Remove from this map the 'value_type' object at the specified
         // 'position', and return an iterator referring to the element
         // immediately following the removed element, or to the past-the-end
-        // position if the removed element was the last element in the
-        // sequence of elements maintained by this map.  The behavior is
-        // undefined unless 'position' refers to a 'value_type' object in this
-        // map.
+        // position if the removed element was the last element in the sequence
+        // of elements maintained by this map.  The behavior is undefined
+        // unless 'position' refers to a 'value_type' object in this map.
 
     size_type erase(const key_type& key);
         // Remote from this map the 'value_type' object having the specified
         // 'key', if it exists, and return 1; otherwise, if there is no
-        // 'value_type' object having 'key', return 0 with no other
-        // effect.
+        // 'value_type' object having 'key', return 0 with no other effect.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from this map the 'value_type' objects starting at the
@@ -1127,9 +1125,9 @@ void swap(map<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
     // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                              // -----------------
                              // class DataWrapper
@@ -1276,7 +1274,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(INPUT_ITERATOR    first,
         // The following loop guarantees amortized linear time to insert an
         // ordered sequence of values (as required by the standard).   If the
         // values are in sorted order, we are guaranteed the next node can be
-        // inseted as the right child of the previous node, and can call
+        // inserted as the right child of the previous node, and can call
         // 'insertAt' without 'findUniqueInsertLocation'.
 
         insert(*first);

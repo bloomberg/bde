@@ -484,10 +484,10 @@ class allocator {
 
     template <class U>
     allocator(const allocator<U>& rhs);
-        // Construct a proxy object sharing the same mechanism object as 'rhs'.
-        // The newly constructed allocator will compare equal to rhs, even
-        // though they are instantiated on different types.  Postcondition:
-        // 'this->mechanism() == rhs.mechanism()'.
+        // Construct a proxy object sharing the same mechanism object as the
+        // specified 'rhs'.  The newly constructed allocator will compare equal
+        // to 'rhs', even though they are instantiated on different types.
+        // Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
     //! ~allocator();
         // Destroy this object.  Note that this does not delete the object
@@ -590,10 +590,10 @@ class allocator<void> {
 
     template <class U>
     allocator(const allocator<U>& rhs);
-        // Construct a proxy object sharing the same mechanism object as 'rhs'.
-        // The newly constructed allocator will compare equal to rhs, even
-        // though they are instantiated on different types.  Postcondition:
-        // 'this->mechanism() == rhs.mechanism()'.
+        // Construct a proxy object sharing the same mechanism object as the
+        // specified 'rhs'.  The newly constructed allocator will compare equal
+        // to 'rhs', even though they are instantiated on different types.
+        // Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
     //! ~allocator();
         // Destroy this object.  Note that this does not delete the object
@@ -654,9 +654,9 @@ bool operator!=(const BloombergLP::bslma::Allocator *lhs,
                 const allocator<T>&                  rhs);
     // Return '!(lhs == rhs)'.
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                              // ---------------
                              // class allocator

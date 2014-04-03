@@ -575,10 +575,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_CONTAINERBASE
-#include <bslalg_containerbase.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
 #endif
@@ -595,6 +591,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stringrefdata.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
@@ -603,12 +603,20 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
-#include <bslmf_isbitwisemoveable.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
@@ -734,7 +742,7 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 class basic_string;
 
 #if defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_HP)
@@ -812,7 +820,7 @@ String_Traits<native_std::char_traits<char> >::find(const char  *s,
                         // class String_Imp
                         // ================
 
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 class String_Imp {
     // This component private 'class' describes the basic data layout for a
     // string class and provides methods to help encapsulate internal string
@@ -978,9 +986,9 @@ class String_Imp {
 // 'char_traits' are always in the same namespace.
 using native_std::char_traits;
 
-template <typename CHAR_TYPE,
-          typename CHAR_TRAITS = char_traits<CHAR_TYPE>,
-          typename ALLOCATOR = allocator<CHAR_TYPE> >
+template <class CHAR_TYPE,
+          class CHAR_TRAITS = char_traits<CHAR_TYPE>,
+          class ALLOCATOR = allocator<CHAR_TYPE> >
 class basic_string
     : private String_Imp<CHAR_TYPE, typename ALLOCATOR::size_type>
     , public BloombergLP::bslalg::ContainerBase<ALLOCATOR>
@@ -1064,7 +1072,7 @@ class basic_string
                                         iterator end);
     basic_string& privateAppendDispatch(const_iterator begin,
                                         const_iterator end);
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& privateAppendDispatch(INPUT_ITER begin,
                                         INPUT_ITER end);
         // Match either 'iterator', 'const_iterator', or an arbitrary iterator
@@ -1121,7 +1129,7 @@ class basic_string
         // 'begin' and 'end' iterators using the 'privateAppendRaw' method for
         // the initialization.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     void privateInitDispatch(INPUT_ITER begin,
                              INPUT_ITER end);
         // Initialize this object with a string represented by the specified
@@ -1137,10 +1145,10 @@ class basic_string
                                const_iterator first,
                                const_iterator last);
         // Insert into this object at the specified 'position' a string
-        // represented by the specified 'first' and 'last' iterators using
-        // the 'privateInsertRaw' method for insertion.
+        // represented by the specified 'first' and 'last' iterators using the
+        // 'privateInsertRaw' method for insertion.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     void privateInsertDispatch(const_iterator position,
                                INPUT_ITER     first,
                                INPUT_ITER     last);
@@ -1168,8 +1176,8 @@ class basic_string
         // starting at the specified 'outPosition' by the specified 'numChars'
         // starting at the specified 'characterString', and return a reference
         // providing modifiable access to this string.  The behavior is
-        // undefined unless 'outPosition <= length()', 'outNumChars <=
-        // length()', 'outPosition <= length() - outNumChars',
+        // undefined unless 'outPosition <= length()',
+        // 'outNumChars <= length()', 'outPosition <= length() - outNumChars',
         // 'numChars <= max_size()', and
         // 'length() - outNumChars <= max_size() - numChars'.  Note that this
         // method is alias-safe, i.e., it works correctly even if
@@ -1187,7 +1195,7 @@ class basic_string
         // 'outNumChars <= length()', 'outPosition <= length() - outNumChars'
         // and 'length() <= max_size() - numChars'.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& privateReplaceDispatch(
                               size_type                               position,
                               size_type                               numChars,
@@ -1197,7 +1205,7 @@ class basic_string
                               BloombergLP::bslmf::Nil                 );
         // Match integral type for 'INPUT_ITER'.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& privateReplaceDispatch(
                                      size_type                        position,
                                      size_type                        numChars,
@@ -1207,7 +1215,7 @@ class basic_string
                                      BloombergLP::bslmf::MatchAnyType );
         // Match non-integral type for 'INPUT_ITER'.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& privateReplace(size_type  position,
                                  size_type  numChars,
                                  INPUT_ITER first,
@@ -1216,7 +1224,7 @@ class basic_string
         // Specialized replacement for input iterators, using repeated
         // 'push_back' operations.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& privateReplace(size_type  position,
                                  size_type  numChars,
                                  INPUT_ITER first,
@@ -1359,7 +1367,7 @@ class basic_string
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
         // specified, a default-constructed allocator is used.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string(INPUT_ITER       first,
                  INPUT_ITER       last,
                  const ALLOCATOR& basicAllocator = ALLOCATOR());
@@ -1370,7 +1378,7 @@ class basic_string
         // specified, a default-constructed allocator is used.  The behavior is
         // undefined unless '[first, last)' is a valid iterator range.
 
-    template <typename ALLOC2>
+    template <class ALLOC2>
     basic_string(
         const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
         const ALLOCATOR& basicAllocator = ALLOCATOR());
@@ -1480,7 +1488,7 @@ class basic_string
         // the last position in this string.  The behavior is undefined if this
         // string is empty.  Note that the last position is 'length() - 1'.
 
-    template <typename ALLOC2>
+    template <class ALLOC2>
     operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const;
         // Convert this object to a string type native to the compiler's
         // library, instantiated with the same character type and traits type,
@@ -1493,8 +1501,8 @@ class basic_string
 
     basic_string& operator+=(const basic_string&  rhs);
     basic_string& operator+=(const CHAR_TYPE     *rhs);
-        // Append the specified 'rhs' at the end of this string, and return
-        // a reference providing modifiable access to this string.
+        // Append the specified 'rhs' at the end of this string, and return a
+        // reference providing modifiable access to this string.
 
     basic_string& operator+=(CHAR_TYPE character);
         // Append the specified 'character' at the end of this string, and
@@ -1528,7 +1536,7 @@ class basic_string
         // specified 'character' at the end of this string, and return a
         // reference providing modifiable access to this string.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& append(INPUT_ITER first, INPUT_ITER last);
         // Append to the end of this string a string built from the characters
         // in the range starting at the specified 'first' and ending before the
@@ -1573,7 +1581,7 @@ class basic_string
         // 'character', and return a reference providing modifiable access to
         // this string.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& assign(INPUT_ITER first, INPUT_ITER last);
         // Assign to this string the value of a string built from the
         // characters in the range starting at the specified 'first' and ending
@@ -1641,7 +1649,7 @@ class basic_string
         // 'numChars == 0'.  The behavior is undefined unless 'position' is a
         // valid iterator on this string.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     iterator insert(const_iterator position,
                     INPUT_ITER     first,
                     INPUT_ITER     last);
@@ -1786,7 +1794,7 @@ class basic_string
         // string.  The behavior is undefined unless 'first' and 'last' both
         // belong to the range '[cbegin(), cend()]' and 'first <= last'.
 
-    template <typename INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& replace(const_iterator first,
                           const_iterator last,
                           INPUT_ITER     stringFirst,
@@ -2101,11 +2109,11 @@ class basic_string
                 const basic_string& other) const;
         // Lexicographically compare the substring of this string starting at
         // the specified 'lhsPosition' of length 'lhsNumChars' or 'length() -
-        // lhsPosition', whichever is smaller, with the specified
-        // 'other' string (using 'CHAR_TRAITS::lt' to compare characters), and
-        // return a negative value if this string is less than 'other', a
-        // positive value if it is more than 'other', and 0 in case of
-        // equality.  See "Lexicographical Comparisons" for definitions.
+        // lhsPosition', whichever is smaller, with the specified 'other'
+        // string (using 'CHAR_TRAITS::lt' to compare characters), and return a
+        // negative value if this string is less than 'other', a positive value
+        // if it is more than 'other', and 0 in case of equality.  See
+        // "Lexicographical Comparisons" for definitions.
 
     int compare(size_type           lhsPosition,
                 size_type           lhsNumChars,
@@ -2295,7 +2303,7 @@ bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
     // and 'false' otherwise.  See "Lexicographical Comparisons" for
     // definitions.
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs);
@@ -2307,19 +2315,19 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC1, class ALLOC2>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>
 operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
           const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& rhs);
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const CHAR_TYPE                                      *lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs);
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(CHAR_TYPE                                             lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs);
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
           const CHAR_TYPE                                      *rhs);
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
           CHAR_TYPE                                             rhs);
@@ -2415,9 +2423,9 @@ struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
     }
 };
 
-// ==========================================================================
-//                       TEMPLATE FUNCTION DEFINITIONS
-// ==========================================================================
+// ============================================================================
+//                       FUNCTION TEMPLATE DEFINITIONS
+// ============================================================================
 // See IMPLEMENTATION NOTES in the '.cpp' before modifying anything below.
 
                           // ----------------
@@ -2425,7 +2433,7 @@ struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
                           // ----------------
 
 // CLASS METHODS
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 SIZE_TYPE
 String_Imp<CHAR_TYPE, SIZE_TYPE>::computeNewCapacity(SIZE_TYPE newLength,
                                                      SIZE_TYPE oldCapacity,
@@ -2456,7 +2464,7 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::computeNewCapacity(SIZE_TYPE newLength,
 }
 
 // CREATORS
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp()
 : d_start_p(0)
 , d_length(0)
@@ -2464,7 +2472,7 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp()
 {
 }
 
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp(SIZE_TYPE length,
                                              SIZE_TYPE capacity)
 : d_start_p(0)
@@ -2476,7 +2484,7 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp(SIZE_TYPE length,
 }
 
 // MANIPULATORS
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 void String_Imp<CHAR_TYPE, SIZE_TYPE>::swap(String_Imp& other)
 {
     if (!isShortString() && !other.isShortString()) {
@@ -2493,7 +2501,7 @@ void String_Imp<CHAR_TYPE, SIZE_TYPE>::swap(String_Imp& other)
 }
 
 // PRIVATE MANIPULATORS
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 inline
 void String_Imp<CHAR_TYPE, SIZE_TYPE>::resetFields()
 {
@@ -2502,7 +2510,7 @@ void String_Imp<CHAR_TYPE, SIZE_TYPE>::resetFields()
     d_capacity = SHORT_BUFFER_CAPACITY;
 }
 
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 inline
 CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr()
 {
@@ -2512,14 +2520,14 @@ CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr()
 }
 
 // PRIVATE ACCESSORS
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 inline
 bool String_Imp<CHAR_TYPE, SIZE_TYPE>::isShortString() const
 {
     return d_capacity == SHORT_BUFFER_CAPACITY;
 }
 
-template <typename CHAR_TYPE, typename SIZE_TYPE>
+template <class CHAR_TYPE, class SIZE_TYPE>
 inline
 const CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr() const
 {
@@ -2533,12 +2541,12 @@ const CHAR_TYPE *String_Imp<CHAR_TYPE, SIZE_TYPE>::dataPtr() const
                         // -----------------------
 
 // CLASS DATA
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 const typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::npos;
 
 // PRIVATE MANIPULATORS
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 CHAR_TYPE *
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAllocate(
@@ -2547,7 +2555,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAllocate(
     return this->allocateN((CHAR_TYPE *)0, numChars + 1);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateDeallocate()
 {
@@ -2556,7 +2564,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateDeallocate()
     }
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCopy(
                                                   const basic_string& original)
@@ -2571,7 +2579,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCopy(
     CHAR_TRAITS::copy(this->dataPtr(), original.data(), this->d_length + 1);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
@@ -2583,7 +2591,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
     return privateAppendDispatch(const_iterator(begin), const_iterator(end));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                                                           const_iterator begin,
@@ -2601,8 +2609,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
     return privateAppendRaw(&*begin, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
@@ -2618,7 +2626,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                                                               // overloads
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
                                               const CHAR_TYPE *characterString,
@@ -2630,7 +2638,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
         // no reallocation required, perform assignment in-place
 
         this->d_length = 0;
-        return privateAppendRaw(characterString, numChars);
+        return privateAppendRaw(characterString, numChars);           // RETURN
     }
     else {
         // reallocation required, ensure strong exception-safety
@@ -2638,11 +2646,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
         basic_string cpy(get_allocator());
         cpy.privateAppendRaw(characterString, numChars);
         cpy.swap(*this);
-        return *this;
+        return *this;                                                 // RETURN
     }
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
                                                            size_type numChars,
@@ -2654,7 +2662,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
         // no reallocation required, perform assignment in-place
 
         this->d_length = 0;
-        return privateAppendRaw(numChars, character);
+        return privateAppendRaw(numChars, character);                 // RETURN
     }
     else {
         // reallocation required, ensure strong exception-safety
@@ -2662,11 +2670,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssign(
         basic_string cpy(get_allocator());
         cpy.privateAppendRaw(numChars, character);
         cpy.swap(*this);
-        return *this;
+        return *this;                                                 // RETURN
     }
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
                                               const CHAR_TYPE *characterString,
@@ -2702,7 +2710,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
     return *this;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
                                                            size_type numChars,
@@ -2718,7 +2726,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
     return *this;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::Imp&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateBase()
@@ -2726,7 +2734,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateBase()
     return *static_cast<Imp *>(this);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateClear(
                                                      bool deallocateBufferFlag)
 {
@@ -2741,7 +2749,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateClear(
     CHAR_TRAITS::assign(*begin(), CHAR_TYPE());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
@@ -2753,7 +2761,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
     privateInitDispatch((const_iterator)begin, (const_iterator)end);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
                                                         const_iterator   begin,
@@ -2770,8 +2778,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
     privateAppendRaw(&*begin, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
                                                               INPUT_ITER begin,
@@ -2786,7 +2794,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
                                                         // overloads
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                                                        const_iterator position,
@@ -2800,7 +2808,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                           const_iterator(last));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                                                        const_iterator position,
                                                        const_iterator first,
@@ -2824,8 +2832,8 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
     privateInsertRaw(pos, &*first, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                                                        const_iterator position,
@@ -2841,7 +2849,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                            BloombergLP::bslmf::Nil());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertRaw(
                                               size_type        outPosition,
@@ -2899,7 +2907,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertRaw(
     return *this;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
                                               size_type        outPosition,
@@ -2995,7 +3003,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
     return *this;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
                                                          size_type outPosition,
@@ -3041,8 +3049,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
     return *this;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
@@ -3056,8 +3064,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
     return replace(position, numChars, (size_type)first, (CHAR_TYPE)last);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
@@ -3072,8 +3080,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
     return privateReplace(position, numChars, first, last, tag);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                                                        size_type  outPosition,
@@ -3104,8 +3112,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                              temp.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                                                      size_type  outPosition,
@@ -3143,53 +3151,53 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                              temp.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
-                                                    size_type      outPosition,
-                                                    size_type      outNumChars,
-                                                    const_iterator first,
-                                                    const_iterator last,
-                                                    std::forward_iterator_tag)
+                                                     size_type      position,
+                                                     size_type      numChars,
+                                                     const_iterator first,
+                                                     const_iterator last,
+                                                     std::forward_iterator_tag)
 {
     BSLS_ASSERT_SAFE(first <= last);
 
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < outPosition)) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length() < position)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                       "string<...>::replace<Iter>(pos,i,j): invalid position");
     }
-    size_type numChars = bsl::distance(first, last);
+    size_type numNewChars = bsl::distance(first, last);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                           max_size() - (length() - outPosition) < numChars)) {
+                           max_size() - (length() - position) < numNewChars)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                      "string<...>::replace<Iter>(pos,n,i,j): string too long");
     }
 
-    return privateReplaceRaw(outPosition, outNumChars, &*first, numChars);
+    return privateReplaceRaw(position, numChars, &*first, numNewChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
-                                                    size_type      outPosition,
-                                                    size_type      outNumChars,
-                                                    iterator       first,
-                                                    iterator       last,
-                                                    std::forward_iterator_tag)
+                                                     size_type      position,
+                                                     size_type      numChars,
+                                                     iterator       first,
+                                                     iterator       last,
+                                                     std::forward_iterator_tag)
 {
     BSLS_ASSERT_SAFE(first <= last);
 
-    return privateReplace(outPosition,
-                          outNumChars,
+    return privateReplace(position,
+                          numChars,
                           const_iterator(first),
                           const_iterator(last),
                           std::forward_iterator_tag());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
                                                          size_type newCapacity)
 {
@@ -3210,7 +3218,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
     }
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 CHAR_TYPE *
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
                                                         size_type *storage,
@@ -3235,7 +3243,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
     return newBuffer;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateResizeRaw(
                                                            size_type newLength,
@@ -3256,7 +3264,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateResizeRaw(
 }
 
 // PRIVATE ACCESSORS
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
                                           size_type        lhsPosition,
                                           size_type        lhsNumChars,
@@ -3289,7 +3297,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
 
                 // *** 21.3.2 construct/copy/destroy: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                const ALLOCATOR& basicAllocator)
@@ -3299,7 +3307,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     CHAR_TRAITS::assign(*begin(), CHAR_TYPE());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                   const basic_string& original)
 : Imp(original)
@@ -3311,7 +3319,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     }
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                             const basic_string& original,
                                             const ALLOCATOR&    basicAllocator)
@@ -3324,7 +3332,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     }
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                             const basic_string& original,
                                             size_type           position,
@@ -3336,7 +3344,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(original, position, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              const ALLOCATOR&  basicAllocator)
@@ -3348,7 +3356,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(characterString);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                              const CHAR_TYPE  *characterString,
                                              size_type         numChars,
@@ -3361,7 +3369,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(characterString, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                               size_type         numChars,
                                               CHAR_TYPE         character,
@@ -3372,8 +3380,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(numChars, character);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                                INPUT_ITER       first,
@@ -3385,8 +3393,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     privateInitDispatch(first, last);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename ALLOC2>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class ALLOC2>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
   const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>& original,
   const ALLOCATOR&                                              basicAllocator)
@@ -3396,7 +3404,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     this->assign(original.data(), original.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
            const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
@@ -3407,7 +3415,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
     assign(strRef.begin(), strRef.end());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
 {
     // perform a validity check
@@ -3422,7 +3430,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::~basic_string()
 
                 // *** 21.3.2 construct/copy/destroy: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
                                                        const basic_string& rhs)
@@ -3430,7 +3438,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
     return assign(rhs, size_type(0), npos);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(const CHAR_TYPE *rhs)
 {
@@ -3439,7 +3447,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(const CHAR_TYPE *rhs)
     return assign(rhs);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(CHAR_TYPE character)
 {
@@ -3448,7 +3456,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(CHAR_TYPE character)
 
                       // *** 21.3.4 capacity: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength,
                                                            CHAR_TYPE character)
 {
@@ -3460,7 +3468,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength,
     privateResizeRaw(newLength, character);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newLength > max_size())) {
@@ -3471,7 +3479,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::resize(size_type newLength)
     privateResizeRaw(newLength, CHAR_TYPE());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reserve(
                                                          size_type newCapacity)
 {
@@ -3483,7 +3491,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reserve(
     privateReserveRaw(newCapacity);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::clear()
 {
     // Note: Stlport and Dinkumware do not deallocate the allocated buffer in
@@ -3494,7 +3502,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::clear()
 
                       // *** 21.3.3 iterators: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin()
@@ -3502,7 +3510,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin()
     return this->dataPtr();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end()
@@ -3510,7 +3518,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end()
     return begin() + this->d_length;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin()
@@ -3518,7 +3526,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin()
     return reverse_iterator(end());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend()
@@ -3528,7 +3536,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend()
 
                    // *** 21.3.5 element access: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator[](size_type position)
@@ -3538,7 +3546,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator[](size_type position)
     return *(begin() + position);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position)
 {
@@ -3554,7 +3562,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position)
     return *(begin() + position);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front()
@@ -3564,7 +3572,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front()
     return *begin();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back()
@@ -3574,8 +3582,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back()
     return *(begin() + length() - 1);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename ALLOC2>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class ALLOC2>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::
     operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const
@@ -3587,7 +3595,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::
 
                      // *** 21.3.6 modifiers: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                                                        const basic_string& rhs)
@@ -3595,7 +3603,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
     return append(rhs);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                                                           const CHAR_TYPE *rhs)
@@ -3605,7 +3613,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
     return append(rhs);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 {
@@ -3613,7 +3621,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
     return *this;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                                    const basic_string&  suffix)
@@ -3621,7 +3629,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
     return append(suffix, size_type(0), npos);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                                   const basic_string& suffix,
@@ -3645,7 +3653,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
     return privateAppendRaw(suffix.data() + position, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                               const CHAR_TYPE *characterString,
@@ -3662,7 +3670,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
     return privateAppendRaw(characterString, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                               const CHAR_TYPE *characterString)
@@ -3672,7 +3680,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
     return append(characterString, CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(size_type numChars,
                                                       CHAR_TYPE character)
@@ -3686,8 +3694,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(size_type numChars,
     return privateResizeRaw(length() + numChars, character);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(INPUT_ITER first,
@@ -3696,7 +3704,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(INPUT_ITER first,
     return privateAppendDispatch(first, last);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::push_back(
                                                            CHAR_TYPE character)
 {
@@ -3713,7 +3721,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::push_back(
     CHAR_TRAITS::assign(*(begin() + length()), CHAR_TYPE());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                                const basic_string& replacement)
@@ -3721,7 +3729,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
     return assign(replacement, size_type(0), npos);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                                const basic_string& replacement,
@@ -3746,7 +3754,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
     return privateAssign(replacement.data() + position, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                               const CHAR_TYPE *characterString)
@@ -3756,7 +3764,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
     return assign(characterString, CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                               const CHAR_TYPE *characterString,
@@ -3773,7 +3781,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
     return privateAssign(characterString, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
                                                       CHAR_TYPE character)
@@ -3787,8 +3795,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
     return privateAssign(numChars, character);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
@@ -3798,7 +3806,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(INPUT_ITER first,
     return *this;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                                   size_type           position,
@@ -3807,7 +3815,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
     return insert(position, other, size_type(0), npos);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type            outPosition,
@@ -3833,7 +3841,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
     return privateInsertRaw(outPosition, other.data() + position, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type        position,
@@ -3856,7 +3864,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
     return privateInsertRaw(position, characterString, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                                               size_type        position,
@@ -3869,7 +3877,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
                   CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(size_type position,
                                                       size_type numChars,
@@ -3889,7 +3897,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(size_type position,
     return privateReplaceRaw(position, size_type(0), numChars, character);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
                                                       CHAR_TYPE      character)
@@ -3916,8 +3924,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
     typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 #endif
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 BSLSTL_INSERT_RETURN_TYPE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
@@ -3934,7 +3942,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
 
 #undef BSLSTL_INSERT_RETURN_TYPE
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
@@ -3949,7 +3957,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
     return begin() + pos;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(size_type position,
                                                      size_type numChars)
@@ -3972,7 +3980,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(size_type position,
     return *this;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator position)
 {
@@ -3991,7 +3999,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator position)
     return dstPosition;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator first,
                                                      const_iterator last)
@@ -4014,7 +4022,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator first,
     return dstFirst;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::pop_back()
 {
@@ -4024,7 +4032,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::pop_back()
     CHAR_TRAITS::assign(*(begin() + length()), CHAR_TYPE());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                size_type           outPosition,
@@ -4052,7 +4060,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                              replacement.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                size_type           outPosition,
@@ -4091,7 +4099,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                              numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               size_type        outPosition,
@@ -4122,7 +4130,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                              numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               size_type        outPosition,
@@ -4137,7 +4145,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                    CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(size_type outPosition,
                                                        size_type outNumChars,
@@ -4165,7 +4173,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(size_type outPosition,
                              character);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                const_iterator      first,
@@ -4193,7 +4201,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                              replacement.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               const_iterator   first,
@@ -4222,7 +4230,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                              numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                               const_iterator   first,
@@ -4241,7 +4249,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                    CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                                       const_iterator first,
@@ -4266,8 +4274,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
     return privateReplaceRaw(outPosition, outNumChars, numChars, character);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
-template <typename INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
@@ -4291,7 +4299,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                   stringLast);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
 {
@@ -4311,7 +4319,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::swap(basic_string& other)
 
                      // *** 21.3.3 iterators: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin() const
@@ -4319,7 +4327,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::begin() const
     return this->dataPtr();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cbegin() const
@@ -4327,7 +4335,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cbegin() const
     return begin();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end() const
@@ -4335,7 +4343,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::end() const
     return begin() + this->d_length;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cend() const
@@ -4343,7 +4351,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::cend() const
     return end();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin() const
@@ -4351,7 +4359,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rbegin() const
     return const_reverse_iterator(end());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crbegin() const
@@ -4359,14 +4367,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crbegin() const
     return const_reverse_iterator(end());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rend() const
 {
     return const_reverse_iterator(begin());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reverse_iterator
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crend() const
 {
@@ -4375,7 +4383,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::crend() const
 
                       // *** 21.3.4 capacity: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size() const
@@ -4383,7 +4391,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size() const
     return this->d_length;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::length() const
@@ -4391,7 +4399,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::length() const
     return this->d_length;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::max_size() const
@@ -4403,7 +4411,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::max_size() const
     return allocMaxSize < stringMaxSize ? allocMaxSize : stringMaxSize;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::capacity() const
@@ -4411,7 +4419,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::capacity() const
     return this->d_capacity;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 bool basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::empty() const
 {
@@ -4420,7 +4428,7 @@ bool basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::empty() const
 
                    // *** 21.3.5 element access: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator[](
@@ -4431,7 +4439,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator[](
     return *(begin() + position);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position) const
 {
@@ -4445,7 +4453,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::at(size_type position) const
     return *(begin() + position);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front() const
@@ -4455,7 +4463,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::front() const
     return *begin();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_reference
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back() const
@@ -4465,7 +4473,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back() const
     return *(end() - 1);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::copy(CHAR_TYPE *characterString,
                                                     size_type  numChars,
@@ -4487,7 +4495,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::copy(CHAR_TYPE *characterString,
 
                  // *** 21.3.7 string operations: ***
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_pointer
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::c_str() const
@@ -4495,7 +4503,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::c_str() const
     return this->dataPtr();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::const_pointer
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::data() const
@@ -4503,7 +4511,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::data() const
     return this->dataPtr();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::allocator_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
@@ -4511,7 +4519,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::get_allocator() const
     return BloombergLP::bslalg::ContainerBase<allocator_type>::allocator();
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                                            const basic_string&  substring,
@@ -4520,7 +4528,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
     return find(substring.data(), position, substring.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                                                const CHAR_TYPE *substring,
@@ -4551,7 +4559,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
     return npos;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                                                const CHAR_TYPE *substring,
@@ -4562,7 +4570,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
     return find(substring, position, CHAR_TRAITS::length(substring));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(CHAR_TYPE character,
                                                     size_type position) const
@@ -4577,7 +4585,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(CHAR_TYPE character,
     return result ? result - this->dataPtr() : npos;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                             const basic_string& substring,
@@ -4586,7 +4594,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
     return rfind(substring.data(), position, substring.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                               const CHAR_TYPE *characterString,
@@ -4614,7 +4622,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
     return npos;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                                               const CHAR_TYPE *characterString,
@@ -4627,7 +4635,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                  CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(CHAR_TYPE character,
                                                      size_type position) const
@@ -4635,7 +4643,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(CHAR_TYPE character,
     return rfind(&character, position, size_type(1));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                            const basic_string& characterString,
@@ -4646,7 +4654,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                          characterString.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                               const CHAR_TYPE *characterString,
@@ -4669,7 +4677,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
     return npos;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                               const CHAR_TYPE *characterString,
@@ -4682,7 +4690,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                          CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                                                       CHAR_TYPE character,
@@ -4691,7 +4699,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
     return find_first_of(&character, position, size_type(1));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                            const basic_string& characterString,
@@ -4702,7 +4710,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                         characterString.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                               const CHAR_TYPE *characterString,
@@ -4729,7 +4737,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
     return npos;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                               const CHAR_TYPE *characterString,
@@ -4742,7 +4750,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                         CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                                                       CHAR_TYPE character,
@@ -4751,7 +4759,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
     return find_last_of(&character, position, size_type(1));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                            const basic_string& characterString,
@@ -4762,7 +4770,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                              characterString.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                               const CHAR_TYPE *characterString,
@@ -4786,7 +4794,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
     return npos;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                               const CHAR_TYPE *characterString,
@@ -4799,7 +4807,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                              CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                                                       CHAR_TYPE character,
@@ -4808,7 +4816,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
     return find_first_not_of(&character, position, size_type(1));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                            const basic_string& characterString,
@@ -4819,7 +4827,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                             characterString.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                               const CHAR_TYPE *characterString,
@@ -4843,7 +4851,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
     return npos;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                               const CHAR_TYPE *characterString,
@@ -4856,7 +4864,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                             CHAR_TRAITS::length(characterString));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
                                                       CHAR_TYPE character,
@@ -4865,7 +4873,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
     return find_last_not_of(&character, position, size_type(1));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(size_type position,
                                                       size_type numChars) const
@@ -4875,7 +4883,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(size_type position,
                         ALLOCATOR>(*this, position, numChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                const basic_string& other) const
 {
@@ -4885,7 +4893,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                              other.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                               size_type            position,
                                               size_type            numChars,
@@ -4902,7 +4910,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
     return privateCompareRaw(position, numChars, other.data(), other.length());
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                        size_type           lhsPosition,
                                        size_type           lhsNumChars,
@@ -4933,7 +4941,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                              otherNumChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                   const CHAR_TYPE *other) const
 {
@@ -4945,7 +4953,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                              CHAR_TRAITS::length(other));
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                           size_type        lhsPosition,
                                           size_type        lhsNumChars,
@@ -4968,7 +4976,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                              otherNumChars);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                   size_type        lhsPosition,
                                                   size_type        lhsNumChars,
@@ -5299,7 +5307,7 @@ bool operator>=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
     return !(lhs < rhs);
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& rhs)
@@ -5335,7 +5343,7 @@ operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
     return result;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const CHAR_TYPE                                      *lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  rhs)
@@ -5351,7 +5359,7 @@ operator+(const CHAR_TYPE                                      *lhs,
     return result;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(CHAR_TYPE                                            lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& rhs)
@@ -5363,7 +5371,7 @@ operator+(CHAR_TYPE                                            lhs,
     return result;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
           const CHAR_TYPE                                      *rhs)
@@ -5379,7 +5387,7 @@ operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  lhs,
     return result;
 }
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>& lhs,
           CHAR_TYPE                                            rhs)
@@ -5592,7 +5600,7 @@ namespace BloombergLP {
 
 namespace bslalg {
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
     : bsl::true_type
 {};
@@ -5601,7 +5609,7 @@ struct HasStlIterators<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
 
 namespace bslmf {
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
     : IsBitwiseMoveable<ALLOC>
 {};
@@ -5610,9 +5618,9 @@ struct IsBitwiseMoveable<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
 
 namespace bslma {
 
-template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOC>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 struct UsesBslmaAllocator<bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> >
-    : bsl::is_convertible<Allocator*, ALLOC>
+    : bsl::is_convertible<Allocator *, ALLOC>
 {};
 
 }  // close package namespace

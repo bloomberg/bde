@@ -132,6 +132,10 @@ BSLS_IDENT("$Id: $")
 //  Node value: 4
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
 #endif
@@ -225,9 +229,9 @@ class TreeIterator
 
     explicit TreeIterator(const bslalg::RbTreeNode *node);
         // Create an iterator at the specified 'position'.  The behavior is
-        // undefined unless 'node' is of the parameterized 'NODE', which
-        // is derived from 'bslalg::RbTreeNode.  Note that this constructor is
-        // an implementation detail and is not part of the C++ standard.
+        // undefined unless 'node' is of the parameterized 'NODE', which is
+        // derived from 'bslalg::RbTreeNode.  Note that this constructor is an
+        // implementation detail and is not part of the C++ standard.
 
     TreeIterator(const NcIter& original);
         // Create an iterator at the same position as the specified 'original'
@@ -287,10 +291,10 @@ template <class VALUE1, class VALUE2, class NODEPTR, class DIFF>
 bool operator==(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
                 const TreeIterator<VALUE2, NODEPTR, DIFF>& rhs);
     // Return 'true' if the specified 'lhs' and the specified 'rhs' iterators
-    // have the same value and 'false' otherwise.  Two iterators have
-    // the same value if they refer to the same position in the same tree, or
-    // if both iterators are at an invalid position in the tree (i.e., the
-    // 'end' of the tree, or the default constructed value).
+    // have the same value and 'false' otherwise.  Two iterators have the same
+    // value if they refer to the same position in the same tree, or if both
+    // iterators are at an invalid position in the tree (i.e., the 'end' of the
+    // tree, or the default constructed value).
 
 template <class VALUE1, class VALUE2, class NODEPTR, class DIFF>
 bool operator!=(const TreeIterator<VALUE1, NODEPTR, DIFF>& lhs,
@@ -316,9 +320,9 @@ operator--(TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>& iter, int);
     // unless the iterator refers to the past-the-end or the non-leftmost
     // element in the tree.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                      // ------------------
                      // class TreeIterator

@@ -262,12 +262,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_DEQUE
-#include <bslstl_deque.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_DEQUE
+#include <bslstl_deque.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL

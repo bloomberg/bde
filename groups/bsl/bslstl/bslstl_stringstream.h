@@ -20,9 +20,9 @@ BSLS_IDENT("$Id: $")
 // '<bsl_sstream.h>' instead.
 //
 // This component defines a class template, 'bsl::basic_stringstream',
-// implementing a standard stream that provides a constructor and
-// manipulator ('str') that allow clients to directly set the internal sequence
-// of characters that is accessed (or modified) by the stream, as well as an
+// implementing a standard stream that provides a constructor and manipulator
+// ('str') that allow clients to directly set the internal sequence of
+// characters that is accessed (or modified) by the stream, as well as an
 // accessor ('str') for obtaining a string having the same sequence of
 // characters to which the stream currently refers (see 27.8.5 [stringstream]
 // of the C++11 standard).  This component also defines two standard aliases,
@@ -249,7 +249,7 @@ struct UsesBslmaAllocator<
 
 namespace bsl {
 
-// ==========================================================================
+// ============================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE:Provide an STL-compliant 'unordered_map' container.
+//@PURPOSE: Provide an STL-compliant 'unordered_map' container.
 //
 //@CLASSES:
 //   bsl::unordered_map : STL-compliant 'unordered_map' container
@@ -648,7 +648,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that the loading factor has been (roughly) cut in half; we have
 // achieved our goal.  Also notice that the bucket count is unchanged since
-// construction; thus, there were no rehashs during the loading this unordered
+// construction; thus, there were no rehashes during the loading this unordered
 // map.  Finally, notice that the number of empty (unused) buckets is
 // significantly higher, and there's been a modest decrease in the largest
 // bucket size, but more instances of them.
@@ -1335,8 +1335,8 @@ class unordered_map {
     const_local_iterator end(size_type index) const;
     const_local_iterator cend(size_type index) const;
         // Return a local iterator providing non-modifiable access to the
-        // past-the-end element in the sequence of 'value_type' objects of
-        // the bucket having the specified 'index' in the array of buckets
+        // past-the-end element in the sequence of 'value_type' objects of the
+        // bucket having the specified 'index' in the array of buckets
         // maintained by this unordered map.  The behavior is undefined unless
         // 'index < bucket_count()'.
 
@@ -1468,9 +1468,9 @@ void swap(unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 namespace bsl
 {

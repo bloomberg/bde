@@ -45,8 +45,8 @@ BSLS_IDENT("$Id: $")
 // a type that uses 'bslma::Allocator' for memory allocation, then each
 // constructor also has an optional 'bslma::Allocator' pointer argument.
 // Whether or not a type uses 'bslma::Allocator' is determined by querying the
-// 'bslma::UsesBslmaAllocator' trait for that type.  This component
-// also defines a full set of equality and relational operators which can be
+// 'bslma::UsesBslmaAllocator' trait for that type.  This component also
+// defines a full set of equality and relational operators which can be
 // instantiated if 'T1' and 'T2' both provide those operators.
 //
 // A 'bsl::pair' declares a set of associated type traits which are computed
@@ -60,8 +60,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_trivially_default_constructible
 //..
 // In addition, a 'bsl::pair' specialization has the
-// 'bslma::UsesBslmaAllocator' trait if *either* 'T1' or 'T2' have
-// that trait, or both.
+// 'bslma::UsesBslmaAllocator' trait if *either* 'T1' or 'T2' have that trait,
+// or both.
 //
 ///Usage
 ///-----
@@ -266,24 +266,24 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISPAIR
-#include <bslmf_ispair.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
-#include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
-#include <bslmf_istriviallycopyable.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include <bslmf_isbitwiseequalitycomparable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
-#include <bslmf_isbitwiseequalitycomparable.h>
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -639,9 +639,9 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
 
 namespace bsl {
@@ -983,9 +983,9 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                                TYPE TRAITS
-// ===========================================================================
+// ============================================================================
 
 namespace bsl {
 

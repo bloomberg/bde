@@ -24,14 +24,14 @@ BSLS_IDENT("$Id: $")
 // type whose salient attributes are its size (number of keys) and the set of
 // keys the 'unordered_set' contains, without regard to their order.  If
 // 'unordered_set' is instantiated with a key type that is not itself
-// value-semantic, then it will not retain all of its value-semantic
-// qualities.  In particular, if the key type cannot be tested for equality,
-// then an 'unordered_set' containing that type cannot be tested for equality.
-// It is even possible to instantiate 'unordered_set' with a key type that does
-// not have an accessible copy-constructor, in which case the 'unordered_set'
-// will not be copyable.  Note that the equality operator for each element is
-// used to determine when two 'unordered_set' objects have the same value, and
-// not the equality comparator supplied at construction.
+// value-semantic, then it will not retain all of its value-semantic qualities.
+// In particular, if the key type cannot be tested for equality, then an
+// 'unordered_set' containing that type cannot be tested for equality.  It is
+// even possible to instantiate 'unordered_set' with a key type that does not
+// have an accessible copy-constructor, in which case the 'unordered_set' will
+// not be copyable.  Note that the equality operator for each element is used
+// to determine when two 'unordered_set' objects have the same value, and not
+// the equality comparator supplied at construction.
 //
 // An 'unordered_set' meets the requirements of an unordered associative
 // container with forward iterators in the C++11 standard [unord].  The
@@ -261,8 +261,8 @@ BSLS_IDENT("$Id: $")
 ///Practical Requirements on 'HASH'
 ///--------------------------------
 // An important factor in the performance an unordered set (and any of the
-// other unordered containers) is the choice of hash function.  Please see
-// the discussion in {'bslstl_unorderedmap'|Practical Requirements on 'HASH'}.
+// other unordered containers) is the choice of hash function.  Please see the
+// discussion in {'bslstl_unorderedmap'|Practical Requirements on 'HASH'}.
 //
 ///Usage
 ///-----
@@ -1055,9 +1055,9 @@ void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& x,
     // is undefined is unless either this object was created with the same
     // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //--------------------
                         // class unordered_set

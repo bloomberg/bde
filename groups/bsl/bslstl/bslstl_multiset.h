@@ -441,10 +441,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_treenodepool.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
 #endif
@@ -459,6 +455,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLALG_RBTREEUTIL
 #include <bslalg_rbtreeutil.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
@@ -956,8 +956,8 @@ class multiset {
 };
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
-    bool operator==(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
-                    const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
+bool operator==(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
+                const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'multiset' objects have the same
     // value if they have the same number of keys, and each key that is
@@ -966,8 +966,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // "equality-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
-    bool operator!=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
-                    const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
+bool operator!=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
+                const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'multiset' objects do not have
     // the same value if they do not have the same number of keys, or some keys
@@ -976,8 +976,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // 'KEY' be "equality-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
-    bool operator< (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
-                    const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
+bool operator< (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
+                const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' value is less than the specified
     // 'rhs' value, and 'false' otherwise.  A multiset, 'lhs', has a value that
     // is less than that of 'rhs', if, for the first non-equal corresponding
@@ -987,8 +987,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // type 'KEY' be "less-than-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
-    bool operator> (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
-                    const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
+bool operator> (const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
+                const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' value is greater than the specified
     // 'rhs' value, and 'false' otherwise.  A multiset, 'lhs', has a value that
     // is greater than that of 'rhs', if, for the first non-equal corresponding
@@ -998,8 +998,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // "less-than-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
-    bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
-                    const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
+bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
+                const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' value is less-than or equal-to the
     // specified 'rhs' value, and 'false' otherwise.  A multiset, 'lhs', has a
     // value that is less-than or equal-to that of 'rhs', if, for the first
@@ -1010,8 +1010,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // "less-than-comparable" (see {Requirements on 'KEY'}).
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
-    bool operator<=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
-                    const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
+bool operator<=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
+                const multiset<KEY, COMPARATOR, ALLOCATOR>& rhs);
     // Return 'true' if the specified 'lhs' value is greater-than or equal-to
     // the specified 'rhs' value, and 'false' otherwise.  A multiset, 'lhs',
     // has a value that is greater-than or equal-to that of 'rhs', if, for the
@@ -1023,8 +1023,8 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
 
 // specialized algorithms:
 template <class KEY, class COMPARATOR, class ALLOCATOR>
-    void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
-              multiset<KEY, COMPARATOR, ALLOCATOR>& b);
+void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
+          multiset<KEY, COMPARATOR, ALLOCATOR>& b);
     // Swap both the value and the comparator of the specified 'a' object with
     // the value and comparator of the specified 'b' object.  Additionally if
     // 'bslstl::AllocatorTraits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1034,9 +1034,9 @@ template <class KEY, class COMPARATOR, class ALLOCATOR>
     // behavior is undefined is unless either this object was created with the
     // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                              // -----------------
                              // class DataWrapper
@@ -1126,7 +1126,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::multiset(
         // The following loop guarantees amortized linear time to insert an
         // ordered sequence of values (as required by the standard).   If the
         // values are in sorted order, we are guaranteed the next node can be
-        // inseted as the right child of the previous node, and can call
+        // inserted as the right child of the previous node, and can call
         // 'insertAt' without 'findUniqueInsertLocation'.
 
         insert(*first);

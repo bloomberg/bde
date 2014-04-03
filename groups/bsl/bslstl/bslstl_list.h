@@ -493,12 +493,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ITERATOR
-#include <bslstl_iterator.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include <bslstl_iterator.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
@@ -513,32 +513,28 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
-#include <bslmf_enableif.h>
+#ifndef INCLUDED_BSLMF_ISENUM
+#include <bslmf_isenum.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISENUM
-#include <bslmf_isenum.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -547,6 +543,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 namespace bsl {
@@ -1030,7 +1030,7 @@ class list
         // TBD: It would be better to use 'std::is_arithmetic' (a currently
         // unavailable metafunction) instead of 'is_fundamental' in the
         // 'enable_if' expression.
-    : d_alloc_and_size(allocator, size_type(-1))
+    : d_alloc_and_size(basicAllocator, size_type(-1))
     {
         // MS Visual Studio 2008 compiler requires that a function using
         // enable_if be in-place inline.
@@ -1309,7 +1309,7 @@ class list
         // Insert a new element at the front of this list using
         // "copy-insertion" from the specified value 'value'.
 
-    void push_back(const VALUE& vaule);
+    void push_back(const VALUE& value);
         // Append a new element to the end of this list using "copy-insertion"
         // from the specified value 'value'.
 
@@ -1677,9 +1677,9 @@ void swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs);
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                   INLINE AND TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ---------------------
                         // struct bsl::List_Node
@@ -2136,20 +2136,20 @@ list<VALUE, ALLOCATOR>::~list()
 
 // MANIPULATORS
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& original)
+list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& rhs)
 {
-    if (this == &original) {
+    if (this == &rhs) {
         return *this;                                                 // RETURN
     }
 
     if (AllocTraits::propagate_on_container_copy_assignment::value &&
-        allocator() != original.allocator()) {
+        allocator() != rhs.allocator()) {
         // Completely destroy and rebuild list using new allocator.
 
         // Create a new list with the new allocator.  This operation might
         // throw, so we do it before destroying the old list.
 
-        list temp(original.get_allocator());
+        list temp(rhs.get_allocator());
 
         // Clear existing list and leave in an invalid but destructible state.
 
@@ -2157,14 +2157,14 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& original)
 
         // Assign allocator (required not to throw).
 
-        allocator() = original.allocator();
+        allocator() = rhs.allocator();
 
         // Now swap lists, leaving 'temp' in an invalid but destructible state.
 
         quick_swap(temp);
     }
 
-    assign(original.begin(), original.end());
+    assign(rhs.begin(), rhs.end());
     return *this;
 }
 

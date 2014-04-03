@@ -169,10 +169,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_CONTAINERBASE
-#include <bslalg_containerbase.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
 #endif
@@ -183,6 +179,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #include <bslstl_stdexceptutil.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_CONTAINERBASE
+#include <bslalg_containerbase.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
@@ -1137,9 +1137,9 @@ class Deque_Guard {
         // Return a pointer after the item the last item in the guarded range.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
 
                              // ---------------------
@@ -2047,29 +2047,29 @@ deque<VALUE_TYPE,ALLOCATOR>::deque(INPUT_ITER       first,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-deque<VALUE_TYPE,ALLOCATOR>::deque(const deque<VALUE_TYPE,ALLOCATOR>& rhs)
+deque<VALUE_TYPE,ALLOCATOR>::deque(const deque<VALUE_TYPE,ALLOCATOR>& original)
 : Deque_Base<VALUE_TYPE>()
-, ContainerBase(rhs)
+, ContainerBase(original)
 {
     deque temp(RAW_INIT, this->get_allocator());
-    temp.privateInit(rhs.size());
-    temp.privateAppend(rhs.begin(),
-                       rhs.end(),
+    temp.privateInit(original.size());
+    temp.privateAppend(original.begin(),
+                       original.end(),
                        std::random_access_iterator_tag());
     Deque_Util::move(static_cast<Base*>(this), static_cast<Base *>(&temp));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE,ALLOCATOR>::deque(
-                             const deque<VALUE_TYPE,ALLOCATOR>& rhs,
+                             const deque<VALUE_TYPE,ALLOCATOR>& original,
                              const ALLOCATOR&                   basicAllocator)
 : Deque_Base<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
     deque temp(RAW_INIT, this->get_allocator());
-    temp.privateInit(rhs.size());
-    temp.privateAppend(rhs.begin(),
-                       rhs.end(),
+    temp.privateInit(original.size());
+    temp.privateAppend(original.begin(),
+                       original.end(),
                        std::random_access_iterator_tag());
     Deque_Util::move(static_cast<Base*>(this), static_cast<Base *>(&temp));
 }

@@ -856,25 +856,24 @@ class unordered_multiset
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this multi-set having the
         // specified 'key', where the the first iterator is positioned at the
-        // start of the sequence, and the second is positioned one past the
-        // end of the sequence.  If this multi-set contains no 'value_type'
-        // objects having 'key', then the two returned iterators will have the
-        // same value.
+        // start of the sequence, and the second is positioned one past the end
+        // of the sequence.  If this multi-set contains no 'value_type' objects
+        // having 'key', then the two returned iterators will have the same
+        // value.
 
     size_type erase(const key_type& key);
         // Remove from this multi-set all 'value_type' objects having the
-        // specified 'key', if they exist, and return the number of
-        // object erased; otherwise, if there is no 'value_type' object having
-        // 'key', return 0 with no other effect.
+        // specified 'key', if they exist, and return the number of object
+        // erased; otherwise, if there is no 'value_type' object having 'key',
+        // return 0 with no other effect.
 
     iterator erase(const_iterator position);
-        // Remove from this multi-set the 'value_type' object at the
-        // specified 'position', and return an iterator referring to the
-        // element immediately following the removed element, or to the
-        // past-the-end position if the removed element was the last element in
-        // the sequence of elements maintained by this multi-set.  The behavior
-        // is undefined unless 'position' refers to a 'value_type' object in
-        // this multi-set.
+        // Remove from this multi-set the 'value_type' object at the specified
+        // 'position', and return an iterator referring to the element
+        // immediately following the removed element, or to the past-the-end
+        // position if the removed element was the last element in the sequence
+        // of elements maintained by this multi-set.  The behavior is undefined
+        // unless 'position' refers to a 'value_type' object in this multi-set.
 
     iterator erase(const_iterator first, const_iterator last);
         // Remove from multi-set the 'value_type' objects starting at the
@@ -900,20 +899,20 @@ class unordered_multiset
         // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}).
 
     iterator insert(const_iterator hint, const value_type& value);
-        // Insert the specified 'value' into multi-set (in constant
-        // time if the specified 'hint' is a valid element in the bucket to
-        // which 'value' belongs);  if a 'value_type' object having the same
-        // key (according to 'key_equal') as 'value' already exists in this
-        // set, this method is guaranteed to insert 'value' in a position
-        // contiguous to another value in the set having the same key.  Return
-        // an iterator referring to the newly inserted 'value_type' object.  If
-        // 'hint' is not a position in the bucket of the key of 'value', this
-        // operation will have worst case O[N] and average case constant time
-        // complexity, where 'N' is the size of multi-set.  The behavior is
-        // undefined unless 'hint' is a valid iterator into this unordered
-        // multi set.  This method requires that the (template parameter) type
-        // 'KEY' be "copy-constructible" (see {Requirements on 'KEY'}), and
-        // that '*hint' is an element contained in this container.
+        // Insert the specified 'value' into multi-set (in constant time if the
+        // specified 'hint' is a valid element in the bucket to which 'value'
+        // belongs);  if a 'value_type' object having the same key (according
+        // to 'key_equal') as 'value' already exists in this set, this method
+        // is guaranteed to insert 'value' in a position contiguous to another
+        // value in the set having the same key.  Return an iterator referring
+        // to the newly inserted 'value_type' object.  If 'hint' is not a
+        // position in the bucket of the key of 'value', this operation will
+        // have worst case O[N] and average case constant time complexity,
+        // where 'N' is the size of multi-set.  The behavior is undefined
+        // unless 'hint' is a valid iterator into this unordered multi set.
+        // This method requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}), and that '*hint'
+        // is an element contained in this container.
 
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
@@ -1055,9 +1054,9 @@ class unordered_multiset
         // or even close to that size without running out of resources.
 
     float max_load_factor() const;
-        // Return the maximum load factor allowed for this container.  If
-        // an insert operation would cause 'load_factor' to exceed
-        // the 'max_load_factor', that same insert operation will increase the
+        // Return the maximum load factor allowed for this container.  If an
+        // insert operation would cause 'load_factor' to exceed the
+        // 'max_load_factor', that same insert operation will increase the
         // number of buckets and rehash the elements of the container into
         // those buckets the (see rehash).
 
@@ -1117,9 +1116,9 @@ void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& x,
     // is undefined is unless either this object was created with the same
     // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //-------------------------
                         // class unordered_multiset

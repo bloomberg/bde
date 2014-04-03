@@ -485,12 +485,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_PAIR
-#include <bslstl_pair.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_MAPCOMPARATOR
 #include <bslstl_mapcomparator.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_PAIR
+#include <bslstl_pair.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
@@ -509,10 +509,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_treenodepool.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
 #endif
@@ -529,6 +525,9 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_rbtreeutil.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
@@ -593,8 +592,8 @@ class multimap {
         // that if the allocator is stateless, it takes up no space.
         //
         // TBD: This struct should eventually be replaced by the use of a
-        // general EBO-enabled component that provides a 'pair'-like
-        // interface or a 'tuple'.
+        // general EBO-enabled component that provides a 'pair'-like interface
+        // or a 'tuple'.
 
         NodeFactory d_pool;  // pool of 'Node' objects
 
@@ -619,13 +618,13 @@ class multimap {
         // node-allocator for this tree.
 
     Comparator& comparator();
-        // Return a reference providing modifiable access to the
-        // comparator for this tree.
+        // Return a reference providing modifiable access to the comparator for
+        // this tree.
 
     void quickSwap(multimap& other);
         // Efficiently exchange the value and comparator of this object with
-        // the value of the specified 'other' object.  This method provides
-        // the no-throw exception-safety guarantee.  The behavior is undefined
+        // the value of the specified 'other' object.  This method provides the
+        // no-throw exception-safety guarantee.  The behavior is undefined
         // unless this object was created with the same allocator as 'other'.
 
     // PRIVATE ACCESSORS
@@ -634,8 +633,8 @@ class multimap {
         // node-allocator for this tree.
 
     const Comparator& comparator() const;
-        // Return a reference providing non-modifiable access to the
-        // comparator for this tree.
+        // Return a reference providing non-modifiable access to the comparator
+        // for this tree.
 
   public:
     // PUBLIC TYPES
@@ -1170,9 +1169,9 @@ void swap(multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>& a,
     // behavior is undefined is unless either this object was created with the
     // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                              // -----------------
                              // class DataWrapper
@@ -1262,7 +1261,7 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
         // The following loop guarantees amortized linear time to insert an
         // ordered sequence of values (as required by the standard).   If the
         // values are in sorted order, we are guaranteed the next node can be
-        // inseted as the right child of the previous node, and can call
+        // inserted as the right child of the previous node, and can call
         // 'insertAt' without 'findUniqueInsertLocation'.
 
         insert(*first);

@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // The C++11 standard [23.6.4] declares any container type supporting
 // operations 'front', 'push_back', and 'pop_back' can be used to instantiate
 // the parameterized type 'CONTAINER'.  Below is a list of public methods of
-// 'priority_queue' class that are effectively implementationed based on
+// 'priority_queue' class that are effectively implementated as calling the
 // corresponding operations in the held container (referenced as 'c').
 //  +--------------------------------------+---------------------------+
 //  | Public methods in 'priority_queue'   | Operation in 'CONTAINER'  |
@@ -310,6 +310,10 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //..
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
 #endif
@@ -534,9 +538,9 @@ template <class VALUE, class CONTAINER, class COMPARATOR>
 void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
           priority_queue<VALUE, CONTAINER, COMPARATOR>& rhs);
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                          // --------------------
                          // class priority_queue

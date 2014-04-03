@@ -39,13 +39,13 @@ BSLS_IDENT("$Id: $")
 ///-----------------
 // The type supplied as 'ALLOCATOR' template parameter in some of 'queue'
 // constructors determines how the held container (of parameterized
-// 'CONTAINER') will allocate memory.  A 'queue' supports
-// allocators meeting the requirements of the C++11 standard [17.6.3.5] as long
-// as the held container does.  In addition it supports scoped-allocators
-// derived from the 'bslma_Allocator' memory allocation protocol.  Clients
-// intending to use 'bslma' style allocators should use 'bsl::allocator' as the
-// 'ALLOCATOR' template parameter, providing a C++11 standard-compatible
-// adapter for a 'bslma_Allocator' object.
+// 'CONTAINER') will allocate memory.  A 'queue' supports allocators meeting
+// the requirements of the C++11 standard [17.6.3.5] as long as the held
+// container does.  In addition it supports scoped-allocators derived from the
+// 'bslma_Allocator' memory allocation protocol.  Clients intending to use
+// 'bslma' style allocators should use 'bsl::allocator' as the 'ALLOCATOR'
+// template parameter, providing a C++11 standard-compatible adapter for a
+// 'bslma_Allocator' object.
 //
 ///Operations
 ///----------
@@ -170,6 +170,10 @@ BSLS_IDENT("$Id: $")
 // Note that the sequence of messages popped from the queue will be in exactly
 // the same order in which they were pushed, due to the first-in-first-out
 // property of the queue.
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
@@ -429,9 +433,9 @@ void swap(queue<VALUE, CONTAINER>& lhs,
     // Swap the value of the specified 'lhs' queue with the value of the
     // specified 'rhs' queue.
 
-// ==========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                               // -----------
                               // class queue

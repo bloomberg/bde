@@ -20,30 +20,30 @@ BSLS_IDENT("$Id: $")
 // the C++11 standard ([allocator.traits]) as a uniform mechanism for accessing
 // nested types within, and operations on, any standard-conforming allocator.
 // An 'allocator_traits' specialization is stateless, and all of its member
-// functions are static.  In most cases, facilities of 'allocator_traits'
-// are straight pass-throughs for the same facilities from the 'ALLOC'
-// template parameter.  For example, 'allocator_traits<X>::pointer' is the
-// same as 'X::pointer' and 'allocator_traits<X>::allocate(x, n)' is the same
-// as 'x.allocate(n)'.  The advantage of using 'allocator_traits' instead of
+// functions are static.  In most cases, facilities of 'allocator_traits' are
+// straight pass-throughs for the same facilities from the 'ALLOC' template
+// parameter.  For example, 'allocator_traits<X>::pointer' is the same as
+// 'X::pointer' and 'allocator_traits<X>::allocate(x, n)' is the same as
+// 'x.allocate(n)'.  The advantage of using 'allocator_traits' instead of
 // directly using the allocator is that the 'allocator_traits' interface can
 // supply parts of the interface that are missing from 'ALLOC'.  In fact, the
 // most important purpose of 'allocator_traits' is to provide implementations
-// of C++11 allocator features that were absent in C++03, thus allowing a
-// C++03 allocator to work with C++11 containers.
+// of C++11 allocator features that were absent in C++03, thus allowing a C++03
+// allocator to work with C++11 containers.
 //
 // This component provides a full C++11 interface for 'allocator_traits', but
 // constrains the set of allocator types on which it may be instantiated.
 // Specifically, this implementation does not provide defaults for C++03 types
-// and functions, and has hard-wired implementations of the new C++11
-// features.  Thus, the 'allocator_traits' template cannot be instantiated on
-// an allocator type that does not provide a full compliment of types and
-// functions required by the C++03 standard, and it will ignore any special
-// C++11 features specified in 'ALLOC'.  This limitation exists because
-// Bloomberg does not need the full functionality of the C++11 model, but needs
-// only to distinguish between C++03 allocators and allocators that implement
-// the BSLMA allocator model (see {'bslstl_allocator'}).  The full feature set
-// of 'allocator_traits' would require a lot of resources for implementation
-// and (especially) testing.  Moreover, a full implementation would require
+// and functions, and has hard-wired implementations of the new C++11 features.
+// Thus, the 'allocator_traits' template cannot be instantiated on an allocator
+// type that does not provide a full compliment of types and functions required
+// by the C++03 standard, and it will ignore any special C++11 features
+// specified in 'ALLOC'.  This limitation exists because Bloomberg does not
+// need the full functionality of the C++11 model, but needs only to
+// distinguish between C++03 allocators and allocators that implement the BSLMA
+// allocator model (see {'bslstl_allocator'}).  The full feature set of
+// 'allocator_traits' would require a lot of resources for implementation and
+// (especially) testing.  Moreover, a full implementation would require
 // metaprogramming that is too advanced for the feature set of the compilers
 // currently in use at Bloomberg.  This interface is useful, however, as a way
 // to future-proof containers against the eventual implementation of the full
@@ -58,15 +58,15 @@ BSLS_IDENT("$Id: $")
 // this component are tuned to Bloomberg's needs.  The 'construct' member
 // function will automatically forward the allocator to the constructed object
 // iff the 'ALLOC' parameter is convertible from 'bslma::Allocator*' and the
-// object being constructed has the 'bslma::UsesBslmaAllocator' type
-// trait, as per standard Bloomberg practice.  The
+// object being constructed has the 'bslma::UsesBslmaAllocator' type trait, as
+// per standard Bloomberg practice.  The
 // 'select_on_container_copy_construction' static member will return a
 // default-constructed allocator iff 'ALLOC' is convertible from
 // 'bslma::Allocator *' because bslma allocators should not be copied when a
-// container is copy-constructed; otherwise this function will return a copy
-// of the allocator, as per C++03 container rules.  The other propagation
-// traits all have a 'false' value, so allocators are not propagated on
-// assignment or swap.
+// container is copy-constructed; otherwise this function will return a copy of
+// the allocator, as per C++03 container rules.  The other propagation traits
+// all have a 'false' value, so allocators are not propagated on assignment or
+// swap.
 //
 // Note that use of this component will differ from a strict following of the
 // C++03 standard, as the 'construct' and 'destroy' methods of the
@@ -461,8 +461,8 @@ struct allocator_traits {
     ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE& stdAllocator,
                                          false_type);
         // Return the specified 'stdAllocator'.  Note that this function is
-        // called only when the (template parameter) 'ALLOCATOR_TYPE' is not
-        // a bslma allocator.
+        // called only when the (template parameter) 'ALLOCATOR_TYPE' is not a
+        // bslma allocator.
 
     static
     ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE&, true_type);
@@ -687,9 +687,9 @@ struct allocator_traits {
         // defined, and 'false_type' otherwise.
 };
 
-// ===========================================================================
+// ============================================================================
 //          INLINE AND TEMPLATE STATIC MEMBER FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 template <class ALLOCATOR_TYPE>
 inline

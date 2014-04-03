@@ -104,9 +104,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Memory Allocation
 ///-----------------
-// The type supplied as the 'ALLOCATOR' template parameter determines how
-// this container will allocate memory.  The 'unordered_multimap' template
-// supports allocators meeting the requirements of the C++11 standard
+// The type supplied as the 'ALLOCATOR' template parameter determines how this
+// container will allocate memory.  The 'unordered_multimap' template supports
+// allocators meeting the requirements of the C++11 standard
 // [allocator.requirements], and in addition it supports scoped-allocators
 // derived from the 'bslma::Allocator' memory allocation protocol.  Clients
 // intending to use 'bslma' style allocators should use the template's default
@@ -276,8 +276,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Creating a Concordance
 ///- - - - - - - - - - - - - - - - -
-// Unordered multimap are useful in situations when there is no meaningful
-// way to compare key values, when the order of the keys is irrelevant to the
+// Unordered multimap are useful in situations when there is no meaningful way
+// to compare key values, when the order of the keys is irrelevant to the
 // problem domain, or (even if there is a meaningful ordering) the benefit of
 // ordering the results is outweighed by the higher performance provided by
 // unordered maps (compared to ordered maps).
@@ -765,7 +765,7 @@ class unordered_multimap
     local_iterator end(size_type index);
         // Return a local iterator providing modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects of the
-        // bucket having the specified 'index's , in the array of buckets
+        // bucket having the specified 'index's, in the array of buckets
         // maintained by this multi-map.
 
     template <class SOURCE_TYPE>
@@ -1031,9 +1031,9 @@ void swap(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& x,
     // is undefined is unless either this object was created with the same
     // allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         //-------------------------
                         // class unordered_multimap
