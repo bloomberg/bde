@@ -18,7 +18,8 @@ BDE_OSS_TOOLS_ETC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/etc/bde-oss-tools
 BDE_TOOLS_LIBEXEC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/libexec/bde-tools
 BDE_OSS_TOOLS_LIBEXEC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/libexec/bde-oss-tools
 
-PATH:=$(BDE_OSS_TOOLS_LIBEXEC):$(BDE_TOOLS_LIBEXEC):$(PREFIX)/bin::/opt/swt/bin:/usr/bin:/bin:/usr/ccs/bin:$(PATH)
+BDE_SETWAFENV=$(BDE_TOOLS_LIBEXEC)/bde_setwafenv.py
+WAF=$(BDE_OSS_TOOLS_LIBEXEC)/waf
 
 GROUPS_RSSUITE:=bsl
 
@@ -50,7 +51,6 @@ clean: config-control
 	rm -rf etc
 
 etc/default.opts:
-	echo $(PATH)
 	mkdir -p etc
 	cp $(BDE_OSS_TOOLS_ETC)/default.opts etc/
 	cp $(BDE_TOOLS_ETC)/default_internal.opts etc/
@@ -60,8 +60,8 @@ define flavor-template-dynamic-32
 .PHONY: $(1)-build-dynamic-32
 $(1)-build-dynamic-32: etc/default.opts
 ifneq ($(GROUPS_DYNAMIC),)
-	eval `BDE_ROOT=. bde_setwafenv.py -t $(1) --force_uplid $(UPLID)`; \
-	PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_BSL_SONAME=libbsl_$(RSSUITE).so BDE_ROOT=. waf configure build --target \
+	eval `BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`; \
+	PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_BSL_SONAME=libbsl_$(RSSUITE).so BDE_ROOT=. $(WAF) configure build --target \
 	$(call join-with,$(comma),$(GROUPS_DYNAMIC))
 endif
 
@@ -73,8 +73,8 @@ define flavor-template-dynamic-64
 .PHONY: $(1)-build-dynamic-64
 $(1)-build-dynamic-64: etc/default.opts
 ifneq ($(GROUPS_DYNAMIC),)
-	eval `BDE_ROOT=. bde_setwafenv.py -t $(1) --force_uplid $(UPLID)`; \
-	PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_BSL_SONAME=libbsl_$(RSSUITE).so BDE_ROOT=. waf configure build --target \
+	eval `BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`; \
+	PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_BSL_SONAME=libbsl_$(RSSUITE).so BDE_ROOT=. $(WAF) configure build --target \
 	$(call join-with,$(comma),$(GROUPS_DYNAMIC))
 endif
 
@@ -86,8 +86,8 @@ define flavor-template-static-32
 .PHONY: $(1)-build-static-32
 $(1)-build-static-32: etc/default.opts
 ifneq ($(GROUPS_STATIC),)
-	eval `BDE_ROOT=. bde_setwafenv.py -t $(1) --force_uplid $(UPLID)`;	\
-	PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport waf configure build --lib-suffix .$(1) --install-flat-include --target $(call join-with,$(comma),$(GROUPS_STATIC))
+	eval `BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`;	\
+	PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport $(WAF) configure build --lib-suffix .$(1) --install-flat-include --target $(call join-with,$(comma),$(GROUPS_STATIC))
 endif
 
 endef
@@ -98,8 +98,8 @@ define flavor-template-static-64
 .PHONY: $(1)-build-static-64
 $(1)-build-static-64: etc/default.opts
 ifneq ($(GROUPS_STATIC),)
-	eval `BDE_ROOT=. bde_setwafenv.py -t $(1) --force_uplid $(UPLID)`;	\
-	PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport waf configure build --lib-suffix .$(1) --install-flat-include --install-lib-dir lib64 --target $(call join-with,$(comma),$(GROUPS_STATIC))
+	eval `BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`;	\
+	PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport $(WAF) configure build --lib-suffix .$(1) --install-flat-include --install-lib-dir lib64 --target $(call join-with,$(comma),$(GROUPS_STATIC))
 endif
 
 endef
