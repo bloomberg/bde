@@ -161,7 +161,7 @@ typedef bdex_TestOutStream Out;
  #endif
 //
      return bdet_Datetime(1900 + gmtTime.tm_year,
-                          gmtTime.tm_mon,
+                          gmtTime.tm_mon + 1,
                           gmtTime.tm_mday,
                           gmtTime.tm_hour,
                           gmtTime.tm_min,
