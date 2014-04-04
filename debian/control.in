@@ -21,3 +21,9 @@ Architecture: any
 Description: BSL
  groups/bsl development files
 
+Package: libbdl-dev
+Depends: libbsl-dev
+Architecture: any
+Description: BDL
+ groups/bdl development files
+
