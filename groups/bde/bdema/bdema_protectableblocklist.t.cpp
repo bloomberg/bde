@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
                   }
                   LOOP2_ASSERT( actualSize, DATA[i].d_expectedResult,
                                 actualSize == DATA[i].d_expectedResult);
-                  ASSERT( testDispenser.lastAllocateNumBytes() ==
+                  ASSERT( testDispenser.lastAllocatedNumBytes() ==
                           DATA[i].d_actualAlloc);
               } END_BDEMA_EXCEPTION_TEST
           }
