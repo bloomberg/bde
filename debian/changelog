@@ -1,3 +1,11 @@
+bsl-internal (2.20.1.2) unstable; urgency=low
+
+  * fc86e26 [APPROVAL] origin/review/merge-bdldfp-to-releases-2.20.x to releases/2.20.x
+  * 0fd27f9 correction, bdl version 2.20.1
+  * 2c97f68 bump bdl version to 2.20.2
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Apr 2014 11:44:45 -0400
+
 bsl-internal (2.20.1.1) unstable; urgency=low
 
   * Bump changelog
