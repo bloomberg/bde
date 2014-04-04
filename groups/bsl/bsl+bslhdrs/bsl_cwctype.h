@@ -29,9 +29,6 @@ namespace bsl
 {
     // Import selected symbols into bsl namespace
 
-    using native_std::wctype_t;
-    using native_std::wint_t;
-    using native_std::wctrans_t;
     using native_std::iswalnum;
     using native_std::iswalpha;
     using native_std::iswcntrl;
@@ -48,7 +45,10 @@ namespace bsl
     using native_std::towlower;
     using native_std::towupper;
     using native_std::wctrans;
+    using native_std::wctrans_t;
     using native_std::wctype;
+    using native_std::wctype_t;
+    using native_std::wint_t;
 }
 
 #endif

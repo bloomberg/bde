@@ -30,7 +30,6 @@ namespace bsl
     // Import selected symbols into bsl namespace
 
     //using native_std::allocator;
-    using native_std::new_handler;
     using native_std::advance;
     using native_std::auto_ptr;
     using native_std::bad_alloc;
@@ -39,6 +38,7 @@ namespace bsl
     using native_std::get_temporary_buffer;
     using native_std::input_iterator_tag;
     using native_std::iterator;
+    using native_std::new_handler;
     using native_std::nothrow;
     using native_std::nothrow_t;
     using native_std::output_iterator_tag;

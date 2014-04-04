@@ -44,13 +44,13 @@ namespace bsl
     using native_std::messages_byname;
     using native_std::money_base;
     using native_std::money_get;
+    using native_std::money_put;
     using native_std::moneypunct;
     using native_std::moneypunct_byname;
-    using native_std::money_put;
     using native_std::num_get;
+    using native_std::num_put;
     using native_std::numpunct;
     using native_std::numpunct_byname;
-    using native_std::num_put;
     using native_std::time_base;
     using native_std::time_get;
     using native_std::time_get_byname;

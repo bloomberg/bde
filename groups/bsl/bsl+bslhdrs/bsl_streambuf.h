@@ -45,8 +45,6 @@ namespace bsl
     using native_std::wstreambuf;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    using native_std::terminate_handler;
-    using native_std::unexpected_handler;
     using native_std::bad_exception;
     using native_std::bidirectional_iterator_tag;
     using native_std::ctype;
@@ -65,8 +63,10 @@ namespace bsl
     using native_std::set_unexpected;
     using native_std::swap;
     using native_std::terminate;
+    using native_std::terminate_handler;
     using native_std::uncaught_exception;
     using native_std::unexpected;
+    using native_std::unexpected_handler;
     using native_std::use_facet;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }

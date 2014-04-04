@@ -29,11 +29,9 @@ namespace bsl
 {
     // Import selected symbols into bsl namespace
 
-    using native_std::clock_t;
-    using native_std::time_t;
-    using native_std::tm;
     using native_std::asctime;
     using native_std::clock;
+    using native_std::clock_t;
     using native_std::ctime;
     using native_std::difftime;
     using native_std::gmtime;
@@ -41,6 +39,8 @@ namespace bsl
     using native_std::mktime;
     using native_std::strftime;
     using native_std::time;
+    using native_std::time_t;
+    using native_std::tm;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::size_t;

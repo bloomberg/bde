@@ -29,9 +29,6 @@ namespace bsl
 {
     // Import selected symbols into bsl namespace
 
-    using native_std::mbstate_t;
-    using native_std::size_t;
-    using native_std::wint_t;
     using native_std::btowc;
     using native_std::fgetwc;
     using native_std::fgetws;
@@ -46,8 +43,10 @@ namespace bsl
     using native_std::mbrtowc;
     using native_std::mbsinit;
     using native_std::mbsrtowcs;
+    using native_std::mbstate_t;
     using native_std::putwc;
     using native_std::putwchar;
+    using native_std::size_t;
     using native_std::swprintf;
     using native_std::swscanf;
     using native_std::ungetwc;
@@ -76,6 +75,7 @@ namespace bsl
     using native_std::wcstol;
     using native_std::wcsxfrm;
     using native_std::wctob;
+    using native_std::wint_t;
     using native_std::wmemchr;
     using native_std::wmemcmp;
     using native_std::wmemcpy;

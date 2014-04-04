@@ -29,12 +29,12 @@ namespace bsl
 {
     // Import selected symbols into bsl namespace
 
-    using native_std::size_t;
     using native_std::memchr;
     using native_std::memcmp;
     using native_std::memcpy;
     using native_std::memmove;
     using native_std::memset;
+    using native_std::size_t;
     using native_std::strcat;
     using native_std::strchr;
     using native_std::strcmp;

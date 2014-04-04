@@ -29,8 +29,6 @@ namespace bsl
 {
     // Import selected symbols into bsl namespace
 
-    using native_std::div_t;
-    using native_std::ldiv_t;
     using native_std::abort;
     using native_std::abs;
     using native_std::atexit;
@@ -40,11 +38,13 @@ namespace bsl
     using native_std::bsearch;
     using native_std::calloc;
     using native_std::div;
+    using native_std::div_t;
     using native_std::exit;
     using native_std::free;
     using native_std::getenv;
     using native_std::labs;
     using native_std::ldiv;
+    using native_std::ldiv_t;
     using native_std::malloc;
     using native_std::mblen;
     using native_std::mbstowcs;
