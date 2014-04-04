@@ -137,12 +137,13 @@
 
 /'bcem'
 /- - - -
- {'bcemt'} provides an interface for messaging using components in the 'bdem'
- package.  In  particular 'bcem_aggregate' (and associated types) provide
- a general-purpose in-core document representation that can be used in
- conjunction with different of serialization mechanisms.  The supported
- serialization mechanisms are {'bdex'} and all {'bdeat'} compliant encoders
- and decoders (such as the BER encoders in 'bdem', {'baexml'}, or {'baejsn'}).
+ {'bcem'} provides components useful for messaging, based on types in the
+ {'bdem'} package.  In particular 'bcem_aggregate' (and associated types)
+ provide a self-describing general-purpose in-core document representation,
+ which is associated with a schema, and that can be used in conjunction
+ various serialization mechanisms.  The supported serialization mechanisms are
+ {'bdex'} as well as all {'bdeat'} compliant encoders and decoders (such as
+ the BER encoders in 'bdem', {'baexml'}, or {'baejsn'}).
 
 /'bcema'
 /- - - -
