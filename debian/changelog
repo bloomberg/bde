@@ -1,3 +1,10 @@
+bde-core (2.20.4.0) unstable; urgency=low
+
+  * 0262472 bump patchversion to 2.20.4
+  * 0f8c348 [APPROVAL] pending/master/btes5-race-bde2.20-drqs50855958 to releases/2.20.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Apr 2014 15:41:36 -0400
+
 bde-core (2.20.3.0) unstable; urgency=low
 
   * Bump changelog
