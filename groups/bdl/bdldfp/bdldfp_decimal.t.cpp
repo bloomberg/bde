@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
 
     switch (test) { case 0:
 
-    case 5: {
+    case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //   Extracted from component header file.
@@ -335,6 +335,480 @@ int main(int argc, char* argv[])
                    BDLDFP_DECIMAL_DD(0.3));
             //..
         }
+    } break;
+
+    case 5: {
+        // --------------------------------------------------------------------
+        // TESTING IOSTREAM OPERATORS
+        // Concerns: do_put correctly handles strings of different character
+        // types, as well as the formatting flags of justification, width, and
+        // capitalization.
+        // Plan:
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose1) bsl::cout << "\nTesting do_put"
+                                << "\n==============" << bsl::endl;
+
+        static const struct {
+            int              d_line;
+            BDEC::Decimal32  d_decimalValue;
+            int              d_width;
+            bool             d_leftJustified;
+            bool             d_internalJustified;
+            bool             d_rightJustified;
+            bool             d_capital;
+            char            *d_expected;
+        } DATA[] = {
+            // L   DECIMAL NUMBER         WIDTH  JUSTIFICATION       CAPITAL
+            // --- ---------------------- ------ --------------      -------
+            {  L_, BDEC::Decimal32(4.25), 0,     true, false, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 1,     true, false, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 2,     true, false, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 3,     true, false, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 4,     true, false, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 5,     true, false, false, false,
+                                                                     "4.25 " },
+            {  L_, BDEC::Decimal32(4.25), 6,     true, false, false, false,
+                                                                    "4.25  " },
+            {  L_, BDEC::Decimal32(4.25), 7,     true, false, false, false,
+                                                                   "4.25   " },
+            {  L_, BDEC::Decimal32(4.25), 8,     true, false, false, false,
+                                                                  "4.25    " },
+            {  L_, BDEC::Decimal32(4.25), 9,     true, false, false, false,
+                                                                 "4.25     " },
+
+            {  L_, BDEC::Decimal32(4.25), 0,     false, true, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 1,     false, true, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 2,     false, true, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 3,     false, true, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 4,     false, true, false, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 5,     false, true, false, false,
+                                                                     " 4.25" },
+            {  L_, BDEC::Decimal32(4.25), 6,     false, true, false, false,
+                                                                    "  4.25" },
+            {  L_, BDEC::Decimal32(4.25), 7,     false, true, false, false,
+                                                                   "   4.25" },
+            {  L_, BDEC::Decimal32(4.25), 8,     false, true, false, false,
+                                                                  "    4.25" },
+            {  L_, BDEC::Decimal32(4.25), 9,     false, true, false, false,
+                                                                 "     4.25" },
+
+            {  L_, BDEC::Decimal32(4.25), 0,     false, false, true, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 1,     false, false, true, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 2,     false, false, true, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 3,     false, false, true, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 4,     false, false, true, false,
+                                                                      "4.25" },
+            {  L_, BDEC::Decimal32(4.25), 5,     false, false, true, false,
+                                                                     " 4.25" },
+            {  L_, BDEC::Decimal32(4.25), 6,     false, false, true, false,
+                                                                    "  4.25" },
+            {  L_, BDEC::Decimal32(4.25), 7,     false, false, true, false,
+                                                                   "   4.25" },
+            {  L_, BDEC::Decimal32(4.25), 8,     false, false, true, false,
+                                                                  "    4.25" },
+            {  L_, BDEC::Decimal32(4.25), 9,     false, false, true, false,
+                                                                 "     4.25" },
+
+            {  L_, BDEC::Decimal32(-4.25), 0,     true, false, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 1,     true, false, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 2,     true, false, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 3,     true, false, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 4,     true, false, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 5,     true, false, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 6,     true, false, false, false,
+                                                                    "-4.25 " },
+            {  L_, BDEC::Decimal32(-4.25), 7,     true, false, false, false,
+                                                                   "-4.25  " },
+            {  L_, BDEC::Decimal32(-4.25), 8,     true, false, false, false,
+                                                                  "-4.25   " },
+            {  L_, BDEC::Decimal32(-4.25), 9,     true, false, false, false,
+                                                                 "-4.25    " },
+
+            {  L_, BDEC::Decimal32(-4.25), 0,     false, true, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 1,     false, true, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 2,     false, true, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 3,     false, true, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 4,     false, true, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 5,     false, true, false, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 6,     false, true, false, false,
+                                                                    "- 4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 7,     false, true, false, false,
+                                                                   "-  4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 8,     false, true, false, false,
+                                                                  "-   4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 9,     false, true, false, false,
+                                                                 "-    4.25" },
+
+            {  L_, BDEC::Decimal32(-4.25), 0,     false, false, true, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 1,     false, false, true, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 2,     false, false, true, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 3,     false, false, true, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 4,     false, false, true, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 5,     false, false, true, false,
+                                                                     "-4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 6,     false, false, true, false,
+                                                                    " -4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 7,     false, false, true, false,
+                                                                   "  -4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 8,     false, false, true, false,
+                                                                  "   -4.25" },
+            {  L_, BDEC::Decimal32(-4.25), 9,     false, false, true, false,
+                                                                 "    -4.25" },
+
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           0,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           1,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           2,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           3,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           4,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           5,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           6,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           7,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           8,     true, false, false, false,
+                                                                  "infinity" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           9,     true, false, false, false,
+                                                                 "infinity " },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                          10,     true, false, false, false,
+                                                                "infinity  " },
+
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
+                                           0,     true, false, false, true,
+                                                                  "INFINITY" },
+
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           0,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           1,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           2,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           3,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           4,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           5,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           6,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           7,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           8,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           9,    true, false, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                          10,    true, false, false, false,
+                                                                "-infinity " },
+
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           0,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           1,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           2,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           3,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           4,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           5,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           6,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           7,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           8,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           9,    false, true, false, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                          10,    false, true, false, false,
+                                                                "- infinity" },
+
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           0,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           1,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           2,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           3,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           4,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           5,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           6,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           7,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           8,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                           9,    false, false, true, false,
+                                                                 "-infinity" },
+            {  L_,
+                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
+                                          10,    false, false, true, false,
+                                                                " -infinity" },
+
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           0,     true, false, false, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           1,     true, false, false, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           2,     true, false, false, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           3,     true, false, false, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           4,     true, false, false, false,
+                                                                      "nan " },
+
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           0,     false, true, false, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           1,     false, true, false, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           2,     false, true, false, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           3,     false, true, false, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           4,     false, true, false, false,
+                                                                      " nan" },
+
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           0,     false, false, true, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           1,     false, false, true, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           2,     false, false, true, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           3,     false, false, true, false,
+                                                                       "nan" },
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           4,     false, false, true, false,
+                                                                      " nan" },
+
+            {  L_,
+                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
+                                           0,     false, true, false, true,
+                                                                       "NAN" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int             LINE     = DATA[ti].d_line;
+            const BDEC::Decimal32 DECIMAL  = DATA[ti].d_decimalValue;
+            const int             WIDTH    = DATA[ti].d_width;
+            const bool            LEFT     = DATA[ti].d_leftJustified;
+            const bool            INTERNAL = DATA[ti].d_internalJustified;
+            const bool            RIGHT    = DATA[ti].d_rightJustified;
+            const bool            CAPITAL  = DATA[ti].d_capital;
+            const char           *EXPECTED = DATA[ti].d_expected;
+
+            {
+                // Test with char strings.
+                bsl::stringstream outdec;
+
+                outdec.width(WIDTH);
+                if (LEFT) {
+                    outdec << bsl::left;
+                }
+                if (INTERNAL) {
+                    outdec << bsl::internal;
+                }
+                if (RIGHT) {
+                    outdec << bsl::right;
+                }
+                if (CAPITAL) {
+                    outdec << bsl::uppercase;
+                }
+                else {
+                    outdec << bsl::nouppercase;
+                }
+                outdec << DECIMAL;
+
+                bsl::string ACTUAL = outdec.str();
+
+                LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
+            }
+            /*
+            {
+                // Test with wchar_t strings.
+                bsl::wstringstream outdec;
+
+                outdec.width(WIDTH);
+                if (LEFT) {
+                    outdec << bsl::left;
+                }
+                if (INTERNAL) {
+                    outdec << bsl::internal;
+                }
+                if (RIGHT) {
+                    outdec << bsl::right;
+                }
+                if (CAPITAL) {
+                    outdec << bsl::uppercase;
+                }
+                else {
+                    outdec << bsl::nouppercase;
+                }
+                outdec << DECIMAL;
+
+                bsl::wstring ACTUAL = outdec.str();
+
+                LOOP_ASSERT(LINE, ACTUAL == EXPECTED_WIDE);
+            }
+            */
+        }
+
     } break;
 
     case 4: {
@@ -2259,6 +2733,201 @@ int main(int argc, char* argv[])
             out << bsl::numeric_limits<unsigned long long>::max();
             ASSERT(out && strlen(bb.str()) < (24 - 1));
             out.clear(); bb.reset();
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("-4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(5e50);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("5e+50" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(5e-50);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("5e-50" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << bsl::uppercase << BDEC::Decimal32(5e50);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("5E+50" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(
+                                      bsl::numeric_limits<double>::infinity());
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("infinity" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << bsl::uppercase << BDEC::Decimal32(
+                                      bsl::numeric_limits<double>::infinity());
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("INFINITY" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(2);
+                out << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("      4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::internal << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("      4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::left << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("4.25      " == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("     +4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << bsl::internal << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("+     4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << bsl::left << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("+4.25     " == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("     -4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::internal << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("-     4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::left << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("-4.25     " == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("     -4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << bsl::internal << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("-     4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << bsl::left << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("-4.25     " == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(12);
+                out << bsl::uppercase << bsl::internal << BDEC::Decimal32(
+                                     -bsl::numeric_limits<double>::infinity());
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("-   INFINITY" == s);
+            }
+
+            {
+                bsl::wostringstream out(pa);
+                out.width(12);
+                out << bsl::uppercase << bsl::internal << BDEC::Decimal32(
+                                     -bsl::numeric_limits<double>::infinity());
+                bsl::wstring s(pa);
+                getStringFromStream(out, &s);
+                ASSERT(L"-   INFINITY" == s);
+            }
         }
 
     } break;

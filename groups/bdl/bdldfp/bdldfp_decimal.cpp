@@ -16,8 +16,8 @@
 // by 8, so it is also alignment friendly).  For simplicity, we use the same
 // size everywhere.  (see buff[48] in the code).
 //
-// 24 characters buffer is used for printing integrals.  Unsigned long long
-// (64 bits) may print 20 digits at its max value.  The test driver contains an
+// 24 characters buffer is used for printing integers.  Unsigned long long (64
+// bits) may print 20 digits at its max value.  The test driver contains an
 // assert to check that 24 is indeed enough.  Why don't we use the
 // numeric_limits<>::digits10?  Because it is "helpfully" broken on MS Visual
 // C++ 2008, reports 18 & not 19.
@@ -136,6 +136,8 @@ NotIsSpace<CHARTYPE>::operator()(CHARTYPE ch) const
 static
 char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
     snprintf(buffer, n, "%#.7HG", *value);
     return buffer;
 }
@@ -143,6 +145,8 @@ char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int n)
 static
 char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
     snprintf(buffer, n, "%.16DG", *value);
     return buffer;
 }
@@ -150,6 +154,8 @@ char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int n)
 static
 char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
     snprintf(buffer, n, "%.34DDG", *value);
     return buffer;
 }
@@ -162,16 +168,22 @@ char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int n)
 
 static
 char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int) {
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
     return decSingleToString(value, buffer);
 }
 
 static
 char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int) {
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
     return decDoubleToString(value, buffer);
 }
 
 static
 char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int) {
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
     return decQuadToString(value, buffer);
 }
 
@@ -229,6 +241,105 @@ read(bsl::basic_istream<CHARTYPE, TRAITS>& in,
         }
     }
     return in;
+}
+
+template <class ITER_TYPE, class CHAR_TYPE>
+ITER_TYPE
+doPutCommon(ITER_TYPE       out,
+            bsl::ios_base&  format,
+            CHAR_TYPE       fillCharacter,
+            char           *buffer)
+    // Widen the specified 'buffer' into a string of the specified 'CHAR_TYPE',
+    // and call 'doPutCommon', using the specified 'format' and
+    // 'fillCharacter'.  Note that because of the overload, 'CHAR_TYPE' is not
+    // 'char'.
+{
+    const int size = strlen(buffer);
+    char *end = buffer + size;
+
+    // Widen the buffer.
+    CHAR_TYPE wbuffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+
+    bsl::use_facet<std::ctype<CHAR_TYPE> >(
+                                  format.getloc()).widen(buffer, end, wbuffer);
+
+    const int width = format.width();
+    const bool show_pos = format.flags() & bsl::ios_base::showpos;
+    const bool has_sign = wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                                                 format.getloc()).widen('-') ||
+                          wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                                                 format.getloc()).widen('+');
+    const bool add_plus_sign = show_pos & !has_sign;  // Do we need to add '+'?
+
+    int surplus = bsl::max(0, width - size);  // Emit this many fillers.
+    if (add_plus_sign) {
+        // Need to add a '+' character.
+        --surplus;
+    }
+
+    CHAR_TYPE *wend = wbuffer + size;
+    CHAR_TYPE *wbuffer_pos = wbuffer;
+
+
+    // Make use of the 'uppercase' flag to fix the capitalization of the
+    // alphabets in the number.
+
+    if (format.flags() & bsl::ios_base::uppercase) {
+        bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                                       format.getloc()).toupper(wbuffer, wend);
+    }
+    else {
+        bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                                       format.getloc()).tolower(wbuffer, wend);
+    }
+
+    switch (format.flags() & bsl::ios_base::adjustfield) {
+      case bsl::ios_base::left: {
+
+          // Left justify. Pad characters to the right.
+
+          if (add_plus_sign) {
+              *out++ = '+';
+          }
+
+          out = bsl::copy(wbuffer_pos, wend, out);
+          out = bsl::fill_n(out, surplus, fillCharacter);
+          break;
+      }
+
+      case bsl::ios_base::internal: {
+
+          // Internal justify. Pad characters after sign.
+
+          if (has_sign) {
+              *out++ = *wbuffer_pos++;
+          }
+          else if (add_plus_sign) {
+              *out++ = '+';
+          }
+
+          out = bsl::fill_n(out, surplus, fillCharacter);
+          out = bsl::copy(wbuffer_pos, wend, out);
+          break;
+      }
+
+      case bsl::ios_base::right:
+      default: {
+
+          // Right justify. Pad characters to the left.
+
+          out = bsl::fill_n(out, surplus, fillCharacter);
+
+          if (add_plus_sign) {
+              *out++ = '+';
+          }
+
+          out = bsl::copy(wbuffer_pos, wend, out);
+          break;
+      }
+    }
+
+    return out;
 }
 
 } // end of anonymous namespace
@@ -3507,50 +3618,35 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::put(iter_type      out,
 template <class CHARTYPE, class OUTPUTITERATOR>
 typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
 DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
-                                                bsl::ios_base& ,
-                                                char_type      ,
+                                                bsl::ios_base& ios_format,
+                                                char_type      fill,
                                                 Decimal32      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
     format(value.data(), buffer, sizeof(buffer));
-    char *end(bsl::find(buffer,
-                        buffer + BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE,
-                        '\0'));
-    //-dk:TODO TBD deal with the various formatting flags
-    bsl::copy(buffer, end, out);
-    return out;
+    return BloombergLP::bdldfp::doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
 typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
 DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
-                                                bsl::ios_base& ,
-                                                char_type      ,
+                                                bsl::ios_base& ios_format,
+                                                char_type      fill,
                                                 Decimal64      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
     format(value.data(), buffer, sizeof(buffer));
-    char *end(bsl::find(buffer,
-                        buffer + BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE,
-                        '\0'));
-    //-dk:TODO TBD deal with the various formatting flags
-    bsl::copy(buffer, end, out);
-    return out;
+    return BloombergLP::bdldfp::doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
 typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
 DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
-                                                bsl::ios_base& ,
-                                                char_type      ,
+                                                bsl::ios_base& ios_format,
+                                                char_type      fill,
                                                 Decimal128     value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
     format(value.data(), buffer, sizeof(buffer));
-    char *end(bsl::find(buffer,
-                        buffer + BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE,
-                        '\0'));
-    //-dk:TODO TBD deal with the various formatting flags
-    bsl::copy(buffer, end, out);
-    return out;
+    return BloombergLP::bdldfp::doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 
                        // Explicit instantiations
