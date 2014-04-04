@@ -232,6 +232,10 @@ BDES_IDENT("$Id: $")
 #include <bcemt_lockguard.h>
 #endif
 
+#ifndef INCLUDED_BCEMT_READLOCKGUARD
+#include <bcemt_readlockguard.h>
+#endif
+
 #ifndef INCLUDED_BCES_ATOMICTYPES
 #include <bces_atomictypes.h>
 #endif
@@ -269,12 +273,28 @@ class btemt_TcpTimerEventManager_ControlChannel {
     // Do not use.
 
     // DATA
-    bteso_SocketHandle::Handle d_fds[2];             // connected socket pair
-    const char                 d_byte;               // signal byte
+    bteso_SocketHandle::Handle  d_fds[2];             // connected socket pair
+    const char                  d_byte;               // signal byte
 
-    int                        d_numServerReads;     // read operations
-    int                        d_numServerBytesRead; // total # of bytes read
-    bces_AtomicInt             d_numPendingRequests; // # of pending requests
+    int                         d_numServerReads;     // read operations
+    int                         d_numServerBytesRead; // total # of bytes read
+    bces_AtomicInt              d_numPendingRequests; // # of pending requests
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    bces_AtomicInt              d_numReinitsAttempted;// number of
+                                                      // reinitializations
+                                                      // attempted
+
+    bdef_Function<void (*)()>   d_managerReinitFunctor;
+                                                      // Reinitialization
+                                                      // function to recover
+                                                      // from forcible closure
+                                                      // of internal socket
+
+    bcemt_RWMutex               d_socketPairLock;     // lock to synchronize
+                                                      // access to socket pair
+#endif
+
 
     // NOT IMPLEMENTED
     btemt_TcpTimerEventManager_ControlChannel(
@@ -282,24 +302,50 @@ class btemt_TcpTimerEventManager_ControlChannel {
     btemt_TcpTimerEventManager_ControlChannel& operator=(
                              const btemt_TcpTimerEventManager_ControlChannel&);
 
+    int initialize();
+        // Initialize this control channel.  Return 0 on success and a
+        // non-zero value otherwise.
+
   public:
     // CREATORS
+#ifdef BTESO_PLATFORM_BSD_SOCKETS
     btemt_TcpTimerEventManager_ControlChannel();
         // Create an instance of this component by instantiating a connected
         // pair of sockets.
+#else
+    btemt_TcpTimerEventManager_ControlChannel(
+                              bdef_Function<void (*)()> managerReinitFunctor);
+        // Create an instance of this component by instantiating a connected
+        // pair of sockets.  Use the specified 'managerReinitFunctor' to
+        // reinitialize the operation of this control channel if a socket in
+        // its pair of internal connected sockets is forcibly closed.  Note
+        // that 'managerReinitFunctor' is relevant only for Windows and is
+        // ignored on platforms supporting BSD sockets.
+#endif
 
     ~btemt_TcpTimerEventManager_ControlChannel();
         // Close the internal sockets and destroy this object.
 
     // MANIPULATORS
-    int clientWrite();
-        // Write the control byte into the client handle.  Return the number of
-        // bytes written on success, and a negative value otherwise.
+    int clientWrite(bool forceWrite = false);
+        // Write the control byte into the client handle.  If the specified
+        // 'forceWrite' is 'true' write to the client handle even if a previous
+        // write is outstanding.  By default, 'forceWrite' is 'false' and the
+        // control byte is not written to the client handle if a previous write
+        // is outstanding.  Return the number of bytes written on success, and
+        // a negative value otherwise.
 
     int serverRead();
         // Read as many bytes as possible from the server buffer without
         // blocking.  Return the number of bytes read on success, and a
         // negative value otherwise.
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    int recreateSocketPair();
+        // Close the current internal socket pair and create a new pair of
+        // connected sockets in its place.  Return 0 on success and a non-zero
+        // value otherwise.
+#endif
 
     // ACCESSORS
     bteso_SocketHandle::Handle& clientFd();
@@ -430,7 +476,6 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     btemt_TcpTimerEventManager(const btemt_TcpTimerEventManager&);
     btemt_TcpTimerEventManager& operator=(const btemt_TcpTimerEventManager&);
 
-  private:
     // PRIVATE MANIPULATORS
     void initialize();
         // Initialize this event manager.
@@ -441,6 +486,19 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     void controlCb();
         // Internal callback method to process control information received
         // on 'd_controlChannel_p.serverFd()'.
+
+    int initiateRead(bool executeInSameThread);
+        // Initiate a read request to the internal control channel's 'serverFd'
+        // so that it is operational and can wait for subsequent writes.  Use
+        // the specified 'executeInSameThread' to specify if the write should
+        // happen in the same or a separate thread.  Return 0 on success and a
+        // non-zero value otherwise.
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    int reinitializeControlChannel();
+        // Reinitialize this event manager's internal control channel.  Return
+        // 0 on success and a non-zero value otherwise.
+#endif
 
   public:
     // CREATORS
@@ -658,6 +716,12 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     bcemt_ThreadUtil::Handle dispatcherThreadHandle() const;
         // Return the thread handle of the dispatcher thread of this object.
 
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    const ControlChannel *controlChannel() const;
+        // Return a pointer providing non-modifiable access to this object's
+        // internal control channel.
+#endif
+
     int isEnabled() const;
         // Return 1 if the dispatch thread is created/running and 0
         // otherwise.
@@ -693,6 +757,13 @@ inline
 bteso_SocketHandle::Handle&
 btemt_TcpTimerEventManager_ControlChannel::clientFd()
 {
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    // The client fd after construction can change only on Windows.  Lock
+    // conditionally to access the client fd.
+ 
+    bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_socketPairLock);
+#endif
+
     return d_fds[0];
 }
 
@@ -700,6 +771,13 @@ inline
 bteso_SocketHandle::Handle&
 btemt_TcpTimerEventManager_ControlChannel::serverFd()
 {
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    // The server fd after construction can change only on Windows.  Lock
+    // conditionally to access the server fd.
+
+    bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_socketPairLock);
+#endif
+
     return d_fds[1];
 }
 
@@ -733,6 +811,15 @@ btemt_TcpTimerEventManager::dispatcherThreadHandle() const
 {
     return d_dispatcher;
 }
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+inline
+const btemt_TcpTimerEventManager_ControlChannel *
+btemt_TcpTimerEventManager::controlChannel() const
+{
+    return d_controlChannel_p.ptr();
+}
+#endif
 
 inline
 bool btemt_TcpTimerEventManager::hasTimeMetrics() const

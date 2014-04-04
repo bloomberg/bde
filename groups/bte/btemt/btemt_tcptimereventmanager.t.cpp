@@ -218,9 +218,13 @@ extern "C" void * case100EntryPoint(void *arg)
 {
     int j = (int)(bsls::Types::IntPtr)arg;
     printf("Thread %d has started\n", j);
-
+    bdef_Function<void (*)()> mgrReinitFunctor;
     btemt_TcpTimerEventManager& em = *pEventManager;
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    btemt_TcpTimerEventManager_ControlChannel chnl(mgrReinitFunctor);
+#else
     btemt_TcpTimerEventManager_ControlChannel chnl;
+#endif
 
     bdef_Function<void (*)()> socketFunctor(
             bdef_BindUtil::bind(&socketCb, &em, &chnl, j));
@@ -630,6 +634,79 @@ extern "C" void *executeTest(void *arg) {
     return arg;
 }
 
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+namespace CASE15 {
+
+struct ReadDataType {
+    bteso_SocketHandle::Handle  d_handle;
+    int                         d_totalBytesToRead;
+    int                         d_numBytesRead;
+    bsls::AtomicInt            *d_numConnsDone_p;
+};
+
+struct WriteDataType {
+    bteso_SocketHandle::Handle d_handle;
+    int                        d_totalBytesToWrite;
+    int                        d_numBytesWritten;
+};
+
+void readData(ReadDataType *readDataArgs)
+{
+    const int SIZE = 1024;
+    char readBuffer[SIZE]  = { 'x' };
+    char expBuffer[SIZE]   = { 'z' };
+    int errorCode = 0;
+    int rc = bteso_SocketImpUtil::read(readBuffer,
+                                       readDataArgs->d_handle,
+                                       SIZE,
+                                       &errorCode);
+    if (rc <= 0) {
+        cout << "ReadData rc: " << rc << " errorCode: " << errorCode << endl;
+        return;
+    }
+
+    ASSERT(rc > 0);
+    readDataArgs->d_numBytesRead += rc;
+    // TBD: Uncomment
+//    ASSERT(0 == bsl::memcmp(readBuffer, expBuffer, rc));
+    //if (0 == (readDataArgs->d_numBytesRead % (1024 * 1024)))
+    //    cout << "Read Data: " << readDataArgs->d_numBytesRead << endl;
+    if (readDataArgs->d_numBytesRead >= readDataArgs->d_totalBytesToRead) {
+        ++(*readDataArgs->d_numConnsDone_p);
+        cout << "Conns Done: " << *readDataArgs->d_numConnsDone_p << endl;
+    }
+    bcemt_ThreadUtil::microSleep(800, 0);
+}
+
+void writeData(WriteDataType *writeDataArgs)
+{
+    if (writeDataArgs->d_numBytesWritten >=
+                                          writeDataArgs->d_totalBytesToWrite) {
+        return;
+    }
+
+    const int SIZE = 1024;
+    char writeBuffer[SIZE] = { 'z' };
+
+    int rc = bteso_SocketImpUtil::write(writeDataArgs->d_handle,
+                                           writeBuffer,
+                                        SIZE);
+
+    if (rc <= 0) {
+        cout << "WriteData rc: " << rc << endl;
+        return;
+    }
+
+    ASSERT(rc > 0);
+    writeDataArgs->d_numBytesWritten += rc;
+//    if (0 == (writeDataArgs->d_numBytesWritten % (1024 * 1024)))
+//        cout << "Written Data: " << writeDataArgs->d_numBytesWritten << endl;
+    bcemt_ThreadUtil::microSleep(800, 0);
+}
+
+}  // close namespace CASE15
+#endif
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -660,7 +737,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
           // ----------------------------------------------------------------
           // TESTING USAGE EXAMPLE
           //   The usage example provided in the component header file must
@@ -710,6 +787,179 @@ int main(int argc, char *argv[])
                       << ": Consuming " << item << bsl::endl;
               }
           }
+      } break;
+
+      case 15: {
+        // -----------------------------------------------------------------
+        // TESTING spinning does not happen on socket kill
+        //
+        // Concern:
+        //
+        // Plan:
+        //
+        // Testing:
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING spinning does not happen" << endl
+                          << "=================================" << endl;
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+        using namespace CASE15;
+
+        for (int i = 0; i < 2; ++i) {
+            Obj mX;  const Obj& X = mX;
+            mX.enable();
+
+            const int NUM_CONNS = 10;
+            bsls::AtomicInt numConnsDone = 0;
+
+            ReadDataType  readDataArgs[NUM_CONNS];
+            WriteDataType writeDataArgs[NUM_CONNS];
+
+            const int NUM_BYTES = 1024 * 1024 * 20;
+
+            for (int j = 0; j < NUM_CONNS/2; ++j) {
+                bteso_SocketHandle::Handle fds[2];
+                rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                                     fds,
+                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+
+                ASSERT(0 == rc);
+
+                readDataArgs[j].d_handle           = fds[0];
+                readDataArgs[j].d_totalBytesToRead = NUM_BYTES;
+                readDataArgs[j].d_numBytesRead     = 0;
+                readDataArgs[j].d_numConnsDone_p   = &numConnsDone;
+
+                writeDataArgs[j].d_handle            = fds[1];
+                writeDataArgs[j].d_totalBytesToWrite = NUM_BYTES;
+                writeDataArgs[j].d_numBytesWritten   = 0;
+
+                bdef_Function<void (*)()> readFunctor, writeFunctor;
+                readFunctor = bdef_BindUtil::bind(readData,
+                                                  &readDataArgs[j]);
+                rc = mX.registerSocketEvent(fds[0],
+                                            bteso_EventType::BTESO_READ,
+                                            readFunctor);
+                ASSERT(0 == rc);
+
+                writeFunctor = bdef_BindUtil::bind(writeData,
+                                                   &writeDataArgs[j]);
+                rc = mX.registerSocketEvent(fds[1],
+                                             bteso_EventType::BTESO_WRITE,
+                                            writeFunctor);
+                ASSERT(0 == rc);
+
+                bcemt_ThreadUtil::microSleep(1000, 0);
+            }
+
+            int numKills = 0;
+            while (numKills < 1) {
+                int errorCode = 0;
+                bteso_SocketHandle::Handle handle;
+                if (1 == i) {
+                    handle = const_cast<
+                               btemt_TcpTimerEventManager_ControlChannel *>(
+                                               X.controlChannel())->clientFd();
+                }
+                else {
+                    handle = const_cast<
+                               btemt_TcpTimerEventManager_ControlChannel *>(
+                                               X.controlChannel())->serverFd();
+                }
+
+                rc = bteso_SocketImpUtil::close(handle, &errorCode);
+                if (rc < 0) {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    continue;
+                }
+                LOOP2_ASSERT(rc, errorCode, 0 == rc);
+
+                ++numKills;
+            }
+
+            //bcemt_ThreadUtil::microSleep(0, 3);
+
+            for (int j = NUM_CONNS/2; j < NUM_CONNS; ++j) {
+                bteso_SocketHandle::Handle fds[2];
+                rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                                     fds,
+                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+                // TBD:
+                //LOOP2_ASSERT(j, rc, 0 == rc);
+
+                readDataArgs[j].d_handle           = fds[0];
+                readDataArgs[j].d_totalBytesToRead = NUM_BYTES;
+                readDataArgs[j].d_numBytesRead     = 0;
+                readDataArgs[j].d_numConnsDone_p   = &numConnsDone;
+
+                writeDataArgs[j].d_handle            = fds[1];
+                writeDataArgs[j].d_totalBytesToWrite = NUM_BYTES;
+                writeDataArgs[j].d_numBytesWritten   = 0;
+
+                bdef_Function<void (*)()> readFunctor, writeFunctor;
+                readFunctor = bdef_BindUtil::bind(readData,
+                                                  &readDataArgs[j]);
+                rc = mX.registerSocketEvent(fds[0],
+                                            bteso_EventType::BTESO_READ,
+                                            readFunctor);
+                ASSERT(0 == rc);
+
+                writeFunctor = bdef_BindUtil::bind(writeData,
+                                                   &writeDataArgs[j]);
+                rc = mX.registerSocketEvent(fds[1],
+                                             bteso_EventType::BTESO_WRITE,
+                                            writeFunctor);
+                ASSERT(0 == rc);
+
+                bcemt_ThreadUtil::microSleep(1000, 0);
+            }
+
+            while (numKills < 3) {
+                int errorCode = 0;
+                bteso_SocketHandle::Handle handle;
+                if (1 == i) {
+                    handle = const_cast<
+                               btemt_TcpTimerEventManager_ControlChannel *>(
+                                               X.controlChannel())->clientFd();
+                }
+                else {
+                    handle = const_cast<
+                               btemt_TcpTimerEventManager_ControlChannel *>(
+                                               X.controlChannel())->serverFd();
+                }
+
+                rc = bteso_SocketImpUtil::close(handle, &errorCode);
+                if (rc < 0) {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    continue;
+                }
+                LOOP2_ASSERT(rc, errorCode, 0 == rc);
+
+                bcemt_ThreadUtil::microSleep(0, 3);
+                ++numKills;
+            }
+
+            while (numConnsDone < NUM_CONNS) {
+                cout << "Waiting for conns to be done: "
+                     << numConnsDone << endl;
+                bcemt_ThreadUtil::microSleep(0, 1);
+            }
+            ASSERT(0 == mX.disable());
+            // TBD
+            //mX.deregisterAll();
+            //
+            //for (int j = 0; j < NUM_CONNS; ++j) {
+            //    bteso_SocketHandle::Handle serverFd = readDataArgs[j].d_handle;
+            //    bteso_SocketHandle::Handle clientFd = writeDataArgs[j].d_handle;
+
+            //    ASSERT(0 == bteso_SocketImpUtil::close(serverFd));
+            //    ASSERT(0 == bteso_SocketImpUtil::close(clientFd));
+            //}
+
+        }
+#endif
       } break;
 
       case 14: {
