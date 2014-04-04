@@ -1,33 +1,9 @@
-// bdlscm_version.cpp                                                 -*-C++-*-
-#include <bdlscm_version.h>
+// bdldfp_decimalplatform.cpp                                         -*-C++-*-
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlscm_version_cpp,"$Id$ $CSID$")
-
-namespace BloombergLP {
-
-#define BDL_VERSION_PATCH 1
-
-#define STRINGIFY2(a) #a
-#define STRINGIFY(a) STRINGIFY2(a)
-
-#define BDLSCM_VERSION_STRING "BLP_LIB_BDL_BDL_" STRINGIFY(BDL_VERSION_MAJOR) \
-                                             "." STRINGIFY(BDL_VERSION_MINOR) \
-                                             "." STRINGIFY(BDL_VERSION_PATCH)
-
-const char *bdlscm::Version::s_ident = "$Id: " BDLSCM_VERSION_STRING " $";
-const char *bdlscm::Version::s_what  = "@(#)" BDLSCM_VERSION_STRING;
-
-const char *bdlscm::Version::BDLSCM_S_VERSION    = BDLSCM_VERSION_STRING;
-const char *bdlscm::Version::s_dependencies      = "";
-const char *bdlscm::Version::s_buildInfo         = "";
-const char *bdlscm::Version::s_timestamp         = "";
-const char *bdlscm::Version::s_sourceControlInfo = "";
-
-}  // close namespace BloombergLP
+#include <bdldfp_decimalplatform.h>
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
