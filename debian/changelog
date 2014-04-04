@@ -1,3 +1,9 @@
+bsl-internal (2.20.1.3) unstable; urgency=low
+
+  * 4c0a035 [APPROVAL] origin/review/fix-safe-failure-in-bdldfp to releases/2.20.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 4 Apr 2014 12:49:02 -0400
+
 bsl-internal (2.20.1.2) unstable; urgency=low
 
   * fc86e26 [APPROVAL] origin/review/merge-bdldfp-to-releases-2.20.x to releases/2.20.x
