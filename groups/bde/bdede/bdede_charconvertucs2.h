@@ -275,8 +275,8 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSL_CSTDLIB
-#include <bsl_cstdlib.h>            // 'bsl::size_t'
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>            // 'bsl::size_t'
 #endif
 
 namespace BloombergLP {
