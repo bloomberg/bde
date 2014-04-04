@@ -68,6 +68,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSL_LOCALE
+#include <bsl_locale.h>
+#endif
+
 #ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
 #endif
