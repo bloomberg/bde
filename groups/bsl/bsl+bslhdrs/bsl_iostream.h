@@ -44,7 +44,17 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
+
+    using native_std::cerr;
+    using native_std::cin;
+    using native_std::clog;
+    using native_std::cout;
+    using native_std::wcerr;
+    using native_std::wcin;
+    using native_std::wclog;
+    using native_std::wcout;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
@@ -52,10 +62,6 @@ namespace bsl
     using native_std::basic_ostream;
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
-    using native_std::cerr;
-    using native_std::cin;
-    using native_std::clog;
-    using native_std::cout;
     using native_std::ctype;
     using native_std::ctype_base;
     using native_std::ctype_byname;
@@ -87,20 +93,7 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
-    using native_std::wcerr;
-    using native_std::wcin;
-    using native_std::wclog;
-    using native_std::wcout;
     using native_std::ws;
-#else
-    using native_std::cerr;
-    using native_std::cin;
-    using native_std::clog;
-    using native_std::cout;
-    using native_std::wcerr;
-    using native_std::wcin;
-    using native_std::wclog;
-    using native_std::wcout;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 

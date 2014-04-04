@@ -28,7 +28,15 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
+
+    using native_std::resetiosflags;
+    using native_std::setbase;
+    using native_std::setfill;
+    using native_std::setiosflags;
+    using native_std::setprecision;
+    using native_std::setw;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
@@ -52,14 +60,8 @@ namespace bsl
     using native_std::ostreambuf_iterator;
     using native_std::output_iterator_tag;
     using native_std::random_access_iterator_tag;
-    using native_std::resetiosflags;
-    using native_std::setbase;
-    using native_std::setfill;
-    using native_std::setiosflags;
-    using native_std::setprecision;
     using native_std::set_terminate;
     using native_std::set_unexpected;
-    using native_std::setw;
     using native_std::swap;
     using native_std::terminate;
     using native_std::terminate_handler;
@@ -67,13 +69,6 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
-#else
-    using native_std::resetiosflags;
-    using native_std::setbase;
-    using native_std::setfill;
-    using native_std::setiosflags;
-    using native_std::setprecision;
-    using native_std::setw;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
