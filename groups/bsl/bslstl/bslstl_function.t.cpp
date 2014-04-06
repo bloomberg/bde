@@ -486,7 +486,8 @@ public:
 
 class NothrowMoveFunctor : public SmallFunctor
 {
-    // A small functor that has a nothrow move constructor
+    // A small functor that is not bitwise movable, but does has a nothrow
+    // move constructor
     
 public:
     explicit NothrowMoveFunctor(int v) : SmallFunctor(v) { }
@@ -512,40 +513,49 @@ public:
         { return a.value() != b.value(); }
 };
 
-static const int k_THROW_ON_MOVE = 0xdeadbeaf;
+int moveLimit = -1; // Allow n moves before throw.  No throw if n < 0.
 
-class ThrowingMoveFunctor : public SmallFunctor
+int decrementMoveLimit()
+    // Decrement 'moveLimit'.  Throw "throw on move" on transition from zero
+    // to negative.
 {
-    // A small functor that whose move constructor is not marked 'noexcept'
-    
+    if (moveLimit >= 0 && --moveLimit < 0) {
+        throw "throw on move";
+    }
+
+    return moveLimit;
+}
+
+class ThrowingSmallFunctor : public SmallFunctor
+{
+    // A small functor whose move constructor might throw.
+   
 public:
-    explicit ThrowingMoveFunctor(int v) : SmallFunctor(v) { }
+    explicit ThrowingSmallFunctor(int v) : SmallFunctor(v) { }
 
-    ThrowingMoveFunctor(const ThrowingMoveFunctor& other)
-        : SmallFunctor(other)
-        { if (value() == k_THROW_ON_MOVE) throw k_THROW_ON_MOVE; }
+    ThrowingSmallFunctor(const ThrowingSmallFunctor& other)
+        : SmallFunctor(other) { decrementMoveLimit(); }
 
-    ~ThrowingMoveFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
+    ~ThrowingSmallFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
-    friend bool operator==(const ThrowingMoveFunctor& a,
-                           const ThrowingMoveFunctor& b)
+    friend bool operator==(const ThrowingSmallFunctor& a,
+                           const ThrowingSmallFunctor& b)
         { return a.value() == b.value(); }
 
-    friend bool operator!=(const ThrowingMoveFunctor& a,
-                           const ThrowingMoveFunctor& b)
+    friend bool operator!=(const ThrowingSmallFunctor& a,
+                           const ThrowingSmallFunctor& b)
         { return a.value() != b.value(); }
 };
 
 class ThrowingEmptyFunctor : public EmptyFunctor
 {
-    // An empty functor that whose move constructor is not marked 'noexcept'
+    // An empty functor whose move constructor might throw.
     
 public:
     explicit ThrowingEmptyFunctor(int v = 0) : EmptyFunctor(v) { }
 
     ThrowingEmptyFunctor(const ThrowingEmptyFunctor& other)
-        : EmptyFunctor(other)
-        { if (this == (void*) k_THROW_ON_MOVE) throw k_THROW_ON_MOVE; }
+        : EmptyFunctor(other) { decrementMoveLimit(); }
 
     ~ThrowingEmptyFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
@@ -1615,7 +1625,11 @@ void testSwap(const Obj& inA,
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
     bslma::TestAllocatorMonitor testAllocMonitor(&testAlloc);
 
+//    testAlloc.setAllocationLimit(0);
+    moveLimit = 0;
     a.swap(b);
+    moveLimit = -1;
+    testAlloc.setAllocationLimit(-1);
     LOOP2_ASSERT(lineA, lineB, areEqualA_p(a2, b));
     LOOP2_ASSERT(lineA, lineB, areEqualB_p(b2, a));
     LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC>::sameAlloc(alloc,
@@ -1632,7 +1646,11 @@ void testSwap(const Obj& inA,
     }
 
     // Swap back using namespace-scope swap
+//    testAlloc.setAllocationLimit(0);
+    moveLimit = 0;
     swap(b, a);
+    moveLimit = -1;
+    testAlloc.setAllocationLimit(-1);
     LOOP2_ASSERT(lineA, lineB, areEqualA_p(a2, a));
     LOOP2_ASSERT(lineA, lineB, areEqualB_p(b2, b));
     LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC>::sameAlloc(alloc,
@@ -1748,12 +1766,13 @@ int main(int argc, char *argv[])
             // Data for one dimension of test
 
             int               d_line;           // Line number
-            Obj               d_function;       // Object to swap
+            Obj               d_function;       // function object to swap
+            const char       *d_funcName;       // function object name
             AreEqualFuncPtr_t d_areEqualFunc_p; // comparison function
         };
 
 #define TEST_ITEM(F, V)                          \
-        { L_, Obj(F(V)),    &AreEqualFunctions<F> }
+        { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F> }
 
         TestData dataA[] = {
             TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
@@ -1765,8 +1784,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(MediumFunctor        , 0x4000            ),
             TEST_ITEM(LargeFunctor         , 0x6000            ),
             TEST_ITEM(NothrowMoveFunctor   , 0x3000            ),
-            TEST_ITEM(ThrowingMoveFunctor  , 0x7000            ),
-//          TEST_ITEM(ThrowingMoveFunctor  , k_THROW_ON_MOVE   ),
+            TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
         };
 
@@ -1782,7 +1800,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(MediumFunctor        , 0x5000            ),
             TEST_ITEM(LargeFunctor         , 0x7000            ),
             TEST_ITEM(NothrowMoveFunctor   , 0x4000            ),
-            TEST_ITEM(ThrowingMoveFunctor  , 0x6000            ),
+            TEST_ITEM(ThrowingSmallFunctor , 0x6000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
         };
 
@@ -1793,14 +1811,20 @@ int main(int argc, char *argv[])
         for (int i = 0; i < dataASize; ++i) {
             const int lineA             = dataA[i].d_line;
             const Obj& funcA            = dataA[i].d_function;
+            const char* funcAName       = dataA[i].d_funcName;
             AreEqualFuncPtr_t areEqualA = dataA[i].d_areEqualFunc_p;
             for (int j = 0; j < dataBSize; ++j) {
                 const int lineB             = dataB[j].d_line;
                 const Obj& funcB            = dataB[j].d_function;
+                const char* funcBName       = dataB[j].d_funcName;
                 AreEqualFuncPtr_t areEqualB = dataB[j].d_areEqualFunc_p;
 
-#define TEST(ALLOC)                                                           \
-     testSwap<ALLOC>(funcA, funcB, areEqualA, areEqualB, lineA, lineB);
+                if (veryVerbose) printf("swap(%s, %s)\n",funcAName,funcBName);
+
+#define TEST(ALLOC) do {                                                      \
+         if (veryVeryVerbose) printf("\tAllocator type = %s\n", #ALLOC);      \
+         testSwap<ALLOC>(funcA, funcB, areEqualA, areEqualB, lineA, lineB);   \
+     } while (false)
 
                 TEST(bslma::TestAllocator *  );
                 TEST(bsl::allocator<char>    );
@@ -1988,14 +2012,14 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, NothrowMoveFunctor(0x3000));
         TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0x3000));
 
-        if (veryVerbose) std::printf("FUNC is ThrowingMoveFunctor(0x7000)\n");
-        TEST(bslma::TestAllocator *  , ThrowingMoveFunctor(0x7000));
-        TEST(bsl::allocator<char>    , ThrowingMoveFunctor(0x7000));
-        TEST(EmptySTLAllocator<char> , ThrowingMoveFunctor(0x7000));
-        TEST(TinySTLAllocator<char>  , ThrowingMoveFunctor(0x7000));
-        TEST(SmallSTLAllocator<char> , ThrowingMoveFunctor(0x7000));
-        TEST(MediumSTLAllocator<char>, ThrowingMoveFunctor(0x7000));
-        TEST(LargeSTLAllocator<char> , ThrowingMoveFunctor(0x7000));
+        if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0x7000)\n");
+        TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000));
+        TEST(bsl::allocator<char>    , ThrowingSmallFunctor(0x7000));
+        TEST(EmptySTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+        TEST(TinySTLAllocator<char>  , ThrowingSmallFunctor(0x7000));
+        TEST(SmallSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+        TEST(MediumSTLAllocator<char>, ThrowingSmallFunctor(0x7000));
+        TEST(LargeSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
 
         if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor()\n");
         TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
@@ -2172,14 +2196,14 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, NothrowMoveFunctor(0x3000));
         TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0x3000));
 
-        if (veryVerbose) std::printf("FUNC is ThrowingMoveFunctor(0x7000)\n");
-        TEST(bslma::TestAllocator *  , ThrowingMoveFunctor(0x7000));
-        TEST(bsl::allocator<char>    , ThrowingMoveFunctor(0x7000));
-        TEST(EmptySTLAllocator<char> , ThrowingMoveFunctor(0x7000));
-        TEST(TinySTLAllocator<char>  , ThrowingMoveFunctor(0x7000));
-        TEST(SmallSTLAllocator<char> , ThrowingMoveFunctor(0x7000));
-        TEST(MediumSTLAllocator<char>, ThrowingMoveFunctor(0x7000));
-        TEST(LargeSTLAllocator<char> , ThrowingMoveFunctor(0x7000));
+        if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0x7000)\n");
+        TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000));
+        TEST(bsl::allocator<char>    , ThrowingSmallFunctor(0x7000));
+        TEST(EmptySTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+        TEST(TinySTLAllocator<char>  , ThrowingSmallFunctor(0x7000));
+        TEST(SmallSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+        TEST(MediumSTLAllocator<char>, ThrowingSmallFunctor(0x7000));
+        TEST(LargeSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
 
         if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor()\n");
         TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
@@ -2405,20 +2429,20 @@ int main(int argc, char *argv[])
         TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0),
                                                           e_INPLACE_FUNC_ONLY);
 
-        if (veryVerbose) std::printf("FUNC is ThrowingMoveFunctor(0)\n");
-        TEST(bslma::TestAllocator *  , ThrowingMoveFunctor(0),
+        if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(bsl::allocator<char>    , ThrowingMoveFunctor(0),
+        TEST(bsl::allocator<char>    , ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(EmptySTLAllocator<char> , ThrowingMoveFunctor(0),
+        TEST(EmptySTLAllocator<char> , ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , ThrowingMoveFunctor(0),
+        TEST(TinySTLAllocator<char>  , ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(SmallSTLAllocator<char> , ThrowingMoveFunctor(0),
+        TEST(SmallSTLAllocator<char> , ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(MediumSTLAllocator<char>, ThrowingMoveFunctor(0),
+        TEST(MediumSTLAllocator<char>, ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
-        TEST(LargeSTLAllocator<char> , ThrowingMoveFunctor(0),
+        TEST(LargeSTLAllocator<char> , ThrowingSmallFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
 
         if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor(0)\n");
@@ -3409,15 +3433,15 @@ int main(int argc, char *argv[])
         {
             // This functor is NOT eligible for the small-object optimization.
             long long preBlocks = globalTestAllocator.numBlocksInUse();
-            ThrowingMoveFunctor ftor(21);
+            ThrowingSmallFunctor ftor(21);
             Obj f(ftor); const Obj& F = f;
             ASSERT(F);
             ASSERT(preBlocks + 1 == globalTestAllocator.numBlocksInUse());
-            ASSERT(typeid(ThrowingMoveFunctor) == F.target_type());
-            ASSERT(F.target<ThrowingMoveFunctor>() &&
-                   ftor == *F.target<ThrowingMoveFunctor>());
-            ASSERT(f.target<ThrowingMoveFunctor>() &&
-                   ftor == *f.target<ThrowingMoveFunctor>());
+            ASSERT(typeid(ThrowingSmallFunctor) == F.target_type());
+            ASSERT(F.target<ThrowingSmallFunctor>() &&
+                   ftor == *F.target<ThrowingSmallFunctor>());
+            ASSERT(f.target<ThrowingSmallFunctor>() &&
+                   ftor == *f.target<ThrowingSmallFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());

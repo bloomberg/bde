@@ -5,9 +5,60 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_objectbuffer.h>
+
 const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
 {
     return "bad_function_call";
+}
+
+bool bsl::Function_Rep::moveInit(Function_Rep& other)
+{
+    // This function is called only when it is known that '*this' will get
+    // its allocator from 'other'.
+
+    bool inplace = true;
+
+    d_funcManager_p = other.d_funcManager_p;
+
+    if (d_funcManager_p) {
+        std::size_t sooFuncSize = d_funcManager_p(e_GET_SIZE, &other,
+                                                  PtrOrSize_t()).asSize_t();
+
+        if (sooFuncSize <= sizeof(InplaceBuffer)) {
+            // Function is inplace.
+
+            // Initialize the rep using other's allocator.
+            other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
+
+            // Move-construct function
+            PtrOrSize_t source =
+                d_funcManager_p(e_GET_TARGET,
+                                const_cast<Function_Rep*>(&other),
+                                PtrOrSize_t());
+            d_funcManager_p(e_MOVE_CONSTRUCT, this, source);
+        }
+        else {
+            // Function is not inplace.
+            // Just move the pointers from other.
+            inplace = false;
+
+            d_objbuf.d_object_p = other.d_objbuf.d_object_p;
+            d_allocManager_p    = other.d_allocManager_p;
+            d_allocator_p       = other.d_allocator_p;
+
+            // Now re-initialize 'other' as an empty object
+            other.d_funcManager_p = NULL;
+            d_allocManager_p(e_INIT_REP, &other, d_allocator_p);
+        }
+    }
+    else {
+        // Moving an empty 'function' object.
+        // Initialize just the allocator portion of the result
+        other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
+    }
+
+    return inplace;
 }
 
 bsl::Function_Rep::PtrOrSize_t
@@ -52,6 +103,41 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
     } // end switch
 
     return PtrOrSize_t();
+}
+
+void bsl::Function_Rep::destructiveMove(Function_Rep *to,
+                                        Function_Rep *from) BSLS_NOTHROW_SPEC
+{
+    // TBD: This is a temporary implementation.  The real implementation will
+    // avoid the possibility of exceptions being thrown and taking advantage
+    // of bitwise-moveable.
+    to->moveInit(*from);
+    from->~Function_Rep();
+}
+
+bsl::Function_Rep::~Function_Rep()
+{
+    // Assert class invariants
+    BSLS_ASSERT(d_allocator_p);
+    BSLS_ASSERT(d_allocManager_p);
+
+    // Integral function size cast to pointer type.
+    PtrOrSize_t sooFuncSize;
+
+    if (d_funcManager_p) {
+        // e_DESTROY returns the size of the object that was destroyed.
+        sooFuncSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
+    }
+
+    d_allocManager_p(e_DESTROY, this, sooFuncSize);
+}
+
+void bsl::Function_Rep::swap(Function_Rep& other) BSLS_NOTHROW_SPEC
+{
+    bsls::ObjectBuffer<Function_Rep> temp;
+    destructiveMove(&temp.object(), &other);
+    destructiveMove(&other, this);
+    destructiveMove(this, &temp.object());
 }
 
 const std::type_info&

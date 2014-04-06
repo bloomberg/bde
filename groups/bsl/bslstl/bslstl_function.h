@@ -420,6 +420,12 @@ class Function_Rep {
     template <class ALLOC>
     friend struct Function_AllocTraits;
 
+    bool moveInit(Function_Rep& other);
+        // Move-initialize this rep from the specified 'other' rep.  Returns
+        // 'true' if the move took was inplace (i.e., function was
+        // move-constructed from one 'd_objbuf' to another) and false
+        // otherwise.
+
     void *initRep(std::size_t sooFuncSize, bslma::Allocator* alloc,
                   integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>);
     template <class TP>
@@ -433,9 +439,9 @@ class Function_Rep {
                   integral_constant<AllocCategory, e_ERASED_STATELESS_ALLOC>);
         // Initialize this object's 'd_objbuf', 'd_allocator_p', and
         // 'd_allocManager_p' fields, allocating (if necessary) enough storage
-        // to hold a function object of the specified 'sooFuncSize' and holding a
-        // copy of 'alloc'.  If the function and allocator fit within
-        // 'd_objbuf', then no memory is allocated.  The actual wrapped
+        // to hold a function object of the specified 'sooFuncSize' and
+        // holding a copy of 'alloc'.  If the function and allocator fit
+        // within 'd_objbuf', then no memory is allocated.  The actual wrapped
         // function object is not initialized, nor is 'd_funcManager_p' set.
 
     bool equalAlloc(bslma::Allocator* alloc,
@@ -474,6 +480,13 @@ class Function_Rep {
                                          Function_Rep  *rep,
                                          PtrOrSize_t    input);
 
+    static void destructiveMove(Function_Rep *to,
+                                Function_Rep *from) BSLS_NOTHROW_SPEC;
+        // Move the state from the specified 'from' location to the specified
+        // 'to' location, where 'to' points to uninitialized storage.  After
+        // the move, 'from' points to uninitialized storage.  The move
+        // is performed using only non-throwing operations.
+
   private:
     // DATA
     mutable InplaceBuffer d_objbuf;  // in-place representation (if fits, as
@@ -497,6 +510,12 @@ class Function_Rep {
                                      // 'ALLOC' is 'bslma::Allocator*'
 
 public:
+    // CREATORS
+    ~Function_Rep();
+
+    // MANIPULATORS
+    void swap(Function_Rep& other) BSLS_NOTHROW_SPEC;
+
     // ACCESSORS
     const std::type_info& target_type() const BSLS_NOTHROW_SPEC;
     template<class TP> TP* target() BSLS_NOTHROW_SPEC;
@@ -646,8 +665,6 @@ class function<RET(ARGS...)> :
 
     template <class ALLOC>
     void copyInit(const ALLOC& alloc, const function& other);
-
-    void moveInit(function& other);
 
 public:
     // PUBLIC TYPES
@@ -1401,52 +1418,6 @@ void bsl::function<RET(ARGS...)>::copyInit(const ALLOC&    alloc,
     }
 }
 
-template <class RET, class... ARGS>
-void bsl::function<RET(ARGS...)>::moveInit(function& other)
-{
-    // This function is called only when it is known that '*this' will get
-    // its allocator from 'other'.
-
-    d_funcManager_p = other.d_funcManager_p;
-    d_invoker_p     = other.d_invoker_p;
-
-    if (d_funcManager_p) {
-        std::size_t sooFuncSize = d_funcManager_p(e_GET_SIZE, &other,
-                                                  PtrOrSize_t()).asSize_t();
-
-        if (sooFuncSize <= sizeof(InplaceBuffer)) {
-            // Function is inplace.
-
-            // Initialize the rep using other's allocator.
-            other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
-
-            // Move-construct function
-            PtrOrSize_t source =
-                d_funcManager_p(e_GET_TARGET,
-                                const_cast<function*>(&other),
-                                PtrOrSize_t());
-            d_funcManager_p(e_MOVE_CONSTRUCT, this, source);
-        }
-        else {
-            // Function is not inplace.
-            // Just move the pointers from other.
-            d_objbuf.d_object_p = other.d_objbuf.d_object_p;
-            d_allocManager_p    = other.d_allocManager_p;
-            d_allocator_p       = other.d_allocator_p;
-
-            // Now re-initialize 'other' as an empty object
-            other.d_funcManager_p = NULL;
-            other.d_invoker_p     = NULL;
-            d_allocManager_p(e_INIT_REP, &other, d_allocator_p);
-        }
-    }
-    else {
-        // Moving an empty 'function' object.
-        // Initialize just the allocator portion of the result
-        other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
-    }
-}
-
 // CREATORS
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
@@ -1567,7 +1538,10 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function(function&& other)
 {
-    moveInit(other);
+    d_invoker_p = other.d_invoker_p;
+    if (! moveInit(other)) {
+        other.d_invoker_p = NULL;
+    }
 }
 
 template <class RET, class... ARGS>
@@ -1579,7 +1553,10 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
     typedef Function_AllocTraits<ALLOC> AllocTraits;
 
     if (other.equalAlloc(alloc, typename AllocTraits::Category())) {
-        moveInit(other);
+        d_invoker_p = other.d_invoker_p;
+        if (! moveInit(other)) {
+            other.d_invoker_p = NULL;
+        }
     }
     else
         copyInit(typename AllocTraits::Type(alloc), other);
@@ -1588,22 +1565,11 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 #endif //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>::~function()
 {
     // Assert class invariants
-    BSLS_ASSERT(d_allocator_p);
-    BSLS_ASSERT(d_allocManager_p);
     BSLS_ASSERT(d_invoker_p || ! d_funcManager_p);
-
-    // Integral function size cast to pointer type.
-    PtrOrSize_t sooFuncSize;
-
-    if (d_funcManager_p) {
-        // Destroy returns the size of the object that was destroyed.
-        sooFuncSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
-    }
-
-    d_allocManager_p(e_DESTROY, this, sooFuncSize);
 }
 
 // MANIPULATORS
@@ -1653,20 +1619,19 @@ bsl::function<RET(ARGS...)>::operator=(FUNC&&)
 template <class RET, class... ARGS>
 void bsl::function<RET(ARGS...)>::swap(function& other) BSLS_NOTHROW_SPEC
 {
-    // TBD: This is a temporary implementation.  The real implementation will
-    // avoid the possibility of exceptions being thrown and taking advantage
-    // of bitwise-moveable.
-    function temp(std::move(other));
-    other.~function();
-    ::new((void*) &other) function(std::move(*this));
-    this->~function();
-    ::new((void*) this) function(std::move(temp));
+    Invoker *thisInvoker  = this->d_invoker_p;
+    Invoker *otherInvoker = other.d_invoker_p;
+
+    Function_Rep::swap(other);
+    this->d_invoker_p = otherInvoker;
+    other.d_invoker_p = thisInvoker;
 }
 
 template <class RET, class... ARGS>
 template<class FUNC, class ALLOC>
 void bsl::function<RET(ARGS...)>::assign(FUNC&&, const ALLOC&)
 {
+    // TBD
 }
 
 template <class RET, class... ARGS>
