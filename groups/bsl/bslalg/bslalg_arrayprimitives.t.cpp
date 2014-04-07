@@ -1219,11 +1219,14 @@ void testRotate(bool bitwiseMoveableFlag,
                 bool,
                 bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_8' elements of
-    // the 'DATA_8' array, that rotating by 'd_m' positions the entries
-    // between 'd_begin' until the 'd_end' indices in a buffer built according
-    // to the 'd_spec' specifications results in a buffer built according to
-    // the 'd_expected' specifications.  The 'd_lineNum' member is used to
-    // report errors.
+    // the 'DATA_8' array, that rotating by 'd_m' positions the entries between
+    // 'd_begin' until the 'd_end' indices in a buffer built according to the
+    // 'd_spec' specifications results in a buffer built according to the
+    // 'd_expected' specifications.  The 'd_lineNum' member is used to report
+    // errors.  If the specified 'bitwiseMoveableFlag' is 'true', check that no
+    // additional copies are made, nor destructors run.  If the optionally
+    // specified 'exceptionSafetyFlag' is 'true', confirm that no memory is
+    // leaked and that the basic exception safety guarantee is honored.
 {
     const int MAX_SIZE = 32;
     static union {
@@ -1332,7 +1335,9 @@ void testErase(bool,
     // index while shifting the entries between 'd_dst' until the 'd_end'
     // indices in a buffer built according to the 'd_spec' specifications
     // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.
+    // The 'd_lineNum' member is used to report errors.  If the optionally
+    // specified 'exceptionSafetyFlag' is 'true', confirm that no memory is
+    // leaked and that the basic exception safety guarantee is honored.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -1873,7 +1878,14 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
     // results in a buffer built according to the 'd_expected' specifications.
     // The 'd_lineNum' member is used to report errors.  In the presence of
     // exceptions, check that the array has the same number of initialized
-    // entries (and no more), although their values are unspecified.
+    // entries (and no more), although their values are unspecified.  If the
+    // specified 'bitwiseMoveableFlag' is 'true', check that no additional
+    // copies are made, nor destructors run.  If the optionally specified
+    // 'exceptionSafetyFlag' is 'true', check that, if an exception is thrown
+    // from the 'moveInsert' call, the array has the same number of initialized
+    // entries (and no more), although their values are unspecified, and
+    // confirm that no memory is leaked, i.e., that the basic exception safety
+    // guarantee is honored.
 {
     const char *INPUT     = "tuvwxyz";
     const char *INPUT_EXP = "_______";  // after move
@@ -2308,9 +2320,14 @@ void testMoveInsert(bool bitwiseMoveableFlag,
     // 'd_dst' index while shifting the 'd_neMove' entries at and after the
     // 'd_dst' index in a buffer built according to the 'd_spec' specifications
     // results in a buffer built according to the 'd_expected' specifications.
-    // The 'd_lineNum' member is used to report errors.  In the presence of
-    // exceptions, check that the array has the same number of initialized
-    // entries (and no more), although their values are unspecified.
+    // The 'd_lineNum' member is used to report errors.  If the specified
+    // 'bitwiseMoveableFlag' is 'true', check that no additional copies are
+    // made, nor destructors run.  If the optionally specified
+    // 'exceptionSafetyFlag' is 'true', check that, if an exception is thrown
+    // from the 'moveInsert' call, the array has the same number of initialized
+    // entries (and no more), although their values are unspecified, and
+    // confirm that no memory is leaked, i.e., that the basic exception safety
+    // guarantee is honored.
 {
     const char *INPUT     = "tuvwxyz";
     const char *INPUT_EXP = "_______";  // after move
