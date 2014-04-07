@@ -2,8 +2,8 @@
 
 #include <bslalg_arrayprimitives.h>
 
-#include <bslalg_scalarprimitives.h>
 #include <bslalg_scalardestructionprimitives.h>
+#include <bslalg_scalarprimitives.h>
 
 #include <bslma_allocator.h>              // for testing only
 #include <bslma_default.h>                // for testing only
@@ -34,7 +34,6 @@
 #pragma bde_verify -FD01  // No function contract
 #pragma bde_verify -TP20  // veryVerbose for loops
 #pragma bde_verify -TP21  // veryVerbose for loops (different check!)
-#pragma bde_verify -TY03  // template parameters must be upper-case
 
 using namespace BloombergLP;
 using namespace std;
@@ -166,10 +165,10 @@ static int numDestructorCalls  = 0;
 
 bslma::TestAllocator *Z;  // initialized at the start of main()
 
-template <class C>
-char getValue(const C& c)
+template <class OBJECT>
+char getValue(const OBJECT& obj)
 {
-    return c.datum();
+    return obj.datum();
 }
 
                                 // ===========
@@ -508,16 +507,14 @@ struct ConstructEnabler {
         return *this;
     }
 
-    operator FuncPtrType() const
-    {
-        FuncPtrType fpt;
-        setValue(&fpt, d_c);
-        return fpt;
-    }
-
     operator char() const
     {
         return d_c;
+    }
+
+    operator int *() const
+    {
+        return (int *) (UintPtr) d_c;
     }
 
     operator void *() const
@@ -525,9 +522,11 @@ struct ConstructEnabler {
         return (void *) (UintPtr) d_c;
     }
 
-    operator int *() const
+    operator FuncPtrType() const
     {
-        return (int *) (UintPtr) d_c;
+        FuncPtrType fpt;
+        setValue(&fpt, d_c);
+        return fpt;
     }
 
     operator MemberFuncPtrType() const
@@ -967,14 +966,14 @@ class CleanupGuard {
     }
 
     // MANIPULATORS
-    void setLength(int length) {
-        d_length = length;
-    }
-
     void release(const char *newSpec) {
         d_spec_p = newSpec;
         d_length = strlen(newSpec);
         d_endPtr_p = 0;
+    }
+
+    void setLength(int length) {
+        d_length = length;
     }
 };
 
@@ -1330,11 +1329,11 @@ void testErase(bool,
                bool,
                bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_7' elements of
-    // the 'DATA_7' array, that erasing the 'd_ne' entries at
-    // the 'd_begin' index while shifting the entries between 'd_dst'
-    // until the 'd_end' indices in a buffer built according to the 'd_spec'
-    // specifications results in a buffer built according to the 'd_expected'
-    // specifications.  The 'd_lineNum' member is used to report errors.
+    // the 'DATA_7' array, that erasing the 'd_ne' entries at the 'd_begin'
+    // index while shifting the entries between 'd_dst' until the 'd_end'
+    // indices in a buffer built according to the 'd_spec' specifications
+    // results in a buffer built according to the 'd_expected' specifications.
+    // The 'd_lineNum' member is used to report errors.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -1486,11 +1485,11 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
                                         bool bitwiseCopyableFlag,
                                         bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_6V' elements of
-    // the 'DATA_6V' array, that inserting the 'd_ne' entries at
-    // the 'd_dst' index while shifting the entries between 'd_dst'
-    // until the 'd_end' indices in a buffer built according to the 'd_spec'
-    // specifications results in a buffer built according to the 'd_expected'
-    // specifications.  The 'd_lineNum' member is used to report errors.
+    // the 'DATA_6V' array, that inserting the 'd_ne' entries at the 'd_dst'
+    // index while shifting the entries between 'd_dst' until the 'd_end'
+    // indices in a buffer built according to the 'd_spec' specifications
+    // results in a buffer built according to the 'd_expected' specifications.
+    // The 'd_lineNum' member is used to report errors.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -2040,11 +2039,11 @@ void testInsertValueN(bool bitwiseMoveableFlag,
                       bool bitwiseCopyableFlag,
                       bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_5V' elements of
-    // the 'DATA_5V' array, that inserting the 'd_ne' entries at
-    // the 'd_dst' index while shifting the entries between 'd_dst'
-    // until the 'd_end' indices in a buffer built according to the 'd_spec'
-    // specifications results in a buffer built according to the 'd_expected'
-    // specifications.  The 'd_lineNum' member is used to report errors.
+    // the 'DATA_5V' array, that inserting the 'd_ne' entries at the 'd_dst'
+    // index while shifting the entries between 'd_dst' until the 'd_end'
+    // indices in a buffer built according to the 'd_spec' specifications
+    // results in a buffer built according to the 'd_expected' specifications.
+    // The 'd_lineNum' member is used to report errors.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -2714,7 +2713,7 @@ static const struct {
 };
 const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
 
-template <typename TYPE>
+template <class TYPE>
 void testUninitializedFillN(bool, // bitwiseMoveableFlag
                             bool bitwiseCopyableFlag,
                             bool exceptionSafetyFlag = false)
@@ -2777,7 +2776,7 @@ void testUninitializedFillN(bool, // bitwiseMoveableFlag
     ASSERT(0 == Z->numBytesInUse());
 }
 
-template <typename TYPE>
+template <class TYPE>
 void testUninitializedFillNBCT(TYPE value)
     // This test function verifies that initializing a subset of a buffer
     // initially filled with junk with a variable number of copies of the
@@ -2931,6 +2930,9 @@ void testUninitializedFillNBCT(TYPE value)
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+#pragma bde_verify push     // Relax formatting rules for clearer exposition
+#pragma bde_verify -FABC01  // Functions in descriptive order, not alphabetic
+
 namespace {
 
 ///Usage
@@ -2987,10 +2989,10 @@ class MyVector {
     }
 
     MyVector(const MyVector& original, bslma::Allocator *basicAllocator = 0);
-        // Create a 'MyVector' object having the same value
-        // as the specified 'original' object.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // Create a 'MyVector' object having the same value as the specified
+        // 'original' object.  Optionally specify a 'basicAllocator' used to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     // ...
 
@@ -3105,6 +3107,7 @@ void MyVector<TYPE>::insert(int dstIndex, int numElements, const TYPE& value)
 
 }  // close unnamed namespace
 
+#pragma bde_verify pop  // End of usage example relaxation
 
 //=============================================================================
 //                              MAIN PROGRAM
