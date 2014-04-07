@@ -266,21 +266,21 @@ doPutCommon(ITER_TYPE       out,
                                   format.getloc()).widen(buffer, end, wbuffer);
 
     const int width = format.width();
-    const bool show_pos = format.flags() & bsl::ios_base::showpos;
-    const bool has_sign = wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+    const bool showPos = format.flags() & bsl::ios_base::showpos;
+    const bool hasSign = wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
                                                  format.getloc()).widen('-') ||
                           wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
                                                  format.getloc()).widen('+');
-    const bool add_plus_sign = show_pos & !has_sign;  // Do we need to add '+'?
+    const bool addPlusSign = showPos & !hasSign;  // Do we need to add '+'?
 
     int surplus = bsl::max(0, width - size);  // Emit this many fillers.
-    if (add_plus_sign) {
+    if (addPlusSign) {
         // Need to add a '+' character.
         --surplus;
     }
 
-    CHAR_TYPE *wend = wbuffer + size;
-    CHAR_TYPE *wbuffer_pos = wbuffer;
+    CHAR_TYPE *wend       = wbuffer + size;
+    CHAR_TYPE *wbufferPos = wbuffer;
 
 
     // Make use of the 'uppercase' flag to fix the capitalization of the
@@ -300,11 +300,11 @@ doPutCommon(ITER_TYPE       out,
 
           // Left justify. Pad characters to the right.
 
-          if (add_plus_sign) {
+          if (addPlusSign) {
               *out++ = '+';
           }
 
-          out = bsl::copy(wbuffer_pos, wend, out);
+          out = bsl::copy(wbufferPos, wend, out);
           out = bsl::fill_n(out, surplus, fillCharacter);
           break;
       }
@@ -313,15 +313,15 @@ doPutCommon(ITER_TYPE       out,
 
           // Internal justify. Pad characters after sign.
 
-          if (has_sign) {
-              *out++ = *wbuffer_pos++;
+          if (hasSign) {
+              *out++ = *wbufferPos++;
           }
-          else if (add_plus_sign) {
+          else if (addPlusSign) {
               *out++ = '+';
           }
 
           out = bsl::fill_n(out, surplus, fillCharacter);
-          out = bsl::copy(wbuffer_pos, wend, out);
+          out = bsl::copy(wbufferPos, wend, out);
           break;
       }
 
@@ -332,11 +332,11 @@ doPutCommon(ITER_TYPE       out,
 
           out = bsl::fill_n(out, surplus, fillCharacter);
 
-          if (add_plus_sign) {
+          if (addPlusSign) {
               *out++ = '+';
           }
 
-          out = bsl::copy(wbuffer_pos, wend, out);
+          out = bsl::copy(wbufferPos, wend, out);
           break;
       }
     }
