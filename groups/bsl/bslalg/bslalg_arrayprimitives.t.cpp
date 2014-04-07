@@ -5,16 +5,17 @@
 #include <bslalg_scalardestructionprimitives.h>
 #include <bslalg_scalarprimitives.h>
 
-#include <bslma_allocator.h>              // for testing only
-#include <bslma_default.h>                // for testing only
-#include <bslma_testallocator.h>          // for testing only
-#include <bslma_testallocatorexception.h> // for testing only
-#include <bsls_alignmentutil.h>           // for testing only
-#include <bsls_objectbuffer.h>            // for testing only
-#include <bsls_platform.h>                // for testing only
-#include <bsls_stopwatch.h>               // for testing only
+#include <bslma_allocator.h>
+#include <bslma_default.h>
 #include <bsls_bsltestutil.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
+#include <bsls_alignmentutil.h>
+#include <bsls_objectbuffer.h>
+
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
 #include <cstdio>
@@ -22,11 +23,9 @@
 #include <cstring>     // strlen()
 #include <ctype.h>     // isalpha()
 
-#pragma bde_verify -FD04    // Missing specified
-#pragma bde_verify -FD07    // Extra specified
-#pragma bde_verify -TP06    // Test plan missing signature
-#pragma bde_verify -TP09    // Test plan missing signature
-#pragma bde_verify -FD03    // Undocumented parameter
+#pragma bde_verify -FD04  // Missing specified
+#pragma bde_verify -FD07  // Extra specified
+#pragma bde_verify -FD03  // Undocumented parameter
 
 #pragma bde_verify -CC01  // C-style casts
 #pragma bde_verify -FD01  // No function contract
@@ -63,16 +62,18 @@ using namespace std;
 // not have those traits.
 //-----------------------------------------------------------------------------
 // bslalg::ArrayPrimitives public interface:
-// [ 2] void uninitializedFillN(T *dstB, ne, const T& v, *a);
+// [ 2] void uninitializedFillN(T *dstB, size_type ne, const T& v, *a);
 // [ 3] void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
+// [  ] void defaultConstruct(T *begin, size_type ne, allocator *a);
 // [ 4] void destructiveMove(T *dstB, T *srcB, T *srcE, *a);
+// [ 6] void destructiveMoveAndInsert(...);
+// [ 6] void destructiveMoveAndMoveInsert(...);
+// [  ] void emplace(T *toBegin, T *toEnd, size_type ne, *a, ...args);
+// [ 7] void erase(T *first, T *middle, T *last, bslma::Allocator *a);
 // [ 5] void insert(T *dstB, T *dstE, const T& v, ne, *a);
 // [ 5] void insert(T *dstB, T *dstE, FWD srcB, FWD srcE, ne, *a);
 // [ 5] void moveInsert(T *dstB, T *dstE, T **srcEp, srcB, srcE, ne, *a);
-// [ 6] void destructiveMoveAndInsert(...);
-// [ 4] void destructiveMoveAndMoveInsert(...);
-// [ 7] void erase(T *srcE, T *srcPos, T *srcE, *a);
-// [ 8] void rotate(T *dstB, T *dstE, n, *a);
+// [ 8] void rotate(T *first, T *middle, T *last);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
@@ -3186,7 +3187,7 @@ int main(int argc, char *argv[])
         //   non prime).
         //
         // Testing:
-        //   void rotate(T *b, T *m, T *e)
+        //   void rotate(T *first, T *middle, T *last);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'rotate'"
@@ -3220,7 +3221,7 @@ int main(int argc, char *argv[])
         //   Let ne = 'e' - 'b'.  Order test data by increasing ne.
         //
         // Testing:
-        //   void erase(T *b, T *e, T *dataEnd, *a);
+        //   void erase(T *first, T *middle, T *last, bslma::Allocator *a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'erase'"
@@ -3312,7 +3313,7 @@ int main(int argc, char *argv[])
         //   (2) 'dstB' + ne <= 'srcB'.
         //
         // Testing:
-        //   void destructiveMove(T *srcB, T *srcE, T *dstB, *a);
+        //   void destructiveMove(T *dstB, T *srcB, T *srcE, *a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'destructiveMove'"
@@ -3332,7 +3333,7 @@ int main(int argc, char *argv[])
         //   (2) 'dstB' + ne <= 'srcB'.
         //
         // Testing:
-        //   void copyConstruct(FWD srcB, FWD srcE, T *dstB, *a);
+        //   void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'copyConstruct'"
@@ -3349,7 +3350,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   void uninitializedFillN(T *b, ne, const T& v, *a);
+        //   void uninitializedFillN(T *dstB, size_type ne, const T& v, *a);
         // --------------------------------------------------------------------
 
 
@@ -3462,13 +3463,14 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This test exercises the component but tests nothing.
         //
         // Concerns:
         //
         // Plan:
         //
         // Testing:
-        //   This test exercises the component but tests nothing.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
