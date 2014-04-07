@@ -3626,7 +3626,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
     format(value.data(), buffer, sizeof(buffer));
-    return BloombergLP::bdldfp::doPutCommon(out, ios_format, fill, &buffer[0]);
+    return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
 typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
@@ -3637,7 +3637,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
     format(value.data(), buffer, sizeof(buffer));
-    return BloombergLP::bdldfp::doPutCommon(out, ios_format, fill, &buffer[0]);
+    return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
 typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
@@ -3648,7 +3648,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
     format(value.data(), buffer, sizeof(buffer));
-    return BloombergLP::bdldfp::doPutCommon(out, ios_format, fill, &buffer[0]);
+    return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 
                        // Explicit instantiations
