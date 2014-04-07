@@ -251,12 +251,12 @@ BDES_IDENT("$Id: $")
 #include <bdex_byteoutstreamformatter.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif
-
 #ifndef INCLUDED_BDEX_OUTSTREAMFUNCTIONS
 #include <bdex_outstreamfunctions.h>
+#endif
+
+#ifndef INCLUDED_BSL_IOS
+#include <bsl_ios.h>
 #endif
 
 #ifndef INCLUDED_BSL_OSTREAM
