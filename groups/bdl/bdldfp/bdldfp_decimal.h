@@ -464,10 +464,10 @@ BSLS_IDENT("$Id$")
 //
 ///Decimal Number Formatting
 ///-------------------------
-// Stream outputting currently supports formatting flags for width,
-// capitalization, and justification.  Because of potential for future
-// improvements in format handling, the operations should not be used for
-// serialization.
+// Streaming decimal floating point nubmers to an output stream currently
+// supports formatting flags for width, capitalization, and justification.
+// Because of potential for future improvements in format handling, the
+// operations should not be used for serialization.
 //
 ///Preliminary Release - Known Bugs
 ///--------------------------------
