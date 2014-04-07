@@ -640,10 +640,6 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
 Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                                             Decimal128 exponent)
 {
-    //BSLS_ASSERT_SAFE(
-    //makeDecimal128(-1999999997, 0) <= exponent);
-    //BSLS_ASSERT_SAFE(                 exponent <= makeDecimal128(99999999, 0));
-
     Decimal128 result = value;
     decQuadScaleB(result.data(), value.data(), exponent.data(), getContext());
     return result;
