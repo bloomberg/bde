@@ -2,6 +2,7 @@
 #include <bdldfp_decimalutil.h>
 
 #include <bdldfp_decimalimplutil.h>
+#include <bdldfp_decimalconvertutil.h>
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
