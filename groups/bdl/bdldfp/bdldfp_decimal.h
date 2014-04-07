@@ -462,6 +462,13 @@ BSLS_IDENT("$Id$")
 // Portable 'Decimal128' literals are created using the 'BDLDFP_DECIMAL_DL'
 // macro.
 //
+///Decimal Number Formatting
+///-------------------------
+// Streaming decimal floating point nubmers to an output stream currently
+// supports formatting flags for width, capitalization, and justification.
+// Because of potential for future improvements in format handling, the
+// operations should not be used for serialization.
+//
 ///Preliminary Release - Known Bugs
 ///--------------------------------
 // Stream output operators do not obey formatting flags or the precision
@@ -3392,7 +3399,12 @@ class DecimalNumPut : public bsl::locale::facet {
         // added to the conversion specifiers of for the types Decimal32, 64
         // and 128, respectively.  Also note that these (possibly overridden)
         // 'do_put' virtual function are used by every formatted C++ stream
-        // output operator call ('out << aDecNumber').
+        // output operator call ('out << aDecNumber').  Note that currently,
+        // only the width, capitalization, and justification formatting flags
+        // are supported, and the operators only support code pages that
+        // include the ASCII sub-range.  Because of potential future
+        // improvements to support additional formatting flags, the operations
+        // should not be used for serialization.
 };
 
                     // =====================================
