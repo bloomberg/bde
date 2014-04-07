@@ -440,7 +440,7 @@ public:
 
 #undef OP_PAREN
 
-    // Invocation operator that sets a the functor's value and returns void.
+    // Invocation operator that sets the functor's value and returns void.
     // To ensure unambiguous overloading resolution, the argument is passed as
     // a null-terminated string, not as an integer.
     void operator()(const char* s) { d_value = std::atoi(s); }
@@ -498,18 +498,31 @@ public:
         { return a.value() != b.value(); }
 };
 
-class NothrowSmallFunctor : public SmallFunctor
+class NothrowSmallFunctor
 {
     // A small functor that is not bitwise movable, but does have a nothrow
     // move constructor
 
+    int d_encodedValue; // Value that is encoded with 'this' address
+
+    int encodeSelf() const {
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        union aliaser { const void *d_ptr; int d_int; };
+        aliaser a;
+        a.d_ptr = this;
+        return a.d_int;
+#else
+        return 0;
+#endif
+    }
+
 public:
-    explicit NothrowSmallFunctor(int v) : SmallFunctor(v) { }
+    explicit NothrowSmallFunctor(int v) : d_encodedValue(v ^ encodeSelf()) { }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
     // Nothrow move and copy constructible
     NothrowSmallFunctor(const NothrowSmallFunctor& other) noexcept
-        : SmallFunctor(other) { }
+        : d_encodedValue(other.value() ^ encodeSelf()) { }
 #else
     // Bitwise moveable -- use if 'noexcept' is not supported.
     BSLMF_NESTED_TRAIT_DECLARATION(NothrowSmallFunctor,
@@ -520,6 +533,13 @@ public:
         std::memset(this, 0xbb, sizeof(*this));
     }
 
+    int operator()(const IntWrapper& iw, int v) {
+        d_encodedValue = (value() + iw.value() + v) ^ encodeSelf();
+        return value();
+    }
+
+    int value() const { return d_encodedValue ^ encodeSelf(); }
+
     friend bool operator==(const NothrowSmallFunctor& a,
                            const NothrowSmallFunctor& b)
         { return a.value() == b.value(); }
@@ -529,17 +549,37 @@ public:
         { return a.value() != b.value(); }
 };
 
-class ThrowingSmallFunctor : public SmallFunctor
+class ThrowingSmallFunctor
 {
-    // A small functor whose move constructor might throw.
-   
+    // A small functor that is not bitwise movable, and whose move constructor
+    // may throw.
+
+    int d_encodedValue; // Value that is encoded with 'this' address
+
+    int encodeSelf() const {
+        union aliaser { const void *d_ptr; int d_int; };
+        aliaser a;
+        a.d_ptr = this;
+        return a.d_int;
+    }
+
 public:
-    explicit ThrowingSmallFunctor(int v) : SmallFunctor(v) { }
+    explicit ThrowingSmallFunctor(int v) : d_encodedValue(v ^ encodeSelf()) { }
 
+    // Throwing move and copy constructor
     ThrowingSmallFunctor(const ThrowingSmallFunctor& other)
-        : SmallFunctor(other) { decrementMoveLimit(); }
+      : d_encodedValue(other.value() ^ encodeSelf()) { decrementMoveLimit(); }
 
-    ~ThrowingSmallFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
+    ~ThrowingSmallFunctor() {
+        std::memset(this, 0xbb, sizeof(*this));
+    }
+
+    int operator()(const IntWrapper& iw, int v) {
+        d_encodedValue = (value() + iw.value() + v) ^ encodeSelf();
+        return value();
+    }
+
+    int value() const { return d_encodedValue ^ encodeSelf(); }
 
     friend bool operator==(const ThrowingSmallFunctor& a,
                            const ThrowingSmallFunctor& b)
