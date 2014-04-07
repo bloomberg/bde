@@ -243,6 +243,24 @@ read(bsl::basic_istream<CHARTYPE, TRAITS>& in,
     return in;
 }
 
+
+template <class ITER_TYPE, class CHAR_TYPE>
+ITER_TYPE fillN(ITER_TYPE iter, int numCharacters, CHAR_TYPE character)
+    // Assign to the specified output 'iter' the specified 'character' the
+    // specified 'numCharacters' times, incrementing 'iter' between each
+    // assignment, and then return the resulting incremented iterator.   Note
+    // that this is an implementation of C++11 standard 'std::fill_n' that has
+    // been specifialized slightly for filling characters; it is provided here
+    // because the C++98 definition of 'fill_n' returns 'void'.
+{
+  while (numCharacters > 0) {
+    *iter = character;
+    ++iter; 
+    --numCharacters;
+  }
+  return iter;
+}
+
 template <class ITER_TYPE, class CHAR_TYPE>
 ITER_TYPE
 doPutCommon(ITER_TYPE       out,
@@ -265,11 +283,11 @@ doPutCommon(ITER_TYPE       out,
     bsl::use_facet<std::ctype<CHAR_TYPE> >(
                                   format.getloc()).widen(buffer, end, wbuffer);
 
-    const int width = format.width();
+    const int  width   = format.width();
     const bool showPos = format.flags() & bsl::ios_base::showpos;
     const bool hasSign = wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
                                                  format.getloc()).widen('-') ||
-                          wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                         wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
                                                  format.getloc()).widen('+');
     const bool addPlusSign = showPos & !hasSign;  // Do we need to add '+'?
 
@@ -305,7 +323,7 @@ doPutCommon(ITER_TYPE       out,
           }
 
           out = bsl::copy(wbufferPos, wend, out);
-          out = bsl::fill_n(out, surplus, fillCharacter);
+          out = fillN(out, surplus, fillCharacter);
           break;
       }
 
@@ -320,7 +338,7 @@ doPutCommon(ITER_TYPE       out,
               *out++ = '+';
           }
 
-          out = bsl::fill_n(out, surplus, fillCharacter);
+          out = fillN(out, surplus, fillCharacter);
           out = bsl::copy(wbufferPos, wend, out);
           break;
       }
@@ -330,7 +348,7 @@ doPutCommon(ITER_TYPE       out,
 
           // Right justify. Pad characters to the left.
 
-          out = bsl::fill_n(out, surplus, fillCharacter);
+          out = fillN(out, surplus, fillCharacter);
 
           if (addPlusSign) {
               *out++ = '+';
