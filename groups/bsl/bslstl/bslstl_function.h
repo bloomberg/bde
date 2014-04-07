@@ -50,6 +50,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
+#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_objectbuffer.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NULLPTR
 #include <bsls_nullptr.h>
 #endif
@@ -277,6 +281,12 @@ class Function_Rep {
             // Call the destructor on the object in 'rep'.  Return the number
             // of bytes needed to hold the destroyed object.  Some managers
             // also deallocate memory.
+
+      , e_DESTRUCTIVE_MOVE
+            // move-construct the object in 'rep' from the object pointed to
+            // by 'input' and destroy the object at 'input'.  Return nothing.
+            // This operation is guaranteed not to throw.  Uses bitwise move
+            // where possible.
 
       , e_GET_SIZE
             // Return the size of the object.  For function objects, the
@@ -988,7 +998,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       case e_DESTROY: {
 
           // Call destructor for functor.
-          reinterpret_cast<FUNC*>(wrappedFunc_p)->~FUNC();
+          static_cast<FUNC*>(wrappedFunc_p)->~FUNC();
 
           if (0 == k_SOO_FUNC_SIZE) {
               // Restore the footprint of an empty functor in case the
@@ -999,6 +1009,33 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
 
           // Return size of destroyed function object
           return k_SOO_FUNC_SIZE;
+      } break;
+
+      case e_DESTRUCTIVE_MOVE: {
+        void *input_p = const_cast<void*>(input.asPtr());
+        char savedSrcByte = static_cast<char*>(input_p)[0];
+        if (bslmf::IsBitwiseMoveable<FUNC>::value) {
+            *static_cast<bsls::ObjectBuffer<FUNC>*>(wrappedFunc_p) =
+                *static_cast<bsls::ObjectBuffer<FUNC>*>(input_p);
+        }
+        else {
+            FUNC &srcFunc = *static_cast<FUNC*>(input_p);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
+#else
+            ::new (wrappedFunc_p) FUNC(srcFunc);
+#endif
+            srcFunc.~FUNC();
+        }
+
+        if (0 == k_SOO_FUNC_SIZE) {
+            // Restore the footprint of an empty functor in case the
+            // constructor or destructor did something silly like zero it or
+            // memcpy into it.
+            static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
+            static_cast<char*>(input_p)[0]       = savedSrcByte;
+        }
       } break;
 
       case e_GET_SIZE:     return k_SOO_FUNC_SIZE;
@@ -1051,6 +1088,16 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
         // Return size allocator adaptor.
         return sizeof(Adaptor);
       }
+
+      case e_DESTRUCTIVE_MOVE: {
+        const Adaptor& other = *static_cast<const Adaptor*>(input.asPtr());
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        ::new ((void*) rep->d_allocator_p) Adaptor(std::move(other));
+#else
+        ::new ((void*) rep->d_allocator_p) Adaptor(other);
+#endif
+        other.~Adaptor();  
+      } break;
 
       case e_GET_SIZE: {
         // The SOO size of the adaptor is always the same as the true size of
@@ -1118,7 +1165,7 @@ void *bsl::Function_Rep::initRep(std::size_t               sooFuncSize,
 
 template <class ALLOC>
 inline
-void *bsl::Function_Rep::initRep(std::size_t sooFuncSize,
+void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
                                  const ALLOC& alloc,
                                  integral_constant<AllocCategory,
                                                    e_ERASED_STATEFUL_ALLOC>)

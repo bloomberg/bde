@@ -388,6 +388,19 @@ struct EmptyFunctor
         { return false; }
 };
 
+int moveLimit = -1; // Allow n moves before throw.  No throw if n < 0.
+
+int decrementMoveLimit()
+    // Decrement 'moveLimit'.  Throw "throw on move" on transition from zero
+    // to negative.
+{
+    if (moveLimit >= 0 && --moveLimit < 0) {
+        throw "throw on move";
+    }
+
+    return moveLimit;
+}
+
 class SmallFunctor
 {
     // Small stateful functor.
@@ -404,9 +417,10 @@ public:
     SmallFunctor(const SmallFunctor& other) : d_value(other.d_value) { }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    // Move-constructor deliberately modifies 'other'
+    // Move-constructor deliberately modifies 'other'.
+    // This move constructor is not called in nothrow settings.
     SmallFunctor(SmallFunctor&& other) : d_value(other.d_value)
-        { other.d_value += 0x100000; }
+        { decrementMoveLimit(); other.d_value += 0x100000; }
 #endif
 
     ~SmallFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
@@ -484,47 +498,36 @@ public:
         { return a.value() != b.value(); }
 };
 
-class NothrowMoveFunctor : public SmallFunctor
+class NothrowSmallFunctor : public SmallFunctor
 {
-    // A small functor that is not bitwise movable, but does has a nothrow
+    // A small functor that is not bitwise movable, but does have a nothrow
     // move constructor
-    
+
 public:
-    explicit NothrowMoveFunctor(int v) : SmallFunctor(v) { }
+    explicit NothrowSmallFunctor(int v) : SmallFunctor(v) { }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
     // Nothrow move and copy constructible
-    NothrowMoveFunctor(const NothrowMoveFunctor& other) noexcept
+    NothrowSmallFunctor(const NothrowSmallFunctor& other) noexcept
         : SmallFunctor(other) { }
 #else
     // Bitwise moveable -- use if 'noexcept' is not supported.
-    BSLMF_NESTED_TRAIT_DECLARATION(NothrowMoveFunctor,
+    BSLMF_NESTED_TRAIT_DECLARATION(NothrowSmallFunctor,
                                    bslmf::IsBitwiseMoveable);
 #endif
 
-    ~NothrowMoveFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
-
-    friend bool operator==(const NothrowMoveFunctor& a,
-                           const NothrowMoveFunctor& b)
-        { return a.value() == b.value(); }
-
-    friend bool operator!=(const NothrowMoveFunctor& a,
-                           const NothrowMoveFunctor& b)
-        { return a.value() != b.value(); }
-};
-
-int moveLimit = -1; // Allow n moves before throw.  No throw if n < 0.
-
-int decrementMoveLimit()
-    // Decrement 'moveLimit'.  Throw "throw on move" on transition from zero
-    // to negative.
-{
-    if (moveLimit >= 0 && --moveLimit < 0) {
-        throw "throw on move";
+    ~NothrowSmallFunctor() {
+        std::memset(this, 0xbb, sizeof(*this));
     }
 
-    return moveLimit;
-}
+    friend bool operator==(const NothrowSmallFunctor& a,
+                           const NothrowSmallFunctor& b)
+        { return a.value() == b.value(); }
+
+    friend bool operator!=(const NothrowSmallFunctor& a,
+                           const NothrowSmallFunctor& b)
+        { return a.value() != b.value(); }
+};
 
 class ThrowingSmallFunctor : public SmallFunctor
 {
@@ -1625,7 +1628,9 @@ void testSwap(const Obj& inA,
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
     bslma::TestAllocatorMonitor testAllocMonitor(&testAlloc);
 
-//    testAlloc.setAllocationLimit(0);
+    // swap() should not call any potentially-throwing operations; set
+    // allocation limit and move limit to detect such operations.
+    testAlloc.setAllocationLimit(0);
     moveLimit = 0;
     a.swap(b);
     moveLimit = -1;
@@ -1645,8 +1650,10 @@ void testSwap(const Obj& inA,
         LOOP2_ASSERT(lineA, lineB, b2(1, 2) == a(1, 2));
     }
 
-    // Swap back using namespace-scope swap
-//    testAlloc.setAllocationLimit(0);
+    // Swap back using namespace-scope swap.  swap() should not call any
+    // potentially-throwing operations; set allocation limit and move limit to
+    // detect such operations.
+    testAlloc.setAllocationLimit(0);
     moveLimit = 0;
     swap(b, a);
     moveLimit = -1;
@@ -1783,7 +1790,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(SmallFunctor         , 0x2000            ),
             TEST_ITEM(MediumFunctor        , 0x4000            ),
             TEST_ITEM(LargeFunctor         , 0x6000            ),
-            TEST_ITEM(NothrowMoveFunctor   , 0x3000            ),
+            TEST_ITEM(NothrowSmallFunctor   , 0x3000            ),
             TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
         };
@@ -1799,7 +1806,7 @@ int main(int argc, char *argv[])
             TEST_ITEM(SmallFunctor         , 0x3000            ),
             TEST_ITEM(MediumFunctor        , 0x5000            ),
             TEST_ITEM(LargeFunctor         , 0x7000            ),
-            TEST_ITEM(NothrowMoveFunctor   , 0x4000            ),
+            TEST_ITEM(NothrowSmallFunctor   , 0x4000            ),
             TEST_ITEM(ThrowingSmallFunctor , 0x6000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
         };
@@ -2003,14 +2010,14 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
         TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
 
-        if (veryVerbose) std::printf("FUNC is NothrowMoveFunctor(0x3000)\n");
-        TEST(bslma::TestAllocator *  , NothrowMoveFunctor(0x3000));
-        TEST(bsl::allocator<char>    , NothrowMoveFunctor(0x3000));
-        TEST(EmptySTLAllocator<char> , NothrowMoveFunctor(0x3000));
-        TEST(TinySTLAllocator<char>  , NothrowMoveFunctor(0x3000));
-        TEST(SmallSTLAllocator<char> , NothrowMoveFunctor(0x3000));
-        TEST(MediumSTLAllocator<char>, NothrowMoveFunctor(0x3000));
-        TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0x3000));
+        if (veryVerbose) std::printf("FUNC is NothrowSmallFunctor(0x3000)\n");
+        TEST(bslma::TestAllocator *  , NothrowSmallFunctor(0x3000));
+        TEST(bsl::allocator<char>    , NothrowSmallFunctor(0x3000));
+        TEST(EmptySTLAllocator<char> , NothrowSmallFunctor(0x3000));
+        TEST(TinySTLAllocator<char>  , NothrowSmallFunctor(0x3000));
+        TEST(SmallSTLAllocator<char> , NothrowSmallFunctor(0x3000));
+        TEST(MediumSTLAllocator<char>, NothrowSmallFunctor(0x3000));
+        TEST(LargeSTLAllocator<char> , NothrowSmallFunctor(0x3000));
 
         if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0x7000)\n");
         TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000));
@@ -2187,14 +2194,14 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
         TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
 
-        if (veryVerbose) std::printf("FUNC is NothrowMoveFunctor(0x3000)\n");
-        TEST(bslma::TestAllocator *  , NothrowMoveFunctor(0x3000));
-        TEST(bsl::allocator<char>    , NothrowMoveFunctor(0x3000));
-        TEST(EmptySTLAllocator<char> , NothrowMoveFunctor(0x3000));
-        TEST(TinySTLAllocator<char>  , NothrowMoveFunctor(0x3000));
-        TEST(SmallSTLAllocator<char> , NothrowMoveFunctor(0x3000));
-        TEST(MediumSTLAllocator<char>, NothrowMoveFunctor(0x3000));
-        TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0x3000));
+        if (veryVerbose) std::printf("FUNC is NothrowSmallFunctor(0x3000)\n");
+        TEST(bslma::TestAllocator *  , NothrowSmallFunctor(0x3000));
+        TEST(bsl::allocator<char>    , NothrowSmallFunctor(0x3000));
+        TEST(EmptySTLAllocator<char> , NothrowSmallFunctor(0x3000));
+        TEST(TinySTLAllocator<char>  , NothrowSmallFunctor(0x3000));
+        TEST(SmallSTLAllocator<char> , NothrowSmallFunctor(0x3000));
+        TEST(MediumSTLAllocator<char>, NothrowSmallFunctor(0x3000));
+        TEST(LargeSTLAllocator<char> , NothrowSmallFunctor(0x3000));
 
         if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0x7000)\n");
         TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000));
@@ -2418,15 +2425,15 @@ int main(int argc, char *argv[])
         TEST(MediumSTLAllocator<char>, LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
         TEST(LargeSTLAllocator<char> , LargeFunctor(0)  , e_OUTOFPLACE_BOTH);
 
-        if (veryVerbose) std::printf("FUNC is NothrowMoveFunctor(0)\n");
-        TEST(bslma::TestAllocator *  , NothrowMoveFunctor(0), e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>    , NothrowMoveFunctor(0), e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char> , NothrowMoveFunctor(0), e_INPLACE_BOTH);
-        TEST(TinySTLAllocator<char>  , NothrowMoveFunctor(0), e_INPLACE_BOTH);
-        TEST(SmallSTLAllocator<char> , NothrowMoveFunctor(0), e_INPLACE_BOTH);
-        TEST(MediumSTLAllocator<char>, NothrowMoveFunctor(0),
+        if (veryVerbose) std::printf("FUNC is NothrowSmallFunctor(0)\n");
+        TEST(bslma::TestAllocator *  , NothrowSmallFunctor(0), e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , NothrowSmallFunctor(0), e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , NothrowSmallFunctor(0), e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , NothrowSmallFunctor(0), e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , NothrowSmallFunctor(0), e_INPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, NothrowSmallFunctor(0),
                                                           e_INPLACE_FUNC_ONLY);
-        TEST(LargeSTLAllocator<char> , NothrowMoveFunctor(0),
+        TEST(LargeSTLAllocator<char> , NothrowSmallFunctor(0),
                                                           e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) std::printf("FUNC is ThrowingSmallFunctor(0)\n");
@@ -3415,15 +3422,15 @@ int main(int argc, char *argv[])
         globalAllocMonitor.reset();
         {
             // This functor is eligible for the small-object optimization.
-            NothrowMoveFunctor ftor(42);
+            NothrowSmallFunctor ftor(42);
             Obj f(ftor); const Obj& F = f;
             ASSERT(F);
             ASSERT(globalAllocMonitor.isTotalSame());
-            ASSERT(typeid(NothrowMoveFunctor) == F.target_type());
-            ASSERT(F.target<NothrowMoveFunctor>() &&
-                   ftor == *F.target<NothrowMoveFunctor>());
-            ASSERT(f.target<NothrowMoveFunctor>() &&
-                   ftor == *f.target<NothrowMoveFunctor>());
+            ASSERT(typeid(NothrowSmallFunctor) == F.target_type());
+            ASSERT(F.target<NothrowSmallFunctor>() &&
+                   ftor == *F.target<NothrowSmallFunctor>());
+            ASSERT(f.target<NothrowSmallFunctor>() &&
+                   ftor == *f.target<NothrowSmallFunctor>());
             ASSERT(&globalTestAllocator == f.allocator());
         }
         ASSERT(globalAllocMonitor.isInUseSame());

@@ -5,8 +5,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_objectbuffer.h>
-
 const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
 {
     return "bad_function_call";
@@ -83,6 +81,12 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
         return PtrOrSize_t();
       } break;
 
+      case e_DESTRUCTIVE_MOVE: {
+        // Move just the pointer for unowed allocator.
+        rep->d_allocator_p =
+            static_cast<bslma::Allocator*>(const_cast<void*>(input.asPtr()));
+      } break;
+
       case e_GET_SIZE:     return PtrOrSize_t();
       case e_GET_TARGET:   return rep->d_allocator_p;
       case e_GET_TYPE_ID:  return &typeid(bslma::Allocator);
@@ -108,11 +112,49 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
 void bsl::Function_Rep::destructiveMove(Function_Rep *to,
                                         Function_Rep *from) BSLS_NOTHROW_SPEC
 {
-    // TBD: This is a temporary implementation.  The real implementation will
-    // avoid the possibility of exceptions being thrown and taking advantage
-    // of bitwise-moveable.
-    to->moveInit(*from);
-    from->~Function_Rep();
+    Manager funcManager_p  = from->d_funcManager_p;
+    Manager allocManager_p = from->d_allocManager_p;
+    to->d_funcManager_p  = funcManager_p;
+    to->d_allocManager_p = allocManager_p;
+
+    std::size_t sooFuncSize = 0;
+    std::size_t allocSize   = 0;
+
+    if (funcManager_p) {
+        // Destructively move the wrapped functor only if '*from' is not empty
+        // AND it uses the small-object optimization.
+        sooFuncSize = funcManager_p(e_GET_SIZE, from,
+                                    PtrOrSize_t()).asSize_t();
+        if (sooFuncSize <= sizeof(InplaceBuffer)) {
+            // Destructively move inplace wrapped functor.
+            funcManager_p(e_DESTRUCTIVE_MOVE, to, &from->d_objbuf);
+        }
+        else {
+            // Just move pointer for out-of-place wrapped functor.
+            to->d_objbuf.d_object_p = from->d_objbuf.d_object_p;
+
+            // Short-cut: if functor is out-of-place, the allocator is, too.
+            // Just copy allocator pointer and return.
+            to->d_allocator_p = from->d_allocator_p;
+            return;
+        }
+    }
+
+    BSLS_ASSERT(sooFuncSize <= sizeof(InplaceBuffer));
+
+    allocSize = allocManager_p(e_GET_SIZE, from, PtrOrSize_t()).asSize_t();
+    if (sooFuncSize + allocSize <= sizeof(InplaceBuffer)) {
+        // Destructively move inplace allocator.  If unowned, then
+        // this move operation will just overwrite 'd_allocator_p'.
+        Function_PairBufDesc pairDesc(sooFuncSize, allocSize);
+        to->d_allocator_p =
+            static_cast<bslma::Allocator*>(pairDesc.second(&to->d_objbuf));
+        allocManager_p(e_DESTRUCTIVE_MOVE, to, from->d_allocator_p);
+    }
+    else {
+        // Just move pointer to out-of-place or unowned allocator.
+        to->d_allocator_p = from->d_allocator_p;
+    }
 }
 
 bsl::Function_Rep::~Function_Rep()
