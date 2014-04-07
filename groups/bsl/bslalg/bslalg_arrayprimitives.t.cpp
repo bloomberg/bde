@@ -13,6 +13,7 @@
 #include <bsls_objectbuffer.h>            // for testing only
 #include <bsls_platform.h>                // for testing only
 #include <bsls_stopwatch.h>               // for testing only
+#include <bsls_bsltestutil.h>
 
 #include <bsls_types.h>
 
@@ -20,6 +21,20 @@
 #include <cstdlib>     // atoi()
 #include <cstring>     // strlen()
 #include <ctype.h>     // isalpha()
+
+#pragma bde_verify -FD04    // Missing specified
+#pragma bde_verify -FD07    // Extra specified
+#pragma bde_verify -IC01    // Implicit conversions
+#pragma bde_verify -MR01    // Undocumented early return
+#pragma bde_verify -TP06    // Test plan missing signature
+#pragma bde_verify -TP09    // Test plan missing signature
+#pragma bde_verify -FD03    // Undocumented parameter
+
+#pragma bde_verify -CC01  // C-style casts
+#pragma bde_verify -FD01  // No function contract
+#pragma bde_verify -TP20  // veryVerbose for loops
+#pragma bde_verify -TP21  // veryVerbose for loops (different check!)
+#pragma bde_verify -TY03  // template parameters must be upper-case
 
 using namespace BloombergLP;
 using namespace std;
@@ -65,51 +80,46 @@ using namespace std;
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
-int testStatus = 0;
 
 namespace {
-    void aSsErT(int c, const char *s, int i) {
-    if (c) {
+
+int testStatus = 0;
+
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-}
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and be called during exception testing.
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s: %d\n", #I, I); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %d\n", #I, I, #J, J); \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %c\t%s: %c\n", #I, I, #J, J, #K, K); \
-                aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { printf("%s: %d\t%s: %d\t%s: %d\t%s: %d\n", \
-                #I, I, #J, J, #K, K, #L, L); aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) printf("<| " #X " |>\n");  // Quote identifier literally.
-//#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ printf("\t");             // Print a tab (w/o newline)
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
@@ -3134,7 +3144,7 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUsage Example"
+        if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
 
@@ -3163,7 +3173,7 @@ int main(int argc, char *argv[])
       }
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING rotate
+        // TESTING 'rotate'
         //
         // Concerns:
         //
@@ -3178,7 +3188,8 @@ int main(int argc, char *argv[])
         //   void rotate(T *b, T *m, T *e)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'rotate'\n");
+        if (verbose) printf("\nTESTING 'rotate'"
+                            "\n================\n");
 
         GAUNTLET(testRotate);
 
@@ -3200,7 +3211,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING erase
+        // TESTING 'erase'
         //
         // Concerns:
         //
@@ -3211,14 +3222,14 @@ int main(int argc, char *argv[])
         //   void erase(T *b, T *e, T *dataEnd, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'erase'."
-                            "\n================\n");
+        if (verbose) printf("\nTESTING 'erase'"
+                            "\n===============\n");
 
         GAUNTLET(testErase);
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING destructiveMoveAndInsert
+        // TESTING 'destructiveMoveAndInsert'
         //
         // Concerns:
         //
@@ -3231,7 +3242,7 @@ int main(int argc, char *argv[])
         //   void destructiveMoveAndMoveInsert(...);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'destructiveMoveAndInsert'"
+        if (verbose) printf("\nTESTING 'destructiveMoveAndInsert'"
                             "\n==================================\n");
 
         if (verbose)
@@ -3253,7 +3264,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING insert
+        // TESTING 'insert'
         //
         // Concerns:
         //
@@ -3267,7 +3278,7 @@ int main(int argc, char *argv[])
         //   void moveInsert(T *dstB, T *dstE, T **srcEp, srcB, srcE, ne, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'insert'"
+        if (verbose) printf("\nTESTING 'insert'"
                             "\n================\n");
 
         if (verbose)
@@ -3290,7 +3301,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING destructiveMove
+        // TESTING 'destructiveMove'
         //
         // Concerns:
         //
@@ -3303,13 +3314,14 @@ int main(int argc, char *argv[])
         //   void destructiveMove(T *srcB, T *srcE, T *dstB, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'destructiveMove'\n");
+        if (verbose) printf("\nTESTING 'destructiveMove'"
+                            "\n=========================\n");
 
         GAUNTLET(testDestructiveMove);
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING copyConstruct
+        // TESTING 'copyConstruct'
         //
         // Concerns:
         //
@@ -3322,13 +3334,14 @@ int main(int argc, char *argv[])
         //   void copyConstruct(FWD srcB, FWD srcE, T *dstB, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'copyConstruct'\n");
+        if (verbose) printf("\nTESTING 'copyConstruct'"
+                            "\n=======================\n");
 
         GAUNTLET(testCopyConstruct);
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING uninitializedFillN
+        // TESTING 'uninitializedFillN'
         //
         // Concerns:
         //
@@ -3339,8 +3352,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
 
-        if (verbose) printf("Testing 'uninitializedFillN'\n"
-                            "============================\n");
+        if (verbose) printf("\nTESTING 'uninitializedFillN'"
+                            "\n============================\n");
 
         GAUNTLET(testUninitializedFillN);
 
@@ -3481,7 +3494,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nPERFORMANCE TEST"
-                           "\n===============\n");
+                            "\n================\n");
 
         enum {
             BUFFER_SIZE = 1 << 24,
