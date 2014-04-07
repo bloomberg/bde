@@ -443,7 +443,7 @@ void setValue(const void **pvs, char ch)
     *pvs = (const void *) (UintPtr) ch;
 }
 
-#ifndef BSLS_PLATFORM_OS_AIX
+#if !defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PLATFORM_CMP_VER_MAJOR < 0x1200
 char getValue(void * const& vs)
 {
     return (char) ((UintPtr) vs & 0xff);
@@ -469,7 +469,7 @@ void setValue(const int **pis, char ch)
     *pis = (const int *) (UintPtr) ch;
 }
 
-#ifndef BSLS_PLATFORM_OS_AIX
+#if !defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PLATFORM_CMP_VER_MAJOR < 0x1200
 char getValue(int * const& is)
 {
     return (char) ((UintPtr) is & 0xff);
