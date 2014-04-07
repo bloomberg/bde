@@ -23,15 +23,6 @@
 #include <cstring>     // strlen()
 #include <ctype.h>     // isalpha()
 
-#pragma bde_verify -FD04  // Missing specified
-#pragma bde_verify -FD07  // Extra specified
-#pragma bde_verify -FD03  // Undocumented parameter
-
-#pragma bde_verify -CC01  // C-style casts
-#pragma bde_verify -FD01  // No function contract
-#pragma bde_verify -TP20  // veryVerbose for loops
-#pragma bde_verify -TP21  // veryVerbose for loops (different check!)
-
 using namespace BloombergLP;
 using namespace std;
 
