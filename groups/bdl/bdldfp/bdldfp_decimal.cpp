@@ -250,9 +250,11 @@ doPutCommon(ITER_TYPE       out,
             CHAR_TYPE       fillCharacter,
             char           *buffer)
     // Widen the specified 'buffer' into a string of the specified 'CHAR_TYPE',
-    // and call 'doPutCommon', using the specified 'format' and
-    // 'fillCharacter'.  Note that because of the overload, 'CHAR_TYPE' is not
-    // 'char'.
+    // and output the represented decimal number to the specified 'out',
+    // adjusting for the formatting flags in the specified 'format' and using
+    // the specified 'fillCharacter'.  Currently, formatting for the
+    // formatting flags of justification, width, uppercase, and showpos are
+    // supported.
 {
     const int size = strlen(buffer);
     char *end = buffer + size;
