@@ -24,8 +24,6 @@
 
 #pragma bde_verify -FD04    // Missing specified
 #pragma bde_verify -FD07    // Extra specified
-#pragma bde_verify -IC01    // Implicit conversions
-#pragma bde_verify -MR01    // Undocumented early return
 #pragma bde_verify -TP06    // Test plan missing signature
 #pragma bde_verify -TP09    // Test plan missing signature
 #pragma bde_verify -FD03    // Undocumented parameter
@@ -554,7 +552,7 @@ class TestType {
 
   public:
     // CREATORS
-    TestType(bslma::Allocator *ba = 0)
+    explicit TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
     {
@@ -563,7 +561,7 @@ class TestType {
         *d_data_p = '?';
     }
 
-    TestType(const ConstructEnabler cE, bslma::Allocator *ba = 0)
+    TestType(const ConstructEnabler cE, bslma::Allocator *ba = 0)   // IMPLICIT
     : d_data_p(0)
     , d_allocator_p(bslma::Default::allocator(ba))
     {
@@ -676,7 +674,7 @@ class TestTypeNoAlloc {
         ++numCharCtorCalls;
     }
 #else
-    TestTypeNoAlloc(const ConstructEnabler& cE)
+    TestTypeNoAlloc(const ConstructEnabler& cE)                     // IMPLICIT
     {
         d_u.d_char = cE.d_c;
         ++numCharCtorCalls;
@@ -740,7 +738,7 @@ class BitwiseMoveableTestType : public TestType {
 
   public:
     // CREATORS
-    BitwiseMoveableTestType(bslma::Allocator *ba = 0)
+    explicit BitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
     {
     }
@@ -754,7 +752,7 @@ class BitwiseMoveableTestType : public TestType {
     }
 #else
     BitwiseMoveableTestType(const ConstructEnabler&  cE,
-                            bslma::Allocator        *ba = 0)
+                            bslma::Allocator        *ba = 0)        // IMPLICIT
     : TestType(ba)
     {
         *d_data_p = cE.d_c;
@@ -808,7 +806,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
     {
     }
 #else
-    BitwiseCopyableTestType(const ConstructEnabler& cE)
+    BitwiseCopyableTestType(const ConstructEnabler& cE)             // IMPLICIT
     : TestTypeNoAlloc()
     {
         d_u.d_char = cE.d_c;
@@ -848,7 +846,7 @@ class LargeBitwiseMoveableTestType : public TestType {
 
   public:
     // CREATORS
-    LargeBitwiseMoveableTestType(bslma::Allocator *ba = 0)
+    explicit LargeBitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
     {
         for (int i = 0; i < FOOTPRINT; ++i) {
@@ -868,7 +866,7 @@ class LargeBitwiseMoveableTestType : public TestType {
     }
 #else
     LargeBitwiseMoveableTestType(const ConstructEnabler&  cE,
-                                 bslma::Allocator        *ba = 0)
+                                 bslma::Allocator        *ba = 0)   // IMPLICIT
     : TestType(ba)
     {
         d_data_p = cE.d_c;
@@ -1120,7 +1118,7 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
                 printf("Error, bad character ('%c') in spec \"%s\""
                        " at position %d.\n", spec[i], spec, i);
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
     }
     guard.setLength(0);
@@ -3052,7 +3050,7 @@ MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
 template <class TYPE>
 void MyVector<TYPE>::reserve(int capacity)
 {
-    if (d_capacity >= capacity) return;
+    if (d_capacity >= capacity) return;                               // RETURN
 
     TYPE *newArrayPtr = static_cast<TYPE*>(d_allocator_p->allocate(
            BloombergLP::bslma::Allocator::size_type(capacity * sizeof(TYPE))));
