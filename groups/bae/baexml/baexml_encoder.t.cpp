@@ -10346,18 +10346,18 @@ bsl::ostream& Employee::print(
     void usageExample()
     {
         test::Employee bob;
-  
+
         bob.name()                 = "Bob";
         bob.homeAddress().street() = "Some Street";
         bob.homeAddress().city()   = "Some City";
         bob.homeAddress().state()  = "Some State";
         bob.age()                  = 21;
-  
+
         baexml_EncoderOptions options;
         options.setEncodingStyle(baexml_EncodingStyle::BAEXML_PRETTY);
-  
+
         baexml_Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
-  
+
         const bsl::string EXPECTED_OUTPUT =
          "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
          "<Employee xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
