@@ -30,8 +30,8 @@ BDES_IDENT("$Id: $")
 ///Example 1: Close a File Descriptor
 /// - - - - - - - - - - - - - - - - -
 // Suppose we want to open a file and perform some I/O operations.  We use an
-// object of type 'bdesu_FileHandleGuard' to ensure this handle is closed after
-// the operations are complete.
+// object of type 'bdesu_FileDescriptorGuard' to ensure this handle is closed
+// after the operations are complete.
 //
 // First, we create a name for our temporary file name and a few local
 // varriables.
