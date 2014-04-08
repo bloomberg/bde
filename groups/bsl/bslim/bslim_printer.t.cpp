@@ -11,6 +11,8 @@
 #include <bsl_list.h>
 #include <bsl_map.h>
 #include <bsl_set.h>
+#include <bsl_unordered_map.h>
+#include <bsl_unordered_set.h>
 #include <bsl_vector.h>
 #include <bsl_sstream.h>
 #include <bsl_cctype.h>
@@ -48,18 +50,18 @@ using namespace bslim;
 // ACCESSORS
 // [ 2] absLevel() const;
 // [ 5] end() const;
-// [10] template<class TYPE>
+// [ 6] template<class TYPE>
 //         void print(const TYPE& data, const char *name) const;
-// [11] template<class TYPE>
+// [ 7] template<class TYPE>
 //         void printAttribute(const char *name, const TYPE& data) const;
-// [16] template <class TYPE, class PRINT_FUNCTOR>
+// [12] template <class TYPE, class PRINT_FUNCTOR>
 //         void printForeign(const TYPE&           data,
 //                           const PRINT_FUNCTOR&  printFunctionObject,
 //                           const char           *name) const;
-// [15] void printHexAddr(const void *address, const char *name) const;
-// [13] template <class TYPE>
+// [11] void printHexAddr(const void *address, const char *name) const;
+// [ 9] template <class TYPE>
 //      void printOrNull(const TYPE& address, const char *name) const;
-// [11] template<class TYPE>
+// [ 7] template<class TYPE>
 //         void printValue(const TYPE& data) const;
 // [ 2] spacesPerLevel() const;
 // [ 4] start() const;
@@ -67,7 +69,11 @@ using namespace bslim;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [20] USAGE EXAMPLE
+// [16] 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS
+// [17] USAGE EXAMPLE 1
+// [18] USAGE EXAMPLE 2
+// [19] USAGE EXAMPLE 3
+// [20] USAGE EXAMPLE 4
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -589,7 +595,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 24: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 4
         //
@@ -607,16 +613,16 @@ int main(int argc, char *argv[])
                                "===============\n";
 
         typedef bsl::set<int> Set;
-      
+
         Set s0, s1, s2;
-      
+
         s0.insert(0);
         s0.insert(1);
         s0.insert(2);
-      
+
         s1.insert(4);
         s1.insert(5);
-      
+
         s2.insert(8);
         const Set *setArray[] = { &s0, &s1, &s2 };
         const int NUM_SET_ARRAY = sizeof setArray / sizeof *setArray;
@@ -629,7 +635,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << oss.str() << endl;
         }
       } break;
-      case 23: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //
@@ -716,7 +722,7 @@ int main(int argc, char *argv[])
 
         LOOP2_ASSERT(EXP, oss.str(), EXP == oss.str());
       } break;
-      case 22: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -792,7 +798,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
         }
       } break;
-      case 21: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -830,24 +836,24 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(out.str(), EXP == out.str());
         }
       } break;
-      case 20: {
+      case 16: {
         // --------------------------------------------------------------------
-        // 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS WITH ITS
+        // 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS
         //
         // Concern:
-        //   Though 'bslim' has no awareness of maps, it knows about pairs and
-        //   can print ranges, which should enable it to print a map.  Verify
-        //   that this is the case.
+        //   Though 'bslim' has no awareness of STL types, it knows about pairs
+        //   and can print ranges, which should enable it to print these types.
+        //   Verify that this is the case.
         //
         // Plan:
-        //   Create and populate a 'bsl::map' object, print it out using range
+        //   Create and populate various 'bsl' objects, print using range
         //   'printValue', and verify that the string printed out is what is
         //   expected.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl <<
-         "'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS WITH ITS\n"
-         "=================================================================\n";
+                  "'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS\n"
+                  "========================================================\n";
 
         struct S {
             int d_key;
@@ -1066,8 +1072,108 @@ int main(int argc, char *argv[])
             }
         }
 
+        {
+            bsl::unordered_set<int> s(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::unordered_set<int>& S = s;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("unordered_set", S);
+
+            bsl::ostringstream EXP;
+            {
+                EXP << "      unordered_set = [\n";
+                bsl::unordered_set<int>::const_iterator iter = S.begin();
+                while (iter != S.end()) {
+                    EXP << "        " << *iter << '\n';
+                    ++iter;
+                }
+                EXP << "      ]\n";
+            }
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+
+        {
+            bsl::unordered_map<int, int> m;
+            const bsl::unordered_map<int, int>& M = m;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = uniqData[i];
+                m[s.d_key] = s.d_value;
+            }
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("unordered_map", M);
+
+            bsl::ostringstream EXP;
+            {
+                EXP << "      unordered_map = [\n";
+                bsl::unordered_map<int, int>::const_iterator iter = M.begin();
+                while (iter != M.end()) {
+                    EXP << "        [\n";
+                    EXP << "          " << iter->first << '\n';
+                    EXP << "          " << iter->second << '\n';
+                    EXP << "        ]\n";
+                    ++iter;
+                }
+                EXP << "      ]\n";
+            }
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+
+        {
+            bsl::unordered_multiset<int> ms(&redundantKeys[0],
+                                            redundantKeys + NUM_DATA);
+            const bsl::unordered_multiset<int>& MS = ms;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("unordered_multiset", MS);
+
+            bsl::ostringstream EXP;
+            {
+                EXP << "      unordered_multiset = [\n";
+                bsl::unordered_multiset<int>::const_iterator iter = MS.begin();
+                while (iter != MS.end()) {
+                    EXP << "        " << *iter << '\n';
+                    ++iter;
+                }
+                EXP << "      ]\n";
+            }
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+
+        {
+            bsl::unordered_multimap<int, int> mm;
+            const bsl::unordered_multimap<int, int>& MM = mm;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = redundantData[i];
+                mm.insert(std::pair<int, int>(s.d_key, s.d_value));
+            }
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("unordered_multimap", MM);
+
+            bsl::ostringstream EXP;
+            {
+                EXP << "      unordered_multimap = [\n";
+                bsl::unordered_multimap<int, int>::const_iterator iter =
+                                                                    MM.begin();
+                while (iter != MM.end()) {
+                    EXP << "        [\n";
+                    EXP << "          " << iter->first << '\n';
+                    EXP << "          " << iter->second << '\n';
+                    EXP << "        ]\n";
+                    ++iter;
+                }
+                EXP << "      ]\n";
+            }
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
+        }
+
       } break;
-      case 19: {
+      case 15: {
         // --------------------------------------------------------------------
         // 'printAttribute' WITH RANGE
         //
@@ -1144,7 +1250,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 18: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING EXCEPTION NEUTRALITY
         //
@@ -1170,7 +1276,7 @@ int main(int argc, char *argv[])
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
       } break;
-      case 17: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'printForeign'
         //
@@ -1286,7 +1392,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 16: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING 'printHexAddr'
         //
@@ -1394,7 +1500,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 15: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'printHexAddr' (indentation and name)
         //
@@ -1464,7 +1570,7 @@ int main(int argc, char *argv[])
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
       } break;
-      case 14: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING 'printOrNull' (null pointers)
         //
@@ -1571,7 +1677,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 13: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING CLASS METHODS: 'printOrNull' (non-null pointer types)
         //
@@ -1805,7 +1911,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 12: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'printOrNull' (indentation and name)
         //
@@ -1872,7 +1978,7 @@ int main(int argc, char *argv[])
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
       } break;
-      case 11: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'printAttribute' and 'printValue'
         //
@@ -1932,14 +2038,6 @@ int main(int argc, char *argv[])
             }
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
-      } break;
-      case 10: {
-      } break;
-      case 9: {
-      } break;
-      case 8: {
-      } break;
-      case 7: {
       } break;
       case 6: {
       } break;
@@ -2294,7 +2392,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
