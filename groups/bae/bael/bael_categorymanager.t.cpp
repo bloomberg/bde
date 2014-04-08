@@ -874,7 +874,7 @@ int main(int argc, char *argv[])
         DefaultAllocGuard guard(&da);
         int numBytes = TA.numBytesInUse();
 
-      BEGIN_BSLMA_EXCEPTION_TEST {
+      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
         Obj mX(&ta); const Obj& X = mX;
         const int UC = Holder::BAEL_UNINITIALIZED_CATEGORY;
         {
@@ -1093,7 +1093,7 @@ int main(int argc, char *argv[])
         ASSERT(THRESHOLD == G.threshold());
         ASSERT(pg        == G.category());
         ASSERT(0         == G.next());
-      } END_BSLMA_EXCEPTION_TEST
+      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -1889,9 +1889,9 @@ int main(int argc, char *argv[])
 
         Obj mX;  const Obj& X = mX;
         Entry *pCat = 0;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             pCat = mX.addCategory("TEST CATEGORY", 111, 112, 113, 114);
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (veryVerbose) P(X.length());
         ASSERT(1 == X.length());
@@ -1965,13 +1965,13 @@ int main(int argc, char *argv[])
 
 
                     const Entry *pCat3 = 0;
-                    BEGIN_BSLMA_EXCEPTION_TEST
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                         pCat3 = mX.setThresholdLevels(setName,
                                                       RECORD_LEVEL,
                                                       PASS_LEVEL,
                                                       TRIGGER_LEVEL,
                                                       TRIGGERALL_LEVEL);
-                    END_BSLMA_EXCEPTION_TEST
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     ASSERT(0 != pCat3);
 
                     ASSERT(RECORD_LEVEL     == pCat3->recordLevel());

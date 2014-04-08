@@ -2240,9 +2240,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) bael_FixedSizeRecordBuffer(BUF_SIZE);
-                BEGIN_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                     logger[i] = mLM.allocateLogger(recBuf[i]);
-                END_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 mLM.setLogger(logger[i]);
                 ASSERT(&mLM.getLogger() == logger[i]);
             }
@@ -2264,9 +2264,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) bael_FixedSizeRecordBuffer(BUF_SIZE);
-                BEGIN_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                     logger[i] = mLM.allocateLogger(recBuf[i], (i + 1) * K);
-                END_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERT((i + 1) * K == logger[i]->messageBufferSize());
                 mLM.setLogger(logger[i]);
                 ASSERT(&mLM.getLogger() == logger[i]);
@@ -2288,9 +2288,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) bael_FixedSizeRecordBuffer(BUF_SIZE);
-                BEGIN_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                     logger[i] = mLM.allocateLogger(recBuf[i], &observer);
-                END_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 mLM.setLogger(logger[i]);
                 ASSERT(&mLM.getLogger() == logger[i]);
             }
@@ -2314,11 +2314,11 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) bael_FixedSizeRecordBuffer(BUF_SIZE);
-                BEGIN_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                     logger[i] = mLM.allocateLogger(recBuf[i],
                                                    (i + 1) * K,
                                                    &observer);
-                END_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERT((i + 1) * K == logger[i]->messageBufferSize());
                 mLM.setLogger(logger[i]);
                 ASSERT(&mLM.getLogger() == logger[i]);
@@ -4876,7 +4876,7 @@ int main(int argc, char *argv[])
         //  and verified, manually.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "Warning about destroyed observer." << endl
                           << "================================" << endl;
 

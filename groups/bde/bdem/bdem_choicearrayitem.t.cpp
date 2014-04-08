@@ -2289,7 +2289,7 @@ int main(int argc, char *argv[])
                 // explicit allocation
                 bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   bdema_SequentialAllocator  seqAllocator(&testAllocator);
                   bslma::Allocator          *alloc = 0;
 
@@ -2496,7 +2496,7 @@ int main(int argc, char *argv[])
                       LOOP2_ASSERT(KLINE, KSPEC, catalog.size()
                                    == X.numSelections());
                   }
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       } break;

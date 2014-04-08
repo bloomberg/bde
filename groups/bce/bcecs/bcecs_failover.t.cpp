@@ -1073,7 +1073,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         bcema_TestAllocator testAllocator(veryVeryVerbose);
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             TestResourcePool testPool(&testAllocator);
 
@@ -1120,9 +1120,9 @@ int main(int argc, char *argv[])
                 ASSERT(ttt);
                 ASSERT(2 == testPool.numAllocated());
             }
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             bcecs_FailoverSet<int> set(&testAllocator);
             TestResourcePool *pool1 =
@@ -1198,7 +1198,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(0 == pool1->numAllocated());
         }
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         ASSERT(0 <  testAllocator.numAllocations());
         ASSERT(0 == testAllocator.numBytesInUse());
       } break;

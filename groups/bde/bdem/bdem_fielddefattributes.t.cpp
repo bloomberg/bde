@@ -434,9 +434,9 @@ if (veryVerbose) {
                     LOOP2_ASSERT(ILINE, JLINE,  fgAreSame == (F == G));
                     LOOP2_ASSERT(ILINE, JLINE, !fgAreSame == (F != G));
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       mF = G;
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     LOOP2_ASSERT(ILINE, JLINE,          1 == (F == G));
                     LOOP2_ASSERT(ILINE, JLINE,          0 == (F != G));

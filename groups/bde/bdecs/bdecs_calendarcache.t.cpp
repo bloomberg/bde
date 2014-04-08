@@ -208,10 +208,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //
-        //  To address concern 1, we use the 'BEGIN_BSLMA_EXCEPTION_TEST' and
-        //  'END_BSLMA_EXCEPTION_TEST' macros to generator exceptions in order
-        //  to verify that there is no memory leak when we invoke the above
-        //  methods and that this object can be destroyed.
+        //  To address concern 1, we use the
+        //  'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros to generate
+        //  exceptions in order to verify that there is no memory leak when we
+        //  invoke the above methods and that this object can be destroyed.
         //
         //  Tactics:
         //      - Ad Hoc test data selection method
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
             Obj X(&loader, &testAllocator);
             const bdecs_Calendar *cal;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 cal = X.calendar("ERROR");
                 ASSERT(0 == cal);
                 cal = X.calendar("VALID");
@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != cal);
                 cal = X.calendar("VALID1");
                 ASSERT(0 != cal);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         {
             // Testing a calendar cache with a timeout value.
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
             bdet_Date date1, date2;
             const bdecs_Calendar *cal;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 cal = X.calendar("VALID");
                 ASSERT(0 != cal);
                 cal = X.calendar("VALID1");
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
                 loader.getFirstDate(&date2);
                 ASSERT(0 != cal);
                 ASSERT(date1 != date2);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 4: {

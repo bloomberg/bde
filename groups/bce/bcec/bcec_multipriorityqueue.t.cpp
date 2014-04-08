@@ -1000,7 +1000,7 @@ int main(int argc, char *argv[])
         //   on any allocation?
         //
         // Plan:
-        //   Standard use of the *_BSLMA_EXCEPTION_TEST macros.
+        //   Standard use of the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros.
         // --------------------------------------------------------------------
 
         bcema_TestAllocator testAllocator(veryVeryVeryVerbose);
@@ -1009,7 +1009,7 @@ int main(int argc, char *argv[])
         bsl::list<int> numAllocList(&silentTa);
 
         int start;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             numAllocList.clear();
             start = testAllocator.numAllocations();
@@ -1042,7 +1042,7 @@ int main(int argc, char *argv[])
                 cout << "Made it to the end!\n" << flush;
             }
         }
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (veryVerbose) {
             cout << "AllocLimits: ";

@@ -983,7 +983,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tTest basic behavior" << endl;
 
             Obj mX(&testLoader, Z); const Obj& X = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_VALUES; ++i) {
                     const int   LINE    = VALUES[i].d_line;
                     const char *ID      = VALUES[i].d_id;
@@ -1005,7 +1005,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, 0 == defaultAllocator.numBytesInUse());
                     LOOP_ASSERT(LINE, 0 <  testAllocator.numBytesInUse());
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         {
@@ -1288,7 +1288,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator testAllocator;
             Obj mX(&testLoader, Z); const Obj& X = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_VALUES; ++i) {
                     const int   LINE    = VALUES[i].d_line;
                     const char *ID      = VALUES[i].d_id;
@@ -1309,7 +1309,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 ASSERT(0 == defaultAllocator.numBytesInUse());
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         {
             bsls::AssertFailureHandlerGuard hG(

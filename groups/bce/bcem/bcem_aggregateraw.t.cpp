@@ -8157,11 +8157,7 @@ void testCase14() {
                 ASSERT(0 == A.length());
 
                 destroyAggData(&mX, &testAllocator);
-
-// #ifndef BSLS_PLATFORM__CMP_MSVC
-//               } END_BSLMA_EXCEPTION_TEST
-// #endif
-          }
+            }
         }
 
 #if 0
@@ -8208,7 +8204,7 @@ void testCase14() {
                 bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM__CMP_MSVC
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
 
@@ -8251,7 +8247,7 @@ void testCase14() {
                 mA.removeItems(0, 1);
                 ASSERT(LEN + 0 == A.length());
 #ifndef BSLS_PLATFORM__CMP_MSVC
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
           }
         }
@@ -8740,7 +8736,7 @@ void testCase12() {
             Error err;
             Obj mA;  const Obj& A = mA;
 
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             rc = X.getField(&mA, &err, false, fldName);
             ASSERT(!rc);
 
@@ -8816,7 +8812,7 @@ void testCase12() {
 
             destroyAggData(&mX, &testAllocator);
 
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 }
 
@@ -9331,7 +9327,7 @@ void testCase10() {
                     P(A) P(B)
                 }
 
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 mB = A;
                 LOOP2_ASSERT(LINE1, LINE2, Obj::areIdentical(A, B));
 
@@ -9340,7 +9336,7 @@ void testCase10() {
 
                 mB.makeNull();
                 LOOP2_ASSERT(LINE1, LINE2, Obj::areIdentical(A, B));
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
               destroyAggData(&mY, &testAllocator);
             }
