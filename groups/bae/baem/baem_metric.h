@@ -1,4 +1,4 @@
-// baem_metric.h              -*-C++-*-
+// baem_metric.h                                                      -*-C++-*-
 #ifndef INCLUDED_BAEM_METRIC
 #define INCLUDED_BAEM_METRIC
 
@@ -119,7 +119,7 @@ BDES_IDENT("$Id: baem_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //      {
 //         int returnCode = 0;
 //
-//         d_requestSize.update(messageSize.size());
+//         d_messageSize.update(messageSize.size());
 //         bsls::Stopwatch stopwatch;
 //         stopwatch.start();
 //
