@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslstl_unorderedmap Component</title>
+<title>BSL 2.20 OSS: bslstl_unorderedmap Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -630,8 +630,8 @@ Friends</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;int&gt;</a> bucketSizes;
   bucketSizes.<a class="code" href="group__bslstl__vector.html#gac931be06971aedc190c1191a00ee251a">reserve</a>(wordTally.bucket_count());
 
-  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx = 0; idx &lt; wordTally.bucket_count(); ++idx) {
-     bucketSizes.<a class="code" href="group__bslstl__vector.html#gaa1d6a35af66d87307ee9a48be96644a5">push_back</a>(wordTally.bucket_size(idx));
+  <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> idx = 0; idx &lt; wordTally.bucket_count(); ++idx) {
+     bucketSizes.<a class="code" href="group__bslstl__vector.html#gaa1d6a35af66d87307ee9a48be96644a5">push_back</a>(static_cast&lt;int&gt;(wordTally.bucket_size(idx)));
   }
 
   assert(0 &lt; bucketSizes.<a class="code" href="group__bslstl__vector.html#ga6b5f3f3e0564b62536fd52679d99bdbd">size</a>());
@@ -647,14 +647,14 @@ Friends</h2></td></tr>
 <br/>
  We can also count the number of empty buckets, and the number of buckets at <code>maxBucketSize</code>. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> numEmptyBuckets = std::count(bucketSizes.<a class="code" href="group__bslstl__vector.html#ga5b7f9c7b9b0be302ee1b7533b9764ef1">begin</a>(),
-                                   bucketSizes.<a class="code" href="group__bslstl__vector.html#ga7eb9edf13eb71d39489477702fa09671">end</a>(),
-                                   0);
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">int</span> numEmptyBuckets = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(std::count(bucketSizes.<a class="code" href="group__bslstl__vector.html#ga5b7f9c7b9b0be302ee1b7533b9764ef1">begin</a>(),
+                                                    bucketSizes.<a class="code" href="group__bslstl__vector.html#ga7eb9edf13eb71d39489477702fa09671">end</a>(),
+                                                    0));
   printf(<span class="stringliteral">&quot;numEmptyBuckets  %4d\n&quot;</span>, numEmptyBuckets);
 
-  <span class="keywordtype">int</span> numMaxBuckets = std::count(bucketSizes.<a class="code" href="group__bslstl__vector.html#ga5b7f9c7b9b0be302ee1b7533b9764ef1">begin</a>(),
-                                 bucketSizes.<a class="code" href="group__bslstl__vector.html#ga7eb9edf13eb71d39489477702fa09671">end</a>(),
-                                 maxBucketSize);
+  <span class="keywordtype">int</span> numMaxBuckets = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(std::count(bucketSizes.<a class="code" href="group__bslstl__vector.html#ga5b7f9c7b9b0be302ee1b7533b9764ef1">begin</a>(),
+                                                  bucketSizes.<a class="code" href="group__bslstl__vector.html#ga7eb9edf13eb71d39489477702fa09671">end</a>(),
+                                                  maxBucketSize));
   printf(<span class="stringliteral">&quot;numMaxBuckets    %4d\n&quot;</span>, numMaxBuckets);
 </pre></div><br/>
 <br/>
@@ -696,8 +696,8 @@ Friends</h2></td></tr>
   <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;int&gt;</a> bucketSizes2;
   bucketSizes2.reserve(wordTally2.bucket_count());
 
-  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> idx = 0; idx &lt; wordTally2.bucket_count(); ++idx) {
-     bucketSizes2.push_back(wordTally2.bucket_size(idx));
+  <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> idx = 0; idx &lt; wordTally2.bucket_count(); ++idx) {
+     bucketSizes2.push_back(static_cast&lt;int&gt;(wordTally2.bucket_size(idx)));
   }
 
   assert(0 &lt; bucketSizes2.size());
@@ -705,14 +705,14 @@ Friends</h2></td></tr>
                                          bucketSizes2.end());
   printf(<span class="stringliteral">&quot;maxBucketSize2   %4d\n&quot;</span>, maxBucketSize2);
 
-  <span class="keywordtype">int</span> numEmptyBuckets2 = std::count(bucketSizes2.begin(),
-                                    bucketSizes2.end(),
-                                    0);
+  <span class="keywordtype">int</span> numEmptyBuckets2 = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(std::count(bucketSizes2.begin(),
+                                          bucketSizes2.end(),
+                                          0));
   printf(<span class="stringliteral">&quot;numEmptyBuckets2 %4d\n&quot;</span>, numEmptyBuckets2);
 
-  <span class="keywordtype">int</span> numMaxBuckets2 = std::count(bucketSizes2.begin(),
-                                  bucketSizes2.end(),
-                                  maxBucketSize2);
+  <span class="keywordtype">int</span> numMaxBuckets2 = <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(std::count(bucketSizes2.begin(),
+                                        bucketSizes2.end(),
+                                        maxBucketSize2));
   printf(<span class="stringliteral">&quot;numMaxBuckets2   %4d\n&quot;</span>, numMaxBuckets2);
 </pre></div><br/>
 <br/>
@@ -2401,7 +2401,7 @@ template&lt;class KEY2 , class VALUE2 , class HASH2 , class EQUAL2 , class ALLOC
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:49 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

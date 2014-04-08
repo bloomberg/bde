@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslstl_stdexceptutil.h                                             -*-C++-*-
@@ -78,6 +78,10 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslscm_version.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include &lt;bsls_compilerfeatures.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include &lt;bsls_platform.h&gt;
 #endif
@@ -87,11 +91,9 @@ BSL_OVERRIDES_STD mode&quot;
                              must be a macro scoped locally to this header file
 #endif
 
-// Note that a portable syntax for &#39;noreturn&#39; will be available once we have
-// access to conforming C++0x compilers.
-//# define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
+#   define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN __declspec(noreturn)
 #else
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN
@@ -166,7 +168,7 @@ struct StdExceptUtil {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

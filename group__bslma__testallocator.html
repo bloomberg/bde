@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslma_testallocator Component</title>
+<title>BSL 2.20 OSS: bslma_testallocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -94,7 +94,9 @@ Defines</h2></td></tr>
 <li>
 <a href="#4.3">Exception Test Macros</a> </li>
 <li>
-<a href="#4.4">Usage</a> </li>
+<a href="#4.4">Thread Safety</a> </li>
+<li>
+<a href="#4.5">Usage</a> </li>
 </ul>
 </li>
 </ul>
@@ -132,12 +134,15 @@ Defines</h2></td></tr>
   ( <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> )
    `--------------------<span class="stringliteral">&#39;</span>
 <span class="stringliteral">             |         ctor/dtor</span>
-<span class="stringliteral">             |         numBlocksInUse/numBytesInUse</span>
-<span class="stringliteral">             |         numBlocksMax/numBytesMax</span>
-<span class="stringliteral">             |         numBlocksTotal/numBytesTotal</span>
+<span class="stringliteral">             |         lastAllocatedAddress/lastDeallocatedAddress</span>
+<span class="stringliteral">             |         lastAllocatedNumBytes/lastDeallocatedNumBytes</span>
+<span class="stringliteral">             |         numAllocations/numDeallocations</span>
+<span class="stringliteral">             |         numBlocksInUse/numBlocksMax/numBlocksTotal</span>
+<span class="stringliteral">             |         numBytesInUse/numBytesMax/numBytesTotal</span>
 <span class="stringliteral">             |         numMismatches/numBoundsErrors</span>
 <span class="stringliteral">             |         print/name</span>
 <span class="stringliteral">             |         setAllocationLimit/allocationLimit</span>
+<span class="stringliteral">             |         setNoAbort/isNoAbort</span>
 <span class="stringliteral">             |         setQuiet/isQuiet</span>
 <span class="stringliteral">             |         setVerbose/isVerbose</span>
 <span class="stringliteral">             |         status</span>
@@ -145,25 +150,27 @@ Defines</h2></td></tr>
 <span class="stringliteral">     ,----------------.</span>
 <span class="stringliteral">    ( bslma::Allocator )</span>
 <span class="stringliteral">     `----------------&#39;</span>
-                     allocate
-                     deallocate
+                       allocate
+                       deallocate
 </pre></div><br/>
 <br/>
  If exceptions are enabled, this allocator can be configured to throw an exception after the number of allocation requests exceeds some specified limit (see the subsection on "Allocation Limit" below). The level of verbosity can also be adjusted. Each allocator object also maintains a current status. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>By default this allocator gets its memory from the C Standard Library functions <code>malloc</code> and <code>free</code>, but can be overridden to take memory from any allocator (supplied at construction) that implements the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol. Note that allocation and deallocation using a <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> object is explicitly incompatible with <code>malloc</code> and <code>free</code> (or any other allocation mechanism). Attempting to use <code>free</code> to deallocate memory allocated from a <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> -- even when <code>malloc</code> and <code>free</code> are used by default -- will result in undefined behavior, almost certainly corrupting the C Standard Library's runtime memory manager. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>By default this allocator gets its memory from the C Standard Library functions <code>malloc</code> and <code>free</code>, but can be overridden to take memory from any thread-safe allocator (supplied at construction) that implements the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol. Note that allocation and deallocation using a <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> object is explicitly incompatible with <code>malloc</code> and <code>free</code> (or any other allocation mechanism). Attempting to use <code>free</code> to deallocate memory allocated from a <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> -- even when <code>malloc</code> and <code>free</code> are used by default -- will result in undefined behavior, almost certainly corrupting the C Standard Library's runtime memory manager. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Memory dispensed from a <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> is marked such that attempting to deallocate previously unallocated (or already deallocated) memory will (with high probability) be flagged as an error (unless quiet mode is set for the purpose of testing the test allocator itself). A <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> also supports a buffer overrun / underrun feature -- each allocation has "pads", areas of extra memory before and after the segment which are initialized to a particular value and checked upon deallocation to see if they have been modified. If they have, a message is printed and the allocator aborts, unless it is in quiet mode. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="modes"></a> <a class="anchor" id="description.modes"></a> <a class="anchor" id="4.1"></a> </dd></dl>
 <dl class="user"><dt><b>Modes: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The test allocator's behavior is controlled by three basic <em>mode</em> flags: </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>VERBOSE MODE: (Default 0) Specifies that each allocation and deallocation should be printed to standard output. In verbose mode all state variables will be displayed at destruction. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>QUIET MODE: (Default 0) Specifies that mismatched memory and memory leaks should <em>not</em> be reported, and should not cause the process to terminate when detected. Note that this mode is used primarily for testing the test allocator itself; behavior that would otherwise abort now quietly increments the <code>numMismatches</code> counter. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>NO-ABORT MODE: (Default 0) Specifies that all abort statements are replaced by return statements without suppressing diagnostics. Although the internal state values are independent, Quiet Mode implies the behavior of No-Abort mode in all cases. Note that this mode is used primarily for visual inspection of unusual error diagnostics in this component's test drivers (in verbose mode only). </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Taking the default mode settings, memory allocation/deallocation will not be displayed individually, but in the event of a mismatched deallocation or a memory leak, the problem will be announced, any relevant state of the object will be displayed, and the program will abort. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>QUIET MODE: (Default 0) Specifies that mismatched memory and memory leaks should <em>not</em> be reported, and should not cause the process to terminate when detected. Note that this mode is used primarily for testing the test allocator itself; behavior that would otherwise abort now quietly increments the <code>numMismatches</code> and <code>numBoundsErrors</code> counter. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>NO-ABORT MODE: (Default 0) Specifies that the test allocator should not invoke <code>abort</code> under any circumstances without suppressing diagnostics. Although the internal state values are independent, quiet mode implies the behavior of no-abort mode in all cases. Note that this mode is used primarily for visual inspection of unusual error diagnostics in this component's test driver (in non-quiet mode only). </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Taking the default mode settings, memory allocation/deallocation will not be displayed individually. However, in the event of a mismatched deallocation or a memory leak, the problem will be announced, any relevant state of the object will be displayed, and the program will abort. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The three modes are independently set using the <code>setVerbose</code>, <code>setQuiet</code>, and <code>setNoAbort</code> manipulators. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="allocation_limit"></a> <a class="anchor" id="description.allocation_limit"></a> <a class="anchor" id="4.2"></a> </dd></dl>
 <dl class="user"><dt><b>Allocation Limit: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>If exceptions are enabled at compile time, the test allocator can be configured to throw an exception after a specified number of allocation requests is exceeded. If the allocation limit is less than zero (default), then the allocator never throws an exception. Note that a non-negative allocation limit is decremented after each allocation attempt, and throws only when the current allocation limit transitions from 0 to -1; no additional exceptions will be thrown until the allocation limit is again reset to a non-negative value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>If exceptions are enabled at compile time, the test allocator can be configured to throw a <code><a class="el" href="classbslma_1_1TestAllocatorException.html">bslma::TestAllocatorException</a></code> after a specified number of allocation requests is exceeded. If the allocation limit is less than 0 (default), then the allocator won't throw a <code>TestAllocatorException</code> exception. Note that a non-negative allocation limit is decremented after each allocation attempt, and an exception is thrown only when the current allocation limit transitions from 0 to -1; no additional exceptions will be thrown until the allocation limit is again reset to a non-negative value. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The allocation limit is set using the <code>setAllocationLimit</code> manipulator. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="exception_test_macros"></a> <a class="anchor" id="description.exception_test_macros"></a> <a class="anchor" id="4.3"></a> </dd></dl>
 <dl class="user"><dt><b>Exception Test Macros: </b></dt><dd></dd></dl>
@@ -184,9 +191,13 @@ Defines</h2></td></tr>
 <div class="fragment"><pre class="fragment">  BSLMA EXCEPTION TEST -- (NOT ENABLED) --
 </pre></div><br/>
 <br/>
- When exception-handling is enabled, the <code>_BEGIN</code> macro will set the allocation limit of the supplied allocator to 0, <code>try</code> the code being tested, <code>catch</code> any exceptions that are thrown due to bad allocations, and keep increasing the allocation limit until the code being tested completes successfully. </dd></dl>
+ When exception-handling is enabled, the <code>_BEGIN</code> macro will set the allocation limit of the supplied allocator to 0, <code>try</code> the code being tested, <code>catch</code> any <code>TestAllocatorException</code>s that are thrown, and keep increasing the allocation limit until the code being tested completes successfully. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.4"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="thread_safety"></a> <a class="anchor" id="description.thread_safety"></a> <a class="anchor" id="4.4"></a> </dd></dl>
+<dl class="user"><dt><b>Thread Safety: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> class is fully thread-safe (see <code>bsldoc_glossary</code>) provided that the allocator supplied at construction (if any) is fully thread-safe. Note that the <code><a class="el" href="classbslma_1_1MallocFreeAllocator.html">bslma::MallocFreeAllocator</a></code> singleton (the allocator used by the test allocator if none is supplied at construction) is fully thread-safe. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="4.5"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The <code><a class="el" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a></code> defined in this component can be used in conjunction with the <code>BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN</code> and <code>BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END</code> macros to test the memory usage patterns of an object that uses the <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol in its interface. In this example, we illustrate how we might test that an object under test is exception-neutral. For illustration purposes, we will assume the existence of a <code>my_shortarray</code> component implementing an <code>std::vector</code>-like array type, <code>myShortArray</code>: <br/>
 <br/>
@@ -265,18 +276,18 @@ Defines</h2></td></tr>
  All code that we want to test for exception-safety must be enclosed within the <code>BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN</code> and <code>BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END</code> macros, which internally implement a <code>do</code>-'while' loop. Code provided by the <code>BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN</code> macro sets the allocation limit of the supplied allocator to 0 causing it to throw an exception on the first allocation. This exception is caught by code provided by the <code>BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END</code> macro, which increments the allocation limit by 1 and re-runs the same code again. Using this scheme we can check that our code does not leak memory for any memory allocation request. Note that the curly braces surrounding these macros, although visually appealing, are not technically required: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">      <a class="code" href="group__bslma__testallocator.html#ga54aebaa251b957630708f5f491fcadd3">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN</a>(sa) {
-          my_ShortArray mA(&amp;sa);
-          <span class="keyword">const</span> my_ShortArray&amp; A = mA;
-          <span class="keywordflow">for</span> (<span class="keywordtype">int</span> ei = 0; ei &lt; NUM_ELEM; ++ei) {
-              mA.append(VALUES[ei]);
-          }
-          <span class="keywordflow">if</span> (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
-          LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
+        my_ShortArray mA(&amp;sa);
+        <span class="keyword">const</span> my_ShortArray&amp; A = mA;
+        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> ei = 0; ei &lt; NUM_ELEM; ++ei) {
+            mA.append(VALUES[ei]);
+        }
+        <span class="keywordflow">if</span> (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
+        LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
       } <a class="code" href="group__bslma__testallocator.html#ga59220055a07373b5ed62d98ec6206523">BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END</a>
   }
 </pre></div><br/>
 <br/>
- After the exception-safety test we can ensure that all the memory allocated from <code>sa</code> was successfully deallocated. <br/>
+ After the exception-safety test we can ensure that all the memory allocated from <code>sa</code> was successfully deallocated: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">          <span class="keywordflow">if</span> (veryVerbose) sa.print();
 
@@ -370,7 +381,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

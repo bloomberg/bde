@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslscm_version.h Reference</title>
+<title>BSL 2.20 OSS: bslscm_version.h Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -61,7 +61,8 @@
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#define-members">Defines</a>  </div>
+<a href="#define-members">Defines</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <h1>bslscm_version.h File Reference</h1>  </div>
 </div>
@@ -83,7 +84,10 @@ Defines</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslscm__version_8h.html#a745dfc3d228ab480d3bc3b83c0bfdb49">BDE_DONT_ALLOW_TRANSITIVE_INCLUDES</a>&nbsp;&nbsp;&nbsp;1</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslscm__version_8h.html#a0e666c86b070aa9e04e2463b5df3c167">BSLSCM_CONCAT2</a>(a, b, c, d, e, f)&nbsp;&nbsp;&nbsp;a ## b ## c ## d ## e ## f</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslscm__version_8h.html#a50451bfd5307b7b7a5c2aad795c05a73">BSLSCM_CONCAT</a>(a, b, c, d, e, f)&nbsp;&nbsp;&nbsp;BSLSCM_CONCAT2(a,b,c,d,e,f)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslscm__version_8h.html#ab76e198f1e871d79609d24b4f5c178de">BSLSCM_D_VERSION</a></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="bslscm__version_8h.html#aebe40921298324f66b053e8ad2a8f09d">BSLSCM_S_VERSION</a></td></tr>
+<tr><td colspan="2"><h2><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslscm__version.html#ga69ae6c3f3b5681de2fdfd9bef8c77d22">BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY</a> (const char *, bslscm_version_assertion, <a class="el" href="structbslscm_1_1Version.html#a8568abe4c42ab108ed6617d8653c4f72">bslscm::Version::s_version_BSL_BSL_VERSION_MAJOR_BSL_VERSION_MINOR_compiled_this_object</a>)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <hr/><h2>Define Documentation</h2>
@@ -202,17 +206,17 @@ Defines</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ab76e198f1e871d79609d24b4f5c178de"></a><!-- doxytag: member="bslscm_version.h::BSLSCM_D_VERSION" ref="ab76e198f1e871d79609d24b4f5c178de" args="" -->
+<a class="anchor" id="aebe40921298324f66b053e8ad2a8f09d"></a><!-- doxytag: member="bslscm_version.h::BSLSCM_S_VERSION" ref="aebe40921298324f66b053e8ad2a8f09d" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define BSLSCM_D_VERSION</td>
+          <td class="memname">#define BSLSCM_S_VERSION</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<b>Value:</b><div class="fragment"><pre class="fragment"><a class="code" href="bslscm__version_8h.html#a50451bfd5307b7b7a5c2aad795c05a73">BSLSCM_CONCAT</a>(d_version_BSL_,       \
+<b>Value:</b><div class="fragment"><pre class="fragment"><a class="code" href="bslscm__version_8h.html#a50451bfd5307b7b7a5c2aad795c05a73">BSLSCM_CONCAT</a>(s_version_BSL_,       \
                                        <a class="code" href="bslscm__versiontag_8h.html#a2a16378bf71827004ae7df9fa5c1d081">BSL_VERSION_MAJOR</a>, _, \
                                        <a class="code" href="bslscm__versiontag_8h.html#aacb8776c345acf200735a347903b95b8">BSL_VERSION_MINOR</a>, _, \
                                        compiled_this_object)
@@ -220,7 +224,7 @@ Defines</h2></td></tr>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:46 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:32 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

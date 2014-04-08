@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslma_mallocfreeallocator.h                                        -*-C++-*-
@@ -123,10 +123,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslma_allocator.h&gt;
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include &lt;bsls_assert.h&gt;
-#endif
-
 #ifndef INCLUDED_CSTDLIB
 #include &lt;cstdlib&gt;  // &#39;std::malloc&#39;, &#39;std::free&#39;
 #define INCLUDED_CSTDLIB
@@ -216,12 +212,6 @@ MallocFreeAllocator::~MallocFreeAllocator()
 
 // MANIPULATORS
 inline
-void *MallocFreeAllocator::allocate(size_type size)
-{
-    return size == 0 ? 0 : std::malloc(size);
-}
-
-inline
 void MallocFreeAllocator::deallocate(void *address)
 {
     // While the C and C++ standard guarantees that calling free(0) is safe
@@ -242,7 +232,7 @@ void MallocFreeAllocator::deallocate(void *address)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

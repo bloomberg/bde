@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslmf_switch Component</title>
+<title>BSL 2.20 OSS: bslmf_switch Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -148,8 +148,12 @@ Namespaces</h2></td></tr>
        <span class="keywordtype">void</span> store(<span class="keywordtype">short</span> data) { d_data = data | 0Xdead0000; }
        <span class="keywordtype">void</span> store(<span class="keywordtype">int</span>   data) { d_data = data; }
 
-       <span class="keywordtype">void</span> retrieve(<span class="keywordtype">char</span>  *data) { *data = d_data &amp; 0x000000ff; }
-       <span class="keywordtype">void</span> retrieve(<span class="keywordtype">short</span> *data) { *data = d_data &amp; 0x0000ffff; }
+       <span class="keywordtype">void</span> retrieve(<span class="keywordtype">char</span>  *data) {
+          *data = <span class="keyword">static_cast&lt;</span><span class="keywordtype">char</span><span class="keyword">&gt;</span>(d_data &amp; 0x000000ff);
+       }
+       <span class="keywordtype">void</span> retrieve(<span class="keywordtype">short</span> *data) {
+          *data = <span class="keyword">static_cast&lt;</span><span class="keywordtype">short</span><span class="keyword">&gt;</span>(d_data &amp; 0x0000ffff);
+       }
        <span class="keywordtype">void</span> retrieve(<span class="keywordtype">int</span>   *data) { *data = d_data; }
   };
 </pre></div><br/>
@@ -177,14 +181,14 @@ Namespaces</h2></td></tr>
   };
 
   <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> LEN&gt;
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; lhs, <span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; lhs, <span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; rhs)
       <span class="comment">// Return true if a &#39;lhs&#39; is equal to &#39;rhs&#39;</span>
   {
       <span class="keywordflow">return</span> 0 == std::memcmp(&amp;lhs, &amp;rhs, LEN);
   }
 
   <span class="keyword">template</span> &lt;<span class="keywordtype">int</span> LEN&gt;
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; lhs, <span class="keyword">const</span> <span class="keywordtype">char</span> *rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> ShortString&lt;LEN&gt;&amp; lhs, <span class="keyword">const</span> <span class="keywordtype">char</span> *rhs)
       <span class="comment">// Return true if a &#39;ShortString&#39; &#39;lhs&#39; is equal to a NTCS &#39;rhs&#39;.</span>
   {
       <span class="keywordtype">int</span> i;
@@ -281,7 +285,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -185,10 +185,23 @@
 : <a class="el" href="classbsls_1_1ProtocolTest.html#abc170245f0cc232c4119a9cc722aca95">bsls::ProtocolTest&lt; BSLS_TESTIMP &gt;</a>
 </li>
 <li>throwBadAlloc()
-: <a class="el" href="classbslma_1_1Allocator.html#a404c0ae3c51f8122a6ca3a62aba8dbf1">bslma::Allocator</a>
+: <a class="el" href="structbsls_1_1BslExceptionUtil.html#a465dfe918544c50b66067aee9c520a8c">bsls::BslExceptionUtil</a>
+, <a class="el" href="classbslma_1_1Allocator.html#a404c0ae3c51f8122a6ca3a62aba8dbf1">bslma::Allocator</a>
+</li>
+<li>throwBadCast()
+: <a class="el" href="structbsls_1_1BslExceptionUtil.html#a395eb98dd33195fcf5cf1adf2b0397af">bsls::BslExceptionUtil</a>
+</li>
+<li>throwBadException()
+: <a class="el" href="structbsls_1_1BslExceptionUtil.html#a1748b946c61e7e68a7b7998cdc6d44ea">bsls::BslExceptionUtil</a>
+</li>
+<li>throwBadTypeid()
+: <a class="el" href="structbsls_1_1BslExceptionUtil.html#a0c71a657390f574fcebf6f93ba11c781">bsls::BslExceptionUtil</a>
 </li>
 <li>throwDomainError()
 : <a class="el" href="structbslstl_1_1StdExceptUtil.html#af12008167af71c8c88a93c9ce88ec6f9">bslstl::StdExceptUtil</a>
+</li>
+<li>throwException()
+: <a class="el" href="structbsls_1_1BslExceptionUtil.html#a104069dc3087647645bc3e702a593daa">bsls::BslExceptionUtil</a>
 </li>
 <li>throwInvalidArgument()
 : <a class="el" href="structbslstl_1_1StdExceptUtil.html#afbcd4fa8b5a58977211fd24580418886">bslstl::StdExceptUtil</a>
@@ -230,9 +243,11 @@
 <li>top()
 : <a class="el" href="group__bslstl__stack.html#gaa5a73a760fff15dad4bc5ca5401efdac">bsl::stack&lt; VALUE, CONTAINER &gt;</a>
 , <a class="el" href="classbsl_1_1priority__queue.html#a76f82d1fb4b8b463d7b7133e131c3c3d">bsl::priority_queue&lt; VALUE, CONTAINER, COMPARATOR &gt;</a>
+, <a class="el" href="group__bslstl__stack.html#gaac25745575dc8bb06410028f36871728">bsl::stack&lt; VALUE, CONTAINER &gt;</a>
 </li>
 <li>TreeIterator()
-: <a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableIterator.html#a29ad392f3dbc2f890b6580dc393bd787">BloombergLP::bslstl::HashTableIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a>
+: <a class="el" href="classbslstl_1_1TreeIterator.html#ad33ac6fc880278c8eeff6d3ca9284f52">bslstl::TreeIterator&lt; VALUE, NODE, DIFFERENCE_TYPE &gt;</a>
+, <a class="el" href="classBloombergLP_1_1bslstl_1_1HashTableIterator.html#a29ad392f3dbc2f890b6580dc393bd787">BloombergLP::bslstl::HashTableIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a>
 , <a class="el" href="classbslstl_1_1TreeIterator.html#a0b817522244fb78c044cb78020099e90">bslstl::TreeIterator&lt; VALUE, NODE, DIFFERENCE_TYPE &gt;</a>
 </li>
 <li>TreeNodePool()
@@ -241,10 +256,13 @@
 <li>trueValue()
 : <a class="el" href="classbsls_1_1UnspecifiedBool.html#a5bac584d598a819efc9b8811084f7c8d">bsls::UnspecifiedBool&lt; BSLS_HOST_TYPE &gt;</a>
 </li>
+<li>trunc()
+: <a class="el" href="structbdldfp_1_1DecimalUtil.html#a69476e05e1b236d7e1ba28990c8e339f">bdldfp::DecimalUtil</a>
+</li>
 <li>truncate()
-: <a class="el" href="classbdlma_1_1SequentialPool.html#a6811148a5e1889268526a0e50b446ee7">bdlma::SequentialPool</a>
+: <a class="el" href="classbdlma_1_1BufferManager.html#a9f6aa6fecd7c6c5b290180bdafffc9a3">bdlma::BufferManager</a>
+, <a class="el" href="classbdlma_1_1SequentialPool.html#a6811148a5e1889268526a0e50b446ee7">bdlma::SequentialPool</a>
 , <a class="el" href="classbdlma_1_1SequentialAllocator.html#a7406226eadc9b9313502b699d462afae">bdlma::SequentialAllocator</a>
-, <a class="el" href="classbdlma_1_1BufferManager.html#a9f6aa6fecd7c6c5b290180bdafffc9a3">bdlma::BufferManager</a>
 </li>
 <li>tryAcquireRef()
 : <a class="el" href="classbslma_1_1SharedPtrRep.html#a2316b2cd2fa8879d0e44b01a4ab91960">bslma::SharedPtrRep</a>
@@ -257,7 +275,7 @@
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:50 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:36 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

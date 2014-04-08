@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslstl_pair Component</title>
+<title>BSL 2.20 OSS: bslstl_pair Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -207,8 +207,8 @@ Variables</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>my_String {
       <span class="comment">// Simple string class that uses a &#39;bslma::Allocator&#39; allocator.</span>
 
-      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *d_allocator;
-      <span class="keywordtype">char</span>            *d_data;
+      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *d_allocator_p;
+      <span class="keywordtype">char</span>             *d_data;
 
     <span class="keyword">public</span>:
       <a class="code" href="bslmf__nestedtraitdeclaration_8h.html#a6d33ff2982d65052e0c33136bf4d74e7">BSLMF_NESTED_TRAIT_DECLARATION</a>(my_String, <a class="code" href="structbslma_1_1UsesBslmaAllocator.html">bslma::UsesBslmaAllocator</a>);
@@ -276,34 +276,34 @@ Variables</h2></td></tr>
   }
 
   my_String::my_String(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
-  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
   {
-      d_data = myStrDup(<span class="stringliteral">&quot;&quot;</span>, d_allocator);
+      d_data = myStrDup(<span class="stringliteral">&quot;&quot;</span>, d_allocator_p);
   }
 
   my_String::my_String(<span class="keyword">const</span> <span class="keywordtype">char</span> *s, <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
-  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
   {
-      d_data = myStrDup(s, d_allocator);
+      d_data = myStrDup(s, d_allocator_p);
   }
 
   my_String::my_String(<span class="keyword">const</span> my_String&amp;  rhs,
                        <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
-  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
   {
-      d_data = myStrDup(rhs.d_data, d_allocator);
+      d_data = myStrDup(rhs.d_data, d_allocator_p);
   }
 
   my_String::~my_String()
   {
-      d_allocator-&gt;deallocate(d_data);
+      d_allocator_p-&gt;deallocate(d_data);
   }
 
   my_String&amp; my_String::operator=(<span class="keyword">const</span> my_String&amp; rhs)
   {
       <span class="keywordflow">if</span> (<span class="keyword">this</span> != &amp;rhs) {
-          d_allocator-&gt;deallocate(d_data);
-          d_data = myStrDup(rhs.d_data, d_allocator);
+          d_allocator_p-&gt;deallocate(d_data);
+          d_data = myStrDup(rhs.d_data, d_allocator_p);
       }
       <span class="keywordflow">return</span> *<span class="keyword">this</span>;
   }
@@ -315,7 +315,7 @@ Variables</h2></td></tr>
 
   <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *my_String::allocator()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
-      <span class="keywordflow">return</span> d_allocator;
+      <span class="keywordflow">return</span> d_allocator_p;
   }
 </pre></div><br/>
 <br/>
@@ -1510,7 +1510,7 @@ template&lt;typename T1 , typename T2 &gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:48 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

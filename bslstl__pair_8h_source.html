@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslstl_pair.h                                                      -*-C++-*-
@@ -90,8 +90,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  class my_String {
 //      // Simple string class that uses a &#39;bslma::Allocator&#39; allocator.
 //
-//      bslma::Allocator *d_allocator;
-//      char            *d_data;
+//      bslma::Allocator *d_allocator_p;
+//      char             *d_data;
 //
 //    public:
 //      BSLMF_NESTED_TRAIT_DECLARATION(my_String, bslma::UsesBslmaAllocator);
@@ -159,34 +159,34 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  }
 //
 //  my_String::my_String(bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup(&quot;&quot;, d_allocator);
+//      d_data = myStrDup(&quot;&quot;, d_allocator_p);
 //  }
 //
 //  my_String::my_String(const char *s, bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup(s, d_allocator);
+//      d_data = myStrDup(s, d_allocator_p);
 //  }
 //
 //  my_String::my_String(const my_String&amp;  rhs,
 //                       bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup(rhs.d_data, d_allocator);
+//      d_data = myStrDup(rhs.d_data, d_allocator_p);
 //  }
 //
 //  my_String::~my_String()
 //  {
-//      d_allocator-&gt;deallocate(d_data);
+//      d_allocator_p-&gt;deallocate(d_data);
 //  }
 //
 //  my_String&amp; my_String::operator=(const my_String&amp; rhs)
 //  {
 //      if (this != &amp;rhs) {
-//          d_allocator-&gt;deallocate(d_data);
-//          d_data = myStrDup(rhs.d_data, d_allocator);
+//          d_allocator_p-&gt;deallocate(d_data);
+//          d_data = myStrDup(rhs.d_data, d_allocator_p);
 //      }
 //      return *this;
 //  }
@@ -198,7 +198,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  bslma::Allocator *my_String::allocator() const
 //  {
-//      return d_allocator;
+//      return d_allocator_p;
 //  }
 //..
 // Our main program creates a mapping from strings to integers.  Each node of
@@ -501,12 +501,12 @@ class pair : public Pair_Imp&lt;T1, T2,
 
     pair(const pair&amp; original);
     pair(const pair&amp; original, BloombergLP::bslma::Allocator *basicAllocator);
-        // Construct a pair from the specified &#39;original&#39; value.  Copy-construct
-        // &#39;first&#39; from &#39;rhs.first&#39; and &#39;second&#39; from &#39;rhs.second&#39;.  Optionally
-        // specify a &#39;basicAllocator&#39; used to supply memory for the
-        // constructor(s) of which ever data member(s) accept an allocator.
-        // Attempted use of of either version of this constructor will not
-        // compile unless &#39;T1&#39; and &#39;T2&#39; both supply copy constructors.
+        // Construct a pair from the specified &#39;original&#39; value.
+        // Copy-construct &#39;first&#39; from &#39;rhs.first&#39; and &#39;second&#39; from
+        // &#39;rhs.second&#39;.  Optionally specify a &#39;basicAllocator&#39; used to supply
+        // memory for the constructor(s) of which ever data member(s) accept an
+        // allocator.  Attempted use of of either version of this constructor
+        // will not compile unless &#39;T1&#39; and &#39;T2&#39; both supply copy constructors.
         // Attempted use of the allocator version will not compile unless one
         // or both of &#39;T1&#39; and &#39;T2&#39; accept an allocator.
 
@@ -1047,7 +1047,7 @@ struct UsesBslmaAllocator&lt;bsl::pair&lt;T1, T2&gt; &gt;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

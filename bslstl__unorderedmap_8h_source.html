@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslstl_unorderedmap.h                                              -*-C++-*-
@@ -552,8 +552,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  bsl::vector&lt;int&gt; bucketSizes;
 //  bucketSizes.reserve(wordTally.bucket_count());
 //
-//  for (int idx = 0; idx &lt; wordTally.bucket_count(); ++idx) {
-//     bucketSizes.push_back(wordTally.bucket_size(idx));
+//  for (size_t idx = 0; idx &lt; wordTally.bucket_count(); ++idx) {
+//     bucketSizes.push_back(static_cast&lt;int&gt;(wordTally.bucket_size(idx)));
 //  }
 //
 //  assert(0 &lt; bucketSizes.size());
@@ -568,14 +568,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // We can also count the number of empty buckets, and the number of buckets at
 // &#39;maxBucketSize&#39;.
 //..
-//  int numEmptyBuckets = std::count(bucketSizes.begin(),
-//                                   bucketSizes.end(),
-//                                   0);
+//  int numEmptyBuckets = static_cast&lt;int&gt;(std::count(bucketSizes.begin(),
+//                                                    bucketSizes.end(),
+//                                                    0));
 //  printf(&quot;numEmptyBuckets  %4d\n&quot;, numEmptyBuckets);
 //
-//  int numMaxBuckets = std::count(bucketSizes.begin(),
-//                                 bucketSizes.end(),
-//                                 maxBucketSize);
+//  int numMaxBuckets = static_cast&lt;int&gt;(std::count(bucketSizes.begin(),
+//                                                  bucketSizes.end(),
+//                                                  maxBucketSize));
 //  printf(&quot;numMaxBuckets    %4d\n&quot;, numMaxBuckets);
 //..
 // which shows on standard output:
@@ -620,8 +620,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //  bsl::vector&lt;int&gt; bucketSizes2;
 //  bucketSizes2.reserve(wordTally2.bucket_count());
 //
-//  for (int idx = 0; idx &lt; wordTally2.bucket_count(); ++idx) {
-//     bucketSizes2.push_back(wordTally2.bucket_size(idx));
+//  for (size_t idx = 0; idx &lt; wordTally2.bucket_count(); ++idx) {
+//     bucketSizes2.push_back(static_cast&lt;int&gt;(wordTally2.bucket_size(idx)));
 //  }
 //
 //  assert(0 &lt; bucketSizes2.size());
@@ -629,14 +629,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //                                         bucketSizes2.end());
 //  printf(&quot;maxBucketSize2   %4d\n&quot;, maxBucketSize2);
 //
-//  int numEmptyBuckets2 = std::count(bucketSizes2.begin(),
-//                                    bucketSizes2.end(),
-//                                    0);
+//  int numEmptyBuckets2 = static_cast&lt;int&gt;(std::count(bucketSizes2.begin(),
+//                                          bucketSizes2.end(),
+//                                          0));
 //  printf(&quot;numEmptyBuckets2 %4d\n&quot;, numEmptyBuckets2);
 //
-//  int numMaxBuckets2 = std::count(bucketSizes2.begin(),
-//                                  bucketSizes2.end(),
-//                                  maxBucketSize2);
+//  int numMaxBuckets2 = static_cast&lt;int&gt;(std::count(bucketSizes2.begin(),
+//                                        bucketSizes2.end(),
+//                                        maxBucketSize2));
 //  printf(&quot;numMaxBuckets2   %4d\n&quot;, numMaxBuckets2);
 //..
 // Finally, we see on standard output:
@@ -2096,7 +2096,7 @@ struct UsesBslmaAllocator&lt;bsl::unordered_map&lt;KEY,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

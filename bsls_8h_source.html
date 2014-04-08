@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
  bsls.txt
@@ -23,31 +23,51 @@
 
 /Hierarchical Synopsis
 /---------------------
- The &#39;bsls&#39; package currently has 30 components having 11 levels of physical
+ The &#39;bsls&#39; package currently has 49 components having 13 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  11. bsls_alignedbuffer
+  13. bsls_alignedbuffer
 
-  10. bsls_alignmentutil
+  12. bsls_alignmentutil
+      bsls_bslexceptionutil
+      bsls_bsllock
 
-   9. bsls_asserttest
+  11. bsls_asserttest
       bsls_exceptionutil
 
-   8. bsls_assert
+  10. bsls_assert
 
-   7. bsls_performancehint
+   9. bsls_performancehint
 
-   6. bsls_objectbuffer
-      bsls_stopwatch
+   8. bsls_stopwatch
 
-   5. bsls_alignmentfromtype
-      bsls_atomic
+   7. bsls_atomic
       bsls_timeutil
 
-   4. bsls_alignmenttotype
-      bsls_atomicoperations
+   6. bsls_atomicoperations
+      bsls_objectbuffer
+
+   5. bsls_alignmentfromtype
+      bsls_atomicoperations_powerpc32_aix_xlc
+      bsls_atomicoperations_powerpc64_aix_xlc
+      bsls_atomicoperations_sparc32_sun_cc
+      bsls_atomicoperations_sparc64_sun_cc
+
+   4. bsls_alignment
+      bsls_alignmenttotype
+      bsls_atomicoperations_all_all_gccintrinsics
+      bsls_atomicoperations_arm_all_gcc
+      bsls_atomicoperations_ia64_hp_acc
+      bsls_atomicoperations_powerpc_aix_gcc
+      bsls_atomicoperations_powerpc_aix_xlc_default
+      bsls_atomicoperations_sparc_sun_cc_default
+      bsls_atomicoperations_x64_all_gcc
+      bsls_atomicoperations_x64_win_msvc
+      bsls_atomicoperations_x86_all_gcc
+      bsls_atomicoperations_x86_win_msvc
+      bsls_buildtarget
       bsls_byteorder
       bsls_nullptr
       bsls_unspecifiedbool
@@ -57,17 +77,18 @@
       bsls_annotation
       bsls_bsltestutil
       bsls_compilerfeatures
+      bsls_linkcoercion
       bsls_nativestd
       bsls_types
 
-   2. bsls_alignment
-      bsls_asserttestexception
+   2. bsls_asserttestexception
       bsls_blockgrowth
       bsls_macroincrement
       bsls_platform
       bsls_protocoltest
 
-   1. bsls_ident
+   1. bsls_atomicoperations_default
+      bsls_ident
 ..
 
 /Component Synopsis
@@ -108,11 +129,62 @@
 : &#39;bsls_atomicoperations&#39;:
 :      Provide platform-independent atomic operations.
 :
+: &#39;bsls_atomicoperations_all_all_gccintrinsics&#39;:
+:      Implement atomic operations using gcc &#39;__atomic_*&#39; intrinsics.
+:
+: &#39;bsls_atomicoperations_arm_all_gcc&#39;:
+:      Provide implementations of atomic operations for ARM/GCC.
+:
+: &#39;bsls_atomicoperations_ia64_hp_acc&#39;:
+:      Provide implementations of atomic operations for HPUX/IA64.
+:
+: &#39;bsls_atomicoperations_powerpc32_aix_xlc&#39;:
+:      Provide implementations of atomic operations for PowerPC/AIX-32bit.
+:
+: &#39;bsls_atomicoperations_powerpc64_aix_xlc&#39;:
+:      Provide implementations of atomic operations for PowerPC/AIX-64bit.
+:
+: &#39;bsls_atomicoperations_powerpc_aix_gcc&#39;:
+:      Provide implementations of atomic operations for PowerPC/AIX/GCC.
+:
+: &#39;bsls_atomicoperations_powerpc_aix_xlc_default&#39;:
+:      Provide default base implementations of atomics for PowerPC/AIX.
+:
+: &#39;bsls_atomicoperations_sparc32_sun_cc&#39;:
+:      Provide implementations of atomic operations for Sparc/Sun (32bit).
+:
+: &#39;bsls_atomicoperations_sparc64_sun_cc&#39;:
+:      Provide implementations of atomic operations for Sparc/Sun (64bit).
+:
+: &#39;bsls_atomicoperations_sparc_sun_cc_default&#39;:
+:      Provide default base implementations of atomics for Sparc/Sun.
+:
+: &#39;bsls_atomicoperations_x64_all_gcc&#39;:
+:      Provide implementations of atomic operations for X86_64/GCC.
+:
+: &#39;bsls_atomicoperations_x64_win_msvc&#39;:
+:      Provide implementations of atomic operations for X86_64/MSVC/Win64.
+:
+: &#39;bsls_atomicoperations_x86_all_gcc&#39;:
+:      Provide implementations of atomic operations for X86/GCC.
+:
+: &#39;bsls_atomicoperations_x86_win_msvc&#39;:
+:      Provide implementations of atomic operations for X86/MSVC/Windows.
+:
 : &#39;bsls_blockgrowth&#39;:
 :      Provide a namespace for memory block growth strategies.
 :
+: &#39;bsls_bslexceptionutil&#39;:
+:      Provide functions for use in &#39;bsl&#39; that throw standard exceptions.
+:
+: &#39;bsls_bsllock&#39;:
+:      Provide a platform-independent mutex for use below &#39;bslmt&#39;.
+:
 : &#39;bsls_bsltestutil&#39;:
 :      Provide test utilities for &#39;bsl&#39; that do not use &lt;iostream&gt;.
+:
+: &#39;bsls_buildtarget&#39;:
+:      Provide build-target information in the object file.
 :
 : &#39;bsls_byteorder&#39;:
 :      Provide byte-order manipulation macros.
@@ -125,6 +197,9 @@
 :
 : &#39;bsls_ident&#39;:
 :      Provide macros for inserting SCM Ids into source files.
+:
+: &#39;bsls_linkcoercion&#39;:
+:      Provide a way to force a link-time dependency into an object.
 :
 : &#39;bsls_macroincrement&#39;:
 :      Provide a macro to increment preprocessor numbers.

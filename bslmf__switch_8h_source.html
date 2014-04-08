@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslmf_switch.h                                                     -*-C++-*-
@@ -74,8 +74,12 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //       void store(short data) { d_data = data | 0Xdead0000; }
 //       void store(int   data) { d_data = data; }
 //
-//       void retrieve(char  *data) { *data = d_data &amp; 0x000000ff; }
-//       void retrieve(short *data) { *data = d_data &amp; 0x0000ffff; }
+//       void retrieve(char  *data) {
+//          *data = static_cast&lt;char&gt;(d_data &amp; 0x000000ff);
+//       }
+//       void retrieve(short *data) {
+//          *data = static_cast&lt;short&gt;(d_data &amp; 0x0000ffff);
+//       }
 //       void retrieve(int   *data) { *data = d_data; }
 //  };
 //..
@@ -872,7 +876,7 @@ struct Switch9&lt;8, T0, T1, T2, T3, T4, T5, T6, T7, T8&gt; {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

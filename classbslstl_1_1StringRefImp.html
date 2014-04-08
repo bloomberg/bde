@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: Class bslstl::StringRefImp</title>
+<title>BSL 2.20 OSS: Class bslstl::StringRefImp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -105,6 +105,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a67127f1b1b9e487979f921667d89ba40">StringRefImp</a> (const native_std::basic_string&lt; CHAR_TYPE &gt; &amp;str)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a3cff511bf6b94d2f657536ff810a114d">StringRefImp</a> (const <a class="el" href="classbsl_1_1basic__string.html">bsl::basic_string</a>&lt; CHAR_TYPE &gt; &amp;str)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a112a6c0bb7214b981634fcc3eba89ad8">StringRefImp</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;original)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#aa7ff8217cf902a4a1e497037be1991c5">StringRefImp</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;original, int startIndex, int numCharacters)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#aacc12b09797122c63182f7cba22b0d9c">operator=</a> (const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> &amp;rhs)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a28a16805190553d8e17db781bf191bbf">assign</a> (const CHAR_TYPE *data, int length)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classbslstl_1_1StringRefImp.html#a264526f89ddf81d55016784d8f3954e2">assign</a> (<a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a> begin, <a class="el" href="classbslstl_1_1StringRefImp.html#a868d22519507a4446cfb01de40bbe8d5">const_iterator</a> end)</td></tr>
@@ -423,6 +424,42 @@ template&lt;typename CHAR_TYPE&gt; </div>
 </div>
 <div class="memdoc">
 <p>Create a string-reference object having a valid <code>std::string</code> value, whose external representation is defined by the specified <code>original</code> object. The external representation must remain valid as long as it is bound to this string reference. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa7ff8217cf902a4a1e497037be1991c5"></a><!-- doxytag: member="bslstl::StringRefImp::StringRefImp" ref="aa7ff8217cf902a4a1e497037be1991c5" args="(const StringRefImp &amp;original, int startIndex, int numCharacters)" -->
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename CHAR_TYPE&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classbslstl_1_1StringRefImp.html">bslstl::StringRefImp</a>&lt; CHAR_TYPE &gt;::<a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classbslstl_1_1StringRefImp.html">StringRefImp</a>&lt; CHAR_TYPE &gt; &amp;&nbsp;</td>
+          <td class="paramname"> <em>original</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>startIndex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&nbsp;</td>
+          <td class="paramname"> <em>numCharacters</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Create a string-reference object having a valid <code>std::string</code> value, whose external representation begins at the specified <code>startIndex</code> in the specified <code>original</code> string reference, and extends either the specified <code>numCharacters</code> or until the end of the <code>original</code> string reference, whichever comes first. The external representation must remain valid as long as it is bound to this string reference. The behavior is undefined unless <code>0 &lt;= startIndex &lt;= original.length()</code> and <code>0 &lt;= numCharacters</code>. Note that if <code>startIndex</code> is <code>original.length()</code> an empty string reference is returned. </p>
 
 </div>
 </div>
@@ -800,7 +837,7 @@ template&lt;typename OTHER_CHAR_TYPE &gt; </div>
 <li><a class="el" href="bslstl__stringref_8h_source.html">bslstl_stringref.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:22:02 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:50 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

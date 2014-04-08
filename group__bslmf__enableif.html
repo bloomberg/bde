@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslmf_enableif Component</title>
+<title>BSL 2.20 OSS: bslmf_enableif Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -105,9 +105,10 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><table class="doxtable">
 <tr>
 <td><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a> </td><td>standard meta-function to drop templates from overload sets  </td></tr>
+<tr>
+<td><a class="el" href="structbslmf_1_1EnableIf.html">bslmf::EnableIf</a> </td><td>meta-function to drop templates from overload sets  </td></tr>
 </table>
 </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="el" href="structbslmf_1_1EnableIf.html">bslmf::EnableIf</a>: meta-function to drop templates from overload sets </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="description"></a> <a class="anchor" id="3"></a> </dd></dl>
 <dl class="user"><dt><b>Description: </b></dt><dd></dd></dl>
@@ -118,7 +119,7 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="visual_studio_workaround"></a> <a class="anchor" id="description.visual_studio_workaround"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Visual Studio Workaround: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Because of a Visual Studio bug, described here: <a href="http://connect.microsoft.com/VisualStudio/feedback/details/332179/">http://connect.microsoft.com/VisualStudio/feedback/details/332179/</a> the Microsoft Visual Studio compiler may not correctly associate a function declaration that uses <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> with that function's definition, if the definition is not inline to the declaration. This bug effects at least Visual Studio 2008 and 2010. The workaround is to implement functions using <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> inline with their declaration. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Because of a Visual Studio bug, described here: <a href="http://connect.microsoft.com/VisualStudio/feedback/details/332179/">http://connect.microsoft.com/VisualStudio/feedback/details/332179/</a> the Microsoft Visual Studio compiler may not correctly associate a function declaration that uses <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> with that function's definition, if the definition is not inline to the declaration. This bug affects at least Visual Studio 2008 and 2010. The workaround is to implement functions using <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> inline with their declaration. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="usage"></a> <a class="anchor" id="description.usage"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
@@ -128,11 +129,11 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b>Example 1: Implementing a Simple Function with bsl::enable_if: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Suppose that we want to implement a simple <code>swap</code> function template to exchange two arbitrary values, as if defined below: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  <span class="keywordtype">void</span> DummySwap(T&amp; a, T&amp; b)
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keywordtype">void</span> DummySwap(TYPE&amp; a, TYPE&amp; b)
       <span class="comment">// Exchange the values of the specified objects, &#39;a&#39; and &#39;b&#39;.</span>
   {
-      T temp(a);
+      TYPE temp(a);
       a = b;
       b = temp;
   }
@@ -140,49 +141,51 @@ Classes</h2></td></tr>
 <br/>
  However, we want to take advantage of member-swap methods supplied by user- defined types, so we define a trait that can be customized by a class implementer to indicate that their class supports an optimized member-swap method: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
   <span class="keyword">struct </span>HasMemberSwap : bsl::<a class="code" href="namespacebsl.html#a072205c212218b4b4cccaf66052c99a4">false_type</a> {
-      <span class="comment">// This traits class indicates whether the specified template type</span>
-      <span class="comment">// parameter &#39;T&#39; has a public &#39;swap&#39; method to exchange values.</span>
+      <span class="comment">// This traits class indicates whether the (template parameter) &#39;TYPE&#39;</span>
+      <span class="comment">// has a public &#39;swap&#39; method to exchange values.</span>
   };
 </pre></div><br/>
 <br/>
- Now, we implement a generic <code>swap</code> function template that will invoke the member swap operation for any type that specialized our trait. The use of <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> to declare the result type causes an attempt to deduce the type <code>T</code> to fail unless the specified condition is <code>true</code>, and this falls under the "Substitution Failure Is Not An Error" (SFINAE) clause of the C++ standard, so the compiler will look for a more suitable overload rather than fail with an error. Note that we provide two overloaded declarations that appear to differ only in their return type, which would normally raise an ambiguity error. This works, and is in fact required, in this case as the "enable-if" conditions are mutually exclusive, so that only one overload will ever be present in an overload set. Also note that the <code>type</code> <code>typedef</code> of <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> is an alias to <code>void</code> when the (template parameter) type is unspecified and the (template parameter) condition value is <code>true</code>. <br/>
+ Now, we implement a generic <code>swap</code> function template that will invoke the member swap operation for any type that specialized our trait. The use of <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> to declare the result type causes an attempt to deduce the type <code>TYPE</code> to fail unless the specified condition is <code>true</code>, and this falls under the "Substitution Failure Is Not An Error" (SFINAE) clause of the C++ standard, so the compiler will look for a more suitable overload rather than fail with an error. Note that we provide two overloaded declarations that appear to differ only in their return type, which would normally raise an ambiguity error. This works, and is in fact required, in this case as the "enable-if" conditions are mutually exclusive, so that only one overload will ever be present in an overload set. Also note that the <code>type</code> <code>typedef</code> of <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> is an alias to <code>void</code> when the (template parameter) type is unspecified and the (template parameter) condition value is <code>true</code>. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  <span class="keyword">typename</span> <a class="code" href="structbsl_1_1enable__if.html">bsl::enable_if&lt;HasMemberSwap&lt;T&gt;::value</a>&gt;<a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">::type</a>
-  Swap(T&amp; a, T&amp; b)
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">typename</span> <a class="code" href="structbsl_1_1enable__if.html">bsl::enable_if&lt;HasMemberSwap&lt;TYPE&gt;::value</a>&gt;::type
+  <a class="code" href="group__bslstl__deque.html#ga4ffc73dd2ce1f86230d22d2284773f1d">swap</a>(TYPE&amp; a, TYPE&amp; b)
   {
       a.swap(b);
   }
 
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  <span class="keyword">typename</span> <a class="code" href="structbsl_1_1enable__if.html">bsl::enable_if&lt; ! HasMemberSwap&lt;T&gt;::value</a>&gt;<a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">::type</a>
-  Swap(T&amp; a, T&amp; b)
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">typename</span> <a class="code" href="structbsl_1_1enable__if.html">bsl::enable_if&lt; ! HasMemberSwap&lt;TYPE&gt;::value</a>&gt;::type
+  <a class="code" href="group__bslstl__deque.html#ga4ffc73dd2ce1f86230d22d2284773f1d">swap</a>(TYPE&amp; a, TYPE&amp; b)
   {
-      T temp(a);
+      TYPE temp(a);
       a = b;
       b = temp;
   }
 </pre></div><br/>
 <br/>
- Next, we define a simple container template that supports an optimized <code>swap</code> operation by merely swapping the internal pointer to the array of elements rather than exchanging each element: <br/>
+ Next, we define a simple container template, that supports an optimized <code>swap</code> operation by merely swapping the internal pointer to the array of elements rather than exchanging each element: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
   <span class="keyword">class </span>MyContainer {
       <span class="comment">// This is a simple container implementation for demonstration purposes</span>
       <span class="comment">// that is modeled after &#39;std::vector&#39;.</span>
 
       <span class="comment">// DATA</span>
-      T           *d_storage;
-      std::size_t  d_length;
+      TYPE *d_storage;
+      <span class="keywordtype">size_t</span> d_length;
+
+      <span class="comment">// Copy operations are declared private and not defined.</span>
 
       <span class="comment">// NOT IMPLEMENTED</span>
       MyContainer(<span class="keyword">const</span> MyContainer&amp;);
       MyContainer&amp; operator=(<span class="keyword">const</span> MyContainer&amp;);
 
     <span class="keyword">public</span>:
-      MyContainer(<span class="keyword">const</span> T&amp; value, <span class="keywordtype">int</span> n);
+      MyContainer(<span class="keyword">const</span> TYPE&amp; value, <span class="keywordtype">int</span> n);
           <span class="comment">// Create a &#39;MyContainer&#39; object having the specified &#39;n&#39; copies of</span>
           <span class="comment">// the specified &#39;value&#39;.  The behavior is undefined unless</span>
           <span class="comment">// &#39;0 &lt;= n&#39;.</span>
@@ -198,29 +201,29 @@ Classes</h2></td></tr>
           <span class="comment">// exceptions are thrown.</span>
 
       <span class="comment">// ACCESSORS</span>
-      <span class="keyword">const</span> T&amp; front() <span class="keyword">const</span>;
+      <span class="keyword">const</span> TYPE&amp; front() <span class="keyword">const</span>;
           <span class="comment">// Return a reference providing non-modifiable access to the first</span>
           <span class="comment">// element in this container.  The behavior is undefined if this</span>
           <span class="comment">// container is empty.</span>
 
-      std::size_t size() <span class="keyword">const</span>;
+      <span class="keywordtype">size_t</span> size() <span class="keyword">const</span>;
           <span class="comment">// Return the number of elements held by this container.</span>
   };
 </pre></div><br/>
 <br/>
  Then, we specialize our <code>HasMemberSwap</code> trait for this new container type. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  <span class="keyword">struct </span>HasMemberSwap&lt;MyContainer&lt;T&gt; &gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">struct </span>HasMemberSwap&lt;MyContainer&lt;TYPE&gt; &gt; : bsl::<a class="code" href="namespacebsl.html#a124171e6663dfc2b3c10256844c8dc3b">true_type</a> {
   };
 </pre></div><br/>
 <br/>
  Next, we implement the methods of this class: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// CREATORS</span>
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  MyContainer&lt;T&gt;::MyContainer(<span class="keyword">const</span> T&amp; value, <span class="keywordtype">int</span> n)
-  : d_storage(new T[n])
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  MyContainer&lt;TYPE&gt;::MyContainer(<span class="keyword">const</span> TYPE&amp; value, <span class="keywordtype">int</span> n)
+  : d_storage(new TYPE[n])
   , d_length(n)
   {
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i != n; ++i) {
@@ -228,35 +231,35 @@ Classes</h2></td></tr>
       }
   }
 
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  MyContainer&lt;T&gt;::~MyContainer()
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  MyContainer&lt;TYPE&gt;::~MyContainer()
   {
       <span class="keyword">delete</span>[] d_storage;
   }
 
   <span class="comment">// MANIPULATORS</span>
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  <span class="keywordtype">void</span> <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">MyContainer&lt;T&gt;::swap</a>(MyContainer&amp; other)
-  {
-      Swap(d_storage, other.d_storage);
-      Swap(d_length,  other.d_length);
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keywordtype">void</span> <a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">MyContainer&lt;TYPE&gt;::swap</a>(MyContainer&amp; other)
+  {<a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5"></a>
+<a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">      ::swap</a>(d_storage, other.d_storage);<a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5"></a>
+<a class="code" href="namespacebsltf.html#a6bca36500855960d035e7fbdf701ade5">      ::swap</a>(d_length,  other.d_length);
   }
 
   <span class="comment">// ACCESSORS</span>
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  <span class="keyword">const</span> T&amp; MyContainer&lt;T&gt;::front()<span class="keyword"> const</span>
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">const</span> TYPE&amp; MyContainer&lt;TYPE&gt;::front()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_storage[0];
   }
 
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  std::size_t MyContainer&lt;T&gt;::size()<span class="keyword"> const</span>
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keywordtype">size_t</span> MyContainer&lt;TYPE&gt;::size()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_length;
   }
 </pre></div><br/>
 <br/>
- Finally, we can test that the member-'swap' method is called by the generic <code>Swap</code> function. Note that the following code will not compile unless the member-function <code>swap</code> is used, as the copy constructor and assignment operator for the <code>MyContainer</code> class template are declared as <code>private</code>. <br/>
+ Finally, we can test that the member-'swap' method is called by the generic <code>swap</code> function. Note that the following code will not compile unless the member-function <code>swap</code> is used, as the copy constructor and assignment operator for the <code>MyContainer</code> class template are declared as <code>private</code>. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> TestSwap()
   {
@@ -267,13 +270,13 @@ Classes</h2></td></tr>
       assert(78 == y.size());
       assert( 2 == y.front());
 
-      Swap(x, y);
+      <a class="code" href="group__bslstl__deque.html#ga4ffc73dd2ce1f86230d22d2284773f1d">swap</a>(x, y);
 
       assert(78 == x.size());
       assert( 2 == x.front());
       assert(14 == y.size());
       assert( 3 == y.front());
-  }
+ }
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -285,7 +288,7 @@ Classes</h2></td></tr>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TO, <span class="keyword">class</span> FROM&gt;
   <span class="keyword">typename</span> <a class="code" href="structbsl_1_1enable__if.html">bsl::enable_if&lt;bsl::is_polymorphic&lt;FROM&gt;::value</a> &amp;&amp;
                                               <a class="code" href="structbsl_1_1is__polymorphic.html">bsl::is_polymorphic&lt;TO&gt;::value</a>,
-                          TO&gt;<a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">::type</a> *
+                          TO&gt;::type *
   smart_cast(FROM *from)
       <span class="comment">// Return a pointer to the specified &#39;TO&#39; type if the specified &#39;from&#39;</span>
       <span class="comment">// pointer refers to an object whose complete class publicly derives,</span>
@@ -296,8 +299,8 @@ Classes</h2></td></tr>
 
   <span class="keyword">template</span>&lt;<span class="keyword">class</span> TO, <span class="keyword">class</span> FROM&gt;
   <span class="keyword">typename</span> <a class="code" href="structbsl_1_1enable__if.html">bsl::enable_if&lt;not(bsl::is_polymorphic&lt;FROM&gt;::value</a> &amp;&amp;
-                                             bsl::is_polymorphic&lt;TO&gt;::value),
-                          TO&gt;::<a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> *
+                                            bsl::is_polymorphic&lt;TO&gt;::value),
+                          TO&gt;::type *
   smart_cast(FROM *from)
       <span class="comment">// Return the specified &#39;from&#39; pointer value cast as a pointer to type</span>
       <span class="comment">// &#39;TO&#39;.  The behavior is undefined unless such a conversion is valid.</span>
@@ -309,21 +312,21 @@ Classes</h2></td></tr>
  Next, we define a small number of classes to demonstrate that this casting utility works correctly: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>A {
-     <span class="comment">// Sample non-polymorphic type.</span>
+      <span class="comment">// Sample non-polymorphic type</span>
 
     <span class="keyword">public</span>:
       ~A() {}
   };
 
   <span class="keyword">class </span>B {
-      <span class="comment">// Sample polymorphic base-type.</span>
+      <span class="comment">// Sample polymorphic base-type</span>
 
     <span class="keyword">public</span>:
       <span class="keyword">virtual</span> ~B() {}
   };
 
   <span class="keyword">class </span>C {
-      <span class="comment">// Sample polymorphic base-type.</span>
+      <span class="comment">// Sample polymorphic base-type</span>
 
     <span class="keyword">public</span>:
       <span class="keyword">virtual</span> ~C() {}
@@ -349,11 +352,13 @@ Classes</h2></td></tr>
       B *pB2 = smart_cast&lt;B&gt;(pC);
       C *pC2 = smart_cast&lt;C&gt;(pB);
 
+      (void) pA;
+
       assert(&amp;<span class="keywordtype">object</span> == pA2);
       assert(&amp;<span class="keywordtype">object</span> == pB2);
       assert(&amp;<span class="keywordtype">object</span> == pC2);
 
-      <span class="comment">// These lines would fail to compile:</span>
+      <span class="comment">// These lines would fail to compile</span>
       <span class="comment">// A *pA3 = smart_cast&lt;A&gt;(pB);</span>
       <span class="comment">// C *pC3 = smart_cast&lt;C&gt;(pA);</span>
   }
@@ -363,16 +368,16 @@ Classes</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_controlling_constructor_selection_with_bsl~3A~3Aenable_if"></a> <a class="anchor" id="usage.example_3~3A_controlling_constructor_selection_with_bsl~3A~3Aenable_if"></a> <a class="anchor" id="description.usage.example_3~3A_controlling_constructor_selection_with_bsl~3A~3Aenable_if"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="usage.example_3"></a> <a class="anchor" id="description.usage.example_3"></a> <a class="anchor" id="3.2.3"></a> </dd></dl>
 <dl class="user"><dt><b>Example 3: Controlling Constructor Selection with bsl::enable_if: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The final example demonstrates controlling the selection of a constructor template in a class with (potentially) many constructors. We define a simple container template based on <code>std::vector</code> that illustrates a problem that may occur when trying to call the constructor the user expects. For this example, assume we are trying to create a <code>vector&lt;int&gt;</code> with <code>42</code> copies of the value <code>13</code>. When we pass the literal values <code>42</code> and <code>13</code> to the compiler, the "best" candidate constructor should be the template constructor that takes two arguments of the same kind, deducing that type to be <code>int</code>. Unfortunately, that constructor expects those values to be of an iterator type forming a valid range. We need to avoid calling this constructor unless the deduced type really is an iterator, otherwise a compile-error will occur trying to instantiate that constructor with an incompatible argument type. We use <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> to create a deduction context where SFINAE can kick in. Note that we cannot deduce the <code>::type</code> result of a meta-function, and there is no result type (as with a regular function) to decorate, so we add an extra dummy argument using a pointer type (produced from <code><a class="el" href="structbsl_1_1enable__if.html#ac2af8612bbff148443305fd4c5da2710">bsl::enable_if::type</a></code>) with a default null argument: <br/>
+<dl class="user"><dt><b></b></dt><dd>The final example demonstrates controlling the selection of a constructor template in a class with (potentially) many constructors. We define a simple container template based on <code>std::vector</code> that illustrates a problem that may occur when trying to call the constructor the user expects. For this example, assume we are trying to create a <code>vector&lt;int&gt;</code> with <code>42</code> copies of the value <code>13</code>. When we pass the literal values <code>42</code> and <code>13</code> to the compiler, the "best" candidate constructor should be the template constructor that takes two arguments of the same kind, deducing that type to be <code>int</code>. Unfortunately, that constructor expects those values to be of an iterator type, forming a valid range. We need to avoid calling this constructor unless the deduced type really is an iterator, otherwise a compile-error will occur trying to instantiate that constructor with an incompatible argument type. We use <code><a class="el" href="structbsl_1_1enable__if.html">bsl::enable_if</a></code> to create a deduction context where SFINAE can kick in. Note that we cannot deduce the <code>::type</code> result of a meta-function, and there is no result type (as with a regular function) to decorate, so we add an extra dummy argument using a pointer type (produced from <code><a class="el" href="structbsl_1_1enable__if.html#ac2af8612bbff148443305fd4c5da2710">bsl::enable_if::type</a></code>) with a default null argument: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
   <span class="keyword">class </span>MyVector {
       <span class="comment">// This is a simple container implementation for demonstration purposes</span>
       <span class="comment">// that is modeled after &#39;std::vector&#39;.</span>
 
       <span class="comment">// DATA</span>
-      T           *d_storage;
-      std::size_t  d_length;
+      TYPE   *d_storage;
+      <span class="keywordtype">size_t</span>  d_length;
 
       <span class="comment">// NOT IMPLEMENTED</span>
       MyVector(<span class="keyword">const</span> MyVector&amp;);
@@ -380,7 +385,7 @@ Classes</h2></td></tr>
 
     <span class="keyword">public</span>:
       <span class="comment">// CREATORS</span>
-      MyVector(<span class="keyword">const</span> T&amp; value, <span class="keywordtype">int</span> n);
+      MyVector(<span class="keyword">const</span> TYPE&amp; value, <span class="keywordtype">int</span> n);
           <span class="comment">// Create a &#39;MyVector&#39; object having the specified &#39;n&#39; copies of</span>
           <span class="comment">// the specified &#39;value&#39;.  The behavior is undefined unless</span>
           <span class="comment">// &#39;0 &lt;= n&#39;.</span>
@@ -389,12 +394,12 @@ Classes</h2></td></tr>
       MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
                   <span class="keyword">typename</span> <a class="code" href="structbsl_1_1enable__if.html">bsl::enable_if</a>&lt;
                       !<a class="code" href="structbsl_1_1is__fundamental.html">bsl::is_fundamental&lt;FORWARD_ITERATOR&gt;::value</a>
-                                                               &gt;::<a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> * = 0)
+                                                               &gt;::type * = 0)
           <span class="comment">// Create a &#39;MyVector&#39; object having the same sequence of values as</span>
           <span class="comment">// found in the range described by the the specified iterators</span>
           <span class="comment">// &#39;[first, last)&#39;.  The behavior is undefined unless &#39;first&#39; and</span>
-          <span class="comment">// &#39;last&#39; refer to a sequence of value of the (template parameter)</span>
-          <span class="comment">// type &#39;T&#39; where &#39;first&#39; is at a position at or before &#39;last&#39;.</span>
+          <span class="comment">// &#39;last&#39; refer to a sequence of values of the (template parameter)</span>
+          <span class="comment">// type &#39;TYPE&#39; where &#39;first&#39; is at a position at or before &#39;last&#39;.</span>
           <span class="comment">// Note that this function is currently defined inline to work</span>
           <span class="comment">// around an issue with the Microsoft Visual Studio compiler.</span>
 
@@ -404,8 +409,8 @@ Classes</h2></td></tr>
                ++d_length;
           }
 
-          d_storage = <span class="keyword">new</span> T[d_length];
-          <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i != d_length; ++i) {
+          d_storage = <span class="keyword">new</span> TYPE[d_length];
+          <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i != d_length; ++i) {
                d_storage[i] = *first;
                ++first;
           }
@@ -415,21 +420,22 @@ Classes</h2></td></tr>
           <span class="comment">// Destroy this container and all of its elements, reclaiming any</span>
           <span class="comment">// allocated memory.</span>
 
-      <span class="keyword">const</span> T&amp; operator[](<span class="keywordtype">int</span> index) <span class="keyword">const</span>;
+      <span class="comment">// ACCESSORS</span>
+      <span class="keyword">const</span> TYPE&amp; operator[](<span class="keywordtype">int</span> index) <span class="keyword">const</span>;
           <span class="comment">// Return a reference providing non-modifiable access to the</span>
-          <span class="comment">// element held by this container at the specified &#39;index&#39;.</span>
+          <span class="comment">// element held by this container at the specified &#39;index&#39;.  The</span>
+          <span class="comment">// behavior is undefined unless &#39;index &lt; size()&#39;.</span>
 
-      std::size_t size() <span class="keyword">const</span>;
+      <span class="keywordtype">size_t</span> size() <span class="keyword">const</span>;
           <span class="comment">// Return the number of elements held by this container.</span>
   };
 </pre></div><br/>
 <br/>
  Note that there is no easy test for whether a type is an iterator, so we assume that any attempt to call a constructor with two arguments that are not fundamental (such as <code>int</code>) must be passing iterators. Now that we have defined the class template, we implement its methods: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="comment">// CREATORS</span>
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  MyVector&lt;T&gt;::MyVector(<span class="keyword">const</span> T&amp; value, <span class="keywordtype">int</span> n)
-  : d_storage(new T[n])
+<div class="fragment"><pre class="fragment">  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  MyVector&lt;TYPE&gt;::MyVector(<span class="keyword">const</span> TYPE&amp; value, <span class="keywordtype">int</span> n)
+  : d_storage(new TYPE[n])
   , d_length(n)
   {
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i != n; ++i) {
@@ -437,21 +443,21 @@ Classes</h2></td></tr>
       }
   }
 
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  MyVector&lt;T&gt;::~MyVector()
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  MyVector&lt;TYPE&gt;::~MyVector()
   {
       <span class="keyword">delete</span>[] d_storage;
   }
 
   <span class="comment">// ACCESSORS</span>
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  <span class="keyword">const</span> T&amp; MyVector&lt;T&gt;::operator[](<span class="keywordtype">int</span> index)<span class="keyword"> const</span>
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keyword">const</span> TYPE&amp; MyVector&lt;TYPE&gt;::operator[](<span class="keywordtype">int</span> index)<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_storage[index];
   }
 
-  <span class="keyword">template</span>&lt;<span class="keyword">class</span> T&gt;
-  std::size_t MyVector&lt;T&gt;::size()<span class="keyword"> const</span>
+  <span class="keyword">template</span>&lt;<span class="keyword">class</span> TYPE&gt;
+  <span class="keywordtype">size_t</span> MyVector&lt;TYPE&gt;::size()<span class="keyword"> const</span>
 <span class="keyword">  </span>{
       <span class="keywordflow">return</span> d_length;
   }
@@ -480,7 +486,7 @@ Classes</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

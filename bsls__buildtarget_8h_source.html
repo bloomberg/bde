@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bsls_buildtarget.h                                                 -*-C++-*-
@@ -34,6 +34,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
+
+#ifndef INCLUDED_BSLS_LINKCOERCION
+#include &lt;bsls_linkcoercion.h&gt;
+#endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include &lt;bsls_platform.h&gt;
@@ -114,27 +118,21 @@ typedef BuildTargetMtNo BuildTargetMt;
 
 // Force linker to pull in this component&#39;s object file.
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
-static const int *bsls_buildtarget_assertion1 =
-                                     &amp;bsls::BuildTargetExc::s_isBuildTargetExc;
-static const int *bsls_buildtarget_assertion2 =
-                                       &amp;bsls::BuildTargetMt::s_isBuildTargetMt;
-#else
-namespace {
-    extern const int *const bsls_buildtarget_assertion1 =
-                                     &amp;bsls::BuildTargetExc::s_isBuildTargetExc;
-    extern const int *const bsls_buildtarget_assertion2 =
-                                       &amp;bsls::BuildTargetMt::s_isBuildTargetMt;
-}
-#endif
-
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                                      const int,
+                                      bsls_buildtarget_assertion1,
+                                      bsls::BuildTargetExc::s_isBuildTargetExc)
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
+                                        const int,
+                                        bsls_buildtarget_assertion2,
+                                        bsls::BuildTargetMt::s_isBuildTargetMt)
 
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

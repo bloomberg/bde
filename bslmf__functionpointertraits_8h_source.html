@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslmf_functionpointertraits.h                                      -*-C++-*-
@@ -315,6 +315,68 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
     typedef FunctionPointerCPlusPlusLinkage Linkage;
 };
 
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+// Microsoft Visual C++ has a problem matching &#39;T * const&#39; pointers to the
+// appropriate partial specialization, whereas it will match a &#39;T const&#39;
+// specialization.  We could use the Microsoft fix on all platforms, but why
+// instantiate more traits than necessary when testing pointer traits of
+// cv-qualified types that are not function pointers?
+
+template &lt;class PROTOTYPE&gt;
+struct FunctionPointerTraits&lt;PROTOTYPE const&gt;
+     : FunctionPointerTraits&lt;PROTOTYPE&gt; {
+    // This class gives information about the specified &#39;PROTOTYPE&#39;.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types &#39;ResultType&#39;,
+    // &#39;ArgumentList&#39;, and &#39;Linkage&#39;.
+};
+
+template &lt;class PROTOTYPE&gt;
+struct FunctionPointerTraits&lt;PROTOTYPE volatile&gt;
+     : FunctionPointerTraits&lt;PROTOTYPE&gt; {
+    // This class gives information about the specified &#39;PROTOTYPE&#39;.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types &#39;ResultType&#39;,
+    // &#39;ArgumentList&#39;, and &#39;Linkage&#39;.
+};
+
+template &lt;class PROTOTYPE&gt;
+struct FunctionPointerTraits&lt;PROTOTYPE const volatile&gt;
+     : FunctionPointerTraits&lt;PROTOTYPE&gt; {
+    // This class gives information about the specified &#39;PROTOTYPE&#39;.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types &#39;ResultType&#39;,
+    // &#39;ArgumentList&#39;, and &#39;Linkage&#39;.
+};
+#else
+template &lt;class PROTOTYPE&gt;
+struct FunctionPointerTraits&lt;PROTOTYPE * const&gt;
+     : FunctionPointerTraits&lt;PROTOTYPE *&gt; {
+    // This class gives information about the specified &#39;PROTOTYPE&#39;.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types &#39;ResultType&#39;,
+    // &#39;ArgumentList&#39;, and &#39;Linkage&#39;.
+};
+
+template &lt;class PROTOTYPE&gt;
+struct FunctionPointerTraits&lt;PROTOTYPE * volatile&gt;
+     : FunctionPointerTraits&lt;PROTOTYPE *&gt; {
+    // This class gives information about the specified &#39;PROTOTYPE&#39;.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types &#39;ResultType&#39;,
+    // &#39;ArgumentList&#39;, and &#39;Linkage&#39;.
+};
+
+template &lt;class PROTOTYPE&gt;
+struct FunctionPointerTraits&lt;PROTOTYPE * const volatile&gt;
+     : FunctionPointerTraits&lt;PROTOTYPE *&gt; {
+    // This class gives information about the specified &#39;PROTOTYPE&#39;.  The
+    // general definition gives no information, but specializations for
+    // function pointers types define nested types &#39;ResultType&#39;,
+    // &#39;ArgumentList&#39;, and &#39;Linkage&#39;.
+};
+#endif
+
 }  // close package namespace
 
 
@@ -323,7 +385,7 @@ struct FunctionPointerTraits&lt;BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

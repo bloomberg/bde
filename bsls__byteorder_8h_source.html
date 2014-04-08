@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bsls_byteorder.h                                                   -*-C++-*-
@@ -123,7 +123,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // For example, to use the little-endian/big-endian to host-endian macros:
 //..
-//  short              x = 0xabcd;
+//  short              x = static_cast&lt;short&gt;(0xabcd);
 //  int                y = 0xabcdef12;
 //  bsls::Types::Int64 z = 0xabcdef1234567890LL;
 //
@@ -750,7 +750,7 @@ ByteOrder_Util::generic_swap_64(Types::Uint64 x)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

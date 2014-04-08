@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: Class bsls::BslLockGuard</title>
+<title>BSL 2.20 OSS: Class bsls::BslLockGuard</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -118,7 +118,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Destroy this guard object and release the lock on the object it manages (if any) by invoking the <code>unlock</code> method of the object that was supplied at construction of this guard. If no lock is currently being managed, this method has no effect. The behavior is undefined unless the calling thread holds the lock on the object managed by this guard (if any). </p>
+<p>Destroy this guard object and release the lock on the object it manages (if any) by invoking the <code>unlock</code> method of the object that was supplied at construction of this guard. If no lock is currently being managed, this method has no effect. Note that if this guard object currently manages a lock, this method assumes the behavior of <code><a class="el" href="classbsls_1_1BslLock.html#a4b180aea6938edf86ed3b0f49767635b">BslLock::unlock</a></code>. </p>
 
 </div>
 </div>
@@ -137,7 +137,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Release from management the object currently managed by this guard, if any. If no object is currently being managed, this method has no effect. </p>
+<p>Release from management, with no effect, the object currently managed by this guard, if any. Note that <code>unlock</code> is <em>not</em> called on the managed object upon its release. </p>
 
 </div>
 </div>
@@ -145,7 +145,7 @@ Public Member Functions</h2></td></tr>
 <li><a class="el" href="bsls__bsllock_8h_source.html">bsls_bsllock.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:22:02 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:50 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

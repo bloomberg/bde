@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bsls_unspecifiedbool Component</title>
+<title>BSL 2.20 OSS: bsls_unspecifiedbool Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -129,8 +129,8 @@ Namespaces</h2></td></tr>
       TYPE *d_ptr_p;  <span class="comment">// address of the referenced object</span>
 
       <span class="comment">// PRIVATE ACCESSORS</span>
-      <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> SimplePtr &amp;);  <span class="comment">// = delete;</span>
-      <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#acf8107f12ec28380f11b968856544276">operator!=</a>(<span class="keyword">const</span> SimplePtr &amp;);  <span class="comment">// = delete;</span>
+      <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> SimplePtr &amp;);  <span class="comment">// = delete;</span>
+      <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> SimplePtr &amp;);  <span class="comment">// = delete;</span>
           <span class="comment">// Suppress equality comparison operations on objects of this</span>
           <span class="comment">// class.</span>
 
@@ -142,7 +142,7 @@ Namespaces</h2></td></tr>
           <span class="comment">// Destroy this object.</span>
 
       <span class="comment">// ACCESSORS</span>
-      TYPE&amp; operator*()<span class="keyword"> const  </span>{ <span class="keywordflow">return</span> *d_ptr_p; }
+      TYPE&amp; <a class="code" href="namespacebdldfp.html#a8158394e9cee4367a9de15cf73e3646a">operator*</a>()<span class="keyword"> const  </span>{ <span class="keywordflow">return</span> *d_ptr_p; }
           <span class="comment">// Return a reference to the object pointed to by this</span>
           <span class="comment">// &#39;SimplePtr&#39;.</span>
 
@@ -182,7 +182,7 @@ Namespaces</h2></td></tr>
 <br/>
  Notice that <code>SimplePtr</code> objects behave as native pointers. They should be tested before dereferencing (as they could be null). </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:48 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

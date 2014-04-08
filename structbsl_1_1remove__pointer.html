@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: Struct bsl::remove_pointer</title>
+<title>BSL 2.20 OSS: Struct bsl::remove_pointer</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -78,10 +78,9 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="structbsl_1_1remove__cv.html">remove_cv</a>&lt; TYPE &gt;::<a class="el" href="structbsl_1_1remove__pointer.html#a45177f3b548458c207709a41626d4ecc">type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1remove__pointer.html#a5d9db7474cd90aef48e7f256e3cc6997">TypeNoCv</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <br class="typebreak"/>
 BloombergLP::bslmf::RemovePointer_Imp<br class="typebreak"/>
-&lt; <a class="el" href="structbsl_1_1remove__pointer.html#a5d9db7474cd90aef48e7f256e3cc6997">TypeNoCv</a> &gt;::Type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1remove__pointer.html#a45177f3b548458c207709a41626d4ecc">type</a></td></tr>
+&lt; TYPE &gt;::Type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbsl_1_1remove__pointer.html#a1a1d59179093068c4adb9b1522283886">type</a></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <h3>template&lt;class TYPE&gt;<br/>
@@ -89,29 +88,14 @@ BloombergLP::bslmf::RemovePointer_Imp<br class="typebreak"/>
 
 <p>This <code>struct</code> template implements the <code><a class="el" href="structbsl_1_1remove__pointer.html">remove_pointer</a></code> meta-function defined in the C++11 standard [meta.trans.ptr], providing an alias, <code>type</code>, that returns the result. If the (template parameter) <code>TYPE</code> is a (possibly cv-qualified) pointer type, then <code>type</code> is an alias to the type pointed to by <code>TYPE</code>; otherwise, <code>type</code> is an alias to <code>TYPE</code>. </p>
 <hr/><h2>Member Typedef Documentation</h2>
-<a class="anchor" id="a5d9db7474cd90aef48e7f256e3cc6997"></a><!-- doxytag: member="bsl::remove_pointer::TypeNoCv" ref="a5d9db7474cd90aef48e7f256e3cc6997" args="" -->
+<a class="anchor" id="a1a1d59179093068c4adb9b1522283886"></a><!-- doxytag: member="bsl::remove_pointer::type" ref="a1a1d59179093068c4adb9b1522283886" args="" -->
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;class TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">typedef <a class="el" href="structbsl_1_1remove__cv.html">remove_cv</a>&lt;TYPE&gt;::<a class="el" href="structbsl_1_1remove__pointer.html#a45177f3b548458c207709a41626d4ecc">type</a> <a class="el" href="structbsl_1_1remove__pointer.html">bsl::remove_pointer</a>&lt; TYPE &gt;::<a class="el" href="structbsl_1_1remove__pointer.html#a5d9db7474cd90aef48e7f256e3cc6997">TypeNoCv</a></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="a45177f3b548458c207709a41626d4ecc"></a><!-- doxytag: member="bsl::remove_pointer::type" ref="a45177f3b548458c207709a41626d4ecc" args="" -->
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;class TYPE&gt; </div>
-      <table class="memname">
-        <tr>
-          <td class="memname">typedef BloombergLP::bslmf::RemovePointer_Imp&lt;<a class="el" href="structbsl_1_1remove__pointer.html#a5d9db7474cd90aef48e7f256e3cc6997">TypeNoCv</a>&gt;::Type <a class="el" href="structbsl_1_1remove__pointer.html">bsl::remove_pointer</a>&lt; TYPE &gt;::<a class="el" href="structbsl_1_1remove__pointer.html#a45177f3b548458c207709a41626d4ecc">type</a></td>
+          <td class="memname">typedef BloombergLP::bslmf::RemovePointer_Imp&lt;TYPE&gt;::Type <a class="el" href="structbsl_1_1remove__pointer.html">bsl::remove_pointer</a>&lt; TYPE &gt;::<a class="el" href="structbsl_1_1remove__pointer.html#a1a1d59179093068c4adb9b1522283886">type</a></td>
         </tr>
       </table>
 </div>
@@ -124,7 +108,7 @@ template&lt;class TYPE&gt; </div>
 <li><a class="el" href="bslmf__removepointer_8h_source.html">bslmf_removepointer.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:53 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:40 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslalg_autoarraydestructor.h                                       -*-C++-*-
@@ -103,8 +103,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Then, we declare a string of characterss we will use to initialize the
 // &#39;UsageType&#39; objects in our array.
 //..
-//  const char *DATA = &quot;Hello&quot;;
-//  const int   DATA_LEN = std::strlen(DATA);
+//  const char   *DATA = &quot;Hello&quot;;
+//  const size_t  DATA_LEN = std::strlen(DATA);
 //..
 // Next, we verify that even right after exceptions have been thrown and
 // caught, no memory is outstanding:
@@ -162,7 +162,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //..
 // Finally, destroy &amp; free our work and verify that no memory is leaked:
 //..
-//  for (int i = 0; i &lt; DATA_LEN; ++i) {
+//  for (size_t i = 0; i &lt; DATA_LEN; ++i) {
 //      array[i].~UsageType();
 //  }
 //  ta.deallocate(array);
@@ -315,7 +315,7 @@ void AutoArrayDestructor&lt;OBJECT_TYPE&gt;::release()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

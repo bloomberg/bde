@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: Class bslma::TestAllocator</title>
+<title>BSL 2.20 OSS: Class bslma::TestAllocator</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -134,7 +134,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
 <p>This class defines a concrete "test" allocator mechanism that implements the <code><a class="el" href="classbslma_1_1Allocator.html">Allocator</a></code> protocol, and provides instrumentation to track (1) the number of blocks/bytes currently in use, (2) the maximum number of blocks/bytes that have been outstanding at any one time, and (3) the cumulative number of blocks/bytes that have ever been allocated by this test allocator object. The accumulated statistics are based solely on the number of bytes requested. Additional testing facilities include allocation limits, verbosity modes, status, and automated report printing.</p>
-<p>Note that, unlike many other allocators, this allocator does DOES NOT rely on the currently installed default allocator (see <code>bslma_default</code>) at all, but instead -- by default -- uses <code><a class="el" href="classbslma_1_1MallocFreeAllocator.html">MallocFreeAllocator</a></code> singleton, which in turn calls the C Standard Library functions <code>malloc</code> and <code>free</code> as needed. Clients may, however, override this allocator by supplying (at construction) any other allocator implementing the <code><a class="el" href="classbslma_1_1Allocator.html">Allocator</a></code> protocol. </p>
+<p>Note that, unlike many other allocators, this allocator does NOT rely on the currently installed default allocator (see <code>bslma_default</code>), but instead -- by default -- uses the <code><a class="el" href="classbslma_1_1MallocFreeAllocator.html">MallocFreeAllocator</a></code> singleton, which in turn calls the C Standard Library functions <code>malloc</code> and <code>free</code> as needed. Clients may, however, override this allocator by supplying (at construction) any other allocator implementing the <code><a class="el" href="classbslma_1_1Allocator.html">Allocator</a></code> protocol provided that it is fully thread-safe. </p>
 <hr/><h2>Member Typedef Documentation</h2>
 <a class="anchor" id="a07cd3ddf3fba145a0469a4e867047287"></a><!-- doxytag: member="bslma::TestAllocator::size_type" ref="a07cd3ddf3fba145a0469a4e867047287" args="" -->
 <div class="memitem">
@@ -146,7 +146,6 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>TBD change to unsigned? </p>
 
 </div>
 </div>
@@ -271,7 +270,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Destroy this allocator. In verbose mode, print all contained state values of this allocator object to <code>stdout</code>. Except in quiet mode, automatically report any memory leaks or mismatched deallocations to <code>stdout</code>. Abort if either <code>numBlocksInUse</code> or <code>numBytesInUse</code> return non-zero unless in no-abort mode or quiet mode. Note that, in all cases, destroying this object has no effect on outstanding memory blocks allocated from this test allocator (and may result in memory leaks -- e.g., if the (default) <code><a class="el" href="classbslma_1_1MallocFreeAllocator.html">MallocFreeAllocator</a></code> singleton was used). </p>
+<p>Destroy this allocator. In verbose mode, print all contained state values of this allocator object to <code>stdout</code>. Except in quiet mode, automatically report any memory leaks to <code>stdout</code>. Abort if either <code>numBlocksInUse</code> or <code>numBytesInUse</code> return non-zero unless in no-abort mode or quiet mode. Note that, in all cases, destroying this object has no effect on outstanding memory blocks allocated from this test allocator (and may result in memory leaks -- e.g., if the (default) <code><a class="el" href="classbslma_1_1MallocFreeAllocator.html">MallocFreeAllocator</a></code> singleton was used). </p>
 
 </div>
 </div>
@@ -291,7 +290,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return a newly-allocated block of memory of the specified positive <code>size</code> (in bytes). If <code>size</code> is 0, a null pointer is returned with no other effect (e.g., on allocation/deallocation statistics). Otherwise, invoke the <code>allocate</code> method of the allocator supplied at construction, increment the number of currently (and cumulatively) allocated blocks and increase the number of currently allocated bytes by <code>size</code>. Update all other fields accordingly. </p>
+<p>Return a newly-allocated block of memory of the specified <code>size</code> (in bytes). If <code>size</code> is 0, a null pointer is returned. Otherwise, invoke the <code>allocate</code> method of the allocator supplied at construction, increment the number of currently (and cumulatively) allocated blocks, and increase the number of currently allocated bytes by <code>size</code>. Update all other fields accordingly. </p>
 
 <p>Implements <a class="el" href="classbslma_1_1Allocator.html#ad4499967960770d979508ef9df5544b9">bslma::Allocator</a>.</p>
 
@@ -312,7 +311,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the memory block at the specified <code>address</code> back to this allocator. If <code>address</code> is 0, this function has no effect (e.g., on allocation/deallocation statistics). Otherwise, if the memory at <code>address</code> is consistent with being allocated from this test allocator, decrement the number of currently allocated blocks, and decrease the number of currently allocated bytes by the size (in bytes) originally requested for this block. Although technically undefined behavior, if the memory can be determined not to have been allocated from this test allocator, increment the number of mismatches, and -- unless in quiet mode -- immediately report the details of the mismatch to <code>stdout</code> (e.g., as an <code>std::hex</code> memory dump) and abort. </p>
+<p>Return the memory block at the specified <code>address</code> back to this allocator. If <code>address</code> is 0, this function has no effect (other than to record relevant statistics). Otherwise, if the memory at <code>address</code> is consistent with being allocated from this test allocator, decrement the number of currently allocated blocks, and decrease the number of currently allocated bytes by the size (in bytes) originally requested for the block. Although technically undefined behavior, if the memory can be determined not to have been allocated from this test allocator, increment the number of mismatches, and -- unless in quiet mode -- immediately report the details of the mismatch to <code>stdout</code> (e.g., as an <code>std::hex</code> memory dump) and abort. </p>
 
 <p>Implements <a class="el" href="classbslma_1_1Allocator.html#a5ff7b0468394849d6824be024f272968">bslma::Allocator</a>.</p>
 
@@ -352,7 +351,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the no-abort mode for this test allocator to the specified (boolean) <code>flagValue</code>. <code>If flagValue</code> is <code>true</code>, aborting on fatal errors is suppressed, and the functions simply return. Diagnostics are not affected. Note that this function is provided primarily to enable visual testing of bizarre error messages in this component. </p>
+<p>Set the no-abort mode for this test allocator to the specified (boolean) <code>flagValue</code>. <code>If flagValue</code> is <code>true</code>, aborting on fatal errors is suppressed, and the functions simply return. Diagnostics are not affected. Note that the default mode is to abort. Also note that this function is provided primarily to enable visual testing of diagnostic messages produced by this component. </p>
 
 </div>
 </div>
@@ -371,7 +370,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Set the quiet mode for this test allocator to the specified (boolean) <code>flagValue</code>. If <code>flagValue</code> is <code>true</code>, mismatched allocation, overrun/underrun errors, and memory leak messages will not be displayed to <code>stdout</code> and the process will not abort as a result of such conditions. Note that the default mode is <em>not</em> quiet. Also note that this function is provided primarily to enable testing of this component; in quiet mode, situations that would otherwise abort will just quietly increment the <code>numMismatches</code> and/or <code>numBoundsErrors</code> counters. </p>
+<p>Set the quiet mode for this test allocator to the specified (boolean) <code>flagValue</code>. If <code>flagValue</code> is <code>true</code>, mismatched allocations, overrun/underrun errors, and memory leak messages will not be displayed to <code>stdout</code> and the process will not abort as a result of such conditions. Note that the default mode is <em>not</em> quiet. Also note that this function is provided primarily to enable testing of this component; in quiet mode, situations that would otherwise abort will just quietly increment the <code>numMismatches</code> and/or <code>numBoundsErrors</code> counters. </p>
 
 </div>
 </div>
@@ -408,7 +407,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the current number of allocation requests left before an exception is thrown. A negative value indicated that no exception is scheduled. </p>
+<p>Return the current number of allocation requests left before an exception is thrown. A negative value indicates that no exception is scheduled. </p>
 
 </div>
 </div>
@@ -426,7 +425,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if this allocator is currently in no-abort mode, and <code>false</code> otherwise. In no-abort mode all diagnostic messages are printed, but all aborts are replaced by return statements. Note that quiet mode implies no-abort mode. </p>
+<p>Return <code>true</code> if this allocator is currently in no-abort mode, and <code>false</code> otherwise. In no-abort mode all diagnostic messages are printed, but all aborts are suppressed. Note that quiet mode implies no-abort mode. </p>
 
 </div>
 </div>
@@ -444,7 +443,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return <code>true</code> if this allocator is currently in quiet mode, and <code>false</code> otherwise. In quiet mode, messages about mismatched deallocations, overrun/underrun errors, and memory leaks will be not displayed to <code>stdout</code> and will not cause the program to abort. </p>
+<p>Return <code>true</code> if this allocator is currently in quiet mode, and <code>false</code> otherwise. In quiet mode, messages about mismatched deallocations, overrun/underrun errors, and memory leaks will not be displayed to <code>stdout</code> and will not cause the program to abort. </p>
 
 </div>
 </div>
@@ -480,7 +479,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the allocated memory address of the most recent memory request. Return 0 if the request was invalid (e.g., allocate non- positive number of bytes). </p>
+<p>Return the address that was returned by the most recent allocation request. Return 0 if the most recent allocation request was for 0 bytes. </p>
 
 </div>
 </div>
@@ -498,7 +497,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the number of bytes of the most recent memory request. Note that this number is always recorded regardless of the validity of the request. </p>
+<p>Return the number of bytes of the most recent allocation request. </p>
 
 </div>
 </div>
@@ -516,7 +515,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the memory address of the last memory deallocation request. Note that the address is always recorded regardless of the validity of the request. </p>
+<p>Return the address that was supplied to the most recent deallocation request. Return 0 if a null pointer was most recently deallocated. Note that the address is always recorded regardless of the validity of the request. </p>
 
 </div>
 </div>
@@ -534,7 +533,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the number of bytes of the most recent memory deallocation request. Return 0 if the request was invalid (e.g., deallocating memory not allocated through this allocator). </p>
+<p>Return the number of bytes of the most recent deallocation request. Return 0 if a null pointer was most recently deallocated, or if the request was invalid (e.g., an attempt to deallocate memory not allocated through this allocator). </p>
 
 </div>
 </div>
@@ -570,7 +569,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return the cumulative number of allocation requests. Note that this number is incremented for every <code>allocate</code> invocation, regardless of the validity of the request. </p>
+<p>Return the cumulative number of allocation requests. Note that this number is incremented for every <code>allocate</code> invocation. </p>
 
 </div>
 </div>
@@ -768,7 +767,7 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Return 0 on success, and non-zero otherwise: If there have been any mismatched memory deallocations or over/under runs, return the number of such errors that have occurred as a positive number, if the number of blocks and bytes are not both 0, return an arbitrary negative number; else return 0. Note that this function is used to define the criteria for an abort at destruction if quiet mode has not been set. </p>
+<p>Return 0 on success, and non-zero otherwise: If there have been any mismatched memory deallocations or over/under runs, return the number of such errors that have occurred as a positive number; if either <code>0 &lt; <a class="el" href="classbslma_1_1TestAllocator.html#af33e8b7b63178f9f1c62f55cd9da1273">numBlocksInUse()</a></code> or <code>0 &lt; <a class="el" href="classbslma_1_1TestAllocator.html#a55ecf964b4e4c5d0795cd4aaf3029be3">numBytesInUse()</a></code>, return an arbitrary negative number; else return 0. </p>
 
 </div>
 </div>
@@ -786,7 +785,8 @@ Static Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<p>TBD does this belong here? </p>
+<p><b>DEPRECATED</b>: Use <code><a class="el" href="structbsls_1_1BslExceptionUtil.html#a465dfe918544c50b66067aee9c520a8c">bsls::BslExceptionUtil::throwBadAlloc</a></code> instead.</p>
+<p>Throw <code>std::bad_alloc</code> if exceptions are enabled or abort the program otherwise. Derived classes and helper functions will typically call this function when they are unable to satisfy an allocation request. This function never returns. </p>
 
 </div>
 </div>
@@ -836,7 +836,7 @@ template&lt;class TYPE &gt; </div>
 <li><a class="el" href="bslma__testallocator_8h_source.html">bslma_testallocator.h</a></li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:56 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:43 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bdl Package Group</title>
+<title>BSL 2.20 OSS: bdl Package Group</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -64,6 +64,11 @@
 <table class="memberdecls">
 <tr><td colspan="2"><h2><a name="groups"></a>
 Packages</h2></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdldfp.html">Package bdldfp</a></td></tr>
+
+<p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide IEEE-754 2008 decimal floating-point types and utilities. </p>
+</td></tr>
+</p>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bdlma.html">Package bdlma</a></td></tr>
 
 <p><tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><p>Provide allocators, pools, and other memory-management tools. </p>
@@ -112,13 +117,15 @@ Packages</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bdl</code> package group currently has 3 packages having 3 levels of physical dependency. The list below shows the hierarchical ordering of the packages. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bdl</code> package group currently has 5 packages having 3 levels of physical dependency. The list below shows the hierarchical ordering of the packages. The order of packages within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  3. bdlma
 
-  2. bdls
+  2. bdldfp
+     bdls
 
-  1. bdlscm
+  1. bdl+decnumber
+     bdlscm
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -126,6 +133,10 @@ Packages</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="package_synopsis"></a> <a class="anchor" id="description.package_synopsis"></a> <a class="anchor" id="3.2"></a> </dd></dl>
 <dl class="user"><dt><b>Package Synopsis: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdl+decnumber</code>: <br/>
+ Provide third-party decimal floating point library (IBM decNumber).</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdldfp</code>: <br/>
+ Provide IEEE-754 2008 decimal floating-point types and utilities.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdlma</code>: <br/>
  Provide allocators, pools, and other memory-management tools.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bdls</code>: <br/>
@@ -134,7 +145,7 @@ Packages</h2></td></tr>
  Provide versioning information for BDL library components.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> </div> </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:46 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:32 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

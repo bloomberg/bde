@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bsls_assert Component</title>
+<title>BSL 2.20 OSS: bsls_assert Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -411,7 +411,7 @@ that are derived from the various combinations of the external inputs, and indic
       <span class="keywordtype">short</span> <span class="keywordtype">int</span> d_x;
       <span class="keywordtype">short</span> <span class="keywordtype">int</span> d_y;
     <span class="keyword">public</span>:
-      Kpoint(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y);
+      Kpoint(<span class="keywordtype">short</span> <span class="keywordtype">int</span> x, <span class="keywordtype">short</span> <span class="keywordtype">int</span> y);
           <span class="comment">// ...</span>
           <span class="comment">// The behavior is undefined unless &#39;-1000 &lt;= x &lt;= 1000&#39;</span>
           <span class="comment">// and &#39;-1000 &lt;= y &lt;= 1000&#39;.</span>
@@ -426,7 +426,7 @@ that are derived from the various combinations of the external inputs, and indic
 <div class="fragment"><pre class="fragment">  <span class="comment">// ...</span>
 
   <span class="keyword">inline</span>
-  Kpoint::Kpoint(<span class="keywordtype">int</span> x, <span class="keywordtype">int</span> y)
+  Kpoint::Kpoint(<span class="keywordtype">short</span> <span class="keywordtype">int</span> x, <span class="keywordtype">short</span> <span class="keywordtype">int</span> y)
   : d_x(x)
   , d_y(y)
   {
@@ -722,7 +722,7 @@ that are derived from the various combinations of the external inputs, and indic
 <span class="preprocessor">  #endif</span>
 <span class="preprocessor"></span>      List_Link **d_current_p;
       <span class="keyword">friend</span> <span class="keyword">class </span>List;
-      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> ListIter&amp;, <span class="keyword">const</span> ListIter&amp;);
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> ListIter&amp;, <span class="keyword">const</span> ListIter&amp;);
     <span class="keyword">private</span>:
       ListIter(List_Link **current,
                List *
@@ -736,11 +736,11 @@ that are derived from the various combinations of the external inputs, and indic
   #endif
       { }
     <span class="keyword">public</span>:
-      ListIter&amp; <a class="code" href="namespacebslstl.html#a00890c2044ab22c5074a3d85283319d0">operator++</a>() { <span class="comment">/* ... */</span> <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
+      ListIter&amp; <a class="code" href="namespacebdldfp.html#a5f5eb755d568ce6c1e0c8540d53a1990">operator++</a>() { <span class="comment">/* ... */</span> <span class="keywordflow">return</span> *<span class="keyword">this</span>; }
       <span class="comment">// ...</span>
   };
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> ListIter&amp; lhs, <span class="keyword">const</span> ListIter&amp; rhs);
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#acf8107f12ec28380f11b968856544276">operator!=</a>(<span class="keyword">const</span> ListIter&amp; lhs, <span class="keyword">const</span> ListIter&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> ListIter&amp; lhs, <span class="keyword">const</span> ListIter&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> ListIter&amp; lhs, <span class="keyword">const</span> ListIter&amp; rhs);
 </pre></div><br/>
 <br/>
  Finally we define the <code>List</code> class itself with most of the operations elided; the methods of particular interest here are <code>begin</code> and <code>insert</code>: <br/>
@@ -1014,7 +1014,7 @@ For <code>BSLS_ASSERT_OPT</code>, use <code>BSLS_ASSERT_OPT_IS_ACTIVE</code>.  <
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:48 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

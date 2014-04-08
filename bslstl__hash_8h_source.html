@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslstl_hash.h                                                      -*-C++-*-
@@ -399,6 +399,10 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;bslmf_istriviallydefaultconstructible.h&gt;
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include &lt;bslmf_assert.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include &lt;bsls_compilerfeatures.h&gt;
 #endif
@@ -407,6 +411,7 @@ BSL_OVERRIDES_STD mode&quot;
 #include &lt;cstddef&gt;  // for &#39;std::size_t&#39;
 #define INCLUDED_CSTDDEF
 #endif
+
 
 namespace bsl {
 
@@ -1025,36 +1030,36 @@ std::size_t hash&lt;bool&gt;::operator()(bool x) const
 inline
 std::size_t hash&lt;char&gt;::operator()(char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash&lt;signed char&gt;::operator()(signed char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash&lt;unsigned char&gt;::operator()(unsigned char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash&lt;wchar_t&gt;::operator()(wchar_t x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 inline
-std::size_t hash&lt;char&gt;::operator()(char16_t x) const
+std::size_t hash&lt;char16_t&gt;::operator()(char16_t x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
 }
 
 inline
-std::size_t hash&lt;char&gt;::operator()(char32_t x) const
+std::size_t hash&lt;char32_t&gt;::operator()(char32_t x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
 }
@@ -1063,50 +1068,89 @@ std::size_t hash&lt;char&gt;::operator()(char32_t x) const
 inline
 std::size_t hash&lt;short&gt;::operator()(short x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash&lt;unsigned short&gt;::operator()(unsigned short x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash&lt;int&gt;::operator()(int x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash&lt;unsigned int&gt;::operator()(unsigned int x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash&lt;long&gt;::operator()(long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash&lt;unsigned long&gt;::operator()(unsigned long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 inline
 std::size_t hash&lt;long long&gt;::operator()(long long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    BSLMF_ASSERT(sizeof (long long) == sizeof (std::size_t));
+    return x;
 }
 
 inline
 std::size_t hash&lt;unsigned long long&gt;::operator()(unsigned long long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    BSLMF_ASSERT(sizeof (long long) == sizeof (std::size_t));
+    return x;
 }
+
+#else // BSLS_PLATFORM_CPU_32_BIT
+
+inline
+std::size_t hash&lt;long long&gt;::operator()(long long x) const
+{
+    BSLMF_ASSERT(sizeof (long long) &gt; sizeof (std::size_t));
+
+    // The mangling algorithm won&#39;t work unless these conditions hold:
+
+    BSLMF_ASSERT(sizeof (std::size_t) * 8 == 32);
+    BSLMF_ASSERT(sizeof (long long) * 8 == 64);
+
+    // Return a simple mangling of the 64-bits of &#39;x&#39; to generate a 32-bit hash
+    // value (xor the high and low 32 bits together).
+
+    return static_cast&lt;std::size_t&gt;((x ^ (x &gt;&gt; 32)) &amp; 0xFFFFFFFF);
+}
+
+inline
+std::size_t hash&lt;unsigned long long&gt;::operator()(unsigned long long x) const
+{
+    BSLMF_ASSERT(sizeof (long long) &gt; sizeof (std::size_t));
+
+    // The mangling algorithm won&#39;t work unless these conditions hold:
+
+    BSLMF_ASSERT(sizeof (std::size_t) * 8 == 32);
+    BSLMF_ASSERT(sizeof (unsigned long long) * 8 == 64);
+
+    // Return a simple mangling of the 64-bits of &#39;x&#39; to generate a 32-bit hash
+    // value (xor the high and low 32 bits together).
+
+    return static_cast&lt;std::size_t&gt;((x ^ (x &gt;&gt; 32)) &amp; 0xFFFFFFFF);
+}
+#endif
 
 inline
 std::size_t hash&lt;float&gt;::operator()(float x) const
@@ -1150,7 +1194,7 @@ struct is_trivially_copyable&lt;hash&lt;TYPE&gt; &gt;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

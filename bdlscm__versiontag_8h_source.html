@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bdlscm_versiontag.h                                                -*-C++-*-
@@ -53,16 +53,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #define BDL_VERSION_MAJOR     2
     // Provide the major version number of the current (latest) BDL release.
 
-#define BDL_VERSION_MINOR     16
+#define BDL_VERSION_MINOR     20
     // Provide the minor version number of the current (latest) BDL release.
-
-#ifndef BDL_VERSION_RELEASETYPE
-#define BDL_VERSION_RELEASETYPE        &quot;_GIT_MASTER&quot;
-#define BDL_VERSION_RELEASETYPE_SYMBOL  _GIT_MASTER
-#endif
-    // Provide the &quot;type&quot; of the release, indicating whether the libs were
-    // built for development, a particular beta, or for release.  A release
-    // build is indicated by _PROD and &quot;_PROD&quot;.
 
 #define BDL_MAKE_VERSION(major, minor) ((major) * 10000 \
                                       + (minor) *   100)
@@ -92,7 +84,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2012 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

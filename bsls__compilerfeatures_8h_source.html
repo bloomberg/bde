@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bsls_compilerfeatures.h                                            -*-C++-*-
@@ -45,6 +45,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //: &#39;BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES&#39;
 //:    This macro is defined if alias templates are supported by the current
 //:    compiler settings for this platform.
+//:
+//: &#39;BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN&#39;
+//:    This macro is defined if the &#39;[[noreturn]]&#39; attribute is supported by
+//:    the current compiler settings for this platform.
 //:
 //: &#39;BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE&#39;
 //:    This macro is defined if &#39;decltype&#39; is supported by the current compiler
@@ -110,6 +114,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #if defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40700\
  &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+
+// GCC 4.8 has support with &#39;-std=c++11&#39;.
+#if defined(BSLS_PLATFORM_CMP_GNU) &amp;&amp; BSLS_PLATFORM_CMP_VER_MAJOR &gt;= 40800\
+ &amp;&amp; defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 #endif
 
              // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -245,7 +257,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

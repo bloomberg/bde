@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslalg_hashutil Component</title>
+<title>BSL 2.20 OSS: bslalg_hashutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -120,7 +120,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  {
       memset(buckets, 0, <span class="keyword">sizeof</span>(buckets));
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; (1 &lt;&lt; 15); ++i) {
-          <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(i);
+          native_std::size_t hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(i);
 
           ++buckets[hash &amp; 63];
       }
@@ -143,7 +143,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  {
       memset(buckets, 0, <span class="keyword">sizeof</span>(buckets));
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; (1 &lt;&lt; 15); ++i) {
-          <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(4 * i);
+          native_std::size_t hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(4 * i);
 
           ++buckets[hash &amp; 63];
       }
@@ -166,7 +166,7 @@ Namespaces</h2></td></tr>
 <div class="fragment"><pre class="fragment">  {
       memset(buckets, 0, <span class="keyword">sizeof</span>(buckets));
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; (1 &lt;&lt; 15); ++i) {
-          <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(i);
+          native_std::size_t hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(i);
           hash = hash ^ (hash &gt;&gt; 6) ^ (hash &gt;&gt; 12) ^ (hash &gt;&gt; 18) ^
                         (hash &gt;&gt; 24);
 
@@ -190,9 +190,9 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  {
       memset(buckets, 0, <span class="keyword">sizeof</span>(buckets));
-      <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> prev = 0;
+      native_std::size_t prev = 0;
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; (1 &lt;&lt; 15); ++i) {
-          <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(i);
+          native_std::size_t hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(i);
 
           ++buckets[(hash - prev) &amp; 63];
           prev = hash;
@@ -215,9 +215,9 @@ Namespaces</h2></td></tr>
 <br/>
 <div class="fragment"><pre class="fragment">  {
       memset(buckets, 0, <span class="keyword">sizeof</span>(buckets));
-      <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> prev = 0;
+      native_std::size_t prev = 0;
       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; (1 &lt;&lt; 15); ++i) {
-          <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(i);
+          native_std::size_t hash = <a class="code" href="structbslalg_1_1HashUtil.html#a6c8ffaadc9ff7269d8a7195a725948df">bslalg::HashUtil::computeHash</a>(i);
 
           ++buckets[(hash ^ prev) &amp; 63];
           prev = hash;
@@ -291,7 +291,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

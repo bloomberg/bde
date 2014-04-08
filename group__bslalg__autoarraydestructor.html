@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslalg_autoarraydestructor Component</title>
+<title>BSL 2.20 OSS: bslalg_autoarraydestructor Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -174,8 +174,8 @@ Namespaces</h2></td></tr>
 <br/>
  Then, we declare a string of characterss we will use to initialize the <code>UsageType</code> objects in our array. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">char</span> *DATA = <span class="stringliteral">&quot;Hello&quot;</span>;
-  <span class="keyword">const</span> <span class="keywordtype">int</span>   DATA_LEN = std::strlen(DATA);
+<div class="fragment"><pre class="fragment">  <span class="keyword">const</span> <span class="keywordtype">char</span>   *DATA = <span class="stringliteral">&quot;Hello&quot;</span>;
+  <span class="keyword">const</span> <span class="keywordtype">size_t</span>  DATA_LEN = std::strlen(DATA);
 </pre></div><br/>
 <br/>
  Next, we verify that even right after exceptions have been thrown and caught, no memory is outstanding: <br/>
@@ -231,7 +231,7 @@ Namespaces</h2></td></tr>
 <br/>
  Finally, destroy &amp; free our work and verify that no memory is leaked: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; DATA_LEN; ++i) {
+<div class="fragment"><pre class="fragment">  <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; DATA_LEN; ++i) {
       array[i].~UsageType();
   }
   ta.<a class="code" href="classbslma_1_1TestAllocator.html#aa3d86f105cc1a797cfa5ad9e2bbf6825">deallocate</a>(array);
@@ -241,7 +241,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:46 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

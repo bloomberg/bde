@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bdlscm_version.h                                                   -*-C++-*-
@@ -53,6 +53,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bsls_buildtarget.h&gt;      // need to ensure consistent build options
 #endif
 
+#ifndef INCLUDED_BSLS_LINKCOERCION
+#include &lt;bsls_linkcoercion.h&gt;
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include &lt;bsls_platform.h&gt;
 #endif
@@ -62,11 +66,11 @@ namespace BloombergLP {
 namespace bdlscm {
 
 struct Version {
-    static const char *d_ident;
-    static const char *d_what;
+    static const char *s_ident;
+    static const char *s_what;
 
-#define BDLSCM_CONCAT2(a,b,c,d,e,f) a ## b ## c ## d ## e ## f
-#define BDLSCM_CONCAT(a,b,c,d,e,f)  BDLSCM_CONCAT2(a,b,c,d,e,f)
+#define BDLSCM_CONCAT2(a,b,c,d,e) a ## b ## c ## d ## e
+#define BDLSCM_CONCAT(a,b,c,d,e)  BDLSCM_CONCAT2(a,b,c,d,e)
 
 // &#39;BDLSCM_D_VERSION&#39; is a symbol whose name warns users of version mismatch
 // linking errors.  Note that the exact string &quot;compiled_this_object&quot; must be
@@ -74,17 +78,17 @@ struct Version {
 // warn users of mismatches.
 #define BDLSCM_D_VERSION BDLSCM_CONCAT(                \
                        d_version_BDL_,                 \
-                       BDL_VERSION_MAJOR, _,           \
+                       BDL_VERSION_MAJOR,              \
+                       _,                              \
                        BDL_VERSION_MINOR,              \
-                       BDL_VERSION_RELEASETYPE_SYMBOL, \
                        _compiled_this_object)
 
-    static const char *BDLSCM_D_VERSION;
+    static const char *BDLSCM_S_VERSION;
 
-    static const char *d_dependencies;
-    static const char *d_buildInfo;
-    static const char *d_timestamp;
-    static const char *d_sourceControlInfo;
+    static const char *s_dependencies;
+    static const char *s_buildInfo;
+    static const char *s_timestamp;
+    static const char *s_sourceControlInfo;
 
     static const char *version();
 };
@@ -92,29 +96,21 @@ struct Version {
 inline
 const char *Version::version()
 {
-    return BDLSCM_D_VERSION;
+    return BDLSCM_S_VERSION;
 }
 
 }  // close package namespace
 
-// Force linker to pull in this component&#39;s object file.
-
-#if defined(BSLS_PLATFORM_CMP_IBM)
-static const char **bdlscm_version_assertion =
-                                            &amp;bdlscm::Version::BDLSCM_D_VERSION;
-#else
-namespace {
-    extern const char **const bdlscm_version_assertion =
-                                            &amp;bdlscm::Version::BDLSCM_D_VERSION;
-}
-#endif
+BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
+                                          bdlscm_version_assertion,
+                                          bdlscm::Version::BDLSCM_S_VERSION);
 
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2012 Bloomberg L.P.
+// Copyright (C) 2012 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

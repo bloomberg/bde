@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslma_autodeallocator Component</title>
+<title>BSL 2.20 OSS: bslma_autodeallocator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -262,7 +262,7 @@ Namespaces</h2></td></tr>
       <span class="keywordtype">char</span> **tmpSrc = srcArray.d_array_p;
       <span class="keywordflow">if</span> (<span class="keyword">this</span> == &amp;srcArray) {
           <span class="comment">// self-alias</span>
-          <span class="keywordtype">int</span> size = srcLength * <span class="keyword">sizeof</span>(<span class="keywordtype">char</span> *);
+          <span class="keywordtype">size_t</span> size = srcLength * <span class="keyword">sizeof</span>(<span class="keywordtype">char</span> *);
           tmpSrc = (<span class="keywordtype">char</span> **) d_allocator_p-&gt;allocate(size);
           memcpy(tmpSrc, d_array_p, size);
       }
@@ -307,7 +307,7 @@ Namespaces</h2></td></tr>
   }
 </pre></div><br/>
 <br/>
- The above method copies the source elements (visually) from left to right. Another (functionally equivalent) implementation copies the source elements from right to left, and makes use of the <code><a class="el" href="namespacebslstl.html#a7d3362e2ffdbd7358a6d1b82f3a52ca1">operator--()</a></code> of the <code><a class="el" href="classbslma_1_1AutoDeallocator.html">bslma::AutoDeallocator</a></code> interface: <br/>
+ The above method copies the source elements (visually) from left to right. Another (functionally equivalent) implementation copies the source elements from right to left, and makes use of the <code><a class="el" href="namespacebdldfp.html#a6f43514e250d9882695b7130704c2d16">operator--()</a></code> of the <code><a class="el" href="classbslma_1_1AutoDeallocator.html">bslma::AutoDeallocator</a></code> interface: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">template</span> &lt;<span class="keyword">class</span> ALLOCATOR&gt;
   <span class="keywordtype">void</span> my_StrArray&lt;ALLOCATOR&gt;::insert2(<span class="keywordtype">int</span>                          dstIndex,
@@ -334,7 +334,7 @@ Namespaces</h2></td></tr>
       <span class="keywordtype">char</span> **tmpSrc = srcArray.d_array_p;
       <span class="keywordflow">if</span> (<span class="keyword">this</span> == &amp;srcArray) {
           <span class="comment">// self-alias</span>
-          <span class="keywordtype">int</span> size = srcLength * <span class="keyword">sizeof</span>(<span class="keywordtype">char</span> *);
+          <span class="keywordtype">size_t</span> size = srcLength * <span class="keyword">sizeof</span>(<span class="keywordtype">char</span> *);
           tmpSrc = (<span class="keywordtype">char</span> **) d_allocator_p-&gt;allocate(size);
           memcpy(tmpSrc, d_array_p, size);
       }
@@ -385,7 +385,7 @@ Namespaces</h2></td></tr>
 <br/>
  Note that though the two implementations are functionally equivalent, they are logically different. First of all, the second implementation will be slightly slower because it is accessing memory backwards when compared to the normal forward sequential access. Secondly, in case of an exception, the first implementation will retain all the elements copied prior to the exception, whereas the second implementation will remove them. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

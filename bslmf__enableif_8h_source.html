@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslmf_enableif.h                                                   -*-C++-*-
@@ -16,7 +16,6 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //@CLASSES:
 //  bsl::enable_if: standard meta-function to drop templates from overload sets
-//
 //  bslmf::EnableIf: meta-function to drop templates from overload sets
 //
 //@DESCRIPTION: This component defines two meta-functions, &#39;bsl::enable_if&#39; and
@@ -40,10 +39,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 ///Visual Studio Workaround
 ///------------------------
 // Because of a Visual Studio bug, described here:
-// http://connect.microsoft.com/VisualStudio/feedback/details/332179/
+//   http://connect.microsoft.com/VisualStudio/feedback/details/332179/
 // the Microsoft Visual Studio compiler may not correctly associate a function
 // declaration that uses &#39;bsl::enable_if&#39; with that function&#39;s definition, if
-// the definition is not inline to the declaration.  This bug effects at least
+// the definition is not inline to the declaration.  This bug affects at least
 // Visual Studio 2008 and 2010.  The workaround is to implement functions using
 // &#39;bsl::enable_if&#39; inline with their declaration.
 //
@@ -58,11 +57,11 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // Suppose that we want to implement a simple &#39;swap&#39; function template to
 // exchange two arbitrary values, as if defined below:
 //..
-//  template&lt;class T&gt;
-//  void DummySwap(T&amp; a, T&amp; b)
+//  template&lt;class TYPE&gt;
+//  void DummySwap(TYPE&amp; a, TYPE&amp; b)
 //      // Exchange the values of the specified objects, &#39;a&#39; and &#39;b&#39;.
 //  {
-//      T temp(a);
+//      TYPE temp(a);
 //      a = b;
 //      b = temp;
 //  }
@@ -72,16 +71,16 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // implementer to indicate that their class supports an optimized member-swap
 // method:
 //..
-//  template&lt;class T&gt;
+//  template&lt;class TYPE&gt;
 //  struct HasMemberSwap : bsl::false_type {
-//      // This traits class indicates whether the specified template type
-//      // parameter &#39;T&#39; has a public &#39;swap&#39; method to exchange values.
+//      // This traits class indicates whether the (template parameter) &#39;TYPE&#39;
+//      // has a public &#39;swap&#39; method to exchange values.
 //  };
 //..
 // Now, we implement a generic &#39;swap&#39; function template that will invoke the
 // member swap operation for any type that specialized our trait.  The use of
 // &#39;bsl::enable_if&#39; to declare the result type causes an attempt to deduce the
-// type &#39;T&#39; to fail unless the specified condition is &#39;true&#39;, and this falls
+// type &#39;TYPE&#39; to fail unless the specified condition is &#39;true&#39;, and this falls
 // under the &quot;Substitution Failure Is Not An Error&quot; (SFINAE) clause of the C++
 // standard, so the compiler will look for a more suitable overload rather than
 // fail with an error.  Note that we provide two overloaded declarations that
@@ -93,41 +92,43 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // parameter) type is unspecified and the (template parameter) condition value
 // is &#39;true&#39;.
 //..
-//  template&lt;class T&gt;
-//  typename bsl::enable_if&lt;HasMemberSwap&lt;T&gt;::value&gt;::type
-//  Swap(T&amp; a, T&amp; b)
+//  template&lt;class TYPE&gt;
+//  typename bsl::enable_if&lt;HasMemberSwap&lt;TYPE&gt;::value&gt;::type
+//  swap(TYPE&amp; a, TYPE&amp; b)
 //  {
 //      a.swap(b);
 //  }
 //
-//  template&lt;class T&gt;
-//  typename bsl::enable_if&lt; ! HasMemberSwap&lt;T&gt;::value&gt;::type
-//  Swap(T&amp; a, T&amp; b)
+//  template&lt;class TYPE&gt;
+//  typename bsl::enable_if&lt; ! HasMemberSwap&lt;TYPE&gt;::value&gt;::type
+//  swap(TYPE&amp; a, TYPE&amp; b)
 //  {
-//      T temp(a);
+//      TYPE temp(a);
 //      a = b;
 //      b = temp;
 //  }
 //..
-// Next, we define a simple container template that supports an optimized
+// Next, we define a simple container template, that supports an optimized
 // &#39;swap&#39; operation by merely swapping the internal pointer to the array of
 // elements rather than exchanging each element:
 //..
-//  template&lt;class T&gt;
+//  template&lt;class TYPE&gt;
 //  class MyContainer {
 //      // This is a simple container implementation for demonstration purposes
 //      // that is modeled after &#39;std::vector&#39;.
 //
 //      // DATA
-//      T           *d_storage;
-//      std::size_t  d_length;
+//      TYPE *d_storage;
+//      size_t d_length;
+//
+//      // Copy operations are declared private and not defined.
 //
 //      // NOT IMPLEMENTED
 //      MyContainer(const MyContainer&amp;);
 //      MyContainer&amp; operator=(const MyContainer&amp;);
 //
 //    public:
-//      MyContainer(const T&amp; value, int n);
+//      MyContainer(const TYPE&amp; value, int n);
 //          // Create a &#39;MyContainer&#39; object having the specified &#39;n&#39; copies of
 //          // the specified &#39;value&#39;.  The behavior is undefined unless
 //          // &#39;0 &lt;= n&#39;.
@@ -143,27 +144,27 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          // exceptions are thrown.
 //
 //      // ACCESSORS
-//      const T&amp; front() const;
+//      const TYPE&amp; front() const;
 //          // Return a reference providing non-modifiable access to the first
 //          // element in this container.  The behavior is undefined if this
 //          // container is empty.
 //
-//      std::size_t size() const;
+//      size_t size() const;
 //          // Return the number of elements held by this container.
 //  };
 //..
 // Then, we specialize our &#39;HasMemberSwap&#39; trait for this new container type.
 //..
-//  template&lt;class T&gt;
-//  struct HasMemberSwap&lt;MyContainer&lt;T&gt; &gt; : bsl::true_type {
+//  template&lt;class TYPE&gt;
+//  struct HasMemberSwap&lt;MyContainer&lt;TYPE&gt; &gt; : bsl::true_type {
 //  };
 //..
 // Next, we implement the methods of this class:
 //..
 //  // CREATORS
-//  template&lt;class T&gt;
-//  MyContainer&lt;T&gt;::MyContainer(const T&amp; value, int n)
-//  : d_storage(new T[n])
+//  template&lt;class TYPE&gt;
+//  MyContainer&lt;TYPE&gt;::MyContainer(const TYPE&amp; value, int n)
+//  : d_storage(new TYPE[n])
 //  , d_length(n)
 //  {
 //      for (int i = 0; i != n; ++i) {
@@ -171,35 +172,35 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      }
 //  }
 //
-//  template&lt;class T&gt;
-//  MyContainer&lt;T&gt;::~MyContainer()
+//  template&lt;class TYPE&gt;
+//  MyContainer&lt;TYPE&gt;::~MyContainer()
 //  {
 //      delete[] d_storage;
 //  }
 //
 //  // MANIPULATORS
-//  template&lt;class T&gt;
-//  void MyContainer&lt;T&gt;::swap(MyContainer&amp; other)
+//  template&lt;class TYPE&gt;
+//  void MyContainer&lt;TYPE&gt;::swap(MyContainer&amp; other)
 //  {
-//      Swap(d_storage, other.d_storage);
-//      Swap(d_length,  other.d_length);
+//      ::swap(d_storage, other.d_storage);
+//      ::swap(d_length,  other.d_length);
 //  }
 //
 //  // ACCESSORS
-//  template&lt;class T&gt;
-//  const T&amp; MyContainer&lt;T&gt;::front() const
+//  template&lt;class TYPE&gt;
+//  const TYPE&amp; MyContainer&lt;TYPE&gt;::front() const
 //  {
 //      return d_storage[0];
 //  }
 //
-//  template&lt;class T&gt;
-//  std::size_t MyContainer&lt;T&gt;::size() const
+//  template&lt;class TYPE&gt;
+//  size_t MyContainer&lt;TYPE&gt;::size() const
 //  {
 //      return d_length;
 //  }
 //..
 // Finally, we can test that the member-&#39;swap&#39; method is called by the generic
-// &#39;Swap&#39; function.  Note that the following code will not compile unless the
+// &#39;swap&#39; function.  Note that the following code will not compile unless the
 // member-function &#39;swap&#39; is used, as the copy constructor and assignment
 // operator for the &#39;MyContainer&#39; class template are declared as &#39;private&#39;.
 //..
@@ -212,13 +213,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      assert(78 == y.size());
 //      assert( 2 == y.front());
 //
-//      Swap(x, y);
+//      swap(x, y);
 //
 //      assert(78 == x.size());
 //      assert( 2 == x.front());
 //      assert(14 == y.size());
 //      assert( 3 == y.front());
-//  }
+// }
 //..
 //
 ///Example 2: Using the &#39;bsl::enable_if&#39; Result Type
@@ -246,7 +247,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //  template&lt;class TO, class FROM&gt;
 //  typename bsl::enable_if&lt;not(bsl::is_polymorphic&lt;FROM&gt;::value &amp;&amp;
-//                                             bsl::is_polymorphic&lt;TO&gt;::value),
+//                                            bsl::is_polymorphic&lt;TO&gt;::value),
 //                          TO&gt;::type *
 //  smart_cast(FROM *from)
 //      // Return the specified &#39;from&#39; pointer value cast as a pointer to type
@@ -259,21 +260,21 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // utility works correctly:
 //..
 //  class A {
-//     // Sample non-polymorphic type.
+//      // Sample non-polymorphic type
 //
 //    public:
 //      ~A() {}
 //  };
 //
 //  class B {
-//      // Sample polymorphic base-type.
+//      // Sample polymorphic base-type
 //
 //    public:
 //      virtual ~B() {}
 //  };
 //
 //  class C {
-//      // Sample polymorphic base-type.
+//      // Sample polymorphic base-type
 //
 //    public:
 //      virtual ~C() {}
@@ -298,11 +299,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      B *pB2 = smart_cast&lt;B&gt;(pC);
 //      C *pC2 = smart_cast&lt;C&gt;(pB);
 //
+//      (void) pA;
+//
 //      assert(&amp;object == pA2);
 //      assert(&amp;object == pB2);
 //      assert(&amp;object == pC2);
 //
-//      // These lines would fail to compile:
+//      // These lines would fail to compile
 //      // A *pA3 = smart_cast&lt;A&gt;(pB);
 //      // C *pC3 = smart_cast&lt;C&gt;(pA);
 //  }
@@ -319,7 +322,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // the compiler, the &quot;best&quot; candidate constructor should be the template
 // constructor that takes two arguments of the same kind, deducing that type to
 // be &#39;int&#39;.  Unfortunately, that constructor expects those values to be of an
-// iterator type forming a valid range.  We need to avoid calling this
+// iterator type, forming a valid range.  We need to avoid calling this
 // constructor unless the deduced type really is an iterator, otherwise a
 // compile-error will occur trying to instantiate that constructor with an
 // incompatible argument type.  We use &#39;bsl::enable_if&#39; to create a deduction
@@ -328,14 +331,14 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // function) to decorate, so we add an extra dummy argument using a pointer
 // type (produced from &#39;bsl::enable_if::type&#39;) with a default null argument:
 //..
-//  template&lt;class T&gt;
+//  template&lt;class TYPE&gt;
 //  class MyVector {
 //      // This is a simple container implementation for demonstration purposes
 //      // that is modeled after &#39;std::vector&#39;.
 //
 //      // DATA
-//      T           *d_storage;
-//      std::size_t  d_length;
+//      TYPE   *d_storage;
+//      size_t  d_length;
 //
 //      // NOT IMPLEMENTED
 //      MyVector(const MyVector&amp;);
@@ -343,7 +346,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //
 //    public:
 //      // CREATORS
-//      MyVector(const T&amp; value, int n);
+//      MyVector(const TYPE&amp; value, int n);
 //          // Create a &#39;MyVector&#39; object having the specified &#39;n&#39; copies of
 //          // the specified &#39;value&#39;.  The behavior is undefined unless
 //          // &#39;0 &lt;= n&#39;.
@@ -356,8 +359,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          // Create a &#39;MyVector&#39; object having the same sequence of values as
 //          // found in the range described by the the specified iterators
 //          // &#39;[first, last)&#39;.  The behavior is undefined unless &#39;first&#39; and
-//          // &#39;last&#39; refer to a sequence of value of the (template parameter)
-//          // type &#39;T&#39; where &#39;first&#39; is at a position at or before &#39;last&#39;.
+//          // &#39;last&#39; refer to a sequence of values of the (template parameter)
+//          // type &#39;TYPE&#39; where &#39;first&#39; is at a position at or before &#39;last&#39;.
 //          // Note that this function is currently defined inline to work
 //          // around an issue with the Microsoft Visual Studio compiler.
 //
@@ -367,8 +370,8 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //               ++d_length;
 //          }
 //
-//          d_storage = new T[d_length];
-//          for (int i = 0; i != d_length; ++i) {
+//          d_storage = new TYPE[d_length];
+//          for (size_t i = 0; i != d_length; ++i) {
 //               d_storage[i] = *first;
 //               ++first;
 //          }
@@ -378,11 +381,13 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //          // Destroy this container and all of its elements, reclaiming any
 //          // allocated memory.
 //
-//      const T&amp; operator[](int index) const;
+//      // ACCESSORS
+//      const TYPE&amp; operator[](int index) const;
 //          // Return a reference providing non-modifiable access to the
-//          // element held by this container at the specified &#39;index&#39;.
+//          // element held by this container at the specified &#39;index&#39;.  The
+//          // behavior is undefined unless &#39;index &lt; size()&#39;.
 //
-//      std::size_t size() const;
+//      size_t size() const;
 //          // Return the number of elements held by this container.
 //  };
 //..
@@ -391,10 +396,9 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 // not fundamental (such as &#39;int&#39;) must be passing iterators.  Now that we have
 // defined the class template, we implement its methods:
 //..
-//  // CREATORS
-//  template&lt;class T&gt;
-//  MyVector&lt;T&gt;::MyVector(const T&amp; value, int n)
-//  : d_storage(new T[n])
+//  template&lt;class TYPE&gt;
+//  MyVector&lt;TYPE&gt;::MyVector(const TYPE&amp; value, int n)
+//  : d_storage(new TYPE[n])
 //  , d_length(n)
 //  {
 //      for (int i = 0; i != n; ++i) {
@@ -402,21 +406,21 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 //      }
 //  }
 //
-//  template&lt;class T&gt;
-//  MyVector&lt;T&gt;::~MyVector()
+//  template&lt;class TYPE&gt;
+//  MyVector&lt;TYPE&gt;::~MyVector()
 //  {
 //      delete[] d_storage;
 //  }
 //
 //  // ACCESSORS
-//  template&lt;class T&gt;
-//  const T&amp; MyVector&lt;T&gt;::operator[](int index) const
+//  template&lt;class TYPE&gt;
+//  const TYPE&amp; MyVector&lt;TYPE&gt;::operator[](int index) const
 //  {
 //      return d_storage[index];
 //  }
 //
-//  template&lt;class T&gt;
-//  std::size_t MyVector&lt;T&gt;::size() const
+//  template&lt;class TYPE&gt;
+//  size_t MyVector&lt;TYPE&gt;::size() const
 //  {
 //      return d_length;
 //  }
@@ -459,10 +463,10 @@ struct enable_if {
     // in the C++11 standard [meta.trans.ptr].  This &#39;struct&#39; template provides
     // a &#39;typedef&#39; &#39;type&#39; that is an alias to the (template parameter) &#39;TYPE&#39;
     // if the (template parameter) &#39;COND&#39; is &#39;true&#39;; otherwise, &#39;type&#39; is not
-    // provided.  If &#39;TYPE&#39; is not specified, it is set to &#39;void&#39;.  Note
-    // that this generic default template provides &#39;type&#39; for when &#39;COND&#39; is
-    // &#39;true&#39;; a template specialization is provided (below) that omits &#39;type&#39;
-    // for when &#39;COND&#39; is &#39;false&#39;.
+    // provided.  If &#39;TYPE&#39; is not specified, it is set to &#39;void&#39;.  Note that
+    // this generic default template provides &#39;type&#39; for when &#39;COND&#39; is &#39;true&#39;;
+    // a template specialization is provided (below) that omits &#39;type&#39; for when
+    // &#39;COND&#39; is &#39;false&#39;.
 
     typedef TYPE type;
         // This &#39;typedef&#39; is an alias to the (template parameter) &#39;TYPE&#39;.
@@ -520,7 +524,7 @@ struct EnableIf &lt;false, TYPE&gt; {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslalg_arrayprimitives Component</title>
+<title>BSL 2.20 OSS: bslalg_arrayprimitives Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -113,22 +113,22 @@ Namespaces</h2></td></tr>
   ----------------------------  ---------------------------------------------
   defaultConstruct              <span class="stringliteral">&#39;Sc::defaultConstruct&#39;</span> from value <span class="keywordflow">for each</span>
                                 element in the target range, or <span class="stringliteral">&#39;std::memset&#39;</span>
-                                <span class="keywordflow">if</span> <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> has a trivial <span class="keywordflow">default</span> constructor
+                                <span class="keywordflow">if</span> type has a trivial <span class="keywordflow">default</span> constructor
 
   uninitializedFillN            <span class="stringliteral">&#39;Sc::copyConstruct&#39;</span> from value <span class="keywordflow">for each</span>
                                 element in the target range, or <span class="stringliteral">&#39;std::memset&#39;</span>
-                                <span class="keywordflow">if</span> value is all 0s or 1s bits, and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is
+                                <span class="keywordflow">if</span> value is all 0s or 1s bits, and type is
                                 bit-wise copyable
 
   copyConstruct                 <span class="stringliteral">&#39;Sc::copyConstruct&#39;</span> from each element in the
                                 original range to the corresponding element
                                 in the target range, or <span class="stringliteral">&#39;std::memcpy&#39;</span> <span class="keywordflow">if</span>
-                                value is null and <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise copyable
+                                value is null and type is bit-wise copyable
 
   destructiveMove               <span class="stringliteral">&#39;Sc::destructiveMove&#39;</span> from each element in
                                 the original range to the corresponding
                                 element in the target range, or <span class="stringliteral">&#39;std::memcpy&#39;</span>
-                                <span class="keywordflow">if</span> <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise moveable
+                                <span class="keywordflow">if</span> type is bit-wise moveable
 
   destructiveMoveAndInsert      <span class="stringliteral">&#39;Sc::destructiveMove&#39;</span> from each element in
                                 the original range to the corresponding
@@ -167,7 +167,7 @@ Namespaces</h2></td></tr>
   rotate                        <span class="stringliteral">&#39;Sc::destructiveMove&#39;</span> to move elements into a
                                 shifting hole along parallel cyclic
                                 permutations, or <span class="stringliteral">&#39;std::memmove&#39;</span> <span class="keywordflow">for</span> small
-                                rotations <span class="keywordflow">if</span> <a class="code" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> is bit-wise moveable
+                                rotations <span class="keywordflow">if</span> type is bit-wise moveable
 </pre></div><br/>
 <br/>
  The traits under consideration by this component are: <br/>
@@ -324,7 +324,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:46 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

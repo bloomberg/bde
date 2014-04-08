@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslalg_rbtreeutil Component</title>
+<title>BSL 2.20 OSS: bslalg_rbtreeutil Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -390,7 +390,7 @@ A factory for creating and destroying nodes.  </li>
 <br/>
  Here, we implement the prefix-increment operator using the <code>next</code> function of 'RbTreeUtil: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      IntSetConstIterator&amp; <a class="code" href="namespacebslstl.html#a00890c2044ab22c5074a3d85283319d0">operator++</a>()
+<div class="fragment"><pre class="fragment">      IntSetConstIterator&amp; <a class="code" href="namespacebdldfp.html#a5f5eb755d568ce6c1e0c8540d53a1990">operator++</a>()
          <span class="comment">// Advance this iterator to the subsequent value it the &#39;IntSet&#39;,</span>
          <span class="comment">// and return a reference providing modifiable access to this</span>
          <span class="comment">// iterator.   The behavior is undefined unless this iterator</span>
@@ -401,7 +401,7 @@ A factory for creating and destroying nodes.  </li>
       }
 
       <span class="comment">// ACCESSORS</span>
-      <span class="keyword">const</span> <span class="keywordtype">int</span>&amp; operator*() const
+      <span class="keyword">const</span> <span class="keywordtype">int</span>&amp; <a class="code" href="namespacebdldfp.html#a8158394e9cee4367a9de15cf73e3646a">operator*</a>() const
           <span class="comment">// Return a reference providing non-modifiable access to the value</span>
           <span class="comment">// referred to by this iterator.</span>
       {
@@ -424,7 +424,7 @@ A factory for creating and destroying nodes.  </li>
   };
 
   <span class="comment">// FREE OPERATORS</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> IntSetConstIterator &amp;lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> IntSetConstIterator &amp;lhs,
                   <span class="keyword">const</span> IntSetConstIterator &amp;rhs)
       <span class="comment">// Return &#39;true&#39; if the &#39;lhs&#39; and &#39;rhs&#39; objects have the same value,</span>
       <span class="comment">// and &#39;false&#39; otherwise.  Two &#39;IntSetConstIterator&#39; objects have the</span>
@@ -433,7 +433,7 @@ A factory for creating and destroying nodes.  </li>
       <span class="keywordflow">return</span> lhs.nodePtr() == rhs.nodePtr();
   }
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#acf8107f12ec28380f11b968856544276">operator!=</a>(<span class="keyword">const</span> IntSetConstIterator &amp;lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> IntSetConstIterator &amp;lhs,
                   <span class="keyword">const</span> IntSetConstIterator &amp;rhs)
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  Two &#39;IntSetConstIterator&#39;</span>
@@ -520,7 +520,7 @@ A factory for creating and destroying nodes.  </li>
                                              <span class="comment">// destroying nodes</span>
 
       <span class="comment">// FRIENDS</span>
-      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
+      <span class="keyword">friend</span> <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
 
     <span class="keyword">public</span>:
       <span class="comment">// PUBLIC TYPES</span>
@@ -585,14 +585,14 @@ A factory for creating and destroying nodes.  </li>
   };
 
   <span class="comment">// FREE OPERATORS</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the &#39;lhs&#39; and &#39;rhs&#39; objects have the same value,</span>
       <span class="comment">// and &#39;false&#39; otherwise.  Two &#39;IntSet&#39; objects have the same value if</span>
       <span class="comment">// they contain the same number of elements, and if for each element</span>
       <span class="comment">// in &#39;lhs&#39; there is a corresponding element in &#39;rhs&#39; with the same</span>
       <span class="comment">// value.</span>
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#acf8107f12ec28380f11b968856544276">operator!=</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; objects do not have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  Two &#39;IntSet&#39; objects do not</span>
       <span class="comment">// have the same value if they differ in the number of elements they</span>
@@ -719,7 +719,7 @@ A factory for creating and destroying nodes.  </li>
  Finally, we implement the free operators on <code>IntSet</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="comment">// FREE OPERATORS</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs)
   {
       <span class="keywordflow">return</span> <a class="code" href="structbslalg_1_1RangeCompare.html#a7512bb3d99340d59d531bb7d0a5b4ae0">bslalg::RangeCompare::equal</a>(lhs.begin(),
                                         lhs.end(),
@@ -729,7 +729,7 @@ A factory for creating and destroying nodes.  </li>
                                         rhs.size());
   }
 
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#acf8107f12ec28380f11b968856544276">operator!=</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs)
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> IntSet&amp; lhs, <span class="keyword">const</span> IntSet&amp; rhs)
   {
       <span class="keywordflow">return</span> !(lhs == rhs);
   }
@@ -737,7 +737,7 @@ A factory for creating and destroying nodes.  </li>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

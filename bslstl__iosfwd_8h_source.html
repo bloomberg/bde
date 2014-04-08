@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslstl_iosfwd.h                                                    -*-C++-*-
@@ -39,11 +39,7 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 #include &lt;bslscm_version.h&gt;
 #endif
 
-namespace std {
-
-template &lt;class CHAR_TYPE&gt; struct char_traits;
-
-}  // close namespace std
+#include &lt;iosfwd&gt;
 
 namespace bsl {
 
@@ -95,7 +91,7 @@ typedef basic_stringstream &lt;wchar_t, char_traits&lt;wchar_t&gt;,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

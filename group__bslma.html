@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslma Package</title>
+<title>BSL 2.20 OSS: bslma Package</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -310,33 +310,42 @@ Components</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="hierarchical_synopsis"></a> <a class="anchor" id="description.hierarchical_synopsis"></a> <a class="anchor" id="3.1"></a> </dd></dl>
 <dl class="user"><dt><b>Hierarchical Synopsis: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>The <code>bslma</code> package currently has 20 components having 6 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
+<dl class="user"><dt><b></b></dt><dd>The <code>bslma</code> package currently has 28 components having 7 levels of physical dependency. The list below shows the hierarchical ordering of the components. The order of components within each level is not architecturally significant, just alphabetical. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  6. bslma_autorawdeleter
+<div class="fragment"><pre class="fragment">  7. bslma_autorawdeleter
      bslma_destructorproctor
+     bslma_sharedptrinplacerep
+     bslma_sharedptroutofplacerep
      bslma_testallocatormonitor
 
-  5. bslma_autodeallocator
+  6. bslma_autodeallocator
      bslma_autodestructor
      bslma_deallocatorguard
      bslma_deallocatorproctor
      bslma_defaultallocatorguard
      bslma_destructorguard
      bslma_exceptionguard
+     bslma_managedptr
      bslma_rawdeleterguard
      bslma_rawdeleterproctor
+     bslma_sharedptrrep
 
-  4. bslma_default
+  5. bslma_default
      bslma_testallocator
 
-  3. bslma_mallocfreeallocator
+  4. bslma_mallocfreeallocator
      bslma_newdeleteallocator
      bslma_testallocatorexception
      bslma_usesbslmaallocator
 
-  2. bslma_allocator
+  3. bslma_allocator
 
-  1. bslma_deleterhelper
+  2. bslma_deleterhelper
+     bslma_managedptrdeleter
+
+  1. bslma_managedptr_factorydeleter
+     bslma_managedptr_members
+     bslma_managedptr_pairproxy
 </pre></div><br/>
 <br/>
  </dd></dl>
@@ -370,12 +379,22 @@ Components</h2></td></tr>
  Provide a check that objects throwing exceptions do not change.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_mallocfreeallocator</code>: <br/>
  Provide malloc/free adaptor to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptr</code>: <br/>
+ Provide a managed pointer class.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_managedptrdeleter</code>: <br/>
+ Provide an in-core value semantic class to call a delete function.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_newdeleteallocator</code>: <br/>
  Provide singleton new/delete adaptor to <code><a class="el" href="classbslma_1_1Allocator.html">bslma::Allocator</a></code> protocol.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_rawdeleterguard</code>: <br/>
  Provide a guard to unconditionally manage an object.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_rawdeleterproctor</code>: <br/>
  Provide a proctor to conditionally manage an object.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_sharedptrinplacerep</code>: <br/>
+ Provide an in-place implementation of <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code>.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_sharedptroutofplacerep</code>: <br/>
+ Provide an out-of-place implementation of <code><a class="el" href="classbslma_1_1SharedPtrRep.html">bslma::SharedPtrRep</a></code>.</div></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_sharedptrrep</code>: <br/>
+ Provide an abstract class for a shared object manager.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_testallocator</code>: <br/>
  Provide instrumented malloc/free allocator to track memory usage.</div></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><div class="hanging"> <code>bslma_testallocatorexception</code>: <br/>
@@ -1018,7 +1037,7 @@ BufferAllocator::~BufferAllocator()
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

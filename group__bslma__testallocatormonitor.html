@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslma_testallocatormonitor Component</title>
+<title>BSL 2.20 OSS: bslma_testallocatormonitor Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -136,7 +136,7 @@ Namespaces</h2></td></tr>
       <span class="comment">// null-terminated ascii string attribute, &#39;description&#39;.</span>
 
       <span class="comment">// DATA</span>
-      <span class="keywordtype">int</span>               d_capacity;      <span class="comment">// available memory</span>
+      <span class="keywordtype">size_t</span>            d_capacity;      <span class="comment">// available memory</span>
       <span class="keywordtype">char</span>             *d_description_p; <span class="comment">// string data</span>
       <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *d_allocator_p;   <span class="comment">// held, not owned</span>
 
@@ -198,7 +198,7 @@ Namespaces</h2></td></tr>
   {
       <a class="code" href="bsls__assert_8h.html#a52b2a865ec62420b3681e39fa5cab9c0">BSLS_ASSERT_SAFE</a>(value);
 
-      <span class="keywordtype">int</span> size = std::strlen(value) + 1;
+      <span class="keywordtype">size_t</span> size = std::strlen(value) + 1;
       <span class="keywordflow">if</span> (size &gt; d_capacity) {
           <span class="keywordtype">char</span> *newMemory = (<span class="keywordtype">char</span> *) d_allocator_p-&gt;allocate(size);
           d_allocator_p-&gt;deallocate(d_description_p);
@@ -485,7 +485,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

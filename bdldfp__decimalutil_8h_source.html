@@ -1,0 +1,450 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+<title>BSL 2.20 OSS</title>
+<html>
+<pre>
+// bdldfp_decimalutil.h                                               -*-C++-*-
+#ifndef INCLUDED_BDLDFP_DECIMALUTIL
+#define INCLUDED_BDLDFP_DECIMALUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include &lt;bsls_ident.h&gt;
+#endif
+BSLS_IDENT(&quot;$Id$&quot;)
+
+//@PURPOSE: Provide utilities dealing with floating point decimal objects.
+//
+//@CLASSES:
+//  bdldfp::DecimalUtil: decimal floating point utility functions.
+//
+//@MACROS
+//  FP_SUBNORMAL: subnormal floating-point classification identifier constant
+//  FP_NORMAL:    normal floating-point classification identifier constant
+//  FP_ZERO:      zero floating-point classification identifier constant
+//  FP_INFINITE:  infinity floating-point classification identifier constant
+//  FP_NAN:       NaN floating-point classification identifier constant
+//
+// Note that these macros may *not* be defined in this header.  They are C99
+// standard macros and this component defines them only for those platforms
+// that have failed to implement C99 (such as Microsoft).
+//
+//@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
+//
+//@DESCRIPTION:
+// This component provides utility functions for the decimal floating-point
+// types defined in &#39;bdldfp_decimal&#39;:
+//
+//: o &#39;FP_XXX&#39;, C99 standard floating-point classification macros
+//:
+//: o the &#39;makeDecimal&#39; functions building a decimal floating-point value out
+//:   of a coefficient and exponent.
+//:
+//: o the &#39;parseDecimal&#39; functions that convert text to decimal value.
+//:
+//: o &#39;fma&#39;, &#39;fabs&#39;, &#39;ceil&#39;, &#39;floor&#39;, &#39;trunc&#39;, &#39;round&#39; - math functions
+//:
+//: o &#39;classify&#39; and the &#39;isXxxx&#39; floating-point value classification functions
+//
+// The &#39;FP_XXX&#39; C99 floating-point classification macros may also be provided
+// by this header for platforms where C99 support is still not provided.
+//
+///Usage
+///-----
+// This section shows the intended use of this component.
+//
+///Example 1: Building Decimals From Integer Parts
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// Floating-point numbers are built from a sign, a significand and an exponent.
+// All those 3 are integers (of various sizes), therefore it is possible to
+// build decimals from integers:
+//..
+//  long long coefficient = 42; // Yet another name for significand
+//  int exponent          = -1;
+//
+//  Decimal32  d32  = makeDecimal32( coefficient, exponent);
+//  Decimal64  d64  = makeDecimal64( coefficient, exponent);
+//  Decimal128 d128 = makeDecimal128(coefficient, exponent);
+//
+//  assert(BDLDFP_DECIMAL_DF(4.2) == d32);
+//  assert(BDLDFP_DECIMAL_DD(4.2) == d64);
+//  assert(BDLDFP_DECIMAL_DL(4.2) == d128);
+//..
+
+// TODO TBD Priority description:
+//
+// 1 - these are already implemented so you should not see TBD/TODO for them
+// E - implement when the thread-local Environment/Context is implemented
+// 2 - implement as second priority (most probably after the &#39;E&#39;)
+// N - Do not implement unless explicitly requested
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include &lt;bdlscm_version.h&gt;
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include &lt;bdldfp_decimal.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include &lt;bsls_platform.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include &lt;bsl_string.h&gt;
+#endif
+
+#ifndef INCLUDED_BSL_CMATH
+#include &lt;bsl_cmath.h&gt;
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS) &amp;&amp; !defined(FP_NAN)
+
+// MS does not provide standard floating-point classification in math so we do
+
+// First, make sure that the environment is sane
+
+#if defined(FP_NORMAL) || defined(FP_INFINITE) || defined(FP_ZERO) || \
+    defined(FP_SUBNORMAL)
+#error Standard FP_ macros are not defined properly.
+#endif
+
+// Make it look like stiff MS has in ymath.h
+
+#define FP_SUBNORMAL (-2)
+#define FP_NORMAL    (-1)
+#define FP_ZERO        0
+#define FP_INFINITE    1
+#define FP_NAN         2
+
+#endif
+
+namespace BloombergLP {
+namespace bdldfp {
+                            // =================
+                            // class DecimalUtil
+                            // =================
+
+struct DecimalUtil {
+    // This utility &#39;struct&#39; provides a namespace for functions using the
+    // decimal floating point types defined in the &#39;bdldfp_decimal&#39; package.
+
+    // CLASS METHODS
+
+                            // Creators functions
+
+    static Decimal32 makeDecimalRaw32 (int coeff, int exponent);
+        // Create a &#39;Decimal32&#39; object representing a decimal floating point
+        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
+        // the sign given by the specified &#39;mantissa&#39; (if signed). The
+        // behavior is undefined unless &#39;-9,999,999 &lt;= mantissa &lt;= 9,999,999&#39;
+        // and &#39;-101 &lt;= exponent &lt;= 90&#39;.
+
+    static Decimal64 makeDecimalRaw64 (int                coeff, int exponent);
+    static Decimal64 makeDecimalRaw64 (unsigned int       coeff, int exponent);
+    static Decimal64 makeDecimalRaw64 (long long          coeff, int exponent);
+    static Decimal64 makeDecimalRaw64 (unsigned long long coeff, int exponent);
+        // Create a &#39;Decimal64&#39; object representing a decimal floating point
+        // number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;, with
+        // the sign given by the specified &#39;mantissa&#39; (if signed). The
+        // behavior is undefined unless
+        // &#39;-9,999,999,999,999,999 &lt;= mantissa &lt;= 9,999,999,999,999,999&#39; and
+        // &#39;-398 &lt;= exponent &lt;= 369&#39;.
+
+    static Decimal128 makeDecimalRaw128(
+                                       int                coeff, int exponent);
+    static Decimal128 makeDecimalRaw128(
+                                       unsigned int       coeff, int exponent);
+    static Decimal128 makeDecimalRaw128(
+                                       long long          coeff, int exponent);
+    static Decimal128 makeDecimalRaw128(
+                                       unsigned long long coeff, int exponent);
+        // Create a &#39;Deciaml128&#39; object representing a decimal floating
+        // point number consisting of the specified &#39;mantissa&#39; and &#39;exponent&#39;,
+        // with the sign given by the specified &#39;mantissa&#39; (if signed). The
+        // behavior is undefined unless &#39;-6176 &lt;= exponent &lt;= 6111&#39;.
+
+    static Decimal64 makeDecimal64(int                coeff, int exponent);
+    static Decimal64 makeDecimal64(unsigned int       coeff, int exponent);
+    static Decimal64 makeDecimal64(long long          coeff, int exponent);
+    static Decimal64 makeDecimal64(unsigned long long coeff, int exponent);
+        // Return a &#39;DecimalNN&#39; object that has the specified &#39;coefficient&#39; and
+        // &#39;exponent&#39;, rounded according to the current decimal rounding mode,
+        // if necessary.  If an overflow condition occurs. store the value of
+        // the macro &#39;ERANGE&#39; into &#39;errno&#39; and return infinity with the
+        // appropriate sign.
+
+    static int parseDecimal32( Decimal32  *out, const char *str);
+    static int parseDecimal64( Decimal64  *out, const char *str);
+    static int parseDecimal128(Decimal128 *out, const char *str);
+
+    static int parseDecimal32( Decimal32  *out, const std::string&amp; str);
+    static int parseDecimal64( Decimal64  *out, const std::string&amp; str);
+    static int parseDecimal128(Decimal128 *out, const std::string&amp; str);
+        // Load into the specified &#39;out&#39; the decimal floating point number
+        // described by the specified &#39;str&#39;; return zero if the conversion was
+        // successful and non-zero otherwise.  The value of &#39;out&#39; is
+        // unspecified if the function returns a non-zero value.
+
+    //TODO TBD priority 2
+    //static int parseDecimal32(const wchar_t      *str, Decimal32 *out);
+    //static int parseDecimal32(const std::wstring&amp; str, Decimal32 *out);
+
+                                  // math
+
+    static Decimal64  fma(Decimal64  x, Decimal64  y, Decimal64  z);
+    static Decimal128 fma(Decimal128 x, Decimal128 y, Decimal128 z);
+        // Compute and return the result of &#39;x * y + z&#39;, rounded as one ternary
+        // operation according to the current decimal floating point rounding
+        // mode.
+
+    //TODO TBD priority 2
+    //static Decimal32 nextafter(Decimal32 x, Decimal32 y);
+        // Return the next representable floating point value following the
+        // specified &#39;x&#39; in the direction of the specified &#39;y&#39;.  If &#39;x&#39; or &#39;y&#39;
+        // is NaN, NaN is returned.  If &#39;x&#39; and &#39;y&#39; are equal, &#39;y&#39; is returned.
+        // If &#39;x&#39; is finite and the result would overflow an &#39;overflow
+        // exception&#39; is raised and the function will return &#39;HUGE_VAL_D32&#39;.
+        // If &#39;x&#39; is not equal to &#39;y&#39; and the correct result would be
+        // subnormal, zero or underflow a &#39;range error&#39; occurs and the correct
+        // value - if representable -- or 0.0 is returned.
+
+    //TODO TBD priority N
+    //static Decimal32 remainder(Decimal32 x, Decimal32 y);
+        // Return the next remainder of dividing of the specified &#39;x&#39; with the
+        // specified &#39;y&#39; such as that the return value is &#39;x-n*y&#39;, where &#39;n&#39; is
+        // the nearest integer of the value of &#39;x/y&#39;.  If the absolute value of
+        // the return value (&#39;x-n*y&#39;) is 0.5, &#39;n&#39; is chosen to be even.
+        // If &#39;x&#39; or &#39;y&#39; is NaN, NaN is returned.  If &#39;x&#39; is infinity and &#39;y&#39;
+        // is not NaN, the &#39;invalid floating point expection&#39; is raised and NaN
+        // is returned.  If &#39;y&#39; is zero and &#39;x&#39; is not NaN, the &#39;invalid
+        // floating point expection&#39; is raised and NaN is returned.
+
+                       // Selecting, converting functions
+
+    static Decimal32  fabs(Decimal32  value);
+    static Decimal64  fabs(Decimal64  value);
+    static Decimal128 fabs(Decimal128 value);
+        // Return the absolute value of the specified &#39;value&#39;.  Note that the
+        // absolute value of NaN is NaN.  The absolute values of negative zero
+        // or infinity are positive zero and infinity respectively.
+
+    //TODO TBD priority 2
+    //static Decimal32 fmax(Decimal32 x, Decimal32 y);
+        // Return the larger value of the specified &#39;x&#39; and &#39;y&#39;.  If one
+        // argument is NaN, return the other argument.  If both arguments are
+        // NaN, return NaN.
+
+    //TODO TBD priority 2
+    //static Decimal32 fmin(Decimal32 x, Decimal32 y);
+        // Return the smaller value of the specified &#39;x&#39; and &#39;y&#39;.  If one
+        // argument is NaN, return the other argument.  If both arguments are
+        // NaN, return NaN.
+
+    //TODO TBD priority N
+    //static Decimal32 copysign(Decimal32 x, Decimal32 y);
+        // Return a value whose absolute value matches that of the specified
+        // &#39;x&#39; and whose sign bit matches that of the specified &#39;y&#39;.  If &#39;x&#39;
+        // is NaN, a NaN with the sign bit of &#39;y&#39; is returned.
+
+                               // classification
+
+    // Names are camelCase so they do not collide with macros of &#39;math.h&#39;.
+
+    static int classify(Decimal32  x);
+    static int classify(Decimal64  x);
+    static int classify(Decimal128 x);
+        // Return the integer value that respresents the floating point
+        // classification of the specified &#39;x&#39; value as follows:
+        //
+        //: o if &#39;x&#39; is NaN, return FP_NAN;
+        //: o otherwise if &#39;x&#39; is positive or negative infinity, return
+        //:   &#39;FP_INFINITE&#39;;
+        //: o otherwise if &#39;x&#39; is a subnormal value, return &#39;FP_SUBNORMAL&#39;
+        //: o otherwise if &#39;x&#39; is a zero value, return &#39;FP_ZERO&#39;
+        //: o otherwise return &#39;FP_NORMAL&#39;
+        //
+        // Note that the mention &#39;FP_XXX&#39; constants are C99 standard macros and
+        // they are defined in the math.h (cmath) standard header.  On systems
+        // that fail to define those standard macros we define the in this
+        // component as public macros.
+
+    static bool isNan(Decimal32  x);
+    static bool isNan(Decimal64  x);
+    static bool isNan(Decimal128 x);
+        // Return &#39;true&#39; if the specified &#39;x&#39; is NaN and &#39;false&#39; otherwise.
+        // Note that this is equivalent to &#39;classify(x) == FP_NAN&#39;.
+
+    static bool isInf(Decimal32  x);
+    static bool isInf(Decimal64  x);
+    static bool isInf(Decimal128 x);
+        // Return &#39;true&#39; if the specified &#39;x&#39; is an infinity value and
+        // &#39;false&#39; otherwise.
+        // Note that this is equivalent to &#39;classify(x) == FP_INFINITE&#39;.
+
+    static bool isFinite(Decimal32  x);
+    static bool isFinite(Decimal64  x);
+    static bool isFinite(Decimal128 x);
+        // Return &#39;true&#39; if the specified &#39;x&#39; is not an infinity value or NaN
+        // and &#39;false&#39; otherwise. Note that this is equivalent to
+        // &#39;classify(x) != FP_INFINITE &amp;&amp; classify(x) != FP_NAN&#39;.
+
+    static bool isNormal(Decimal32  x);
+    static bool isNormal(Decimal64  x);
+    static bool isNormal(Decimal128 x);
+        // Return &#39;true&#39; if the specified &#39;x&#39; is a normal value and &#39;false&#39;
+        // otherwise.
+        // Note that this is equivalent to &#39;classify(x) == FP_NORMAL&#39;.
+
+                           // Comparison functions
+
+    static bool isUnordered(Decimal32  x, Decimal32  y);
+    static bool isUnordered(Decimal64  x, Decimal64  y);
+    static bool isUnordered(Decimal128 x, Decimal128 y);
+        // Return &#39;true&#39; if either (or both) of the specified &#39;x&#39; and &#39;y&#39;
+        // arguments is a NaN, or &#39;false&#39; otherwise.
+
+    //TODO TBD priority E or 2
+    //static bool isGreater(Decimal32 x, Decimal32 y);
+    //static bool isGreaterEqual(Decimal32 x, Decimal32 y);
+    //static bool isLess(Decimal32 x, Decimal32 y);
+    //static bool isEqual(Decimal32 x, Decimal32 y);
+    //static bool isLessEqual(Decimal32 x, Decimal32 y);
+        // Compare the specified &#39;x&#39; and &#39;y&#39; value without setting any floating
+        // point exceptions.  Return false if either of the arguments is a NaN.
+
+                             // Rounding functions
+
+    static Decimal32  ceil(Decimal32  x);
+    static Decimal64  ceil(Decimal64  x);
+    static Decimal128 ceil(Decimal128 x);
+        // Return the smallest integral value that is not less than the
+        // specified &#39;x&#39;.  If &#39;x&#39; is integral, plus zero, minus zero, NaN, or
+        // infinity &#39;x&#39; return &#39;x&#39; itself.
+        // Examples: &#39;ceil(0.5)&#39; ==&gt; 1.0; &#39;ceil(-0.5)&#39; ==&gt; 0.0
+
+    static Decimal32  floor(Decimal32  x);
+    static Decimal64  floor(Decimal64  x);
+    static Decimal128 floor(Decimal128 x);
+        // Return the largest integral value that is not greater than the
+        // specified &#39;x&#39;.  If &#39;x&#39; is integral, positive zero, negative zero,
+        // NaN, or infinity &#39;x&#39; return &#39;x&#39; itself.
+        // Examples: &#39;floor(0.5)&#39; ==&gt; 0.0; &#39;floor(-0.5)&#39; ==&gt; -1.0
+
+    static Decimal32  trunc(Decimal32  x);
+    static Decimal64  trunc(Decimal64  x);
+    static Decimal128 trunc(Decimal128 x);
+        // Return the nearest integal value that is not greater in absolute
+        // value than the specified &#39;x&#39;.  If &#39;x&#39; is integral, NaN, or infinity
+        // then return &#39;x&#39; itself.
+        // Examples: &#39;trunc(0.5)&#39; ==&gt; 0.0; &#39;trunc(-0.5)&#39; ==&gt; 0.0
+
+    static Decimal32  round(Decimal32  x);
+    static Decimal64  round(Decimal64  x);
+    static Decimal128 round(Decimal128 x);
+        // Return the integal value nearest to the specified &#39;x&#39;.  Round
+        // halfway cases away from zero, regardless of the current decimal
+        // floating point rounding mode.  If &#39;x&#39; is integral, positive zero,
+        // negative zero, NaN, or infinity then return &#39;x&#39; itself.
+        // Examples: &#39;round(0.5)&#39; ==&gt; 1.0; &#39;round(-0.5)&#39; ==&gt; -1.0
+
+    //TODO TBD priority N
+    //static Decimal32 rint(Decimal32 x);
+        // Return the integal value nearest to the specified &#39;x&#39;.  Round
+        // halfway according to the current decimal floating point rounding
+        // mode.  Raise the &#39;inexact exception&#39; if the return value differs
+        // from the argument &#39;x&#39; in value.  If &#39;x&#39; is integral, plus zero,
+        // minus zero, NaN, or infinity then return &#39;x&#39; itself.
+
+    //TODO TBD priority 2
+    //static long int       lround(Decimal32 x);
+    //static long long int llround(Decimal32 x);
+        // Return the integal value nearest to the specified &#39;x&#39;, rounding
+        // away from zero regardless of the current decimal floating point
+        // rounding mode.  If the specified &#39;x&#39; is NaN, infinity, or too large
+        // a value to be stored in the return type raise a &#39;domain exception&#39;,
+        // the return value in such case is unspecified.  Note that these
+        // functions, unlike the other rounding functions, return different
+        // types than their argument type.
+
+                             // Quantum functions
+
+    //TODO TBD priority E
+    //TODO TBD priority E
+    static Decimal64  multiplyByPowerOf10(Decimal64  value,
+                                          int        exponent);
+    static Decimal64  multiplyByPowerOf10(Decimal64  value,
+                                          Decimal64  exponent);
+    static Decimal128 multiplyByPowerOf10(Decimal128 value,
+                                          int        exponent);
+    static Decimal128 multiplyByPowerOf10(Decimal128 value,
+                                          Decimal128 exponent);
+        // Return the result of multiplying the specified &#39;value&#39; by ten raised
+        // to the specified &#39;exponent&#39;.  The quantum of &#39;value&#39; is scaled
+        // according to IEEE 754&#39;s &#39;scaleB&#39; operations.  The result is
+        // unspecified if &#39;value&#39; is NaN or infinity.  The behavior is
+        // undefined unless &#39;-1999999997 &lt;= y &lt;= 99999999&#39;.
+
+    //static Decimal32 quantize(Decimal32 x, Decimal32 y);
+    static Decimal64  quantize(Decimal64  x, Decimal64  y);
+    static Decimal128 quantize(Decimal128 x, Decimal128 y);
+        // Return a number that is equal in value (except for any rounding) and
+        // sign to the specified &#39;x&#39;, and which has the exponent of the
+        // specified &#39;y&#39;.  If the exponent needs to be increased, round the
+        // value according to the current decimal floating point rounding mode;
+        // and if the result of the rounding is not equal to the value of &#39;x&#39;,
+        // raise the &#39;inexact floating point exception&#39;.  If the exponent needs
+        // to be decreased and the significant of the result has more digits
+        // than the type would allow, raise the &#39;invalid&#39; floating-point
+        // exception and return NaN.  If both operands are NaN, return NaN.  If
+        // only one of the operands is infinity, raise the &#39;invalid&#39;
+        // floating-point exception and return NaN.  If both operands are
+        // inifnity, return infinity with the same sign as &#39;x&#39;.  This function
+        // does not signal underflow.
+
+    static int quantum(Decimal64  value);
+    static int quantum(Decimal128 value);
+        // Return an integer equal to the exponent field in the specified
+        // &#39;value&#39;.  Each decimal floating point number is a representation of
+        // the ideal form &#39;m * (10 ** e)&#39;, where &#39;m&#39; is mantissa and &#39;e&#39; is
+        // exponent.  This function returns that exponent value.  The behavior
+        // is undefined if &#39;value&#39; is NaN or &#39;value&#39; is infinity.
+
+    static bool sameQuantum(Decimal64  x, Decimal64  y);
+    static bool sameQuantum(Decimal128 x, Decimal128 y);
+        // Return &#39;true&#39; if the specified &#39;x&#39; and &#39;y&#39; values have the same
+        // quantum exponents, and &#39;false&#39; otherwise.  If both arguments are
+        // NaN or both arguments are infinity, they have the same quantum
+        // exponents.  Note that if exactly one operand is NaN or exactly
+        // one operand is infinity, they do not have the same quantum
+        // exponents.  Also note that this function will raise no exceptions.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
+</pre>
+</body>
+</html>

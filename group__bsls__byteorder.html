@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bsls_byteorder Component</title>
+<title>BSL 2.20 OSS: bsls_byteorder Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -179,7 +179,7 @@
 <br/>
  For example, to use the little-endian/big-endian to host-endian macros: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keywordtype">short</span>              x = 0xabcd;
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">short</span>              x = <span class="keyword">static_cast&lt;</span><span class="keywordtype">short</span><span class="keyword">&gt;</span>(0xabcd);
   <span class="keywordtype">int</span>                y = 0xabcdef12;
   <a class="code" href="structbsls_1_1Types.html#aa382f43d8a0be6193c86ef5c82886c12">bsls::Types::Int64</a> z = 0xabcdef1234567890LL;
 
@@ -226,7 +226,7 @@
 <br/>
  The other macros can be used in a similar manner. </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:48 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

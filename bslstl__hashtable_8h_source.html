@@ -1,6 +1,6 @@
 <!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
 <html>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <html>
 <pre>
 // bslstl_hashtable.h                                                 -*-C++-*-
@@ -1529,6 +1529,10 @@ BSLS_IDENT(&quot;$Id: $&quot;)
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include &lt;bsls_assert.h&gt;
+#endif
+
+#ifndef INCLUDED_BSLS_BSLEXCEPTIONUTIL
+#include &lt;bsls_bslexceptionutil.h&gt;
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -3088,7 +3092,7 @@ void HashTable_Util::initAnchor(bslalg::HashTableAnchor *anchor,
     // assumption to pre-empt other allocators too.
 
     if (ArrayAllocatorTraits::max_size(reboundAllocator) &lt; bucketArraySize) {
-        bslma::Allocator::throwBadAlloc();
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     // Conversion to exactly the correct type resolves compiler warnings.
@@ -4019,10 +4023,20 @@ typename HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;::SizeType
 HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;::bucketIndexForKey(
                                                       const KeyType&amp; key) const
 {
+    typedef typename 
+       HashTable&lt;KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR&gt;::SizeType SizeType;
+
+    // The following cast will not discard any useful bits, unless &#39;SizeType&#39;
+    // is larger than &#39;size_t&#39;, as the bucket computation takes a mod on the
+    // supplied number of buckets.  We use the following &#39;BSLMF_ASSERT&#39; to
+    // assert that assumption at compile time.
+
+    BSLMF_ASSERT(sizeof(SizeType) &lt;= sizeof(size_t));
+
     size_t hashCode = this-&gt;d_parameters.hashCodeForKey(key);
-    return bslalg::HashTableImpUtil::computeBucketIndex(
-                                                   hashCode,
-                                                   d_anchor.bucketArraySize());
+    return static_cast&lt;SizeType&gt;(bslalg::HashTableImpUtil::computeBucketIndex(
+                                                  hashCode,
+                                                  d_anchor.bucketArraySize()));
 }
 
 template &lt;class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR&gt;
@@ -4309,7 +4323,7 @@ struct IsBitwiseMoveable&lt;bslstl::HashTable&lt;KEY_CONFIG,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the &quot;Software&quot;), to

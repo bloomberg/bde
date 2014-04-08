@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslstl_sharedptr Component</title>
+<title>BSL 2.20 OSS: bslstl_sharedptr Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -177,9 +177,9 @@ Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa54386ccdd73e52de6e463a6a86eb5b8">bsl::shared_ptr::swap</a> (shared_ptr&lt; ELEMENT_TYPE &gt; &amp;other)</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga31292c33e0410049a25c59c0c4b74049">bsl::shared_ptr::operator BoolType</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">add_lvalue_reference<br class="typebreak"/>
-&lt; ELEMENT_TYPE &gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac951c0325b8179829b715d8e9e48c595">bsl::shared_ptr::operator[]</a> (ptrdiff_t index) const </td></tr>
+&lt; ELEMENT_TYPE &gt;::type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gac951c0325b8179829b715d8e9e48c595">bsl::shared_ptr::operator[]</a> (ptrdiff_t index) const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">add_lvalue_reference<br class="typebreak"/>
-&lt; ELEMENT_TYPE &gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7561cfb064b73fc506712a0bf4b4f6d1">bsl::shared_ptr::operator*</a> () const </td></tr>
+&lt; ELEMENT_TYPE &gt;::type&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#ga7561cfb064b73fc506712a0bf4b4f6d1">bsl::shared_ptr::operator*</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">ELEMENT_TYPE *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaf0b9e0d68f8775c9f64c4df92d0f0d9b">bsl::shared_ptr::operator-&gt;</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::SharedPtrRep *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__bslstl__sharedptr.html#gaa2c9e02ec8be7cb54746f8a41b0b5c12">bsl::shared_ptr::rep</a> () const </td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">BloombergLP::bslma::ManagedPtr<br class="typebreak"/>
@@ -323,23 +323,21 @@ Friends</h2></td></tr>
 <li>
 <a href="#3.11">Usage</a> <ul>
 <li>
-<a href="#3.11.1">Example 1 - Basic Usage</a> </li>
+<a href="#3.11.1">Example 1: Basic Usage</a> </li>
 <li>
-<a href="#3.11.2">Using Custom Deleters</a> <ul>
+<a href="#3.11.2">Using Custom Deleters</a> </li>
 <li>
-<a href="#3.11.2.1">Example 2 - Nil deleters</a> </li>
+<a href="#3.11.3">Example 2: Nil Deleters</a> <ul>
 <li>
-<a href="#3.11.2.2">Example 3 - Custom Deleters</a> </li>
+<a href="#3.11.3.1">Example 3: Custom Deleters</a> </li>
 </ul>
 </li>
 <li>
-<a href="#3.11.3">Implementation Hiding</a> <ul>
+<a href="#3.11.4">Implementation Hiding</a> </li>
 <li>
-<a href="#3.11.3.1">Example 4 - Hidden Interfaces</a> </li>
+<a href="#3.11.5">Example 4: Hidden Interfaces</a> </li>
 <li>
-<a href="#3.11.3.2">Example 5 - Opaque Types</a> </li>
-</ul>
-</li>
+<a href="#3.11.6">Example 5: Opaque Types</a> </li>
 </ul>
 </li>
 </ul>
@@ -355,11 +353,9 @@ Friends</h2></td></tr>
 <li>
 <a href="#4.2">Usage</a> <ul>
 <li>
-<a href="#4.2.1">Example 1 - Basic Usage</a> </li>
+<a href="#4.2.1">Example 1: Basic Usage</a> </li>
 <li>
-<a href="#4.2.2">Example 2 - Breaking Cyclic Dependencies</a> </li>
-<li>
-<a href="#4.2.3">Example 3 - Caching</a> </li>
+<a href="#4.2.2">Example 2: Breaking Cyclical Dependencies</a> </li>
 </ul>
 </li>
 </ul>
@@ -740,8 +736,8 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b>Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following examples demonstrate various features and uses of shared pointers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1_-_basic_usage"></a> <a class="anchor" id="usage.example_1_-_basic_usage"></a> <a class="anchor" id="description.usage.example_1_-_basic_usage"></a> <a class="anchor" id="3.11.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1 - Basic Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_1~3A_basic_usage"></a> <a class="anchor" id="usage.example_1~3A_basic_usage"></a> <a class="anchor" id="description.usage.example_1~3A_basic_usage"></a> <a class="anchor" id="example_1"></a> <a class="anchor" id="usage.example_1"></a> <a class="anchor" id="description.usage.example_1"></a> <a class="anchor" id="3.11.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 1: Basic Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following example demonstrates the creation of a shared pointer. First, we declare the type of object that we wish to manage: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>MyUser {
@@ -804,9 +800,9 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b>Using Custom Deleters: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The following examples demonstrate the use of custom deleters with shared pointers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2_-_nil_deleters"></a> <a class="anchor" id="using_custom_deleters.example_2_-_nil_deleters"></a> <a class="anchor" id="usage.using_custom_deleters.example_2_-_nil_deleters"></a> <a class="anchor" id="description.usage.using_custom_deleters.example_2_-_nil_deleters"></a> <a class="anchor" id="3.11.2.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2 - Nil deleters: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>There are cases when an interface calls for an object to be passed as a shared pointer, but the object being passed is not owned by the caller (e.g., a pointer to a static variable). In these cases, it is possible to create a shared pointer specifying <code><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></code> as the deleter. The deleter function provided by <code><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></code> is a no-op and does not delete the object. The following example demonstrates the use of <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> using a <code><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></code>. The code uses the <code>MyUser</code> class defined in Example 1. In this example, an asynchronous transaction manager is implemented. Transactions are enqueued into the transaction manager to be processed at some later time. The user associated with the transaction is passed as a shared pointer. Transactions can originate from the "system" or from "users". </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_nil_deleters"></a> <a class="anchor" id="usage.example_2~3A_nil_deleters"></a> <a class="anchor" id="description.usage.example_2~3A_nil_deleters"></a> <a class="anchor" id="example_2"></a> <a class="anchor" id="usage.example_2"></a> <a class="anchor" id="description.usage.example_2"></a> <a class="anchor" id="3.11.3"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: Nil Deleters: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>There are cases when an interface calls for an object to be passed as a shared pointer, but the object being passed is not owned by the caller (e.g., a pointer to a static variable). In these cases, it is possible to create a shared pointer specifying <code><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></code> as the deleter. The deleter function provided by <code><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></code> is a no-op and does not delete the object. The following example demonstrates the use of <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> using a <code><a class="el" href="structbslstl_1_1SharedPtrNilDeleter.html">bslstl::SharedPtrNilDeleter</a></code>. The code uses the <code>MyUser</code> class defined in <a href="group__bslstl__sharedptr.html#example_1" class="el">Example 1</a>. In this example, an asynchronous transaction manager is implemented. Transactions are enqueued into the transaction manager to be processed at some later time. The user associated with the transaction is passed as a shared pointer. Transactions can originate from the "system" or from "users". </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>We first declare the transaction manager and transaction info classes: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>MyTransactionInfo {
@@ -833,7 +829,8 @@ Friends</h2></td></tr>
 <br/>
  The <code>systemUser</code> class method returns the same <code>MyUser</code> object and should not be destroyed by its users: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  MyUser *MyTransactionManager::systemUser(<a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
+<div class="fragment"><pre class="fragment">  MyUser *MyTransactionManager::systemUser(
+                                      <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *<span class="comment">/* basicAllocator */</span>)
   {
       <span class="keyword">static</span> MyUser *systemUserSingleton;
       <span class="keywordflow">if</span> (!systemUserSingleton) {
@@ -871,8 +868,8 @@ Friends</h2></td></tr>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3_-_custom_deleters"></a> <a class="anchor" id="using_custom_deleters.example_3_-_custom_deleters"></a> <a class="anchor" id="usage.using_custom_deleters.example_3_-_custom_deleters"></a> <a class="anchor" id="description.usage.using_custom_deleters.example_3_-_custom_deleters"></a> <a class="anchor" id="3.11.2.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 3 - Custom Deleters: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3~3A_custom_deleters"></a> <a class="anchor" id="example_2.example_3~3A_custom_deleters"></a> <a class="anchor" id="usage.example_2.example_3~3A_custom_deleters"></a> <a class="anchor" id="description.usage.example_2.example_3~3A_custom_deleters"></a> <a class="anchor" id="example_3"></a> <a class="anchor" id="example_2.example_3"></a> <a class="anchor" id="usage.example_2.example_3"></a> <a class="anchor" id="description.usage.example_2.example_3"></a> <a class="anchor" id="3.11.3.1"></a> </dd></dl>
+<dl class="user"><dt><b>Example 3: Custom Deleters: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>The role of a "deleter" is to allow users to define a custom "cleanup" for a shared object. Although cleanup generally involves destroying the object, this need not be the case. The following example demonstrates the use of a custom deleter to construct "locked" pointers. First we declare a custom deleter that, when invoked, releases the specified mutex and signals the specified condition variable. <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>my_MutexUnlockAndBroadcastDeleter {
@@ -971,12 +968,12 @@ Friends</h2></td></tr>
 <br/>
  </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="implementation_hiding"></a> <a class="anchor" id="usage.implementation_hiding"></a> <a class="anchor" id="description.usage.implementation_hiding"></a> <a class="anchor" id="3.11.3"></a> </dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="implementation_hiding"></a> <a class="anchor" id="usage.implementation_hiding"></a> <a class="anchor" id="description.usage.implementation_hiding"></a> <a class="anchor" id="3.11.4"></a> </dd></dl>
 <dl class="user"><dt><b>Implementation Hiding: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code> refers to the parameterized type on which it is instantiated "in name only". This allows for the instantiation of shared pointers to incomplete or <code>void</code> types. This feature is useful for constructing interfaces where returning a pointer to a shared object is desirable, but in order to control access to the object its interface cannot be exposed. The following examples demonstrate two techniques for achieving this goal using a <code><a class="el" href="classbsl_1_1shared__ptr.html">shared_ptr</a></code>. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_4_-_hidden_interfaces"></a> <a class="anchor" id="implementation_hiding.example_4_-_hidden_interfaces"></a> <a class="anchor" id="usage.implementation_hiding.example_4_-_hidden_interfaces"></a> <a class="anchor" id="description.usage.implementation_hiding.example_4_-_hidden_interfaces"></a> <a class="anchor" id="3.11.3.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 4 - Hidden Interfaces: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_4~3A_hidden_interfaces"></a> <a class="anchor" id="usage.example_4~3A_hidden_interfaces"></a> <a class="anchor" id="description.usage.example_4~3A_hidden_interfaces"></a> <a class="anchor" id="example_4"></a> <a class="anchor" id="usage.example_4"></a> <a class="anchor" id="description.usage.example_4"></a> <a class="anchor" id="3.11.5"></a> </dd></dl>
+<dl class="user"><dt><b>Example 4: Hidden Interfaces: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>Example 4 demonstrates the use of incomplete types to hide the interface of a <code>my_Session</code> type. We begin by declaring the <code>my_SessionManager</code> <code>class</code>, which allocates and manages <code>my_Session</code> objects. The interface (<code>.h</code>) merely forward declares <code>my_Session</code>. The actual definition of the interface is in the implementation (<code>.cpp</code>) file. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>We forward-declare <code>my_Session</code> to be used (in name only) in the definition of <code>my_SessionManager</code>: <br/>
 <br/>
@@ -1103,8 +1100,9 @@ Friends</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_5_-_opaque_types"></a> <a class="anchor" id="implementation_hiding.example_5_-_opaque_types"></a> <a class="anchor" id="usage.implementation_hiding.example_5_-_opaque_types"></a> <a class="anchor" id="description.usage.implementation_hiding.example_5_-_opaque_types"></a> <a class="anchor" id="3.11.3.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 5 - Opaque Types: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_5~3A_opaque_types"></a> <a class="anchor" id="usage.example_5~3A_opaque_types"></a> <a class="anchor" id="description.usage.example_5~3A_opaque_types"></a> <a class="anchor" id="example_5"></a> <a class="anchor" id="usage.example_5"></a> <a class="anchor" id="description.usage.example_5"></a> <a class="anchor" id="3.11.6"></a> </dd></dl>
+<dl class="user"><dt><b>Example 5: Opaque Types: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In the above example, users could infer that <code>my_Handle</code> is a pointer to a <code>my_Session</code> but have no way to directly access it's methods since the interface is not exposed. In the following example, <code>my_SessionManager</code> is re-implemented to provide an even more opaque session handle. In this implementation, <code>my_Handle</code> is redefined using <code>void</code> providing no indication of its implementation. Note that using <code>void</code> will require casting in the implementation and, therefore, will be a little more expensive. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd>In the interface, define <code>my_SessionManager</code> as follows: <br/>
 <br/>
@@ -1267,7 +1265,7 @@ Friends</h2></td></tr>
 <dl class="user"><dt><b></b></dt><dd>The following examples demonstrate various features and uses of weak pointers. </dd></dl>
 <dl class="user"><dt><b></b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd><a class="anchor" id="4.2.1"></a> </dd></dl>
-<dl class="user"><dt><b>Example 1 - Basic Usage: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b>Example 1: Basic Usage: </b></dt><dd></dd></dl>
 <dl class="user"><dt><b></b></dt><dd>This example illustrates the basic syntax needed to create and use a <code>bcema_WeakPtr</code>. Suppose that we want to construct a weak pointer that refers to an <code>int</code> managed by a shared pointer. Next we define the shared pointer and assign a value to the shared <code>int</code>: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  bcema_SharedPtr&lt;int&gt; intPtr;
@@ -1320,29 +1318,29 @@ Friends</h2></td></tr>
 </pre></div><br/>
 <br/>
  </dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2_-_breaking_cyclic_dependencies"></a> <a class="anchor" id="usage.example_2_-_breaking_cyclic_dependencies"></a> <a class="anchor" id="description.usage.example_2_-_breaking_cyclic_dependencies"></a> <a class="anchor" id="4.2.2"></a> </dd></dl>
-<dl class="user"><dt><b>Example 2 - Breaking Cyclic Dependencies: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Weak pointers are frequently used to break cyclic dependencies among objects that store references to each other via shared pointers. Consider, for example, a simplified broadcasting system that sends news alerts to users based on user-selected keywords. The user information is stored in the <code>NewsUser</code> class and the details of the news alert are stored in the <code>NewsAlert</code> class. The class definitions for <code>NewsUser</code> and <code>NewsAlert</code> are provided below (with any code not essential to this example elided): <br/>
+<dl class="user"><dt><b></b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_2~3A_breaking_cyclical_dependencies"></a> <a class="anchor" id="usage.example_2~3A_breaking_cyclical_dependencies"></a> <a class="anchor" id="description.usage.example_2~3A_breaking_cyclical_dependencies"></a> <a class="anchor" id="4.2.2"></a> </dd></dl>
+<dl class="user"><dt><b>Example 2: Breaking Cyclical Dependencies: </b></dt><dd></dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Weak pointers are frequently used to break cyclical dependencies between objects that store references to each other via a shared pointer. Consider for example a simplified news alert system that sends news alerts to users based on keywords that they register for. The user information is stored in the <code>User</code> class and the details of the news alert are stored in the <code>Alert</code> class. The class definitions for <code>User</code> and <code>Alert</code> are provided below (with any code not relevant to this example elided): <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>NewsAlert;
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Alert;
 
-  <span class="keyword">class </span>NewsUser {
+  <span class="keyword">class </span>User {
       <span class="comment">// This class stores the user information required for listening to</span>
       <span class="comment">// alerts.</span>
 
-      <span class="comment">// DATA</span>
-      <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bcema_SharedPtr&lt;NewsAlert&gt;</a> &gt; d_alerts; <span class="comment">// list of alerts</span>
-                                                         <span class="comment">// for which a user</span>
-                                                         <span class="comment">// is registered</span>
+      <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bsl::shared_ptr&lt;Alert&gt;</a> &gt; d_alerts;  <span class="comment">// alerts user is</span>
+                                                      <span class="comment">// registered for</span>
 
-    <span class="keyword">public</span>:
       <span class="comment">// ...</span>
 
+    <span class="keyword">public</span>:
       <span class="comment">// MANIPULATORS</span>
-      <span class="keywordtype">void</span> addAlert(<span class="keyword">const</span> bcema_SharedPtr&lt;NewsAlert&gt;&amp; alertPtr)
+      <span class="keywordtype">void</span> addAlert(<span class="keyword">const</span> <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;Alert&gt;</a>&amp; alertPtr)
+      {
           <span class="comment">// Add the specified &#39;alertPtr&#39; to the list of alerts being</span>
           <span class="comment">// monitored by this user.</span>
-      {
+
           d_alerts.push_back(alertPtr);
       }
 
@@ -1350,26 +1348,22 @@ Friends</h2></td></tr>
   };
 </pre></div><br/>
 <br/>
- Now we define the alert class, <code>NewsAlert</code>: <br/>
+ Now we define an alert class, <code>Alert</code>: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>NewsAlert {
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Alert {
       <span class="comment">// This class stores the alert information required for sending</span>
       <span class="comment">// alerts.</span>
 
-      <span class="comment">// DATA</span>
-      <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bcema_SharedPtr&lt;NewsUser&gt;</a> &gt; d_users;  <span class="comment">// list of users</span>
-                                                        <span class="comment">// who have</span>
-                                                        <span class="comment">// registered for</span>
-                                                        <span class="comment">// this alert</span>
+      <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bsl::shared_ptr&lt;User&gt;</a> &gt; d_users;  <span class="comment">// users registered</span>
+                                                    <span class="comment">// for this alert</span>
 
     <span class="keyword">public</span>:
-      <span class="comment">// ...</span>
-
       <span class="comment">// MANIPULATORS</span>
-      <span class="keywordtype">void</span> addUser(<span class="keyword">const</span> bcema_SharedPtr&lt;NewsUser&gt;&amp; userPtr)
+      <span class="keywordtype">void</span> addUser(<span class="keyword">const</span> <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;User&gt;</a>&amp; userPtr)
+      {
           <span class="comment">// Add the specified &#39;userPtr&#39; to the list of users monitoring this</span>
           <span class="comment">// alert.</span>
-      {
+
           d_users.push_back(userPtr);
       }
 
@@ -1377,47 +1371,53 @@ Friends</h2></td></tr>
   };
 </pre></div><br/>
 <br/>
- Note that the <code>NewsUser</code> and <code>NewsAlert</code> classes, as currently defined could easily result in a memory leak under typical use due to a cyclic reference: <br/>
+ Even though we have released <code>alertPtr</code> and <code>userPtr</code> there still exists a cyclic reference between the two objects, so none of the objects are destroyed. </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>We can break this cyclical dependency we define a modified alert class <code>ModifiedAlert</code> that stores a weak pointer to a <code>ModifiedUser</code> object. Below is the definition for the <code>ModifiedUser</code> class which is identical to the <code>User</code> class, the only difference being that it stores shared pointer to <code>ModifiedAlert</code>s instead of <code>Alert</code>s: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> ta;
-  {
-      bcema_SharedPtr&lt;NewsUser&gt; userPtr;
-      userPtr.createInplace(&amp;ta);
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>ModifiedAlert;
 
-      bcema_SharedPtr&lt;NewsAlert&gt; alertPtr;
-      alertPtr.createInplace(&amp;ta);
+  <span class="keyword">class </span>ModifiedUser {
+      <span class="comment">// This class stores the user information required for listening to</span>
+      <span class="comment">// alerts.</span>
 
-      alertPtr-&gt;addUser(userPtr);
-      userPtr-&gt;addAlert(alertPtr);
+      <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bsl::shared_ptr&lt;ModifiedAlert&gt;</a> &gt; d_alerts;<span class="comment">// alerts user is</span>
+                                                            <span class="comment">// registered for</span>
 
-      alertPtr.reset();
-      userPtr.reset();
-  }
+      <span class="comment">// ...</span>
 
-  <span class="comment">// MEMORY LEAK !!</span>
+    <span class="keyword">public</span>:
+      <span class="comment">// MANIPULATORS</span>
+      <span class="keywordtype">void</span> addAlert(<span class="keyword">const</span> <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;ModifiedAlert&gt;</a>&amp; alertPtr)
+      {
+          <span class="comment">// Add the specified &#39;alertPtr&#39; to the list of alerts being</span>
+          <span class="comment">// monitored by this user.</span>
+
+          d_alerts.push_back(alertPtr);
+      }
+
+      <span class="comment">// ...</span>
+  };
 </pre></div><br/>
 <br/>
- Even though we have released <code>alertPtr</code> and <code>userPtr</code>, there still exists a cyclic reference between the two objects, so none of the objects are destroyed. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>We can break this cyclic dependency by modifying the alert class, <code>NewsAlert</code>, to store a weak pointer, instead of a shared pointer, to a <code>NewsUser</code> object. Below is the modified definition for the <code>NewsAlert</code> class: <br/>
+ Now we define the <code>ModifiedAlert</code> class: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>NewsAlert {
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>ModifiedAlert {
       <span class="comment">// This class stores the alert information required for sending</span>
       <span class="comment">// alerts.</span>
 </pre></div><br/>
 <br/>
  Note that the user is stored by a weak pointer instead of by a shared pointer: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">      <span class="comment">// DATA</span>
-      <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bcema_WeakPtr&lt;NewsUser&gt;</a> &gt; d_users; <span class="comment">// list of users that</span>
-                                                     <span class="comment">// have registered for</span>
-                                                     <span class="comment">// this alert</span>
+<div class="fragment"><pre class="fragment">      <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bsl::weak_ptr&lt;ModifiedUser&gt;</a> &gt; d_users;  <span class="comment">// users registered</span>
+                                                          <span class="comment">// for this alert</span>
 
     <span class="keyword">public</span>:
       <span class="comment">// MANIPULATORS</span>
-      <span class="keywordtype">void</span> addUser(<span class="keyword">const</span> bcema_WeakPtr&lt;NewsUser&gt;&amp; userPtr)
+      <span class="keywordtype">void</span> addUser(<span class="keyword">const</span> <a class="code" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr&lt;ModifiedUser&gt;</a>&amp; userPtr)
+      {
           <span class="comment">// Add the specified &#39;userPtr&#39; to the list of users monitoring this</span>
           <span class="comment">// alert.</span>
-      {
+
           d_users.<a class="code" href="group__bslstl__vector.html#gaa1d6a35af66d87307ee9a48be96644a5">push_back</a>(userPtr);
       }
 
@@ -1425,117 +1425,126 @@ Friends</h2></td></tr>
   };
 </pre></div><br/>
 <br/>
- The use of <code>NewsUser</code> and <code>NewsAlert</code> objects no longer causes a memory leak: <br/>
-<br/>
-<div class="fragment"><pre class="fragment">  <a class="code" href="classbslma_1_1TestAllocator.html">bslma::TestAllocator</a> ta;
-  {
-      bcema_SharedPtr&lt;NewsAlert&gt; alertPtr;
-      alertPtr.createInplace(&amp;ta);
-
-      bcema_SharedPtr&lt;NewsUser&gt; userPtr;
-      userPtr.createInplace(&amp;ta);
-
-      bcema_WeakPtr&lt;NewsUser&gt; userWeakPtr(userPtr);
-
-      alertPtr-&gt;addUser(userWeakPtr);
-      userPtr-&gt;addAlert(alertPtr);
-
-      alertPtr.reset();
-      userPtr.reset();
-  }
-
-  <span class="comment">// No memory leak now.</span>
-</pre></div><br/>
-<br/>
- Now both the user and alert objects are correctly destroyed, and the memory returned to the allocator after <code>alertPtr</code> and <code>userPtr</code> are reset. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd><a class="anchor" id="example_3_-_caching"></a> <a class="anchor" id="usage.example_3_-_caching"></a> <a class="anchor" id="description.usage.example_3_-_caching"></a> <a class="anchor" id="4.2.3"></a> </dd></dl>
-<dl class="user"><dt><b>Example 3 - Caching: </b></dt><dd></dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Suppose we want to implement a peer-to-peer file-sharing system that allows users to search for files that match certain keywords. A peer-to-peer file-sharing system connects remotely to similar file-sharing systems (peers) and determines which files stored by those peers best match the keywords specified by the user. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>Typically, such a system would connect to hundreds of peers to increase the probability of finding files that match any keyword. When a user initiates a request with certain keywords the system sends the search request to connected peers to find out which one of them contains the files that best match the requested keywords. But it is inefficient to send every file search request to all connected peers. So the system may cache a subset of the connected peers, and based on their connection bandwidth, relevancy of previous search results, etc., send the search requests only to those cached peers. </dd></dl>
-<dl class="user"><dt><b></b></dt><dd>To show the implementation of such a system we will first define a <code>Peer</code> class that stores the information about a peer (with code not relevant to the usage example elided): <br/>
+ </dd></dl>
+<dl class="user"><dt><b></b></dt><dd>Usage example 3 - Caching example<ul>
+<li>- - - - - - - - - - - - - - - - Suppose we want to implement a peer to peer file sharing system that allows users to search for files that match specific keywords. A simplistic version of such a system with code not relevant to the usage example elided would have the following parts: </li>
+</ul>
+</dd></dl>
+<dl class="user"><dt><b></b></dt><dd>a) A peer manager class that maintains a list of all connected peers and updates the list based on incoming peer requests and disconnecting peers. The following would be a simple interface for the Peer and PeerManager classes: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>Peer {
-      <span class="comment">// This class stores relevant information for a peer.</span>
+      <span class="comment">// This class stores all the relevant information for a peer.</span>
 
       <span class="comment">// ...</span>
   };
-</pre></div><br/>
-<br/>
- We will now define a <code>PeerManager</code> class that maintains the information about all connected <code>Peer</code>s. The <code>PeerManager</code> class creates a <code>Peer</code> object when a new connection occurs, manages the lifetime of that object, and eventually destroys it when the peer disconnects. In addition, the <code>PeerManager</code> class needs to pass <code>Peer</code> objects to other objects that need to communicate with the <code>Peer</code>. Therefore, <code>PeerManager</code> stores a <code>bcema_SharedPtr</code> to each <code>Peer</code> object. The following would be a simple definition for the <code>PeerManager</code> classes: <br/>
-<br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>PeerManager {
+
+  <span class="keyword">class </span>PeerManager {
       <span class="comment">// This class acts as a manager of peers and adds and removes peers</span>
       <span class="comment">// based on peer requests and disconnections.</span>
 
       <span class="comment">// DATA</span>
-      <a class="code" href="classbsl_1_1map.html">bsl::map&lt;int, bcema_SharedPtr&lt;Peer&gt;</a> &gt; d_peers; <span class="comment">// list of all</span>
-                                                     <span class="comment">// connected peers</span>
+</pre></div><br/>
+<br/>
+ The peer objects are stored by shared pointer to allow peers to be passed to search results and still allow their asynchronous destruction when peers disconnect. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">      <a class="code" href="classbsl_1_1map.html">bsl::map&lt;int, bsl::shared_ptr&lt;Peer&gt;</a> &gt; d_peers;
 
       <span class="comment">// ...</span>
   };
 </pre></div><br/>
 <br/>
- We now define a <code>PeerCache</code> class that stores a subset of the peers that are the primary recipients of search requests. The <code>PeerCache</code> stores a <code>Peer</code> object via a <code>bcema_WeakPtr</code> (as opposed to via a <code>bcema_SharedPtr</code>). This allows the cache to store a reference to a <code>Peer</code> object without affecting its lifetime and allowing it to be destroyed asynchronously on disconnection by that <code>Peer</code>. For brevity, the population and flushing of this cache is not shown: <br/>
+ b) A peer cache class that stores a subset of the peers that are used for sending search requests. The cache may select peers based on their connection bandwidth, relevancy of previous search results, etc. For brevity the population and flushing of this cache is not shown: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">class </span>PeerCache {
-      <span class="comment">// This class caches a subset of all peers that match certain criteria.</span>
-
-      <span class="comment">// DATA</span>
-      <a class="code" href="classbsl_1_1list.html">bsl::list&lt;bcema_WeakPtr&lt;Peer&gt;</a> &gt; d_cachedPeers;  <span class="comment">// list of cached peers</span>
+      <span class="comment">// This class caches a subset of all peers that match certain criteria</span>
+      <span class="comment">// including connection bandwidth, relevancy of previous search</span>
+      <span class="comment">// results, etc.</span>
+</pre></div><br/>
+<br/>
+ Note that the cached peers are stored as a weak pointer so as not to interfere with the cleanup of Peer objects by the PeerManager if a Peer goes down. <br/>
+<br/>
+<div class="fragment"><pre class="fragment">      <span class="comment">// DATA</span>
+      <a class="code" href="classbsl_1_1list.html">bsl::list&lt;bsl::weak_ptr&lt;Peer&gt;</a> &gt; d_cachedPeers;
 
     <span class="keyword">public</span>:
       <span class="comment">// TYPES</span>
-      <span class="keyword">typedef</span> <a class="code" href="classbsl_1_1list.html">bsl::list&lt;bcema_WeakPtr&lt;Peer&gt;</a> &gt;::const_iterator PeerConstIter;
+      <span class="keyword">typedef</span> <a class="code" href="classbsl_1_1list.html">bsl::list&lt;bsl::weak_ptr&lt;Peer&gt;</a> &gt;::const_iterator PeerConstIter;
 
       <span class="comment">// ...</span>
 
       <span class="comment">// ACCESSORS</span>
-      PeerConstIter begin() const
-          <span class="comment">// Return an iterator that refers to the first peer in the list of</span>
-          <span class="comment">// peers stored by this peer cache.</span>
-      {
-          <span class="keywordflow">return</span> d_cachedPeers.begin();
-      }
-
-      PeerConstIter end() const
-          <span class="comment">// Return an iterator that indicates the element one past the</span>
-          <span class="comment">// last peer in the list of peers stored by this peer cache.</span>
-      {
-          <span class="keywordflow">return</span> d_cachedPeers.end();
-      }
+      PeerConstIter begin()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_cachedPeers.<a class="code" href="group__bslstl__list.html#ga5c31176fa2f214a7932d504200b37f9f">begin</a>(); }
+      PeerConstIter end()<span class="keyword"> const   </span>{ <span class="keywordflow">return</span> d_cachedPeers.<a class="code" href="group__bslstl__list.html#gaaff91bdeee8bf00648c6f0ea63e89c5d">end</a>(); }
   };
 </pre></div><br/>
 <br/>
- We now need to store the information representing a search result that is returned to the user and allows the user to decide which search result to select for downloading. A search result would contain a <code>Peer</code> object and the filename stored by that <code>Peer</code> that best matches the specified keywords. For simplicity we store the <code>Peer</code> information and a <code>bsl::string</code> storing the filename as a <code><a class="el" href="classbsl_1_1pair.html">bsl::pair</a></code>. Again, note that because we do not want search result objects to control the lifetime of <code>Peer</code> objects we use a <code>bcema_WeakPtr</code> to <code>Peer</code>: <br/>
+ c) A search result class that stores a search result and encapsulates a peer with the file name stored by the peer that best matches the specified keywords: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  <span class="keyword">typedef</span> <a class="code" href="classbsl_1_1pair.html">bsl::pair&lt;bcema_WeakPtr&lt;Peer&gt;</a>, <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&gt; SearchResult;
-      <span class="comment">// &#39;SearchResult&#39; is an alias for a search result.</span>
+<div class="fragment"><pre class="fragment">  <span class="keyword">class </span>SearchResult {
+      <span class="comment">// This class provides a search result and encapsulates a particular</span>
+      <span class="comment">// peer and filename combination that matches a specified set of</span>
+      <span class="comment">// keywords.</span>
 </pre></div><br/>
 <br/>
- Finally, we provide a search function that retrieves the search results for a set of keywords by querying all peers in the <code>PeerCache</code>. The implementation of the search function is provided below: <br/>
+ The peer is stored as a weak pointer because when the user decides to select a particular file to download from this peer, the peer might have disconnected. <br/>
 <br/>
-<div class="fragment"><pre class="fragment">  PeerCache cachedPeers;
+<div class="fragment"><pre class="fragment">      <span class="comment">// DATA</span>
+      <a class="code" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr&lt;Peer&gt;</a> d_peer;
+      <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>         d_filename;
 
-  <span class="keywordtype">void</span> search(<a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;SearchResult&gt;</a>       *results,
-              <span class="keyword">const</span> <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bsl::string&gt;</a>&amp;  keywords)
+    <span class="keyword">public</span>:
+      <span class="comment">// CREATORS</span>
+      SearchResult(<span class="keyword">const</span> <a class="code" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr&lt;Peer&gt;</a>&amp; peer,
+                   <span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp;         filename)
+      : d_peer(peer)
+      , d_filename(filename)
+      {
+      }
+
+      <span class="comment">// ...</span>
+
+      <span class="comment">// ACCESSORS</span>
+      <span class="keyword">const</span> <a class="code" href="classbsl_1_1weak__ptr.html">bsl::weak_ptr&lt;Peer&gt;</a>&amp; peer()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_peer; }
+      <span class="keyword">const</span> <a class="code" href="classbsl_1_1basic__string.html">bsl::string</a>&amp; filename()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> d_filename; }
+  };
+</pre></div><br/>
+<br/>
+ d) A search function that takes a list of keywords and returns available results by searching the cached peers: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  ;
+
+  <span class="keywordtype">void</span> search(<a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;SearchResult&gt;</a>       *<span class="comment">/* results */</span>,
+              <span class="keyword">const</span> PeerCache&amp;                 peerCache,
+              <span class="keyword">const</span> <a class="code" href="classbsl_1_1vector.html">bsl::vector&lt;bsl::string&gt;</a>&amp;  <span class="comment">/* keywords */</span>)
   {
-      <span class="keywordflow">for</span> (PeerConstIter iter = cachedPeers.begin();
-           iter != cachedPeers.end();
+      <span class="keywordflow">for</span> (PeerCache::PeerConstIter iter = peerCache.begin();
+           iter != peerCache.end();
            ++iter) {
 </pre></div><br/>
 <br/>
- In the following, we check if the peer is still connected by acquiring a shared pointer to the peer. If the acquire operation succeeds, then we can send the peer a request to return the filename best matching the specified keywords: <br/>
+ First we check if the peer is still connected by acquiring a shared pointer to the peer. If the acquire operation succeeds then we can send the peer a request to send back the file best matching the specified keywords: <br/>
 <br/>
-<div class="fragment"><pre class="fragment">          bcema_SharedPtr&lt;Peer&gt; peerSharedPtr = iter-&gt;acquireSharedPtr();
+<div class="fragment"><pre class="fragment">          <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;Peer&gt;</a> peerSharedPtr = iter-&gt;acquireSharedPtr();
           <span class="keywordflow">if</span> (peerSharedPtr) {
 
-              <span class="comment">// Search the peer for the file best matching the specified</span>
-              <span class="comment">// keywords and, if a file is found, append the returned</span>
-              <span class="comment">// &#39;SearchResult&#39; object to &#39;result&#39;.</span>
+              <span class="comment">// Search the peer for file best matching the specified</span>
+              <span class="comment">// keywords and if a file is found add the returned</span>
+              <span class="comment">// SearchResult object to result.</span>
 
               <span class="comment">// ...</span>
           }
+      }
+  }
+</pre></div><br/>
+<br/>
+ e) A download function that downloads a file selected by the user: <br/>
+<br/>
+<div class="fragment"><pre class="fragment">  <span class="keywordtype">void</span> download(<span class="keyword">const</span> SearchResult&amp; result)
+  {
+      <a class="code" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr&lt;Peer&gt;</a> peerSharedPtr = result.peer().acquireSharedPtr();
+      <span class="keywordflow">if</span> (peerSharedPtr) {
+          <span class="comment">// Download the result.filename() file from peer knowing that</span>
+          <span class="comment">// the peer is still connected.</span>
       }
   }
 </pre></div><br/>
@@ -3657,7 +3666,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
 template&lt;class ELEMENT_TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">add_lvalue_reference&lt;ELEMENT_TYPE&gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator[] </td>
+          <td class="memname">add_lvalue_reference&lt;ELEMENT_TYPE&gt;::type <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator[] </td>
           <td>(</td>
           <td class="paramtype">ptrdiff_t&nbsp;</td>
           <td class="paramname"> <em>index</em></td>
@@ -3678,7 +3687,7 @@ template&lt;class ELEMENT_TYPE&gt; </div>
 template&lt;class ELEMENT_TYPE&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">add_lvalue_reference&lt;ELEMENT_TYPE&gt;::<a class="el" href="classBloombergLP_1_1bslmf_1_1IsConvertible__Imp_1_1type.html">type</a> <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator* </td>
+          <td class="memname">add_lvalue_reference&lt;ELEMENT_TYPE&gt;::type <a class="el" href="classbsl_1_1shared__ptr.html">bsl::shared_ptr</a>&lt; ELEMENT_TYPE &gt;::operator* </td>
           <td>(</td>
           <td class="paramname"></td>
           <td>&nbsp;)&nbsp;</td>
@@ -5558,7 +5567,7 @@ template&lt;class LHS_TYPE, class RHS_TYPE&gt; </div>
 </div>
 </div>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:49 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

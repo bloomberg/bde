@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslstl_hashtable Component</title>
+<title>BSL 2.20 OSS: bslstl_hashtable Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -249,7 +249,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
   <span class="comment">// FREE OPERATORS</span>
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> FIRST_TYPE, <span class="keyword">class</span> SECOND_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; MyPair objects have</span>
       <span class="comment">// the same value, and &#39;false&#39; otherwise.  &#39;lhs&#39; has the same value as</span>
@@ -257,7 +257,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> FIRST_TYPE, <span class="keyword">class</span> SECOND_TYPE&gt;
   <span class="keyword">inline</span>
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#acf8107f12ec28380f11b968856544276">operator!=</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#a3be038ba34aba97e5c03f884da729377">operator!=</a>(<span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; lhs,
                   <span class="keyword">const</span> MyPair&lt;FIRST_TYPE, SECOND_TYPE&gt;&amp; rhs);
       <span class="comment">// Return &#39;true&#39; if the specified &#39;lhs&#39; and &#39;rhs&#39; MyPair objects do not</span>
       <span class="comment">// have the same value, and &#39;false&#39; otherwise.  &#39;lhs&#39; does not have the</span>
@@ -1080,14 +1080,14 @@ This and the subsequent examples in this component use the <code><a class="el" h
           }
 
           <span class="comment">// ACCESSORS</span>
-          <span class="keyword">const</span> MySalesRecord&amp; operator*()<span class="keyword"> const</span>
+          <span class="keyword">const</span> MySalesRecord&amp; <a class="code" href="namespacebdldfp.html#a8158394e9cee4367a9de15cf73e3646a">operator*</a>()<span class="keyword"> const</span>
 <span class="keyword">          </span>{
-              <span class="keywordflow">return</span> *ItrPtrById::operator*();
+              <span class="keywordflow">return</span> *<a class="code" href="namespacebdldfp.html#a8158394e9cee4367a9de15cf73e3646a">ItrPtrById::operator*</a>();
           }
 
           <span class="keyword">const</span> MySalesRecord *operator-&gt;()<span class="keyword"> const</span>
 <span class="keyword">          </span>{
-              <span class="keywordflow">return</span> &amp;(*ItrPtrById::operator*());
+              <span class="keywordflow">return</span> &amp;(*<a class="code" href="namespacebdldfp.html#a8158394e9cee4367a9de15cf73e3646a">ItrPtrById::operator*</a>());
           }
       };
 
@@ -1407,7 +1407,7 @@ This and the subsequent examples in this component use the <code><a class="el" h
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:48 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:35 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

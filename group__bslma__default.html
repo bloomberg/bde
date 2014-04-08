@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslma_default Component</title>
+<title>BSL 2.20 OSS: bslma_default Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -497,14 +497,15 @@ Namespaces</h2></td></tr>
       <span class="comment">// of the global allocator.</span>
 
       <span class="comment">// CLASS DATA</span>
-      <span class="keyword">static</span> my_Singleton *d_singleton_p;  <span class="comment">// pointer to singleton object</span>
+      <span class="keyword">static</span> my_Singleton *s_singleton_p;  <span class="comment">// pointer to singleton object</span>
 
-      <span class="comment">// DATA</span>
+      <span class="comment">// PRIVATE DATA</span>
       my_Id d_id;  <span class="comment">// allocating</span>
 
       <span class="comment">// NOT IMPLEMENTED</span>
-      my_Singleton(<span class="keyword">const</span> my_Singleton&amp;, <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> * = 0);
-      my_Singleton&amp; operator=(<span class="keyword">const</span> my_Singleton&amp;);
+      my_Singleton(<span class="keyword">const</span> my_Singleton&amp;  original,
+                   <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a>    *basicAllocator = 0);
+      my_Singleton&amp; operator=(<span class="keyword">const</span> my_Singleton&amp; rhs);
 
     <span class="keyword">private</span>:
       <span class="comment">// PRIVATE CREATORS</span>
@@ -541,12 +542,12 @@ Namespaces</h2></td></tr>
   <span class="keyword">inline</span>
   <span class="keyword">const</span> my_Singleton&amp; my_Singleton::singleton()
   {
-      <span class="keywordflow">return</span> *d_singleton_p;
+      <span class="keywordflow">return</span> *s_singleton_p;
   }
 
-  <span class="comment">// PRIVATE CREATORS</span>
+  <span class="comment">// CREATORS</span>
   <span class="keyword">inline</span>
-  my_Singleton::my_Singleton(<span class="keyword">const</span> <span class="keywordtype">char</span>       *<span class="keywordtype">id</span>,
+  my_Singleton::my_Singleton(<span class="keyword">const</span> <span class="keywordtype">char</span> *<span class="keywordtype">id</span>,
                              <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
   : d_id(id, bslma::Default::globalAllocator(basicAllocator))
   {
@@ -571,24 +572,23 @@ Namespaces</h2></td></tr>
 <span class="preprocessor">  #include &lt;my_singleton.h&gt;</span>
 <span class="preprocessor">  #include &lt;<a class="code" href="bsls__alignedbuffer_8h.html" title="Provide raw buffers with user-specified size and alignment.">bsls_alignedbuffer.h</a>&gt;</span>
 
-  my_Singleton *my_Singleton::d_singleton_p;
+  my_Singleton *my_Singleton::s_singleton_p;
 
   <span class="comment">// CLASS METHODS</span>
   <span class="keywordtype">void</span> my_Singleton::initSingleton(<span class="keyword">const</span> <span class="keywordtype">char</span>       *<span class="keywordtype">id</span>,
                                    <a class="code" href="classbslma_1_1Allocator.html">bslma::Allocator</a> *basicAllocator)
   {
       <span class="keyword">static</span> <a class="code" href="unionbsls_1_1AlignedBuffer.html">bsls::AlignedBuffer&lt;sizeof(my_Singleton)&gt;</a> singleton;
-      d_singleton_p = <span class="keyword">new</span> (singleton.<a class="code" href="unionbsls_1_1AlignedBuffer.html#a46dbd83076424915a6cab625e2088ca4">buffer</a>()) my_Singleton(<span class="keywordtype">id</span>,
+      s_singleton_p = <span class="keyword">new</span> (singleton.<a class="code" href="unionbsls_1_1AlignedBuffer.html#a46dbd83076424915a6cab625e2088ca4">buffer</a>()) my_Singleton(<span class="keywordtype">id</span>,
                                                             basicAllocator);
   }
 </pre></div><br/>
 <br/>
- In the following, the default and global allocators are set to distinct objects of type <code>my_CountingAllocator</code>. Note that the default allocator is set and locked identically to what was done in the previous two usage examples: <br/>
+ In the following, the default and global allocators are set to distinct instances of <code>my_CountingAllocator</code>. Note that the default allocator is set and locked identically to what was done in the previous two usage examples: <br/>
 <br/>
 <div class="fragment"><pre class="fragment">  <span class="keyword">static</span> my_CountingAllocator defaultCountingAllocator;
 
-  <span class="keywordtype">int</span> status =
-              <a class="code" href="structbslma_1_1Default.html#af60e1ab6d61791aaadcbf91e159639f3">bslma::Default::setDefaultAllocator</a>(&amp;defaultCountingAllocator);
+  <span class="keywordtype">int</span> status = <a class="code" href="structbslma_1_1Default.html#af60e1ab6d61791aaadcbf91e159639f3">bslma::Default::setDefaultAllocator</a>(&amp;defaultCountingAllocator);
   assert(0 == status);
   <a class="code" href="structbslma_1_1Default.html#ae8a10e6fa97abff8a1fca844ecf0e0aa">bslma::Default::lockDefaultAllocator</a>();
   assert(<a class="code" href="structbslma_1_1Default.html#aef37c008128ff52f8fec313f6df5581d">bslma::Default::defaultAllocator</a>() == &amp;defaultCountingAllocator);
@@ -616,7 +616,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:47 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:33 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

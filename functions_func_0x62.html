@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS</title>
+<title>BSL 2.20 OSS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -209,6 +209,9 @@
 </li>
 <li>BSLALG_DECLARE_NESTED_TRAITS()
 : <a class="el" href="group__bslstl__sharedptr.html#gab53cc9a650d033a3674425de336b5c2b">bsl::weak_ptr&lt; LHS_TYPE, RHS_TYPE &gt;</a>
+, <a class="el" href="classbdldfp_1_1Decimal__Type32.html#a491bd60fd86d832a7821addc980722ad">bdldfp::Decimal_Type32</a>
+, <a class="el" href="classbdldfp_1_1Decimal__Type64.html#a889a6bf6c369f6fa3fc1c8f40f75762e">bdldfp::Decimal_Type64</a>
+, <a class="el" href="classbdldfp_1_1Decimal__Type128.html#a5d09e3c46bd46e4b7ec9fc3449d9f5ec">bdldfp::Decimal_Type128</a>
 </li>
 <li>BslLock()
 : <a class="el" href="classbsls_1_1BslLock.html#a872503972977c11dc5ec2a452b3dd037">bsls::BslLock</a>
@@ -224,47 +227,45 @@
 : <a class="el" href="group__bslstl__string.html#ga8d692e0cd17d3913d3f8ff50a3804686">bsl::String_Imp&lt; CHAR_TYPE, SIZE_TYPE &gt;</a>
 </li>
 <li>BSLMF_NESTED_TRAIT_DECLARATION()
-: <a class="el" href="structbsl_1_1hash_3_01basic__string_3_01CHAR__TYPE_00_01CHAR__TRAITS_00_01ALLOCATOR_01_4_01_4.html#a62088446eeaefd2c1a2365393e9d2b72">bsl::hash&lt; basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt; &gt;</a>
+: <a class="el" href="group__bslstl__string.html#ga2e99c691174f68e648604c5e10c889fa">bsl::String_Imp&lt; CHAR_TYPE, SIZE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__allocator.html#ga8fe9051795cbe8110becebb12152cebb">bsl::allocator&lt; void &gt;</a>
-, <a class="el" href="group__bslstl__sharedptr.html#gabcc0de1c75fa2a6bf722f90eb97f5877">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
-, <a class="el" href="structbsl_1_1hash_3_01shared__ptr_3_01ELEMENT__TYPE_01_4_01_4.html#aadebc83e61ab12c4d34390ba841db3cf">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;</a>
-, <a class="el" href="group__bslstl__string.html#ga2e99c691174f68e648604c5e10c889fa">bsl::String_Imp&lt; CHAR_TYPE, SIZE_TYPE &gt;</a>
 , <a class="el" href="group__bslstl__list.html#gadef726b48222232514e79e7d8f356198">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__sharedptr.html#gaca7d79d152d01a4c84f0abf8700d21ec">bsl::shared_ptr&lt; ELEMENT_TYPE &gt;</a>
+, <a class="el" href="structbsl_1_1hash_3_01shared__ptr_3_01ELEMENT__TYPE_01_4_01_4.html#aadebc83e61ab12c4d34390ba841db3cf">bsl::hash&lt; shared_ptr&lt; ELEMENT_TYPE &gt; &gt;</a>
+, <a class="el" href="structbsl_1_1hash_3_01basic__string_3_01CHAR__TYPE_00_01CHAR__TRAITS_00_01ALLOCATOR_01_4_01_4.html#a62088446eeaefd2c1a2365393e9d2b72">bsl::hash&lt; basic_string&lt; CHAR_TYPE, CHAR_TRAITS, ALLOCATOR &gt; &gt;</a>
 , <a class="el" href="group__bslstl__allocator.html#gad1ee2be9d1e85efa55bfa1ae01da5e32">bsl::allocator&lt; void &gt;</a>
-, <a class="el" href="group__bslstl__allocator.html#ga94c03ff5d40ef571743b585c36caa772">bsl::allocator&lt; T &gt;</a>
+, <a class="el" href="group__bslstl__allocator.html#gad4f94f94652cc64597cbf9e5b5c0353e">bsl::allocator&lt; T &gt;</a>
 , <a class="el" href="classbslalg_1_1HashTableAnchor.html#a16028232ca2edc0cddeaa3429464ce1d">bslalg::HashTableAnchor</a>
 , <a class="el" href="structbslalg_1_1HashTableBucket.html#a42871c44b110a2062bf01fd4a9f3e6d6">bslalg::HashTableBucket</a>
-, <a class="el" href="group__bslstl__allocator.html#ga23c7d73de0e0fc022177c8ba481b5a34">bsl::allocator&lt; T &gt;</a>
-, <a class="el" href="group__bslstl__allocator.html#gad4c8f45387afb9ee8774f8af1ac56bc9">bsl::allocator&lt; void &gt;</a>
+, <a class="el" href="group__bslstl__allocator.html#ga94c03ff5d40ef571743b585c36caa772">bsl::allocator&lt; T &gt;</a>
 </li>
 <li>BSLMF_NESTED_TRAIT_DECLARATION_IF()
-: <a class="el" href="group__bslstl__list.html#ga11be106b342e6a1f7968c74e3c7c5ac5">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmap.html#gadcbddf5695e5cf931abdd7643578e813">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmultimap.html#gaac682fd548c4d3c1008c47976ecff937">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__stack.html#gabc94d0b42075c78f8220eea0d399cada">bsl::stack&lt; VALUE, CONTAINER &gt;</a>
-, <a class="el" href="group__bslstl__unorderedset.html#ga12134400b1576f5bd042a8616e6bdb18">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmultiset.html#gad22a0edcf6363e3ee9274ed048f0f928">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__unorderedset.html#ga12134400b1576f5bd042a8616e6bdb18">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__list.html#ga0f46a4651257cfbe01a76c37ecad1a46">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultimap.html#gaac682fd548c4d3c1008c47976ecff937">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__list.html#ga11be106b342e6a1f7968c74e3c7c5ac5">bsl::list&lt; VALUE, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__stack.html#gabc94d0b42075c78f8220eea0d399cada">bsl::stack&lt; VALUE, CONTAINER &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultiset.html#gad22a0edcf6363e3ee9274ed048f0f928">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmap.html#gadcbddf5695e5cf931abdd7643578e813">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>bucket()
 : <a class="el" href="classbslstl_1_1HashTableBucketIterator.html#a293f18bc231ddc3e02d5c673ae594f82">bslstl::HashTableBucketIterator&lt; VALUE_TYPE, DIFFERENCE_TYPE &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmap.html#gaf8fdbb44c934a90020542bdcc121701b">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmultiset.html#ga15b8e3739ba5c0bd7b532b81cc6e9db4">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedmultimap.html#ga44ee843e49906d46474eb2717809983d">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultiset.html#ga15b8e3739ba5c0bd7b532b81cc6e9db4">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmap.html#gaf8fdbb44c934a90020542bdcc121701b">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedset.html#gaeb8f80361b10748ee57158e499dcff2a">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>bucket_count()
-: <a class="el" href="group__bslstl__unorderedmultimap.html#ga466816021ed02f5acde57e4a59df1778">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedmap.html#ga68bcc778cab7a6716388c63d5abc96a8">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedset.html#ga01a5b21de13bb5e3f279caff6d51fe71">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__unorderedmap.html#ga68bcc778cab7a6716388c63d5abc96a8">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedmultiset.html#ga5cee093bfcc096b13d908b69074d96c7">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedset.html#ga01a5b21de13bb5e3f279caff6d51fe71">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmultimap.html#ga466816021ed02f5acde57e4a59df1778">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>bucket_size()
-: <a class="el" href="group__bslstl__unorderedmap.html#gad2e54ac291fa8c25374e2289b60d1574">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
+: <a class="el" href="group__bslstl__unorderedset.html#ga5cce2378f374a6313a0199a81c5736a9">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
+, <a class="el" href="group__bslstl__unorderedmap.html#gad2e54ac291fa8c25374e2289b60d1574">bsl::unordered_map&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedmultiset.html#gac7daa1447baa7526a9b266531ddf276e">bsl::unordered_multiset&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 , <a class="el" href="group__bslstl__unorderedmultimap.html#gabb1edc6003e4401dd92a81a92313c933">bsl::unordered_multimap&lt; KEY, VALUE, HASH, EQUAL, ALLOCATOR &gt;</a>
-, <a class="el" href="group__bslstl__unorderedset.html#ga5cce2378f374a6313a0199a81c5736a9">bsl::unordered_set&lt; KEY, HASH, EQUAL, ALLOCATOR &gt;</a>
 </li>
 <li>bucketArrayAddress()
 : <a class="el" href="classbslalg_1_1HashTableAnchor.html#a544cb27c2837a093e63be686a5da19b1">bslalg::HashTableAnchor</a>
@@ -282,15 +283,16 @@
 : <a class="el" href="classbslstl_1_1HashTable.html#a265f8fe39b93361ad49fc955e67aeaa3">bslstl::HashTable&lt; KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR &gt;</a>
 </li>
 <li>buffer()
-: <a class="el" href="unionbsls_1_1ObjectBuffer.html#ac945532bb38c2fceaef0ef34e68cf591">bsls::ObjectBuffer&lt; TYPE &gt;</a>
+: <a class="el" href="classbdlma_1_1BufferManager.html#abe58306e42cb3f1505e7de01dbcabe55">bdlma::BufferManager</a>
 , <a class="el" href="unionbsls_1_1AlignedBuffer.html#a46dbd83076424915a6cab625e2088ca4">bsls::AlignedBuffer&lt; SIZE, ALIGNMENT &gt;</a>
-, <a class="el" href="classbdlma_1_1BufferManager.html#abe58306e42cb3f1505e7de01dbcabe55">bdlma::BufferManager</a>
+, <a class="el" href="unionbsls_1_1ObjectBuffer.html#a2f5b32c61c4e10123387229686635886">bsls::ObjectBuffer&lt; TYPE &gt;</a>
+, <a class="el" href="unionbsls_1_1AlignedBuffer.html#a88db107f1c3da9ec4414d02b6877da3a">bsls::AlignedBuffer&lt; SIZE, ALIGNMENT &gt;</a>
 </li>
 <li>BufferedSequentialAllocator()
-: <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a0488d04149f457ac5f272b4e4d7d19e9">bdlma::BufferedSequentialAllocator</a>
+: <a class="el" href="classbdlma_1_1BufferedSequentialAllocator.html#a9b37c3db71fa14d87f501c01d66f1279">bdlma::BufferedSequentialAllocator</a>
 </li>
 <li>BufferedSequentialPool()
-: <a class="el" href="classbdlma_1_1BufferedSequentialPool.html#a0ed630bf04f9f284a5a88cee44d17c48">bdlma::BufferedSequentialPool</a>
+: <a class="el" href="classbdlma_1_1BufferedSequentialPool.html#a724ff1ad15c6550158a82e4e4b280c6d">bdlma::BufferedSequentialPool</a>
 </li>
 <li>BufferManager()
 : <a class="el" href="classbdlma_1_1BufferManager.html#a099921433ba133adafc81e42bd28f2d7">bdlma::BufferManager</a>
@@ -300,7 +302,7 @@
 </li>
 </ul>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:50 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:36 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>BSL 2.19 OSS: bslstl_bidirectionaliterator Component</title>
+<title>BSL 2.20 OSS: bslstl_bidirectionaliterator Component</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -139,22 +139,22 @@ Namespaces</h2></td></tr>
           <span class="comment">// and return a reference providing modifiable access to this</span>
           <span class="comment">// object.</span>
 
-      <span class="keywordtype">void</span> <a class="code" href="namespacebslstl.html#a00890c2044ab22c5074a3d85283319d0">operator++</a>();
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdldfp.html#a5f5eb755d568ce6c1e0c8540d53a1990">operator++</a>();
           <span class="comment">// Increment this object to refer to the next element in an array.</span>
 
-      <span class="keywordtype">void</span> <a class="code" href="namespacebslstl.html#a7d3362e2ffdbd7358a6d1b82f3a52ca1">operator--</a>();
+      <span class="keywordtype">void</span> <a class="code" href="namespacebdldfp.html#a6f43514e250d9882695b7130704c2d16">operator--</a>();
           <span class="comment">// Decrement this object to refer to the previous element in an</span>
           <span class="comment">// array.</span>
 
       <span class="comment">// ACCESSORS</span>
-      VALUE&amp; operator*() <span class="keyword">const</span>;
+      VALUE&amp; <a class="code" href="namespacebdldfp.html#a8158394e9cee4367a9de15cf73e3646a">operator*</a>() <span class="keyword">const</span>;
           <span class="comment">// Return a reference providing modifiable access to the value (of</span>
           <span class="comment">// the parameterized &#39;VALUE&#39; type) of the element referred to by</span>
           <span class="comment">// this object.</span>
   };
 
   <span class="keyword">template</span> &lt;<span class="keyword">class</span> VALUE&gt;
-  <span class="keywordtype">bool</span> <a class="code" href="namespacebslalg.html#aed5308d4f7d1542d6eeb8acedec974d3">operator==</a>(<span class="keyword">const</span> MyArrayIterator&lt;VALUE&gt;&amp;,
+  <span class="keywordtype">bool</span> <a class="code" href="namespacebdldfp.html#ae38909e0885ad40b01e80afb221e6737">operator==</a>(<span class="keyword">const</span> MyArrayIterator&lt;VALUE&gt;&amp;,
                   <span class="keyword">const</span> MyArrayIterator&lt;VALUE&gt;&amp;);
 </pre></div><br/>
 <br/>
@@ -247,7 +247,7 @@ Namespaces</h2></td></tr>
 <br/>
  </dd></dl>
 </div>
-<hr class="footer"/><address class="footer"><small>Generated on Mon Dec 23 2013 21:21:48 for BDE Release 2.19 OSS by&nbsp;
+<hr class="footer"/><address class="footer"><small>Generated on Mon Apr 7 2014 20:26:34 for BDE Release 2.20 OSS by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.1 </small></address>
 </body>
