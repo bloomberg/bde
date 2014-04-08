@@ -975,7 +975,11 @@ int baexml_Encoder::encode(bsl::streambuf *buffer, const TYPE& object)
          bCompact ?  0 : d_options->spacesPerLevel(),
          bCompact ? -1 : d_options->wrapColumn());
 
-    return encode(formatter, object);
+    const int rc = encode(formatter, object);
+
+    buffer->pubsync();
+
+    return rc;
 }
 
 template <typename TYPE>
@@ -997,6 +1001,9 @@ bsl::ostream& baexml_Encoder::encode(bsl::ostream& stream, const TYPE& object)
          bCompact ? -1 : d_options->wrapColumn());
 
     encode(formatter, object);
+
+    stream.flush();
+
     return stream;
 }
 
