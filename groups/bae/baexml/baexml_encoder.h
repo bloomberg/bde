@@ -1,4 +1,4 @@
-// baexml_encoder.h         -*-C++-*-
+// baexml_encoder.h                                                   -*-C++-*-
 #ifndef INCLUDED_BAEXML_ENCODER
 #define INCLUDED_BAEXML_ENCODER
 
@@ -38,7 +38,7 @@ BDES_IDENT("$Id: $")
 ///Usage
 ///-----
 // The following snippets of code illustrate the usage of this component.
-// Suppose we have an XML schema inside a file called 'employee.xsd':
+// Suppose we have an XML schema inside a file named 'employee.xsd':
 //..
 //  <?xml version='1.0' encoding='UTF-8'?>
 //  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
@@ -61,27 +61,27 @@ BDES_IDENT("$Id: $")
 //              <xs:element name='age'         type='xs:int'/>
 //          </xs:sequence>
 //      </xs:complexType>
-//
 //  </xs:schema>
 //..
 // Using the 'bas_codegen.pl' tool, we generate C++ classes for this schema as
 // follows:
 //..
-//  $ bas_codegen.pl -m msg -p test -E employee.xsd
+//  $ bas_codegen.pl -m msg -p test employee.xsd
 //..
 // This tool will generate the header and implementation files for the
-// 'test_address' and 'test_employee' components in the current directory.
+// 'test_messages' components in the current directory.
 //
 // Now suppose we wanted to encode information about a particular employee
-// using XML encoding to the standard output, using the 'PRETTY' option for
+// using XML encoding to the standard output, and using the 'PRETTY' option for
 // formatting the output.  The following function will do this:
 //..
-//  #include <test_employee.h>
+//  #include <test_messages.h>
 //
 //  #include <baexml_encoder.h>
 //  #include <baexml_encodingstyle.h>
 //
-//  #include <iostream>
+//  #include <bsl_iostream.h>
+//  #include <bsl_sstream.h>
 //
 //  using namespace BloombergLP;
 //
@@ -98,25 +98,26 @@ BDES_IDENT("$Id: $")
 //      baexml_EncoderOptions options;
 //      options.setEncodingStyle(baexml_EncodingStyle::BAEXML_PRETTY);
 //
-//      baexml_Encoder encoder(&options, &bsl::err, &bsl::err);
-//      int rc = encoder.encodeToStream(ss, bob);
+//      baexml_Encoder encoder(&options, &bsl::cerr, &bsl::cerr);
 //
-//      ASSERT(0 == rc);
+//      const bsl::string EXPECTED_OUTPUT =
+//       "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+//       "<Employee xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+//       "    <name>Bob</name>\n"
+//       "    <homeAddress>\n"
+//       "        <street>Some Street</street>\n"
+//       "        <city>Some City</city>\n"
+//       "        <state>Some State</state>\n"
+//       "    </homeAddress>\n"
+//       "    <age>21</age>\n"
+//       "</Employee>\n";
+//
+//      bsl::ostringstream os;
+//      const int rc = encoder.encodeToStream(os, bob);
+//
+//      assert(0 == rc);
+//      assert(EXPECTED_OUTPUT == os.str());
 //  }
-//..
-// When this function is invoked, the following text will be printed to the
-// standard output:
-//..
-//  <?xml version="1.0" encoding="UTF-8" ?>
-//  <Employee>
-//      <name>Bob</name>
-//      <homeAddress>
-//          <street>Some Street</street>
-//          <city>Some City</city>
-//          <state>Some State</state>
-//      </homeAddress>
-//      <age>21</age>
-//  </Employee>
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
