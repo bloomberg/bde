@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 // First we initializate the logger manager (for the purposes of this example,
 // we use a minimal configuration):
 //..
-     bael_DefaultObserver observer(cout);  
+     bael_DefaultObserver observer(cout);
      bael_LoggerManagerConfiguration configuration;
      bael_LoggerManagerScopedGuard guard(&observer, configuration);
 //..
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 // again with an argument value of either 0 or one that is greater than
 // 'NUM_CATEGORIES').
 
-            if (veryVerbose) { 
+            if (veryVerbose) {
                 bsl::cout << cout.str() << bsl::endl;
             }
         }
