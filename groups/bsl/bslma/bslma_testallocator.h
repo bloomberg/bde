@@ -751,12 +751,6 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 
 #endif  // BDE_BUILD_TARGET_EXC
 
-// TBD remove this when no longer referenced in any .t.cpp files
-#ifndef BEGIN_BSLMA_EXCEPTION_TEST
-#define BEGIN_BSLMA_EXCEPTION_TEST                                          \
-                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-#endif
-
                  // ============================================
                  // macro BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                  // ============================================
@@ -792,11 +786,6 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
-#endif
-
-// TBD remove this when no longer referenced in any .t.cpp files
-#ifndef END_BSLMA_EXCEPTION_TEST
-#define END_BSLMA_EXCEPTION_TEST BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
 namespace bslma {
