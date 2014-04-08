@@ -1693,32 +1693,37 @@ struct baea_CommandLineOptionInfo {
     // This 'struct' is a simple attribute class that describes the information
     // associated with an option, namely the associated tag (as a string, from
     // which the short and long tags are extracted), the option name, the
-    // description used in printing usage, an optional associated
-    // 'baea_CommandLineTypeInfo' object, a flag to indicate if the option is
-    // required, and an optional default value.  Note that this 'struct'
-    // does *not* have constructors and does *not* take allocators; therefore,
-    // it may *not* be stored in containers.  For this, one may store a
-    // 'baea_CommandLineOption' object constructed from a
-    // 'baea_CommandLineOptionInfo' instead.  The main purpose of this 'struct'
-    // is to provide a type whose values can be statically-initialized.  For
-    // example:
+    // description used in printing usage, and optional associated
+    // 'baea_CommandLineTypeInfo' and 'baea_CommandLineOccurrenceInfo' objects.
+    //
+    // By design, this 'struct' does not have any user-defined constructors, so
+    // there is no provision for passing an allocator to its data members (all
+    // of which take an allocator).  Consequently, all instances of this class
+    // use the default allocator.  If proper allocator propagation is desired
+    // (e.g., for storage within an allocator-aware container for which the use
+    // of the default allocator is counter-indicated), one may use
+    // 'baea_CommandLineOption', which is both allocator-aware and
+    // constructible from 'baea_CommandLineOptionInfo'.
+    //
+    // The main purpose of this 'struct' is to provide a type whose values can
+    // be statically-initialized.  For example:
     //..
     //  const baea_CommandLineOptionInfo OPTIONS[] = {
     //     {
     //       "s(hortTag)|longTag",
     //       "optionName",
-    //       "option description. . .",
+    //       "option description",
     //       baea_CommandLineTypeInfo(/* . . . */),       // optional
     //       baea_CommandLineOccurrenceInfo(/* . . . */)  // optional
     //     },
     //     // ...
     //  };
     //..
-    // Note that all of the first three fields can be default-constructed, and
+    // Note that each of the first three fields can be default-constructed, and
     // thus omitted in such a declaration; however, such an object will be of
-    // limited use because it will be rejected by 'baea_CommandLine' unless the
-    // first three fields have a non-default string value.  See the "Usage"
-    // section for an example of such initialization.
+    // limited use because it will be rejected by 'baea_CommandLine' unless
+    // each of the first three fields has a non-default string value.  See the
+    // "Usage" section for an example of such initialization.
 
     // PUBLIC TYPES
     enum ArgType {
