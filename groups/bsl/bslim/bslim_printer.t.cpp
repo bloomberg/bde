@@ -613,16 +613,16 @@ int main(int argc, char *argv[])
                                "===============\n";
 
         typedef bsl::set<int> Set;
-      
+
         Set s0, s1, s2;
-      
+
         s0.insert(0);
         s0.insert(1);
         s0.insert(2);
-      
+
         s1.insert(4);
         s1.insert(5);
-      
+
         s2.insert(8);
         const Set *setArray[] = { &s0, &s1, &s2 };
         const int NUM_SET_ARRAY = sizeof setArray / sizeof *setArray;
@@ -1089,7 +1089,7 @@ int main(int argc, char *argv[])
                 }
                 EXP << "      ]\n";
             }
-                              
+
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
@@ -1117,7 +1117,7 @@ int main(int argc, char *argv[])
                 }
                 EXP << "      ]\n";
             }
-                              
+
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
@@ -1139,7 +1139,7 @@ int main(int argc, char *argv[])
                 }
                 EXP << "      ]\n";
             }
-                              
+
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
@@ -1168,7 +1168,7 @@ int main(int argc, char *argv[])
                 }
                 EXP << "      ]\n";
             }
-                              
+
             LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
