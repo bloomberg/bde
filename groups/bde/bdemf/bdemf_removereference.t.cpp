@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
         // Rvalue reference template specialization of RemoveReference<TYPE>
         // breaks for function reference types on MSVC 16: both TYPE& and
-        // TYPE&& match, when only TYPE& should.        
+        // TYPE&& match, when only TYPE& should.
         ASSERT_SAME(bdemf_RemoveReference< RF>::Type,  F);
         ASSERT_SAME(bdemf_RemoveReference<RFi >::Type, Fi);
         ASSERT_SAME(bdemf_RemoveReference<RFRi>::Type, FRi);
