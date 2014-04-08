@@ -1116,7 +1116,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(bool              poolTimerMemory,
     // The 'poolTimerMemory' option has been deprecated (see method
     // documentation).
 
-    (bool)poolTimerMemory;
+    (void)poolTimerMemory;
 }
 
 template <typename DATA>
@@ -1154,7 +1154,7 @@ bcec_TimeQueue<DATA>::bcec_TimeQueue(int               numIndexBits,
     // The 'poolTimerMemory' option has been deprecated (see method
     // documentation).
 
-    (bool)poolTimerMemory;
+    (void)poolTimerMemory;
 
 }
 
