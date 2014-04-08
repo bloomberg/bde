@@ -110,6 +110,15 @@ void aSsErT(bool b, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION < 0x0c00
+// Prior to xLC v12.0, the IBM compiler could not distinguish the following
+// overload set:
+//..
+//  void funcion(const T *const& arg);
+//  void funcion(      T *const& arg);
+//..
+# define BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG
+#endif
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -442,7 +451,7 @@ void setValue(const void **pvs, char ch)
     *pvs = (const void *) (UintPtr) ch;
 }
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PLATFORM_CMP_VER_MAJOR < 0x1200
+#if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(void * const& vs)
 {
     return (char) ((UintPtr) vs & 0xff);
@@ -468,7 +477,7 @@ void setValue(const int **pis, char ch)
     *pis = (const int *) (UintPtr) ch;
 }
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PLATFORM_CMP_VER_MAJOR < 0x1200
+#if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(int * const& is)
 {
     return (char) ((UintPtr) is & 0xff);
