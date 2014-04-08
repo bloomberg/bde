@@ -2427,8 +2427,8 @@ int main(int argc, char* argv[])
         bsl::vector<SymbolDataDouble> symbolData;
         for (int i = 0; i < numSymbols; ++i) {
             SymbolDataDouble d;
-            d.d_low  = 1.0/0.0;     //  Infinity
-            d.d_high = -(1.0/0.0);  // -Infinity
+            d.d_low  = bsl::numeric_limits<double>::infinity();   //  Infinity
+            d.d_high = -bsl::numeric_limits<double>::infinity();  // -Infinity
             d.d_valueTraded = 0.0;
             d.d_vwap = 0.0;
             d.d_volume = 0;
@@ -2636,8 +2636,8 @@ int main(int argc, char* argv[])
         bsl::vector<SymbolDataDouble> symbolData;
         for (int i = 0; i < numSymbols; ++i) {
             SymbolDataDouble d;
-            d.d_low  = 1.0/0.0;
-            d.d_high = -(1.0/0.0);
+            d.d_low  = bsl::numeric_limits<double>::infinity();   //  Infinity
+            d.d_high = -bsl::numeric_limits<double>::infinity();  // -Infinity
             d.d_valueTraded = 0.0;
             d.d_vwap = 0.0;
             d.d_volume = 0;
