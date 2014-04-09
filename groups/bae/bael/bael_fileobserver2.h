@@ -28,7 +28,6 @@ BDES_IDENT("$Id: $")
 //                `------------------'
 //                         |              ctor
 //                         |              disableFileLogging
-//                         |              disableLifetimeRotation
 //                         |              disableTimeIntervalRotation
 //                         |              disableSizeRotation
 //                         |              disablePublishInLocalTime
@@ -36,12 +35,11 @@ BDES_IDENT("$Id: $")
 //                         |              enablePublishInLocalTime
 //                         |              forceRotation
 //                         |              rotateOnSize
-//                         |              rotateOnLifetime
 //                         |              rotateOnTimeInterval
 //                         |              setLogFileFunctor
 //                         |              setOnFileRotationCallback
 //                         |              isFileLoggingEnabled
-//                         |              isPublishInLocaltimeEnabled
+//                         |              isPublishInLocalTimeEnabled
 //                         |              rotationLifetime
 //                         |              rotationSize
 //                         |              localTimeOffset
@@ -51,6 +49,7 @@ BDES_IDENT("$Id: $")
 //                  `-------------'
 //                                        dtor
 //                                        publish
+//                                        releaseRecords
 //..
 // A 'bael_FileObserver2' object processes the log records received through its
 // 'publish' method by writing them to a user-specified file.  The format of

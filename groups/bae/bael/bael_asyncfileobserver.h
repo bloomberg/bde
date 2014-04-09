@@ -43,6 +43,7 @@ BDES_IDENT("$Id: $")
 //                         |              forceRotation
 //                         |              rotateOnSize
 //                         |              rotateOnTimeInterval
+//                         |              setOnFileRotationCallback
 //                         |              setStdoutThreshold
 //                         |              setLogFormat
 //                         |              shutdownPublicationThread
@@ -51,10 +52,13 @@ BDES_IDENT("$Id: $")
 //                         |              isFileLoggingEnabled
 //                         |              isStdoutLoggingPrefixEnabled
 //                         |              isUserFieldsLoggingEnabled
+//                         |              isPublishInLocalTimeEnabled
+//                         |              isPublicationThreadRunning
 //                         |              recordQueueLength
 //                         |              rotationLifetime
 //                         |              rotationSize
 //                         |              localTimeOffset
+//                         |              stdoutThreshold
 //                         |              getLogFormat
 //                         V
 //                  ,-------------.
@@ -677,10 +681,6 @@ class bael_AsyncFileObserver : public bael_Observer {
 
 
     // ACCESSORS
-    int recordQueueLength() const;
-        // Return the number of log records currently in this observer's log
-        // record queue.
-
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
         // Return 'true' if file logging is enabled for this async file
@@ -704,6 +704,10 @@ class bael_AsyncFileObserver : public bael_Observer {
     bool isPublicationThreadRunning() const;
         // Return 'true' if the publication thread is running, and 'false'
         // otherwise.
+
+    int recordQueueLength() const;
+        // Return the number of log records currently in this observer's log
+        // record queue.
 
     bdet_DatetimeInterval rotationLifetime() const;
         // Return the lifetime of the log file that will trigger a file
