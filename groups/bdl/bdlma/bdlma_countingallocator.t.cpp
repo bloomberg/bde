@@ -451,7 +451,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -528,7 +528,7 @@ if (veryVerbose)
 //..
 
       } break;
-      case -1: {
+      case 6: {
         // --------------------------------------------------------------------
         // CONCURRENCY
         //   Ensure that 'allocate' and 'deallocate' are thread-safe.

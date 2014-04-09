@@ -239,7 +239,7 @@ BSLS_IDENT("$Id: $")
 //      char user_id[20];       // userid
 //  };
 //..
-// We create a function 'myThirdPartyStructPrintFunction':
+// We create a struct 'MyThirdPartyStructPrintUtil':
 //..
 //  struct MyThirdPartyStructPrintUtil {
 //      static
@@ -704,8 +704,8 @@ class Printer {
         //:
         //: o If 'TYPE' has STL iterators (this includes all STL sequence and
         //:   associative containers: vector, deque, list, set, map, multiset,
-        //:   multimap, hash_set, hash_map, hash_multiset, and hash_multimap),
-        //:   print all the objects in the container.
+        //:   multimap, unordered_set, unordered_map, unordered_multiset, and
+        //:   unordered_multimap), print all the objects in the container.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
@@ -795,8 +795,8 @@ class Printer {
         //:
         //: o If 'TYPE' has STL iterators (this includes all STL sequence and
         //:   associative containers: vector, deque, list, set, map, multiset,
-        //:   multimap, hash_set, hash_map, hash_multiset, and hash_multimap),
-        //:   print all the objects in the container.
+        //:   multimap, unordered_set, unordered_map, unordered_multiset, and
+        //:   unordered_multimap), print all the objects in the container.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
@@ -1331,7 +1331,7 @@ void Printer_Helper::print(bsl::ostream& stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

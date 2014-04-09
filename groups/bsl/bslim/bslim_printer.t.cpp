@@ -8,16 +8,11 @@
 #include <bsl_cstdio.h>
 #include <bsl_iostream.h>
 #include <bsl_deque.h>
-#ifndef BDE_OMIT_TRANSITIONAL // STP
-#include <bsl_hash_map.h>
-#include <bsl_hash_set.h>
-#endif // BDE_OMIT_TRANSITIONAL -- STP
 #include <bsl_list.h>
 #include <bsl_map.h>
 #include <bsl_set.h>
-#ifndef BDE_OMIT_TRANSITIONAL // STP
-#include <bsl_slist.h>
-#endif // BDE_OMIT_TRANSITIONAL -- STP
+#include <bsl_unordered_map.h>
+#include <bsl_unordered_set.h>
 #include <bsl_vector.h>
 #include <bsl_sstream.h>
 #include <bsl_cctype.h>
@@ -55,18 +50,18 @@ using namespace bslim;
 // ACCESSORS
 // [ 2] absLevel() const;
 // [ 5] end() const;
-// [10] template<class TYPE>
+// [ 6] template<class TYPE>
 //         void print(const TYPE& data, const char *name) const;
-// [11] template<class TYPE>
+// [ 7] template<class TYPE>
 //         void printAttribute(const char *name, const TYPE& data) const;
-// [16] template <class TYPE, class PRINT_FUNCTOR>
+// [12] template <class TYPE, class PRINT_FUNCTOR>
 //         void printForeign(const TYPE&           data,
 //                           const PRINT_FUNCTOR&  printFunctionObject,
 //                           const char           *name) const;
-// [15] void printHexAddr(const void *address, const char *name) const;
-// [13] template <class TYPE>
+// [11] void printHexAddr(const void *address, const char *name) const;
+// [ 9] template <class TYPE>
 //      void printOrNull(const TYPE& address, const char *name) const;
-// [11] template<class TYPE>
+// [ 7] template<class TYPE>
 //         void printValue(const TYPE& data) const;
 // [ 2] spacesPerLevel() const;
 // [ 4] start() const;
@@ -74,7 +69,11 @@ using namespace bslim;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [20] USAGE EXAMPLE
+// [16] 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS
+// [17] USAGE EXAMPLE 1
+// [18] USAGE EXAMPLE 2
+// [19] USAGE EXAMPLE 3
+// [20] USAGE EXAMPLE 4
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -596,7 +595,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 24: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 4
         //
@@ -614,16 +613,16 @@ int main(int argc, char *argv[])
                                "===============\n";
 
         typedef bsl::set<int> Set;
-      
+
         Set s0, s1, s2;
-      
+
         s0.insert(0);
         s0.insert(1);
         s0.insert(2);
-      
+
         s1.insert(4);
         s1.insert(5);
-      
+
         s2.insert(8);
         const Set *setArray[] = { &s0, &s1, &s2 };
         const int NUM_SET_ARRAY = sizeof setArray / sizeof *setArray;
@@ -636,7 +635,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << oss.str() << endl;
         }
       } break;
-      case 23: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //
@@ -723,7 +722,7 @@ int main(int argc, char *argv[])
 
         LOOP2_ASSERT(EXP, oss.str(), EXP == oss.str());
       } break;
-      case 22: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -799,7 +798,7 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
         }
       } break;
-      case 21: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -837,24 +836,24 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(out.str(), EXP == out.str());
         }
       } break;
-      case 20: {
+      case 16: {
         // --------------------------------------------------------------------
-        // 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS WITH ITS
+        // 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS
         //
         // Concern:
-        //   Though 'bslim' has no awareness of maps, it knows about pairs and
-        //   can print ranges, which should enable it to print a map.  Verify
-        //   that this is the case.
+        //   Though 'bslim' has no awareness of STL types, it knows about pairs
+        //   and can print ranges, which should enable it to print these types.
+        //   Verify that this is the case.
         //
         // Plan:
-        //   Create and populate a 'bsl::map' object, print it out using range
+        //   Create and populate various 'bsl' objects, print using range
         //   'printValue', and verify that the string printed out is what is
         //   expected.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl <<
-         "'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS WITH ITS\n"
-         "=================================================================\n";
+                  "'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS\n"
+                  "========================================================\n";
 
         struct S {
             int d_key;
@@ -938,33 +937,6 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
-#if 1
-        // This assert will fail once the typetraits in slist are fixed
-
-        ASSERT(!(bslalg::HasStlIterators<bsl::slist<int> >::value));
-#else
-        {
-            bsl::slist<int> sl(&uniqKeys[0], uniqKeys + NUM_DATA);
-            const bsl::slist<int>& SL = sl;
-            bsl::ostringstream out;
-            bslim::Printer p(&out, 2, 2);
-            p.printAttribute("slist", SL);
-
-            const char *EXP = "      slist = [\n"
-                              "        -3\n"
-                              "        2\n"
-                              "        7\n"
-                              "        5\n"
-                              "        9\n"
-                              "        3\n"
-                              "        22\n"
-                              "        1\n"
-                              "      ]\n";
-            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
-        }
-#endif
-#endif // BDE_OMIT_TRANSITIONAL -- STP
 
         // We don't seem to have bit_vector
 
@@ -1100,184 +1072,108 @@ int main(int argc, char *argv[])
             }
         }
 
-#ifndef BDE_OMIT_TRANSITIONAL // STP
         {
-            bsl::hash_set<int> hs(uniqKeys + 0, uniqKeys + NUM_DATA);
-            const bsl::hash_set<int>& HS = hs;
+            bsl::unordered_set<int> s(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::unordered_set<int>& S = s;
             bsl::ostringstream out;
             bslim::Printer p(&out, 2, 2);
-            p.printAttribute("hash_set", HS);
+            p.printAttribute("unordered_set", S);
 
-            // Verifying the result in a platform-independent way is difficult
-            // because the order it which elements occur is, by definition, not
-            // defined.
-
-            const bsl::string& result = out.str();
-
+            bsl::ostringstream EXP;
             {
-                const char *match = "      hash_set = [\n";
-
-                // find returning 0 means 'found at the beginning'
-
-                ASSERT(0 == result.find(match));
-            }
-            for (int i = 0; i < NUM_DATA; ++i) {
-                bsl::ostringstream matchss;
-                matchss <<  "\n        " << uniqKeys[i] << "\n";
-                ASSERT(bsl::string::npos != result.find(matchss.str()));
-            }
-
-            {
-                int newlines = 0;
-                for (const char *pc = result.c_str(); *pc; ++pc) {
-                    if ('\n' == *pc) {
-                        ++newlines;
-                    }
+                EXP << "      unordered_set = [\n";
+                bsl::unordered_set<int>::const_iterator iter = S.begin();
+                while (iter != S.end()) {
+                    EXP << "        " << *iter << '\n';
+                    ++iter;
                 }
-                ASSERT(NUM_DATA + 2 == newlines);
+                EXP << "      ]\n";
             }
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
         {
-            bsl::hash_map<int, int> hm;
-            const bsl::hash_map<int, int>& HM = hm;
+            bsl::unordered_map<int, int> m;
+            const bsl::unordered_map<int, int>& M = m;
             for (int i = 0; i < NUM_DATA; ++i) {
                 const S& s = uniqData[i];
-                hm[s.d_key] = s.d_value;
+                m[s.d_key] = s.d_value;
             }
             bsl::ostringstream out;
             bslim::Printer p(&out, 2, 2);
-            p.printAttribute("hash_map", HM);
+            p.printAttribute("unordered_map", M);
 
-            // Verifying the result in a platform-independent way is difficult
-            // because the order it which elements occur is, by definition, not
-            // defined.
-
-            const bsl::string& result = out.str();
-
-
+            bsl::ostringstream EXP;
             {
-                const char *match = "      hash_map = [\n";
-
-                // find returning 0 means 'found at the beginning'
-
-                ASSERT(0 == result.find(match));
-            }
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const S& s = uniqData[i];
-                bsl::ostringstream matchss;
-                matchss << "\n        [\n"
-                             "          " << s.d_key << "\n"
-                             "          " << s.d_value << "\n"
-                             "        ]\n";
-                ASSERT(bsl::string::npos != result.find(matchss.str()));
-            }
-
-            {
-                int newlines = 0;
-                for (const char *pc = result.c_str(); *pc; ++pc) {
-                    if ('\n' == *pc) {
-                        ++newlines;
-                    }
+                EXP << "      unordered_map = [\n";
+                bsl::unordered_map<int, int>::const_iterator iter = M.begin();
+                while (iter != M.end()) {
+                    EXP << "        [\n";
+                    EXP << "          " << iter->first << '\n';
+                    EXP << "          " << iter->second << '\n';
+                    EXP << "        ]\n";
+                    ++iter;
                 }
-                ASSERT(4 * NUM_DATA + 2 == newlines);
+                EXP << "      ]\n";
             }
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
         {
-            bsl::hash_multiset<int> hms;
-            const bsl::hash_multiset<int>& HMS = hms;
-            for (int i = 0; i < NUM_DATA; ++i) {
-                hms.insert(redundantKeys[i]);
-            }
+            bsl::unordered_multiset<int> ms(&redundantKeys[0],
+                                            redundantKeys + NUM_DATA);
+            const bsl::unordered_multiset<int>& MS = ms;
             bsl::ostringstream out;
             bslim::Printer p(&out, 2, 2);
-            p.printAttribute("hash_multiset", HMS);
+            p.printAttribute("unordered_multiset", MS);
 
-            // Verifying the result in a platform-independent way is difficult
-            // because the order it which elements occur is, by definition, not
-            // defined.
-
-            const bsl::string& result = out.str();
-
+            bsl::ostringstream EXP;
             {
-                const char *match = "      hash_multiset = [\n";
-
-                // find returning 0 means 'found at the beginning'
-
-                ASSERT(0 == result.find(match));
-            }
-            for (int i = 0; i < NUM_DATA; ++i) {
-                bsl::size_t it = 0;
-                bsl::ostringstream matchss;
-                matchss <<  "\n        " << redundantKeys[i] << "\n";
-                for (bsls::Types::IntPtr j = hms.count(redundantKeys[i]);
-                     j >= 0;
-                     --j, ++it) {
-                    it = result.find(matchss.str(), it);
-                    ASSERT((j != 0) == (bsl::string::npos != it));
+                EXP << "      unordered_multiset = [\n";
+                bsl::unordered_multiset<int>::const_iterator iter = MS.begin();
+                while (iter != MS.end()) {
+                    EXP << "        " << *iter << '\n';
+                    ++iter;
                 }
+                EXP << "      ]\n";
             }
 
-            {
-                int newlines = 0;
-                for (const char *pc = result.c_str(); *pc; ++pc) {
-                    if ('\n' == *pc) {
-                        ++newlines;
-                    }
-                }
-                LOOP2_ASSERT(result, newlines, NUM_DATA + 2 == newlines);
-            }
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
 
         {
-            bsl::hash_multimap<int, int> hmm;
-            const bsl::hash_multimap<int, int>& HMM = hmm;
+            bsl::unordered_multimap<int, int> mm;
+            const bsl::unordered_multimap<int, int>& MM = mm;
             for (int i = 0; i < NUM_DATA; ++i) {
                 const S& s = redundantData[i];
-                hmm.insert(std::pair<int, int>(s.d_key, s.d_value));
+                mm.insert(std::pair<int, int>(s.d_key, s.d_value));
             }
             bsl::ostringstream out;
             bslim::Printer p(&out, 2, 2);
-            p.printAttribute("hash_multimap", HMM);
+            p.printAttribute("unordered_multimap", MM);
 
-            // Verifying the result in a platform-independent way is difficult
-            // because the order it which elements occur is, by definition, not
-            // defined.
-
-            const bsl::string& result = out.str();
-
-
+            bsl::ostringstream EXP;
             {
-                const char *match = "      hash_multimap = [\n";
-
-                // find returning 0 means 'found at the beginning'
-
-                ASSERT(0 == result.find(match));
-            }
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const S& s = redundantData[i];
-                bsl::ostringstream matchss;
-                matchss << "\n        [\n"
-                             "          " << s.d_key << "\n"
-                             "          " << s.d_value << "\n"
-                             "        ]\n";
-                ASSERT(bsl::string::npos != result.find(matchss.str()));
-            }
-
-            {
-                int newlines = 0;
-                for (const char *pc = result.c_str(); *pc; ++pc) {
-                    if ('\n' == *pc) {
-                        ++newlines;
-                    }
+                EXP << "      unordered_multimap = [\n";
+                bsl::unordered_multimap<int, int>::const_iterator iter =
+                                                                    MM.begin();
+                while (iter != MM.end()) {
+                    EXP << "        [\n";
+                    EXP << "          " << iter->first << '\n';
+                    EXP << "          " << iter->second << '\n';
+                    EXP << "        ]\n";
+                    ++iter;
                 }
-                ASSERT(4 * NUM_DATA + 2 == newlines);
+                EXP << "      ]\n";
             }
+
+            LOOP2_ASSERT(EXP.str(), out.str(), EXP.str() == out.str());
         }
-#endif // BDE_OMIT_TRANSITIONAL -- STP
+
       } break;
-      case 19: {
+      case 15: {
         // --------------------------------------------------------------------
         // 'printAttribute' WITH RANGE
         //
@@ -1354,7 +1250,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 18: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING EXCEPTION NEUTRALITY
         //
@@ -1380,7 +1276,7 @@ int main(int argc, char *argv[])
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
       } break;
-      case 17: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING 'printForeign'
         //
@@ -1496,7 +1392,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 16: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING 'printHexAddr'
         //
@@ -1604,7 +1500,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 15: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'printHexAddr' (indentation and name)
         //
@@ -1674,7 +1570,7 @@ int main(int argc, char *argv[])
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
       } break;
-      case 14: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING 'printOrNull' (null pointers)
         //
@@ -1781,7 +1677,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 13: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING CLASS METHODS: 'printOrNull' (non-null pointer types)
         //
@@ -2015,7 +1911,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 12: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'printOrNull' (indentation and name)
         //
@@ -2082,7 +1978,7 @@ int main(int argc, char *argv[])
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
       } break;
-      case 11: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING 'printAttribute' and 'printValue'
         //
@@ -2143,1159 +2039,7 @@ int main(int argc, char *argv[])
             LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
         }
       } break;
-      case 10: {
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
-        // --------------------------------------------------------------------
-        // TESTING 'print' (null pointers)
-        //
-        // Concerns:
-        //: 1 That 'print' prints the string "NULL" when a null pointer is
-        //:   passed to it.
-        //
-        // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a null
-        //:   pointer.  For each set of values in the table, ensure that the
-        //:   actual output of 'print' when called with a null pointer of type
-        //:   'void *', 'const void *', 'const char *', 'int *' and
-        //:  'HasPrint *' is the same as the expected output.
-        //
-        // Testing:
-        //   template<class TYPE>
-        //   void print(const TYPE& data, const char *name) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "\nTESTING 'print' (null pointers)"
-                          << "\n===============================" << endl;
-
-        {
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      NULL\n" },
-                { L_,    2,   -2, " NULL"        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-
-                typedef void (*functionPtr)(int);
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream vOut, cvOut, vvOut, vcvOut, cOut, iOut, uOut,
-                              fOut;
-
-                void *data = 0;
-                Obj pV(&vOut, LEVEL, SPL); pV.print((const void *)data, 0);
-                Obj pCV(&cvOut, LEVEL, SPL); pCV.print((const void *)data, 0);
-                Obj pC(&cOut, LEVEL, SPL); pC.print((const char *)data, 0);
-                Obj pI(&iOut, LEVEL, SPL); pI.print((int *)data, 0);
-                Obj pU(&uOut, LEVEL, SPL); pU.print((HasPrint *)data, 0);
-                Obj pF(&fOut, LEVEL, SPL); pF.print((functionPtr)data, 0);
-                const bsl::string& EXPECTED = DATA[i].d_expected;
-
-                // void *
-                {
-                    const bsl::string& ACTUAL = vOut.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // const void *
-                {
-                    const bsl::string& ACTUAL = cvOut.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // const char *
-                {
-                    const bsl::string& ACTUAL = cOut.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // int *
-                {
-                    const bsl::string& ACTUAL = iOut.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // HasPrint *
-                {
-                    const bsl::string& ACTUAL = uOut.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // functionPtr *
-                {
-                    const bsl::string& ACTUAL = fOut.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-
-            }
-        }
-#endif  // BDE_OMIT_TRANSITIONAL
-      } break;
-      case 9: {
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
-        // --------------------------------------------------------------------
-        // TESTING 'print' (non-null pointer types)
-        //
-        // Concerns: That 'print'
-        //: 1 prints the address held by the pointer in hexadecimal format, but
-        //:   does not attempt to dereference the pointer if the pointer type
-        //:   is 'void *' or 'const void *'.
-        //: 2 prints the input as a null-terminated C-style string if the
-        //:   pointer is of type 'const char *'.
-        //: 3 prints the address held by the pointer type, and then
-        //:   dereferences the pointer and prints the held value, if the
-        //:   pointer points to a fundamental type.
-        //: 4 prints the address held by the pointer type, and then calls the
-        //:   'print' method of the held object with the values of
-        //:   '-(absLevel + 1)' and 'spacesPerLevel', if the pointer points to
-        //:   a user-defined type.
-        //: 5 prints a newline character after printing the data if
-        //:   'spacesPerLevel >= 0', and does not print a newline character
-        //:   otherwise.
-        //
-        // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a
-        //:   'void *', 'const void *'.  For each set of values in the table,
-        //:   ensure that the actual output of 'print' is the same as the
-        //:   expected output.
-        //: 2 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a
-        //:   'const char *'.  For each set of values in the table, ensure that
-        //:   the actual output of 'print' is the same as the expected output.
-        //: 3 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a
-        //:   'int *'.  For each set of values in the table, ensure that
-        //:   the actual output of 'print' is the same as the expected output.
-        //: 4 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a
-        //:   'HasPrint *'.  For each set of values in the table, ensure that
-        //:   the actual output of 'print' is the same as the expected output.
-        //
-        // Testing:
-        //   template<class TYPE>
-        //   void print(const TYPE& data, const char *name) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'print' (non-null pointer types)" << endl
-                          << "========================================"
-                          << endl;
-
-        {
-            if (verbose) cout << "void *" << endl
-                              << "------" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      %s\n" },
-                { L_,    2,   -2, " %s"        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out, cOut, vOut, vcOut;
-                void *data = reinterpret_cast<void *> (0xdeadbeef);
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-                Obj pC(&cOut, LEVEL, SPL); pC.print((const void *)data, 0);
-
-                stringstream exp;
-                exp << hex << showbase
-                    << reinterpret_cast<bsls::Types::UintPtr>(data);
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                            exp.str().c_str());
-                const bsl::string EXPECTED(buf);
-
-                // void *
-                {
-                    if (veryVerbose) cout << "\nvoid *\n";
-                    const bsl::string& ACTUAL = out.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // const void *
-                {
-                    if (veryVerbose) cout << "\nconst void *\n";
-                    const bsl::string& ACTUAL = cOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-            }
-        }
-        {
-            if (verbose) cout << "const char *" << endl
-                              << "------------" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      \"%s\"\n" },
-                { L_,    2,   -2, " \"%s\""        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-
-                const char *data = "testing char *";
-
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
-                const bsl::string EXPECTED(buf);
-
-                {
-                    ostringstream out;
-                    Obj p(&out, LEVEL, SPL);
-                    p.print(data, 0);
-                    const bsl::string& ACTUAL = out.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                {
-                    ostringstream out;
-                    Obj p(&out, LEVEL, SPL);
-                    p.print(const_cast<char *>(data), 0);
-                    const bsl::string& ACTUAL = out.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                {
-                    ostringstream out;
-                    Obj p(&out, LEVEL, SPL);
-                    p.print("testing char *", 0);
-                    const bsl::string& ACTUAL = out.str();
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-            }
-        }
-        {
-            if (verbose) cout << "int *" << endl
-                              << "-----" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      %s %d\n" },
-                { L_,    2,   -2, " %s %d"        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                int testData = 88932; int *data = &testData;
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                ostringstream ptr;
-                ptr << hex << showbase << (bsls::Types::UintPtr) data;
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                     ptr.str().c_str(), *data);
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-        {
-            if (verbose) cout << "HasPrint *" << endl
-                              << "----------" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      %s         HasPrint:data = %d\n" },
-                { L_,    2,   -2, " %s  HasPrint:data = %d"               },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                int tData = 73326;
-                HasPrint tClass(tData); HasPrint *data = &tClass;
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                int LEVEL_EXP = -(p.absLevel() + 1);
-                int LEVEL_ACT = data->d_level;
-                int SPL_EXP = SPL; int SPL_ACT = data->d_spacesPerLevel;
-
-                LOOP2_ASSERT(LEVEL_EXP, LEVEL_ACT, LEVEL_EXP == LEVEL_ACT);
-                LOOP2_ASSERT(SPL_EXP, SPL_ACT, SPL_EXP == SPL_ACT);
-
-                ostringstream ptr;
-                ptr << hex << showbase << (bsls::Types::UintPtr) data;
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                     ptr.str().c_str(), tData);
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-        {
-            if (verbose) cout << "function pointers" << endl
-                              << "-----------------" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      %s\n" },
-                { L_,    2,   -2, " %s"        },
-
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                void (*functionPtr)(int) = testFunctionAddress;
-                Obj p(&out, LEVEL, SPL); p.print(functionPtr, 0);
-
-                ostringstream ptr;
-                ptr << hex << showbase
-                    << reinterpret_cast<bsls::Types::UintPtr>(functionPtr);
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                   ptr.str().c_str());
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-#endif  // BDE_OMIT_TRANSITIONAL
-      } break;
-      case 8: {
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
-        // --------------------------------------------------------------------
-        // TESTING 'print' (user-defined types and specializations)
-        //
-        // Concerns: That 'print'
-        //: 1 calls the 'print' method of the user-defined type with the values
-        //:   of '-(absLevel + 1)' and 'spacesPerLevel'.
-        //: 2 prints a newline character after printing the user-defined type
-        //:   if 'spacesPerLevel >= 0', and does not print a newline character
-        //:   otherwise.
-        //: 3 's specialization for 'bsl::string' prints strings in the same
-        //:   format as 'const char *'.
-        //: 4 's specialization for 'bsl::vector' prints strings in the same
-        //:   format as 'const char *' and that output is preceded and followed
-        //:   by the required brackets.
-        //: 5 's specialization for 'bsl::vector' will accept types other than
-        //:   'bsl::string'.
-        //
-        // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a
-        //:   'HasPrint' object.  For each set of values in the table, ensure
-        //:   that the actual output of 'print' is the same as the expected
-        //:   output.  (C-1 and C-2)
-        //: 2 Create a table with the same values as P-1 with the expected
-        //:   output changed to that for 'const char *'.  As in P-1, the actual
-        //:   output it compared to the expected output.  (C-3)
-        //: 3 Create a table with the same values as P-2 with additional fields
-        //:   to specify the expected brackets.  As in P-2, the actual output
-        //:   is compared to the expected output.  (C-4)
-        //: 4 Create a table with the same values as P-3 except that the
-        //:   expected data is integer data in decimal format.  As in P-3, the
-        //:   actual output is compared to the expect output.  (C-5)
-        //
-        // Testing:
-        //   template<class TYPE>
-        //   void print(const TYPE& data, const char *name) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout
-         << endl
-         << "TESTING 'print' (user-defined types and specializations)" << endl
-         << "========================================================" << endl;
-
-        if (verbose) cout << endl
-                          << "TESTING 'print' (user-defined type)" << endl
-                          << "===================================" << endl;
-        {
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "              HasPrint:data = %d\n" },
-                { L_,    2,   -2, "  HasPrint:data = %d"               },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                int tData = 54321; HasPrint data(tData);
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                int LEVEL_EXP = -(p.absLevel() + 1);
-                int LEVEL_ACT = data.d_level;
-                int SPL_EXP = SPL; int SPL_ACT = data.d_spacesPerLevel;
-
-                LOOP2_ASSERT(LEVEL_EXP, LEVEL_ACT, LEVEL_EXP == LEVEL_ACT);
-                LOOP2_ASSERT(SPL_EXP, SPL_ACT, SPL_EXP == SPL_ACT);
-
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(), tData);
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-
-        if (verbose) cout << endl
-                          << "TESTING 'print' (bsl::string)" << endl
-                          << "=============================" << endl;
-
-        {
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      \"%s\"\n" },
-                { L_,    2,   -2, " \"%s\""        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream  out;
-                const char    *tData = "hello"; bsl::string data(tData);
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(), tData);
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-
-        if (verbose) cout
-                       << endl
-                       << "TESTING 'print' (bsl::vector<bsl::string>)" << endl
-                       << "==========================================" << endl;
-
-        {
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expPrologue;    // data prologue
-                bsl::string d_expFormat;      // data format
-                bsl::string d_expEpilogue;    // data epilogue
-            } DATA[] = {
-                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPILOGUE
-                //----  ----- --- ------------ ---------- ------------
-                { L_,    2,    2, "      [\n",
-                                               "        \"%s\"\n",
-                                                          "      ]\n" },
-
-                { L_,    2,   -2,
-                                  " [",
-                                               " \"%s\"",
-                                                          " ]"        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                bsl::vector<bsl::string> data;
-                data.push_back(bsl::string("Hello"));
-                data.push_back(bsl::string("world!"));
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                char buf[999], *ptr = &buf[0];
-                bsl::size_t len, size = sizeof(buf);
-                len = strlen(DATA[i].d_expPrologue.c_str());
-                ASSERT(len + 1 < size);
-                strncpy(ptr,
-                        DATA[i].d_expPrologue.c_str(),
-                        len);
-                ptr += len; size -= len;
-                for (int j = 0; j < (int)data.size(); ++j) {
-                    int n = snprintf(ptr,
-                                     size,
-                                     DATA[i].d_expFormat.c_str(),
-                                     data[j].c_str());
-                    ptr += n; size -= n;
-                }
-                len = strlen(DATA[i].d_expEpilogue.c_str());
-                ASSERT(len + 1 < size);
-                strncpy(ptr,
-                        DATA[i].d_expEpilogue.c_str(),
-                        len);
-                ptr += len; size -= len;
-                ASSERT(size > 0);
-                *ptr = '\0';
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-
-        if (verbose) cout <<
-                   "\nTESTING 'printValue' (range bsl::vector<bsl::string>)\n"
-                     "=====================================================\n";
-
-        {
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expPrologue;    // data prologue
-                bsl::string d_expFormat;      // data format
-                bsl::string d_expEpilogue;    // data epilogue
-            } DATA[] = {
-                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPILOGUE
-                //----  ----- --- ------------ ---------- ------------
-                { L_,    2,    2, "      [\n",
-                                               "        \"%s\"\n",
-                                                          "      ]\n" },
-
-                { L_,    2,   -2,
-                                  " [",
-                                               " \"%s\"",
-                                                          " ]"        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                bsl::vector<bsl::string> data;
-                data.push_back(bsl::string("Hello"));
-                data.push_back(bsl::string("world!"));
-                Obj p(&out, LEVEL, SPL); p.printValue(data.begin(),
-                                                      data.end());
-
-                char buf[999], *ptr = &buf[0];
-                bsl::size_t len, size = sizeof(buf);
-                len = strlen(DATA[i].d_expPrologue.c_str());
-                ASSERT(len + 1 < size);
-                strncpy(ptr,
-                        DATA[i].d_expPrologue.c_str(),
-                        len);
-                ptr += len; size -= len;
-                for (int j = 0; j < (int)data.size(); ++j) {
-                    int n = snprintf(ptr,
-                                     size,
-                                     DATA[i].d_expFormat.c_str(),
-                                     data[j].c_str());
-                    ptr += n; size -= n;
-                }
-                len = strlen(DATA[i].d_expEpilogue.c_str());
-                ASSERT(len + 1 < size);
-                strncpy(ptr,
-                        DATA[i].d_expEpilogue.c_str(),
-                        len);
-                ptr += len; size -= len;
-                ASSERT(size > 0);
-                *ptr = '\0';
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-
-        if (verbose) cout << endl
-                          << "TESTING 'print' (bsl::vector<int>)" << endl
-                          << "==================================" << endl;
-
-        {
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expPrologue;    // data prologue
-                bsl::string d_expFormat;      // data format
-                bsl::string d_expEpilogue;    // data epilogue
-            } DATA[] = {
-                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPILOGUE
-                //----  ----- --- ------------ ---------- ------------
-                { L_,    2,    2, "      [\n",
-                                               "        %d\n",
-                                                          "      ]\n" },
-
-                { L_,    2,   -2,
-                                  " [",
-                                               " %d",
-                                                          " ]"        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                bsl::vector<int> data;
-                data.push_back(0);
-                data.push_back(1);
-                data.push_back(3);
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                char buf[999], *ptr = &buf[0];
-                bsl::size_t len, size = sizeof(buf);
-                len = strlen(DATA[i].d_expPrologue.c_str());
-                ASSERT(len + 1 < size);
-                strncpy(ptr,
-                        DATA[i].d_expPrologue.c_str(),
-                        len);
-                ptr += len; size -= len;
-                for (int j = 0; j < (int)data.size(); ++j) {
-                    int n = snprintf(ptr,
-                                     size,
-                                     DATA[i].d_expFormat.c_str(),
-                                     data[j]);
-                    ptr += n; size -= n;
-                }
-                len = strlen(DATA[i].d_expEpilogue.c_str());
-                ASSERT(len + 1 < size);
-                strncpy(ptr,
-                        DATA[i].d_expEpilogue.c_str(),
-                        len);
-                ptr += len; size -= len;
-                ASSERT(size > 0);
-                *ptr = '\0';
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-
-        if (verbose) cout <<"\nTESTING 'printValue (range bsl::vector<int>)\n"
-                              "============================================\n";
-
-        {
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expPrologue;    // data prologue
-                bsl::string d_expFormat;      // data format
-                bsl::string d_expEpilogue;    // data epilogue
-            } DATA[] = {
-                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPILOGUE
-                //----  ----- --- ------------ ---------- ------------
-                { L_,    2,    2, "      [\n",
-                                               "        %d\n",
-                                                          "      ]\n" },
-
-                { L_,    2,   -2,
-                                  " [",
-                                               " %d",
-                                                          " ]"        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                bsl::vector<int> data;
-                data.push_back(0);
-                data.push_back(1);
-                data.push_back(3);
-                Obj p(&out, LEVEL, SPL); p.printValue(data.begin(),
-                                                      data.end());
-
-                char buf[999], *ptr = &buf[0];
-                bsl::size_t len, size = sizeof(buf);
-                len = strlen(DATA[i].d_expPrologue.c_str());
-                ASSERT(len + 1 < size);
-                strncpy(ptr,
-                        DATA[i].d_expPrologue.c_str(),
-                        len);
-                ptr += len; size -= len;
-                for (int j = 0; j < (int)data.size(); ++j) {
-                    int n = snprintf(ptr,
-                                     size,
-                                     DATA[i].d_expFormat.c_str(),
-                                     data[j]);
-                    ptr += n; size -= n;
-                }
-                len = strlen(DATA[i].d_expEpilogue.c_str());
-                ASSERT(len + 1 < size);
-                strncpy(ptr,
-                        DATA[i].d_expEpilogue.c_str(),
-                        len);
-                ptr += len; size -= len;
-                ASSERT(size > 0);
-                *ptr = '\0';
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-#endif  // BDE_OMIT_TRANSITIONAL
-      } break;
-      case 7: {
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
-        // --------------------------------------------------------------------
-        // TESTING 'print' (fundamental types)
-        //
-        // Concerns: That 'print'
-        //: 1 prints fundamental types correctly.
-        //: 2 prints 'char' types
-        //:   - enclosed within single quotes when printable
-        //:   - in hexadecimal format when non-printable
-        //:   - as strings in case of special characters '\n', '\t' and '\0'.
-        //: 3 prints 'bool' types as alphabetical strings.
-        //: 4 prints a newline character after printing the fundamental type if
-        //:   'spacesPerLevel >= 0', and does not print a newline character
-        //:   otherwise.
-        //
-        // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with an 'int'.
-        //:   For each set of values in the table, ensure that the actual
-        //:   output of 'print' is the same as the expected output.
-        //: 2 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a 'char'.
-        //:   For each set of values in the table, ensure that the actual
-        //:   output of 'print' is the same as the expected output.
-        //: 3 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when called with a 'bool'.
-        //:   For each set of values in the table, ensure that the actual
-        //:   output of 'print' is the same as the expected output.
-        //
-        // Testing:
-        //   template<class TYPE>
-        //   void print(const TYPE& data, const char *name) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "\nTESTING 'print' (fundamental types)"
-                          << "\n===================================" << endl;
-
-        {
-            if (verbose) cout << "int" << endl
-                              << "---" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    3, "         %d\n" },
-                { L_,    2,   -3, " %d"           }
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                int data = 448992;
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-        {
-            if (verbose) cout << "char" << endl
-                              << "----" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                char        d_arg;            // argument to be printed
-                bsl::string d_expected;       // expected output format
-                bool        d_isHex;          // flag for print as hex
-            } DATA[] = {
-                //LINE  LEVEL SPL ARG   EXPECTED OUTPUT  IS HEX
-                //----  ----- --- ---   --------------   ------
-                { L_,    2,    2, 'a' , "      'a'\n"  , false  },
-                { L_,    2,   -2, '\'', " '\''"        , false  },
-                { L_,    2,    2, '\n', "      '\\n'\n", false  },
-                { L_,    2,    2, '\t', "      '\\t'\n", false  },
-                { L_,    2,    2, 0,    "      '\\0'\n", false  },
-                { L_,    2,    2, 16  , "      %s\n"   , true   },
-                { L_,    2,    2, 31  , "      %s\n"   , true   },
-                { L_,    2,    2, 32  , "      ' '\n"  , false  },
-                { L_,    2,    2, 126 , "      '~'\n"  , false  },
-                { L_,    2,    2, 127 , "      %s\n"   , true   }
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-                bool ISHEX = DATA[i].d_isHex;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                char data = DATA[i].d_arg;
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                bsl::string EXPECTED;
-                if (ISHEX) {
-                    stringstream exp;
-                    exp << hex << showbase
-                        << static_cast<bsls::Types::UintPtr>(data);
-                    char buf[999];
-                    snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                            exp.str().c_str());
-                    EXPECTED = buf;
-                }
-                else {
-                    EXPECTED = DATA[i].d_expected;
-                }
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-        {
-            if (verbose) cout << "bool" << endl
-                              << "----" << endl;
-            static const struct {
-                int         d_lineNum;        // source line number
-                int         d_level;          // indentation level
-                int         d_spacesPerLevel; // spaces per indentation level
-                bsl::string d_expected;       // expected output format
-            } DATA[] = {
-                //LINE  LEVEL SPL EXPECTED OUTPUT
-                //----  ----- --- --------------
-                { L_,    2,    2, "      true\n" },
-                { L_,    2,   -2, " true"        },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int i = 0; i < NUM_DATA;  ++i) {
-                const int LINE  = DATA[i].d_lineNum;
-                int LEVEL = DATA[i].d_level;
-                int SPL   = DATA[i].d_spacesPerLevel;
-
-                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                ostringstream out;
-                bool data = true;
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
-
-                char buf[999];
-                snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
-                const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
-
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-            }
-        }
-        {
-            if (verbose) cout << "enum" << endl
-                              << "----" << endl;
-
-            // Test level & spaces per level
-            {
-                static const struct {
-                    int         d_lineNum;        // source line number
-                    int         d_level;          // indentation level
-                    int         d_spacesPerLevel; // spaces per indentation lvl
-                    bsl::string d_expected;       // expected output format
-                } DATA[] = {
-                    //LINE  LEVEL SPL EXPECTED OUTPUT
-                    //----  ----- --- --------------
-                    { L_,    2,    3, "         %s\n" },
-                    { L_,    2,   -3, " %s"           }
-                };
-                const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-                for (int i = 0; i < NUM_DATA;  ++i) {
-                    const int LINE  = DATA[i].d_lineNum;
-                    int LEVEL = DATA[i].d_level;
-                    int SPL   = DATA[i].d_spacesPerLevel;
-
-                    if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-                    ostringstream out;
-                    TestEnumWithStreaming::Enum value =
-                                               TestEnumWithStreaming::VALUE_B;
-                    Obj p(&out, LEVEL, SPL); p.printValue(value);
-
-                    char buf[999];
-                    snprintf(buf, 999, DATA[i].d_expected.c_str(), "VALUE_B");
-                    const bsl::string EXPECTED(buf);
-                    const bsl::string& ACTUAL = out.str();
-
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-            }
-            {
-                // Test different enum values
-                TestEnumWithStreaming::Enum asciiA =
-                                                TestEnumWithStreaming::VALUE_A;
-                TestEnumWithStreaming::Enum asciiB =
-                                                TestEnumWithStreaming::VALUE_B;
-                TestEnumNoStreaming::Enum nonAsciiA =
-                                                  TestEnumNoStreaming::VALUE_A;
-                TestEnumNoStreaming::Enum nonAsciiB =
-                                                  TestEnumNoStreaming::VALUE_B;
-
-                {
-                    ostringstream out;
-                    Obj p(&out, 0, -1); p.printValue(asciiA);
-                    const bsl::string EXPECTED(" VALUE_A");
-                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
-                }
-                {
-                    ostringstream out;
-                    Obj p(&out, 0, -1); p.printValue(asciiB);
-                    const bsl::string EXPECTED(" VALUE_B");
-                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
-                }
-                {
-                    ostringstream out;
-                    Obj p(&out, 0, -1); p.printValue(nonAsciiA);
-                    const bsl::string EXPECTED(" 0");
-                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
-                }
-                {
-                    ostringstream out;
-                    Obj p(&out, 0, -1); p.printValue(nonAsciiB);
-                    const bsl::string EXPECTED(" 1");
-                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
-                }
-            }
-        }
-#endif  // BDE_OMIT_TRANSITIONAL
-      } break;
       case 6: {
-#ifndef BDE_OMIT_TRANSITIONAL  // DEPRECATED
-        // --------------------------------------------------------------------
-        // TESTING 'print' (indentation and name)
-        //
-        // Concerns: That 'print'
-        //: 1 prints the correct indentation for different values of 'level'
-        //:   and 'spacesPerLevel'.
-        //: 2 prints the 'name' correctly when 'name' is supplied.
-        //
-        // Plan:
-        //: 1 Create a table having fields for line number, level, spaces per
-        //:   level, and expected output of 'print' when a 'name' is supplied.
-        //:   For each set of values in the table, ensure that the actual
-        //:   output of 'print' is the same as the expected output.
-        //
-        // Testing:
-        //   template<class TYPE>
-        //   void print(const TYPE& data, const char *name) const;
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "TESTING 'print' (indentation and name)" << endl
-                          << "======================================" << endl;
-
-        static const struct {
-            int         d_lineNum;        // source line number
-            int         d_level;          // indentation level
-            int         d_spacesPerLevel; // spaces per indentation level
-            bsl::string d_expected;       // expected output format
-        } DATA[] = {
-            //LINE  LEVEL SPL EXPECTED OUTPUT
-            //----  ----- --- --------------
-            { L_,    0,    0, "data = %d\n"          },
-            { L_,    0,    2, "  data = %d\n"        },
-            { L_,    2,    0, "data = %d\n"          },
-            { L_,    2,    3, "         data = %d\n" },
-            { L_,    2,   -3, " data = %d"           },
-            { L_,   -2,    3, "         data = %d\n" },
-            { L_,   -2,   -3, " data = %d"           },
-        };
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        for (int i = 0; i < NUM_DATA;  ++i) {
-            const int LINE  = DATA[i].d_lineNum;
-            int LEVEL = DATA[i].d_level;
-            int SPL   = DATA[i].d_spacesPerLevel;
-
-            if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-
-            ostringstream out;
-            int data = 448992;
-            Obj p(&out, LEVEL, SPL); p.print(data, "data");
-
-            char buf[999];
-            snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
-            const bsl::string EXPECTED(buf);
-            const bsl::string& ACTUAL = out.str();
-
-            if (veryVeryVerbose) {
-                cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                     << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-            }
-            LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-        }
-#endif  // BDE_OMIT_TRANSITIONAL
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -3648,7 +2392,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

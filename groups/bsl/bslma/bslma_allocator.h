@@ -412,7 +412,7 @@ class Allocator {
         // Alias for a signed integral type capable of representing the number
         // of bytes in this platform's virtual address space.
 
-#ifndef BDE_OMIT_DEPRECATED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // CLASS METHODS
     static void throwBadAlloc();
         // !DEPRECATED!: Use 'bsls::BslExceptionUtil::throwBadAlloc' instead.
@@ -421,7 +421,7 @@ class Allocator {
         // program otherwise.  Derived classes and helper functions will
         // typically call this function when they are unable to satisfy an
         // allocation request.  This function never returns.
-#endif  // BDE_OMIT_DEPRECATED
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CREATORS
     virtual ~Allocator();
