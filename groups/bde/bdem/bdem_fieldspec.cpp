@@ -13,6 +13,7 @@ BDES_IDENT_RCSID(bdem_fieldspec_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_ios.h>
 #include <bsl_ostream.h>
 
 namespace BloombergLP {

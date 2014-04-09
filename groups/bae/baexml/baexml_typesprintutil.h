@@ -221,6 +221,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_istream.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOS
+#include <bsl_ios.h>
+#endif
+
 #ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
 #endif
