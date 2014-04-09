@@ -239,7 +239,7 @@ struct Capacity {
         // Return 'true' if 'd_capacity < rhs' and 'false' otherwise.
 };
 
-struct NoopCapacity {
+struct NopCapacity {
     // Functor passed to 'localUtf8ToUtf16' and 'localUtf16ToUtf8' in cases
     // where we don't want to monitor capacity available in output, all
     // operations on this object are to become no-ops, all if-blocks controlled
@@ -341,7 +341,7 @@ struct Utf8 {
 
         bool verifyContinuations(const OctetType *octets, int n)
             // Return 'true' if there are the at least the specified 'n'
-            // continuation bytes beggining at the specified 'octets' and prior
+            // continuation bytes beginning at the specified 'octets' and prior
             // to 'd_end' and 'false' otherwise.  The behavior is undefined if
             // 'octers' is past the end.
         {
@@ -535,31 +535,34 @@ struct Utf8 {
     static
     void encodeTwoOctets(char *octBuf, Iso10646Char isoBuf)
     {
-        octBuf[1] = CONTINUE_TAG | (isoBuf & ~CONTINUE_MASK);
-        octBuf[0] = TWO_OCTET_TAG |
-                    ((isoBuf >> CONTINUE_CONT_WID) & ~TWO_OCTET_MASK);
+        octBuf[1] = static_cast<char>(CONTINUE_TAG |
+                             (isoBuf                       & ~CONTINUE_MASK));
+        octBuf[0] = static_cast<char>(TWO_OCTET_TAG |
+                            ((isoBuf >> CONTINUE_CONT_WID) & ~TWO_OCTET_MASK));
     }
 
     static
     void encodeThreeOctets(char *octBuf, Iso10646Char isoBuf)
     {
-        octBuf[2] = CONTINUE_TAG | (isoBuf & ~CONTINUE_MASK);
-        octBuf[1] = CONTINUE_TAG |
-                    ((isoBuf >> CONTINUE_CONT_WID) & ~CONTINUE_MASK);
-        octBuf[0] = THREE_OCTET_TAG |
-                    ((isoBuf >> 2 * CONTINUE_CONT_WID) & ~THREE_OCTET_MASK);
+        octBuf[2] = static_cast<char>(CONTINUE_TAG |
+                     (isoBuf                           & ~CONTINUE_MASK));
+        octBuf[1] = static_cast<char>(CONTINUE_TAG |
+                    ((isoBuf >>     CONTINUE_CONT_WID) & ~CONTINUE_MASK));
+        octBuf[0] = static_cast<char>(THREE_OCTET_TAG |
+                    ((isoBuf >> 2 * CONTINUE_CONT_WID) & ~THREE_OCTET_MASK));
     }
 
     static
     void encodeFourOctets(char *octBuf, Iso10646Char isoBuf)
     {
-        octBuf[3] = CONTINUE_TAG | (isoBuf & ~CONTINUE_MASK);
-        octBuf[2] = CONTINUE_TAG |
-                    ((isoBuf >> CONTINUE_CONT_WID) & ~CONTINUE_MASK);
-        octBuf[1] = CONTINUE_TAG |
-                    ((isoBuf >> 2 * CONTINUE_CONT_WID) & ~CONTINUE_MASK);
-        octBuf[0] = FOUR_OCTET_TAG |
-                    ((isoBuf >> 3 * CONTINUE_CONT_WID) & ~FOUR_OCTET_MASK);
+        octBuf[3] = static_cast<char>(CONTINUE_TAG |
+                        (isoBuf                           & ~CONTINUE_MASK));
+        octBuf[2] = static_cast<char>(CONTINUE_TAG |
+                       ((isoBuf >>     CONTINUE_CONT_WID) & ~CONTINUE_MASK));
+        octBuf[1] = static_cast<char>(CONTINUE_TAG |
+                       ((isoBuf >> 2 * CONTINUE_CONT_WID) & ~CONTINUE_MASK));
+        octBuf[0] = static_cast<char>(FOUR_OCTET_TAG |
+                       ((isoBuf >> 3 * CONTINUE_CONT_WID) & ~FOUR_OCTET_MASK));
     }
 };
 
@@ -679,7 +682,7 @@ struct Utf16 {
     static
     OctetType getUtf8Value(UTF16_CHAR uc)
     {
-        return uc;
+        return static_cast<OctetType>(uc);
     }
 
     template <typename UTF16_CHAR>
@@ -739,7 +742,7 @@ struct Utf16 {
     static
     void encodeSingleWord(UTF16_CHAR* u16Buf, Iso10646Char uc)
     {
-        *u16Buf = uc;
+        *u16Buf = static_cast<UTF16_CHAR>(uc);
     }
 
     template <typename UTF16_CHAR>
@@ -747,9 +750,10 @@ struct Utf16 {
     void encodeTwoWords(UTF16_CHAR *u16Buf, Iso10646Char uc)
     {
         Iso10646Char v = uc - RESERVE_OFFSET;
-        u16Buf[0] = FIRST_TAG  | (v >> CONTENT_CONT_WID);
-        u16Buf[1] = SECOND_TAG |
-                               (v & ~(~Iso10646Char(0) << CONTENT_CONT_WID));
+        u16Buf[0] = static_cast<UTF16_CHAR>(FIRST_TAG  |
+                                                      (v >> CONTENT_CONT_WID));
+        u16Buf[1] = static_cast<UTF16_CHAR>(SECOND_TAG |
+                                (v & ~(~Iso10646Char(0) << CONTENT_CONT_WID)));
     }
 
     template <typename UTF16_CHAR>
@@ -865,7 +869,7 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
     // 'CAPACITY_FUNCTOR' should be 'Capacity' defined in this file, and the
     // routine will constantly check adequate room for output exists.  If the
     // caller is certain adequate room exists, 'CAPACITY_FUNCTOR' should be
-    // 'NoopCapacity', which translates all the checking to noops and always
+    // 'NopCapacity', which translates all the checking to nops and always
     // returns that room is adequate, for faster execution.
 {
     // Note 'dstCapacity' and 'endFunctor' are passed by value, not by
@@ -1091,7 +1095,7 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
 #ifdef BDE_BUILD_TARGET_SAFE
     if (sizeof(UTF16_CHAR) > sizeof(unsigned short)) {
         UTF16_CHAR forbidden_mask = (UTF16_CHAR) -1;
-        forbidden_mask &= ~ (UTF16_CHAR) 0xffff;
+        forbidden_mask &= static_cast<UTF16_CHAR>(~ 0xffff);
         for (UTF16_CHAR *pwc = dstStart; pwc < dstBuffer; ++pwc) {
             BSLS_ASSERT(0 == (forbidden_mask & *pwc));
         }
@@ -1160,7 +1164,7 @@ int localUtf16ToUtf8(char             *dstBuffer,
     // enough, 'CAPACITY_FUNCTOR' should be 'Capacity' defined in this file,
     // and the routine will constantly check adequate room for output exists.
     // If the caller is certain adequate room exists, 'CAPACITY_FUNCTOR' should
-    // be 'NoopCapacity', which translates all the checking to noops and always
+    // be 'NopCapacity', which translates all the checking to nops and always
     // returns that room is adequate, for faster execution.
 {
     if (dstCapacity < 1) {
@@ -1328,7 +1332,7 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
     bsl::size_t numBytesWritten;
 
     int rc = localUtf16ToUtf8(dstString->begin(),
-                              NoopCapacity(),
+                              NopCapacity(),
                               srcBuffer,
                               endFunctor,
                               numCharsWritten,
@@ -1377,7 +1381,7 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
     bsl::size_t numBytesWritten;
 
     int rc = localUtf16ToUtf8(dstVector->begin(),
-                              NoopCapacity(),
+                              NopCapacity(),
                               srcBuffer,
                               endFunctor,
                               numCharsWritten,
@@ -1444,7 +1448,7 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
     bsl::size_t numWordsWritten;
 
     int rc = localUtf8ToUtf16(dstVector->begin(),
-                              NoopCapacity(),
+                              NopCapacity(),
                               srcStringRef.data(),
                               endFunctor,
                               numCharsWritten,
@@ -1485,7 +1489,7 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
     bsl::size_t numWordsWritten;
 
     int rc = localUtf8ToUtf16(dstVector->begin(),
-                              NoopCapacity(),
+                              NopCapacity(),
                               srcCString,
                               endFunctor,
                               numCharsWritten,
@@ -1531,7 +1535,7 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
     bsl::size_t numWordsWritten;
 
     int rc = localUtf8ToUtf16(dstWstring->begin(),
-                              NoopCapacity(),
+                              NopCapacity(),
                               srcStringRef.data(),
                               endFunctor,
                               numCharsWritten,
@@ -1581,7 +1585,7 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
     bsl::size_t numWordsWritten;
 
     int rc = localUtf8ToUtf16(dstWstring->begin(),
-                              NoopCapacity(),
+                              NopCapacity(),
                               srcCString,
                               endFunctor,
                               numCharsWritten,

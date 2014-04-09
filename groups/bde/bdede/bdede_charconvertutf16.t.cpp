@@ -899,7 +899,7 @@ template<typename ITER, int N_ITER_PARM>
 struct OdomIter {
     // Compound "iterator" based on the odometer algorithm.  Note that this is
     // not really an iterator but a generator.  (It's big enough that to return
-    // instances via begin() and end() is a good deal more costly than we
+    // objects via begin() and end() is a good deal more costly than we
     // expect in an iterator.)
     // OdomIter is set up to work for N iterators of the same type.  (With
     // parameter packs we could do better.  Otherwise a common wrapper type
@@ -1088,24 +1088,24 @@ struct BufferSizes {
 //  ConvRslt: Summarizing the three return values from a conversion function.
 //-----------------------------------------------------------------------------
 
-//  The convRslt holds the three 'return' values from a call to one of the
+//  The ConvRslt holds the three 'return' values from a call to one of the
 //  conversion routines.  It can be printed and compared with its like for
 //  equality and inequality, and is especially suited for use with the
 //  EXPECTED_GOT macro.  The name is kept short because it will be used
 //  frequently in expressions.
 
-struct convRslt {
+struct ConvRslt {
     int         d_retVal;   // Return value
     bsl::size_t d_symbols;  // Characters of whatever size
     bsl::size_t d_units;    // No. of bytes/words written, including the null
 
-    convRslt()
+    ConvRslt()
     : d_retVal(0x10), d_symbols( -1 ), d_units( -1 )
         // d_retVal's default init does NOT have the 1 or 2 bit set.
     {
     }
 
-    convRslt( int aResult, int aSymbols, int aUnits )
+    ConvRslt( int aResult, int aSymbols, int aUnits )
     : d_retVal( aResult ), d_symbols( aSymbols ), d_units( aUnits )
     {
     }
@@ -1113,23 +1113,23 @@ struct convRslt {
     // These mutators apply a change and return a reference to *this, allowing
     // changes to be applied one after the other.  (Evolvers, not mutators?)
 
-    convRslt& sym(bsl::size_t newSymbol)
+    ConvRslt& sym(bsl::size_t newSymbol)
     {
         d_symbols = newSymbol;
         return *this;
     }
 
-    convRslt& unit(bsl::size_t newUnit)
+    ConvRslt& unit(bsl::size_t newUnit)
     {
         d_units = newUnit;
         return *this;
     }
 };
 
-//  Equality, inequality, and output inserter ops on convRslt,
+//  Equality, inequality, and output inserter ops on ConvRslt,
 //  followed by a macro to compare them and complain if they don't match.
 inline
-bool operator==(const convRslt& lhs, const convRslt& rhs)
+bool operator==(const ConvRslt& lhs, const ConvRslt& rhs)
 {
     return lhs.d_retVal == rhs.d_retVal
         && lhs.d_symbols == rhs.d_symbols
@@ -1137,12 +1137,12 @@ bool operator==(const convRslt& lhs, const convRslt& rhs)
 }
 
 inline
-bool operator!=(const convRslt& lhs, const convRslt& rhs)
+bool operator!=(const ConvRslt& lhs, const ConvRslt& rhs)
 {
     return !(lhs == rhs);
 }
 
-ostream& operator<<(ostream& os, const convRslt& cvr);
+ostream& operator<<(ostream& os, const ConvRslt& cvr);
 
 //-----------------------------------------------------------------------------
 //      SrcSpec: bundle parameters to a conversion test.
@@ -1150,7 +1150,7 @@ ostream& operator<<(ostream& os, const convRslt& cvr);
 
 // SrcSpec gives the source data, error character, and output buffer size to
 // use for a test.  It does not contain the expected return and
-// return-by-argument values, which are stored in convRslt.
+// return-by-argument values, which are stored in ConvRslt.
 
 template<typename CHAR_TYPE>
 struct SrcSpec {
@@ -1330,23 +1330,24 @@ struct Conversion {
     {
     }
 
-    convRslt operator()(WorkPiece<TO_CHAR>&       to,
+    ConvRslt operator()(WorkPiece<TO_CHAR>&       to,
                         TO_CHAR*                  dstBuf,
                         const SrcSpec<FROM_CHAR>& from,
-                        const convRslt&           expected)
+                        const ConvRslt&           expected)
     {
         enum { INF = (bsl::size_t) -1 };
 
-        convRslt result;
+        ConvRslt result;
 
-        result.d_retVal = (d_converter)(to.begin(dstBuf),
-                                        to.d_winLength,
-                                        from.d_source,
-                                        expected.d_symbols == INF ?
+        result.d_retVal = (d_converter)(
+                                       to.begin(dstBuf),
+                                       to.d_winLength,
+                                       from.d_source,
+                                       expected.d_symbols == INF ?
                                                     0 : &result.d_symbols,
-                                        expected.d_units == INF ?
+                                       expected.d_units == INF ?
                                                     0 : &result.d_units,
-                                        from.d_errorChar);
+                                       static_cast<TO_CHAR>(from.d_errorChar));
 
         if (INF == expected.d_symbols) {
             result.d_symbols = INF;
@@ -1439,9 +1440,9 @@ struct FourWayRunner {
     WorkPiece<TO_CHAR>              d_wp;
     TO_CHAR                        *d_outBuf[N_WAY];
     Conversion<TO_CHAR, FROM_CHAR>& d_conv;
-    convRslt&                       d_expected;
-    convRslt                        d_result[N_WAY];
-    convRslt                        d_nExps[N_WAY];
+    ConvRslt&                       d_expected;
+    ConvRslt                        d_result[N_WAY];
+    ConvRslt                        d_nExps[N_WAY];
 
     FixedVector<TO_CHAR*,N_WAY>     d_strSet;
 
@@ -1453,7 +1454,7 @@ struct FourWayRunner {
                   bsl::size_t                     margin,
                   SrcSpec<FROM_CHAR>&             src,
                   Conversion<TO_CHAR, FROM_CHAR>& conv,
-                  convRslt&                       exp)
+                  ConvRslt&                       exp)
     : d_src(src),
       d_wp(OUTPUT_LEN, src.d_dstBufSize, fillChar, margin),
       d_conv(conv),
@@ -2074,8 +2075,9 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 // Changing this byte to a "2-octet char 1" can't be
                 // data-driven since we must compute the resulting character.
 
-                const unsigned short newChar = ((0xc2 & 0x1f) << 6 )
-                                          | (input[currentCharStart+1] & 0x3f);
+                const unsigned short newChar = static_cast<unsigned short>(
+                                           ((0xc2 & 0x1f) << 6 )
+                                         | (input[currentCharStart+1] & 0x3f));
                 const PerturbationDesc perturb =
                                              { 0xc2,  true, newChar, 0, 1 };
 
@@ -2119,8 +2121,9 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 // Changing this byte to a "2-octet char 1" can't be
                 // data-driven since we must compute the resulting character.
                 const
-                unsigned short newChar = ((0xc2 & 0x1f) << 6 )
-                                       | (input[currentCharStart+2] & 0x3f);
+                unsigned short newChar = static_cast<unsigned short>(
+                                         ((0xc2 & 0x1f) << 6 )
+                                       | (input[currentCharStart+2] & 0x3f));
                 const
                 PerturbationDesc perturb = { 0xc2,  true, newChar, 1, 0 };
 
@@ -2298,7 +2301,8 @@ void buildUpAndTestStringsU8ToU2(int             idx,
 
     totalOutputLength += d.d_utf8CharacterLength;
 
-    characterSizes[characterCount++] = d.d_utf8CharacterLength;
+    characterSizes[characterCount++] = static_cast<unsigned short>(
+                                                      d.d_utf8CharacterLength);
 
     for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU8ToU2(i,
@@ -2609,7 +2613,7 @@ bool oneStringConversion(
             FR_FILL_CHECK&           fromFillCheck, // Source and reference
                                                     // for checking the input
                                                     // string.
-            const convRslt&          expected);     // The expected set of
+            const ConvRslt&          expected);     // The expected set of
                                                     // return values from the
                                                     // conversion function.
     // The 'oneStringConversion' templated function invokes the conversions for
@@ -4959,7 +4963,7 @@ int main(int argc, char**argv)
                                     &nc,
                                     &nw,
                                     errorChar);
-            ASSERT(cap < dstCap ==
+            ASSERT((cap < dstCap) ==
                     !!(rc2 & bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc <= nw);
@@ -4984,7 +4988,7 @@ int main(int argc, char**argv)
                                     &nc2,
                                     &nw2,
                                     errorChar);
-            ASSERT(cap < dstCap ==
+            ASSERT((cap < dstCap) ==
                     !!(rc2 & bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
             ASSERT(cap < dstCap || rc2 == rc);
             ASSERT(nc2 == nc);
@@ -5019,7 +5023,7 @@ int main(int argc, char**argv)
             }
         }
 
-        // Make sure we didn't accidently embed any holes in our input.
+        // Make sure we didn't accidentally embed any holes in our input.
 
         {
             const wchar_t *ps = START;
@@ -5236,7 +5240,7 @@ int main(int argc, char**argv)
             ASSERT(!cap || (nw && nc));
             ASSERT(!nw || 0 == dst[nw - 1]);
             ASSERT((unsigned short) -1 == dst[nw]);
-            ASSERT(cap < dstCap ==
+            ASSERT((cap < dstCap) ==
                      !!(rc & bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
             LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
                                           INPUT.c_str() < start || END > end ||
@@ -5260,7 +5264,7 @@ int main(int argc, char**argv)
             ASSERT(!cap || (nw && nc));
             ASSERT(!nw || 0 == dst[nw - 1]);
             ASSERT((unsigned short) -1 == dst[nw]);
-            ASSERT(cap < dstCap ==
+            ASSERT((cap < dstCap) ==
                      !!(rc & bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
             LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
                                           INPUT.c_str() < start || END > end ||
@@ -6297,9 +6301,12 @@ int main(int argc, char**argv)
 
                           case 'b':
                             // Two-byte character:
-                            *genp++ = 0xc0 | twoHdr;
-                            *genp++ = 0x80 | twoContin;
-                            *imgp++ = twoHdr << 6 | twoContin;
+                            *genp++ = static_cast<unsigned short>(
+                                                      0xc0 | twoHdr);
+                            *genp++ = static_cast<unsigned short>(
+                                                      0x80 | twoContin);
+                            *imgp++ = static_cast<unsigned short>(
+                                                      twoHdr << 6 | twoContin);
 
                             ++nSymbols;
 
@@ -6308,11 +6315,15 @@ int main(int argc, char**argv)
                           case 'c':
 
                             // Three-byte character:
-                            *genp++ = 0xe0 | threeHdr;
-                            *genp++ = 0x80 | threeContin1;
-                            *genp++ = 0x80 | threeContin2;
-                            *imgp++ = threeHdr << 12 | threeContin1 << 6
-                                                     | threeContin2;
+                            *genp++ = static_cast<unsigned short>(
+                                                          0xe0 | threeHdr);
+                            *genp++ = static_cast<unsigned short>(
+                                                          0x80 | threeContin1);
+                            *genp++ = static_cast<unsigned short>(
+                                                          0x80 | threeContin2);
+                            *imgp++ = static_cast<unsigned short>(
+                                            threeHdr << 12 | threeContin1 << 6
+                                                               | threeContin2);
 
                             ++nSymbols;
 
@@ -6330,8 +6341,10 @@ int main(int argc, char**argv)
                                                      | fourContin1 << 12
                                                      | fourContin2 << 6
                                                      | fourContin3 ) - 0x10000;
-                              *imgp++ = 0xd800 | isoChar >> 10;
-                              *imgp++ = 0xdc00 | (isoChar & 0x3ff);
+                              *imgp++ = static_cast<unsigned short>(
+                                                   0xd800 |  isoChar >> 10);
+                              *imgp++ = static_cast<unsigned short>(
+                                                   0xdc00 | (isoChar & 0x3ff));
                             }
 
                             ++nSymbols;
@@ -6393,7 +6406,7 @@ int main(int argc, char**argv)
                                               imageGenCh,
                                               sourceArray,
                                               genGenCh,
-                                              convRslt(0, nSymbols, nWords))) {
+                                              ConvRslt(0, nSymbols, nWords))) {
                         cout << "(Error converting utf8 to utf16.)" << endl;
 
                         if (veryVeryVerbose) {
@@ -6433,7 +6446,7 @@ int main(int argc, char**argv)
                     BufferedWPiece<char> invBwp(invDest,
                                                 MAX_NOCTETS + 2 * BUFFER_ZONE,
                                                 nOctets,
-                                                0xff,
+                                                (char) 0xff,
                                                 BUFFER_ZONE);
 
                     if (! oneStringConversion(__LINE__,
@@ -6441,7 +6454,7 @@ int main(int argc, char**argv)
                                           genGenCh,
                                           invSourceArray,
                                           invGenGen,
-                                          convRslt(0, nSymbols, nOctets))) {
+                                          ConvRslt(0, nSymbols, nOctets))) {
                         cout << "(Error converting utf16 to utf8.)" << endl;
                         if (veryVeryVerbose) {
                             cout << "Expected " << R(prHexRange(genArray))
@@ -6598,7 +6611,7 @@ int main(int argc, char**argv)
 
                 bsl::size_t nc, nw;
 
-                input[1] = 0x80 + i;
+                input[1] = static_cast<char>(0x80 + i);
                 int rc = Util::utf8ToUtf16(output,
                                            sizeof(output),
                                            input,
@@ -6663,7 +6676,7 @@ int main(int argc, char**argv)
 
                 bsl::size_t nc, nw;
 
-                input[1] = 0x80 + i;
+                input[1] = static_cast<char>(0x80 + i);
                 int rc = Util::utf8ToUtf16(output,
                                            sizeof(output),
                                            input,
@@ -6905,7 +6918,7 @@ int main(int argc, char**argv)
 
                     input[0] = HEADERS[h];
                     for (unsigned i = 0; i < c; ++i) {
-                        input[1 + i] = 0xbf;
+                        input[1 + i] = (char) 0xbf;
                     }
 
                     int rc = Util::utf8ToUtf16(output,
@@ -7648,20 +7661,20 @@ MARK
 
             // Create a character string with all legal single-octet u8 chars.
             for (unsigned u8c = 1 ; u8c < 0x80 ; ++u8c ) {
-                u8[u8c - 1] = u8c;
+                u8[u8c - 1] = static_cast<char>(u8c);
                 ++nEightToSixteen;
             }
 
             u8[Sizes::FROM_BUF_SIZE - 1] = 0;
 
             SrcSpec<char> source(u8, 0, Sizes::N_CHARS + 1);
-            convRslt expected(0, 128, 128);  // 128 symbols, 128 words copied.
+            ConvRslt expected(0, 128, 128);  // 128 symbols, 128 words copied.
 
             WorkPiece<unsigned short> wp(Sizes::TO_BUF_SIZE,
                                          source.d_dstBufSize,
                                          0xffff,
                                          BUFFER_ZONE);
-            convRslt result;
+            ConvRslt result;
 
             if (RUN_AND_CHECK(wp, u16, result, u8ToU16, source, expected)) {
                 for (unsigned u8c = 1; u8c < 0x80; ++u8c) {
@@ -7712,8 +7725,8 @@ MARK
             // Create a character string with all legal two-octet u8 chars.
             for (unsigned u8c = 0x80 ; u8c < 0x800 ; ++u8c ) {
                 unsigned pos = u8c - 128;
-                u8[2 * pos] =     0xc0 | (u8c >> 6);
-                u8[2 * pos + 1] = 0x80 | (u8c & 0x3f);
+                u8[2 * pos] =     static_cast<char>(0xc0 | (u8c >> 6));
+                u8[2 * pos + 1] = static_cast<char>(0x80 | (u8c & 0x3f));
                     // Extra parentheses here to silence g++ warning.
                 ++nEightToSixteen;
             }
@@ -7722,14 +7735,14 @@ MARK
 // cout << prHexRange(u8, 0x800 - 0x80 + 1) << endl ;
 
             SrcSpec<char> source(u8, 0, Sizes::N_CHARS + 1);
-            convRslt expected(0, Sizes::N_CHARS + 1, Sizes::N_CHARS + 1);
+            ConvRslt expected(0, Sizes::N_CHARS + 1, Sizes::N_CHARS + 1);
                                             // Same # of symbols and words ...
 
             WorkPiece<unsigned short> wp(Sizes::TO_BUF_SIZE,
                                          source.d_dstBufSize,
                                          0xffff,
                                          BUFFER_ZONE);
-            convRslt result;
+            ConvRslt result;
 
             if (RUN_AND_CHECK(wp, u16, result, u8ToU16, source, expected)) {
                 for (unsigned u8c = 0x80; u8c < 0x800; ++u8c) {
@@ -7803,9 +7816,9 @@ MARK
                                                                 ++iSecond) {
                     for (unsigned iThird = 0x0 ; iThird < CONTIN_LIM ;
                                                                     ++iThird) {
-                        u8[pos++] = 0xe0 | iFirst;
-                        u8[pos++] = 0x80 | iSecond;
-                        u8[pos++] = 0x80 | iThird;
+                        u8[pos++] = static_cast<char>(0xe0 | iFirst);
+                        u8[pos++] = static_cast<char>(0x80 | iSecond);
+                        u8[pos++] = static_cast<char>(0x80 | iThird);
 
                         ++nEightToSixteen;
                     }
@@ -7818,13 +7831,13 @@ MARK
                                          // the null.  Note that all the
                                          // 16-bit chars will be single-word.
                 SrcSpec<char> source(u8, 0, nchar);
-                convRslt expected(0, nchar, nchar);
+                ConvRslt expected(0, nchar, nchar);
 
                 WorkPiece<unsigned short> wp(Sizes::TO_BUF_SIZE,
                                           source.d_dstBufSize,
                                           0xffff,
                                           BUFFER_ZONE);
-                convRslt result;
+                ConvRslt result;
 
                 if (! RUN_AND_CHECK(wp,
                                     u16,
@@ -7847,7 +7860,8 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                             unsigned val = iFirst << 12
                                          | iSecond << 6
                                          | iThird;
-                            unsigned short at = pos++;
+                            unsigned short at = static_cast<unsigned short>(
+                                                                        pos++);
 
                             if (! EXPECTED_GOT(val, wp.begin(u16)[at])) {
                                 cout << R_(iFirst) << R_(iSecond)
@@ -7924,10 +7938,10 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                                 ++iThird) {
                         for (unsigned iFourth = 0x0 ; iFourth < CONTIN_LIM;
                                                                    ++iFourth) {
-                            u8[pos++] = 0xf0 | iFirst;
-                            u8[pos++] = 0x80 | iSecond;
-                            u8[pos++] = 0x80 | iThird;
-                            u8[pos++] = 0x80 | iFourth;
+                            u8[pos++] = static_cast<char>(0xf0 | iFirst);
+                            u8[pos++] = static_cast<char>(0x80 | iSecond);
+                            u8[pos++] = static_cast<char>(0x80 | iThird);
+                            u8[pos++] = static_cast<char>(0x80 | iFourth);
 
                             ++nEightToSixteen;
                         }
@@ -7940,7 +7954,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                              // except for the null, will
                                              // require two words.
                     SrcSpec<char> source(u8, 0, nchar * 2 - 1);
-                    convRslt expected(0, nchar, nchar * 2 - 1); // The null is
+                    ConvRslt expected(0, nchar, nchar * 2 - 1); // The null is
                                                                 // still just
                                                                 // one word.
 
@@ -7948,7 +7962,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                  source.d_dstBufSize,
                                                  0xffff,
                                                  BUFFER_ZONE);
-                    convRslt result;
+                    ConvRslt result;
 
                     if (! RUN_AND_CHECK(wp,
                                        u16,
@@ -8058,20 +8072,20 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 
             // Create a character string with all legal single-octet u8 chars.
             for (unsigned u16c = 1 ; u16c < 0x80 ; ++u16c ) {
-                u16[u16c - 1] = u16c;
+                u16[u16c - 1] = static_cast<unsigned short>(u16c);
                 ++nSixteenToEight;
             }
 // cout << prHexRange(u16, sizeof(u16)/sizeof(u16[0])) << endl ;
             u16[127] = 0;
 
             SrcSpec<unsigned short> source(u16, 0, Sizes::N_CHARS + 1);
-            convRslt expected(0, 128, 128);  // 128 symbols, 128 octets copied.
+            ConvRslt expected(0, 128, 128);  // 128 symbols, 128 octets copied.
 
             WorkPiece<char> wp(Sizes::TO_BUF_SIZE,
                                source.d_dstBufSize,
-                               0xff,
+                               (char) 0xff,
                                BUFFER_ZONE);
-            convRslt result;
+            ConvRslt result;
 
             if (RUN_AND_CHECK(wp, u8, result, u16ToU8, source, expected)) {
 // cout << prHexRange(wp.begin(u8), wp.end(u8)) << endl ;
@@ -8115,7 +8129,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
             char           u8[Sizes::TO_BUF_SIZE];
 
             for (unsigned u16c = 0x80 ; u16c < 0x800 ; ++u16c ) {
-                 u16[u16c - 0x80] = u16c;
+                 u16[u16c - 0x80] = static_cast<unsigned short>(u16c);
                 ++nSixteenToEight;
             }
 // enum for the 0x800 - 127 constant
@@ -8123,14 +8137,14 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
 // cout << prHexRange(u16, 0x800 - 0x80 + 1) << endl ;
 
             SrcSpec<unsigned short> source(u16, 0, 2 * Sizes::N_CHARS + 1);
-            convRslt expected(0, Sizes::N_CHARS + 1, 2 * Sizes::N_CHARS + 1);
+            ConvRslt expected(0, Sizes::N_CHARS + 1, 2 * Sizes::N_CHARS + 1);
                 // Excluding the null, twice as many octets as symbols
 
             WorkPiece<char> wp(Sizes::TO_BUF_SIZE,
                                source.d_dstBufSize,
-                               0xff,
+                               (char) 0xff,
                                BUFFER_ZONE);
-            convRslt result;
+            ConvRslt result;
 
             if (RUN_AND_CHECK(wp, u8, result, u16ToU8, source, expected)) {
                 for (unsigned u8c = 0x80; u8c < 0x800; ++u8c) {
@@ -8196,9 +8210,10 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     for (unsigned iThird = 0x0 ; iThird < CONTIN_LIM ;
                                                                     ++iThird) {
 // cout << hex << R_(iSecond) << R_(iThird) << R(pos) << dec << endl ;
-                        u16[pos++] = deChar(iFirst) << 12
-                                   | deChar(iSecond) << 6
-                                   | deChar(iThird);
+                        u16[pos++] = static_cast<unsigned short>(
+                                                           deChar(iFirst) << 12
+                                                         | deChar(iSecond) << 6
+                                                         | deChar(iThird));
 
                         ++nSixteenToEight;
                     }
@@ -8210,13 +8225,13 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                          // the null.  Note that all the
                                          // 16-bit chars will be single-word.
                 SrcSpec<unsigned short> source(u16, 0, 3 * pos + 1);
-                convRslt expected(0, nchar, pos * 3 + 1);
+                ConvRslt expected(0, nchar, pos * 3 + 1);
 
                 WorkPiece<char> wp(Sizes::TO_BUF_SIZE,
                                 source.d_dstBufSize,
-                                0xff,
+                                (char) 0xff,
                                 BUFFER_ZONE);
-                convRslt result;
+                ConvRslt result;
 
                 if (! RUN_AND_CHECK(wp,
                                    u8,
@@ -8312,8 +8327,10 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                                    | (iSecond << 12)
                                                    | (iThird << 6)
                                                    | iFourth) - 0x10000;
-                            u16[pos++] = 0xd800 | (convBuf >> 10);
-                            u16[pos++] = 0xdc00 | (convBuf & 0x3ff);
+                            u16[pos++] = static_cast<unsigned short>(
+                                                   0xd800 | (convBuf >> 10));
+                            u16[pos++] = static_cast<unsigned short>(
+                                                   0xdc00 | (convBuf & 0x3ff));
 
                             ++nSixteenToEight;
                         }
@@ -8329,15 +8346,15 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                     SrcSpec<unsigned short> source(u16,
                                                    0,
                                                    4 * Sizes::N_CHARS + 1);
-                    convRslt expected(0, nchar, pos * 2 + 1); // The null is
+                    ConvRslt expected(0, nchar, pos * 2 + 1); // The null is
                                                               // still just
                                                               // one word.
 
                     WorkPiece<char> wp(Sizes::TO_BUF_SIZE,
                                        source.d_dstBufSize,
-                                       0xff,
+                                       (char) 0xff,
                                        BUFFER_ZONE);
-                    convRslt result;
+                    ConvRslt result;
 
                     if (! RUN_AND_CHECK(wp,
                                         u8,
@@ -8475,11 +8492,6 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                    // relationship should be checked (below).
         };
 
-        typedef int WorkPadTooSmall[WORKPAD_SIZE > BUFFER_ZONE * 2 + 5];
-            // This type should be illegal if the work pad is not big enough
-            // for the buffer zone and real workspace.
-// Subtest 1 -- 8 => 16, selected single-octet conversions.
-
         if (verbose) {
             cout << "\nTest 2a1: UTF-8 => UTF-16, selected "
                     "single-octet chars individually, four ways."
@@ -8503,7 +8515,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                 u8[1] = 0;
 
                 SrcSpec<char> source(u8, 0, 2);
-                convRslt expected(0, 2, 2);
+                ConvRslt expected(0, 2, 2);
 
                 FourWayRunner<unsigned short, char> runner(u16,
                                                   0xffff,
@@ -8558,7 +8570,7 @@ cout << "ran " << (unsigned) *c1i << " four ways." << endl ;
                 u8[2] = 0;
 
                 SrcSpec<char> source(u8, 0, 2);
-                convRslt expected(0, 2, 2);
+                ConvRslt expected(0, 2, 2);
 
                 FourWayRunner<unsigned short, char> runner(u16,
                                                            0xffff,
@@ -8634,7 +8646,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 #endif
 
                     SrcSpec<char> source(u8, 0, 2);
-                    convRslt expected(0, 2, 2);
+                    ConvRslt expected(0, 2, 2);
 
                     FourWayRunner<unsigned short, char> runner(u16,
                                                                0xffff,
@@ -8716,7 +8728,7 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 #endif
 
                         SrcSpec<char> source(u8, 0, 3);
-                        convRslt expected(0, 2, 3);
+                        ConvRslt expected(0, 2, 3);
 
                         FourWayRunner<unsigned short, char> runner(u16,
                                                           0xffff,
@@ -8789,10 +8801,10 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
                 u16[1] = 0;
 
                 SrcSpec<unsigned short> source(u16, 0, 2);
-                convRslt expected(0, 2, 2);
+                ConvRslt expected(0, 2, 2);
 
                 FourWayRunner<char, unsigned short> runner(u8,
-                                                  0xff,
+                                                  (char) 0xff,
                                                   BUFFER_ZONE,
                                                   source,
                                                   u16ToU8,
@@ -8839,15 +8851,15 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
                 AvCharList::iterator cCi = c2C[1];
 // cout << hex << "*c2i " << deChar(*c2i) << "  *cCi "
 //      << deChar(*cCi) << dec << endl ;
-                u16[0] = *c2i << 6 | *cCi;
+                u16[0] = static_cast<unsigned short>(*c2i << 6 | *cCi);
                 u16[1] = 0;
 // cout << hex << "u16[0] " << u16[0] << dec << endl ;
 
                 SrcSpec<unsigned short> source(u16, 0, 3);
-                convRslt expected(0, 2, 3);
+                ConvRslt expected(0, 2, 3);
 
                 FourWayRunner<char, unsigned short> runner(u8,
-                                                           0xff,
+                                                           (char) 0xff,
                                                            BUFFER_ZONE,
                                                            source,
                                                            u16ToU8,
@@ -8910,7 +8922,8 @@ cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
                 for (AvCharList::iterator cC3i = casesContin.begin();
                                                 cC3i != casesContin.end();
                                                                ++cC3i ) {
-                    u16[0] = *c3i << 12 | *cC2i << 6 | *cC3i;
+                    u16[0] = static_cast<unsigned short>(
+                                              *c3i << 12 | *cC2i << 6 | *cC3i);
                     u16[1] = 0;
 #if 0
 ArrayRange<char> SunFake(u8);
@@ -8918,10 +8931,10 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 #endif
 
                     SrcSpec<unsigned short> source(u16, 0, 4);
-                    convRslt expected(0, 2, 4);
+                    ConvRslt expected(0, 2, 4);
 
                     FourWayRunner<char, unsigned short> runner(u8,
-                                                               0xff,
+                                                               (char) 0xff,
                                                                BUFFER_ZONE,
                                                                source,
                                                                u16ToU8,
@@ -9003,15 +9016,17 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                               *cC2i << 12 |
                                               *cC3i << 6 |
                                               *cC4i ) - 0x10000 ;
-                    u16[0] = 0xd800 | ( iso10646 >> 10 );
-                    u16[1] = 0xdc00 | ( iso10646 & 0x3ff );
-                    u16[2] = 0;
+                    u16[0] = static_cast<unsigned short>(
+                                                 0xd800 | ( iso10646 >> 10 ));
+                    u16[1] = static_cast<unsigned short>(
+                                                 0xdc00 | ( iso10646 & 0x3ff));
+                    u16[2] = static_cast<unsigned short>(0);
 
                     SrcSpec<unsigned short> source(u16, 0, 5);
-                    convRslt expected(0, 2, 5);
+                    ConvRslt expected(0, 2, 5);
 
                     FourWayRunner<char, unsigned short> runner(u8,
-                                                               0xff,
+                                                               (char) 0xff,
                                                                BUFFER_ZONE,
                                                                source,
                                                                u16ToU8,
@@ -9144,7 +9159,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
         Conversion<unsigned short, char>
                                 u8ToU16(surrogateUtf8ToUtf16);
 
-#if BSLS_PLATFORM_OS_WINDOWS
         enum { BUFFER_ZONE = 256        // How much memory to check before and
                                         // after the output buffer, in order to
                                         // detect stray writes.
@@ -9154,17 +9168,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                         // large.  This works on the machines
                                         // at hand.
         };
-#else
-        enum { BUFFER_ZONE = 16 * 1024  // How much memory to check before and
-                                        // after the output buffer, in order to
-                                        // detect stray writes.
-                                        // In this test we use a large
-                                        // BUFFER_ZONE.  Some machines will
-                                        // dump core if a local array is too
-                                        // large.  This works on the machines
-                                        // at hand.
-        };
-#endif
 
 // @+@+@ MaT --- should find a way to get veryVerbose checks inside
 //               RUN_FOUR_WAYS
@@ -9182,13 +9185,13 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
             unsigned short u16[4][Sizes::TO_BUF_SIZE];
 
-            convRslt returned;    // This name gets printed by ASSERTs and
+            ConvRslt returned;    // This name gets printed by ASSERTs and
                                   // should indicate that its value is the one
                                   // actually generated.
 
             SrcSpec<char> source("", 0, 1);
 
-            convRslt expected(0, 1, 1);
+            ConvRslt expected(0, 1, 1);
 
             FourWayRunner<unsigned short, char> runner(u16,
                                                        0xffff,
@@ -9216,17 +9219,17 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
             char u8[4][Sizes::TO_BUF_SIZE];
 
-            convRslt returned;    // This name gets printed by ASSERTs and
+            ConvRslt returned;    // This name gets printed by ASSERTs and
                                   // should indicate that its value is the one
                                   // actually generated.
 
             unsigned short emptyString[1] = { 0, };
             SrcSpec<unsigned short> source(emptyString, 0, 1);
 
-            convRslt expected(0, 1, 1);
+            ConvRslt expected(0, 1, 1);
 
             FourWayRunner<char, unsigned short> runner(u8,
-                                                       0xff,
+                                                       static_cast<char>(0xff),
                                                        BUFFER_ZONE,
                                                        source,
                                                        u16ToU8,
@@ -9251,13 +9254,13 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
             unsigned short u16[4][Sizes::TO_BUF_SIZE];
 
-            convRslt returned;    // This name gets printed by ASSERTs and
+            ConvRslt returned;    // This name gets printed by ASSERTs and
                                   // should indicate that its value is the one
                                   // actually generated.
 
             SrcSpec<char> source("", 0, 0);
 
-            convRslt expected(2, 0, 0);
+            ConvRslt expected(2, 0, 0);
 
             FourWayRunner<unsigned short, char> runner(u16,
                                                        0xffff,
@@ -9285,17 +9288,17 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
 
             char u8[4][Sizes::TO_BUF_SIZE];
 
-            convRslt returned;    // This name gets printed by ASSERTs and
+            ConvRslt returned;    // This name gets printed by ASSERTs and
                                   // should indicate that its value is the one
                                   // actually generated.
 
             unsigned short emptyString[1] = { 0, };
             SrcSpec<unsigned short> source(emptyString, 0, 0);
 
-            convRslt expected(2, 0, 0);
+            ConvRslt expected(2, 0, 0);
 
             FourWayRunner<char, unsigned short> runner(u8,
-                                                       0xff,
+                                                       static_cast<char>(0xff),
                                                        BUFFER_ZONE,
                                                        source,
                                                        u16ToU8,
@@ -9523,10 +9526,10 @@ bool FourWayRunner<TO_CHAR, FROM_CHAR>::runFourWays(int line)
     //   pointer for the number of memory units, and (d) with nulls for both
     //   the number of characters and the number of memory units.
     //
-    //   For each of these cases, a clean copy of the expected 'convRslt' is
+    //   For each of these cases, a clean copy of the expected 'ConvRslt' is
     //   made and the 'runAndCheck' function is run, with the second parameter
     //   identifying which of four workpiece buffers and four returned
-    //   'convRslt''s is to be used.
+    //   'ConvRslt''s is to be used.
     //
     //   For each case, if the conversion and check succeed, a pointer to the
     //   output buffer is pushed onto a "string set".
@@ -9783,7 +9786,8 @@ void buildUpAndTestStringsU2ToU8(int             idx,
     outputCursor         += d.d_utf8CharacterLength;
     totalOutputLength    += d.d_utf8CharacterLength;
 
-    characterSizes[characterCount++] = d.d_utf8CharacterLength;
+    characterSizes[characterCount++] =
+                          static_cast<unsigned short>(d.d_utf8CharacterLength);
 
     for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU2ToU8(i,
@@ -11043,7 +11047,7 @@ int checkFill(ITER first, ITER last, CHAR_TYPE ch)
     return 1;
 }
 
-ostream& operator<<(ostream& os, const convRslt& cvr)
+ostream& operator<<(ostream& os, const ConvRslt& cvr)
 {
     ios_base::fmtflags flags = os.flags();
 
@@ -11149,7 +11153,7 @@ bool testOneErrorCharConversion(
 
     bool failed = false;
 
-    convRslt result;
+    ConvRslt result;
 
     // First, by itself, nothing around it.
 
@@ -11167,7 +11171,7 @@ bool testOneErrorCharConversion(
 
     SrcSpec<FROM_CHAR> source(fromBuf.begin(), 0, 1);  // No error char, output
                                                        // length 1 (the null)
-    convRslt expected(0x1, 1, 1);    // Illegal octet, one symbol, one
+    ConvRslt expected(0x1, 1, 1);    // Illegal octet, one symbol, one
                                      // memory unit (the null)
 
     WorkPiece<TO_CHAR> wp(toBuf.size(),
@@ -11220,7 +11224,7 @@ bool testOneErrorCharConversion(
     after[1] = '\0';
 
     source = SrcSpec<FROM_CHAR>(from, 0, 3); // No error char, output length 3
-    expected = convRslt(0x1, 3, 3);   // Illegal octet, three symbols,
+    expected = ConvRslt(0x1, 3, 3);   // Illegal octet, three symbols,
                                       // three memory units AB\0
 
     wp = WorkPiece<TO_CHAR>(toBuf.size(),
@@ -11271,7 +11275,7 @@ bool testOneErrorCharConversion(
 
     source = SrcSpec<FROM_CHAR>(from, '$', 2);  //  Error char '$',
                                                      //  output length 2
-    expected = convRslt(0x1, 2, 2);  // Illegal octet, two symbols
+    expected = ConvRslt(0x1, 2, 2);  // Illegal octet, two symbols
                                      // two words ('$' null)
 
     wp = WorkPiece<TO_CHAR>(toBuf.size(),
@@ -11324,7 +11328,7 @@ bool testOneErrorCharConversion(
 
     source = SrcSpec<FROM_CHAR>(from, '#', 4); // Error char '#',
                                                // output length 4
-        expected = convRslt(0x1, 4, 4);        // Illegal octet, four
+        expected = ConvRslt(0x1, 4, 4);        // Illegal octet, four
                                                // symbols, four words A#B\0
 
     wp = WorkPiece<TO_CHAR>(toBuf.size(),
@@ -11381,7 +11385,7 @@ bool oneStringConversion(
             FR_FILL_CHECK&           fromFillCheck, // Source and reference
                                                     // for checking the input
                                                     // string.
-            const convRslt&          expected)      // The expected set of
+            const ConvRslt&          expected)      // The expected set of
                                                     // return values from the
                                                     // conversion function.
     // The 'oneStringConversion' templated function invokes the conversions
@@ -11412,7 +11416,7 @@ bool oneStringConversion(
     // (Note: # is 0x23 .)
     SrcSpec<FR_CHAR> source(fromBuf.begin(), '#', bwp.size());
 
-    convRslt result;
+    ConvRslt result;
 
     if (! RUN_AND_CHECK(bwp.workpiece(),
                         bwp.buffer(),
