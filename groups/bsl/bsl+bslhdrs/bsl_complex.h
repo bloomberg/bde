@@ -28,55 +28,37 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
+
     using native_std::abs;
     using native_std::arg;
+    using native_std::complex;
+    using native_std::conj;
+    using native_std::cos;
+    using native_std::cosh;
+    using native_std::exp;
+    using native_std::imag;
+    using native_std::log;
+    using native_std::log10;
+    using native_std::norm;
+    using native_std::polar;
+    using native_std::pow;
+    using native_std::real;
+    using native_std::sin;
+    using native_std::sinh;
+    using native_std::sqrt;
+    using native_std::tan;
+    using native_std::tanh;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::basic_ios;
     using native_std::basic_iostream;
     using native_std::basic_istream;
     using native_std::basic_ostream;
     using native_std::basic_streambuf;
-    using native_std::complex;
-    using native_std::conj;
-    using native_std::cos;
-    using native_std::cosh;
-    using native_std::exp;
-    using native_std::imag;
     using native_std::ios_base;
     using native_std::istreambuf_iterator;
     using native_std::locale;
-    using native_std::log10;
-    using native_std::log;
-    using native_std::norm;
     using native_std::ostreambuf_iterator;
-    using native_std::polar;
-    using native_std::pow;
-    using native_std::real;
-    using native_std::sin;
-    using native_std::sinh;
-    using native_std::sqrt;
-    using native_std::tan;
-    using native_std::tanh;
-#else
-    using native_std::complex;
-    using native_std::real;
-    using native_std::imag;
-    using native_std::abs;
-    using native_std::arg;
-    using native_std::norm;
-    using native_std::conj;
-    using native_std::polar;
-    using native_std::exp;
-    using native_std::log;
-    using native_std::log10;
-    using native_std::pow;
-    using native_std::sqrt;
-    using native_std::sin;
-    using native_std::cos;
-    using native_std::tan;
-    using native_std::sinh;
-    using native_std::cosh;
-    using native_std::tanh;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 

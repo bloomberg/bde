@@ -28,7 +28,25 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
+
+
+    // These are declared in bslstl_iosfwd.h (so cannot be using declarations):
+    //..
+    //  using native_std::allocator;
+    //  using native_std::basic_istringstream;
+    //  using native_std::basic_ostringstream;
+    //  using native_std::basic_stringbuf
+    //  using native_std::basic_stringstream
+    //  using native_std::istringstream;
+    //  using native_std::ostringstream;
+    //  using native_std::stringbuf;
+    //  using native_std::stringstream;
+    //  using native_std::wistringstream;
+    //  using native_std::wostringstream;
+    //  using native_std::wstringbuf;
+    //  using native_std::wstringstream;
+    //..
+
     using native_std::basic_filebuf;
     using native_std::basic_fstream;
     using native_std::basic_ifstream;
@@ -63,42 +81,7 @@ namespace bsl
     using native_std::wostream;
     using native_std::wstreambuf;
     using native_std::wstreampos;
-#else
-    using native_std::basic_filebuf;
-    using native_std::basic_fstream;
-    using native_std::basic_ifstream;
-    using native_std::basic_ios;
-    using native_std::basic_iostream;
-    using native_std::basic_istream;
-    using native_std::basic_ofstream;
-    using native_std::basic_ostream;
-    using native_std::basic_streambuf;
-    using native_std::char_traits;
-    using native_std::filebuf;
-    using native_std::fpos;
-    using native_std::fstream;
-    using native_std::ifstream;
-    using native_std::ios;
-    using native_std::iostream;
-    using native_std::istream;
-    using native_std::istreambuf_iterator;
-    using native_std::ofstream;
-    using native_std::ostream;
-    using native_std::ostreambuf_iterator;
-    using native_std::streambuf;
-    using native_std::streamoff;
-    using native_std::streampos;
-    using native_std::wfilebuf;
-    using native_std::wfstream;
-    using native_std::wifstream;
-    using native_std::wios;
-    using native_std::wiostream;
-    using native_std::wistream;
-    using native_std::wofstream;
-    using native_std::wostream;
-    using native_std::wstreambuf;
-    using native_std::wstreampos;
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+   
 }
 
 // Include Bloomberg's implementation, unless compilation is configured to

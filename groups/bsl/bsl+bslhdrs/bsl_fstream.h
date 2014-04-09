@@ -28,15 +28,25 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
-    using native_std::bad_exception;
+
     using native_std::basic_filebuf;
     using native_std::basic_fstream;
     using native_std::basic_ifstream;
+    using native_std::basic_ofstream;
+    using native_std::filebuf;
+    using native_std::fstream;
+    using native_std::ifstream;
+    using native_std::ofstream;
+    using native_std::wfilebuf;
+    using native_std::wfstream;
+    using native_std::wifstream;
+    using native_std::wofstream;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
     using native_std::basic_istream;
-    using native_std::basic_ofstream;
     using native_std::basic_ostream;
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
@@ -49,11 +59,8 @@ namespace bsl
     using native_std::endl;
     using native_std::ends;
     using native_std::exception;
-    using native_std::filebuf;
     using native_std::flush;
     using native_std::forward_iterator_tag;
-    using native_std::fstream;
-    using native_std::ifstream;
     using native_std::input_iterator_tag;
     using native_std::ios_base;
     using native_std::istreambuf_iterator;
@@ -62,7 +69,6 @@ namespace bsl
     using native_std::num_get;
     using native_std::numpunct;
     using native_std::numpunct_byname;
-    using native_std::ofstream;
     using native_std::ostreambuf_iterator;
     using native_std::output_iterator_tag;
     using native_std::random_access_iterator_tag;
@@ -75,24 +81,7 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
-    using native_std::wfilebuf;
-    using native_std::wfstream;
-    using native_std::wifstream;
-    using native_std::wofstream;
     using native_std::ws;
-#else
-    using native_std::basic_filebuf;
-    using native_std::basic_fstream;
-    using native_std::basic_ifstream;
-    using native_std::basic_ofstream;
-    using native_std::filebuf;
-    using native_std::fstream;
-    using native_std::ifstream;
-    using native_std::ofstream;
-    using native_std::wfilebuf;
-    using native_std::wfstream;
-    using native_std::wifstream;
-    using native_std::wofstream;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 

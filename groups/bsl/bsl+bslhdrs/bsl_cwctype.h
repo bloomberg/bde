@@ -28,31 +28,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-#ifdef BDE_OMIT_INTERNAL_DEPRECATED
-    using native_std::wctype_t;
-    using native_std::wint_t;
-    using native_std::wctrans_t;
-    using native_std::towctrans;
-    using native_std::wctrans;
-    using native_std::wctype;
-    using native_std::iswctype;
-    using native_std::iswalnum;
-    using native_std::iswalpha;
-    using native_std::iswcntrl;
-    using native_std::iswdigit;
-    using native_std::iswgraph;
-    using native_std::iswlower;
-    using native_std::iswprint;
-    using native_std::iswpunct;
-    using native_std::iswspace;
-    using native_std::iswupper;
-    using native_std::iswxdigit;
-    using native_std::towlower;
-    using native_std::towupper;
-#else
-    using native_std::wctype_t;
-    using native_std::wint_t;
-    using native_std::wctrans_t;
+
     using native_std::iswalnum;
     using native_std::iswalpha;
     using native_std::iswcntrl;
@@ -69,8 +45,10 @@ namespace bsl
     using native_std::towlower;
     using native_std::towupper;
     using native_std::wctrans;
+    using native_std::wctrans_t;
     using native_std::wctype;
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+    using native_std::wctype_t;
+    using native_std::wint_t;
 }
 
 #endif
