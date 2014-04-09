@@ -38,6 +38,16 @@ namespace bsl
     using native_std::ctype_base;
     using native_std::ctype_byname;
     using native_std::has_facet;
+    using native_std::isalnum;
+    using native_std::iscntrl;
+    using native_std::isdigit;
+    using native_std::isgraph;
+    using native_std::islower;
+    using native_std::isprint;
+    using native_std::ispunct;
+    using native_std::isspace;
+    using native_std::isupper;
+    using native_std::isxdigit;
     using native_std::locale;
     using native_std::messages;
     using native_std::messages_base;
@@ -56,6 +66,8 @@ namespace bsl
     using native_std::time_get_byname;
     using native_std::time_put;
     using native_std::time_put_byname;
+    using native_std::tolower;
+    using native_std::toupper;
     using native_std::use_facet;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

@@ -37,14 +37,11 @@ namespace bsl
     using native_std::gmtime;
     using native_std::localtime;
     using native_std::mktime;
+    using native_std::size_t;
     using native_std::strftime;
     using native_std::time;
     using native_std::time_t;
     using native_std::tm;
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    using native_std::size_t;
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif

@@ -37,8 +37,8 @@ namespace bsl
     using native_std::cosh;
     using native_std::exp;
     using native_std::imag;
-    using native_std::log10;
     using native_std::log;
+    using native_std::log10;
     using native_std::norm;
     using native_std::polar;
     using native_std::pow;

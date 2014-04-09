@@ -38,6 +38,7 @@ namespace bsl
     // Import selected symbols into bsl namespace
 
     using native_std::basic_ios;
+    using native_std::fpos;
     using native_std::ios;
     using native_std::ios_base;
     using native_std::wios;
