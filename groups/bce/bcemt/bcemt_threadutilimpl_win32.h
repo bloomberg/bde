@@ -290,12 +290,21 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // 'threadHandle' within the current process.  Note that this value is
         // only valid until the thread terminates and may be reused thereafter.
 
+    static bsls::Types::Uint64 idAsUint64(const Id& threadId);
+        // Return the unique integral identifier of a thread uniquely
+        // identified by the specified 'threadId' within the current process.
+        // Note that this representation is particularly useful for logging
+        // purposes.  Also note that this value is only valid until the thread
+        // terminates and may be reused thereafter.
+
     static int idAsInt(const Id& threadId);
         // Return the unique integral identifier of a thread uniquely
         // identified by the specified 'threadId' within the current process.
-        // This representation is particularly useful for logging purposes.
-        // Note that this value is only valid until the thread terminates and
-        // may be reused thereafter.
+        // Note that this representation is particularly useful for logging
+        // purposes.  Also note that this value is only valid until the thread
+        // terminates and may be reused thereafter.
+        //
+        // DEPRECATED: use 'idAsUint64'.
 
     static bool areEqualId(const Id& a, const Id& b);
         // Return 'true' if the specified 'a' and 'b' thread id identify the
@@ -445,14 +454,14 @@ inline
 bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::selfIdAsInt()
 {
-    return static_cast<bsls::Types::Uint64>(selfId());
+    return idAsInt(selfId());
 }
 
 inline
 bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::selfIdAsUint64()
 {
-    return static_cast<bsls::Types::Uint64>(selfId());
+    return idAsUint64(selfId());
 }
 
 inline
@@ -461,6 +470,14 @@ bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::handleToId(
                                                     const Handle& threadHandle)
 {
     return threadHandle.d_id;
+}
+
+inline
+bsls::Types::Uint64
+bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::idAsUint64(
+                                                             const Id& threadId)
+{
+    return static_cast<bsls::Types::Uint64>(threadId);
 }
 
 inline

@@ -4,20 +4,22 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 
-#include <bdema_managedptr.h>
-#include <bdef_bind.h>
-#include <bdef_memfn.h>
+#include <bdesu_memoryutil.h>
 #include <bdesu_pathutil.h>
+
+#include <bdef_bind.h>
+#include <bdef_placeholder.h>
+#include <bdema_managedptr.h>
 #include <bdetu_epoch.h>
 #include <bdetu_systemtime.h> // for testing only
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
-
-#include <bsl_cstring.h>
+#include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
+#include <bsl_cstring.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #include <windows.h>
@@ -27,31 +29,29 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #define getcwd _getcwd
 #define chdir _chdir
 #define snprintf _snprintf
-#else
 
-#ifdef BSLS_PLATFORM_OS_HPUX
-#define _LARGEFILE64_SOURCE  // activates '64' variants of open() etc
-#endif
+#else // !BSLS_PLATFORM_OS_WINDOWS
 
+#include <bsl_c_errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <glob.h>
-#include <bsl_c_errno.h>
 #ifndef _POSIX_PTHREAD_SEMANTICS
 #define _POSIX_PTHREAD_SEMANTICS
 #endif
+#include <bsl_c_limits.h>
 #include <unistd.h>
 #include <dirent.h>
-#include <utime.h> // for testing only ... for now
 #include <sys/uio.h>
-#include <bsl_c_limits.h>
 #include <sys/resource.h>
 #include <sys/statvfs.h>
 #endif
 
-#include <bsl_algorithm.h>
+namespace BloombergLP {
+
+namespace {
 
 // STATIC HELPER FUNCTIONS
 static
@@ -117,7 +117,7 @@ extern "C" {
 }
 
 static
-int localFcntlLock(int fd, int cmd, int type)
+int localFcntlLock(int fd, int cmd, short int type)
 {
     int rc;
     do {
@@ -175,7 +175,7 @@ int makeDirectory(const char *path)
 {
     BSLS_ASSERT_SAFE(path);
 
-    // Permissions of created dir will by 'drwxrwxrwx', anded with '~umask'.
+    // Permissions of created dir will be 'drwxrwxrwx', ANDed with '~umask'.
 
     enum { PERMS = S_IRUSR | S_IWUSR | S_IXUSR |    // user   rwx
                    S_IRGRP | S_IWGRP | S_IXGRP |    // group  rwx
@@ -203,7 +203,7 @@ int removeFile(const char *path)
 
 #endif
 
-namespace BloombergLP {
+}  // close unnamed namespace
 
                               // ---------------------
                               // struct bdesu_FileUtil
@@ -381,7 +381,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool)  // 3rd arg is sync
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
+    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(addr) %
                      bdesu_MemoryUtil::pageSize());
 
 
@@ -425,7 +425,7 @@ int bdesu_FileUtil::move(const char *oldName, const char *newName)
     BSLS_ASSERT(newName);
 
     if (exists(newName)) {
-        DeleteFile(newName);
+        removeFile(newName);
     }
     return MoveFile(oldName, newName) ? 0 : -1;
 }
@@ -497,6 +497,7 @@ void bdesu_FileUtil::visitPaths(
         while (bdesu_PathUtil::hasLeaf(pattern)) {
             leaves.push_back(bsl::string());
             int rc = bdesu_PathUtil::getLeaf(&leaves.back(), pattern);
+            (void) rc;  // Used only in assert.
             BSLS_ASSERT(0 == rc);
             bdesu_PathUtil::popLeaf(&pattern);
         }
@@ -533,7 +534,7 @@ void bdesu_FileUtil::visitPaths(
         // No special characters except possibly in the leaf.  This is the BASE
         // CASE.
 
-        bsl::string dirNamePath = dirName.c_str();
+        bsl::string dirNamePath = dirName;
 
         WIN32_FIND_DATA findData;
         HANDLE handle = FindFirstFile(patternStr, &findData);
@@ -548,8 +549,11 @@ void bdesu_FileUtil::visitPaths(
                 // Do nothing
             }
             else if (0 != bdesu_PathUtil::appendIfValid(&dirNamePath,
-                                                        findData.cFileName)) {
-                //TBD
+                                                         findData.cFileName)) {
+                // Skip "can't happen" case: 'findData.cFileName' will never be
+                // an absolute path.
+
+                BSLS_ASSERT(!"FindFirstFile returned an absolute path.");
             }
             else {
                 visitor(dirNamePath.c_str());
@@ -581,11 +585,11 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 {
     BSLS_ASSERT(path);
 
-    __int64 avail;
-    if (!GetDiskFreeSpaceEx(path, (PULARGE_INTEGER)&avail, NULL, NULL)) {
+    ULARGE_INTEGER avail;
+    if (!GetDiskFreeSpaceEx(path, &avail, NULL, NULL)) {
         return -1;                                                    // RETURN
     }
-    return avail;
+    return static_cast<bdesu_FileUtil::Offset>(avail.QuadPart);
 }
 
 bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
@@ -661,12 +665,12 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD = -1;
 
 bdesu_FileUtil::FileDescriptor
-bdesu_FileUtil::open(const char *pathName,
+bdesu_FileUtil::open(const char *path,
                      bool        writableFlag,
                      bool        existFlag,
                      bool        appendFlag)
 {
-    BSLS_ASSERT(pathName);
+    BSLS_ASSERT(path);
 
     const int oflag = (writableFlag ? O_RDWR : O_RDONLY)
                       | (writableFlag && appendFlag ? O_APPEND : 0);
@@ -674,32 +678,25 @@ bdesu_FileUtil::open(const char *pathName,
     if (existFlag) {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
-        return ::open(  pathName, oflag);                             // RETURN
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-        // In 64-bit mode, HP-UX defines 'open64' to be 'open', which triggers
-        // a lookup failure here (since this class has members named 'open').
-        return ::open64(pathName, oflag);                             // RETURN
+        return ::open(  path, oflag);                                 // RETURN
 #else
-        return open64(  pathName, oflag);                             // RETURN
+        return open64(  path, oflag);                                 // RETURN
 #endif
     }
 
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
  || defined(BSLS_PLATFORM_OS_CYGWIN)
-    return ::open(  pathName, oflag | O_CREAT | O_TRUNC,
-        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-#elif defined(BSLS_PLATFORM_OS_HPUX)
-    return ::open64(pathName, oflag | O_CREAT | O_TRUNC,
+    return ::open(  path, oflag | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 #else
-    return open64(  pathName, oflag | O_CREAT | O_TRUNC,
+    return open64(  path, oflag | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 #endif
 }
 
-int bdesu_FileUtil::close(FileDescriptor fd)
+int bdesu_FileUtil::close(FileDescriptor descriptor)
 {
-    return ::close(fd);
+    return ::close(descriptor);
 }
 
 bdesu_FileUtil::Offset
@@ -727,36 +724,34 @@ bdesu_FileUtil::seek(FileDescriptor fd, Offset offset, int whence)
     }
 }
 
-int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
+int bdesu_FileUtil::remove(const char *path, bool recursive)
 {
-   BSLS_ASSERT(fileToRemove);
+   BSLS_ASSERT(path);
 
-   if (isDirectory(fileToRemove)) {
+   if (isDirectory(path)) {
       if (recursive) {
-         // What we'd LIKE to do here is findMatchingPaths("fileToRemove/*")
-         // and delete each one.  But glob(), on which findMatchingPaths()
-         // is built, will not include the name of a symbolic link if there
-         // is no file attached.  Thus a bad link would prevent a directory
-         // from being removed.  So instead we must open and read the
-         // directory ourselves and remove everything that's not "." or
-         // "..", checking for directories (*without* following links) and
-         // recursing as necessary.
-         DIR *dir = opendir(fileToRemove);
+         // What we'd LIKE to do here is findMatchingPaths("path/*") and delete
+         // each one.  But glob(), on which findMatchingPaths() is built, will
+         // not include the name of a symbolic link if there is no file
+         // attached.  Thus a bad link would prevent a directory from being
+         // removed.  So instead we must open and read the directory ourselves
+         // and remove everything that's not "." or "..", checking for
+         // directories (*without* following links) and recursing as necessary.
+         DIR *dir = opendir(path);
          if (0 == dir) {
             return -1;                                                // RETURN
          }
          bdema_ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
-         bsl::string path = fileToRemove;
+         bsl::string workingPath = path;
 
-         // The amount of space available in the 'd_name' member of
-         // the dirent struct is apparently "implementation-defined" and
-         // in particular is allowed to be less than the maximum
-         // path length (!).  The very C-style way to fix this is to make
-         // sure that there's lots of extra space available at the end of the
-         // struct (d_name is always the last member) so that strcpy can
-         // happily copy into it without instigating a buffer overrun attack
-         // against us =)
+         // The amount of space available in the 'd_name' member of the dirent
+         // struct is apparently "implementation-defined" and in particular is
+         // allowed to be less than the maximum path length (!).  The very
+         // C-style way to fix this is to make sure that there's lots of extra
+         // space available at the end of the struct (d_name is always the last
+         // member) so that strcpy can happily copy into it without instigating
+         // a buffer overrun attack against us =)
 
          enum {OVERFLOW_SIZE = 2048}; //probably excessive, but it's just stack
          union {
@@ -766,7 +761,7 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
 
          struct dirent& entry = entryHolder.d_entry;
          struct dirent *entry_p;
-         struct stat dummy;
+         struct stat64 dummy;
          int rc;
          do {
             rc = readdir_r(dir, &entry, &entry_p);
@@ -778,40 +773,40 @@ int bdesu_FileUtil::remove(const char *fileToRemove, bool recursive)
                continue;
             }
 
-            bdesu_PathUtil::appendRaw(&path, entry.d_name);
-            if (0 == lstat(path.c_str(), &dummy) &&
-                0 != remove(path.c_str(), true)) {
+            bdesu_PathUtil::appendRaw(&workingPath, entry.d_name);
+            if (0 == lstat64(workingPath.c_str(), &dummy) &&
+                0 != remove(workingPath.c_str(), true)) {
                return -1;                                             // RETURN
             }
-            bdesu_PathUtil::popLeaf(&path);
+            bdesu_PathUtil::popLeaf(&workingPath);
          } while (entry_p == &entry);
       }
 
-      return removeDirectory(fileToRemove);                           // RETURN
+      return removeDirectory(path);                                   // RETURN
    }
    else {
-      return removeFile(fileToRemove);                                // RETURN
+      return removeFile(path);                                        // RETURN
    }
 }
 
 int bdesu_FileUtil::read(FileDescriptor  fd,
                          void           *buf,
-                         int             numBytesToRead)
+                         int             numBytes)
 {
     BSLS_ASSERT(buf);
-    BSLS_ASSERT(0 <= numBytesToRead);
+    BSLS_ASSERT(0 <= numBytes);
 
-    return static_cast<int>(::read(fd, buf, numBytesToRead));
+    return static_cast<int>(::read(fd, buf, numBytes));
 }
 
 int bdesu_FileUtil::write(FileDescriptor  fd,
                           const void     *buf,
-                          int             numBytesToWrite)
+                          int             numBytes)
 {
     BSLS_ASSERT(buf);
-    BSLS_ASSERT(0 <= numBytesToWrite);
+    BSLS_ASSERT(0 <= numBytes);
 
-    return static_cast<int>(::write(fd, buf, numBytesToWrite));
+    return static_cast<int>(::write(fd, buf, numBytes));
 }
 
 int bdesu_FileUtil::map(FileDescriptor   fd,
@@ -838,17 +833,18 @@ int bdesu_FileUtil::map(FileDescriptor   fd,
     if (*addr == MAP_FAILED) {
         *addr = NULL;
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         return 0;                                                     // RETURN
     }
 }
 
-int  bdesu_FileUtil::unmap(void *addr, int len)
+int  bdesu_FileUtil::unmap(void *addr, int size)
 {
     BSLS_ASSERT(addr);
-    BSLS_ASSERT(0 <= len);
+    BSLS_ASSERT(0 <= size);
 
-    int rc = munmap((char *)addr, len);
+    int rc = munmap(static_cast<char *>(addr), size);
     return rc;
 }
 
@@ -857,7 +853,7 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
     BSLS_ASSERT(0 != addr);
     BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % bdesu_MemoryUtil::pageSize());
-    BSLS_ASSERT(0 == (bsls::Types::UintPtr)addr %
+    BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(addr) %
                      bdesu_MemoryUtil::pageSize());
 
     int rc = ::msync(addr, numBytes, sync ? MS_SYNC : MS_ASYNC);
@@ -890,19 +886,19 @@ int bdesu_FileUtil::unlock(FileDescriptor fd)
     return localFcntlLock(fd, F_SETLK, F_UNLCK) == -1 ? -1 : 0;
 }
 
-int bdesu_FileUtil::move(const char *oldName, const char *newName)
+int bdesu_FileUtil::move(const char *oldPath, const char *newPath)
 {
-    BSLS_ASSERT(oldName);
-    BSLS_ASSERT(newName);
+    BSLS_ASSERT(oldPath);
+    BSLS_ASSERT(newPath);
 
-    return rename(oldName, newName);
+    return rename(oldPath, newPath);
 }
 
-bool bdesu_FileUtil::exists(const char *pathName)
+bool bdesu_FileUtil::exists(const char *path)
 {
-    BSLS_ASSERT(pathName);
+    BSLS_ASSERT(path);
 
-    return access(pathName, F_OK) == 0;
+    return access(path, F_OK) == 0;
 }
 
 bool bdesu_FileUtil::isRegularFile(const char *path, bool followLinks)
@@ -966,7 +962,7 @@ void bdesu_FileUtil::visitPaths(
         return;                                                       // RETURN
     }
     if (GLOB_NOSPACE == rc) {
-        bslma::Allocator::throwBadAlloc();
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {
@@ -991,7 +987,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 #endif
     if (rc) {
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         // Cast arguments to Offset since the f_bavail and f_frsize fields
         // can be 32-bits, leading to overflow on even small disks.
         return Offset(buf.f_bavail) * Offset(buf.f_frsize);           // RETURN
@@ -1010,7 +1007,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
 #endif
     if (rc) {
         return -1;                                                    // RETURN
-    } else {
+    }
+    else {
         // Cast arguments to Offset since the f_bavail and f_frsize fields
         // can be 32-bits, leading to overflow on even small disks.
         return Offset(buf.f_bavail) * Offset(buf.f_frsize);           // RETURN
@@ -1037,7 +1035,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
 bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 {
 #if defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN) \
- || defined(BSLS_PLATFORM_OS_HPUX)    || defined(BSLS_PLATFORM_OS_CYGWIN)
+ || defined(BSLS_PLATFORM_OS_CYGWIN)
     struct rlimit rl, rlMax, rlInf;
     int rc = getrlimit(RLIMIT_FSIZE, &rl);
 #else
@@ -1054,9 +1052,11 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 
     if (rc) {
         return -1;                                                    // RETURN
-    } else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
+    }
+    else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
         return OFFSET_MAX;                                            // RETURN
-    } else {
+    }
+    else {
         return rl.rlim_cur;                                           // RETURN
     }
 }
@@ -1175,12 +1175,12 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
         return 0;                                                     // RETURN
     }
     if (reserve) {
-        char *buf = (char*)allocator_p->allocate(bufferSize);
+        char *buf = static_cast<char*>(allocator_p->allocate(bufferSize));
         bsl::memset(buf, 1, bufferSize);
         Offset bytesToGrow = size - currentSize;
         while (bytesToGrow > 0) {
             int nBytes = static_cast<int>(
-                                   bsl::min(bytesToGrow, (Offset)bufferSize));
+                       bsl::min(bytesToGrow, static_cast<Offset>(bufferSize)));
             int rc = write(fd, buf, nBytes);
             if (rc != nBytes) {
                 allocator_p->deallocate(buf);
@@ -1192,7 +1192,7 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
         return 0;                                                     // RETURN
     }
     Offset res = seek(fd, size-1, BDESU_SEEK_FROM_BEGINNING);
-    if (-1 == res || 1 != write(fd, (const void *)"", 1))
+    if (-1 == res || 1 != write(fd, "", 1))
     {
         return -1;                                                    // RETURN
     }
@@ -1209,7 +1209,7 @@ int bdesu_FileUtil::rollFileChain(const char *path, int maxSuffix)
 
     // Use a single allocation to insure exception neutrality.
 
-    char *buf      = (char*)allocator_p->allocate(2 * length);
+    char *buf      = static_cast<char*>(allocator_p->allocate(2 * length));
     char *fromName = buf;
     char *toName   = buf + length;
     snprintf(toName, length, "%s.%d", path, maxSuffix);

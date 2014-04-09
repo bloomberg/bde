@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 
     switch (test) {
         case 0:
-        case 13: {
+        case 14: {
             // ----------------------------------------------------------------
             // TESTING USAGE EXAMPLE
             //   The usage example provided in the component header file must
@@ -185,6 +185,86 @@ int main(int argc, char *argv[])
             }
 
         } break;
+        case 13: {
+            // ----------------------------------------------------------------
+            // TESTING STATIC isLocalBroadcastAddress FUNCTION:
+            //   'isLocalBroadcastAddress' returns nonzero if the input IP
+            //   address in dotted decimal notation refers to the address -1,
+            //   and 0 otherwise.
+            // Plan:
+            //   For a sequence of various IP addresses in various format,
+            //   for both -1 addresses and other addresses.
+            //
+            // Testing
+            //   static int isLocalBroadcastAddress(const char *address);
+            // ----------------------------------------------------------------
+
+            if (verbose) cout << "\nTesting STATIC isLocalBraodcastAddress "
+                              << "FUNCTION"
+                              << "\n=========================================="
+                              << "======"
+                              << endl;
+            {
+                static const struct {
+                    int          d_lineNum;    // line number
+                    const char*  d_ips;        // IP string
+                    bool         expect;       // Expected value
+                } VALUES[] = {
+                    //line         ips            expected
+                    //----  --------------------  --------
+                    // format a.b.c.d
+                    { L_,  "255.255.255.255",       true  },
+                    // format a.b.c
+                    { L_,  "255.255.65535",         true  },
+                    { L_,  "0xff.0377.65535",       true  },
+                    // format a.b
+                    { L_,  "255.16777215",          true  },
+                    { L_,  "0377.077777777",        true  },
+                    // format a
+                    { L_,  "4294967295",            true  },
+                    { L_,  "0xFFFFFFFF",            true  },
+                    { L_,  "037777777777",          true  },
+                    // Invalid address
+                    { L_,  "325.3.5.7",            false  },
+                    { L_,  "5.7.0x10000",          false  },
+                    { L_,  "5.0x1000000",          false  },
+                    { L_,  "akjfa;kdfjask",        false  },
+                    { L_,  "",                     false  },
+                    { L_,  ".",                    false  },
+                    { L_,  "...",                  false  },
+                    { L_,  "...........",          false  },
+                    { L_,  "1.1.1.1.1.1",          false  },
+                    { L_,  "11111.1.1.1",          false  },
+                    { L_,  "255.255.255.255.255",  false  },
+                    // Not -1
+                    { L_,  "255.255.255.255.",     false  },
+                    { L_,  "0xff.377.65535",       false  },
+                    { L_,  "0377..077777777",      false  },
+                    { L_,  "0.0.0.0",              false  },
+                    { L_,  "255.5127776",          false  },
+                    { L_,  "-1",                   false  },
+                    { L_,  "255.255.0.255",        false  }
+                };
+
+                const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
+                const int NUM_BAD = 14;
+
+                for (int i = 0; i < NUM_VALUES; ++i) {
+                    const int          LINE = VALUES[i].d_lineNum;
+                    const char        *IPS  = VALUES[i].d_ips;
+                    const bool         EXPECT = VALUES[i].expect;
+
+                    if (veryVerbose) {
+                        T_(); P(IPS);
+                    }
+
+                    LOOP2_ASSERT(i, LINE,
+                        EXPECT == (
+                        bteso_IPv4Address::isLocalBroadcastAddress(IPS) != 0));
+                }
+            }
+
+        } break;
         case 12: {
             // ----------------------------------------------------------------
             // TESTING STATIC isValid FUNCTION:
@@ -205,64 +285,55 @@ int main(int argc, char *argv[])
                 static const struct {
                     int          d_lineNum;    // line number
                     const char*  d_ips;        // IP string
+                    bool         d_valid; // Expected return value
                 } VALUES[] = {
-                    //line         ips
-                    //----  ------------------
+                    //line         ips          expected
+                    //----  ------------------  --------
                     // format a.b.c.d
-                    { L_,  "0.0.0.0"           },
-                    { L_,  "127.191.0xdF.0357" },
-                    { L_,  "127.191.0337.0xEf" },
-                    { L_,  "239.0x7f.0277.223" },
-                    { L_,  "239.0177.0xbf.223" },
-                    { L_,  "0xdf.0357.127.191" },
-                    { L_,  "0337.0xEf.127.191" },
-                    { L_,  "0277.223.239.0x7f" },
-                    { L_,  "0xBf.223.239.0177" },
-                    { L_,  "199.172.169.20"    },
+                    { L_,  "0.0.0.0"          ,   true  },
+                    { L_,  "127.191.0xdF.0357",   true  },
+                    { L_,  "127.191.0337.0xEf",   true  },
+                    { L_,  "239.0x7f.0277.223",   true  },
+                    { L_,  "239.0177.0xbf.223",   true  },
+                    { L_,  "0xdf.0357.127.191",   true  },
+                    { L_,  "0337.0xEf.127.191",   true  },
+                    { L_,  "0277.223.239.0x7f",   true  },
+                    { L_,  "0xBf.223.239.0177",   true  },
+                    { L_,  "199.172.169.20"   ,   true  },
+                    { L_,  "255.255.255.255"  ,   true  },
                     // format a.b.c
-                    { L_,  "199.172.43284"     },
-                    { L_,  "0xc7.0xaC.0124424" },
-                    { L_,  "0307.0254.0xa914"  },
+                    { L_,  "199.172.43284"    ,   true  },
+                    { L_,  "0xc7.0xaC.0124424",   true  },
+                    { L_,  "0307.0254.0xa914" ,   true  },
                     // format a.b
-                    { L_,  "199.11315476"      },
-                    { L_,  "0xc7.053124424"    },
-                    { L_,  "0307.0xAca914"     },
+                    { L_,  "199.11315476"     ,   true  },
+                    { L_,  "0xc7.053124424"   ,   true  },
+                    { L_,  "0307.0xAca914"    ,   true  },
                     // format a
-                    { L_,  "3349981460"        },
-                    { L_,  "030753124424"      },
-                    { L_,  "0xc7acA914"        },
+                    { L_,  "3349981460"       ,   true  },
+                    { L_,  "030753124424"     ,   true  },
+                    { L_,  "0xc7acA914"       ,   true  },
+                    { L_,  "0xffffffff"       ,   true  },
                     // Invalid address
-                    { L_,  "0xffffffff"        },
-                    { L_,  "325.3.5.7"         },
-                    { L_,  "5.7.0x10000"       },
-                    { L_,  "5.0x1000000"       },
-                    { L_,  "akjfa;kdfjask"     }
+                    { L_,  "325.3.5.7"        ,  false  },
+                    { L_,  "5.7.0x10000"      ,  false  },
+                    { L_,  "5.0x1000000"      ,  false  },
+                    { L_,  "akjfa;kdfjask"    ,  false  }
                 };
 
                 const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
-                for (int i = 0; i < NUM_VALUES - 5; ++i) {
-                    const int          LINE = VALUES[i].d_lineNum;
-                    const char        *IPS  = VALUES[i].d_ips;
+                for (int i = 0; i < NUM_VALUES; ++i) {
+                    const int          LINE   = VALUES[i].d_lineNum;
+                    const char        *IPS    = VALUES[i].d_ips;
+                    const bool         EXPECT = VALUES[i].d_valid;
 
                     if (veryVerbose) {
                         T_(); P(IPS);
                     }
 
                     LOOP2_ASSERT(i, LINE,
-                                 0 == bteso_IPv4Address::isValid(IPS));
-                }
-
-                for (int i = NUM_VALUES - 5; i < NUM_VALUES; ++i) {
-                    const int          LINE = VALUES[i].d_lineNum;
-                    const char        *IPS  = VALUES[i].d_ips;
-
-                    if (veryVerbose) {
-                        T_(); P(IPS);
-                    }
-
-                    LOOP2_ASSERT(i, LINE,
-                                 -1 == bteso_IPv4Address::isValid(IPS));
+                                 EXPECT == (0 == bteso_IPv4Address::isValid(IPS)));
                 }
             }
 
@@ -1270,7 +1341,6 @@ int main(int argc, char *argv[])
                     //line         ips
                     //----  ------------------
                     // Invalid address
-                    { L_,  "0xffffffff"        },
                     { L_,  "325.3.5.7"         },
                     { L_,  "5.7.0x10000"       },
                     { L_,  "5.0x1000000"       },

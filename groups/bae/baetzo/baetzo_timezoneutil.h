@@ -459,9 +459,9 @@ class bdet_DatetimeInterval;
 class baetzo_LocalTimePeriod;
 class baetzo_ZoneinfoCache;
 
-                        // =========================
-                        // class baetzo_TimeZoneUtil
-                        // =========================
+                        // ==========================
+                        // struct baetzo_TimeZoneUtil
+                        // ==========================
 
 struct baetzo_TimeZoneUtil {
     // This 'struct' provides a namespace for utility functions that convert
@@ -534,10 +534,10 @@ struct baetzo_TimeZoneUtil {
         // corresponding to the local time indicated by the specified 'srcTime'
         // (in the time zone indicated by the specified 'srcTimeZoneId').
         // Optionally specify a 'dstPolicy' indicating whether or not 'srcTime'
-        // represents a daylight-saving time value.  If no 'dstPolicy' is
-        // specified and 'srcTime' is a unique and valid time in the source
+        // represents a daylight-saving time value.  If 'dstPolicy' is
+        // unspecified and 'srcTime' is a unique and valid time in the source
         // time zone, then perform the conversion using that uniquely described
-        // time; if no 'dstPolicy' is specified and 'srcTime' is either
+        // time; if 'dstPolicy' is unspecified and 'srcTime' is either
         // ambiguous or invalid, then use the later of the two possible
         // interpretations of 'srcTime'.  The offset from UTC of both time
         // zones is rounded down to minute precision.  Return 0 on success, and
@@ -574,9 +574,9 @@ struct baetzo_TimeZoneUtil {
         // which to load the validity of 'localTime' as being unique, ambiguous
         // but valid, or invalid.  Optionally specify a 'dstPolicy' indicating
         // whether or not 'localTime' represents a daylight-saving time value.
-        // If no 'dstPolicy' is specified and 'localTime' is a unique and valid
+        // If 'dstPolicy' is unspecified and 'localTime' is a unique and valid
         // time in the source time zone, then perform the conversion using that
-        // uniquely described time; if no 'dstPolicy' is specified and
+        // uniquely described time; if 'dstPolicy' is unspecified and
         // 'localTime' is either ambiguous or invalid, then use the later of
         // the two possible interpretations of 'localTime'.  The offset from
         // UTC of the time zone is rounded down to minute precision.  Return 0
@@ -598,10 +598,10 @@ struct baetzo_TimeZoneUtil {
         // corresponds to the specified 'localTime' in the time zone indicated
         // by the specified 'timeZoneId'.  Optionally specify a 'dstPolicy'
         // indicating whether or not 'localTime' represents a daylight-saving
-        // time value.  If no 'dstPolicy' is specified and 'localTime' is a
+        // time value.  If 'dstPolicy' is unspecified and 'localTime' is a
         // unique and valid time in the source time zone, then perform the
-        // conversion using that uniquely described time; if no 'dstPolicy' is
-        // specified and 'localTime' is either ambiguous or invalid, then use
+        // conversion using that uniquely described time; if 'dstPolicy' is
+        // unspecified and 'localTime' is either ambiguous or invalid, then use
         // the later of the two possible interpretations of 'localTime'.  The
         // offset from UTC of the time zone is rounded down to minute
         // precision.  Return 0 on success, and a non-zero value with no effect
@@ -624,13 +624,12 @@ struct baetzo_TimeZoneUtil {
                                    const bdet_DatetimeTz&  localTime,
                                    const char             *timeZoneId);
         // Load, into the specified 'result', attributes characterizing the
-        // specified 'localTime' in the time time zone indicated by the
-        // specified 'timeZoneid' (i.e., the offset from UTC, whether
-        // daylight-saving time is in effect and the description of the time
-        // zone), as well as the time interval over which those attributes
-        // apply.  Return 0 on success, and a non-zero value with no effect
-        // otherwise.  A return value of
-        // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
+        // specified 'localTime' in the time zone indicated by the specified
+        // 'timeZoneId' (i.e., the offset from UTC, whether daylight-saving
+        // time is in effect and the description of the time zone), as well as
+        // the time interval over which those attributes apply.  Return 0 on
+        // success, and a non-zero value with no effect otherwise.  A return
+        // value of 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' was not recognized.
 
     static int loadLocalTimePeriodForUtc(baetzo_LocalTimePeriod *result,
@@ -693,9 +692,9 @@ struct baetzo_TimeZoneUtil {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -------------------------
-                        // class baetzo_TimeZoneUtil
-                        // -------------------------
+                        // --------------------------
+                        // struct baetzo_TimeZoneUtil
+                        // --------------------------
 
 // CLASS METHODS
 inline

@@ -89,14 +89,23 @@ BDES_IDENT("$Id: $")
 // By default, the timestamp attributes of published records are written in UTC
 // time.  If the default logging functor is in effect, this behavior can be
 // changed by calling 'enablePublishInLocalTime' which will cause timestamp
-// attributes to be written in local time instead.  This method will not have
-// the intended effect if the 'setLogFileFunctor' method has been called to
-// install an alternate logging functor from the default.  However, if the
-// functor passed to the 'setLogFileFunctor' method is provided by a
-// 'bael_RecordStringFormatter' object, the timestamp attribute of records can
-// be configured to be written in local time or UTC time as desired.  (See the
-// component-level documentation of 'bael_recordstringformatter' for more
-// information on configuring the format of log records.)
+// attributes to be written in local time instead.  The local time offset is
+// calculated using the UTC timestamp of each record.  Note that local time
+// offsets for the calculation of log file names (see {Log Filename Pattern})
+// use the local time offset in effect at construction.  Note that if the user
+// installs a log record formatting functor using 'setLogFileFunctor' (that is
+// not a 'bael_RecordStringFormatter' with 'PublishInLocalTime' enabled) the
+// supplied functor determines how local time values are rendered to the log.
+//
+///Local Time Offset Calculations
+/// - - - - - - - - - - - - - - -
+// The calculation of the local time offset adds some overhead to the
+// publication of each log record.  If that is problematic, the overhead can be
+// mitigated if the owner of 'main installs a high-performance local-time
+// offset callback for 'bdetu_SystemTime'.  See {'bdetu_systemtime'} for
+// details of installing such callback and see {'baetzo_localtimeoffsetutil'}
+// for a an example facility.  Note that such callbacks can improve performance
+// for all users of 'bdetu_SystemTime', not just logging.
 //
 ///Log Filename Pattern
 ///--------------------
@@ -312,6 +321,7 @@ class bael_FileObserver2 : public bael_Observer {
 
     bdet_DatetimeInterval  d_localTimeOffset;          // differential between
                                                        // local and UTC times
+                                                       // at construction
 
     bool                   d_publishInLocalTime;       // 'true' if timestamp
                                                        // attribute published
@@ -511,14 +521,15 @@ class bael_FileObserver2 : public bael_Observer {
         // Set this file observer to perform a periodic log-file rotation at
         // multiples of the specified 'interval'.  Optionally, specify
         // 'referenceStartTime' indicating the *local* datetime to use as the
-        // starting point for computing the periodic rotation schedule.  If
-        // 'referenceStartTime' is unspecified, the current time is used.  The
-        // behavior is undefined unless '0 < interval.totalMilliseconds()'.
-        // This rule replaces any rotation-on-time-interval rule currently in
-        // effect.  Note that 'referenceStartTime' may be a fixed time in the
-        // past.  E.g., a reference time of 'bdet_Datetime(1, 1, 1)' and an
-        // interval of 24 hours would configure a periodic rotation at midnight
-        // each day.
+        // starting point for computing the periodic rotation schedule.
+        // 'referenceStartTime' is interpreted using the local-time offset at
+        // the time this object was constructed.  If 'referenceStartTime' is
+        // unspecified, the current time is used.  The behavior is undefined
+        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
+        // rotation-on-time-interval rule currently in effect.  Note that
+        // 'referenceStartTime' may be a fixed time in the past.  E.g., a
+        // reference time of 'bdet_Datetime(1, 1, 1)' and an interval of 24
+        // hours would configure a periodic rotation at midnight each day.
 
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file

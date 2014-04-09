@@ -7382,7 +7382,7 @@ static void testCase23(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             bslma::TestAllocator testAllocator(veryVeryVerbose);
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
-         BEGIN_BSLMA_EXCEPTION_TEST {
+         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
             bslma::TestAllocator alloc(veryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&alloc);
@@ -7466,7 +7466,7 @@ static void testCase23(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 LOOP_ASSERT(LINE, isUnset(Y.asElemRef()));
             }
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
-         } END_BSLMA_EXCEPTION_TEST
+         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
         }
 }
@@ -7631,7 +7631,7 @@ static void testCase22(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             if (veryVerbose) { T_ P_(SPEC) P(SCHEMA) P(X) P(Y) };
 
             bslma::TestAllocator testAllocator(veryVeryVerbose);
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             const int BYTES = t.numBytesInUse();
 
             // Testing cloneData
@@ -7762,7 +7762,7 @@ static void testCase22(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 ASSERT(!Obj::areIdentical(W, Y));
                 ASSERT( Obj::areEquivalent(W, Y));
             }
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 }
 
@@ -7915,7 +7915,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             Obj mU = X.field(fldName); const Obj& U = mU;
             Obj mV = Y.field(fldName); const Obj& V = mV;
 
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             bslma::TestAllocator alloc1(veryVeryVerbose);
             bslma::DefaultAllocatorGuard allocGuard(&alloc1);
 
@@ -7937,7 +7937,7 @@ static void testCase21(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 mA.makeNull();
                 ASSERT(Obj::areIdentical(B, V));
             }
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 }
 
@@ -8603,7 +8603,7 @@ static void testCase18(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
             Obj mX(CRP, &testAllocator); const Obj& X = mX;
 
@@ -8692,7 +8692,7 @@ static void testCase18(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             ASSERT(0 == A.length());
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
         }
 }
@@ -8873,7 +8873,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
 
@@ -8959,7 +8959,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 ASSERT(0 == A.length());
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
           }
         }
@@ -9007,7 +9007,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
 
@@ -9050,7 +9050,7 @@ static void testCase17(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 mA.removeItems(0, 1);
                 ASSERT(LEN + 0 == A.length());
 #ifndef BSLS_PLATFORM_CMP_MSVC
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
           }
         }
@@ -9233,7 +9233,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 bslma::TestAllocator testAllocator;
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
                 Obj mY(CRP, &testAllocator); const Obj& Y = mY;
@@ -9323,7 +9323,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 ASSERT(IS_NULL == B[3].isNul2());
                 ASSERT(Obj::areEquivalent(ret, B[3]));
 #ifndef BSLS_PLATFORM_CMP_MSVC
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
             }
         }
@@ -9374,7 +9374,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 bslma::TestAllocator testAllocator(veryVeryVerbose);
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                 Obj mX(CRP, &testAllocator); const Obj& X = mX;
                 Obj mY(CRP, &testAllocator); const Obj& Y = mY;
@@ -9440,7 +9440,7 @@ static void testCase16(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 ASSERT(Obj::areEquivalent(ret, B[LEN + 3]));
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
             }
         }
@@ -9581,7 +9581,7 @@ static void testCase15(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
             bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mX(CRP, &testAllocator); const Obj& X = mX;
 
             Obj mA = X.field(fldName); const Obj& A = mA;
@@ -9633,7 +9633,7 @@ static void testCase15(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             mA.resize(0);
             ASSERT(0 == A.length());
 
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 }
 
@@ -10703,7 +10703,7 @@ static void testCase12(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                     P(A) P(B)
                 }
 
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 mB = A;
                 LOOP2_ASSERT(LINE1, LINE2, Obj::areIdentical(A, B));
 
@@ -10712,7 +10712,7 @@ static void testCase12(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 mB.makeNull();
                 LOOP2_ASSERT(LINE1, LINE2, Obj::areIdentical(A, B));
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 }
@@ -11211,7 +11211,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bslma::TestAllocator da("da");
             bslma::TestAllocator testAllocator("ta", veryVeryVerbose);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 bslma::DefaultAllocatorGuard allocGuard(&da);
 
                 Obj mA(TYPE, CEA, &testAllocator); const Obj& A = mA;
@@ -11235,7 +11235,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 LOOP_ASSERT(TYPE, TYPE == D.dataType());
                 LOOP_ASSERT(TYPE, ConstRecDefShdPtr() == D.recordDefPtr());
                 LOOP_ASSERT(TYPE, CEA  == D.asElemRef());
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                   }
 
         // Test error messages (Invalid conversion)
@@ -11331,7 +11331,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             bslma::TestAllocator da("da");
             bslma::TestAllocator testAllocator("ta", veryVeryVerbose);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 // Test constructor that are explicitly supplied a ctor
                 {
                     bslma::DefaultAllocatorGuard allocGuard(&da);
@@ -11638,7 +11638,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                         ASSERT(CHOICE_ARRAY == Z.asElemRef().theChoiceArray());
                     }
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                   }
     }
     if (verbose) tst::cout << "\nTest Constructor taking meta-data & data"
@@ -11723,7 +11723,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     bslma::DefaultAllocatorGuard allocGuard(&testAllocator);
 
                     Obj mA(CRP, ET::BDEM_LIST);             const Obj& A = mA;
@@ -11797,7 +11797,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                     ASSERT(*ROW.ptr() == D.asElemRef().theList().row());
                     ASSERT(TABLE      == E.asElemRef().theTable());
                     ASSERT(TABLE      == F.asElemRef().theTable());
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
             else {
                 Choice choice; const Choice& CHOICE = choice;
@@ -11815,7 +11815,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     bslma::DefaultAllocatorGuard allocGuard(&testAllocator);
 
                     Obj mA(CRP, ET::BDEM_CHOICE);
@@ -11901,7 +11901,7 @@ static void testCase10(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                     ASSERT(CHOICE.item() == D.asElemRef().theChoice().item());
                     ASSERT(CHOICE_ARRAY  == E.asElemRef().theChoiceArray());
                     ASSERT(CHOICE_ARRAY  == F.asElemRef().theChoiceArray());
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
     }

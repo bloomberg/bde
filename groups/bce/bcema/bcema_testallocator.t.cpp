@@ -406,7 +406,7 @@ int main(int argc, char *argv[]) {
             const int    NUM_ELEM = DATA[ti].d_numElem;
             const short *EXP      = DATA[ti].d_exp;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 my_ShortArray mA(&testAllocator);
                 const my_ShortArray& A = mA;
                 for (int ei = 0; ei < NUM_ELEM; ++ei) {
@@ -414,7 +414,7 @@ int main(int argc, char *argv[]) {
                 }
                 if (veryVerbose) { P_(ti); P_(NUM_ELEM); P(A); }
                 LOOP2_ASSERT(LINE, ti, areEqual(EXP, A, NUM_ELEM));
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (veryVerbose) cout << testAllocator << endl;

@@ -2,6 +2,18 @@
 
 #include <bteso_lingeroptions.h>
 
+#include <bteso_platform.h>
+
+#include <bsls_platform.h>
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+#include <sys/socket.h>
+#else
+//#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>  // This include *must* *transitively* predeced windows.h
+#include <windows.h>
+#endif
+
 #include <bdex_instreamfunctions.h>
 #include <bdex_outstreamfunctions.h>
 #include <bdex_testinstream.h>
@@ -11,23 +23,14 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
-#include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
-#include <bsl_cstdlib.h>
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
-
 #include <bslalg_hastrait.h>
 
 #include <bsls_asserttest.h>
 
-#include <bsls_platform.h>
-#include <bteso_platform.h>
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-#include <sys/socket.h>
-#else
-#include <windows.h>
-#endif
+#include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
+#include <bsl_cstdlib.h>
+#include <bsl_iostream.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 using namespace bsl;

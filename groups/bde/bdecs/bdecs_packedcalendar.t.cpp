@@ -4314,7 +4314,7 @@ DEFINE_TEST_CASE(11) {
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
             for (int i = 0; i < NUM_DATA; ++i) {
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int DFIRST = DATA[i].d_first;
                 const int DLAST  = DATA[i].d_last;
 
@@ -4335,7 +4335,7 @@ DEFINE_TEST_CASE(11) {
                 }
                 LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
                 LOOP_ASSERT(i, X.numWeekendDaysTransitions() == 0);
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
@@ -7867,12 +7867,12 @@ DEFINE_TEST_CASE(2) {
         {
             if (verbose) cout << "\twith a specified allocator and exceptions"
                               << endl;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int previousTotal = testAllocator.numBlocksTotal();
                 const Obj X(&testAllocator);
                 ASSERT(0 == X.length());
                 ASSERT(testAllocator.numBlocksTotal() >= previousTotal);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << "\nTesting 'addDay'." << endl;

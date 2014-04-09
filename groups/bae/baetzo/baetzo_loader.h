@@ -22,16 +22,14 @@ BDES_IDENT("$Id: $")
 // describing the time zone identified by a user supplied time-zone string
 // identifier.
 //
-///Populating a 'baetzo_Zoneinfo'
-///------------------------------
-// Although not contractually guaranteed, typical implementations of
-// 'baetzo_Loader' should return a 'baetzo_Zoneinfo' object that is
-// well-formed (see 'baetzo_ZoneinfoUtil::isWellFormed'), and whose
+///Properties of a Populated 'baetzo_Zoneinfo'
+///-------------------------------------------
+// Implementations of 'baetzo_Loader' must return a 'baetzo_Zoneinfo' object
+// that is well-formed (see 'baetzo_ZoneinfoUtil::isWellFormed'), and whose
 // 'identifier' property matches the requested time zone id.  Implementations
 // not meeting these constraints will generally not interoperate with other
 // components in this package that enforce those constraints on provided
-// 'baetzo_Zoneinfo' objects, e.g., 'baetzo_zoneinfocache' (though such
-// loaders they may be used for testing).
+// 'baetzo_Zoneinfo' objects, e.g., 'baetzo_zoneinfocache'.
 //
 ///Usage
 ///-----
@@ -107,7 +105,7 @@ BDES_IDENT("$Id: $")
 //..
 // Next, we create a series of transitions between these local time descriptors
 // for the years 2007-2011.  Note that the United States transitions to
-// daylight savings time on the second Sunday in March, at 2am local time (7am
+// daylight saving time on the second Sunday in March, at 2am local time (7am
 // UTC), and transition back to standard time on the first Sunday in November
 // at 2am local time (6am UTC), resulting in an even number of transitions.
 // Also note that, the rules for generating these transitions were changed in
@@ -176,7 +174,7 @@ BDES_IDENT("$Id: $")
 //  assert("America/New_York" == nyTimeZone.identifier());
 //..
 // Finally, we write to standard output the information about the
-// daylight-savings time transitions of the loaded time zone, in New York local
+// daylight-saving time transitions of the loaded time zone, in New York local
 // time:
 //..
 //  baetzo_Zoneinfo::TransitionConstIterator tIt =
@@ -238,11 +236,11 @@ class baetzo_Loader {
         // 'baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID' indicates that
         // 'timeZoneId' is not recognized.  If an error occurs during this
         // operation, 'result' will be left in a valid, but otherwise
-        // unspecified state.  Note that concrete implementations should
-        // typically populate 'result' such that it is well-formed (see
-        // 'baetzo_ZoneinfoUtil::isWellFormed') and 'result->identifier()' is
-        // 'timeZoneId', otherwise the provided 'result' may not be usable by
-        // other components in this package (e.g., 'baetzo_zoneinfocache').
+        // unspecified state.  On return, 'result' will be well-formed (see
+        // 'baetzo_ZoneinfoUtil::isWellFormed') and 'result->identifier()'
+        // will be 'timeZoneId' (concrete implementations not meeting those
+        // constraints will not be usable by other other components in this
+        // package -- e.g., 'baetzo_zoneinfocache').
 };
 
 // ============================================================================

@@ -163,7 +163,7 @@
     <element name='Allow' type ='http:HttpRequestMethod' minOccurs='0' maxOccurs='unbounded'/>
     <element name='Content-Encoding' type ='string' minOccurs='0' maxOccurs='unbounded'/>
     <element name='Content-Language' type ='string' minOccurs='0' maxOccurs='unbounded'/>
-    <element name='Content-Length' type ='int' minOccurs='0' maxOccurs='1'/>
+    <element name='Content-Length' type ='long' minOccurs='0' maxOccurs='1'/>
     <element name='Content-Location' type ='string' minOccurs='0' maxOccurs='1'/>
     <element name='Content-MD5' type ='string' minOccurs='0' maxOccurs='1'/>
     <element name='Content-Range' type ='string' minOccurs='0' maxOccurs='1'/>

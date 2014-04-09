@@ -102,7 +102,8 @@ using namespace bsl;  // automatically added by script
 //--------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -218,11 +219,10 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
         bdesb_MemOutStreamBuf d_streamBuf;  // buffer to write to
 
         friend
-        my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-                                          char                    data);
+        my_CapitalizingStream& operator<<(my_CapitalizingStream&, char);
         friend
-        my_CapitalizingStream& operator<<(my_CapitalizingStream&  stream,
-                                          const char             *data);
+        my_CapitalizingStream& operator<<(my_CapitalizingStream&,
+                                          const char *);
 
       public:
         // CREATORS
@@ -476,6 +476,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting seekoff from beginning and end."
                           << endl;
 
+#ifdef IN // 'IN' and 'OUT'  are #define'd in a windows header
+#undef IN
+#undef OUT
+#endif
         const int OUT = bsl::ios_base::out;
         const int IN  = bsl::ios_base::in;
         const int CUR = bsl::ios_base::cur;

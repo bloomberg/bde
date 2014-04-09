@@ -14,17 +14,17 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: John Lakos (jlakos)
 //
-//@DESCRIPTION: The 'bdet_month' component provides a namespace for a suite of
+//@DESCRIPTION: The 'bdetu_month' component provides a namespace for a suite of
 // pure procedures that operate directly on months of the year
-// ('bdet_Month::Month').  For example,
+// ('bdet_MonthOfYear::Month').  For example,
 //..
-//   bdet_Date nextMonth(bdet_Month::Month month, const bdet_Date& date)
+//   bdet_Date nextMonth(bdet_MonthOfYear::Month month, const bdet_Date& date)
 //..
 // returns the first date greater than the specified date, that falls in the
 // specified month and has the largest valid day-of-month less than or equal to
 // that of date, while
 //..
-//   bdet_Date ceilMonth(bdet_Month::Month month, const bdet_Date& date)
+//   bdet_Date ceilMonth(bdet_MonthOfYear::Month month, const bdet_Date& date)
 //..
 // returns the first date greater than OR EQUAL TO the specified date, that
 // falls in the specified month and has the largest valid day-of-month less
@@ -82,44 +82,49 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDET_MONTH
-#include <bdet_month.h>
-#endif
-
 #ifndef INCLUDED_BDET_DATE
 #include <bdet_date.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifndef INCLUDED_BDET_MONTH
+#include <bdet_month.h>
+#endif
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BDET_MONTHOFYEAR
+#include <bdet_monthofyear.h>
+#endif
 
 namespace BloombergLP {
 
 
 struct bdetu_Month {
     // Provide a namespace for a suite of non-primitive operations on months of
-    // the year ('bdet_Month::Month').  Note that the day-of-month is rounded
-    // down if necessary to produce a valid result date only after the final
-    // month and year are determined.  Note that the initial day-of-month never
-    // has any effect on the resulting month or year.
+    // the year ('bdet_MonthOfYear::Month').  Note that the day-of-month is
+    // rounded down if necessary to produce a valid result date only after the
+    // final month and year are determined.  Note that the initial day-of-month
+    // never has any effect on the resulting month or year.
 
-    static int numMonthsInRange(bdet_Month::Month month,
-                                const bdet_Date&  date1,
-                                const bdet_Date&  date2);
+    static int numMonthsInRange(bdet_MonthOfYear::Month month,
+                                const bdet_Date&        date1,
+                                const bdet_Date&        date2);
         // Return the number of months in the range beginning with
         // [date1.year(), date1.month()] up to and including [date2.year(),
         // date2.month()] equal to the specified 'month', or 0 if
         // [date1.year(), date1.month()] > [date2.year(), date2.month()].  Note
         // that 'date1.day()' and 'date2.day()' are ignored.
 
-    static bdet_Date nextMonth(bdet_Month::Month month,
-                               const bdet_Date&  initialDate);
+    static bdet_Date nextMonth(bdet_MonthOfYear::Month month,
+                               const bdet_Date&        initialDate);
         // Return the first date greater than the specified 'initialDate' that
         // falls in the specified 'month' and has the largest valid
         // day-of-month less than or equal to that of 'initialDate'.  The
         // behavior is undefined unless the resulting date does not exceed
         // 9999DEC31 and does not fall in the range [1752SEP03 .. 1752SEP13].
 
-    static bdet_Date ceilMonth(bdet_Month::Month month,
-                               const bdet_Date&  initialDate);
+    static bdet_Date ceilMonth(bdet_MonthOfYear::Month month,
+                               const bdet_Date&        initialDate);
         // Return the first date greater than OR EQUAL TO the specified
         // 'initialDate' that falls in the specified 'month' and has the
         // largest valid day-of-month less than or equal to that of
@@ -127,16 +132,16 @@ struct bdetu_Month {
         // does not exceed 9999DEC31 and does not fall in the range
         // [1752SEP03 .. 1752SEP13].
 
-    static bdet_Date previousMonth(bdet_Month::Month month,
-                                   const bdet_Date&  initialDate);
+    static bdet_Date previousMonth(bdet_MonthOfYear::Month month,
+                                   const bdet_Date&        initialDate);
         // Return the first date less than the specified 'initialDate' that
         // falls in the specified 'month' and has the largest valid
         // day-of-month less than or equal to that of 'initialDate'.  The
         // behavior is undefined unless the resulting date does not precede
         // 0001JAN01 and does not fall in the range [1752SEP03 .. 1752SEP13].
 
-    static bdet_Date floorMonth(bdet_Month::Month month,
-                                const bdet_Date&  initialDate);
+    static bdet_Date floorMonth(bdet_MonthOfYear::Month month,
+                                const bdet_Date&        initialDate);
         // Return the first date less than OR EQUAL TO the specified
         // 'initialDate' that falls in the specified 'month' and has the
         // largest valid day-of-month less than or equal to that of
@@ -144,9 +149,9 @@ struct bdetu_Month {
         // does not precede 0001JAN01 and does not fall in the range
         // [1752SEP03 .. 1752SEP13].
 
-    static bdet_Date adjustMonth(bdet_Month::Month month,
-                                 const bdet_Date&  initialDate,
-                                 int               count);
+    static bdet_Date adjustMonth(bdet_MonthOfYear::Month month,
+                                 const bdet_Date&        initialDate,
+                                 int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count > 0') or before ('count < 0')
         // the specified 'initialDate' with the largest valid day-of-month less
@@ -156,9 +161,9 @@ struct bdetu_Month {
         // a count of 1 or -1, the behavior of this function is identical to
         // 'nextMonth' and 'previousMonth', respectively.
 
-    static bdet_Date ceilAdjustMonth(bdet_Month::Month month,
-                                     const bdet_Date&  initialDate,
-                                     int               count);
+    static bdet_Date ceilAdjustMonth(bdet_MonthOfYear::Month month,
+                                     const bdet_Date&        initialDate,
+                                     int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count >= 0') or before ('count < 0')
         // the first month greater than OR EQUAL TO that of the specified
@@ -173,9 +178,9 @@ struct bdetu_Month {
         //      2000FEB28 <- ceilAdjustMonth2(FEB, 2002JAN31, -2)
         //..
 
-    static bdet_Date ceilAdjustMonth2(bdet_Month::Month month,
-                                      const bdet_Date&  initialDate,
-                                      int               count);
+    static bdet_Date ceilAdjustMonth2(bdet_MonthOfYear::Month month,
+                                      const bdet_Date&        initialDate,
+                                      int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count >= 0') or before ('count < 0')
         // the first month greater than OR EQUAL TO that of the specified
@@ -197,9 +202,9 @@ struct bdetu_Month {
         //      2000FEB28 <- ceilAdjustMonth2(FEB, 2002JAN31, -2)
         //..
 
-    static bdet_Date floorAdjustMonth(bdet_Month::Month month,
-                                      const bdet_Date&  initialDate,
-                                      int               count);
+    static bdet_Date floorAdjustMonth(bdet_MonthOfYear::Month month,
+                                      const bdet_Date&        initialDate,
+                                      int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count >= 0') or before ('count < 0')
         // the first month less than OR EQUAL TO that of the specified
@@ -214,9 +219,9 @@ struct bdetu_Month {
         //      2000FEB28 <- floorAdjustMonth2(FEB, 2002MAR31, -2)
         //..
 
-    static bdet_Date floorAdjustMonth2(bdet_Month::Month month,
-                                       const bdet_Date&  initialDate,
-                                       int               count);
+    static bdet_Date floorAdjustMonth2(bdet_MonthOfYear::Month month,
+                                       const bdet_Date&        initialDate,
+                                       int                     count);
         // Return the date that falls on the specified 'count'th occurrence of
         // the specified 'month' after ('count >= 0') or before ('count < 0')
         // the first month less than OR EQUAL TO that of the specified
@@ -238,8 +243,9 @@ struct bdetu_Month {
         //      2000FEB28 <- floorAdjustMonth2(FEB, 2002MAR31, -2)
         //..
 
-    static bdet_Date ceilOrPreviousMonthInYear(bdet_Month::Month month,
-                                               const bdet_Date&  initialDate);
+    static bdet_Date ceilOrPreviousMonthInYear(
+                                          bdet_MonthOfYear::Month month,
+                                          const bdet_Date&        initialDate);
         // Return the first date greater than OR EQUAL TO the specified
         // 'initialDate' in the same year that falls in the specified 'month'
         // with the largest valid day-of-month less than or equal to that of
@@ -259,8 +265,9 @@ struct bdetu_Month {
         // This kind of dual operation within a single year is sometimes
         // characterized as "Modified Following."
 
-    static bdet_Date floorOrNextMonthInYear(bdet_Month::Month month,
-                                            const bdet_Date&  initialDate);
+    static bdet_Date floorOrNextMonthInYear(
+                                          bdet_MonthOfYear::Month month,
+                                          const bdet_Date&        initialDate);
         // Return the first date less than OR EQUAL TO the specified
         // 'initialDate' in the same year that falls in the specified 'month'
         // with the largest valid day-of-month less than or equal to that of
@@ -286,52 +293,52 @@ struct bdetu_Month {
 // ===========================================================================
 
 inline
-bdet_Date bdetu_Month::ceilMonth(bdet_Month::Month month,
-                                 const bdet_Date&  date)
+bdet_Date bdetu_Month::ceilMonth(bdet_MonthOfYear::Month month,
+                                 const bdet_Date&        date)
 {
-    return bdet_Month::Month(date.month()) == month
+    return bdet_MonthOfYear::Month(date.month()) == month
            ? date
            : nextMonth(month, date);
 }
 
 inline
-bdet_Date bdetu_Month::floorMonth(bdet_Month::Month month,
-                                  const bdet_Date&  date)
+bdet_Date bdetu_Month::floorMonth(bdet_MonthOfYear::Month month,
+                                  const bdet_Date&        date)
 {
-    return bdet_Month::Month(date.month()) == month
+    return bdet_MonthOfYear::Month(date.month()) == month
            ? date
            : previousMonth(month, date);
 }
 
 inline
-bdet_Date bdetu_Month::ceilOrPreviousMonthInYear(bdet_Month::Month month,
-                                                 const bdet_Date&  date)
+bdet_Date bdetu_Month::ceilOrPreviousMonthInYear(bdet_MonthOfYear::Month month,
+                                                 const bdet_Date&        date)
 {
     bdet_Date d = ceilMonth(month, date);
     return d.year() == date.year() ? d : previousMonth(month, date);
 }
 
 inline
-bdet_Date bdetu_Month::floorOrNextMonthInYear(bdet_Month::Month month,
-                                              const bdet_Date&  date)
+bdet_Date bdetu_Month::floorOrNextMonthInYear(bdet_MonthOfYear::Month month,
+                                              const bdet_Date&        date)
 {
     bdet_Date d = floorMonth(month, date);
     return d.year() == date.year() ? d : nextMonth(month, date);
 }
 
 inline
-bdet_Date bdetu_Month::ceilAdjustMonth2(bdet_Month::Month month,
-                                        const bdet_Date&  date,
-                                        int               count)
+bdet_Date bdetu_Month::ceilAdjustMonth2(bdet_MonthOfYear::Month month,
+                                        const bdet_Date&        date,
+                                        int                     count)
 {
     bdet_Date d = ceilMonth(month, date);
     return 0 == count ? d : adjustMonth(month, d, count);
 }
 
 inline
-bdet_Date bdetu_Month::floorAdjustMonth2(bdet_Month::Month month,
-                                         const bdet_Date&  date,
-                                         int               count)
+bdet_Date bdetu_Month::floorAdjustMonth2(bdet_MonthOfYear::Month month,
+                                         const bdet_Date&        date,
+                                         int                     count)
 {
     bdet_Date d = floorMonth(month, date);
     return 0 == count ? d : adjustMonth(month, d, count);

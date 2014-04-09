@@ -3404,7 +3404,7 @@ int main(int argc, const char *argv[])  {
                 }
             }
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                 Obj mX(SPEC_TABLE, n, &testAllocator);  // TEST HERE
                 const Obj& X = mX;
@@ -3419,7 +3419,7 @@ int main(int argc, const char *argv[])  {
                 if (veryVerbose) { T_(); T_(); P_(i); P_(n); P(X); }
                 LOOP2_ASSERT(n, i, X.isParsed());
 
-            }  END_BSLMA_EXCEPTION_TEST
+            }  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBytesInUse());
@@ -3904,7 +3904,7 @@ int main(int argc, const char *argv[])  {
             if (veryVerbose) { T_(); T_(); P_(i); P_(n); P(Z); }
             LOOP2_ASSERT(n, i, !Z.isParsed());
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     Obj mX(Z, &testAllocator);  // TEST HERE
                     const Obj& X = mX;
@@ -3913,7 +3913,7 @@ int main(int argc, const char *argv[])  {
                     LOOP2_ASSERT(n, i, !X.isParsed());
                     LOOP2_ASSERT(n, i, Z != X);  // weird, but not parsed yet
 
-            }  END_BSLMA_EXCEPTION_TEST
+            }  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBytesInUse());
@@ -3926,7 +3926,7 @@ int main(int argc, const char *argv[])  {
             if (veryVerbose) { T_(); T_(); P_(i); P_(n); P(Z); }
             LOOP2_ASSERT(n, i, Z.isParsed());
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     Obj mX(Z, &testAllocator);  // TEST HERE
                     const Obj& X = mX;
@@ -3935,7 +3935,7 @@ int main(int argc, const char *argv[])  {
                     LOOP2_ASSERT(n, i, X.isParsed());
                     LOOP2_ASSERT(n, i, Z == X);
 
-            }  END_BSLMA_EXCEPTION_TEST
+            }  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERT(0 == testAllocator.numMismatches());
             ASSERT(0 == testAllocator.numBytesInUse());
@@ -4654,7 +4654,7 @@ int main(int argc, const char *argv[])  {
                 EXP_OCCURRENCE_INFO
             };
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(EXP, &testAllocator);  const Obj& X = mX;
 
                 LOOP5_ASSERT(LINE1, LINE2, LINE3, LINE4, LINE5,
@@ -4667,7 +4667,7 @@ int main(int argc, const char *argv[])  {
                              EXP_TYPEINFO == X.typeInfo());
                 LOOP5_ASSERT(LINE1, LINE2, LINE3, LINE4, LINE5,
                              EXP_OCCURRENCE_INFO == X.occurrenceInfo());
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         }
         }
@@ -5144,11 +5144,11 @@ int main(int argc, const char *argv[])  {
 
             Obj mX(EXP); const Obj& X = mX;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mY(X, &testAllocator);  const Obj& Y = mY;  // TEST HERE
 
                 ASSERT(X == Y);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         }
         }
@@ -5595,7 +5595,7 @@ int main(int argc, const char *argv[])  {
             bcema_SharedPtr<baea_CommandLine_Constraint> DEFAULT_CONSTRAINT
                                                               = Y.constraint();
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(&testAllocator);  const Obj& X = mX;
 
                 createTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
@@ -5608,7 +5608,7 @@ int main(int argc, const char *argv[])  {
                     LOOP_ASSERT(LINE, DEFAULT_CONSTRAINT == X.constraint());
                 }
 
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(0 == testAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numMismatches());
@@ -5813,11 +5813,11 @@ int main(int argc, const char *argv[])  {
 
             createTypeInfo(&mX, TYPE, VARIABLE, CONSTRAINT);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mY(X, &testAllocator);  const Obj& Y = mY;  // TEST HERE
 
                 ASSERT(X == Y);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(0 == testAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numMismatches());
@@ -6128,7 +6128,7 @@ int main(int argc, const char *argv[])  {
             const bdem_Descriptor *DESCTOR =
                                     bdem_ElemAttrLookup::lookupTable()[ETYPE];
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(OTYPE, &testAllocator);  const Obj& X = mX;
 
                 LOOP2_ASSERT(LINE1, LINE2, !X.hasDefaultValue());
@@ -6146,7 +6146,7 @@ int main(int argc, const char *argv[])  {
                     LOOP2_ASSERT(LINE1, LINE2,
                                  DEFAULT_VALUE == X.defaultValue());
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         }
         ASSERT(0 == testAllocator.numBytesInUse());
@@ -6403,13 +6403,13 @@ int main(int argc, const char *argv[])  {
             }
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                 Obj mY(X, &testAllocator);  const Obj& Y = mY;  // TEST HERE
 
                 ASSERT(X == Y);
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
         }
         }

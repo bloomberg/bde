@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
                 { L_,  "z:/"   , "/b", false,  "z:/b" },
 
                 // Test UNC paths
-                { L_,  "//UNC "   , "b" , true ,  "//UNC/b" },
+                { L_,  "//UNC"    , "b" , true ,  "//UNC/b" },
                 { L_,  "//UNC/"   , "b" , true ,  "//UNC/b" },
                 { L_,  "//UNC//"  , "b" , true ,  "//UNC/b" },
                 { L_,  "//UNC//"  , "b/", true ,  "//UNC/b" },

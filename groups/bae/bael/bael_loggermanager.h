@@ -1202,6 +1202,9 @@ class bael_LoggerManager {
                                                  // default threshold levels of
                                                  // "set" categories
 
+    bcemt_RWMutex          d_defaultThresholdsLock;
+                                         // 'd_defaultThresholdsLock' protector
+
     bael_ThresholdAggregate
                            d_defaultThresholdLevels;
                                                  // default threshold levels

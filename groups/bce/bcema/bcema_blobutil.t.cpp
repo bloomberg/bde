@@ -332,13 +332,13 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'erase' Function"
                           << "\n=========================" << endl;
 
-        const bsl::string STR  = "HelloWorld";
-        const int         SIZE = STR.size();
+        const bsl::string STR      = "HelloWorld";
+        const int         BUF_SIZE = STR.size();
         for (int bufferSize = 1; bufferSize < 10; ++bufferSize) {
             BlobBufferFactory factory(bufferSize);
 
-            for (int offset = 0; offset < SIZE; ++offset) {
-                for (int length = 0; length <= SIZE - offset; ++length) {
+            for (int offset = 0; offset < BUF_SIZE; ++offset) {
+                for (int length = 0; length <= BUF_SIZE - offset; ++length) {
 
                     bsl::string sstr = STR;
                     bsl::string estr = STR;
@@ -475,7 +475,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'hexdump' Function"
                           << "\n==========================" << endl;
 
-        enum { SIZE = 2048 };
+        enum { BUF_SIZE = 2048 };
 
         {
             if (verbose) cout << "(a) 0 buffers" << endl;
@@ -484,7 +484,7 @@ int main(int argc, char *argv[]) {
 
             ASSERT(0 == myBlob.numDataBuffers() );
 
-            char buf[SIZE];  bsl::strstream out(buf, SIZE);
+            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
             ASSERT(out == bcema_BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[0].c_str(),
                                 expectedOutCase3[0].size()));
@@ -512,7 +512,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(1 == myBlob.numDataBuffers() );
 
-            char buf[SIZE];  bsl::strstream out(buf, SIZE);
+            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
             ASSERT(out == bcema_BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[1].c_str(),
                                 expectedOutCase3[1].size()));
@@ -538,7 +538,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(31 == myBlob.numDataBuffers() );
 
-            char buf[SIZE];  bsl::strstream out(buf, SIZE);
+            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
             ASSERT(out == bcema_BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[2].c_str(),
                                 expectedOutCase3[2].size()));
@@ -564,7 +564,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(32 == myBlob.numDataBuffers() );
 
-            char buf[SIZE];  bsl::strstream out(buf, SIZE);
+            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
             ASSERT(out == bcema_BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[3].c_str(),
                                 expectedOutCase3[3].size()));
@@ -591,7 +591,7 @@ int main(int argc, char *argv[]) {
             copyStringToBlob(&myBlob, TEST_STR);
             ASSERT(33 == myBlob.numDataBuffers() );
 
-            char buf[SIZE];  bsl::strstream out(buf, SIZE);
+            char buf[BUF_SIZE];  bsl::strstream out(buf, BUF_SIZE);
             ASSERT(out == bcema_BlobUtil::hexDump(out, myBlob));
             ASSERT(0 == strncmp(buf, expectedOutCase3[4].c_str(),
                                 expectedOutCase3[4].size()));

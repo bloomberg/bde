@@ -157,7 +157,7 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //..
 // Next, we create a series of transitions between these local time descriptors
 // for the years 2007-2011.  Note that the United States transitions to
-// daylight savings time on the second Sunday in March, at 2am local time (7am
+// daylight saving time on the second Sunday in March, at 2am local time (7am
 // UTC), and transition back to standard time on the first Sunday in November
 // at 2am local time (6am UTC), resulting in an even number of transitions.
 // Also note that, the rules for generating these transitions were changed in
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     ASSERT("America/New_York" == nyTimeZone.identifier());
 //..
 // Finally, we write to standard output the information about the
-// daylight-savings time transitions of the loaded time zone, in New York local
+// daylight-saving time transitions of the loaded time zone, in New York local
 // time:
 //..
     baetzo_Zoneinfo::TransitionConstIterator tIt =

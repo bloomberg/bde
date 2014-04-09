@@ -1900,12 +1900,12 @@ int main(int argc, char *argv[])
                         if (veryVerbose) { T_ P_(LINE1) P_(LINE2)
                                    P_(SPEC1) P_(SPEC2) P(X) P(Y) P(CX) P(CY) };
 
-                      BEGIN_BSLMA_EXCEPTION_TEST {
+                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         mY.swap(mX);
 
                         LOOP2_ASSERT(Y, CX, Y == CX);
                         LOOP2_ASSERT(LINE1, LINE2, X == CY);
-                      } END_BSLMA_EXCEPTION_TEST
+                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
                     ta.deleteObjectRaw(LX);
                     ta.deleteObjectRaw(LY);
@@ -2002,7 +2002,7 @@ int main(int argc, char *argv[])
                     Obj mY(X.rowLayout(), strategy, &testAllocator);
                     const Obj& Y = mY;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     mY.replaceValues(X);
 
@@ -2010,7 +2010,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, ! (X != Y));
                     LOOP_ASSERT(LINE, 0 == da.numBytesInUse());
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // Without allocator specified
@@ -2028,14 +2028,14 @@ int main(int argc, char *argv[])
                     Obj mY(X.rowLayout(), strategy);
                     const Obj& Y = mY;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     mY.replaceValues(X);
 
                     LOOP_ASSERT(LINE,    X == Y);
                     LOOP_ASSERT(LINE, ! (X != Y));
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     L = X.rowLayout();
                 }
@@ -2526,16 +2526,18 @@ int main(int argc, char *argv[])
 
                                 mL.append(DESC);
 
-                              BEGIN_BSLMA_EXCEPTION_TEST {
+                              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                                 void *VAL = mA.insertElement(k, SRC);
 
                                 LOOP2_ASSERT(LINE, k, k + 1 == A.length());
                                 LOOP2_ASSERT(LINE, k, !A.isNull(k));
                                 LOOP2_ASSERT(LINE, k,
                                              compare(SRC, VAL, SPEC[2 * k]));
-                              } END_BSLMA_EXCEPTION_TEST
+                              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                              BEGIN_BSLMA_EXCEPTION_TEST {
+                              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                                 void *VAL = mB.insertElementRaw(k);
                                 DESC->unsetConstruct(VAL,
                                                      strategy,
@@ -2546,14 +2548,15 @@ int main(int argc, char *argv[])
                                 LOOP2_ASSERT(LINE, k, !B.isNull(k));
                                 LOOP2_ASSERT(LINE, k,
                                              compare(SRC, VAL, SPEC[2 * k]));
-                              } END_BSLMA_EXCEPTION_TEST
+                              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                              BEGIN_BSLMA_EXCEPTION_TEST {
+                              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                                 mC.insertNullElement(k);
 
                                 LOOP2_ASSERT(LINE, k, k + 1 == C.length());
                                 LOOP2_ASSERT(LINE, k, C.isNull(k));
-                              } END_BSLMA_EXCEPTION_TEST
+                              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                             }
 
                             LOOP_ASSERT(LINE, A == X);
@@ -2673,7 +2676,8 @@ int main(int argc, char *argv[])
                                             LD->insert(di, *LX, si, ne);
                                             LE->insert(di, *LX, si, ne);
 
-                                          BEGIN_BSLMA_EXCEPTION_TEST {
+                                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                                             mD.insertElements(di, X, si, ne);
 
                                             LOOP_ASSERT(LINE2,
@@ -2698,9 +2702,10 @@ int main(int argc, char *argv[])
                                                       C.elemRef(di + ii) ==
                                                   D.elemRef(di + ne + ii));
                                             }
-                                          } END_BSLMA_EXCEPTION_TEST
+                                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                                          BEGIN_BSLMA_EXCEPTION_TEST {
+                                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                                             mE.insertNullElements(di, ne);
                                             LOOP_ASSERT(LINE2,
                                                       DLEN + ne == E.length());
@@ -2721,7 +2726,7 @@ int main(int argc, char *argv[])
                                                       C.elemRef(di + ii) ==
                                                   D.elemRef(di + ne + ii));
                                             }
-                                          } END_BSLMA_EXCEPTION_TEST
+                                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                                         }
                                         testAllocator.deleteObjectRaw(LC);
                                         testAllocator.deleteObjectRaw(LD);
@@ -3059,13 +3064,15 @@ int main(int argc, char *argv[])
                             LB = B.rowLayout();
                             LC = C.rowLayout();
 
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             mA.reset();
                             LOOP2_ASSERT(LINE1, LINE2, 0 == A.rowLayout());
                             LOOP_ASSERT(LINE2, 0 == da.numBytesInUse());
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             mB.reset(X.rowLayout());
                             LOOP2_ASSERT(LINE1, LINE2,
                                          X.rowLayout() == B.rowLayout());
@@ -3081,16 +3088,17 @@ int main(int argc, char *argv[])
                                 LOOP2_ASSERT(LINE1, LINE2,
                                              isUnset(B.elemRef(ei)));
                             }
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             mC.reset(X.rowLayout(), X);
                             LOOP2_ASSERT(LINE1, LINE2,
                                          X.rowLayout() == C.rowLayout());
                             LOOP2_ASSERT(LINE1, LINE2, C == X);
                             LOOP2_ASSERT(LINE1, LINE2,
                                          0 == da.numBytesInUse());
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                           testAllocator.deleteObjectRaw(LA);
                           testAllocator.deleteObjectRaw(LB);
@@ -3192,7 +3200,7 @@ int main(int argc, char *argv[])
                     Obj mY(X.rowLayout(), strategy, &testAllocator);
                     const Obj& Y = mY;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     mX = Y;
 
@@ -3200,7 +3208,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, ! (X != Y));
                     LOOP_ASSERT(LINE, 0 == da.numBytesInUse());
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // Without allocator specified
@@ -3218,14 +3226,14 @@ int main(int argc, char *argv[])
                     Obj mY(X.rowLayout(), strategy);
                     const Obj& Y = mY;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     mX = Y;
 
                     LOOP_ASSERT(LINE,    X == Y);
                     LOOP_ASSERT(LINE, ! (X != Y));
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     L = X.rowLayout();
                 }
@@ -3319,7 +3327,7 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mY(L, X, strategy, &testAllocator); const Obj& Y = mY;
 
                     if (veryVerbose) { T_ P_(LINE) P_(SPEC) P(X) P(Y) };
@@ -3329,7 +3337,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, L == Y.rowLayout());
                     LOOP_ASSERT(LINE, 0 == da.numBytesInUse());
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // Without allocator specified
@@ -3344,7 +3352,7 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&testAllocator);
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mY(L, X, strategy); const Obj& Y = mY;
 
                     if (veryVerbose) { T_ P_(LINE) P_(SPEC) P(X) P(Y) };
@@ -3353,7 +3361,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, ! (X != Y));
                     LOOP_ASSERT(LINE, L == Y.rowLayout());
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
                 L = X.rowLayout();
             }
@@ -3793,7 +3801,7 @@ int main(int argc, char *argv[])
                         }
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-                      BEGIN_BSLMA_EXCEPTION_TEST {
+                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                         Obj mX(&L, strategy, &ta); const Obj &X = mX;
                         LOOP_ASSERT(LINE, &L  == X.rowLayout());
@@ -3839,7 +3847,7 @@ int main(int argc, char *argv[])
                         }
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-                      } END_BSLMA_EXCEPTION_TEST
+                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
                     }
 
@@ -3853,7 +3861,7 @@ int main(int argc, char *argv[])
                         bslma::DefaultAllocatorGuard dag(&da);
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-                      BEGIN_BSLMA_EXCEPTION_TEST {
+                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                         Obj mX(&L, strategy); const Obj &X = mX;
                         LOOP_ASSERT(LINE, &L  == X.rowLayout());
@@ -3897,7 +3905,7 @@ int main(int argc, char *argv[])
                         }
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-                      } END_BSLMA_EXCEPTION_TEST
+                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
                     }
                 }

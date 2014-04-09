@@ -5,6 +5,7 @@
 #include <bael_loggermanager.h>      // for testing only
 #include <bael_severity.h>           // for testing only
 #include <bael_testobserver.h>       // for testing only
+#include <bael_defaultobserver.h>    // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
@@ -146,78 +147,154 @@ int main(int argc, char *argv[])
                                   << "=====================" << endl;
 
         {
-            char buf[2048];
-            ostrstream out(buf, sizeof buf);
+            bsl::ostrstream cout;
 
-            bael_LoggerManager::initSingleton(TO); // initialize logger manager
+///USAGE
+///-----
+// The code fragments in this example demonstrate several administration
+// utilities that are used to create categories, and to set and access their
+// threshold levels.
+//
+// First we initializate the logger manager (for the purposes of this example,
+// we use a minimal configuration):
+//..
+     bael_DefaultObserver observer(cout);
+     bael_LoggerManagerConfiguration configuration;
+     bael_LoggerManagerScopedGuard guard(&observer, configuration);
+//..
+// Next define some hypothetical category names:
+//..
+     const char *equityCategories[] = {
+         "EQUITY.MARKET.NYSE",
+         "EQUITY.MARKET.NASDAQ",
+         "EQUITY.GRAPHICS.MATH.FACTORIAL",
+         "EQUITY.GRAPHICS.MATH.ACKERMANN"
+     };
+     const int NUM_CATEGORIES = sizeof equityCategories
+                              / sizeof equityCategories[0];
+//..
+// Category naming is by convention only.  In this example, we have chosen a
+// hierarchical naming convention that uses '.' to separate the constituents
+// of category names.
+//
+// In the following, the 'addCategory' method is used to define a category for
+// each of the category names in 'equityCategories'.  The threshold levels
+// for each of the categories are set to slightly different values to help
+// distinguish them when they are printed later.  The 'addCategory' method
+// returns the address of the new category:
+//..
+     for (int i = 0; i < NUM_CATEGORIES; ++i) {
+         int retValue = bael_Administration::addCategory(
+                                              equityCategories[i],
+                                              bael_Severity::BAEL_TRACE + i,
+                                              bael_Severity::BAEL_WARN  + i,
+                                              bael_Severity::BAEL_ERROR + i,
+                                              bael_Severity::BAEL_FATAL + i);
+         ASSERT(0 == retValue);  // added new category
+     }
+//..
+// In the following, each of the new categories is accessed from the registry
+// and its name and threshold levels are printed to 'bsl::cout':
+//..
+     for (int i = 0; i < NUM_CATEGORIES; ++i) {
+         const char* name    = equityCategories[i];
+         int recordLevel     = bael_Administration::recordLevel(name);
+         int passLevel       = bael_Administration::passLevel(name);
+         int triggerLevel    = bael_Administration::triggerLevel(name);
+         int triggerAllLevel = bael_Administration::triggerAllLevel(name);
+//
+         using namespace bsl;
+         cout << "Category name: "       << name            << endl;
+         cout << "\tRecord level:      " << recordLevel     << endl;
+         cout << "\tPass level:        " << passLevel       << endl;
+         cout << "\tTrigger level:     " << triggerLevel    << endl;
+         cout << "\tTrigger-all level: " << triggerAllLevel << endl
+              << endl;
+     }
+//..
+// The following is printed to 'stdout':
+//..
+//   Category name: EQUITY.MARKET.NYSE
+//           Record level:      192
+//           Pass level:        96
+//           Trigger level:     64
+//           Trigger-all level: 32
+//
+//   Category name: EQUITY.MARKET.NASDAQ
+//           Record level:      193
+//           Pass level:        97
+//           Trigger level:     65
+//           Trigger-all level: 33
+//
+//   Category name: EQUITY.GRAPHICS.MATH.FACTORIAL
+//           Record level:      194
+//           Pass level:        98
+//           Trigger level:     66
+//           Trigger-all level: 34
+//
+//   Category name: EQUITY.GRAPHICS.MATH.ACKERMANN
+//           Record level:      195
+//           Pass level:        99
+//           Trigger level:     67
+//           Trigger-all level: 35
+//..
+// The following is similar to the first for-loop above, but this time the
+// 'setThresholdLevels' method is used to modify the threshold levels of
+// existing categories.  The 'setThresholdLevels' method returns 1 to indicate
+// the number of existing categories that were affected by the call:
+//..
+     for (int i = 0; i < NUM_CATEGORIES; ++i) {
+         const int returnValue =
+                   bael_Administration::setThresholdLevels(
+                                              equityCategories[i],
+                                              bael_Severity::BAEL_TRACE - i,
+                                              bael_Severity::BAEL_WARN  - i,
+                                              bael_Severity::BAEL_ERROR - i,
+                                              bael_Severity::BAEL_FATAL - i);
+         ASSERT(1 == returnValue);  // modified one category
+     }
+//..
+// When the 'NUM_CATEGORIES' categories are accessed from the registry a second
+// time and printed, the following is output to 'stdout' showing the new
+// threshold levels of the categories:
+//..
+//   Category name: EQUITY.MARKET.NYSE
+//           Record level:      192
+//           Pass level:        96
+//           Trigger level:     64
+//           Trigger-all level: 32
+//
+//   Category name: EQUITY.MARKET.NASDAQ
+//           Record level:      191
+//           Pass level:        95
+//           Trigger level:     63
+//           Trigger-all level: 31
+//
+//   Category name: EQUITY.GRAPHICS.MATH.FACTORIAL
+//           Record level:      190
+//           Pass level:        94
+//           Trigger level:     62
+//           Trigger-all level: 30
+//
+//   Category name: EQUITY.GRAPHICS.MATH.ACKERMANN
+//           Record level:      189
+//           Pass level:        93
+//           Trigger level:     61
+//           Trigger-all level: 29
+//..
+// Finally, the category registry is closed to further additions by setting its
+// maximum capacity to (the original) 'NUM_CATEGORIES':
+//..
+     bael_Administration::setMaxNumCategories(NUM_CATEGORIES);
+//..
+// Following this call to 'setMaxNumCategories', subsequent calls to
+// 'addCategory' will fail (until such time as 'setMaxNumCategories' is called
+// again with an argument value of either 0 or one that is greater than
+// 'NUM_CATEGORIES').
 
-            const char *equityCategories[] = {
-                "EQUITY.MARKET.NYSE",
-                "EQUITY.MARKET.NASDAQ",
-                "EQUITY.GRAPHICS.MATH.FACTORIAL",
-                "EQUITY.GRAPHICS.MATH.ACKERMANN"
-            };
-            const int NUM_CATEGORIES = sizeof equityCategories
-                                     / sizeof equityCategories[0];
-
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                int retValue = bael_Administration::addCategory(
-                                             equityCategories[i],
-                                             bael_Severity::BAEL_TRACE + i,
-                                             bael_Severity::BAEL_WARN  + i,
-                                             bael_Severity::BAEL_ERROR + i,
-                                             bael_Severity::BAEL_FATAL + i);
-                ASSERT(0 == retValue);  // added new category
+            if (veryVerbose) {
+                bsl::cout << cout.str() << bsl::endl;
             }
-
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                const char* name    = equityCategories[i];
-                int recordLevel     = bael_Administration::recordLevel(name);
-                int passLevel       = bael_Administration::passLevel(name);
-                int triggerLevel    = bael_Administration::triggerLevel(name);
-                int triggerAllLevel =
-                                   bael_Administration::triggerAllLevel(name);
-
-                out << "Category name: "       << name            << endl;
-                out << "\tRecord level:      " << recordLevel     << endl;
-                out << "\tPass level:        " << passLevel       << endl;
-                out << "\tTrigger level:     " << triggerLevel    << endl;
-                out << "\tTrigger-all level: " << triggerAllLevel << endl
-                    << endl;
-            }
-
-            if (veryVerbose) { out << ends; cout << buf << endl; }
-
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                const int returnValue =
-                     bael_Administration::setThresholdLevels(
-                                             equityCategories[i],
-                                             bael_Severity::BAEL_TRACE - i,
-                                             bael_Severity::BAEL_WARN  - i,
-                                             bael_Severity::BAEL_ERROR - i,
-                                             bael_Severity::BAEL_FATAL - i);
-                ASSERT(1 == returnValue);  // modified one category
-            }
-
-            out.seekp(0);  // reset ostrstream
-
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
-                const char* name    = equityCategories[i];
-                int recordLevel     = bael_Administration::recordLevel(name);
-                int passLevel       = bael_Administration::passLevel(name);
-                int triggerLevel    = bael_Administration::triggerLevel(name);
-                int triggerAllLevel =
-                                   bael_Administration::triggerAllLevel(name);
-
-                out << "Category name: "       << name            << endl;
-                out << "\tRecord level:      " << recordLevel     << endl;
-                out << "\tPass level:        " << passLevel       << endl;
-                out << "\tTrigger level:     " << triggerLevel    << endl;
-                out << "\tTrigger-all level: " << triggerAllLevel << endl
-                    << endl;
-            }
-
-            if (veryVerbose) { out << ends; cout << buf << endl; }
         }
       } break;
       case 2: {

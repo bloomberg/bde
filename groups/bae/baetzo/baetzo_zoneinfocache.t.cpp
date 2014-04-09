@@ -332,16 +332,16 @@ void TestDriverTestLoader::addTimeZone(const char *timeZone,
     baetzo_Zoneinfo zoneinfo;
     zoneinfo.setIdentifier(timeZone);
 
-    if (0 == name) {
-        d_timeZones[timeZone] = zoneinfo;
-        return;                                                       // RETURN
+    if (0 != name) {
+        baetzo_LocalTimeDescriptor type(utcOffset,
+                                        dstFlag,
+                                        name,
+                                        d_allocator_p);
+        bdet_Datetime firstTime(1, 1, 1);
+        bsls::Types::Int64 firstTimeT =
+                                      bdetu_Epoch::convertToTimeT64(firstTime);
+        zoneinfo.addTransition(firstTimeT, type);
     }
-
-    baetzo_LocalTimeDescriptor type(utcOffset, dstFlag, name, d_allocator_p);
-    bdet_Datetime firstTime(1, 1, 1);
-    bsls::Types::Int64 firstTimeT = bdetu_Epoch::convertToTimeT64(firstTime);
-
-    zoneinfo.addTransition(firstTimeT, type);
     d_timeZones[timeZone] = zoneinfo;
 }
 
@@ -983,7 +983,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\tTest basic behavior" << endl;
 
             Obj mX(&testLoader, Z); const Obj& X = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_VALUES; ++i) {
                     const int   LINE    = VALUES[i].d_line;
                     const char *ID      = VALUES[i].d_id;
@@ -1005,7 +1005,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, 0 == defaultAllocator.numBytesInUse());
                     LOOP_ASSERT(LINE, 0 <  testAllocator.numBytesInUse());
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         {
@@ -1288,7 +1288,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator testAllocator;
             Obj mX(&testLoader, Z); const Obj& X = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_VALUES; ++i) {
                     const int   LINE    = VALUES[i].d_line;
                     const char *ID      = VALUES[i].d_id;
@@ -1309,7 +1309,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 ASSERT(0 == defaultAllocator.numBytesInUse());
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         {
             bsls::AssertFailureHandlerGuard hG(

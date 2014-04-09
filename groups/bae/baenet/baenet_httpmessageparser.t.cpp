@@ -789,6 +789,17 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // THERE IS NO TEST FIVE
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << bsl::endl
+                               << "THERE IS NO TEST FIVE" << bsl::endl
+                               << "=====================" << bsl::endl;
+
+        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // RESPONSE BREATHING TEST (CHUNKED, WITH TRAILER CONTENTS)

@@ -934,7 +934,7 @@ namespace bdex_OutStreamFunctions {
     template <typename STREAM, typename TYPE>
     inline
     STREAM& streamOutVersionAndObject(STREAM& stream, const TYPE& value)
-        // !DEPRECATED!: Use ’streamOut’ instead.
+        // !DEPRECATED!: Use 'streamOut' instead.
         //
         // Write the specified 'value' to the specified output 'stream'
         // and return a reference to the modifiable 'stream'.  Note that the

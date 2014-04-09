@@ -89,18 +89,17 @@ typedef bbedc_IcmaActualActual Obj;
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
       case 3: {
-       // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // Concerns:
         //   The usage example provided in the component header file must

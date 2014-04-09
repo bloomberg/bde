@@ -157,7 +157,7 @@ void selectUtcOffset(
                           << iter2->descriptor()
                           << BAEL_LOG_END;
 
-        // The daylight-savings time property of 'iter2' matches the specified
+        // The daylight-saving time property of 'iter2' matches the specified
         // 'dstPolicy'.
 
         *utcOffsetSec = iter2->descriptor().utcOffsetInSeconds();
@@ -170,16 +170,12 @@ void selectUtcOffset(
     }
 
     if (selectDstFlag == iter2->descriptor().dstInEffectFlag()) {
-        // The daylight-savings time property of 'iter2' matches the specified
+        // The daylight-saving time property of 'iter2' matches the specified
         // 'dstPolicy'.
 
         *utcOffsetSec = iter2->descriptor().utcOffsetInSeconds();
         return;                                                       // RETURN
     }
-
-
-    typedef baetzo_LocalTimeDescriptor Descriptor;
-
 
     // 'iter2' is by construction later than 'iter1' if they are different.
 
@@ -322,7 +318,7 @@ void baetzo_TimeZoneUtilImp::resolveLocalTime(
     int utcOffsetInSeconds;
     if (dstPolicy != baetzo_DstPolicy::BAETZO_UNSPECIFIED) {
         // If 'dstPolicy' is DST or STANDARD, select the UTC offset from a
-        // local time descriptor with a matching daylight-savings time
+        // local time descriptor with a matching daylight-saving time
         // property.
 
         const bool isDstOff = dstPolicy == baetzo_DstPolicy::BAETZO_DST;

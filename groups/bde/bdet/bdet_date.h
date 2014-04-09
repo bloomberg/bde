@@ -270,8 +270,9 @@ class bdet_Date {
         // they correspond to a valid date in history as defined by the Unix
         // date convention, which includes the change in leap-year calculations
         // for century years that are not divisible by 400, following the
-        // eleven-day "gap" between the valid date representations "1752/09/03"
-        // and "1752/09/13".
+        // eleven-day correction in the Gregorian calendar, in which the
+        // otherwise-valid dates between "1752/09/03" and "1752/09/13",
+        // inclusive, were omitted.
         //
         // Note that 'year', 'month', and 'day' do *not* represent a valid
         // 'bdet_date' value unless '1 <= year <= 9999', '1 <= month <= 12',
@@ -368,7 +369,7 @@ class bdet_Date {
         // Add the specified (signed) 'numDays' to the value of this date if
         // the resulting date represents a valid 'bdet_Date' value (see
         // 'isValid').  Return 0 on success, and a non-zero value (with no
-        // effect) otherwise.  Note that 'numDays' maybe negative.  Also note
+        // effect) otherwise.  Note that 'numDays' may be negative.  Also note
         // that 'addDaysIfValid(0)' should always return success.
 
     void setYearDay(int year, int dayOfYear);

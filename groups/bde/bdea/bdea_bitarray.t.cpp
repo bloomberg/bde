@@ -1377,7 +1377,8 @@ int main(int argc, char *argv[])
                       LOOP4_ASSERT(ti, tj, E, R, E == R);
 
                       {
-                        BEGIN_BSLMA_EXCEPTION_TEST {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                           const int AL = testAllocator.allocationLimit();
                           testAllocator.setAllocationLimit(-1);
                           Obj mZ(&testAllocator);  const Obj& Z = mZ;
@@ -1387,7 +1388,7 @@ int main(int argc, char *argv[])
 
                           LOOP2_ASSERT(ti, tj, E == Z);
 
-                        } END_BSLMA_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                       }
                     }
 
@@ -1426,7 +1427,8 @@ int main(int argc, char *argv[])
                       LOOP4_ASSERT(ti, tj, E, R, E == R);
 
                       {
-                        BEGIN_BSLMA_EXCEPTION_TEST {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                           const int AL = testAllocator.allocationLimit();
                           testAllocator.setAllocationLimit(-1);
                           Obj mZ(&testAllocator);  const Obj& Z = mZ;
@@ -1436,7 +1438,7 @@ int main(int argc, char *argv[])
 
                           LOOP2_ASSERT(ti, tj, E == Z);
 
-                        } END_BSLMA_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                       }
                     }
 
@@ -1475,7 +1477,8 @@ int main(int argc, char *argv[])
                       LOOP4_ASSERT(ti, tj, E, R, E == R);
 
                       {
-                        BEGIN_BSLMA_EXCEPTION_TEST {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                           const int AL = testAllocator.allocationLimit();
                           testAllocator.setAllocationLimit(-1);
                           Obj mZ(&testAllocator);  const Obj& Z = mZ;
@@ -1485,7 +1488,7 @@ int main(int argc, char *argv[])
 
                           LOOP2_ASSERT(ti, tj, E == Z);
 
-                        } END_BSLMA_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                       }
                     }
 
@@ -1524,7 +1527,8 @@ int main(int argc, char *argv[])
                       LOOP4_ASSERT(ti, tj, E, R, E == R);
 
                       {
-                        BEGIN_BSLMA_EXCEPTION_TEST {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                           const int AL = testAllocator.allocationLimit();
                           testAllocator.setAllocationLimit(-1);
                           Obj mZ(&testAllocator);  const Obj& Z = mZ;
@@ -1534,7 +1538,7 @@ int main(int argc, char *argv[])
 
                           LOOP2_ASSERT(ti, tj, E == Z);
 
-                        } END_BSLMA_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                       }
                     }
 
@@ -2706,9 +2710,10 @@ int main(int argc, char *argv[])
                             LOOP3_ASSERT(SPEC, NUMBITS, N, X == Y);
 
                             Obj mZ(&testAllocator);  const Obj& Z = mZ;
-                            BEGIN_BSLMA_EXCEPTION_TEST {
+                            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                                 mZ = Y >> NUMBITS;
-                            } END_BSLMA_EXCEPTION_TEST
+                            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                             const int BB = testAllocator.numBlocksTotal();
                             const int B = testAllocator.numBlocksInUse();
@@ -2741,9 +2746,10 @@ int main(int argc, char *argv[])
                             LOOP3_ASSERT(SPEC, NUMBITS, N, X == Y);
 
                             Obj mZ(&testAllocator);  const Obj& Z = mZ;
-                            BEGIN_BSLMA_EXCEPTION_TEST {
+                            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                                 mZ = Y << NUMBITS;
-                            } END_BSLMA_EXCEPTION_TEST
+                            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                             const int BB = testAllocator.numBlocksTotal();
                             const int B = testAllocator.numBlocksInUse();
@@ -2847,7 +2853,8 @@ int main(int argc, char *argv[])
                     for (int tk = 0; tk < NUM_EXTEND; ++tk) {
                         const int N = EXTEND[tk];
 
-                        BEGIN_BSLMA_EXCEPTION_TEST {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
                             Obj mY(&testAllocator);
@@ -2870,7 +2877,7 @@ int main(int argc, char *argv[])
                             mY.rotateLeft(NUMBITS);
                             if (veryVerbose) { cout << "\t\t\t"; P(Y); }
                             LOOP4_ASSERT(SPEC, NUMBITS, X, Y, X == Y);
-                        } END_BSLMA_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
                 }
             }
@@ -3454,7 +3461,7 @@ int main(int argc, char *argv[])
             const int MAX_NUM_ELEMS = 70;
             for (int ne = 0; ne <= MAX_NUM_ELEMS; ++ne) {
                 if (veryVerbose) { cout << "\t\t"; P(ne) }
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const Obj::InitialCapacity NE(ne);
                 Obj mX(NE, &testAllocator);  const Obj &X = mX;
                 LOOP_ASSERT(ne, W == X);
@@ -3467,7 +3474,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) P(X);
                 LOOP_ASSERT(ne, NUM_BLOCKS == testAllocator.numBlocksTotal());
                 LOOP_ASSERT(ne, NUM_BYTES  == testAllocator.numBytesInUse());
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -3574,7 +3581,7 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator testAllocator(veryVeryVerbose);
                     bslma::TestAllocator& ta = testAllocator;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(NE, length, &ta);  const Obj &X = mX;
                     const int NUM_BYTES = ta.numBytesInUse();
                     if (veryVerbose) P(X);
@@ -3582,7 +3589,7 @@ int main(int argc, char *argv[])
                     mX.setLength(ne);
                     LOOP_ASSERT(ne, NUM_BYTES == ta.numBytesInUse());
                     LOOP_ASSERT(ne, ne == X.length());
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -3663,7 +3670,7 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator testAllocator(veryVeryVerbose);
                     bslma::TestAllocator& ta = testAllocator;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(NE, length, VALUE, &ta);  const Obj &X = mX;
                     const int NUM_BYTES = ta.numBytesInUse();
                     if (veryVerbose) P(X);
@@ -3677,7 +3684,7 @@ int main(int argc, char *argv[])
                     for (int i = 0; i < ne; ++i) {
                         LOOP2_ASSERT(ne, i, VALUE == X[i]);
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -3763,7 +3770,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting the 'reserveCapacityRaw' method" << endl;
         {
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int   LINE = DATA[ti].d_lineNum;
                 const char *SPEC = DATA[ti].d_x;
                 const int   NE   = DATA[ti].d_ne;
@@ -3782,7 +3789,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) P(X);
                 LOOP_ASSERT(LINE, NUM_BLOCKS== testAllocator.numBlocksTotal());
                 LOOP_ASSERT(LINE, NUM_BYTES == testAllocator.numBytesInUse());
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -3790,7 +3797,7 @@ int main(int argc, char *argv[])
            cout << "\nTesting the 'reserveCapacity' method" << endl;
         {
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int   LINE    = DATA[ti].d_lineNum;
                 const char *SPEC    = DATA[ti].d_x;
                 const int   NE      = DATA[ti].d_ne;
@@ -3819,7 +3826,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) P(X);
                 LOOP_ASSERT(LINE, NUM_BLOCKS== testAllocator.numBlocksTotal());
                 LOOP_ASSERT(LINE, NUM_BYTES == testAllocator.numBytesInUse());
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
             }
 
@@ -4185,7 +4192,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << "\t\treplace(di, sa, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     {
                         Obj s(SS, &testAllocator);  const Obj &S = s;
@@ -4196,13 +4203,13 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
                                cout << "\t\treplace(di, value)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     {
                         Obj s(SS, &testAllocator);  const Obj &S = s;
@@ -4213,7 +4220,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) {
@@ -4537,24 +4544,24 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << "\t\treplace(di, sa, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { outerP("\t\t\tBEFORE: ", X); }
                     x.replace(DI, X, SI, NE);
                     if (veryVerbose) { outerP("\t\t\t AFTER: ", X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\treplace(di, value)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { outerP("\t\t\tBEFORE: ", X); }
                     x.replace(DI, X[SI]);
                     if (veryVerbose) { outerP("\t\t\t AFTER: ", X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) {
@@ -4973,7 +4980,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << "\t\tinsert(di, sa, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     {
                         Obj s(SS, &testAllocator);  const Obj &S = s;
@@ -4984,12 +4991,12 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsert(di, sa)" << endl;
                 if ((int)strlen(S_SPEC) == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     {
                         Obj s(SS, &testAllocator);  const Obj &S = s;
@@ -5000,12 +5007,12 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsert(di, value)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     {
                         Obj s(SS, &testAllocator);  const Obj &S = s;
@@ -5016,14 +5023,14 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                 if (veryVerbose) cout << "\t\tappend(sa, si, ne)" << endl;
                 if ((int)strlen(D_SPEC) == DI) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     {
                         Obj s(SS, &testAllocator);  const Obj &S = s;
@@ -5034,12 +5041,12 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappend(sa)" << endl;
                 if ((int)strlen(D_SPEC) == DI && (int)strlen(S_SPEC) == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     {
                         Obj s(SS, &testAllocator);  const Obj &S = s;
@@ -5050,12 +5057,12 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappend(value)" << endl;
                 if ((int)strlen(D_SPEC) == DI && 1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     {
                         Obj s(SS, &testAllocator);  const Obj &S = s;
@@ -5066,7 +5073,7 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5074,24 +5081,28 @@ int main(int argc, char *argv[])
                 if (veryVerbose) cout << "\t\tremove(index, ne)" << endl;
                 {
                   if (veryVerbose) { P_(DI) P(NE); }
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched.
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     Obj x(EE, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.remove(DI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP5_ASSERT(LINE, DD, X, DI, NE, DD == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tremove(index)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     Obj x(EE, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.remove(DI);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP4_ASSERT(LINE, DD, X, DI, DD == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) {
@@ -5543,70 +5554,70 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) cout << "\t\tinsert(di, sa, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.insert(DI, X, SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); P(EE); }
                     LOOP4_ASSERT(LINE, DI, SI, NE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsert(di, sa)" << endl;
                 if ((int)strlen(X_SPEC) == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.insert(DI, X);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsert(di, value)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.insert(DI, X[SI]);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                 if (veryVerbose) cout << "\t\tappend(sa, si, ne)" << endl;
                 if ((int)strlen(X_SPEC) == DI) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.append(X, SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappend(sa)" << endl;
                 if ((int)strlen(X_SPEC) == DI && (int)strlen(X_SPEC) == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.append(X);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappend(value)" << endl;
                 if ((int)strlen(X_SPEC) == DI && 1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj x(DD, &testAllocator);  const Obj &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.append(X[SI]);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) {
@@ -5728,7 +5739,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_TESTS; ++j) {
                     const int a2 = lengths[j];
                     if (veryVerbose) { cout << "\t\t"; P(a2); }
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(a1, VALUE, &testAllocator);
                     const Obj &X = mX;
                     if (veryVerbose) P(X);
@@ -5739,7 +5750,7 @@ int main(int argc, char *argv[])
                     for (int k = 0; k < (a2 < a1 ? a2 : a1); ++k) {
                         LOOP3_ASSERT(i, j, k, VALUE == X[k]);
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -5756,7 +5767,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_TESTS; ++j) {
                     const int a2 = lengths[j];
                     if (veryVerbose) { cout << "\t\t"; P(a2); }
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(a1, I_VALUE, &testAllocator);
                     const Obj &X = mX;
                     if (veryVerbose) P(X);
@@ -5772,7 +5783,7 @@ int main(int argc, char *argv[])
                             LOOP3_ASSERT(i, j, k, DEFAULT_VALUE == X[k]);
                         }
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -5789,7 +5800,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_TESTS; ++j) {
                     const int a2 = lengths[j];
                     if (veryVerbose) { cout << "\t\t"; P(a2); }
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(a1, I_VALUE, &testAllocator);
                     const Obj &X = mX;
                     if (veryVerbose) P(X);
@@ -5805,7 +5816,7 @@ int main(int argc, char *argv[])
                             LOOP3_ASSERT(i, j, k, (F_VALUE != 0) == X[k]);
                         }
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -5822,7 +5833,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_TESTS; ++j) {
                     const int a2 = lengths[j];
                     if (veryVerbose) { cout << "\t\t"; P(a2); }
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(a1, I_VALUE, &testAllocator);
                     const Obj &X = mX;
                     if (veryVerbose) P(X);
@@ -5838,7 +5849,7 @@ int main(int argc, char *argv[])
                             LOOP3_ASSERT(i, j, k, (F_VALUE!=0) == (bool) X[k]);
                         }
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -5855,7 +5866,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_TESTS; ++j) {
                     const int a2 = lengths[j];
                     if (veryVerbose) { cout << "\t\t"; P(a2); }
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(a1, I_VALUE, &testAllocator);
                     const Obj &X = mX;
                     if (veryVerbose) P(X);
@@ -5871,7 +5882,7 @@ int main(int argc, char *argv[])
                             LOOP3_ASSERT(i, j, k, (F_VALUE!=0) == (bool) X[k]);
                         }
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -5888,7 +5899,7 @@ int main(int argc, char *argv[])
                 for (int j = 0; j < NUM_TESTS; ++j) {
                     const int a2 = lengths[j];
                     if (veryVerbose) { cout << "\t\t"; P(a2); }
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(a1, I_VALUE, &testAllocator);
                     const Obj &X = mX;
                     if (veryVerbose) P(X);
@@ -5904,7 +5915,7 @@ int main(int argc, char *argv[])
                             LOOP3_ASSERT(i, j, k, (F_VALUE!=0) == (bool) X[k]);
                         }
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -5982,7 +5993,7 @@ int main(int argc, char *argv[])
             const Element DEFAULT_VALUE = 0;  // ADJUST
             const int MAX_LENGTH = 100;
             for (int length = 0; length <= MAX_LENGTH; ++length) {
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 if (verbose) P(length);
                 Obj mX(length, &testAllocator);  const Obj &X = mX;
                 if (veryVerbose) P(X);
@@ -5990,7 +6001,7 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < length; ++i) {
                     LOOP2_ASSERT(length, i, DEFAULT_VALUE == X[i]);
                 }
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -6058,7 +6069,7 @@ int main(int argc, char *argv[])
             const Element VALUE = 1;  // ADJUST
             const int MAX_LENGTH = 100;
             for (int length = 0; length <= MAX_LENGTH; ++length) {
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 if (verbose) P(length);
                 Obj mX(length, VALUE, &testAllocator);  const Obj &X = mX;
                 if (veryVerbose) P(X);
@@ -6066,7 +6077,7 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < length; ++i) {
                     LOOP2_ASSERT(length, i, VALUE == X[i]);
                 }
-              } END_BSLMA_EXCEPTION_TEST
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -6266,7 +6277,8 @@ int main(int argc, char *argv[])
                         const int Z = ui == vi; // flag indicating same values
 
                         for (int vj = 0; vj < NUM_EXTEND; ++vj) {
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                           BEGIN_BDEX_EXCEPTION_TEST {
                             testInStream.reset();
                             const int V_N = EXTEND[vj];
@@ -6304,7 +6316,7 @@ int main(int argc, char *argv[])
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  U == V);
 
                           } END_BDEX_EXCEPTION_TEST
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
                     }
                 }
@@ -6350,7 +6362,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(ti, curLen == X.length());  // same lengths
 
                 for (int ei = 0; ei < NUM_EXTEND; ++ei) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   BEGIN_BDEX_EXCEPTION_TEST {
                     testInStream.reset();
 
@@ -6380,7 +6392,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(ti, ei, X == t);
 
                   } END_BDEX_EXCEPTION_TEST
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -6414,7 +6426,7 @@ int main(int argc, char *argv[])
                     t3(X3, &testAllocator);
 
                 if (i < LOD1) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   BEGIN_BDEX_EXCEPTION_TEST { in.reset();
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
@@ -6432,10 +6444,10 @@ int main(int argc, char *argv[])
                     bdex_InStreamFunctions::streamIn(in, t3, VERSION);
                     LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X3 == t3);
                   } END_BDEX_EXCEPTION_TEST
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
                 else if (i < LOD2) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   BEGIN_BDEX_EXCEPTION_TEST { in.reset();
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
@@ -6453,10 +6465,10 @@ int main(int argc, char *argv[])
                     bdex_InStreamFunctions::streamIn(in, t3, VERSION);
                     LOOP_ASSERT(i, !in);  LOOP_ASSERT(i, X3 == t3);
                   } END_BDEX_EXCEPTION_TEST
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
                 else {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   BEGIN_BDEX_EXCEPTION_TEST {
                     in.reset();
                     testAllocator.setAllocationLimit(-1);
@@ -6473,7 +6485,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, !in);
                     if (LOD2 == i) LOOP_ASSERT(i, X3 == t3);
                   } END_BDEX_EXCEPTION_TEST
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 Obj w1(t1), w2(t2), w3(t3);  // make copies to be sure we can
@@ -6817,7 +6829,8 @@ int main(int argc, char *argv[])
                         for (int vj = 0; vj < NUM_EXTEND; ++vj) {
                             const int V_N = EXTEND[vj];
 
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
                             Obj mU(&testAllocator); stretchRemoveAll(&mU, U_N);
@@ -6848,7 +6861,7 @@ int main(int argc, char *argv[])
                             }
                             // 'mV' (and therefore 'V') now out of scope
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
                     }
                 }
@@ -6890,7 +6903,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(ti, curLen == X.length());  // same lengths
 
                 for (int tj = 0; tj < NUM_EXTEND; ++tj) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -6909,7 +6922,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(SPEC, N, Y == Y);
                     LOOP2_ASSERT(SPEC, N, X == Y);
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -7152,12 +7165,13 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(SPEC, N, W == X);
                     }
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {        // Test allocator.
+                                                        // Test allocator.
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const Obj Y2(X, &testAllocator);
                         if (veryVerbose) { cout << "\t\t\t"; P(Y2); }
                         LOOP2_ASSERT(SPEC, N, W == Y2);
                         LOOP2_ASSERT(SPEC, N, W == X);
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     {                                   // Buffer Allocator.
                         char memory[1024];
@@ -8256,13 +8270,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Default Ctor" << endl;
             const Obj X(&testAllocator);
             if (veryVerbose) { cout << "\t\t"; P(X); }
             ASSERT(0 == X.length());
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
@@ -8463,7 +8477,7 @@ int main(int argc, char *argv[])
                 if (verbose) cout <<
                     "\t\tOn an object of length " << i << '.' << endl;
 
-              BEGIN_BSLMA_EXCEPTION_TEST {
+              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 int k; // loop index
 
                 Obj mX(&testAllocator);  const Obj& X = mX;             // 1.
@@ -8476,7 +8490,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(i, k, (k % 3 > 0) == X[k]);
                 }
 
-              } END_BSLMA_EXCEPTION_TEST                                // 4.
+              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                  // 4.
             }
         }
 
@@ -8501,7 +8515,7 @@ int main(int argc, char *argv[])
                     if (veryVerbose) cout <<
                         "\t\t\tAnd with final length " << j << '.' << endl;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     int k; // loop index
 
                     Obj mX(&testAllocator);  const Obj& X = mX;         // 1.
@@ -8525,7 +8539,7 @@ int main(int argc, char *argv[])
                     for (k = 0; k < j; ++k) {
                         LOOP3_ASSERT(i, j, k, (k % 3 > 0) == X[k]);
                     }
-                  } END_BSLMA_EXCEPTION_TEST                            // 8.
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END              // 8.
                 }
             }
         }

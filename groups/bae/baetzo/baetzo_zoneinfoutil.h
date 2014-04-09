@@ -102,12 +102,12 @@ BDES_IDENT("$Id: $")
 //:   'bdet_Datetime' value, "Jan 01, 0001 00:00" -- i.e.,
 //:   'bdet_Datetime(1, 1, 1)'.
 //:
-//: 3 There is no transition, in the ordered sequence of transitions
-//:   described by the Zoneinfo, where local clock time is adjusted, either
-//:   forwards or backwards, introducing a period of invalid or ambiguous
-//:   local times, respectively, and where that range of local times overlaps
-//:   with the range of invalid or ambiguous local times introduced by
-//:   subsequent transition (if any).
+//: 3 There is no transition in the ordered sequence of transitions
+//:   described by the Zoneinfo where local clock time is adjusted (either
+//:   forwards or backwards) introducing a period of invalid or ambiguous
+//:   local times, where that range of invalid or ambiguous local times
+//:   overlaps with the range of invalid or ambiguous local times introduced by
+//:   subsequent transition.
 //
 // Note that 'baetzo_ZoneinfoUtil::isWellFormed' has linear complexity with
 // respect to the number of transitions that the Zoneinfo value defines.
@@ -189,7 +189,7 @@ BDES_IDENT("$Id: $")
 //..
 // Next we create a series of transitions between these local-time descriptors
 // for the years 2007-2011.  Note that the United States transitions to
-// daylight savings time on the second Sunday in March, at 2am local time
+// daylight saving time on the second Sunday in March, at 2am local time
 // (07:00 UTC), and transitions back to standard time on the first Sunday in
 // November at 2am local time (06:00 UTC), resulting in an even number of
 // transitions:
@@ -431,13 +431,13 @@ struct baetzo_ZoneinfoUtil {
         //:   'bdet_Datetime' value, "Jan 01, 0001 00 00.000" -- i.e.,
         //:   'bdet_Datetime(1, 1, 1)'.
         //:
-        //: 3 There is no transition, in the ordered sequence of transitions
-        //:   described by 'timeZone', where the local clock time is adjusted
+        //: 3 There is no transition in the ordered sequence of transitions
+        //:   described by 'timeZone' where the local clock time is adjusted
         //:   (either forwards or backwards) introducing a period of invalid
-        //:   or ambiguous local times (respectively), where that range of
-        //:   invalid or ambiguous local times overlaps with a range of
-        //:   invalid or ambiguous local times introduced by the subsequent
-        //:   transition (see component documentation for an illustration).
+        //:   or ambiguous local times, where that range of invalid or
+        //:   ambiguous local times overlaps with a range of invalid or
+        //:   or ambiguous local times introduced by the subsequent transition
+        //:   (see component documentation for an illustration).
         //
         // Note that this method has linear worst-case time complexity with
         // respect to 'timeZone.numTransitions()'.

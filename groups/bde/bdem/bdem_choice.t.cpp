@@ -2269,7 +2269,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { P(SPEC); }
 
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mA; const Obj& A = mA;
             LOOP_ASSERT(LINE, 0  == A.numSelections());
             LOOP_ASSERT(LINE, -1 == A.selector());
@@ -2454,7 +2454,7 @@ int main(int argc, char *argv[])
               LOOP_ASSERT(LINE, D == E);
               LOOP_ASSERT(LINE, E == F);
             }
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
           }
         }
 
@@ -2476,7 +2476,7 @@ int main(int argc, char *argv[])
 
               bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
               bdema_SequentialAllocator  seqAlloc(&testAllocator);
               bslma::Allocator          *alloc = &testAllocator;
@@ -2673,7 +2673,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, D == E);
                 LOOP_ASSERT(LINE, E == F);
               }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
           }
         }
@@ -3044,7 +3044,8 @@ int main(int argc, char *argv[])
                             bslma::TestAllocator testAllocator(
                                                               veryVeryVerbose);
 
-                            BEGIN_BSLMA_EXCEPTION_TEST {
+                            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                                 Obj mA(CATALOG2, &testAllocator);
                                 const Obj& A = mA;
                                 Obj mB(CATALOG2, &testAllocator);
@@ -3113,7 +3114,7 @@ int main(int argc, char *argv[])
                                                  C.selection().isNull());
                                     LOOP3_ASSERT(LINE1, Y, C, Y == C);
                                 }
-                            } END_BSLMA_EXCEPTION_TEST
+                            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
                     }
 
@@ -3321,6 +3322,9 @@ int main(int argc, char *argv[])
                     mN.selection().makeNull();
                 }
 
+#ifdef IN  // Windows headers #define IN
+#undef IN
+#endif
                 const ChoiceArrayItem& I  = X.item();
                 const ChoiceArrayItem& IN = N.item();
 
@@ -3387,7 +3391,8 @@ int main(int argc, char *argv[])
                             bslma::TestAllocator testAllocator(
                                                               veryVeryVerbose);
 
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
 
                             bdema_SequentialAllocator seqAlloc(&testAllocator);
                             bslma::Allocator         *alloc = &testAllocator;
@@ -3497,7 +3502,7 @@ int main(int argc, char *argv[])
                             LOOP2_ASSERT(LINE1, LINE2, N != A);
                             LOOP2_ASSERT(LINE1, LINE2, N != B);
                             LOOP2_ASSERT(LINE1, LINE2, N != Y);
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
                     }
                 }
@@ -3708,7 +3713,7 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator testAllocator(veryVeryVerbose);
                     bslma::DefaultAllocatorGuard guard(&testAllocator);
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int BYTES = origAlloc.numBytesInUse();
                     Obj mA(X); const Obj& A = mA;
                     Obj mB(X, &testAllocator); const Obj& B = mB;
@@ -3818,7 +3823,7 @@ int main(int argc, char *argv[])
                     mD.makeSelection(-1);
                     LOOP_ASSERT(LINE, X == Y);
                     LOOP_ASSERT(LINE, X != D);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // Test copy construction using custom allocation strategies.
@@ -3830,7 +3835,7 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     bdema_SequentialAllocator seqAlloc(
                                       &bslma::NewDeleteAllocator::singleton());
@@ -3955,7 +3960,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, X == Y);
                     LOOP_ASSERT(LINE, X != D);
 
-                 } END_BSLMA_EXCEPTION_TEST
+                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                }
             }
         }
@@ -5379,7 +5384,7 @@ int main(int argc, char *argv[])
 
               bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
               bdema_SequentialAllocator  seqAlloc(&testAllocator);
               bslma::Allocator           *alloc = &testAllocator;
 
@@ -5517,7 +5522,7 @@ int main(int argc, char *argv[])
                 X.selectionTypes(&tmpCatalog);
                 LOOP_ASSERT(LINE, CATALOG == tmpCatalog);
               }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
           }
         }

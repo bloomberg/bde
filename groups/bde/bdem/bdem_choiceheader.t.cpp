@@ -1177,7 +1177,7 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     bdema_SequentialAllocator  seqAlloc(&testAllocator);
                     bslma::Allocator          *alloc = &testAllocator;
@@ -1309,7 +1309,7 @@ int main(int argc, char *argv[])
 
                     LOOP3_ASSERT(LINE, j, S, -1 == XN.selector());
                     LOOP3_ASSERT(LINE, j, S, YN.isSelectionNull());
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }

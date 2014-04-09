@@ -128,6 +128,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 
 namespace BloombergLP {
 
@@ -151,7 +155,7 @@ class baenet_HttpMessageParser {
     baenet_HttpEntityProcessor         *d_entityProcessor_p;
     HeaderSharedPtr                     d_header_sp;
     baenet_HttpMessageType::Value       d_messageType;
-    int                                 d_numBytesRemaining;
+    bsls::Types::Int64                  d_numBytesRemaining;
     baenet_HttpStartLine                d_startLine;
     int                                 d_state;
     baenet_HttpTransferEncoding::Value  d_transferEncoding;

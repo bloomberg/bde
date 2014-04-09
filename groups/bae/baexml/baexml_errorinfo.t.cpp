@@ -8,6 +8,12 @@
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+// Undefine some awkwardly named Windows macros that interfere with this cpp
+// file, but only after the last #include.
+# undef ERROR
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -131,6 +137,10 @@ static int veryVeryVerbose = 0;
 
 // Abbreviation for baexml_ErrorInfo
 typedef baexml_ErrorInfo Obj;
+
+#ifdef NO_ERROR // 'NO_ERROR' is #define'd in a windows header
+#undef NO_ERROR
+#endif
 
 // Abbreviations for severities.
 const Obj::Severity NO_ERROR    = Obj::BAEXML_NO_ERROR;

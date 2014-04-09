@@ -2212,21 +2212,19 @@ int main(int argc, char *argv[])
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
             {
-                ASSERT_SAFE_FAIL(Obj(      0,               &sa));
+                ASSERT_SAFE_PASS(Obj(&loader,               &sa));
 
-                ASSERT_SAFE_FAIL(Obj(&loader,                 0));
+                ASSERT_SAFE_FAIL(Obj(      0,               &sa));
             }
 
             {
-                ASSERT_SAFE_FAIL(Obj(      0, Interval( 0), &sa));
-
-                ASSERT_SAFE_FAIL(Obj(&loader, Interval( 0),   0));
-
-                ASSERT_SAFE_FAIL(Obj(&loader, Interval(-1), &sa));
+                ASSERT_SAFE_PASS(Obj(&loader, Interval( 1), &sa));
 
                 ASSERT_SAFE_PASS(Obj(&loader, Interval( 0), &sa));
 
-                ASSERT_SAFE_PASS(Obj(&loader, Interval( 1), &sa));
+                ASSERT_SAFE_FAIL(Obj(&loader, Interval(-1), &sa));
+
+                ASSERT_SAFE_FAIL(Obj(      0, Interval( 0), &sa));
             }
         }
 

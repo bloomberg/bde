@@ -73,9 +73,18 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bbedc_daycountinterface.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
 namespace BloombergLP {
 
 class bdet_Date;
+class bbedc_IcmaActualActual;
 
                        // ===========================
                        // class bbedc_DayCountAdapter
@@ -128,6 +137,8 @@ double
 bbedc_DayCountAdapter<CONVENTION>:: yearsDiff(const bdet_Date& beginDate,
                                               const bdet_Date& endDate) const
 {
+    BSLMF_ASSERT(!(bsl::is_same<CONVENTION, bbedc_IcmaActualActual>::value));
+
     return CONVENTION::yearsDiff(beginDate, endDate);
 }
 
