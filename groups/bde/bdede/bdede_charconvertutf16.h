@@ -435,7 +435,7 @@ struct bdede_CharConvertUtf16 {
                            wchar_t                   errorCharacter  = '?');
         // Load into the specified 'dstBuffer' of the specified 'dstCapacity',
         // the result of converting the specified UTF-8 string 'srcStringRef'
-        // or the specifed null-terminated UTF-8 buffer 'srcCString' to its
+        // or the specified null-terminated UTF-8 buffer 'srcCString' to its
         // UTF-16 equivalent.  Optionally specify 'numCharsWritten' which (if
         // not 0) indicates the location of the variable into which the number
         // of UTF-16 characters (including the terminating 0) written is to be
