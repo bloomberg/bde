@@ -5103,10 +5103,28 @@ int main(int argc, char**argv)
                                                 (unsigned short) '?');
         ASSERT(errorChar && rc ? found < dst.end() : found == dst.end());
 
-        int rc2 = Util::utf8ToUtf16(&wStr,
-                                    bslstl::StringRef(start, end),
+        char save = *end;
+        *end = 0;
+
+        int rc2 = Util::utf8ToUtf16(&dstB,
+                                    start,
                                     &nc2,
-                                    (wchar_t) errorChar);
+                                    errorChar);
+        ASSERT(rc2 == rc);
+        ASSERT(dstB == dst);
+        ASSERT(nc2 == nc);
+
+        *end = save;
+
+        found = bsl::find(dstB.begin(),
+                          dstB.end(),
+                          (unsigned short) '?');
+        ASSERT(errorChar && rc ? found < dstB.end() : found == dstB.end());
+
+        rc2 = Util::utf8ToUtf16(&wStr,
+                                bslstl::StringRef(start, end),
+                                &nc2,
+                                (wchar_t) errorChar);
         ASSERT(rc2 == rc);
         ASSERT(nc2 == nc);
 
@@ -5116,8 +5134,16 @@ int main(int argc, char**argv)
             ASSERT(wStr[ii] == (wchar_t) dst[ii]);
         }
 
-        char save = *end;
+        save = *end;
         *end = 0;
+
+        rc2 = Util::utf8ToUtf16(&wStrB,
+                                start,
+                                &nc2,
+                                (wchar_t) errorChar);
+        ASSERT(rc2 == rc);
+        ASSERT(nc2 == nc);
+        ASSERT(wStrB == wStr);
 
         nc2 = (bsl::size_t) -1;
         rc2 = Util::utf8ToUtf16(&dstB,
@@ -5178,6 +5204,32 @@ int main(int argc, char**argv)
                                           INPUT.c_str() < start || END > end ||
                                                    (i < 4 && k < 4 && m < 4) ||
                       (bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT & rc));
+            bsl::fill(dst.begin(), dst.end(), (unsigned short) -1);
+
+            save = *end;
+            *end = 0;
+
+            nc = nw = (bsl::size_t) -1;
+            rc = Util::utf8ToUtf16(&dst[0],
+                                   cap,
+                                   start,
+                                   &nc,
+                                   &nw,
+                                   errorChar);
+            ASSERT(nc <= nw);
+            ASSERT(nw <= cap);
+            ASSERT(nw <= dstCap);
+            ASSERT(!cap || (nw && nc));
+            ASSERT(!nw || 0 == dst[nw - 1]);
+            ASSERT((unsigned short) -1 == dst[nw]);
+            ASSERT(cap < dstCap ==
+                     !!(rc & bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
+            LOOP4_ASSERT(rc, i, k, m, cap < dstCap ||
+                                          INPUT.c_str() < start || END > end ||
+                                                   (i < 4 && k < 4 && m < 4) ||
+                      (bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT & rc));
+
+            *end = save;
 
             bsl::fill(wStr.begin(), wStr.end(), (wchar_t) -1);
 
@@ -5196,6 +5248,29 @@ int main(int argc, char**argv)
             for (bsl::size_t ii = 0; ii < nw; ++ii) {
                 ASSERT((wchar_t) dst[ii] == wStr[ii]);
             }
+
+            save = *end;
+            *end = 0;
+
+            bsl::fill(wStr.begin(), wStr.end(), (wchar_t) -1);
+
+            nc2 = nw2 = (bsl::size_t) -1;
+            rc2 = Util::utf8ToUtf16(&wStr[0],
+                                    cap,
+                                    start,
+                                    &nc2,
+                                    &nw2,
+                                    errorChar);
+            ASSERT(rc2 == rc);
+            ASSERT(nc2 == nc);
+            ASSERT(nw2 == nw);
+            ASSERT((wchar_t) -1 == wStr[cap]);
+
+            for (bsl::size_t ii = 0; ii < nw; ++ii) {
+                ASSERT((wchar_t) dst[ii] == wStr[ii]);
+            }
+
+            *end = save;
 
             if (cap + 2 >= dstCap) {
                 save = *end;
@@ -5324,6 +5399,24 @@ int main(int argc, char**argv)
 
                     *end = save;
                 }
+            }
+        }
+
+        if (verbose) cout << "Try inserting 0's in the middle of the input\n";
+
+        for (char *start = utf8Broken; start < utf8BrokenEnd; ++start) {
+            for (char *zero = start; zero < utf8BrokenEnd; ++zero) {
+                char save = *zero;
+                *zero = 0;
+
+                bdede_CharConvertUtf16::utf8ToUtf16(
+                                              &dstVec,
+                                              bslstl::StringRef(start,
+                                                                utf8BrokenEnd),
+                                              0,
+                                              '?');
+
+                *zero = save;
             }
         }
       }  break;
