@@ -29,7 +29,11 @@ namespace bsl
 {
     // Import selected symbols into bsl namespace
 
-    using native_std::allocator;
+    // These are declared in bslstl_iosfwd.h (so cannot be using declarations):
+    //..
+    //  using native_std::allocator;
+    //..
+
     using native_std::advance;
     using native_std::auto_ptr;
     using native_std::get_temporary_buffer;
