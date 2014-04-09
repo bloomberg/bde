@@ -5307,6 +5307,8 @@ int main(int argc, char**argv)
                 *end = save;
             }
         }
+
+        ASSERT(bsl::strlen(INPUT.c_str()) == INPUT.length());
 //      |>>>>>>>>>>>>>>>>>>>>>>>|
 //      |>>>>>>>>>>>>>>>>>>>>>>>|
                             }
@@ -5358,7 +5360,7 @@ int main(int argc, char**argv)
 
         char * const utf8BrokenEnd = utf8Broken + sizeof(utf8Broken) - 1;
 
-        bsl::vector<unsigned short> dstVec;
+        bsl::vector<unsigned short> dstVec, dstVecB;
 
         for (char *start = utf8Broken; start < utf8BrokenEnd; ++start) {
             char *end = start == utf8Broken ? start
@@ -5376,11 +5378,21 @@ int main(int argc, char**argv)
                                                         errorChar);
 
                     *end = save;
+
+                    bdede_CharConvertUtf16::utf8ToUtf16(
+                                                       &dstVecB,
+                                                       bslstl::StringRef(start,
+                                                                         end),
+                                                       0,
+                                                       errorChar);
+
+                    ASSERT(dstVec == dstVecB);
                 }
             }
         }
+        ASSERT(bsl::strlen(utf8Broken) == sizeof(utf8Broken) - 1);
 
-        bsl::wstring dstWstring;
+        bsl::wstring dstWstring, dstWstringB;
 
         for (char *start = utf8Broken; start < utf8BrokenEnd; ++start) {
             char *end = start == utf8Broken ? start
@@ -5398,9 +5410,19 @@ int main(int argc, char**argv)
                                                         errorChar);
 
                     *end = save;
+
+                    bdede_CharConvertUtf16::utf8ToUtf16(
+                                                       &dstWstringB,
+                                                       bslstl::StringRef(start,
+                                                                         end),
+                                                       0,
+                                                       errorChar);
+
+                    ASSERT(dstWstring == dstWstringB);
                 }
             }
         }
+        ASSERT(bsl::strlen(utf8Broken) == sizeof(utf8Broken) - 1);
 
         if (verbose) cout << "Try inserting 0's in the middle of the input\n";
 
@@ -5408,6 +5430,9 @@ int main(int argc, char**argv)
             for (char *zero = start; zero < utf8BrokenEnd; ++zero) {
                 char save = *zero;
                 *zero = 0;
+
+                // We're just doing this to see if there are any segfaults or
+                // internal asserts that fail.
 
                 bdede_CharConvertUtf16::utf8ToUtf16(
                                               &dstVec,
@@ -5419,6 +5444,7 @@ int main(int argc, char**argv)
                 *zero = save;
             }
         }
+        ASSERT(bsl::strlen(utf8Broken) == sizeof(utf8Broken) - 1);
       }  break;
       case 8: {
         // --------------------------------------------------------------------
@@ -5466,9 +5492,13 @@ int main(int argc, char**argv)
                               : expectedUtf16Zero + NUM_EXPECTED_UTF16_ZERO-1);
             ASSERT(numExpectedChars == expectedW.length() + 1);
 
-            const wchar_t *expectedWCstr = expectedW.c_str();
-            const bsl::vector<unsigned short> expectedV(
-                        expectedWCstr, expectedWCstr + expectedW.length() + 1);
+            bsl::vector<unsigned short> expectedV;
+            {
+                const wchar_t *wPtr = expectedW.c_str();
+                do {
+                    expectedV.push_back((unsigned short) *wPtr);
+                } while (0 != *wPtr++);
+            }
             bsl::wstring utf16Wstring;
 
             {
@@ -5495,6 +5525,22 @@ int main(int argc, char**argv)
                         }
                     }
                 }
+
+                utf16Wstring.clear();
+                nChars = -1;
+                rc = Util::utf8ToUtf16(
+                            &utf16Wstring,
+                            bslstl::StringRef((const char *) errorUnsignedIn,
+                                              sizeof(errorUnsignedIn) - 1),
+                            &nChars,
+                            errorChar);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                LOOP2_ASSERT(nChars, numExpectedChars,
+                                                   numExpectedChars == nChars);
+                LOOP2_ASSERT(utf16Wstring.length(), numExpectedChars,
+                                numExpectedChars == utf16Wstring.length() + 1);
+
+                ASSERT(expectedW == utf16Wstring);
             }
 
             {
@@ -5523,6 +5569,24 @@ int main(int argc, char**argv)
                         }
                     }
                 }
+
+                utf16Vec.clear();
+                nChars = -1;
+                rc = Util::utf8ToUtf16(
+                              &utf16Vec,
+                              bslstl::StringRef((const char *) errorUnsignedIn,
+                                                sizeof(errorUnsignedIn) - 1),
+                              &nChars,
+                              errorChar);
+                ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
+                LOOP2_ASSERT(nChars, numExpectedChars,
+                                                   numExpectedChars == nChars);
+                LOOP2_ASSERT(utf16Vec.size(), numExpectedChars,
+                                          numExpectedChars == utf16Vec.size());
+                LOOP2_ASSERT(expectedV.size(), utf16Vec.size(),
+                                          expectedV.size() == utf16Vec.size());
+                ASSERT(expectedV == utf16Vec);
+
                 const wchar_t *wstr = utf16Wstring.c_str();
 
                 for (unsigned i = 0; i < utf16Vec.size(); ++i) {
@@ -5611,6 +5675,28 @@ int main(int argc, char**argv)
             ASSERT(utf16W[i] == (wchar_t) utf16S[i]);
         }
 
+        rc = Util::utf8ToUtf16(utf16S,
+                               CAPACITY,
+                               bslstl::StringRef((const char *) utf8MultiLang),
+                               &numChars16,
+                               &numWords16S);
+        ASSERT(0 == rc);
+        ASSERT(numWords16S == numWords16W);
+        for (int i = 0; i < (int) numWords16S; ++i) {
+            ASSERT(utf16W[i] == (wchar_t) utf16S[i]);
+        }
+
+        rc = Util::utf8ToUtf16(utf16W,
+                               CAPACITY,
+                               bslstl::StringRef((const char *) utf8MultiLang),
+                               &numChars16,
+                               &numWords16W);
+        ASSERT(0 == rc);
+        ASSERT(numWords16S == numWords16W);
+        for (int i = 0; i < (int) numWords16S; ++i) {
+            ASSERT(utf16W[i] == (wchar_t) utf16S[i]);
+        }
+
         {
             bsl::vector<unsigned short> utf16Vec(&ta);
 
@@ -5632,6 +5718,23 @@ int main(int argc, char**argv)
 
             ASSERT(0 == localUtf16Cmp(utf16Vec.begin(), utf16S));
             ASSERT(numWords16S - 1 == localUtf16Len(utf16Vec.begin()));
+
+            rc = Util::utf8ToUtf16(
+                               &utf16Vec,
+                               bslstl::StringRef((const char *) utf8MultiLang),
+                               &numChars16Vec);
+            ASSERT(0 == rc);
+
+            ASSERT(numChars16Vec == numChars16);
+            ASSERT(numWords16S   == utf16Vec.size());
+
+            z16Ptr = bsl::find(utf16Vec.begin(), utf16Vec.end(), 0);
+            ASSERT(utf16Vec.end() != z16Ptr);
+            ASSERT(&utf16Vec[utf16Vec.size() - 1] == z16Ptr);
+            ASSERT(0 == *z16Ptr);
+
+            ASSERT(0 == localUtf16Cmp(utf16Vec.begin(), utf16S));
+            ASSERT(numWords16S - 1 == localUtf16Len(utf16Vec.begin()));
         }
 
         {
@@ -5642,6 +5745,20 @@ int main(int argc, char**argv)
             rc = Util::utf8ToUtf16(&utf16Wstring,
                                    (const char *) utf8MultiLang,
                                    &numChars16Wstring);
+            ASSERT(0 == rc);
+
+            ASSERT(numChars16Wstring == numChars16);
+            ASSERT(numWords16S       == utf16Wstring.length() + 1);
+            ASSERT(localUtf16Len(utf16Wstring.c_str()) ==
+                                                        utf16Wstring.length());
+
+            ASSERT(utf16W == utf16Wstring);
+
+            numChars16Wstring = -1;
+            rc = Util::utf8ToUtf16(
+                               &utf16Wstring,
+                               bslstl::StringRef((const char *) utf8MultiLang),
+                               &numChars16Wstring);
             ASSERT(0 == rc);
 
             ASSERT(numChars16Wstring == numChars16);
@@ -5795,9 +5912,42 @@ int main(int argc, char**argv)
         ASSERT(numWords16S < sizeof(utf8MultiLang));
         ASSERT(numWords16S >= numChars16);
 
+        rc = Util::utf8ToUtf16(utf16S,
+                               CAPACITY,
+                               bslstl::StringRef(charUtf8MultiLang),
+                               &numChars16,
+                               &numWords16S);
+
+        if (verbose) {
+            Q(utf8ToUtf16:);
+            P_(rc) P_(numChars16) P(numWords16S);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numChars16  < sizeof(utf8MultiLang));
+        ASSERT(numWords16S < sizeof(utf8MultiLang));
+        ASSERT(numWords16S >= numChars16);
+
         rc = Util::utf8ToUtf16(utf16W,
                                CAPACITY,
                                charUtf8MultiLang,
+                               &numChars16,
+                               &numWords16W);
+
+        if (verbose) {
+            Q(utf8ToUtf16:);
+            P_(rc) P_(numChars16) P(numWords16W);
+        }
+
+        ASSERT(0 == rc);
+        ASSERT(numChars16  < sizeof(utf8MultiLang));
+        ASSERT(numWords16W < sizeof(utf8MultiLang));
+        ASSERT(numWords16W >= numChars16);
+        ASSERT(numWords16W == numWords16S);
+
+        rc = Util::utf8ToUtf16(utf16W,
+                               CAPACITY,
+                               bslstl::StringRef(charUtf8MultiLang),
                                &numChars16,
                                &numWords16W);
 
@@ -6688,6 +6838,17 @@ int main(int argc, char**argv)
                                                &nc,
                                                &nw,
                                                0);
+                    ASSERT(1 == rc);
+                    ASSERT(6 - 1 - c == nc);
+                    ASSERT(6 - 1 - c == nw);
+                    ASSERT((unsigned) input[1 + c] == output[0]);
+
+                    rc = Util::utf8ToUtf16(output,
+                                           sizeof(output),
+                                           bslstl::StringRef(input),
+                                           &nc,
+                                           &nw,
+                                           0);
                     ASSERT(1 == rc);
                     ASSERT(6 - 1 - c == nc);
                     ASSERT(6 - 1 - c == nw);
@@ -10750,17 +10911,25 @@ int runPlainTextPerformanceTest(void)
     s.start();
 
     for (int i = 0; i < iterLimit; ++i) {
-        ASSERT(SUCCESS == bdede_CharConvertUtf16::utf8ToUtf16(utf16Buffer_p,
+        ASSERT(SUCCESS == bdede_CharConvertUtf16::utf8ToUtf16(
+                                                            utf16Buffer_p,
                                                             prideLen,
                                                             prideAndPrejudice,
                                                             &charsWritten));
         ASSERT(charsWritten == prideLen);
 
+        ASSERT(SUCCESS == bdede_CharConvertUtf16::utf8ToUtf16(
+                                          utf16Buffer_p,
+                                          prideLen,
+                                          bslstl::StringRef(prideAndPrejudice),
+                                          &charsWritten));
+        ASSERT(charsWritten == prideLen);
+
         ASSERT(0 == bdede_CharConvertUtf16::utf16ToUtf8(utf8Buffer_p,
-                                                      prideLen,
-                                                      utf16Buffer_p,
-                                                      &charsWritten,
-                                                      &bytesWritten));
+                                                        prideLen,
+                                                        utf16Buffer_p,
+                                                        &charsWritten,
+                                                        &bytesWritten));
         ASSERT(charsWritten == prideLen);
         ASSERT(bytesWritten == prideLen);
     }
