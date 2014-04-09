@@ -1770,7 +1770,7 @@ void testSingleOctetPerturbation(const char             *input,
 
     int before = perturb.d_extraInvalidBefore;
     int after  = perturb.d_extraInvalidAfter;
-    int pos    = perturbationChar;
+    int pos    = (int) perturbationChar;
 
     // Increment characterCount to account for additional error characters
     // before and after 'pos' and for the null terminator.
@@ -2450,7 +2450,7 @@ struct Permuter {
     int adv_wh(int n)
     {
         exch(n, n + d_wheel[n]);
-        d_wheel[n] = (d_wheel[n] + 1) % (N - n);
+        d_wheel[n] = static_cast<unsigned>((d_wheel[n] + 1) % (N - n));
         exch(n, n + d_wheel[n]);
 
         return d_wheel[n] != 0;
@@ -5571,11 +5571,11 @@ int main(int argc, char**argv)
                 utf16Wstring.clear();
                 nChars = -1;
                 rc = Util::utf8ToUtf16(
-                            &utf16Wstring,
-                            bslstl::StringRef((const char *) errorUnsignedIn,
-                                              sizeof(errorUnsignedIn) - 1),
-                            &nChars,
-                            errorChar);
+                          &utf16Wstring,
+                          bslstl::StringRef((const char *) errorUnsignedIn,
+                                            (int) sizeof(errorUnsignedIn) - 1),
+                          &nChars,
+                          errorChar);
                 ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
@@ -5615,11 +5615,11 @@ int main(int argc, char**argv)
                 utf16Vec.clear();
                 nChars = -1;
                 rc = Util::utf8ToUtf16(
-                              &utf16Vec,
-                              bslstl::StringRef((const char *) errorUnsignedIn,
-                                                sizeof(errorUnsignedIn) - 1),
-                              &nChars,
-                              errorChar);
+                          &utf16Vec,
+                          bslstl::StringRef((const char *) errorUnsignedIn,
+                                            (int) sizeof(errorUnsignedIn) - 1),
+                          &nChars,
+                          errorChar);
                 ASSERT(Status::BDEDE_INVALID_CHARS_BIT == rc);
                 LOOP2_ASSERT(nChars, numExpectedChars,
                                                    numExpectedChars == nChars);
@@ -5846,7 +5846,7 @@ int main(int argc, char**argv)
                 bsl::vector<char> utf8VecB;
                 rc = Util::utf16ToUtf8(&utf8VecB,
                                        bslstl::StringRefWide(utf16W,
-                                                             numWords16W),
+                                                             (int)numWords16W),
                                        &numChars8);
                 ASSERT(0 == rc);
 
@@ -5893,7 +5893,7 @@ int main(int argc, char**argv)
                 bsl::string utf8StringB(&ta);
                 rc = Util::utf16ToUtf8(&utf8StringB,
                                        bslstl::StringRefWide(utf16W,
-                                                             numWords16W),
+                                                             (int)numWords16W),
                                        &numChars8);
                 ASSERT(0 == rc);
                 ASSERT(utf8String == utf8StringB);
@@ -6070,7 +6070,7 @@ int main(int argc, char**argv)
         rc = Util::utf16ToUtf8(utf8,
                                CAPACITY,
                                bslstl::StringRefWide(utf16W,
-                                                     numWords16W),
+                                                     (int) numWords16W),
                                &numChars8,
                                &numBytes8);
 
@@ -6363,8 +6363,8 @@ int main(int argc, char**argv)
                     *imgp++ = '\0';
                     ++nSymbols;
 
-                    int nOctets = genp - generator;
-                    int nWords = imgp - image;
+                    int nOctets = static_cast<int>(genp - generator);
+                    int nWords  = static_cast<int>(imgp - image);
 
                     if (veryVerbose ) {
 
