@@ -34,37 +34,17 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::terminate_handler;
-    using native_std::unexpected_handler;
-    using native_std::bad_exception;
+
     using native_std::basic_ios;
-    using native_std::basic_streambuf;
-    using native_std::bidirectional_iterator_tag;
-    using native_std::ctype;
-    using native_std::ctype_base;
-    using native_std::ctype_byname;
-    using native_std::exception;
-    using native_std::forward_iterator_tag;
-    using native_std::input_iterator_tag;
+    using native_std::fpos;
     using native_std::ios;
     using native_std::ios_base;
-    using native_std::istreambuf_iterator;
-    using native_std::iterator;
-    using native_std::locale;
-    using native_std::num_get;
-    using native_std::numpunct;
-    using native_std::numpunct_byname;
-    using native_std::ostreambuf_iterator;
-    using native_std::output_iterator_tag;
-    using native_std::random_access_iterator_tag;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
+    using native_std::wios;
+    using native_std::streamoff;
     using native_std::streamsize;
-    using native_std::swap;
-    using native_std::terminate;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
-    using native_std::use_facet;
+    using native_std::streampos;
+    using native_std::wstreampos;
+
 
     // The following using declarations result in link time errors with the
     // gcc 4.1.2 compiler (due to a compiler bug).  See DRQS 31108406.

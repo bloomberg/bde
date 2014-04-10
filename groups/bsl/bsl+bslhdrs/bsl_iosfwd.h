@@ -26,6 +26,25 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+
+
+    // These are declared in bslstl_iosfwd.h (so cannot be using declarations):
+    //..
+    //  using native_std::allocator;
+    //  using native_std::basic_istringstream;
+    //  using native_std::basic_ostringstream;
+    //  using native_std::basic_stringbuf
+    //  using native_std::basic_stringstream
+    //  using native_std::istringstream;
+    //  using native_std::ostringstream;
+    //  using native_std::stringbuf;
+    //  using native_std::stringstream;
+    //  using native_std::wistringstream;
+    //  using native_std::wostringstream;
+    //  using native_std::wstringbuf;
+    //  using native_std::wstringstream;
+    //..
+
     using native_std::basic_filebuf;
     using native_std::basic_fstream;
     using native_std::basic_ifstream;
@@ -60,6 +79,7 @@ namespace bsl
     using native_std::wostream;
     using native_std::wstreambuf;
     using native_std::wstreampos;
+   
 }
 
 // Include Bloomberg's implementation, unless compilation is configured to
