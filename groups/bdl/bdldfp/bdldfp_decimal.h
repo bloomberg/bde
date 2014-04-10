@@ -79,12 +79,12 @@ BSLS_IDENT("$Id$")
 /// - - - - - - - - - - - - - -
 // Floating-point approximation of real numbers creates a deliberate illusion.
 // While it looks like we are working with real numbers, floating-point
-// encodings are not able to represent real numbers precisely since they
-// have a restricted number of digits in the significand.  In fact, a 64 bit
+// encodings are not able to represent real numbers precisely since they have a
+// restricted number of digits in the significand.  In fact, a 64 bit
 // floating-point type can represent fewer distinct values than a 64 bit binary
-// integer.  Yet, because floating-point encodings can represent numbers over
-// a much larger range, including extremely small (fractional) numbers, they
-// are useful in practice.
+// integer.  Yet, because floating-point encodings can represent numbers over a
+// much larger range, including extremely small (fractional) numbers, they are
+// useful in practice.
 //
 // Floating-point peculiarities may be split into three categories: those that
 // are due to the (binary) radix/base, those that are inherent properties of
@@ -600,7 +600,7 @@ class Decimal_Type32 {
         // Create a 'Decimal32' object having the value positive zero, and 0
         // exponent (quantum 1e-6).
 
-    Decimal_Type32(DecimalImplUtil::ValueType32 value);              // IMPLICIT
+    Decimal_Type32(DecimalImplUtil::ValueType32 value);             // IMPLICIT
         // Create a 'Decimal32' object having the specified 'value'.
 
     explicit Decimal_Type32(Decimal_Type64 other);
@@ -877,8 +877,8 @@ bool operator>=(Decimal32 lhs, Decimal32 rhs);
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
 operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal32& object);
-    // Read, into the specified 'object', from the specified input 'stream'
-    // an IEEE 32 bit decimal floating-point value as described in the IEEE-754
+    // Read, into the specified 'object', from the specified input 'stream' an
+    // IEEE 32 bit decimal floating-point value as described in the IEEE-754
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
     // providing modifiable access to 'stream'.  If 'stream' is not valid on
@@ -889,21 +889,22 @@ operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal32& object);
     // have been read (and successfully interpreted as part of the textual
     // representation of a floating-point value as specified by IEEE-754) then
     // 'stream.eof()' is set to true.  If the first non-whitespace character
-    // sequence is not a valid textual representation of a floating-point
-    // value (e.g., 12e or e12 or 1*2) the 'stream.fail()' is set to true and
+    // sequence is not a valid textual representation of a floating-point value
+    // (e.g., 12e or e12 or 1*2) the 'stream.fail()' is set to true and
     // 'object' will remain unchanged.  If a real number value is represented
     // by the character sequence but it is a large positive or negative value
     // that cannot be stored into 'object' the "overflow" floating-point
     // exception is raised and positive or negative infinity is stored into
-    // 'object', respectively.  If a real number value is represented
-    // by the character sequence but it is a small positive or negative value
-    // that cannot be stored into 'object' the "underflow" floating-point
-    // exception is raised and positive or negative zero is stored into
     // 'object', respectively.  If a real number value is represented by the
-    // character sequence but it cannot be stored exactly into 'object'
-    // the "inexact" floating-point exception is raised, the value is rounded
-    // according to the current rounding direction (of the environment) and
-    // then stored into 'object.'
+    // character sequence but it is a small positive or negative value that
+    // cannot be stored into 'object' the "underflow" floating-point exception
+    // is raised and positive or negative zero is stored into 'object',
+    // respectively.  If a real number value is represented by the character
+    // sequence but it cannot be stored exactly into 'object' the "inexact"
+    // floating-point exception is raised, the value is rounded according to
+    // the current rounding direction (of the environment) and then stored into
+    // 'object.'
+    //
     // TODO TBD describe the effects of stream flags/setting when we support
     // them.  And note that the current preliminary implementation does not do
     // most of what we promise here, exactly as it is promised here.
@@ -917,6 +918,7 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
     // external character sequences), and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
     // operation has no effect.
+    //
     // TODO TBD describe the effects of stream flags/setting when we support
     // them.  And note that the current preliminary implementation does not do
     // most of what we promise here, exactly as it is promised here.
@@ -944,10 +946,10 @@ class Decimal_Type64 {
         // Create a 'Decimal64' object having the value positive zero, and 0
         // exponent (quantum 1e-15).
 
-    Decimal_Type64(DecimalImplUtil::ValueType64 value);              // IMPLICIT
+    Decimal_Type64(DecimalImplUtil::ValueType64 value);             // IMPLICIT
         // Create a 'Decimal64' object having the specified 'value'.
 
-    Decimal_Type64(Decimal32 other);                                 // IMPLICIT
+    Decimal_Type64(Decimal32 other);                                // IMPLICIT
         // Create a 'Decimal64' object having the value of the specified
         // 'other' following the conversion rules defined by IEEE-754:
         //
@@ -962,35 +964,35 @@ class Decimal_Type64 {
         //: o Otherwise initialize this object to the value of the 'other'.
 
         explicit Decimal_Type64(Decimal128 other);
-        // Create a 'Decimal64' object having the value closest to the value of
-        // the specified 'other' following the conversion rules defined by
-        // IEEE-754:
-        //
-        //: o If 'other' is NaN, initialize this object to a NaN.
-        //:
-        //: o Otherwise if 'other' is infinity (positive or negative), then
-        //:   initialize this object to infinity with the same sign.
-        //:
-        //: o Otherwise if 'other' is zero, then initialize this object to zero
-        //:   with the same sign.
-        //:
-        //: o Otherwise if 'other' has an absolute value that is larger than
-        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
-        //:   floating-point exception and initialize this object to infinity
-        //:   with the same sign as 'other'.
-        //:
-        //: o Otherwise if 'other' has an absolute value that is smaller than
-        //:   'std::numeric_limits<Decimal64>::min()' then raise the
-        //:   "underflow" floating-point exception and initialize this object
-        //:   to zero with the same sign as 'other'.
-        //:
-        //: o Otherwise if 'other' has a value that has more significant
-        //:   digits than 'std::numeric_limits<Decimal64>::max_digit' then
-        //:   raise the "inexact" floating-point exception and initialize this
-        //:   object to the value of 'other' rounded according to the rounding
-        //:   direction.
-        //:
-        //: o Otherwise initialize this object to the value as the 'other'.
+            // Create a 'Decimal64' object having the value closest to the
+            // value of the specified 'other' following the conversion rules
+            // defined by IEEE-754:
+            //
+            //: o If 'other' is NaN, initialize this object to a NaN.
+            //:
+            //: o Otherwise if 'other' is infinity (positive or negative), then
+            //:   initialize this object to infinity with the same sign.
+            //:
+            //: o Otherwise if 'other' is zero, then initialize this object to
+            //:   zero with the same sign.
+            //:
+            //: o Otherwise if 'other' has an absolute value that is larger
+            //:   than 'std::numeric_limits<Decimal64>::max()' then raise the
+            //:   "overflow" floating-point exception and initialize this
+            //:   object to infinity with the same sign as 'other'.
+            //:
+            //: o Otherwise if 'other' has an absolute value that is smaller
+            //:   than 'std::numeric_limits<Decimal64>::min()' then raise the
+            //:   "underflow" floating-point exception and initialize this
+            //:   object to zero with the same sign as 'other'.
+            //:
+            //: o Otherwise if 'other' has a value that has more significant
+            //:   digits than 'std::numeric_limits<Decimal64>::max_digit' then
+            //:   raise the "inexact" floating-point exception and initialize
+            //:   this object to the value of 'other' rounded according to the
+            //:   rounding direction.
+            //:
+            //: o Otherwise initialize this object to the value as the 'other'.
 
     explicit Decimal_Type64(float       other);
     explicit Decimal_Type64(double      other);
@@ -1580,7 +1582,7 @@ Decimal64 operator*(Decimal64 lhs, Decimal64 rhs);
 Decimal64 operator*(Decimal32 lhs, Decimal64 rhs);
 Decimal64 operator*(Decimal64 lhs, Decimal32 rhs);
     // Multiply the value of the specified 'lhs' object by the value of the
-    // specified 'lhs' as described by IEEE-754 and return the result.
+    // specified 'rhs' as described by IEEE-754 and return the result.
     //
     //: o If either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
@@ -1597,15 +1599,15 @@ Decimal64 operator*(Decimal64 lhs, Decimal32 rhs);
     //:   of the returned value will be positive if 'lhs' and 'rhs' have the
     //:   same sign, and negative otherwise.
     //:
-    //: o Otherwise if the product of this object and 'rhs' has an absolute
-    //:   value that is larger than 'std::numeric_limits<Decimal64>::max()'
-    //:   then raise the "overflow" floating-point exception and return
-    //:   infinity with the same sign as that result.
-    //:
-    //: o Otherwise if the product of this object and 'rhs' has an absolute
-    //:   value that is smaller than 'std::numeric_limits<Decimal64>::min()'
-    //:   then raise the "underflow" floating-point exception and return zero
+    //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
+    //:   that is larger than 'std::numeric_limits<Decimal64>::max()' then
+    //:   raise the "overflow" floating-point exception and return infinity
     //:   with the same sign as that result.
+    //:
+    //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
+    //:   that is smaller than 'std::numeric_limits<Decimal64>::min()' then
+    //:   raise the "underflow" floating-point exception and return zero with
+    //:   the same sign as that result.
     //:
     //: o Otherwise return the product of the value of 'rhs' and the number
     //:   represented by 'rhs'.
@@ -1850,10 +1852,10 @@ bool operator!=(Decimal32 lhs, Decimal64 rhs);
 bool operator!=(Decimal64 lhs, Decimal32 rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' do not have the same
     // value, and 'false' otherwise.  Two decimal objects do not have the same
-    // value if the 'compareQuietEqual' operation (IEEE-754 defined,
-    // non-total ordering comparison) considers the underlying IEEE
-    // representations not equal.  In other words, two decimal objects do not
-    // have the same value if:
+    // value if the 'compareQuietEqual' operation (IEEE-754 defined, non-total
+    // ordering comparison) considers the underlying IEEE representations not
+    // equal.  In other words, two decimal objects do not have the same value
+    // if:
     //
     //: o both are NaN, or
     //: o one has zero value (positive or negative) and the other does not, or
@@ -2026,8 +2028,8 @@ bool operator>=(Decimal64 lhs, Decimal32 rhs);
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
 operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal64& object);
-    // Read, into the specified 'object', from the specified input 'stream'
-    // an IEEE 64 bit decimal floating-point value as described in the IEEE-754
+    // Read, into the specified 'object', from the specified input 'stream' an
+    // IEEE 64 bit decimal floating-point value as described in the IEEE-754
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
     // providing modifiable access to 'stream'.  If 'stream' is not valid on
@@ -2038,21 +2040,22 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal64& object);
     // have been read (and successfully interpreted as part of the textual
     // representation of a floating-point value as specified by IEEE-754) then
     // 'stream.eof()' is set to true.  If the first non-whitespace character
-    // sequence is not a valid textual representation of a floating-point
-    // value (e.g., 12e or e12 or 1*2) the 'stream.fail()' is set to true and
+    // sequence is not a valid textual representation of a floating-point value
+    // (e.g., 12e or e12 or 1*2) the 'stream.fail()' is set to true and
     // 'object' will remain unchanged.  If a real number value is represented
     // by the character sequence but it is a large positive or negative value
     // that cannot be stored into 'object' the "overflow" floating-point
     // exception is raised and positive or negative infinity is stored into
-    // 'object', respectively.  If a real number value is represented
-    // by the character sequence but it is a small positive or negative value
-    // that cannot be stored into 'object' the "underflow" floating-point
-    // exception is raised and positive or negative zero is stored into
     // 'object', respectively.  If a real number value is represented by the
-    // character sequence but it cannot be stored exactly into 'object'
-    // the "inexact" floating-point exception is raised, the value is rounded
-    // according to the current rounding direction (of the environment) and
-    // then stored into 'object.'
+    // character sequence but it is a small positive or negative value that
+    // cannot be stored into 'object' the "underflow" floating-point exception
+    // is raised and positive or negative zero is stored into 'object',
+    // respectively.  If a real number value is represented by the character
+    // sequence but it cannot be stored exactly into 'object' the "inexact"
+    // floating-point exception is raised, the value is rounded according to
+    // the current rounding direction (of the environment) and then stored into
+    // 'object.'
+    //
     // TODO TBD describe the effects of stream flags/setting when we support
     // them.  And note that the current preliminary implementation does not do
     // most of what we promise here, exactly as it is promised here.
@@ -2094,82 +2097,82 @@ class Decimal_Type128 {
         // Create a 'Decimal128' object having the value positive zero, and 0
         // exponent (quantum 1e-33).
 
-    Decimal_Type128(DecimalImplUtil::ValueType128 other);            // IMPLICIT
+    Decimal_Type128(DecimalImplUtil::ValueType128 value);           // IMPLICIT
         // Create a 'Decimal128' object having the specified 'value'.
 
-    Decimal_Type128(Decimal32 other);                                // IMPLICIT
-    Decimal_Type128(Decimal64 other);                                // IMPLICIT
-        // Create a 'Decimal128' object having the value of the specified
-        // 'other' following the conversion rules defined by IEEE-754:
+    Decimal_Type128(Decimal32 value);                               // IMPLICIT
+    Decimal_Type128(Decimal64 value);                               // IMPLICIT
+        // Create a 'Decimal128' object having the specified 'value', subject
+        // to the conversion rules defined by IEEE-754:
         //
-        //: o If 'other' is NaN, initialize this object to a NaN.
+        //: o If 'value' is NaN, initialize this object to a NaN.
         //:
-        //: o Otherwise if 'other' is infinity, then initialize this object to
+        //: o Otherwise if 'value' is infinity, then initialize this object to
         //:   infinity with the same sign.
         //:
-        //: o Otherwise if 'other' is zero, then initialize this object to zero
+        //: o Otherwise if 'value' is zero, then initialize this object to zero
         //:   with the same sign.
         //:
-        //: o Otherwise initialize this object to the value of the 'other'.
+        //: o Otherwise initialize this object to 'value'.
 
-    explicit Decimal_Type128(float       other);
-    explicit Decimal_Type128(double      other);
-    explicit Decimal_Type128(long double other);
-        // Create a 'Decimal128' object having the value closest to the value
-        // of the specified 'other' following the conversion rules as defined
-        // by IEEE-754:
+    explicit Decimal_Type128(float       value);
+    explicit Decimal_Type128(double      value);
+    explicit Decimal_Type128(long double value);
+        // Create a 'Decimal128' object having the value closest to the
+        // specified 'value' subject to the conversion rules as defined by
+        // IEEE-754:
         //
-        //: o If 'other' is NaN, initialize this object to a NaN.
+        //: o If 'value' is NaN, initialize this object to a NaN.
         //:
-        //: o Otherwise if 'other' is infinity, then initialize this object to
+        //: o Otherwise if 'value' is infinity, then initialize this object to
         //:   infinity value with the same sign.
         //:
-        //: o Otherwise if 'other' has a zero value, then initialize this
+        //: o Otherwise if 'value' has a zero value, then initialize this
         //:   object to zero with the same sign.
         //:
-        //: o Otherwise if 'other' has an absolute value that is larger than
+        //: o Otherwise if 'value' has an absolute value that is larger than
         //:   'std::numeric_limits<Decimal128>::max()' then raise the
         //:   "overflow" floating-point exception and initialize this object to
-        //:   infinity with the same sign as 'other'.
+        //:   infinity with the same sign as 'value'.
         //:
-        //: o Otherwise if 'other' has an absolute value that is smaller than
+        //: o Otherwise if 'value' has an absolute value that is smaller than
         //:   'std::numeric_limits<Decimal128>::min()' then raise the
         //:   "underflow" floating-point exception and initialize this object
-        //:   to zero with the same sign as 'other'.
+        //:   to zero with the same sign as 'value'.
         //:
-        //: o Otherwise if 'other' has a value that needs more than
+        //: o Otherwise if 'value' has a value that needs more than
         //:   'std::numeric_limits<Decimal128>::max_digit' significant decimal
         //:   digits to represent then raise the "inexact" floating-point
-        //:   exception and initialize this object to the value of 'other'
+        //:   exception and initialize this object to the value of 'value'
         //:   rounded according to the rounding direction.
         //:
-        //: o Otherwise initialize this object to the value of the 'other'.
+        //: o Otherwise initialize this object to 'value'.
 
-    explicit Decimal_Type128(int                other);
-    explicit Decimal_Type128(unsigned int       other);
-    explicit Decimal_Type128(long               other);
-    explicit Decimal_Type128(unsigned long      other);
-    explicit Decimal_Type128(long long          other);
-    explicit Decimal_Type128(unsigned long long other);
-        // Create a 'Decimal128' object having the value closest to the value
-        // of the specified 'other' following the conversion rules as defined
-        // by IEEE-754:
+    explicit Decimal_Type128(int                value);
+    explicit Decimal_Type128(unsigned int       value);
+    explicit Decimal_Type128(long               value);
+    explicit Decimal_Type128(unsigned long      value);
+    explicit Decimal_Type128(long long          value);
+    explicit Decimal_Type128(unsigned long long value);
+        // Create a 'Decimal128' object having the value closest to the
+        // specified 'value' subject to the conversion rules as defined by
+        // IEEE-754:
         //
-        //: o If 'other' is zero then initialize this object to positive zero
+        //: o If 'value' is zero then initialize this object to positive zero
         //:   with a 0 exponent (quantum 1e-33).
         //:
-        //: o Otherwise if 'other' has an absolute value that is larger than
+        //: o Otherwise if 'value' has an absolute value that is larger than
         //:   'std::numeric_limits<Decimal128>::max()' then raise the
         //:   "overflow" floating-point exception and initialize this object to
         //:   infinity with the same sign as 'other'.
         //:
-        //: o Otherwise if 'other' has a value that is not exactly
+        //: o Otherwise if 'value' has a value that is not exactly
         //:   representable using 'std::numeric_limits<Decimal128>::max_digit'
         //:   decimal digits then raise the "inexact" floating-point exception
-        //:   and initialize this object to the value of 'other' rounded
+        //:   and initialize this object to the value of 'value' rounded
         //:   according to the rounding direction.
         //:
-        //: o Otherwise initialize this object to the value of the 'other'.
+        //: o Otherwise initialize this object to 'value'.
         //
         // The exponent 0 (quantum 1e-33) is preferred during conversion unless
         // it would cause unnecessary loss of precision.
@@ -2178,9 +2181,9 @@ class Decimal_Type128 {
         // Create a 'Decimal128' object that is a copy of the specified
         // 'original' as defined by the 'copy' operation of IEEE-754 2008:
         //
-        //: o If 'other' is NaN, initialize this object to a NaN.
+        //: o If 'original' is NaN, initialize this object to a NaN.
         //:
-        //: o Otherwise initialize this object to the value of the 'other'.
+        //: o Otherwise initialize this object to the value of the 'original'.
         //
         // Note that since floating-point types may be NaN, and NaNs are
         // unordered (do not compare equal even to themselves) it is possible
@@ -2196,7 +2199,7 @@ class Decimal_Type128 {
         // 'copy' operation of IEEE-754 2008 and return a reference providing
         // modifiable access to this object.
         //
-        //: o If 'other' is NaN, set this object to a NaN.
+        //: o If 'rhs' is NaN, set this object to a NaN.
         //:
         //: o Otherwise set this object to the value of the 'other'.
         //
@@ -2686,7 +2689,7 @@ Decimal128 operator*(Decimal128 lhs, Decimal32  rhs);
 Decimal128 operator*(Decimal64  lhs, Decimal128 rhs);
 Decimal128 operator*(Decimal128 lhs, Decimal64  rhs);
     // Multiply the value of the specified 'lhs' object by the value of the
-    // specified 'lhs' as described by IEEE-754 and return the result.
+    // specified 'rhs' as described by IEEE-754 and return the result.
     //
     //: o If either of 'lhs' or 'rhs' is NaN, return a NaN.
     //:
@@ -2703,15 +2706,15 @@ Decimal128 operator*(Decimal128 lhs, Decimal64  rhs);
     //:   of the returned value will be positive if 'lhs' and 'rhs' have the
     //:   same sign, and negative otherwise.
     //:
-    //: o Otherwise if the product of this object and 'rhs' has an absolute
-    //:   value that is larger than 'std::numeric_limits<Decimal128>::max()'
-    //:   then raise the "overflow" floating-point exception and return
-    //:   infinity with the same sign as that result.
-    //:
-    //: o Otherwise if the product of this object and 'rhs' has an absolute
-    //:   value that is smaller than 'std::numeric_limits<Decimal128>::min()'
-    //:   then raise the "underflow" floating-point exception and return zero
+    //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
+    //:   that is larger than 'std::numeric_limits<Decimal128>::max()' then
+    //:   raise the "overflow" floating-point exception and return infinity
     //:   with the same sign as that result.
+    //:
+    //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
+    //:   that is smaller than 'std::numeric_limits<Decimal128>::min()' then
+    //:   raise the "underflow" floating-point exception and return zero with
+    //:   the same sign as that result.
     //:
     //: o Otherwise return the product of the value of 'rhs' and the number
     //:   represented by 'rhs'.
@@ -2962,10 +2965,10 @@ bool operator!=(Decimal64  lhs, Decimal128 rhs);
 bool operator!=(Decimal128 lhs, Decimal64  rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' do not have the same
     // value, and 'false' otherwise.  Two decimal objects do not have the same
-    // value if the 'compareQuietEqual' operation (IEEE-754 defined,
-    // non-total ordering comparison) considers the underlying IEEE
-    // representations not equal.  In other words, two decimal objects do not
-    // have the same value if:
+    // value if the 'compareQuietEqual' operation (IEEE-754 defined, non-total
+    // ordering comparison) considers the underlying IEEE representations not
+    // equal.  In other words, two decimal objects do not have the same value
+    // if:
     //
     //: o both are NaN, or
     //: o one has zero value (positive or negative) and the other does not, or
@@ -3046,8 +3049,8 @@ bool operator<=(Decimal128 lhs, Decimal64  rhs);
     // decimal object 'lhs' is less than or equal to the value of an object
     // 'rhs' if the 'compareQuietLessEqual' operation (IEEE-754 defined,
     // non-total ordering comparison) considers the underlying IEEE
-    // representation of 'lhs' to be less or equal to that of 'rhs'.  In
-    // other words, 'lhs' is less or equal than 'rhs' if:
+    // representation of 'lhs' to be less or equal to that of 'rhs'.  In other
+    // words, 'lhs' is less or equal than 'rhs' if:
     //
     //: o neither 'lhs' nor 'rhs' are NaN, or
     //: o 'lhs' and 'rhs' are both zero (positive or negative), or
@@ -3146,10 +3149,10 @@ bool operator>=(Decimal128 lhs, Decimal64  rhs);
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
 operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal128& object);
-    // Read, into the specified 'object', from the specified input 'stream'
-    // an IEEE 128 bit decimal floating-point value as described in the
-    // IEEE-754 2008 standard (5.12 Details of conversions between floating
-    // point numbers and external character sequences) and return a reference
+    // Read, into the specified 'object', from the specified input 'stream' an
+    // IEEE 128 bit decimal floating-point value as described in the IEEE-754
+    // 2008 standard (5.12 Details of conversions between floating point
+    // numbers and external character sequences) and return a reference
     // providing modifiable access to 'stream'.  If 'stream' is not valid on
     // entry 'stream.good() == false', this operation has no effect other than
     // setting 'stream.fail()' to 'true'.  If eof (end-of-file) is found before
@@ -3158,21 +3161,22 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal128& object);
     // have been read (and successfully interpreted as part of the textual
     // representation of a floating-point value as specified by IEEE-754) then
     // 'stream.eof()' is set to true.  If the first non-whitespace character
-    // sequence is not a valid textual representation of a floating-point
-    // value (e.g., 12e or e12 or 1*2) the 'stream.fail()' is set to true and
+    // sequence is not a valid textual representation of a floating-point value
+    // (e.g., 12e or e12 or 1*2) the 'stream.fail()' is set to true and
     // 'object' will remain unchanged.  If a real number value is represented
     // by the character sequence but it is a large positive or negative value
     // that cannot be stored into 'object' the "overflow" floating-point
     // exception is raised and positive or negative infinity is stored into
-    // 'object', respectively.  If a real number value is represented
-    // by the character sequence but it is a small positive or negative value
-    // that cannot be stored into 'object' the "underflow" floating-point
-    // exception is raised and positive or negative zero is stored into
     // 'object', respectively.  If a real number value is represented by the
-    // character sequence but it cannot be stored exactly into 'object'
-    // the "inexact" floating-point exception is raised, the value is rounded
-    // according to the current rounding direction (of the environment) and
-    // then stored into 'object.'
+    // character sequence but it is a small positive or negative value that
+    // cannot be stored into 'object' the "underflow" floating-point exception
+    // is raised and positive or negative zero is stored into 'object',
+    // respectively.  If a real number value is represented by the character
+    // sequence but it cannot be stored exactly into 'object' the "inexact"
+    // floating-point exception is raised, the value is rounded according to
+    // the current rounding direction (of the environment) and then stored into
+    // 'object.'
+    //
     // TODO TBD describe the effects of stream flags/setting when we support
     // them.  And note that the current preliminary implementation does not do
     // most of what we promise here, exactly as it is promised here.
@@ -3235,13 +3239,15 @@ class DecimalNumGet : public bsl::locale::facet {
         // explicit DecimalNumGet(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(bsl::locale()) ...
         //..
+        // and optionally specify a 'refs', which will default to 0.
 
     explicit DecimalNumGet(const bsl::locale& b, bsl::size_t refs = 0);
-        // Constructs a 'DecimalNumPut' object as if
+        // Constructs a 'DecimalNumPut' object, from the specified 'b', as if
         //..
         // explicit DecimalNumGet(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(b) ...
         //..
+        // and optionally specify a 'refs', which will default to 0.
 
     // ACCESSORS
     iter_type get(iter_type               begin,
@@ -3259,7 +3265,9 @@ class DecimalNumGet : public bsl::locale::facet {
                   bsl::ios_base&          str,
                   bsl::ios_base::iostate& err,
                   Decimal128&             value) const;
-        // Return 'this->do_get(begin, end, str, err, value)'
+        // Forward to, and return using the specified 'begin', 'end', 'str',
+        // 'err', and 'value', the results of
+        // 'this->do_get(begin, end, str, err, value)'.
 
   protected:
     // CREATORS
@@ -3288,9 +3296,9 @@ class DecimalNumGet : public bsl::locale::facet {
         // the formatting flags of the specified 'str' ('str.flags()') are
         // obeyed; character classifications are determined by the 'bsl::ctype'
         // while punctuation characters are determined by the 'bsl::numpunct'
-        // facet imbued to the specified 'str' stream-base.  Use the specified
-        // 'err' to report back failure or EOF streams states.  For further,
-        // more detailed information please consult the section
+        // facet imbued to the 'str' stream-base.  Use the specified 'err' to
+        // report back failure or EOF streams states.  For further, more
+        // detailed information please consult the section
         // [lib.facet.num.get.virtuals] of the C++ Standard.  Note that for the
         // conversions to the 'Decimal32', 64 and 128 types the conversion
         // specifiers are %Hg, %Dg and %DDg, respectively.  Also note that
@@ -3340,13 +3348,15 @@ class DecimalNumPut : public bsl::locale::facet {
         // explicit DecimalNumPut(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(bsl::locale()) ...
         //..
+        // and optionally specify 'refs', which will default to 0.
 
     explicit DecimalNumPut(const bsl::locale & b, bsl::size_t refs = 0);
-        // Constructs a 'DecimalNumPut' object as if
+        // Constructs a 'DecimalNumPut' object, using the specified 'b', as if
         //..
         // explicit DecimalNumPut(bsl::size_t refs)
         //    : bsl::locale::facet(refs), baseloc(b) ...
         //..
+        // and optionally specify 'refs', which will default to 0.
 
     // ACCESSORS
     iter_type put(iter_type      out,
@@ -3361,7 +3371,8 @@ class DecimalNumPut : public bsl::locale::facet {
                   bsl::ios_base& str,
                   char_type      fill,
                   Decimal128     value) const;
-        // Return 'this->do_get(out, str, fill, value)'
+        // Forward to, and return using the specified 'out', 'str', 'fill', and
+        // 'value', the results of 'this->do_put(out, str, fill, value)'.
 
   protected:
     // CREATORS
@@ -3384,15 +3395,16 @@ class DecimalNumPut : public bsl::locale::facet {
         // Write characters (of 'char_type') that represent the specified
         // 'value' to the output stream determined by the specified 'out'
         // output iterator.  Use the 'bsl::ctype' and the 'bsl::numpunct'
-        // facets imbued to the stream-base 'str' as well as the formatting
-        // flags of the specified 'str' ('bsl.flags()') to generate the
-        // properly localized output.  For further, more detailed information
-        // please consult the section [lib.facet.num.put.virtuals] of the C++
-        // Standard noting that the length modifiers "H", "D" and "DD" are
-        // added to the conversion specifiers of for the types Decimal32, 64
-        // and 128, respectively.  Also note that these (possibly overridden)
-        // 'do_put' virtual function are used by every formatted C++ stream
-        // output operator call ('out << aDecNumber').
+        // facets imbued to the specified stream-base 'str' as well as the
+        // formatting flags of 'str' ('bsl.flags()') to generate the properly
+        // localized output.  For further, more detailed information please
+        // consult the section [lib.facet.num.put.virtuals] of the C++ Standard
+        // noting that the length modifiers "H", "D" and "DD" are added to the
+        // conversion specifiers of for the types Decimal32, 64 and 128,
+        // respectively.  Also note that these (possibly overridden) 'do_put'
+        // virtual function are used by every formatted C++ stream output
+        // operator call ('out << aDecNumber').  Finally note that the
+        // specified 'fill' is used according to the standard.
 };
 
                     // =====================================
@@ -3517,8 +3529,8 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32> {
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
         // 'BloombergLP::bdldfp::Decimal32' type that represents a finite
-        // value.  Defined to be 97 by IEEE-754.  Note that
-        // 'max_exponent10' os the same as 'max_exponent' for decimal types.
+        // value.  Defined to be 97 by IEEE-754.  Note that 'max_exponent10' os
+        // the same as 'max_exponent' for decimal types.
 
     static const bool has_infinity = true;
         // 'BloombergLP::bdldfp::Decimal32' can represent infinity.
@@ -3538,6 +3550,10 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32> {
         // precision (floating-point underflow) due to denormalization from
         // other causes.
 
+    static BloombergLP::bdldfp::Decimal32 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'BloombergLP::bdldfp::Decimal32' type.  (IEEE-754: +0.000001E-95)
+
     static BloombergLP::bdldfp::Decimal32 infinity() BSLS_NOTHROW_SPEC;
         // Return the the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal32' type.
@@ -3550,26 +3566,24 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32> {
         // Return a value that represents signaling NaN for the
         // 'BloombergLP::bdldfp::Decimal32' type.
 
-    static BloombergLP::bdldfp::Decimal32 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'BloombergLP::bdldfp::Decimal32' type.  (IEEE-754: +0.000001E-95)
+    static const bool is_bounded = true;
+        // Decimal floating-point types represent a finite set of values.
 
     static const bool is_iec559 = false;
         // Decimal floating-point is not covered by the IEC 559 standard.
 
-    static const bool is_bounded = true;
-        // Decimal floating-point types represent a finite set of values.
-
     static const bool is_modulo = false;
         // Decimal floating-point types do not have modulo representation.
+
+    static const bool tinyness_before = true;
+        // Decimal floating-point types are able to detect if a value is too
+        // small to represent as a normalized value before rounding it.
 
     static const bool traps = true;
         // Decimal floating-point types implement traps to report arithmetic
         // exceptions (required by IEEE-754).
 
-    static const bool tinyness_before = true;
-        // Decimal floating-point types are able to detect if a value is too
-        // small to represent as a normalized value before rounding it.
+                        // Rounding style
 
     static const float_round_style round_style = round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
@@ -3661,8 +3675,8 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64> {
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
         // 'BloombergLP::bdldfp::Decimal64' type that represents a finite
-        // value.  Defined to be 385 by IEEE-754.  Note that
-        // 'max_exponent10' os the same as 'max_exponent' for decimal types.
+        // value.  Defined to be 385 by IEEE-754.  Note that 'max_exponent10'
+        // os the same as 'max_exponent' for decimal types.
 
     static const bool has_infinity = true;
         // 'BloombergLP::bdldfp::Decimal64' can represent infinity.
@@ -3682,6 +3696,11 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64> {
         // precision (floating-point underflow) due to denormalization from
         // other causes.
 
+    static BloombergLP::bdldfp::Decimal64 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'BloombergLP::bdldfp::Decimal64' type.
+        // (IEEE-754: +0.000000000000001e-383)
+
     static BloombergLP::bdldfp::Decimal64 infinity() BSLS_NOTHROW_SPEC;
         // Return the the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal64' type.
@@ -3693,11 +3712,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64> {
     static BloombergLP::bdldfp::Decimal64 signaling_NaN() BSLS_NOTHROW_SPEC;
         // Return a value that represents signaling NaN for the
         // 'BloombergLP::bdldfp::Decimal64' type.
-
-    static BloombergLP::bdldfp::Decimal64 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'BloombergLP::bdldfp::Decimal64' type.
-        // (IEEE-754: +0.000000000000001e-383)
 
     static const bool is_iec559 = false;
         // Decimal floating-point is not covered by the IEC 559 standard.
@@ -3808,8 +3822,8 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
     static const int max_exponent10 = max_exponent;
         // The highest possible positive decimal exponent of the
         // 'BloombergLP::bdldfp::Decimal128' type that represents a finite
-        // value.  Defined to be 6145 by IEEE-754.  Note that
-        // 'max_exponent10' os the same as 'max_exponent' for decimal types.
+        // value.  Defined to be 6145 by IEEE-754.  Note that 'max_exponent10'
+        // os the same as 'max_exponent' for decimal types.
 
     static const bool has_infinity = true;
         // 'BloombergLP::bdldfp::Decimal128' can represent infinity.
@@ -3829,6 +3843,11 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
         // precision (floating-point underflow) due to denormalization from
         // other causes.
 
+    static BloombergLP::bdldfp::Decimal128 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'BloombergLP::bdldfp::Decimal128' type.
+        // (IEEE-754: +0.000000000000000000000000000000001e-6143)
+
     static BloombergLP::bdldfp::Decimal128 infinity() BSLS_NOTHROW_SPEC;
         // Return the the value that represents positive infinity for the
         // 'BloombergLP::bdldfp::Decimal128' type.
@@ -3840,11 +3859,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
     static BloombergLP::bdldfp::Decimal128 signaling_NaN() BSLS_NOTHROW_SPEC;
         // Return a value that represents signaling NaN for the
         // 'BloombergLP::bdldfp::Decimal128' type.
-
-    static BloombergLP::bdldfp::Decimal128 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'BloombergLP::bdldfp::Decimal128' type.
-        // (IEEE-754: +0.000000000000000000000000000000001e-6143)
 
     static const bool is_iec559 = false;
         // Decimal floating-point is not covered by the IEC 559 standard.

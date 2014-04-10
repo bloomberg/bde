@@ -5,7 +5,7 @@
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
-BSLS_IDENT("$Id: $");
+BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a representation of a 128-bit 'int' for bitwise operations.
 //

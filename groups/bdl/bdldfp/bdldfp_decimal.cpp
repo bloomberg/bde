@@ -101,7 +101,10 @@ class NotIsSpace {
     const bsl::ctype<CHARTYPE>& d_ctype;
   public:
     explicit NotIsSpace(const bsl::ctype<CHARTYPE>& ctype);
-    bool operator()(CHARTYPE ch) const;
+        // Construct a 'NotIsSpace' object, using the specified 'ctype'.
+    bool operator()(CHARTYPE character) const;
+        // Return true if the specified 'character' is a space (according to
+        // the 'ctype' provided at construction), and false otherwise.
 };
 
                     // ----------------
@@ -116,9 +119,9 @@ NotIsSpace<CHARTYPE>::NotIsSpace(const bsl::ctype<CHARTYPE>& ctype)
 
 template <class CHARTYPE>
 bool
-NotIsSpace<CHARTYPE>::operator()(CHARTYPE ch) const
+NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 {
-    return !this->d_ctype.is(bsl::ctype_base::space, ch);
+    return !this->d_ctype.is(bsl::ctype_base::space, character);
 }
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -264,7 +267,8 @@ Decimal_Type32::Decimal_Type32(float other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -279,7 +283,8 @@ Decimal_Type32::Decimal_Type32(double other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -294,7 +299,8 @@ Decimal_Type32::Decimal_Type32(long double other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -309,7 +315,8 @@ Decimal_Type32::Decimal_Type32(int other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -323,7 +330,8 @@ Decimal_Type32::Decimal_Type32(unsigned int other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -337,7 +345,8 @@ Decimal_Type32::Decimal_Type32(long int other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -351,7 +360,8 @@ Decimal_Type32::Decimal_Type32(unsigned long int other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -365,7 +375,8 @@ Decimal_Type32::Decimal_Type32(long long int other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -379,7 +390,8 @@ Decimal_Type32::Decimal_Type32(unsigned long long int other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -520,7 +532,8 @@ Decimal_Type64::Decimal_Type64(float other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -534,7 +547,8 @@ Decimal_Type64::Decimal_Type64(double other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -548,7 +562,8 @@ Decimal_Type64::Decimal_Type64(long double other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -563,7 +578,8 @@ Decimal_Type64::Decimal_Type64(int other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -576,7 +592,8 @@ Decimal_Type64::Decimal_Type64(unsigned int other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -589,7 +606,8 @@ Decimal_Type64::Decimal_Type64(long other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -602,7 +620,8 @@ Decimal_Type64::Decimal_Type64(unsigned long other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -615,7 +634,8 @@ Decimal_Type64::Decimal_Type64(long long other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -628,7 +648,8 @@ Decimal_Type64::Decimal_Type64(unsigned long long other)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = other;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<24> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1762,7 +1783,8 @@ Decimal_Type128::Decimal_Type128(float value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1776,7 +1798,8 @@ Decimal_Type128::Decimal_Type128(double value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1790,7 +1813,8 @@ Decimal_Type128::Decimal_Type128(long double value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1805,7 +1829,8 @@ Decimal_Type128::Decimal_Type128(int value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1819,7 +1844,8 @@ Decimal_Type128::Decimal_Type128(unsigned int value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1833,7 +1859,8 @@ Decimal_Type128::Decimal_Type128(long value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1847,7 +1874,8 @@ Decimal_Type128::Decimal_Type128(unsigned long value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1861,7 +1889,8 @@ Decimal_Type128::Decimal_Type128(long long value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
@@ -1875,7 +1904,8 @@ Decimal_Type128::Decimal_Type128(unsigned long long value)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value = value;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
