@@ -44,10 +44,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_versiontag.h>     // 'BDL_VERSION_MAJOR', 'BDL_VERSION_MINOR'
 #endif
 
-#ifndef INCLUDED_BSLS_BUILDTARGET
-#include <bsls_buildtarget.h>      // need to ensure consistent build options
-#endif
-
 #ifndef INCLUDED_BSLS_LINKCOERCION
 #include <bsls_linkcoercion.h>
 #endif
