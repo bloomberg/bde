@@ -46,10 +46,6 @@ BDES_IDENT("$Id: $")
 #include <bdescm_versiontag.h>     // 'BDE_VERSION_MAJOR', 'BDE_VERSION_MINOR'
 #endif
 
-#ifndef INCLUDED_BSLS_BUILDTARGET
-#include <bsls_buildtarget.h>      // need to ensure consistent build options
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
