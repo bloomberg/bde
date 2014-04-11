@@ -730,10 +730,8 @@ int btemt_TcpTimerEventManager_ControlChannel::recreateSocketPair()
     bteso_SocketHandle::Handle clientFd = d_fds[0];
     bteso_SocketHandle::Handle serverFd = d_fds[1];
 
-    int rc = bteso_SocketImpUtil::close(serverFd);
-    BSLS_ASSERT(0 == rc);
-    rc = bteso_SocketImpUtil::close(clientFd);
-    BSLS_ASSERT(0 == rc);
+    bteso_SocketImpUtil::close(serverFd);
+    bteso_SocketImpUtil::close(clientFd);
 
     return initialize();
 }
