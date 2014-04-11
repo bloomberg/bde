@@ -15,6 +15,10 @@ BDES_IDENT("$Id: $")
 //  bcema_SharedPtrLess: comparator functor for STL containers
 //  bcema_SharedPtrNilDeleter: no-op deleter
 //
+//@MACROS:
+//  BLOOMBERGLP_BCEMA_SHAREDPTR: utility macro for transition to
+//                               bsl::shared_ptr
+//
 //@AUTHOR: Ilougino Rocha (irocha)
 //         Herve Bronnimann (hbronnim)
 //         Vlad Kliatchko (vkliatch)
@@ -2055,6 +2059,17 @@ void swap(bcema_SharedPtr<ELEMENT_TYPE>& a, bcema_SharedPtr<ELEMENT_TYPE>& b);
     // pointers such that each will refer to the object formerly referred to by
     // the other, and each will manage the object formerly referred to by the
     // other.
+
+
+#ifndef BDE_USE_BSL_SHAREDPTR
+#define   BLOOMBERGLP_BCEMA_SHAREDPTR BloombergLP::bcema_SharedPtr
+    // The 'BLOOMBERGLP_BCEMA_SHAREDPTR' macro serves to facilitate the
+    // transition from 'bcema_SharedPtr' to 'bsl::shared_ptr'.
+#else
+#define   BLOOMBERGLP_BCEMA_SHAREDPTR bsl::shared_ptr
+    // The 'BLOOMBERGLP_BCEMA_SHAREDPTR' macro serves to facilitate the
+    // transition from 'bcema_SharedPtr' to 'bsl::shared_ptr'.
+#endif // BDE_USE_BCEMA_SHAREDPTR
 
                         // ==========================
                         // struct bcema_SharedPtrLess
