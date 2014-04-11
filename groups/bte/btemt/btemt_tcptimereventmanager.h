@@ -760,7 +760,7 @@ btemt_TcpTimerEventManager_ControlChannel::clientFd()
 #ifdef BTESO_PLATFORM_WIN_SOCKETS
     // The client fd after construction can change only on Windows.  Lock
     // conditionally to access the client fd.
- 
+
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_socketPairLock);
 #endif
 
