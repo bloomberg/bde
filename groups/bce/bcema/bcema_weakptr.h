@@ -638,11 +638,11 @@ void swap(bcema_WeakPtr<TYPE>& a, bcema_WeakPtr<TYPE>& b);
 #ifndef BDE_USE_BSL_SHAREDPTR
 #define BLOOMBERGLP_BCEMA_WEAKPTR BloombergLP::bcema_WeakPtr
     // The 'BLOOMBERGLP_BCEMA_WEAKPTR' macro serves to facilitate the
-    // transition from 'bcema_WeakPtr' to 'bsl::weakptr'.
+    // transition from 'bcema_WeakPtr' to 'bsl::weak_ptr'.
 #else
-#define BLOOMBERGLP_BCEMA_WEAKPTR bsl::weakptr
+#define BLOOMBERGLP_BCEMA_WEAKPTR bsl::weak_ptr
     // The 'BLOOMBERGLP_BCEMA_WEAKPTR' macro serves to facilitate the
-    // transition from 'bcema_WeakPtr' to 'bsl::weakptr'.
+    // transition from 'bcema_WeakPtr' to 'bsl::weak_ptr'.
 #endif // BDE_USE_BCEMA_SHAREDPTR
 
 // ============================================================================
