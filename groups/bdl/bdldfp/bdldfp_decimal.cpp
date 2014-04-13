@@ -37,6 +37,7 @@ BSLS_IDENT("$Id$")
 #include <bsl_sstream.h>
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
+#include <iostream.h>
 #include <math.h>
 #include <stdio.h>
 #endif
