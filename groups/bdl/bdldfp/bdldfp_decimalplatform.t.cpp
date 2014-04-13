@@ -253,47 +253,47 @@ int main(int argc, char* argv[])
              && defined(BDLDFP_DECIMALPLATFORM_C99_SNAN128)
 
                 // qNaN32 must be different from all other larger variants
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99QNAN32,
-                                      BDLDFP_DECIMALPLATFORM_C99QNAN64));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_QNAN32,
+                                      BDLDFP_DECIMALPLATFORM_C99_QNAN64));
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99QNAN32,
-                                      BDLDFP_DECIMALPLATFORM_C99SNAN64));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_QNAN32,
+                                      BDLDFP_DECIMALPLATFORM_C99_SNAN64));
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99QNAN32,
-                                      BDLDFP_DECIMALPLATFORM_C99QNAN128));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_QNAN32,
+                                      BDLDFP_DECIMALPLATFORM_C99_QNAN128));
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99QNAN32,
-                                      BDLDFP_DECIMALPLATFORM_C99SNAN128));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_QNAN32,
+                                      BDLDFP_DECIMALPLATFORM_C99_SNAN128));
 
 
                 // sNaN32 must be different from all other larger variants
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99SNAN32,
-                                      BDLDFP_DECIMALPLATFORM_C99QNAN64));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_SNAN32,
+                                      BDLDFP_DECIMALPLATFORM_C99_QNAN64));
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99SNAN32,
-                                      BDLDFP_DECIMALPLATFORM_C99SNAN64));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_SNAN32,
+                                      BDLDFP_DECIMALPLATFORM_C99_SNAN64));
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99SNAN32,
-                                      BDLDFP_DECIMALPLATFORM_C99QNAN128));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_SNAN32,
+                                      BDLDFP_DECIMALPLATFORM_C99_QNAN128));
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99SNAN32,
-                                      BDLDFP_DECIMALPLATFORM_C99SNAN128));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_SNAN32,
+                                      BDLDFP_DECIMALPLATFORM_C99_SNAN128));
 
                 // qNaN64 must be different from all other larger variants
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99QNAN64,
-                                      BDLDFP_DECIMALPLATFORM_C99QNAN128));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_QNAN64,
+                                      BDLDFP_DECIMALPLATFORM_C99_QNAN128));
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99QNAN64,
-                                      BDLDFP_DECIMALPLATFORM_C99SNAN128));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_QNAN64,
+                                      BDLDFP_DECIMALPLATFORM_C99_SNAN128));
 
                 // sNaN64 must be different from all other larger variants
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99QNAN64,
-                                      BDLDFP_DECIMALPLATFORM_C99QNAN128));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_QNAN64,
+                                      BDLDFP_DECIMALPLATFORM_C99_QNAN128));
 
-                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99QNAN64,
-                                      BDLDFP_DECIMALPLATFORM_C99SNAN128));
+                ASSERT(differentTypes(BDLDFP_DECIMALPLATFORM_C99_QNAN64,
+                                      BDLDFP_DECIMALPLATFORM_C99_SNAN128));
 
 
                 // sNaN and qNaN expressions should be different bit patterns:
