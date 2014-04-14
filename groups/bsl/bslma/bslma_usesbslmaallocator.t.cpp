@@ -3,6 +3,8 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslma_allocator.h>
+#include <bslmf_assert.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -110,6 +112,53 @@ inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
 inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 
 //=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+class DoesNotUseAnAllocatorType {
+    // ...
+};
+
+class UsesAllocatorType1 {
+    // ...
+
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(UsesAllocatorType1,
+                                   bslma::UsesBslmaAllocator);
+    // CREATORS
+    explicit UsesAllocatorType1(bslma::Allocator *basicAllocator = 0);
+       // ...
+
+    UsesAllocatorType1(const UsesAllocatorType1&  original, 
+                       bslma::Allocator          *basicAllocator = 0);
+       // ...
+};
+
+class UsesAllocatorType2 {
+    // ...
+
+  public:
+    // CREATORS
+    explicit UsesAllocatorType2(bslma::Allocator *basicAllocator = 0);
+       // ...
+
+    UsesAllocatorType2(const UsesAllocatorType2&  original, 
+                       bslma::Allocator          *basicAllocator = 0);
+       // ...
+};
+
+namespace BloombergLP {
+namespace bslma {
+
+template <> struct UsesBslmaAllocator<UsesAllocatorType2> : bsl::true_type {};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+
+
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -184,6 +233,44 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+        if (verbose) printf("\nMain example usage test.\n");
+
+	ASSERT(false == 
+	       bslma::UsesBslmaAllocator<DoesNotUseAnAllocatorType>::value);
+
+	ASSERT(true  ==
+	       bslma::UsesBslmaAllocator<UsesAllocatorType1>::value);
+
+	ASSERT(true  ==
+	       bslma::UsesBslmaAllocator<UsesAllocatorType2>::value);
+
+	BSLMF_ASSERT(false == 
+		  bslma::UsesBslmaAllocator<DoesNotUseAnAllocatorType>::value);
+
+        BSLMF_ASSERT(true  ==
+		     bslma::UsesBslmaAllocator<UsesAllocatorType1>::value);
+
+	BSLMF_ASSERT(true ==
+		     bslma::UsesBslmaAllocator<UsesAllocatorType2>::value);
+	
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING/USAGE TEST
