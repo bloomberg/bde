@@ -299,7 +299,7 @@ struct NulBuf : bsl::streambuf {
 
 //-----------------------------------------------------------------------------
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+//#if BDLDFP_DECIMALPLATFORM_DECNUMBER
 
                                 // ===
                                 // D32
@@ -464,7 +464,7 @@ bsl::ostream &operator<<(bsl::ostream &o, const D128& d)
     return d.printHex(o);
 }
 
-#endif
+//#endif
 
 //=============================================================================
 //                              MAIN PROGRAM

@@ -605,10 +605,12 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
 
     long long longLongExponent = exponent;
     Decimal64 result = value;
+/*
     decDoubleScaleB(result.data(),
                     value.data(),
                     makeDecimal64(longLongExponent, 0).data(),
                     getContext());
+*/
     return result;
 }
 
@@ -619,10 +621,12 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     BSLS_ASSERT_SAFE(                  exponent <= makeDecimal64(99999999, 0));
 
     Decimal64 result = value;
+/*
     decDoubleScaleB(result.data(),
                     value.data(),
                     exponent.data(),
                     getContext());
+*/
     return result;
 }
 
@@ -634,7 +638,7 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     Decimal128 result = value;
     DecimalImplUtil::ValueType128 scale =
                                DecimalImplUtil::makeDecimalRaw128(exponent, 0);
-    decQuadScaleB(result.data(), value.data(), &scale, getContext());
+//    decQuadScaleB(result.data(), value.data(), &scale, getContext());
     return result;
 }
 
@@ -642,24 +646,26 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                                             Decimal128 exponent)
 {
     Decimal128 result = value;
-    decQuadScaleB(result.data(), value.data(), exponent.data(), getContext());
+//    decQuadScaleB(result.data(), value.data(), exponent.data(), getContext());
     return result;
 }
 
 Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
 {
     Decimal64 result = value;
+/*
     decDoubleQuantize(result.data(),
                       value.data(),
                       exponent.data(),
                       getContext());
+*/
     return result;
 }
 
 Decimal128 DecimalUtil::quantize(Decimal128 x, Decimal128 y)
 {
     Decimal128 rv = x;
-    decQuadQuantize(rv.data(), x.data(), y.data(), getContext());
+//    decQuadQuantize(rv.data(), x.data(), y.data(), getContext());
     return rv;
 }
 
@@ -668,7 +674,7 @@ int DecimalUtil::quantum(Decimal64 x)
     BSLS_ASSERT(!isInf(x));
     BSLS_ASSERT(!isNan(x));
 
-    return decDoubleGetExponent(x.data());
+    return decDoubleGetExponent(reinterpret_cast<const decDouble*>(x.data()));
 }
 
 int DecimalUtil::quantum(Decimal128 x)
@@ -676,17 +682,20 @@ int DecimalUtil::quantum(Decimal128 x)
     BSLS_ASSERT(!isInf(x));
     BSLS_ASSERT(!isNan(x));
 
-    return decQuadGetExponent(x.data());
+    return decQuadGetExponent(reinterpret_cast<const decQuad*>(x.data()));
 }
 
 bool DecimalUtil::sameQuantum(Decimal64 x, Decimal64 y)
 {
-    return decDoubleSameQuantum(x.data(), y.data()) == 1;
+    return decDoubleSameQuantum(reinterpret_cast<const decDouble*>(x.data()),
+                                reinterpret_cast<const decDouble*>(y.data()))
+                                                                          == 1;
 }
 
 bool DecimalUtil::sameQuantum(Decimal128 x, Decimal128 y)
 {
-    return decQuadSameQuantum(x.data(), y.data()) == 1;
+    return decQuadSameQuantum(reinterpret_cast<const decQuad*>(x.data()),
+                              reinterpret_cast<const decQuad*>(y.data())) == 1;
 }
 
 }  // close package namespace
