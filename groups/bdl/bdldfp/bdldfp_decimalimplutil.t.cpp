@@ -355,6 +355,11 @@ bsl::ostream &operator<<(bsl::ostream &o, const D32& d)
 {
     return d.printHex(o);
 }
+
+bsl::ostream &operator<<(bsl::ostream &o, const Util::ValueType32& d)
+{
+    return operator<<(o, D32(d));
+}
                                 // ===
                                 // D64
                                 // ===
@@ -409,6 +414,12 @@ bsl::ostream &operator<<(bsl::ostream &o, const D64& d)
 {
     return d.printHex(o);
 }
+
+bsl::ostream &operator<<(bsl::ostream &o, const Util::ValueType64& d)
+{
+    return operator<<(o, D64(d));
+}
+
                                 // ====
                                 // D128
                                 // ====
@@ -462,6 +473,11 @@ bool operator==(const D128& lhs, const D128& rhs)
 bsl::ostream &operator<<(bsl::ostream &o, const D128& d)
 {
     return d.printHex(o);
+}
+
+bsl::ostream &operator<<(bsl::ostream &o, const Util::ValueType128& d)
+{
+    return operator<<(o, D128(d));
 }
 
 //#endif
