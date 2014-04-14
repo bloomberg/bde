@@ -777,7 +777,7 @@ int main(int argc, char* argv[])
 
                 bsl::string ACTUAL = outdec.str();
 
-                LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
+                LOOP3_ASSERT(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
             }
             /*
             {
@@ -2739,7 +2739,7 @@ int main(int argc, char* argv[])
                 out << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("4.25" == s);
+                LOOP_ASSERT(s, "4.25" == s);
             }
 
             {
@@ -2747,7 +2747,7 @@ int main(int argc, char* argv[])
                 out << BDEC::Decimal32(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("-4.25" == s);
+                LOOP_ASSERT(s, "-4.25" == s);
             }
 
             {
@@ -2755,7 +2755,7 @@ int main(int argc, char* argv[])
                 out << BDEC::Decimal32(5e50);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("5e+50" == s);
+                LOOP_ASSERT(s, "5e+50" == s);
             }
 
             {
@@ -2763,7 +2763,7 @@ int main(int argc, char* argv[])
                 out << BDEC::Decimal32(5e-50);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("5e-50" == s);
+                LOOP_ASSERT(s, "5e-50" == s);
             }
 
             {
@@ -2771,7 +2771,7 @@ int main(int argc, char* argv[])
                 out << bsl::uppercase << BDEC::Decimal32(5e50);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("5E+50" == s);
+                LOOP_ASSERT(s, "5E+50" == s);
             }
 
             {
@@ -2780,7 +2780,7 @@ int main(int argc, char* argv[])
                                       bsl::numeric_limits<double>::infinity());
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("infinity" == s);
+                LOOP_ASSERT(s, "infinity" == s);
             }
 
             {
@@ -2789,7 +2789,7 @@ int main(int argc, char* argv[])
                                       bsl::numeric_limits<double>::infinity());
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("INFINITY" == s);
+                LOOP_ASSERT(s, "INFINITY" == s);
             }
 
             {
@@ -2798,7 +2798,7 @@ int main(int argc, char* argv[])
                 out << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("4.25" == s);
+                LOOP_ASSERT(s, "4.25" == s);
             }
 
             {
@@ -2807,7 +2807,7 @@ int main(int argc, char* argv[])
                 out << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("      4.25" == s);
+                LOOP_ASSERT(s, "      4.25" == s);
             }
 
             {
@@ -2816,7 +2816,7 @@ int main(int argc, char* argv[])
                 out << bsl::internal << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("      4.25" == s);
+                LOOP_ASSERT(s, "      4.25" == s);
             }
 
             {
@@ -2825,7 +2825,7 @@ int main(int argc, char* argv[])
                 out << bsl::left << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("4.25      " == s);
+                LOOP_ASSERT(s, "4.25      " == s);
             }
 
             {
@@ -2834,7 +2834,7 @@ int main(int argc, char* argv[])
                 out << bsl::showpos << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("     +4.25" == s);
+                LOOP_ASSERT(s, "     +4.25" == s);
             }
 
             {
@@ -2843,7 +2843,7 @@ int main(int argc, char* argv[])
                 out << bsl::showpos << bsl::internal << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("+     4.25" == s);
+                LOOP_ASSERT(s, "+     4.25" == s);
             }
 
             {
@@ -2852,7 +2852,7 @@ int main(int argc, char* argv[])
                 out << bsl::showpos << bsl::left << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("+4.25     " == s);
+                LOOP_ASSERT(s, "+4.25     " == s);
             }
 
             {
@@ -2861,7 +2861,7 @@ int main(int argc, char* argv[])
                 out << BDEC::Decimal32(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("     -4.25" == s);
+                LOOP_ASSERT(s, "     -4.25" == s);
             }
 
             {
@@ -2870,7 +2870,7 @@ int main(int argc, char* argv[])
                 out << bsl::internal << BDEC::Decimal32(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("-     4.25" == s);
+                LOOP_ASSERT(s, "-     4.25" == s);
             }
 
             {
@@ -2879,7 +2879,7 @@ int main(int argc, char* argv[])
                 out << bsl::left << BDEC::Decimal32(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("-4.25     " == s);
+                LOOP_ASSERT(s, "-4.25     " == s);
             }
 
             {
@@ -2888,7 +2888,7 @@ int main(int argc, char* argv[])
                 out << bsl::showpos << BDEC::Decimal32(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("     -4.25" == s);
+                LOOP_ASSERT(s, "     -4.25" == s);
             }
 
             {
@@ -2897,7 +2897,7 @@ int main(int argc, char* argv[])
                 out << bsl::showpos << bsl::internal << BDEC::Decimal32(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("-     4.25" == s);
+                LOOP_ASSERT(s, "-     4.25" == s);
             }
 
             {
@@ -2906,7 +2906,7 @@ int main(int argc, char* argv[])
                 out << bsl::showpos << bsl::left << BDEC::Decimal32(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("-4.25     " == s);
+                LOOP_ASSERT(s, "-4.25     " == s);
             }
 
             {
@@ -2916,7 +2916,7 @@ int main(int argc, char* argv[])
                                      -bsl::numeric_limits<double>::infinity());
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
-                ASSERT("-   INFINITY" == s);
+                LOOP_ASSERT(s, "-   INFINITY" == s);
             }
 
             {
