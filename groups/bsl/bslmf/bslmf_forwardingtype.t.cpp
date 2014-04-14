@@ -14,6 +14,10 @@
 using namespace BloombergLP;
 using namespace std;
 
+// Suppress messages about all-uppercase type names.  Test drivers are rife
+// with short names like 'F' or 'PF' or 'T' or 'T1'.
+#pragma bde_verify -UC01
+
 // ============================================================================
 //                                TEST PLAN
 // ----------------------------------------------------------------------------
@@ -194,7 +198,7 @@ struct CvRefMatch {
     int operator()(TP&) const { return k_LVALUE; }
     int operator()(const TP&) const { return k_CONST_LVALUE; }
     int operator()(volatile TP&) const { return k_VOLATILE_LVALUE; }
-    int operator()(const volatile TP&) const { return k_CONST_VOLATILE_LVALUE; }
+    int operator()(const volatile TP&) const { return k_CONST_VOLATILE_LVALUE;}
         // Invoke with an l-value reference.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
@@ -212,8 +216,8 @@ struct CvArrayMatch {
     // Function object type that can be invoked with an array of the specified
     // 'TP' parameter type.
 
-    template <std::size_t SZ>
-    int operator()(TP (&)[SZ]) const { return int(SZ); }
+    template <std::size_t k_SZ>
+    int operator()(TP (&)[k_SZ]) const { return int(k_SZ); }
         // Invoke with an array of known size.
 
     int operator()(TP *const&) const { return 0; }
@@ -631,7 +635,7 @@ int main(int argc, char *argv[])
 
 #undef TEST_ENDTOEND_RVALUE
 
-#define TEST_ENDTOEND_LVALUE_REF(TP, v) {                                         \
+#define TEST_ENDTOEND_LVALUE_REF(TP, v) {                                     \
             typedef TP T;                                                     \
             typedef const T CT;                                               \
             typedef volatile T VT;                                            \
@@ -935,9 +939,9 @@ int main(int argc, char *argv[])
         //:   the same "lvalue reference to cvq 'TP', for non-function and
         //:   non-array types.
         //: 6 (C++11 and newer only) The forwarding type for "rvalue reference
-        //:   to cvq type 'TP'" for non-function and non-array 'TP' is 'const vq
-        //:   TP&', where 'vq' is 'volatile' if 'TP' is volatile-qualified and
-        //:   'vq' is empty otherwise.
+        //:   to cvq type 'TP'" for non-function and non-array 'TP' is 'const
+        //:   vq TP&', where 'vq' is 'volatile' if 'TP' is volatile-qualified
+        //:   and 'vq' is empty otherwise.
         //
         // Test Plan:
         //: 1 For concern 1, instantiate 'ForwardingType' for fundamental,
@@ -961,11 +965,11 @@ int main(int argc, char *argv[])
         //:   reference to fundamental, pointer, enumeration, class, and union
         //:   types, both cv-qualified and unqualified, and verify that the
         //:   resulting 'Type' member is the same as the parameter type.
-        //: 6 For concern 6, instantiate 'ForwardingType' for *rvalue* reference
-        //:   to fundamental, pointer, enumeration, class, and union
-        //:   types, both cv-qualified and unqualified, and
-        //:   verify that the resulting 'Type' member is the expected const
-        //:   lvalue reference type.
+        //: 6 For concern 6, instantiate 'ForwardingType' for *rvalue*
+        //:   reference to fundamental, pointer, enumeration, class, and union
+        //:   types, both cv-qualified and unqualified, and verify that the
+        //:   resulting 'Type' member is the expected const lvalue reference
+        //:   type.
         //
         // Testing:
         //     bslmf::ForwardingType<TYPE>::Type
@@ -1192,6 +1196,7 @@ int main(int argc, char *argv[])
         cerr << "Error, non-zero test status = "
              << testStatus << "." << endl;
     }
+
     return testStatus;
 }
 
