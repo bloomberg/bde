@@ -2736,6 +2736,62 @@ int main(int argc, char* argv[])
 
             {
                 bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(1.2);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("1.2" == s);
+            }
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(1.23);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("1.23" == s);
+            }
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(1.234);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("1.234" == s);
+            }
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(1.2345);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("1.2345" == s);
+            }
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(1.23456);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("1.23456" == s);
+            }
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(1.234567);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                ASSERT("1.234567" == s);
+            }
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(10000000);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "1.000000e+7" == s);
+            }
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(0.000000001);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "1e-9" == s);
+            }
+            {
+                bsl::ostringstream out(pa);
                 out << BDEC::Decimal32(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
