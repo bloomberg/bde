@@ -310,7 +310,9 @@ class D32 {
 
     void set(int exponent, const unsigned char *bcd, int sign)
     {
-        decSingleFromBCD(&d_data, exponent, bcd, sign);
+        decSingle d_data_s;
+        decSingleFromBCD(&d_data_s, exponent, bcd, sign);
+        memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
@@ -369,7 +371,9 @@ class D64 {
 
     void set(int exponent, const unsigned char *bcd, int sign)
     {
-        decDoubleFromBCD(&d_data, exponent, bcd, sign);
+        decDouble d_data_s;
+        decDoubleFromBCD(&d_data_s, exponent, bcd, sign);
+        memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
@@ -429,7 +433,9 @@ class D128 {
 
     void set(int exponent, const unsigned char *bcd, int sign)
     {
-        decQuadFromBCD(&d_data, exponent, bcd, sign);
+        decQuad d_data_s;
+        decQuadFromBCD(&d_data_s, exponent, bcd, sign);
+        memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
