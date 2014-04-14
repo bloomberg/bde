@@ -299,7 +299,7 @@ namespace bslmf {
 template <class TYPE>
 struct ForwardingTypeUtil;
 
-template <class TYPE, int CATEGORY, bool IS_REFERENCE>
+template <class TYPE, int k_CATEGORY, bool k_IS_REFERENCE>
 struct ForwardingType_Imp;
 
                         // =============================
@@ -339,18 +339,18 @@ private:
         k_IS_REFERENCE = bsl::is_reference<TYPE>::value,
 
         k_CATEGORY = (bsl::is_function<UnrefType>::value    ?
-                                         ForwardingType_Dispatch::e_FUNCTION   :
+                                        ForwardingType_Dispatch::e_FUNCTION   :
                       bsl::is_array<UnrefType>::value       ?
-                                         ForwardingType_Dispatch::e_ARRAY      :
+                                        ForwardingType_Dispatch::e_ARRAY      :
                       bsl::is_rvalue_reference<TYPE>::value ?
-                                         ForwardingType_Dispatch::e_RVALUE_REF :
+                                        ForwardingType_Dispatch::e_RVALUE_REF :
                       bsl::is_fundamental<TYPE>::value ||
                       bsl::is_pointer<TYPE>::value ||
                       bsl::is_member_pointer<TYPE>::value ||
                       IsFunctionPointer<TYPE>::value ||
                       bsl::is_enum<TYPE>::value             ?
-                                         ForwardingType_Dispatch::e_BASIC      :
-                                         ForwardingType_Dispatch::e_CLASS)
+                                        ForwardingType_Dispatch::e_BASIC      :
+                                        ForwardingType_Dispatch::e_CLASS)
     };
 
     typedef ForwardingType_Imp<UnrefType, k_CATEGORY, k_IS_REFERENCE> Imp;
@@ -446,9 +446,9 @@ struct ForwardingType_Imp<UNREF_TYPE,
 #endif
 };
 
-template <class UNREF_TYPE, bool IS_REFERENCE>
+template <class UNREF_TYPE, bool k_IS_REFERENCE>
 struct ForwardingType_Imp<UNREF_TYPE,
-                          ForwardingType_Dispatch::e_FUNCTION, IS_REFERENCE>
+                          ForwardingType_Dispatch::e_FUNCTION, k_IS_REFERENCE>
 {
     // Function and function reference is forwarded as function reference.
 
@@ -459,23 +459,23 @@ struct ForwardingType_Imp<UNREF_TYPE,
         { return v; }
 };
 
-template <class UNREF_TYPE, std::size_t NUM_ELEMENTS, bool IS_REFERENCE>
-struct ForwardingType_Imp<UNREF_TYPE [NUM_ELEMENTS],
-                          ForwardingType_Dispatch::e_ARRAY, IS_REFERENCE>
+template <class UNREF_TYPE, std::size_t k_NUM_ELEMENTS, bool k_IS_REFERENCE>
+struct ForwardingType_Imp<UNREF_TYPE [k_NUM_ELEMENTS],
+                          ForwardingType_Dispatch::e_ARRAY, k_IS_REFERENCE>
 {
     // Array of known size and reference to array of known size is forwarded as
     // pointer to array element type.
 
     typedef UNREF_TYPE  *Type;
-    typedef UNREF_TYPE (&TargetType)[NUM_ELEMENTS];
+    typedef UNREF_TYPE (&TargetType)[k_NUM_ELEMENTS];
     static TargetType forwardToTarget(Type v)
         // Return the specified 'v', cast to a refererence to array.
         { return reinterpret_cast<TargetType>(*v); }
 };
 
-template <class UNREF_TYPE, bool IS_REFERENCE>
+template <class UNREF_TYPE, bool k_IS_REFERENCE>
 struct ForwardingType_Imp<UNREF_TYPE [],
-                          ForwardingType_Dispatch::e_ARRAY, IS_REFERENCE> {
+                          ForwardingType_Dispatch::e_ARRAY, k_IS_REFERENCE> {
     // Array of unknown size and reference to array of unknown size is
     // forwarded as pointer to array element type.
 
