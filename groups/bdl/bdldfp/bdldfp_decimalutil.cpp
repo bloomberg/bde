@@ -607,12 +607,10 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
 
     long long longLongExponent = exponent;
     Decimal64 result = value;
-/*
     decDoubleScaleB(result.data(),
                     value.data(),
                     makeDecimal64(longLongExponent, 0).data(),
                     getContext());
-*/
     return result;
 }
 
@@ -623,12 +621,10 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     BSLS_ASSERT_SAFE(                  exponent <= makeDecimal64(99999999, 0));
 
     Decimal64 result = value;
-/*
     decDoubleScaleB(result.data(),
                     value.data(),
                     exponent.data(),
                     getContext());
-*/
     return result;
 }
 
@@ -640,7 +636,7 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     Decimal128 result = value;
     DecimalImplUtil::ValueType128 scale =
                                DecimalImplUtil::makeDecimalRaw128(exponent, 0);
-//    decQuadScaleB(result.data(), value.data(), &scale, getContext());
+    decQuadScaleB(result.data(), value.data(), &scale, getContext());
     return result;
 }
 
@@ -648,26 +644,24 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                                             Decimal128 exponent)
 {
     Decimal128 result = value;
-//    decQuadScaleB(result.data(), value.data(), exponent.data(), getContext());
+    decQuadScaleB(result.data(), value.data(), exponent.data(), getContext());
     return result;
 }
 
 Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
 {
     Decimal64 result = value;
-/*
     decDoubleQuantize(result.data(),
                       value.data(),
                       exponent.data(),
                       getContext());
-*/
     return result;
 }
 
 Decimal128 DecimalUtil::quantize(Decimal128 x, Decimal128 y)
 {
     Decimal128 rv = x;
-//    decQuadQuantize(rv.data(), x.data(), y.data(), getContext());
+    decQuadQuantize(rv.data(), x.data(), y.data(), getContext());
     return rv;
 }
 
