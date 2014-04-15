@@ -19,7 +19,9 @@
 
 #include <typeinfo>
 
+extern "C" {
 #include <decSingle.h>  // Even in hardware modes, we need decNumber functions.
+}
 
 using namespace BloombergLP;
 using bsl::cout;

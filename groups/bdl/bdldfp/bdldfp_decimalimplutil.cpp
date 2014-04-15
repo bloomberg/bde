@@ -136,6 +136,10 @@ BSLS_IDENT("$Id$")
 #include <bsl_cstring.h>
 #include <bsl_string.h>
 
+extern "C" {
+#include <decSingle.h>  // Even in hardware modes, we need decNumber functions.
+}
+
 #if BDLDFP_DECIMALPLATFORM_C99_TR
 #  ifndef  __STDC_WANT_DEC_FP__
 #    error __STDC_WANT_DEC_FP__ must be defined on the command line!

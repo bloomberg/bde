@@ -20,7 +20,9 @@ BSLS_IDENT("$Id$")
 #  endif
 #endif
 
+extern "C" {
 #include <decSingle.h>  // Even in hardware modes, we need decNumber functions.
+}
 
 #include <errno.h>
 
