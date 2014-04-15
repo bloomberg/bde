@@ -594,6 +594,46 @@ Decimal128 DecimalUtil::round(Decimal128 x)
 #endif
 }
 
+inline static const decDouble *convertImplType(
+    const bdldfp::DecimalImplUtil::ValueType64 *x)
+{
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return reinterpret_cast<const decDouble*>(x);
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+    return x;
+#endif
+}
+
+inline static decDouble *convertImplType(
+    bdldfp::DecimalImplUtil::ValueType64 *x)
+{
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return reinterpret_cast<decDouble*>(x);
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+    return x;
+#endif
+}
+
+inline static const decQuad *convertImplType(
+    const bdldfp::DecimalImplUtil::ValueType128 *x)
+{
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return reinterpret_cast<const decQuad*>(x);
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+    return x;
+#endif
+}
+
+inline static decQuad *convertImplType(
+    bdldfp::DecimalImplUtil::ValueType128 *x)
+{
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return reinterpret_cast<decQuad*>(x);
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+    return x;
+#endif
+}
+
                              // Quantum functions
 
 Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
@@ -603,9 +643,9 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
 
     long long longLongExponent = exponent;
     Decimal64 result = value;
-    decDoubleScaleB(result.data(),
-                    value.data(),
-                    makeDecimal64(longLongExponent, 0).data(),
+    decDoubleScaleB(convertImplType(result.data()),
+                    convertImplType(value.data()),
+                    convertImplType(makeDecimal64(longLongExponent, 0).data()),
                     getContext());
     return result;
 }
@@ -617,9 +657,9 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     BSLS_ASSERT_SAFE(                  exponent <= makeDecimal64(99999999, 0));
 
     Decimal64 result = value;
-    decDoubleScaleB(result.data(),
-                    value.data(),
-                    exponent.data(),
+    decDoubleScaleB(convertImplType(result.data()),
+                    convertImplType(value.data()),
+                    convertImplType(exponent.data()),
                     getContext());
     return result;
 }
@@ -632,7 +672,10 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     Decimal128 result = value;
     DecimalImplUtil::ValueType128 scale =
                                DecimalImplUtil::makeDecimalRaw128(exponent, 0);
-    decQuadScaleB(result.data(), value.data(), &scale, getContext());
+    decQuadScaleB(convertImplType(result.data()),
+                  convertImplType(value.data()),
+                  convertImplType(&scale),
+                  getContext());
     return result;
 }
 
@@ -640,16 +683,19 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                                             Decimal128 exponent)
 {
     Decimal128 result = value;
-    decQuadScaleB(result.data(), value.data(), exponent.data(), getContext());
+    decQuadScaleB(convertImplType(result.data()),
+                  convertImplType(value.data()),
+                  convertImplType(exponent.data()),
+                  getContext());
     return result;
 }
 
 Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
 {
     Decimal64 result = value;
-    decDoubleQuantize(result.data(),
-                      value.data(),
-                      exponent.data(),
+    decDoubleQuantize(convertImplType(result.data()),
+                      convertImplType(value.data()),
+                      convertImplType(exponent.data()),
                       getContext());
     return result;
 }
@@ -657,7 +703,10 @@ Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
 Decimal128 DecimalUtil::quantize(Decimal128 x, Decimal128 y)
 {
     Decimal128 rv = x;
-    decQuadQuantize(rv.data(), x.data(), y.data(), getContext());
+    decQuadQuantize(convertImplType(rv.data()),
+                    convertImplType(x.data()),
+                    convertImplType(y.data()),
+                    getContext());
     return rv;
 }
 
@@ -666,7 +715,7 @@ int DecimalUtil::quantum(Decimal64 x)
     BSLS_ASSERT(!isInf(x));
     BSLS_ASSERT(!isNan(x));
 
-    return decDoubleGetExponent(reinterpret_cast<const decDouble*>(x.data()));
+    return decDoubleGetExponent(convertImplType(x.data()));
 }
 
 int DecimalUtil::quantum(Decimal128 x)
@@ -674,20 +723,19 @@ int DecimalUtil::quantum(Decimal128 x)
     BSLS_ASSERT(!isInf(x));
     BSLS_ASSERT(!isNan(x));
 
-    return decQuadGetExponent(reinterpret_cast<const decQuad*>(x.data()));
+    return decQuadGetExponent(convertImplType(x.data()));
 }
 
 bool DecimalUtil::sameQuantum(Decimal64 x, Decimal64 y)
 {
-    return decDoubleSameQuantum(reinterpret_cast<const decDouble*>(x.data()),
-                                reinterpret_cast<const decDouble*>(y.data()))
-                                                                          == 1;
+    return decDoubleSameQuantum(convertImplType(x.data()),
+                                convertImplType(y.data())) == 1;
 }
 
 bool DecimalUtil::sameQuantum(Decimal128 x, Decimal128 y)
 {
-    return decQuadSameQuantum(reinterpret_cast<const decQuad*>(x.data()),
-                              reinterpret_cast<const decQuad*>(y.data())) == 1;
+    return decQuadSameQuantum(convertImplType(x.data()),
+                              convertImplType(y.data())) == 1;
 }
 
 }  // close package namespace
