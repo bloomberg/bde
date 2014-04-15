@@ -346,7 +346,11 @@ class D32 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+        
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
         return o << bsl::hex << *d_data.words;
+#endif
     }
 };
 
@@ -407,7 +411,11 @@ class D64 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+        
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
         return o << bsl::hex << *d_data.words;
+#endif
     }
 };
 
@@ -469,7 +477,11 @@ class D128 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+        
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
         return o << bsl::hex << *d_data.words;
+#endif
     }
 };
 
