@@ -120,6 +120,16 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
+    // Generic decimal floating-point implementation for compilers that do not
+    // support the C _DecimalNN types follows; it uses the decNumber library.
+
+#ifndef INCLUDED_DECSINGLE
+   extern "C" {
+#   include <decSingle.h>
+   }
+#  define INCLUDED_DECSINGLE
+#endif
+
 #if BDLDFP_DECIMALPLATFORM_C99_TR
 
         // Implementation when we have C DecFP support only (no C++)
@@ -137,15 +147,6 @@ BSLS_IDENT("$Id$")
 
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
 
-    // Generic decimal floating-point implementation for compilers that do not
-    // support the C _DecimalNN types follows; it uses the decNumber library.
-
-#ifndef INCLUDED_DECSINGLE
-   extern "C" {
-#   include <decSingle.h>
-   }
-#  define INCLUDED_DECSINGLE
-#endif
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
 
@@ -205,11 +206,6 @@ struct DecimalImplUtil {
     typedef decQuad   ValueType128;
 
     // CLASS METHODS
-    static decContext *getDecNumberContext();
-        // Return a pointer providing modifiable access to the floating point
-        // environment of the 'decNumber' library.  This function exists on
-        // certain supported platforms only.
-
     struct This_is_not_a_floating_point_literal {};
         // This 'struct' is a helper type used togenerate error messages for
         // bad literals.
@@ -226,6 +222,11 @@ struct DecimalImplUtil {
                       // Parsing and formatting
 
     // CLASS METHODS
+    static decContext *getDecNumberContext();
+        // Return a pointer providing modifiable access to the floating point
+        // environment of the 'decNumber' library.  This function exists on
+        // certain supported platforms only.
+
     static ValueType32 parse32(const char *input);
         // Parse the specified 'input' string as a 32 bit decimal floating-
         // point value and return the result.  The parsing is as specified for

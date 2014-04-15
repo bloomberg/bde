@@ -546,7 +546,7 @@ static inline DecimalImplUtil::ValueType64 minusInf64()
 
 }  // close unnamed namespace
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+//#if BDLDFP_DECIMALPLATFORM_DECNUMBER
 
      // Implementation based on the decNumber library (no C or C++ support)
 
@@ -557,7 +557,7 @@ decContext *DecimalImplUtil::getDecNumberContext()
     return &context;
 }
 
-#endif // elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+//#endif // elif BDLDFP_DECIMALPLATFORM_DECNUMBER
 
 
 DecimalImplUtil::ValueType32 DecimalImplUtil::parse32(const char *input)

@@ -124,8 +124,6 @@ DecimalType makeDecimal(CoEffT coeff, int exponent)
     return rv;
 }
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
-
      // Implementation based on the decNumber library (no C or C++ support)
 
 static decContext* getContext()
@@ -133,8 +131,6 @@ static decContext* getContext()
 {
     return DecimalImplUtil::getDecNumberContext();
 }
-
-#endif // elif BDLDFP_DECIMALPLATFORM_DECNUMBER
 
 }  // close unnamed namespace
 
