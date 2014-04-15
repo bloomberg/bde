@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import os
+import sys
 
 from waflib import Logs, Utils
 from waflib.Configure import ConfigurationContext
@@ -10,28 +11,15 @@ top = '.'
 out = 'build'
 
 def _get_tools_path(ctx):
+    waf_path = sys.argv[0]
 
-    # Uses the local BDE waf customziations if they exist
-    if os.path.isdir(os.path.join('tools', 'waf', 'bde')):
-        return os.path.join('tools', 'waf', 'bde');
+    base = os.path.dirname(waf_path)
 
-    bde_path = os.getenv('BDE_PATH')
-    if not bde_path:
-        ctx.fatal('BDE waf customizations do not exist locally, and the BDE_PATH environment variable is not defined.')
+    if os.path.isdir(os.path.join(base, 'tools', 'waf', 'bde')):
+        return os.path.join(base, 'tools', 'waf', 'bde');
 
-    platform = Utils.unversioned_sys_platform()
-    delimiter = ':'
-    if platform == 'win32':
-        delimiter = ';'
+    ctx.fatal("BDE waf customizations can not be found under tools/waf/bde in the path of waf.")
 
-    paths = bde_path.split(delimiter);
-    for path in paths:
-        if os.path.isdir(os.path.join(path, 'groups', 'bsl')) and \
-                os.path.isdir(os.path.join(path, 'tools', 'waf', 'bde')):
-            return os.path.join(path, 'tools', 'waf', 'bde');
-
-    ctx.fatal('The BDE_PATH environment variable is defined, but the location of BDE waf customizations, '
-              'which should be in bsl, could not be found.')
 
 def options(ctx):
     import sys
