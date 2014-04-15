@@ -546,9 +546,7 @@ static inline DecimalImplUtil::ValueType64 minusInf64()
 
 }  // close unnamed namespace
 
-//#if BDLDFP_DECIMALPLATFORM_DECNUMBER
-
-     // Implementation based on the decNumber library (no C or C++ support)
+                 // Implementation based on the decNumber library.
 
 decContext *DecimalImplUtil::getDecNumberContext()
     // Provides the decimal context required by the decNumber library functions
