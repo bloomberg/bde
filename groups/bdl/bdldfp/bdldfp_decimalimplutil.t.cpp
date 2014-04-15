@@ -347,7 +347,9 @@ class D32 {
     bsl::ostream &printHex(bsl::ostream &o) const
     {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-        
+        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+        sprintf(buffer, "%#.7HG", &d_data);
+        return o << bsl::hex << buffer;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
         return o << bsl::hex << *d_data.words;
 #endif
@@ -412,7 +414,9 @@ class D64 {
     bsl::ostream &printHex(bsl::ostream &o) const
     {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-        
+        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+        sprintf(buffer, "%.16DG", &d_data);
+        return o << bsl::hex << buffer;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
         return o << bsl::hex << *d_data.words;
 #endif
@@ -478,7 +482,9 @@ class D128 {
     bsl::ostream &printHex(bsl::ostream &o) const
     {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-        
+        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+        sprintf(buffer, "%.34DDG", &d_data);
+        return o << bsl::hex << buffer;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
         return o << bsl::hex << *d_data.words;
 #endif
