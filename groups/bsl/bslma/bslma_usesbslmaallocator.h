@@ -31,17 +31,18 @@ BSLS_IDENT("$Id: $")
 ///Compiler Enforced Requirements of Types Declaring 'UsesBslmaAllocator'
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Types declaring the 'UsesBslmaAllocator' trait must provide a constructor
-// variant that accepts a 'bslma::Allocator *' as the last parameter.  If a
-// type provides a copy-constructor, it must similarly provide a variant that
-// takes a 'bslma::Allocator *' as the last parameter.
+// variant that accepts a 'bslma::Allocator *' as the last parameter (typically
+// this is an optional parameter).  If a type provides a copy-constructor, it
+// must similarly provide a variant that takes a (optional)
+// 'bslma::Allocator *' as the last parameter.
 //
 // Template types (like 'bsl' containers) will frequently, at compile-time, use
 // the 'UsesBslmaAlloctor' trait to test if the template argument type uses
-// bslma allocators, and if the type does use an allocator, call the
-// constructor variant taking an allocator.  In this context, compilation will
-// fail if a type declares the 'UsesBslmaAllocator' trait, but does not
-// provide the expected constructor variant accepting a 'bslma::Allocator' as
-// the last parameter.
+// bslma allocators, and if the type does use an allocator, create the object
+// using the constructor variant taking an allocator.  In this context,
+// compilation will fail if a type declares the 'UsesBslmaAllocator' trait, but
+// does not provide the expected constructor variant accepting a
+// 'bslma::Allocator' as the last parameter.
 //
 ///Expected Properties of Types Deeclaring the 'UsesBslmaAllocator' Trait
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
@@ -51,22 +52,30 @@ BSLS_IDENT("$Id: $")
 // comprehensible allocation behavior.
 //
 //: o The allocator supplied at construction will be used for all non-transient
-//:   memory allocation.  This includes allocations performed by sub-objects
-//:   (i.e., the type will provide the supplied allocator to any data-members
-//:   which themselves accept an allocator).
+//:   memory allocation during the object's lifetime.  This includes
+//:   allocations performed by sub-objects (i.e., the type will provide the
+//:   supplied allocator to any data-members which themselves accept an
+//:   allocator).
 //:
-//: o If an allocator is not supplied, then the currently installed default
-//:   allocator will be used (see bslma::Default).
+//: o If an allocator is not supplied at construction, then the currently
+//:   installed default allocator will be used (see 'bslma_default').
 //:
 //: o The allocator used by an object is not modified after construction (e.g.,
 //:   the assignment operator does not change the allocator used by a type).
 //:
 //: o Transient memory allocations -- i.e., functions that allocate memory that
-//:   is de-allocated before the function returns -- are performed using the
-//:   currently installed default allocator.  For example: a temporary
-//:   'bsl::string' that is destroyed within the scope of a method need not be
-//:   explicitly supplied an allocator, since it is a transient allocation, and
-//:   'bsl::string' will use the default allocator by default.
+//:   is de-allocated before the function returns -- are generally *not*
+//:   performed using the object's allocator, and are instead typically
+//:   peformed using currently installed default allocator.  For example: a
+//:   temporary 'bsl::string' that is destroyed within the scope of a method
+//:   need not be explicitly supplied an allocator, since it is a transient
+//:   allocation, and 'bsl::string' will use the default allocator by default.
+//:
+//: o Singleton objects, when necessary, allocate memory from the global
+//:   allocator (see 'bslma_default')
+//:
+//: o The allocator used by an object is not part of an object's value (e.g.,
+//:   it is not tested by comparison operations like 'operator==').
 //
 // There may be circumstances where a type that uses an allocator deliberately
 // does not have one (or more) of these properties.  Because of the confusion
