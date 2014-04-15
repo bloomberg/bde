@@ -555,8 +555,6 @@ decContext *DecimalImplUtil::getDecNumberContext()
     return &context;
 }
 
-//#endif // elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-
 
 DecimalImplUtil::ValueType32 DecimalImplUtil::parse32(const char *input)
 {
