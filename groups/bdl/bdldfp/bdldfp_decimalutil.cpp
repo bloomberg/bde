@@ -596,6 +596,10 @@ Decimal128 DecimalUtil::round(Decimal128 x)
 
 inline static const decDouble *convertImplType(
     const bdldfp::DecimalImplUtil::ValueType64 *x)
+    // Convert the specified 'x', which depending on platform may be a const
+    // pointer to a hardware-implemented 64-bit floating point value, into a
+    // const pointer to a decDouble, using 'reinterpret_cast'.  Such a pointer
+    // is needed in cerain decNumber libraries.
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return reinterpret_cast<const decDouble*>(x);
@@ -606,6 +610,10 @@ inline static const decDouble *convertImplType(
 
 inline static decDouble *convertImplType(
     bdldfp::DecimalImplUtil::ValueType64 *x)
+    // Convert the specified 'x', which depending on platform may be a pointer
+    // to a hardware-implemented 64-bit floating point value, into a pointer
+    // to a decDouble, using 'reinterpret_cast'.  Such a pointer is needed in
+    // cerain decNumber libraries.
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return reinterpret_cast<decDouble*>(x);
@@ -616,6 +624,10 @@ inline static decDouble *convertImplType(
 
 inline static const decQuad *convertImplType(
     const bdldfp::DecimalImplUtil::ValueType128 *x)
+    // Convert the specified 'x', which depending on platform may be a const
+    // pointer to a hardware-implemented 128-bit floating point value, into a
+    // const pointer to a decQuad, using 'reinterpret_cast'.  Such a pointer
+    // is needed in cerain decNumber libraries.
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return reinterpret_cast<const decQuad*>(x);
@@ -626,6 +638,10 @@ inline static const decQuad *convertImplType(
 
 inline static decQuad *convertImplType(
     bdldfp::DecimalImplUtil::ValueType128 *x)
+    // Convert the specified 'x', which depending on platform may be a pointer
+    // to a hardware-implemented 128-bit floating point value, into a pointer
+    // to a decQuad, using 'reinterpret_cast'.  Such a pointer is needed in
+    // cerain decNumber libraries.
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return reinterpret_cast<decQuad*>(x);
