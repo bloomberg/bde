@@ -1,3 +1,61 @@
+bsl-internal (2.21.0.0.beta.1) unstable; urgency=low
+
+  * 2df857e [APPROVAL] INTERNAL bump-version-to-2.21 to master
+  * 0f5b302 [APPROVAL] bump-version-to-2.21 to master
+  * ab26257 Make version 2.21.0
+  * 91644cd [APPROVAL] INTERNAL pending/master/fix-deprecation-macro-usage-drqs-46623495 to master
+  * 0bf678a [APPROVAL] pending/master/fix-deprecation-macro-usage-drqs-46623495 to master
+  * 712114c [APPROVAL] OSS fix-bsl+stdhdrs-dep-file-drqs50570497 to master
+  * 8c7545d [APPROVAL] fix-bsl+stdhdrs-dep-file-drqs50570497 to master
+  * 2c2a983 [APPROVAL] OSS bdldfp_decimalutil.t.cpp-test-driver-compile-infinity to master
+  * 83b9708 [APPROVAL] bdldfp_decimalutil.t.cpp-test-driver-compile-infinity to master
+  * d3c22b4 [APPROVAL] OSS bslim_printer-drqs-40815582 to master
+  * 9996a75 [APPROVAL] bslim_printer-drqs-40815582 to master
+  * fb85b0f [APPROVAL] INTERNAL throwBadAlloc-internal-only-drqs48039923 to master
+  * f39c72b [APPROVAL] throwBadAlloc-internal-only-drqs48039923 to master
+  * 49fe57c [APPROVAL] INTERNAL pending/master/deprecated-bslma-macros-drqs-42686603 to master
+  * c43b251 [APPROVAL] pending/master/deprecated-bslma-macros-drqs-42686603 to master
+  * 84657d5 [APPROVAL] OSS pending/master/bdlma_countingallocator-test-case-numbering-drqs-48756004 to master
+  * 96e8fc2 [APPROVAL] pending/master/bdlma_countingallocator-test-case-numbering-drqs-48756004 to master
+  * 068d97c [APPROVAL] OSS pending/master/add-bsls-to-bsl+bslhdrs.dep-drqs-39331707 to master
+  * 74d45b9 [APPROVAL] pending/master/add-bsls-to-bsl+bslhdrs.dep-drqs-39331707 to master
+  * c777e04 [APPROVAL] OSS pending/master/bslmf_integralconstant-missing-var-drqs-47269176 to master
+  * c915dab [APPROVAL] pending/master/bslmf_integralconstant-missing-var-drqs-47269176 to master
+  * 8222e64 [APPROVAL] OSS pending/master/ostream-decimal-flags to master
+  * b437adc [APPROVAL] pending/master/ostream-decimal-flags to master
+  * f4975b1 Removed old version of multiplyByPowerOf10.
+  * f5a92af [APPROVAL] OSS master to master
+  * 3c48e29 [APPROVAL] pending/master/bdldfp-performance-tests to master
+  * 356a1b7 [APPROVAL] INTERNAL rebase-forward_std_names-drqs-46623495 to master
+  * 67eb6f5 [APPROVAL] rebase-forward_std_names-drqs-46623495 to master
+  * e1e7d56 [APPROVAL] OSS undo-bad-merge-drqs-46623495 to master
+  * 200bd65 [APPROVAL] undo-bad-merge-drqs-46623495 to master
+  * 41f7288 Revert "[APPROVAL] INTERNAL forward_std_names-drqs-46623495 to master"
+  * 54c1fa2 [APPROVAL] INTERNAL forward_std_names-drqs-46623495 to master
+  * 34b3474 [APPROVAL] forward_std_names-drqs-46623495 to master
+  * c415e71 [APPROVAL] OSS update-bsl-redirect-language-drqs-49952150 to master
+  * 27eaaf6 [APPROVAL] update-bsl-redirect-language-drqs-49952150 to master
+  * df39572 [APPROVAL] OSS review/FAST_remove_non_std_istream_h_on_sun_drqs47831855
+  * cbf7a9f [APPROVAL] OSS pending/master/fix_bslmf_enable_if_test_driver_drqs50528838 to master
+  * 243da81 [APPROVAL] pending/master/fix_bslmf_enable_if_test_driver_drqs50528838 to master
+  * ac0f0c9 [APPROVAL] OSS review/bdldfp-landing to master
+  * a4b8a8d [APPROVAL] review/bdldfp-landing to master
+  * 2c08ccd [APPROVAL] dev/druoso/use-prefix-from-build-base to master
+  * f306902 [APPROVAL] INTERNAL pending/master/fix-eclipse-edt-drqs47839133 to master
+  * 33cfcae [APPROVAL] pending/master/fix-eclipse-edt-drqs47839133 to master
+  * 83d6de5 [APPROVAL] OSS correct-bsls-mem-file-drqs47141634 to master
+  * 04869eb [APPROVAL] correct-bsls-mem-file-drqs47141634 to master
+  * 0a59646 [APPROVAL] correct-bsls-mem-file-drqs47141634 to master
+  * d101156 [APPROVAL] OSS intrinsic-atomics-implementation-drqs47141634 to master
+  * 0877de9 [APPROVAL] intrinsic-atomics-implementation-drqs47141634 to master
+  * 8fb2e9e [APPROVAL] OSS review/make_string_dtor_asserts_safe-drqs-49789550 to master
+  * 20df562 [APPROVAL] review/make_string_dtor_asserts_safe-drqs-49789550 to master
+  * 62a3e3d [APPROVAL] OSS pending/master/hash_unicode_compiling_fix-drqs-47609953 to master
+  * 83bb915 [APPROVAL] pending/master/hash_unicode_compiling_fix-drqs-47609953 to master
+  * b3abe41 [APPROVAL] pending/master/waf-fix-bdx-drqs-48940992 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Apr 2014 07:42:44 -0400
+
 bsl-internal (2.20.0.1) unstable; urgency=low
 
   * Bump changelog
