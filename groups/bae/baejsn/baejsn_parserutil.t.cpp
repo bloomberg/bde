@@ -1871,33 +1871,83 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line   input              exp          isValid
-                // ----   -----              ---          -------
-                {  L_,    "\"\"",            "",           true  },
-                {  L_,    "\"ABC\"",         "ABC",        true  },
+                // line   input              exp                     isValid
+                // ----   -----              ---                     -------
+                {  L_,    "\"\"",            "",                      true   },
+                {  L_,    "\"ABC\"",         "ABC",                   true   },
 
-                {  L_,     "\"\\\"\"",       "\"",         true  },
-                {  L_,     "\"\\\\\"",       "\\",         true  },
-                {  L_,     "\"\\b\"",        "\b",         true  },
-                {  L_,     "\"\\f\"",        "\f",         true  },
-                {  L_,     "\"\\n\"",        "\n",         true  },
-                {  L_,     "\"\\r\"",        "\r",         true  },
-                {  L_,     "\"\\t\"",        "\t",         true  },
+                {  L_,     "\"\\\"\"",       "\"",                    true   },
+                {  L_,     "\"\\\\\"",       "\\",                    true   },
+                {  L_,     "\"\\b\"",        "\b",                    true   },
+                {  L_,     "\"\\f\"",        "\f",                    true   },
+                {  L_,     "\"\\n\"",        "\n",                    true   },
+                {  L_,     "\"\\r\"",        "\r",                    true   },
+                {  L_,     "\"\\t\"",        "\t",                    true   },
 
-                {  L_,     "\"\\u0020\"",    " ",          true  },
-                {  L_,     "\"\\u002E\"",    ".",          true  },
-                {  L_,     "\"\\u0041\"",    "A",          true  },
+                {  L_,     "\"u0001\"",      "u0001",                 true   },
+                {  L_,     "\"UABCD\"",      "UABCD",                 true   },
 
-                {  L_,     "\"\\U006d\"",    "m",          true  },
-                {  L_,     "\"\\U007E\"",    "~",          true  },
+                {  L_,     "\"\\u0001\"",    "\x01",                  true   },
+                {  L_,     "\"\\u0020\"",    " ",                     true   },
+                {  L_,     "\"\\u002E\"",    ".",                     true   },
+                {  L_,     "\"\\u0041\"",    "A",                     true   },
 
-                {  L_,     "\"AB\"",         "AB",         true   },
+                {  L_,     "\"\\U006d\"",    "m",                     true   },
+                {  L_,     "\"\\U007E\"",    "~",                     true   },
 
-                {  L_,     "\"\\UX000\"",    ERROR_VALUE,  false  },
-                {  L_,     "\"\\U8000\"",    ERROR_VALUE,  false  },
-                {  L_,     "\"\\U7G00\"",    ERROR_VALUE,  false  },
-                {  L_,     "\"\\U0080\"",    ERROR_VALUE,  false  },
-                {  L_,     "\"\\U007G\"",    ERROR_VALUE,  false  },
+                {  L_,     "\"\\U007F\"",    "\x7F",                  true   },
+                {  L_,     "\"\\U0080\"",    "\xC2\x80",              true   },
+
+                {  L_,     "\"\\U07FF\"",    "\xDF\xBF",              true   },
+                {  L_,     "\"\\U0800\"",    "\xE0\xA0\x80",          true   },
+
+                {  L_,     "\"\\UFFFF\"",    "\xEF\xBF\xBF",          true   },
+
+                {  L_,     "\"\\U02f1\"",    "\xCB\xB1",              true   },
+                {  L_,     "\"\\U2710\"",    "\xE2\x9C\x90",          true   },
+                {  L_,     "\"\\UD7Ff\"",    "\xED\x9F\xBF",          true   },
+                {  L_,     "\"\\Ue000\"",    "\xEE\x80\x80",          true   },
+
+                {  L_,     "\"AB\"",         "AB",                    true   },
+                {  L_,     "\"A\\u0020B\"",  "A B",                   true   },
+                {  L_,     "\"A\\u002eB\"",  "A.B",                   true   },
+                {  L_,     "\"A\\u0080B\"",  "\x41\xC2\x80\x42",      true   },
+                {  L_,     "\"A\\u0800B\"",  "\x41\xE0\xA0\x80\x42",  true   },
+
+                {  L_,     "\"\\U000G\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\U00h0\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\U0M00\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\UX000\"",    ERROR_VALUE,             false  },
+
+                {  L_,     "\"\\U7G00\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\U007G\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\UXXXX\"",    ERROR_VALUE,             false  },
+
+                {  L_,     "\"A\\U7G00B\"",  "A",                     false  },
+                {  L_,     "\"A\\UXXXXB\"",  "A",                     false  },
+
+                // These error strings were copied from
+                // 'bdede_charconvertutf32' test driver.
+
+                // values that are not valid unicode because they are in the
+                // lower UTF-16 bit plane.
+
+                {  L_,     "\"\\UD800\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\uD8ff\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\ud917\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\Udaaf\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\Udb09\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\UdbFF\"",    ERROR_VALUE,             false  },
+
+                // values that are not valid unicode because they are in the
+                // upper UTF-16 bit plane.
+
+                {  L_,     "\"\\UDc00\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\UDcFF\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\UDd80\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\UDea7\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\UDF03\"",    ERROR_VALUE,             false  },
+                {  L_,     "\"\\UDFFF\"",    ERROR_VALUE,             false  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
