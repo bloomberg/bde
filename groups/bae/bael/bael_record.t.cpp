@@ -1959,14 +1959,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Default Ctor" << endl;
             const Obj X(&testAllocator);
             if (veryVerbose) { cout << "\t\t"; P(X); }
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
         }
 
@@ -1989,14 +1989,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Ctor" << endl;
             const Obj X(FB, XU, &testAllocator);
             if (veryVerbose) { cout << "\t\t"; P(X); }
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
         }
         if (verbose) cout << "\nTesting primary manipulator." << endl;
@@ -2068,7 +2068,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator testAllocatorY(veryVeryVerbose);
             bslma::TestAllocator testAllocatorZ(veryVeryVerbose);
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
             if (veryVerbose) cout <<
                 "\tTesting Exceptions In Primary Manipulator" << endl;
@@ -2098,7 +2098,7 @@ int main(int argc, char *argv[])
             mX.setUserFields(YU);              ASSERT(mX.userFields()  == YU);
             ASSERT(mX == mZ);
 #if !defined(BSLS_PLATFORM_CMP_MSVC) || defined(BDE_BUILD_TARGET_OPT)
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
         }
       } break;

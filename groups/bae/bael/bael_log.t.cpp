@@ -3835,92 +3835,92 @@ int main(int argc, char *argv[])
                                            << bsl::endl;
 
             BAEL_LOG0(TRACE, FORMAT[0]);
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG0(TRACE, FORMAT[0]);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG1"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG1(TRACE, FORMAT[1], 1);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG2"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG2(TRACE, FORMAT[2], 1, 2);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG3"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG3(TRACE, FORMAT[3], 1, 2, 3);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG4"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG4(TRACE, FORMAT[4], 1, 2, 3, 4);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG5"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG5(TRACE, FORMAT[5], 1, 2, 3, 4, 5);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG6"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG6(TRACE, FORMAT[6], 1, 2, 3, 4, 5, 6);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG7"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG7(TRACE, FORMAT[7], 1, 2, 3, 4, 5, 6, 7);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG8"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG8(TRACE, FORMAT[8], 1, 2, 3, 4, 5, 6, 7, 8);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BAEL_LOG9"
                                            << bsl::endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             scribbleBuffer();
             BAEL_LOG9(TRACE, FORMAT[9], 1, 2, 3, 4, 5, 6, 7, 8, 9);
             ASSERT(0 == isBufferScribbled());
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         // Re "sieve" category: (1) if recorded, then also published;

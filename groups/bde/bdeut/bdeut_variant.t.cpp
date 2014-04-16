@@ -8576,7 +8576,7 @@ int main(int argc, char *argv[])
                 Obj mX(&testAllocator);     const Obj& X = mX;
                 gg(&mX, INPUT1);
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     switch (TYPE_IDX2) {
                       case INT_TYPE: {
                         mX = INT_DATA[VALUE_IDX2];
@@ -8608,7 +8608,7 @@ int main(int argc, char *argv[])
                       } break;
                       default: ASSERT(!"Unreachable by design");
                     }
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       } break;
@@ -9232,7 +9232,7 @@ int main(int argc, char *argv[])
                     // Redo the tests with 'bdema' exceptions instead, note
                     // that it is *not* necessary to assert.
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         testInStream.reset();
                         const int AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
@@ -9245,7 +9245,7 @@ int main(int argc, char *argv[])
                         bdex_InStreamFunctions::streamIn(testInStream,
                                                          mV,
                                                          VERSION);
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -9573,12 +9573,12 @@ int main(int argc, char *argv[])
                     Obj mY(&testAllocator); const Obj& Y = mY;
                     gg(&mX, SPECS[i]);
                     gg(&mY, SPECS[j]);
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         mX = Y;
 
                         LOOP2_ASSERT(i, j, X == Y);
 
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -9785,12 +9785,12 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             gg(&mX, INPUT);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const Obj Y(X, &testAllocator);  // TEST HERE
 
                 LOOP_ASSERT(LINE, X == Y);
 
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 #endif
 
@@ -10433,12 +10433,12 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\twith a specified allocator and exceptions"
                               << endl;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int previousTotal = testAllocator.numBlocksTotal();
                 const Obj X(&testAllocator);
                 ASSERT(0 == X.typeIndex());
                 ASSERT(testAllocator.numBlocksTotal() == previousTotal);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << "\nTesting 'assign'." << endl;

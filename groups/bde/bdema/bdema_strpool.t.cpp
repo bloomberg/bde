@@ -550,7 +550,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator a(veryVeryVerbose);
             bslma::TestAllocator& A = a;
             bslma::TestAllocator& testAllocator = a;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(&a);
                 mX.reserveCapacity(poolSize);
 
@@ -583,7 +583,7 @@ int main(int argc, char *argv[])
                 // Ensure memory is allocated from the current block.
                 ASSERT(SIZE == p3 - p1);
                 ASSERT(A.numAllocations() == numAllocations);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -595,7 +595,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator a(veryVeryVerbose);
             bslma::TestAllocator& A = a;
             bslma::TestAllocator& testAllocator = a;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(&a);
                 mX.reserveCapacity(poolSize);
 
@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
                 // Ensure memory is allocated from the current block.
                 ASSERT(SIZE == p3 - p1);
                 ASSERT(A.numAllocations() == numAllocations);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 5: {
@@ -761,7 +761,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator a(veryVeryVerbose);
             const bslma::TestAllocator& A = a;
             bslma::TestAllocator& testAllocator = a;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(&a);
 
                 int poolSize = 128; // Enough to satisfy all requests in vector
@@ -799,7 +799,7 @@ int main(int argc, char *argv[])
                 int blkSize = blockSize(poolSize * GROW_FACTOR);
                 ASSERT(A.numAllocations() == numAllocations);
                 ASSERT(A.lastAllocatedNumBytes() == blkSize);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -811,7 +811,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator a(veryVeryVerbose);
             bslma::TestAllocator& A = a;
             bslma::TestAllocator& testAllocator = a;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(&a);
                 poolSize = growPool(mX, poolSize);
 
@@ -840,7 +840,7 @@ int main(int argc, char *argv[])
                 // Ensure memory is allocated from the current block.
                 ASSERT(SIZE == p3 - p1);
                 ASSERT(A.numAllocations() == numAllocations);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 3: {
@@ -940,7 +940,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator a(veryVeryVerbose);
             const bslma::TestAllocator& A = a;
             bslma::TestAllocator& testAllocator = a;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(&a);
 
                 // Ensure that allocator's 'allocate' is never called.
@@ -959,7 +959,7 @@ int main(int argc, char *argv[])
                 char *p2 = (char *) mX.allocate(1);  ASSERT(1 == p2 - p1);
 
                 // Pool releases all memory on destruction here.
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -970,7 +970,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator a(veryVeryVerbose);
             const bslma::TestAllocator& A = a;
             bslma::TestAllocator& testAllocator = a;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(&a);
 
                 int size = INITIAL_SIZE;
@@ -996,7 +996,7 @@ int main(int argc, char *argv[])
                     }
                     LOOP_ASSERT(i, EXP == numBytes);
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 1: {

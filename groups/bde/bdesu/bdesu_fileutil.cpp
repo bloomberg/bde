@@ -15,6 +15,7 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bsls_assert.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_platform.h>
 #include <bsl_algorithm.h>
 #include <bsl_c_stdio.h> // needed for rename on AIX & snprintf everywhere
@@ -961,7 +962,7 @@ void bdesu_FileUtil::visitPaths(
         return;                                                       // RETURN
     }
     if (GLOB_NOSPACE == rc) {
-        bslma::Allocator::throwBadAlloc();
+        bsls::BslExceptionUtil::throwBadAlloc();
     }
 
     for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {

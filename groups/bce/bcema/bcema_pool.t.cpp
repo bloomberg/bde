@@ -1532,7 +1532,7 @@ int main(int argc, char *argv[]) {
                                   << CURRENT_MAX_BLOCKS_PER_CHUNK
                                   << "]" << endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(OBJECT_SIZE,
                        bsls::BlockGrowth::BSLS_GEOMETRIC,
                        CURRENT_MAX_BLOCKS_PER_CHUNK,
@@ -1569,7 +1569,7 @@ int main(int argc, char *argv[]) {
                         : CURRENT_MAX_BLOCKS_PER_CHUNK;
                 }
 
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 3: {
@@ -1609,7 +1609,7 @@ int main(int argc, char *argv[]) {
         bslma::TestAllocator& testAllocator = ta;
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int NUM_OBJECTS = DATA[di];
                 Obj mX(OBJECT_SIZE,
                        bsls::BlockGrowth::BSLS_CONSTANT,
@@ -1632,7 +1632,7 @@ int main(int argc, char *argv[]) {
                                  TA.numAllocations() == numAllocations + 1);
                     LOOP2_ASSERT(di, ri, TA.lastAllocatedNumBytes() == EXP);
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 2: {
@@ -1665,7 +1665,7 @@ int main(int argc, char *argv[]) {
         bslma::TestAllocator testAllocator;
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int OBJECT_SIZE = DATA[di];
                 Obj mX(OBJECT_SIZE,
                        bsls::BlockGrowth::BSLS_CONSTANT,
@@ -1684,7 +1684,7 @@ int main(int argc, char *argv[]) {
                     }
                     lastP = p;
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 1: {

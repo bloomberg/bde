@@ -1899,7 +1899,7 @@ int main(int argc, char *argv[])
                 // iterate over the index for insertion
                 // notice index=LEN+1 appends to the array
                 for (int index=0; index < LEN+1; ++index) {
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         Obj mX(cat, &testAllocator);    const Obj& X = mX;
                         populateData(&mX, VALUES_A);
 
@@ -1964,7 +1964,7 @@ int main(int argc, char *argv[])
                             LOOP3_ASSERT(i,index,j,
                                          Y.theItem(j) == Z.theItem(j-1));
                         }
-                    }END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -1994,7 +1994,7 @@ int main(int argc, char *argv[])
                                   << " in the array"
                                   << bsl::endl;
                     }
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         Obj mX(cat, &testAllocator);    const Obj& X = mX;
 
                         // We're not concerned with the actual dummy data
@@ -2031,7 +2031,7 @@ int main(int argc, char *argv[])
                                          X.theItem(i).selection() ==
                                                             VALUE.selection());
                         }
-                    }END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 }
 
@@ -2055,7 +2055,7 @@ int main(int argc, char *argv[])
                     bsl::cout << "Testing insertItem(i,Obj) for array "
                               << "based on spec '" << SPEC << "'" << endl;
                 }
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     // iterate over the index for insertion
                     // notice index=LEN+1 appends to the array
                     for (int index=0; index <= LEN; ++index) {
@@ -2153,7 +2153,7 @@ int main(int argc, char *argv[])
 
                         }
                     }
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -2227,7 +2227,7 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const char *SPEC  = DATA[i].d_catalogSpec;
                     const int   LEN   = bsl::strlen(SPEC);
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         for (int numToAdd = 0; numToAdd < K; ++numToAdd) {
                             Catalog cat = ggCatalog(SPEC);
                             Obj mX(cat,&tAlloc); const Obj& X = mX;
@@ -2255,7 +2255,7 @@ int main(int argc, char *argv[])
                                              X.theItem(k).selector() == -1);
                             }
                         }
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -2274,7 +2274,7 @@ int main(int argc, char *argv[])
 
                 // iterate over each element type (held in SPEC)
                 for (int j = 0; j < LEN; ++j) {
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         Catalog cat = ggCatalog(SPEC);
                         Obj mX(cat,&tAlloc); const Obj& X = mX;
 
@@ -2298,7 +2298,7 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(SPEC,SPEC[j],
                                      X.theItem(LEN).selection() ==
                                      getChoiceA(SPEC,SPEC[j]).selection());
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 }
             }
@@ -2322,7 +2322,7 @@ int main(int argc, char *argv[])
                     bsl::cout << "Testing appendItem(Obj) for array "
                               << "based on spec '" << SPEC << "'" << endl;
                 }
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mA(cat,&testAllocator); const Obj &A = mA;
                     for (int j=0; j<LEN;++j)
                     {
@@ -2367,7 +2367,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i,X.theItem((X.length()-1)/2) ==
                                                       C.theItem(C.length()-1));
 
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -2403,7 +2403,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_DATA; ++i) {
                 const char *SPEC  = DATA[i].d_catalogSpec;
                 const int   LEN   = bsl::strlen(SPEC);
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     if (veryVerbose) { P(SPEC); }
 
                     Catalog cat = ggCatalog(SPEC);
@@ -2429,7 +2429,7 @@ int main(int argc, char *argv[])
                     // compare
                     LOOP3_ASSERT(i, X1, Y, X1==Y);
                     LOOP3_ASSERT(i, X2, Y, X2==Y);
-                }END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       } break;
@@ -3105,7 +3105,7 @@ int main(int argc, char *argv[])
                 // Set a default alloc guard
                 const bslma::DefaultAllocatorGuard dag1(&testAllocator);
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 #endif
                     Catalog cat = ggCatalog(SPEC);
                     Obj orig(cat,&testAllocator); const Obj& ORIG = orig;
@@ -3178,7 +3178,7 @@ int main(int argc, char *argv[])
                         ASSERT(ORIG != B2);
                     }
 #if !defined(BSLS_PLATFORM_CMP_MSVC)
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
             }
         }
@@ -3359,21 +3359,21 @@ int main(int argc, char *argv[])
             bslma::TestAllocator testAllocator;
             bslma::TestAllocator &ta = testAllocator;
             {
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     // test variants with no catalog
                     Obj a1(&ta);                          const Obj &A1 = a1;
                     Obj a2(BDEM_PASS_THROUGH,&ta);        const Obj &A2 = a2;
 
                     ASSERT(0 == A1.numSelections());
                     ASSERT(0 == A2.numSelections());
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             }
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE  = DATA[i].d_line;
                 const char *SPEC  = DATA[i].d_catalogSpec;
                 const int   LEN   = bsl::strlen(SPEC);
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     const Catalog CATALOG = ggCatalog(SPEC);
                     const EType::Type *cPtr = (CATALOG.size()>0) ?
@@ -3403,7 +3403,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(SPEC, CATALOG == cat3);
                     LOOP_ASSERT(SPEC, CATALOG == cat4);
                     LOOP_ASSERT(SPEC, CATALOG == cat5);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
 
         }
@@ -4089,7 +4089,7 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       bdema_SequentialAllocator  seqAlloc(&testAllocator);
                       bslma::Allocator           *alloc = &testAllocator;
 
@@ -4175,7 +4175,7 @@ int main(int argc, char *argv[])
 
                           if (veryVerbose) { P(X) }
                       }
-                   } END_BSLMA_EXCEPTION_TEST
+                   } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -4215,7 +4215,7 @@ int main(int argc, char *argv[])
                     cout << "Testing appendItem(Obj) for "
                          << "array based on spec '" << SPEC << "'" << endl;
                 }
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mA(cat,&testAllocator); const Obj &A = mA;
                     for (int j=0; j<LEN;++j)
                     {
@@ -4262,7 +4262,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i,X[0] == A[A.length()-1]);
                     LOOP_ASSERT(i,X[X.length()-1] == B[B.length()-1]);
                     LOOP_ASSERT(i,X[(X.length()-1)/2] == C[C.length()-1]);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       } break;
@@ -4393,7 +4393,7 @@ int main(int argc, char *argv[])
                 const int   LINE  = DATA[i].d_line;
                 const char *SPEC  = DATA[i].d_catalogSpec;
                 const int   LEN   = bsl::strlen(SPEC);
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const Catalog CATALOG = ggCatalog(SPEC);
                     Obj x(CATALOG,AggOption::BDEM_PASS_THROUGH,&ta);
                     const Obj &X = x;
@@ -4406,7 +4406,7 @@ int main(int argc, char *argv[])
                     Catalog cat;
                     X.selectionTypes(&cat);
                     LOOP_ASSERT(SPEC, CATALOG == cat);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -4902,7 +4902,8 @@ int main(int argc, char *argv[])
                     bslma::TestAllocator &alloc = testAllocator;
                     Catalog catalog = ggCatalog(SPEC);
 
-//                 BEGIN_BSLMA_EXCEPTION_TEST { // removed for performance
+// removed for performance
+//                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                      Obj mX(catalog, &alloc);      const Obj& X = mX;
 
@@ -5141,7 +5142,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, 0 == X.numSelections());
                     LOOP_ASSERT(i, 0 == X.length());
                     if (veryVeryVerbose) { PL(LINE) P_(i) P_(X) N_}
-//                  } END_BSLMA_EXCEPTION_TEST
+//                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
         }
       } break;

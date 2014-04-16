@@ -2131,12 +2131,12 @@ int main(int argc, char *argv[])
         {
           const int NUM_BLOCKS = testAllocator.numBlocksInUse();
           const int NUM_BYTES  = testAllocator.numBytesInUse();
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mX(&testAllocator);
 
             ASSERT(NUM_BLOCKS < testAllocator.numBlocksInUse());
             ASSERT(NUM_BYTES  < testAllocator.numBytesInUse());
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
           ASSERT(NUM_BLOCKS == testAllocator.numBlocksInUse());
           ASSERT(NUM_BYTES  == testAllocator.numBytesInUse());
         }
@@ -2172,21 +2172,21 @@ int main(int argc, char *argv[])
         {
           const int NUM_BLOCKS = testAllocator.numBlocksInUse();
           const int NUM_BYTES  = testAllocator.numBytesInUse();
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mX(1024, &testAllocator);
 
             ASSERT(NUM_BLOCKS < testAllocator.numBlocksInUse());
             ASSERT(NUM_BYTES  < testAllocator.numBytesInUse());
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
           ASSERT(NUM_BLOCKS == testAllocator.numBlocksInUse());
           ASSERT(NUM_BYTES  == testAllocator.numBytesInUse());
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mX(131072, &testAllocator);
 
             ASSERT(NUM_BLOCKS < testAllocator.numBlocksInUse());
             ASSERT(NUM_BYTES  < testAllocator.numBytesInUse());
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
           ASSERT(NUM_BLOCKS == testAllocator.numBlocksInUse());
           ASSERT(NUM_BYTES  == testAllocator.numBytesInUse());
         }

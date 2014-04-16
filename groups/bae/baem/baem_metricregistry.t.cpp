@@ -604,7 +604,7 @@ int main(int argc, char *argv[])
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
         bslma::TestAllocator  testAllocator;
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             if (veryVerbose) {
                 bsl::cout << "\tverify an explict category" << bsl::endl;
             }
@@ -668,7 +668,7 @@ int main(int argc, char *argv[])
                 }
             }
             ASSERT(0 == defaultAllocator.numBytesInUse());
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         {
             if (veryVerbose) {
                 bsl::cout << "\tverify a category prefix" << bsl::endl;
@@ -909,7 +909,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tVerify basic behavior." << endl;
 
         bslma::TestAllocator  testAllocator;
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mX(&testAllocator); const Obj& MX = mX;
             for (int i = 0; i < NUM_METRICS; ++i) {
                 const char *CAT  = METRICS[i].d_category;
@@ -925,11 +925,11 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(0 == defaultAllocator.numBytesInUse());
             }
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (veryVerbose) cout << "\tVerify pooled format strings" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Obj mX(&testAllocator); const Obj& MX = mX;
             baem_MetricId id1 = mX.addId("A", "A");
             baem_MetricId id2 = mX.addId("B", "B");
@@ -945,7 +945,7 @@ int main(int argc, char *argv[])
             // Verify the strings are shared.
             ASSERT(f1->formatSpec(Type::BAEM_TOTAL)->format() ==
                    f2->formatSpec(Type::BAEM_TOTAL)->format());
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1048,7 +1048,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator testAllocator;
 
             Obj mX(&testAllocator); const Obj& MX = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_METRICS; ++i) {
                     const char *CAT  = METRICS[i].d_category;
                     const char *NAME = METRICS[i].d_name;
@@ -1070,7 +1070,7 @@ int main(int argc, char *argv[])
 
                     metrics.insert(metric);
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         {
             if (veryVerbose) {
@@ -1081,7 +1081,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator testAllocator;
 
             Obj mX(&testAllocator); const Obj& MX = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_METRICS; ++i) {
                     const char *CAT  = METRICS[i].d_category;
                     const char *NAME = METRICS[i].d_name;
@@ -1103,7 +1103,7 @@ int main(int argc, char *argv[])
                         metrics.insert(metric);
                     }
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         const char *CATEGORIES[] = { "", "A", "B", "CAT_A", "CAT_B", "name" };
@@ -1117,7 +1117,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator  testAllocator;
 
             Obj mX(&testAllocator); const Obj& MX = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_CATEGORIES; ++i) {
                     const char *CAT  = CATEGORIES[i];
 
@@ -1137,7 +1137,7 @@ int main(int argc, char *argv[])
 
                     categories.insert(CAT);
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         }
         {
@@ -1149,7 +1149,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator  testAllocator;
 
             Obj mX(&testAllocator); const Obj& MX = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_CATEGORIES; ++i) {
                     const char *CAT  = CATEGORIES[i];
 
@@ -1167,7 +1167,7 @@ int main(int argc, char *argv[])
                         categories.insert(CAT);
                     }
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         }
     } break;

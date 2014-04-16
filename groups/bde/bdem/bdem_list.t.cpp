@@ -1951,7 +1951,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_Row& srcElements);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, &ta);  const Obj &S = mS;
@@ -1964,7 +1964,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (DI == DD.length() && NE == SS.length())
@@ -1976,7 +1976,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& srcElements);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, MODE, &ta);  const Obj &S = mS;
@@ -1989,7 +1989,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (DI == DD.length())
@@ -2001,7 +2001,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
            "\t\tappendElements(const bdem_Row& se, int si, int ne);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, MODE, &ta);  const Obj &S = mS;
@@ -2014,7 +2014,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (DI == DD.length())
@@ -2026,7 +2026,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& se, int si, int ne);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, MODE, &ta);  const Obj &S = mS;
@@ -2039,7 +2039,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (1 == NE)
@@ -2051,7 +2051,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
            "\t\tinsertElement(int di, const bdem_ConstElemRef& srcElement);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, MODE, &ta);  const Obj &S = mS;
@@ -2070,7 +2070,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (NE == SS.length())
@@ -2082,7 +2082,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_Row& srcElements);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, MODE, &ta);  const Obj &S = mS;
@@ -2095,7 +2095,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (NE == SS.length())
@@ -2107,7 +2107,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_List& srcElements);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, MODE, &ta);  const Obj &S = mS;
@@ -2120,7 +2120,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (1)
@@ -2132,7 +2132,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_Row&  sr, int si, int ne);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, MODE, &ta);  const Obj &S = mS;
@@ -2145,7 +2145,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (1)
@@ -2157,7 +2157,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_List& sl, int si, int ne);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(DD, MODE, &ta);  const Obj &X = mX;
             {
                 Obj mS(SS, MODE, &ta);  const Obj &S = mS;
@@ -2170,7 +2170,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);  // source is out of scope
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (1 == NE)
@@ -2181,7 +2181,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
         if (PRINT) cout << "\t\tremoveElement(int index);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(EE, MODE, &ta);  const Obj &X = mX;
 
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
@@ -2190,7 +2190,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, DD == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (1)
@@ -2202,7 +2202,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tremoveElements(int startIndex, int numElements);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(EE, MODE, &ta);  const Obj &X = mX;
 
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
@@ -2211,7 +2211,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, DD == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
  // ^-------------------v
                     } // end for each allocation mode
@@ -2388,7 +2388,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_Row& srcElements);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.appendElements(X.row());
@@ -2396,7 +2396,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (DI == XX.length() && NE == XX.length())
@@ -2408,7 +2408,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& srcElements);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.appendElements(X);
@@ -2416,7 +2416,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (DI == XX.length())
@@ -2428,7 +2428,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
            "\t\tappendElements(const bdem_Row& se, int si, int ne);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.appendElements(X.row(), SI, NE);
@@ -2436,7 +2436,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (DI == XX.length())
@@ -2448,7 +2448,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tappendElements(const bdem_List& se, int si, int ne);" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.appendElements(X, SI, NE);
@@ -2456,7 +2456,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (1 == NE)
@@ -2468,7 +2468,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
            "\t\tinsertElement(int di, const bdem_ConstElemRef& srcElement);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.insertElement(DI, X.row()[SI]);
@@ -2476,7 +2476,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (NE == XX.length())
@@ -2488,7 +2488,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_Row& srcElements);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.insertElements(DI, X.row());
@@ -2496,7 +2496,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (NE == XX.length())
@@ -2508,7 +2508,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tinsertElements(int dstIndex, const bdem_List& srcElements);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.insertElements(DI, X);
@@ -2516,7 +2516,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (1)
@@ -2528,7 +2528,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_Row&  sr, int si, int ne);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.insertElements(DI, X.row(), SI, NE);
@@ -2536,7 +2536,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
 
     if (1)
@@ -2548,7 +2548,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (PRINT) cout <<
             "\t\tinsertElements(int di, const bdem_List& sl, int si, int ne);"
                         << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             Obj mX(XX, MODE, &testAllocator);  const Obj &X = mX;
             if (PRINT) { cout << "\t\t\tBEFORE: "; P(X); }
             mX.insertElements(DI, X, SI, NE);
@@ -2556,7 +2556,7 @@ static void testCase24(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             LOOP3_ASSERT(LINE, ri, ai, EE == X);
 
 //             LOOP3_ASSERT(LINE, ri, ai, 0 == da.numBlocksTotal());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
     }
  // ^-------------------v
                     } // end for each allocation mode

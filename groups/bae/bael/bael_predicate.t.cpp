@@ -556,36 +556,36 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE1, LINE2, X1 == Y);
                 const Obj X2(name, (int)VALUES[j].d_ivalue, &testAllocator);
                 LOOP2_ASSERT(LINE1, LINE2, X2 == Y);
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const Obj X3(name,
                                  (int)VALUES[j].d_ivalue,
                                  &testAllocator);
                     LOOP2_ASSERT(LINE1, LINE2, X3 == Y);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
               } break;
               case 1: {
                 const Obj X1(name, VALUES[j].d_ivalue);
                 LOOP2_ASSERT(LINE1, LINE2, X1 == Y);
                 const Obj X2(name, VALUES[j].d_ivalue, &testAllocator);
                 LOOP2_ASSERT(LINE1, LINE2, X2 == Y);
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const Obj X3(name,
                                  VALUES[j].d_ivalue,
                                  &testAllocator);
                     LOOP2_ASSERT(LINE1, LINE2, X3 == Y);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
               } break;
               case 2: {
                 const Obj X1(name, VALUES[j].d_svalue);
                 LOOP2_ASSERT(LINE1, LINE2, X1 == Y);
                 const Obj X2(name, VALUES[j].d_svalue, &testAllocator);
                 LOOP2_ASSERT(LINE1, LINE2, X2 == Y);
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const Obj X3(name,
                                  VALUES[j].d_svalue,
                                  &testAllocator);
                     LOOP2_ASSERT(LINE1, LINE2, X3 == Y);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
               } break;
             }
         }
@@ -1413,7 +1413,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\t\tWith exceptions." << endl;
         {
-          BEGIN_BSLMA_EXCEPTION_TEST {
+          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Value mV(&testAllocator);  const Value& V = mV;
 
             mV.assign<int>(VA_VALUE);
@@ -1441,7 +1441,7 @@ int main(int argc, char *argv[])
             ASSERT(VD_VALUE == W.value().the<string>());
 
             if (veryVerbose) { cout << "\t\t"; P_(X); P_(Y); P_(Z); P(W); }
-          } END_BSLMA_EXCEPTION_TEST
+          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
       } break;

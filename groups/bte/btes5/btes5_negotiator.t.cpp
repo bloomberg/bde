@@ -18,6 +18,7 @@
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsl_string.h>
+#include <bteso_inetstreamsocketfactory.h>
 #include <bteso_ipv4address.h>
 #include <bteso_tcptimereventmanager.h>
 #include <btemt_tcptimereventmanager.h>

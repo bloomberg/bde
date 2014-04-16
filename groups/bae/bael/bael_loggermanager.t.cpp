@@ -25,6 +25,8 @@
 #include <bdef_bind.h>                          // for testing only
 #include <bdef_placeholder.h>                   // for testing only
 
+#include <bdetu_systemtime.h>                   // for testing only
+
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bdema_managedptr.h>
@@ -180,9 +182,9 @@ using namespace bdef_PlaceHolders;
 // [20] TESTING CONCURRENT ACCESS TO 'bael_LoggerManager::setCategory'
 // [21] TESTING CONCURRENT ACCESS TO primary 'initSingleton'
 // [22] TESTING CONCURRENT ACCESS TO 'bael_LoggerManager::lookupCategory'
-// [29] USAGE EXAMPLE #1
-// [30] USAGE EXAMPLE #2
-// [31] USAGE EXAMPLE #4
+// [31] USAGE EXAMPLE #1
+// [32] USAGE EXAMPLE #2
+// [33] USAGE EXAMPLE #4
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -771,6 +773,52 @@ void myPopulator(bdem_List *list, const bdem_Schema& schema)
     list->theModifiableInt(0) = globalFactorialArgument;
 }
 
+// ============================================================================
+//                         CASE 30 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+namespace BAEL_LOGGERMANAGER_TEST_CASE_30 {
+enum {
+    NUM_THREADS = 4 // number of threads
+};
+bael_LoggerManager *manager;
+bdef_Function<void (*)(int *, int *, int *, int *, const char *)> function;
+bcemt_Barrier barrier(NUM_THREADS + 1);
+bcemt_Condition condition;
+
+void callback(int *r, int *p, int *t, int *a, const char *c)
+    // Wait for all the setting threads to be ready to set the callback, invoke
+    // the 'inheritThresholdLevels' method on the specified 'r', 'p', 't', 'a',
+    // and 'c', and then time out waiting for the setting threads to finish.
+    // (They can't, because a lock is held until this function returns.)
+{
+    barrier.wait();
+    inheritThresholdLevels(r, p, t, a, c);
+    bcemt_Mutex m;
+    bcemt_LockGuard<bcemt_Mutex> guard(&m);
+    ASSERT(-1 == condition.timedWait(&m, bdetu_SystemTime::now() + 3));
+}
+
+void *setCategory(void *)
+    // Call 'setCategory' in order to invoke the 'callback' method above.
+{
+    manager->setCategory("joe");
+    return 0;
+}
+
+extern "C" {
+    void *workerThread30(void *)
+        // Wait for all threads to be ready, then attempt to set the callback
+        // and signal completion.  The thread waiting for the signal will time
+        // out, because the setter mutex is locked by that thread.
+    {
+        barrier.wait();
+        manager->setDefaultThresholdLevelsCallback(&function);
+        condition.signal();
+        return 0;
+    }
+}  // extern "C"
+}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_30
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -826,7 +874,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #4
         //
@@ -871,7 +919,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #2
         //
@@ -953,7 +1001,7 @@ int main(int argc, char *argv[])
         ASSERT(  50 == cat3->triggerAllLevel());
 
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #1
         //
@@ -1009,6 +1057,46 @@ int main(int argc, char *argv[])
             cout << observer.lastPublishedRecord() << endl;
         }
 
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING CONCURRENT ACCESS TO
+        // 'bael_LoggerManager::setDefaultThresholdLevelsCallback':
+        //   Verify Concurrent access to 'setDefaultThresholdLevelsCallback'.
+        //
+        // Concerns:
+        // That multiple threads can safely invoke
+        // 'setDefaultThresholdLevelsCallback' with the same callback argument.
+        //
+        // Plan:
+        // Create several threads, each of which invoke
+        // 'setDefaultThresholdLevelsCallback' with the same callback argument.
+        //
+        // Testing:
+        //   void setDefaultThresholdLevelsCallback(Dtc *cb);
+        // --------------------------------------------------------------------
+        if (verbose) {
+            cout << endl
+                 << "TESTING CONCURRENT ACCESS TO "
+                 << "'bael_LoggerManager::setDefaultThresholdLevelsCallback'"
+                 << endl
+                 << "============================="
+                 << "======================================================="
+                 << endl;
+        }
+
+        using namespace BAEL_LOGGERMANAGER_TEST_CASE_30;
+
+        bael_DefaultObserver observer(cout);
+        bael_LoggerManagerConfiguration configuration;
+        bael_LoggerManagerScopedGuard guard(&observer, configuration);
+        manager = &Obj::singleton();
+        function = &callback;
+        manager->setDefaultThresholdLevelsCallback(&function);
+        bcemt_ThreadUtil::Handle handle;
+        bcemt_ThreadUtil::create(&handle, setCategory, 0);
+        executeInParallel(NUM_THREADS, workerThread30);
+        bcemt_ThreadUtil::join(handle);
       } break;
       case 29: {
         // --------------------------------------------------------------------
@@ -2152,9 +2240,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) bael_FixedSizeRecordBuffer(BUF_SIZE);
-                BEGIN_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                     logger[i] = mLM.allocateLogger(recBuf[i]);
-                END_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 mLM.setLogger(logger[i]);
                 ASSERT(&mLM.getLogger() == logger[i]);
             }
@@ -2176,9 +2264,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) bael_FixedSizeRecordBuffer(BUF_SIZE);
-                BEGIN_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                     logger[i] = mLM.allocateLogger(recBuf[i], (i + 1) * K);
-                END_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERT((i + 1) * K == logger[i]->messageBufferSize());
                 mLM.setLogger(logger[i]);
                 ASSERT(&mLM.getLogger() == logger[i]);
@@ -2200,9 +2288,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) bael_FixedSizeRecordBuffer(BUF_SIZE);
-                BEGIN_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                     logger[i] = mLM.allocateLogger(recBuf[i], &observer);
-                END_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 mLM.setLogger(logger[i]);
                 ASSERT(&mLM.getLogger() == logger[i]);
             }
@@ -2226,11 +2314,11 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_LOGGERS; ++i) {
                 recBuf[i] = new(*Z) bael_FixedSizeRecordBuffer(BUF_SIZE);
-                BEGIN_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                     logger[i] = mLM.allocateLogger(recBuf[i],
                                                    (i + 1) * K,
                                                    &observer);
-                END_BSLMA_EXCEPTION_TEST
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 ASSERT((i + 1) * K == logger[i]->messageBufferSize());
                 mLM.setLogger(logger[i]);
                 ASSERT(&mLM.getLogger() == logger[i]);
@@ -4788,7 +4876,7 @@ int main(int argc, char *argv[])
         //  and verified, manually.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "Warning about destroyed observer." << endl
                           << "================================" << endl;
 
