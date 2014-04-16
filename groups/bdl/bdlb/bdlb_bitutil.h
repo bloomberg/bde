@@ -1,6 +1,6 @@
-// bdlu_bitutil.h                                                     -*-C++-*-
-#ifndef INCLUDED_BDLU_BITUTIL
-#define INCLUDED_BDLU_BITUTIL
+// bdlb_bitutil.h                                                     -*-C++-*-
+#ifndef INCLUDED_BDLB_BITUTIL
+#define INCLUDED_BDLB_BITUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,11 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
 //
 //@CLASSES:
-//  bdlu::BitUtil: namespace for 'uint32_t' and 'uint64_t' bit-level operations
+//  bdlb::BitUtil: namespace for 'uint32_t' and 'uint64_t' bit-level operations
 //
 //@AUTHOR: John Lakos (jlakos), Jeffrey Mendelsohn (jmendelsohn4)
 //
-//@DESCRIPTION: This component provides a utility 'struct', 'bdlu::BitUtil',
+//@DESCRIPTION: This component provides a utility 'struct', 'bdlb::BitUtil',
 // that serves as a namespace for a collection of efficient, bit-level
 // procedures on 'uint32_t' and 'uint64_t'.  In particular, 'BitUtil' supplies
 // single bit manipulation, bit counting, and mathematical functions that can
@@ -39,16 +39,16 @@ BSLS_IDENT("$Id: $")
 // First, we use 'withBitSet' to demonstrate the ordering of bits:
 //..
 //  assert(static_cast<uint32_t>(0x00000001)
-//                 == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0),  0));
+//                 == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0),  0));
 //  assert(static_cast<uint32_t>(0x00000008)
-//                 == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0),  3));
+//                 == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0),  3));
 //  assert(static_cast<uint32_t>(0x00800000)
-//                 == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0), 23));
+//                 == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0), 23));
 //  assert(static_cast<uint32_t>(0x66676666)
-//        == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0x66666666), 16));
+//        == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0x66666666), 16));
 //
 //  /*------------------------------------------------------------------------+
-//  | 'bdlu::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
+//  | 'bdlb::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
 //  |                                                                         |
 //  | input in binary:                       01100110011001100110011001100110 |
 //  | set bit 16:                                           1                 |
@@ -57,12 +57,12 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we count the number of set bits in a value with 'numBitsSet':
 //..
-//  assert(0 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
-//  assert(2 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
-//  assert(8 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x30071101)));
+//  assert(0 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
+//  assert(2 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
+//  assert(8 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x30071101)));
 //
 //  /*------------------------------------------------------------------------+
-//  | 'bdlu::BitUtil::numBitsSet(0x30071101)' in binary:                      |
+//  | 'bdlb::BitUtil::numBitsSet(0x30071101)' in binary:                      |
 //  |                                                                         |
 //  | input in binary:                       00110000000001110001000100000001 |
 //  | that has 8 bits set.  result: 8                                         |
@@ -72,16 +72,16 @@ BSLS_IDENT("$Id: $")
 // with a higher index than the first set bit:
 //..
 //  assert(32 ==
-//      bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000000)));
+//      bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000000)));
 //  assert(31 ==
-//      bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000001)));
+//      bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000001)));
 //  assert(7 ==
-//      bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01000000)));
+//      bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01000000)));
 //  assert(7 ==
-//      bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01620030)));
+//      bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01620030)));
 //
 //  /*------------------------------------------------------------------------+
-//  | 'bdlu::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
+//  | 'bdlb::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
 //  |                                                                         |
 //  | input in binary:                       00000001011000100000000000110000 |
 //  | highest set bit:                              1                         |
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-namespace bdlu {
+namespace bdlb {
 
                                // ==============
                                // struct BitUtil

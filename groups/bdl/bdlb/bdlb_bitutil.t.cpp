@@ -1,5 +1,5 @@
-// bdlu_bitutil.t.cpp                                                 -*-C++-*-
-#include <bdlu_bitutil.h>
+// bdlb_bitutil.t.cpp                                                 -*-C++-*-
+#include <bdlb_bitutil.h>
 
 #include <bdls_testutil.h>
 
@@ -24,7 +24,7 @@ using namespace bsl;
 //                                Overview
 //                                --------
 // The component under test provides static methods that perform various bit
-// related computations.  The goal of this 'bdlu::BitUtil' test suite is to
+// related computations.  The goal of this 'bdlb::BitUtil' test suite is to
 // verify that the methods return the expected values.  The test techniques
 // incorporated to obtain this goal are boundary value testing and depth
 // enumeration testing.
@@ -108,7 +108,7 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlu::BitUtil       Util;
+typedef bdlb::BitUtil       Util;
 
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
@@ -158,16 +158,16 @@ int main(int argc, char *argv[])
 // First, we use 'withBitSet' to demonstrate the ordering of bits:
 //..
     ASSERT(static_cast<uint32_t>(0x00000001)
-                   == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0),  0));
+                   == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0),  0));
     ASSERT(static_cast<uint32_t>(0x00000008)
-                   == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0),  3));
+                   == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0),  3));
     ASSERT(static_cast<uint32_t>(0x00800000)
-                   == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0), 23));
+                   == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0), 23));
     ASSERT(static_cast<uint32_t>(0x66676666)
-          == bdlu::BitUtil::withBitSet(static_cast<uint32_t>(0x66666666), 16));
+          == bdlb::BitUtil::withBitSet(static_cast<uint32_t>(0x66666666), 16));
 
     /*------------------------------------------------------------------------+
-    | 'bdlu::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
+    | 'bdlb::BitUtil::withBitSet(0x66666666, 16)' in binary:                  |
     |                                                                         |
     | input in binary:                       01100110011001100110011001100110 |
     | set bit 16:                                           1                 |
@@ -176,12 +176,12 @@ int main(int argc, char *argv[])
 //..
 // Then, we count the number of set bits in a value with 'numBitsSet':
 //..
-    ASSERT(0 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
-    ASSERT(2 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
-    ASSERT(8 == bdlu::BitUtil::numBitsSet(static_cast<uint32_t>(0x30071101)));
+    ASSERT(0 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x00000000)));
+    ASSERT(2 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x00101000)));
+    ASSERT(8 == bdlb::BitUtil::numBitsSet(static_cast<uint32_t>(0x30071101)));
 
     /*------------------------------------------------------------------------+
-    | 'bdlu::BitUtil::numBitsSet(0x30071101)' in binary:                      |
+    | 'bdlb::BitUtil::numBitsSet(0x30071101)' in binary:                      |
     |                                                                         |
     | input in binary:                       00110000000001110001000100000001 |
     | that has 8 bits set.  result: 8                                         |
@@ -191,16 +191,16 @@ int main(int argc, char *argv[])
 // with a higher index than the first set bit:
 //..
     ASSERT(32 ==
-        bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000000)));
+        bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000000)));
     ASSERT(31 ==
-        bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000001)));
+        bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x00000001)));
     ASSERT(7 ==
-        bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01000000)));
+        bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01000000)));
     ASSERT(7 ==
-        bdlu::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01620030)));
+        bdlb::BitUtil::numLeadingUnsetBits(static_cast<uint32_t>(0x01620030)));
 
     /*------------------------------------------------------------------------+
-    | 'bdlu::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
+    | 'bdlb::BitUtil::numLeadingUnsetBits(0x01620030)' in binary:             |
     |                                                                         |
     | input in binary:                       00000001011000100000000000110000 |
     | highest set bit:                              1                         |
@@ -553,7 +553,7 @@ int main(int argc, char *argv[])
                           << "=========================" << endl;
 
         if (verbose) {
-            cout << "'bdlu::BitUtil::numLeadingUnsetBits(value)'"
+            cout << "'bdlb::BitUtil::numLeadingUnsetBits(value)'"
                  << endl;
         }
 
@@ -605,7 +605,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "'bdlu::BitUtil::numTrailingUnsetBits(value)'"
+            cout << "'bdlb::BitUtil::numTrailingUnsetBits(value)'"
                  << endl;
         }
 

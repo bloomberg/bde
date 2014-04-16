@@ -1,13 +1,13 @@
-// bdlu_bitutil.cpp                                                   -*-C++-*-
-#include <bdlu_bitutil.h>
+// bdlb_bitutil.cpp                                                   -*-C++-*-
+#include <bdlb_bitutil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlu_bitutil_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlb_bitutil_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
 namespace BloombergLP {
-namespace bdlu {
+namespace bdlb {
 
 BSLMF_ASSERT(4 == sizeof(uint32_t));
 BSLMF_ASSERT(8 == sizeof(uint64_t));
