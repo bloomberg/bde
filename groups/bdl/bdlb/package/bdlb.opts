@@ -1,4 +1,4 @@
-*                       _       OPTS_FILE       = bdlu.opts
+*                       _       OPTS_FILE       = bdlb.opts
 
 !! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
 !! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
