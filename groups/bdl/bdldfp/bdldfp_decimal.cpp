@@ -139,8 +139,8 @@ char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
-    snprintf(buffer, n, "%#.7HG", *value);
-    return buffer;
+    return decSingleToString(reinterpret_cast<const decSingle*>(value),
+                                                                       buffer);
 }
 
 static
@@ -148,8 +148,8 @@ char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
-    snprintf(buffer, n, "%.16DG", *value);
-    return buffer;
+    return decDoubleToString(reinterpret_cast<const decDouble*>(value),
+                                                                       buffer);
 }
 
 static
@@ -157,8 +157,7 @@ char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
-    snprintf(buffer, n, "%.34DDG", *value);
-    return buffer;
+    return decQuadToString(reinterpret_cast<const decQuad*>(value), buffer);
 }
 
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
