@@ -14,13 +14,13 @@ using bsl::flush;
 using bsl::endl;
 using bsl::atoi;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // TBD:
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 //
 // MANIPULATORS
@@ -30,7 +30,7 @@ using bsl::atoi;
 // FREE OPERATORS
 //
 // TRAITS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] Testing Apparatus
 // [ 3] Testing Apparatus
@@ -38,9 +38,10 @@ using bsl::atoi;
 // ----------------------------------------------------------------------------
 
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -48,15 +49,15 @@ static void aSsErT(int c, const char *s, int i)
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -85,70 +86,72 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
 #define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-//=============================================================================
+// ============================================================================
 //                               USAGE EXAMPLE
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace UsageExample {
   // TBD
 }  // close namespace UsageExample
 
-//=============================================================================
+// ============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-template<class Lhs, class Rhs>
-bool differentTypes(const Lhs&, const Rhs&)
-// Return true if the two passed expressions have the same type, and false
-// otherwise.  Two expressions have the same type only if the
-// 'bsl::is_same<L, R>' meta function evaluates to true.  Note that this
-// function is an adaptor to allow for template deduction of expression types,
-// since C++98 lacks decltype.
+template<class LHS_TYPE, class RHS_TYPE>
+bool differentTypes(const LHS_TYPE&, const RHS_TYPE&)
+    // Return true if the two passed expressions have the same type, and false
+    // otherwise.  Two expressions have the same type only if the
+    // 'bsl::is_same<L, R>' meta function evaluates to true.  Note that this
+    // function is an adaptor to allow for template deduction of expression
+    // types, since C++98 lacks decltype.
 {
-    return !bsl::is_same<Lhs, Rhs>::value;
+    return !bsl::is_same<LHS_TYPE, RHS_TYPE>::value;
 }
 
-template<class T>
-bool differentBits(const T lhs, const T rhs)
-// Return true if the two passed expressions, having the same type, have the
-// same internal binary representation.  Note that this function adapts
-// 'memcmp' to facilitate comparing r-value temporaries.
+template<class TYPE>
+bool differentBits(const TYPE lhs, const TYPE rhs)
+    // Return true if the two passed expressions, specified by 'lhs' and 'rhs',
+    // (which will have the same type) have the same internal binary
+    // representation.  Note that this function adapts 'memcmp' to facilitate
+    // comparing r-value temporaries.
 {
-    return memcmp(&lhs, &rhs, sizeof(T));
+    return memcmp(&lhs, &rhs, sizeof(TYPE));
 }
 
 
-//=============================================================================
+// ============================================================================
 //                              MAIN PROGRAM
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 int main(int argc, char* argv[])
 {
-    int               test = argc > 1 ? atoi(argv[1]) : 0;
-    int           verbose1 = argc > 2;
-    int           verbose2 = argc > 3;
-    int           verbose3 = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:
     case 4: {
         // --------------------------------------------------------------------
-        // TESTING macros define a configuration according to component
-        // contract
+        // Testing:
+        //   Macro sanity test
         //
         // Concerns:
         //: 1 Pairs of macros that promise mutally exclusive values (1 and 0)
@@ -184,7 +187,7 @@ int main(int argc, char* argv[])
         //:   expression variants for correct type and no identical bit
         //:   patterns between different expressions. C3, C4.1-4.4
         // --------------------------------------------------------------------
-        if (verbose1) bsl::cout << "\nTesting for Valid Configuration"
+        if (verbose) bsl::cout << "\nTesting for Valid Configuration"
                                 << "\n==============================="
                                 << bsl::endl;
         ASSERT(BDLDFP_DECIMALPLATFORM_C99_TR +
@@ -313,7 +316,8 @@ int main(int argc, char* argv[])
 
     case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'differentBits' testing support function.
+        // TESTING
+        //      Testing Apparatus
         //
         // Concerns:
         //: 1 Identical expressions (yielding identical bit patterns) should
@@ -373,7 +377,8 @@ int main(int argc, char* argv[])
 
     case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'differentTypes' testing support function.
+        // Testing:
+        //   Testing Apparatus
         //
         // Concerns:
         //: 1 Same types should compare same.
@@ -614,9 +619,9 @@ int main(int argc, char* argv[])
         // Plan: Assert on unexpected combinations
         // Testing:
         // --------------------------------------------------------------------
-        if (verbose1) bsl::cout << "\nTesting Sane Configuration is Reported"
-                                << "\n======================================"
-                                << bsl::endl;
+        if (verbose) bsl::cout << bsl::endl
+                               << "SANE CONFIGURATION" << bsl::endl
+                               << "==================" << bsl::endl;
         ASSERT(BDLDFP_DECIMALPLATFORM_C99_TR +
                BDLDFP_DECIMALPLATFORM_DECNUMBER == 1);
 

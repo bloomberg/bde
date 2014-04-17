@@ -97,8 +97,8 @@ BSLS_IDENT("$Id$")
 //     BloombergLP::bdldfp::DecimalImplUtil::makeDecimal64(
 //         176500236194967979ull, -2);
 //..
-// Notice that '176500236194967979' contains 18 significant figures, more
-// than can be represented by a 64-bit decimal floating point type.
+// Notice that '176500236194967979' contains 18 significant figures, more than
+// can be represented by a 64-bit decimal floating point type.
 //
 // Now, the number can also be parsed as a string.
 //..
@@ -214,9 +214,11 @@ struct DecimalImplUtil {
         // This 'struct' is a helper type used togenerate error messages for
         // bad literals.
 
-    template <class T>
-    static void checkLiteral(const T& t);
-        // Generate an error for bad decimal floating-point literals
+    template <class TYPE>
+    static void checkLiteral(const TYPE& t);
+        // Generate an error if the specified 't' is bad decimal
+        // floating-point.  Note that this function is intended for use with
+        // literals
 
     static void checkLiteral(double);
         // Overload to avoid an error when the decimal floating-point literal
@@ -273,9 +275,8 @@ struct DecimalImplUtil {
                                          int          exponent);
         // Create a 'ValueType32' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa'.  The behavior is
-        // undefined unless 'abs(mantissa) <= 9,999,999' and
-        // '-101 <= exponent <= 90'.
+        // the sign given by 'mantissa'.  The behavior is undefined unless
+        // 'abs(mantissa) <= 9,999,999' and '-101 <= exponent <= 90'.
 
     static ValueType64  makeDecimalRaw64(unsigned long long mantissa,
                                          int                exponent);
@@ -287,8 +288,8 @@ struct DecimalImplUtil {
                                          int                exponent);
         // Create a 'ValueType64' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa'.  The behavior is
-        // undefined unless 'abs(mantissa) <= 9,999,999,999,999,999' and
+        // the sign given by 'mantissa'.  The behavior is undefined unless
+        // 'abs(mantissa) <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
     static ValueType128 makeDecimalRaw128(unsigned long long mantissa,
@@ -299,10 +300,12 @@ struct DecimalImplUtil {
                                           int                exponent);
     static ValueType128 makeDecimalRaw128(int                mantissa,
                                           int                exponent);
-        // Create a 'ValueType128' object representing a decimal floating
-        // point number consisting of the specified 'mantissa' and 'exponent',
-        // with the sign given by the specified 'mantissa'.  The behavior is
-        // undefined unless '-6176 <= exponent <= 6111'.
+        // Create a 'ValueType128' object representing a decimal floating point
+        // number consisting of the specified 'mantissa' and 'exponent', with
+        // the sign given by 'mantissa'.  The behavior is undefined unless
+        // '-6176 <= exponent <= 6111'.
+
+                        // makeDecimal functions
 
     static ValueType64  makeDecimal64(unsigned long long mantissa,
                                       int                exponent);
@@ -330,7 +333,8 @@ struct DecimalImplUtil {
         // to represented, this reflects the (non-conforming) behavior of the
         // the underlying 'decNumber' library implementation.
 
-        // Comparison functions.
+                        // Comparison functions.
+
     static bool equals(ValueType32  lhs, ValueType32  rhs);
     static bool equals(ValueType32  lhs, ValueType64  rhs);
     static bool equals(ValueType32  lhs, ValueType128 rhs);
@@ -340,19 +344,21 @@ struct DecimalImplUtil {
     static bool equals(ValueType128 lhs, ValueType32  rhs);
     static bool equals(ValueType128 lhs, ValueType64  rhs);
     static bool equals(ValueType128 lhs, ValueType128 rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' have the same value, and
-    // 'false' otherwise.  Two decimal objects have the same value if the
-    // 'compareQuietEqual' operation (IEEE-754 defined, non-total ordering
-    // comparison) considers the underlying IEEE representations equal.  In
-    // other words, two decimal objects have the same value if:
-    //
-    //: o both have a zero value (positive or negative), or
-    //: o both have the same infinity value (both positive or negative), or
-    //: o both have the value of a real number that are equal, even if they are
-    //:   represented differently (cohorts have the same value)
-    //
-    // This operation raises the "invalid" floating-point exception if either
-    // or both operands are NaN.
+        // Return 'true' if the specified 'lhs' and 'rhs' have the same value,
+        // and 'false' otherwise.  Two decimal objects have the same value if
+        // the 'compareQuietEqual' operation (IEEE-754 defined, non-total
+        // ordering comparison) considers the underlying IEEE representations
+        // equal.  In other words, two decimal objects have the same value if:
+        //
+        //: o both have a zero value (positive or negative), or
+        //:
+        //: o both have the same infinity value (both positive or negative), or
+        //:
+        //: o both have the value of a real number that are equal, even if they
+        //:   are represented differently (cohorts have the same value)
+        //
+        // This operation raises the "invalid" floating-point exception if
+        // either or both operands are NaN.
 };
 
 #if BDLDFP_DECIMALPLATFORM_DECNUMBER
@@ -361,9 +367,9 @@ struct DecimalImplUtil {
                           // class DecimalImplUtil
                           // ---------------------
 
-template <class T>
+template <class TYPE>
 inline
-void DecimalImplUtil::checkLiteral(const T& t)
+void DecimalImplUtil::checkLiteral(const TYPE& t)
 {
     (void)static_cast<This_is_not_a_floating_point_literal>(t);
 }

@@ -30,13 +30,13 @@ using bsl::flush;
 using bsl::endl;
 using bsl::atoi;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // TBD:
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 //
 // MANIPULATORS
@@ -46,15 +46,16 @@ using bsl::atoi;
 // FREE OPERATORS
 //
 // TRAITS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -62,15 +63,15 @@ static void aSsErT(int c, const char *s, int i)
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -99,18 +100,19 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define P_(X) cout << #X " = " << (X) << ", "<< flush; // 'P(X)' without '\n'
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BDEC = BloombergLP::bdldfp;
 
@@ -345,10 +347,10 @@ bsl::wstring& decLower(bsl::wstring& s)
 //-----------------------------------------------------------------------------
 
 
-template <class Expect, class Received>
-void checkType(const Received&)
+template <class EXPECT, class RECEIVED>
+void checkType(const RECEIVED&)
 {
-    ASSERT(typeid(Expect) == typeid(Received));
+    ASSERT(typeid(EXPECT) == typeid(RECEIVED));
 }
 
 template <class TYPE>
@@ -406,23 +408,23 @@ struct NulBuf : bsl::streambuf {
 
 int main(int argc, char* argv[])
 {
-    int               test = argc > 1 ? atoi(argv[1]) : 0;
-    int           verbose1 = argc > 2;
-    int           verbose2 = argc > 3;
-    int           verbose3 = argc > 4;
-    int allocatorVerbosity = argc > 5;  // always the last
+    int                test = argc > 1 ? atoi(argv[1]) : 0;
+    int             verbose = argc > 2;
+    int         veryVerbose = argc > 3;
+    int     veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;  // always the last
 
     using bsls::AssertFailureHandlerGuard;
 
-    bslma::TestAllocator defaultAllocator("default", allocatorVerbosity);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    bslma::TestAllocator globalAllocator("global", allocatorVerbosity);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma::TestAllocator  ta(allocatorVerbosity);
+    bslma::TestAllocator  ta(veryVeryVeryVerbose);
     bslma::TestAllocator *pa = &ta;
 
     typedef BDEC::DecimalUtil Util;
@@ -441,7 +443,7 @@ int main(int argc, char* argv[])
         // Testing: fabs
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "fabs Decimal64 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "fabs Decimal64 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal64 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -491,7 +493,7 @@ int main(int argc, char* argv[])
 
 
         }
-        if (verbose1) bsl::cout << "fabs Decimal128 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "fabs Decimal128 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal128 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -549,7 +551,7 @@ int main(int argc, char* argv[])
         // Testing: quantize
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "quantize Decimal64 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "quantize Decimal64 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal64 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -629,18 +631,23 @@ int main(int argc, char* argv[])
                             makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test all special cases on both sides:
-                    // o sNaN
-                    // o qNaN
-                    // o +Inf
-                    // o -Inf
+                    //
+                    //: o sNaN
+                    //: o qNaN
+                    //: o +Inf
+                    //: o -Inf
+                    //
                     // Concern: quantize with NaN in either parameter must
                     // return a NaN.
+                    //
                     // Concern: quantize of NaN and Inf must set the invalid
                     // exception bit in the flags.  The Invalid bit must not be
                     // set for NaN/NaN cases.  This concern isn't presently
                     // tested.
+                    //
                     // Concern: Infinity by infinity must return an infinity
                     // with the sign of the first argument
+
                     ASSERT(Util::isNan(Util::quantize(value, sNaN)));
                     ASSERT(Util::isNan(Util::quantize(value, qNaN)));
                     ASSERT(Util::isNan(Util::quantize(value, pInf)));
@@ -697,7 +704,7 @@ int main(int argc, char* argv[])
         // Testing: quantum
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "quantum Decimal64 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "quantum Decimal64 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal64 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -747,7 +754,7 @@ int main(int argc, char* argv[])
 
 
         }
-        if (verbose1) bsl::cout << "quantum Decimal128 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "quantum Decimal128 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal128 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -757,28 +764,40 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            // o signaling NaN     (sNaN)
+            //: o signaling NaN     (sNaN)
+
             const TYPE sNaN(NumLim::signaling_NaN());
-            // o quiet NaN         (qNaN)
+
+            //: o quiet NaN         (qNaN)
+
             const TYPE qNaN(NumLim::quiet_NaN());
-            // o positive Infinity (+Inf)
+
+            //: o positive Infinity (+Inf)
+
             const TYPE pInf(NumLim::infinity());
-            // o negative Infinity (-Inf)
+
+            //: o negative Infinity (-Inf)
+
             const TYPE nInf(-pInf);
 
             // Test that all special cases fail.
             {
                 AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
-                // o sNaN
+
+                //: o sNaN
+
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(sNaN));
 
-                // o qNaN
+                //: o qNaN
+
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(qNaN));
 
-                // o +Inf
+                //: o +Inf
+
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(pInf));
 
-                // o -Inf
+                //: o -Inf
+
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(nInf));
             }
 
@@ -806,7 +825,7 @@ int main(int argc, char* argv[])
         // Testing: sameQuantum
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "sameQuantum Decimal64 tests..."
+        if (verbose) bsl::cout << "sameQuantum Decimal64 tests..."
                                 << bsl::endl;
 
         {
@@ -819,39 +838,49 @@ int main(int argc, char* argv[])
 
 
             // All special case values:
-            // o signaling NaN     (sNaN)
+            //: o signaling NaN     (sNaN)
+
             const TYPE sNaN(NumLim::signaling_NaN());
-            // o quiet NaN         (qNaN)
+
+            //: o quiet NaN         (qNaN)
+
             const TYPE qNaN(NumLim::quiet_NaN());
-            // o positive Infinity (+Inf)
+
+            //: o positive Infinity (+Inf)
+
             const TYPE pInf(NumLim::infinity());
-            // o negative Infinity (-Inf)
+
+            //: o negative Infinity (-Inf)
+
             const TYPE nInf(-pInf);
 
-            // Test all special cases with each other,
-            // organized by LHS.
+            // Test all special cases with each other, organized by LHS.
 
-            // o sNaN
+            //: o sNaN
+
             ASSERT( Util::sameQuantum(sNaN, sNaN));
             ASSERT( Util::sameQuantum(sNaN, qNaN));
             ASSERT(!Util::sameQuantum(sNaN, pInf));
             ASSERT(!Util::sameQuantum(sNaN, nInf));
 
-            // o qNaN
+            //: o qNaN
+
             ASSERT( Util::sameQuantum(qNaN, sNaN));
             ASSERT( Util::sameQuantum(qNaN, qNaN));
             ASSERT(!Util::sameQuantum(qNaN, pInf));
             ASSERT(!Util::sameQuantum(qNaN, nInf));
 
             // Note that +Inf compares equal to all inf values
-            // o +Inf
+            //: o +Inf
+
             ASSERT(!Util::sameQuantum(pInf, sNaN));
             ASSERT(!Util::sameQuantum(pInf, qNaN));
             ASSERT( Util::sameQuantum(pInf, pInf));
             ASSERT( Util::sameQuantum(pInf, nInf));
 
             // Note that -Inf compares equal to all inf values
-            // o -Inf
+            //: o -Inf
+
             ASSERT(!Util::sameQuantum(nInf, sNaN));
             ASSERT(!Util::sameQuantum(nInf, qNaN));
             ASSERT( Util::sameQuantum(nInf, pInf));
@@ -866,10 +895,10 @@ int main(int argc, char* argv[])
                             makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test all special cases on both sides:
-                    // o sNaN
-                    // o qNaN
-                    // o +Inf
-                    // o -Inf
+                    //: o sNaN
+                    //: o qNaN
+                    //: o +Inf
+                    //: o -Inf
                     ASSERT(!Util::sameQuantum(value, sNaN));
                     ASSERT(!Util::sameQuantum(value, qNaN));
                     ASSERT(!Util::sameQuantum(value, pInf));
@@ -905,7 +934,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        if (verbose1) bsl::cout << "sameQuantum Decimal128 tests..."
+        if (verbose) bsl::cout << "sameQuantum Decimal128 tests..."
                                 << bsl::endl;
 
         {
@@ -1014,7 +1043,7 @@ int main(int argc, char* argv[])
         // Testing: isFinite
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "isFinite Decimal64 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "isFinite Decimal64 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal64 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -1061,7 +1090,7 @@ int main(int argc, char* argv[])
                 }
             }
         }
-        if (verbose1) bsl::cout << "isFinite Decimal128 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "isFinite Decimal128 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal128 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -1071,27 +1100,38 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            // o signaling NaN     (sNaN)
+            //: o signaling NaN     (sNaN)
+
             const TYPE sNaN(NumLim::signaling_NaN());
-            // o quiet NaN         (qNaN)
+
+            //: o quiet NaN         (qNaN)
+
             const TYPE qNaN(NumLim::quiet_NaN());
-            // o positive Infinity (+Inf)
+
+            //: o positive Infinity (+Inf)
+
             const TYPE pInf(NumLim::infinity());
-            // o negative Infinity (-Inf)
+
+            //: o negative Infinity (-Inf)
+
             const TYPE nInf(-pInf);
 
             // Test that all special cases fail.
             {
-                // o sNaN
+                //: o sNaN
+
                 ASSERT(!Util::isFinite(sNaN));
 
-                // o qNaN
+                //: o qNaN
+
                 ASSERT(!Util::isFinite(qNaN));
 
-                // o +Inf
+                //: o +Inf
+
                 ASSERT(!Util::isFinite(pInf));
 
-                // o -Inf
+                //: o -Inf
+
                 ASSERT(!Util::isFinite(nInf));
             }
 
@@ -1119,7 +1159,7 @@ int main(int argc, char* argv[])
         // Testing: isInf
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "isInf Decimal64 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "isInf Decimal64 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal64 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -1129,27 +1169,38 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            // o signaling NaN     (sNaN)
+            //: o signaling NaN     (sNaN)
+
             const TYPE sNaN(NumLim::signaling_NaN());
-            // o quiet NaN         (qNaN)
+
+            //: o quiet NaN         (qNaN)
+
             const TYPE qNaN(NumLim::quiet_NaN());
-            // o positive Infinity (+Inf)
+
+            //: o positive Infinity (+Inf)
+
             const TYPE pInf(NumLim::infinity());
-            // o negative Infinity (-Inf)
+
+            //: o negative Infinity (-Inf)
+
             const TYPE nInf(-pInf);
 
             // Test that all special cases fail.
             {
-                // o sNaN
+                //: o sNaN
+
                 ASSERT(!Util::isInf(sNaN));
 
-                // o qNaN
+                //: o qNaN
+
                 ASSERT(!Util::isInf(qNaN));
 
-                // o +Inf
+                //: o +Inf
+
                 ASSERT( Util::isInf(pInf));
 
-                // o -Inf
+                //: o -Inf
+
                 ASSERT( Util::isInf(nInf));
             }
 
@@ -1166,7 +1217,7 @@ int main(int argc, char* argv[])
                 }
             }
         }
-        if (verbose1) bsl::cout << "isInf Decimal128 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "isInf Decimal128 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal128 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -1176,13 +1227,21 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            // o signaling NaN     (sNaN)
+
+            //: o signaling NaN     (sNaN)
+
             const TYPE sNaN(NumLim::signaling_NaN());
-            // o quiet NaN         (qNaN)
+
+            //: o quiet NaN         (qNaN)
+
             const TYPE qNaN(NumLim::quiet_NaN());
-            // o positive Infinity (+Inf)
+
+            //: o positive Infinity (+Inf)
+
             const TYPE pInf(NumLim::infinity());
-            // o negative Infinity (-Inf)
+
+            //: o negative Infinity (-Inf)
+
             const TYPE nInf(-pInf);
 
             // Test that all special cases fail.
@@ -1224,7 +1283,7 @@ int main(int argc, char* argv[])
         // Testing: isUnordered
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "isUnordered Decimal64 tests..."
+        if (verbose) bsl::cout << "isUnordered Decimal64 tests..."
                                 << bsl::endl;
         {
             typedef BDEC::Decimal64 TYPE;
@@ -1235,40 +1294,51 @@ int main(int argc, char* argv[])
             // contract for makeDecimalRaw.
 
             // All special case values:
-            // o signaling NaN     (sNaN)
+            //: o signaling NaN     (sNaN)
+
             const TYPE sNaN(NumLim::signaling_NaN());
-            // o quiet NaN         (qNaN)
+
+            //: o quiet NaN         (qNaN)
+
             const TYPE qNaN(NumLim::quiet_NaN());
-            // o positive Infinity (+Inf)
+
+            //: o positive Infinity (+Inf)
+
             const TYPE pInf(NumLim::infinity());
-            // o negative Infinity (-Inf)
+
+            //: o negative Infinity (-Inf)
+
             const TYPE nInf(-pInf);
 
             {
                 // Test all special cases with each other,
                 // organized by LHS.
 
-                // o sNaN
+                //: o sNaN
+
                 ASSERT( Util::isUnordered(sNaN, sNaN));
                 ASSERT( Util::isUnordered(sNaN, qNaN));
                 ASSERT( Util::isUnordered(sNaN, pInf));
                 ASSERT( Util::isUnordered(sNaN, nInf));
 
-                // o qNaN
+                //: o qNaN
+
                 ASSERT( Util::isUnordered(qNaN, sNaN));
                 ASSERT( Util::isUnordered(qNaN, qNaN));
                 ASSERT( Util::isUnordered(qNaN, pInf));
                 ASSERT( Util::isUnordered(qNaN, nInf));
 
                 // Note that +Inf compares equal to all inf values
-                // o +Inf
+                //: o +Inf
+
                 ASSERT( Util::isUnordered(pInf, sNaN));
                 ASSERT( Util::isUnordered(pInf, qNaN));
                 ASSERT(!Util::isUnordered(pInf, pInf));
                 ASSERT(!Util::isUnordered(pInf, nInf));
 
                 // Note that -Inf compares equal to all inf values
-                // o -Inf
+                //: o -Inf
+
                 ASSERT( Util::isUnordered(nInf, sNaN));
                 ASSERT( Util::isUnordered(nInf, qNaN));
                 ASSERT(!Util::isUnordered(nInf, pInf));
@@ -1276,18 +1346,20 @@ int main(int argc, char* argv[])
             }
 
 
-            // Iterate through all possible pairings of mantissa and
-            // exponent, and build Decimal64 values for each of them.
+            // Iterate through all possible pairings of mantissa and exponent,
+            // and build Decimal64 values for each of them.
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
                     const TYPE value =
                             makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test all special cases on both sides:
-                    // o sNaN
-                    // o qNaN
-                    // o +Inf
-                    // o -Inf
+                    //
+                    //: o sNaN
+                    //: o qNaN
+                    //: o +Inf
+                    //: o -Inf
+
                     ASSERT( Util::isUnordered(value, sNaN));
                     ASSERT( Util::isUnordered(value, qNaN));
                     ASSERT(!Util::isUnordered(value, pInf));
@@ -1301,15 +1373,15 @@ int main(int argc, char* argv[])
             }
         }
 
-        if (verbose1) bsl::cout << "isUnordered Decimal128 tests..."
+        if (verbose) bsl::cout << "isUnordered Decimal128 tests..."
                                 << bsl::endl;
         {
             typedef BDEC::Decimal128 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
             NumberMaker<TYPE> makeNumber;
 
-            // Test for isNan, which depends upon the strict, narrow
-            // contract for makeDecimalRaw.
+            // Test for isNan, which depends upon the strict, narrow contract
+            // for makeDecimalRaw.
 
             // All special case values:
             // o signaling NaN     (sNaN)
@@ -1388,7 +1460,7 @@ int main(int argc, char* argv[])
         // Testing: isNan
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "isNan Decimal64 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "isNan Decimal64 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal64 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -1435,7 +1507,7 @@ int main(int argc, char* argv[])
                 }
             }
         }
-        if (verbose1) bsl::cout << "isNan Decimal128 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "isNan Decimal128 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal128 TYPE;
             typedef bsl::numeric_limits<TYPE> NumLim;
@@ -1490,17 +1562,19 @@ int main(int argc, char* argv[])
         // Plan: Try all operations see if basics work
         // Testing: all functions
         // --------------------------------------------------------------------
-        if (verbose1) bsl::cout << "\nBreathing Test"
-                                << "\n==============" << bsl::endl;
+        if (verbose) bsl::cout << bsl::endl
+                               << "Breathing Test" << bsl::endl
+                               << "==============" << bsl::endl;
 
-        if (verbose2) bsl::cout << "makeDecimalNNRaw functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "makeDecimalNNRaw functions"
+                                   << bsl::endl;
 
-        if (verbose3) bsl::cout << "makeDecimalRaw32" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "makeDecimalRaw32" << bsl::endl;
 
         ASSERT(Util::makeDecimalRaw32(314159, -5) ==
                BDLDFP_DECIMAL_DF(3.14159));
 
-        if (verbose3) bsl::cout << "makeDecimalRaw64" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "makeDecimalRaw64" << bsl::endl;
 
         ASSERT(Util::makeDecimalRaw64(314159, -5) ==
                BDLDFP_DECIMAL_DD(3.14159));
@@ -1511,7 +1585,7 @@ int main(int argc, char* argv[])
         ASSERT(Util::makeDecimalRaw64(314159ull, -5) ==
                BDLDFP_DECIMAL_DD(3.14159));
 
-        if (verbose3) bsl::cout << "makeDecimalRaw128" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "makeDecimalRaw128" << bsl::endl;
 
         ASSERT(Util::makeDecimalRaw128(314159, -5) ==
                BDLDFP_DECIMAL_DL(3.14159));
@@ -1522,9 +1596,9 @@ int main(int argc, char* argv[])
         ASSERT(Util::makeDecimalRaw128(314159ull, -5) ==
                BDLDFP_DECIMAL_DL(3.14159));
 
-        if (verbose2) bsl::cout << "makeDecimalNN functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "makeDecimalNN functions" << bsl::endl;
 
-        if (verbose3) bsl::cout << "makeDecimal64" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "makeDecimal64" << bsl::endl;
 
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40700
 #pragma GCC diagnostic push
@@ -1549,7 +1623,7 @@ int main(int argc, char* argv[])
         ASSERT(Util::makeDecimal64(314159u, -5) ==
                BDLDFP_DECIMAL_DD(3.14159));
 
-        if (verbose2) bsl::cout << "parseDecimalNN functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "parseDecimalNN functions" << bsl::endl;
 
         {
             BDEC::Decimal32 result;
@@ -1590,7 +1664,7 @@ int main(int argc, char* argv[])
                    == result);
         }
 
-        if (verbose2) bsl::cout << "fma functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "fma functions" << bsl::endl;
 
         // TODO TBD - How to test if fma really does not round too early?
 
@@ -1602,7 +1676,7 @@ int main(int argc, char* argv[])
                          BDLDFP_DECIMAL_DL(4.),
                          BDLDFP_DECIMAL_DL(5.)) == BDLDFP_DECIMAL_DL(17.));
 
-        if (verbose2) bsl::cout << "fabs functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "fabs functions" << bsl::endl;
 
         ASSERT(Util::fabs(BDLDFP_DECIMAL_DF(-1.234567e-94))
                == BDLDFP_DECIMAL_DF(1.234567e-94));
@@ -1623,9 +1697,9 @@ int main(int argc, char* argv[])
 #pragma GCC diagnostic pop
 #endif
 
-        if (verbose2) bsl::cout << "Classification functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Classification functions" << bsl::endl;
 
-        if (verbose3) bsl::cout << "Decimal32" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal32" << bsl::endl;
         {
             typedef BDEC::Decimal32 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -1703,7 +1777,7 @@ int main(int argc, char* argv[])
             #undef DECLIT
         }
 
-        if (verbose3) bsl::cout << "Decimal64" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal64" << bsl::endl;
         {
             typedef BDEC::Decimal64 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -1781,7 +1855,7 @@ int main(int argc, char* argv[])
             #undef DECLIT
         }
 
-        if (verbose3) bsl::cout << "Decimal128" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal128" << bsl::endl;
         {
             typedef BDEC::Decimal128 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -1859,9 +1933,9 @@ int main(int argc, char* argv[])
             #undef DECLIT
         }
 
-        if (verbose2) bsl::cout << "Comparison functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Comparison functions" << bsl::endl;
 
-        if (verbose3) bsl::cout << "Decimal32" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal32" << bsl::endl;
         {
             typedef BDEC::Decimal32 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -1916,7 +1990,7 @@ int main(int argc, char* argv[])
             #undef DECLIT
         }
 
-        if (verbose3) bsl::cout << "Decimal64" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal64" << bsl::endl;
         {
             typedef BDEC::Decimal64 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -1971,7 +2045,7 @@ int main(int argc, char* argv[])
             #undef DECLIT
         }
 
-        if (verbose3) bsl::cout << "Decimal128" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal128" << bsl::endl;
         {
             typedef BDEC::Decimal128 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -2026,9 +2100,9 @@ int main(int argc, char* argv[])
             #undef DECLIT
         }
 
-        if (verbose2) bsl::cout << "Rounding functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Rounding functions" << bsl::endl;
 
-        if (verbose3) bsl::cout << "Decimal32" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal32" << bsl::endl;
         {
             typedef BDEC::Decimal32 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -2085,7 +2159,7 @@ int main(int argc, char* argv[])
             #undef DECLIT
         }
 
-        if (verbose3) bsl::cout << "Decimal64" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal64" << bsl::endl;
         {
             typedef BDEC::Decimal64 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -2142,7 +2216,7 @@ int main(int argc, char* argv[])
             #undef DECLIT
         }
 
-        if (verbose3) bsl::cout << "Decimal128" << bsl::endl;
+        if (veryVeryVerbose) bsl::cout << "Decimal128" << bsl::endl;
         {
             typedef BDEC::Decimal128 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -2200,7 +2274,7 @@ int main(int argc, char* argv[])
         }
 
 
-        if (verbose1) bsl::cout << "sameQuantum 64 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "sameQuantum 64 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal64 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -2250,7 +2324,7 @@ int main(int argc, char* argv[])
 
         }
 
-        if (verbose1) bsl::cout << "sameQuantum 128 tests..." << bsl::endl;
+        if (verbose) bsl::cout << "sameQuantum 128 tests..." << bsl::endl;
         {
             typedef BDEC::Decimal128 Tested;
             typedef bsl::numeric_limits<Tested> NumLim;
@@ -2713,7 +2787,7 @@ int main(int argc, char* argv[])
         const double totalTime = s.accumulatedWallTime();
 
         // This prevents the compiler from optimizing away the test.
-        if (verbose2) {
+        if (veryVerbose) {
             if (total >= BDEC::Decimal64(0.0)) {
                 bsl::cout << "Total is non-negative" << bsl::endl;
             }
@@ -2766,7 +2840,7 @@ int main(int argc, char* argv[])
         const double totalTime = s.accumulatedWallTime();
 
         // This prevents the compiler from optimizing away the test.
-        if (verbose2) {
+        if (veryVerbose) {
             if (total >= BDEC::Decimal64(0.0)) {
                 bsl::cout << "Total is non-negative" << bsl::endl;
             }
@@ -2824,7 +2898,7 @@ int main(int argc, char* argv[])
         const double totalTime = s.accumulatedWallTime();
 
         // This prevents the compiler from optimizing away the test.
-        if (verbose2) {
+        if (veryVerbose) {
             if (total >= BDEC::Decimal64(0.0)) {
                 bsl::cout << "Total is non-negative" << bsl::endl;
             }
@@ -2882,7 +2956,7 @@ int main(int argc, char* argv[])
         const double totalTime = s.accumulatedWallTime();
 
         // This prevents the compiler from optimizing away the test.
-        if (verbose2) {
+        if (veryVerbose) {
             if (total >= BDEC::Decimal64(0.0)) {
                 bsl::cout << "Total is non-negative" << bsl::endl;
             }
