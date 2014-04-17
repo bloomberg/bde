@@ -79,9 +79,8 @@ BSLS_IDENT("$Id$")
 // Floating-point literals in C/C++ are binary.  (More precisely: they are the
 // same radix as 'double', which is binary on all systems we use.  The C
 // standardization committee plans to make it even more complicated by
-// introducing a pragma that sets the radix of floating-point literals for
-// each translation using seperately; let's hope they forget about it.)
-// So writing:
+// introducing a pragma that sets the radix of floating-point literals for each
+// translation using seperately; let's hope they forget about it.)  So writing:
 //..
 //  Decimal32 x(0.3);
 //..
@@ -92,14 +91,14 @@ BSLS_IDENT("$Id$")
 //  Decimal32 x(unnamed_constant);
 //..
 // and a binary floating-point format is unable to represent 0.3 precisely.  So
-// we need decimal floating-point literals, and the C99 Decimal TR does
-// add them; they are floating-point literals followed by the df, dd or dl
-// suffix for 32 bit, 64 bit and 128 bit decimal types respectively.  However,
-// our library has to support systems that do not implement the C Decimal TR
-// and so they do not have those literals.  Furthermore where they are
-// available, we want to use the literals and not some slower mechanism.  That
-// means, unfortunately, macros.  Marcos that translate into decimal literals
-// on platforms that support them, and to runtime parsing for others.  See the
+// we need decimal floating-point literals, and the C99 Decimal TR does add
+// them; they are floating-point literals followed by the df, dd or dl suffix
+// for 32 bit, 64 bit and 128 bit decimal types respectively.  However, our
+// library has to support systems that do not implement the C Decimal TR and so
+// they do not have those literals.  Furthermore where they are available, we
+// want to use the literals and not some slower mechanism.  That means,
+// unfortunately, macros.  Marcos that translate into decimal literals on
+// platforms that support them, and to runtime parsing for others.  See the
 // macros 'BDLDFP_DECIMALIMPLUTIL_DF', 'BDLDFP_DECIMALIMPLUTIL_DD' and
 // '..._DL'.
 //
@@ -142,6 +141,10 @@ BSLS_IDENT("$Id$")
      char die[-42];     // if '#error' unsupported
 #  endif
 #endif
+
+
+namespace BloombergLP {
+namespace bdldfp {
 
 namespace {
 
@@ -250,8 +253,8 @@ static unsigned short const declets[] = {
     0x08e, 0x08f, 0x18e, 0x18f, 0x28e, 0x28f, 0x38e, 0x38f, 0x0ee, 0x0ef,
     0x09e, 0x09f, 0x19e, 0x19f, 0x29e, 0x29f, 0x39e, 0x39f, 0x0fe, 0x0ff};
 
-// Properties<32>, Properties<64>, and Properties<128> contain constants
-// and member functions identifying key properties of these decimal types.
+// Properties<32>, Properties<64>, and Properties<128> contain constants and
+// member functions identifying key properties of these decimal types.
 template <int Size>
 struct Properties;
 
@@ -276,25 +279,34 @@ struct Properties<32>
     static const long long   smallLimit      = 1000000ll;
     static const long long   mediumLimit     = 10000000ll;
 
-    static inline unsigned int topDigit(unsigned long long value)
-    {
-        return static_cast<unsigned int>(value / smallLimit);
-    }
-    static inline unsigned long long lowDigits(unsigned long long value)
-    {
-        return value % smallLimit;
-    }
-    static inline StorageType setSignBit(StorageType value)
-    {
-        return value | signBit;
-    }
-    static inline void convert(ValueType *target, StorageType bits)
-    {
-        ValueTypeRaw v;
-        v.bits = bits;
-        *target = v.value;
-    }
+    static inline void convert(ValueType *target, StorageType bits);
+    static inline unsigned long long lowDigits(unsigned long long value);
+    static inline StorageType setSignBit(StorageType value);
+    static inline unsigned int topDigit(unsigned long long value);
 };
+
+inline void Properties<32>::convert(ValueType *target, StorageType bits)
+{
+    ValueTypeRaw v;
+    v.bits = bits;
+    *target = v.value;
+}
+
+inline unsigned long long Properties<32>::lowDigits(unsigned long long value)
+{
+    return value % smallLimit;
+}
+
+inline Properties<32>::StorageType Properties<32>::setSignBit(
+                                                             StorageType value)
+{
+    return value | signBit;
+}
+
+inline unsigned int Properties<32>::topDigit(unsigned long long value)
+{
+    return static_cast<unsigned int>(value / smallLimit);
+}
 
 // Properties of the 64-bit decimal floating point type.
 template <>
@@ -319,25 +331,34 @@ struct Properties<64>
     static const StorageType plusInfBits     = 0x7800000000000000ull;
     static const StorageType minusInfBits    = 0xF800000000000000ull;
 
-    static inline unsigned int topDigit(unsigned long long value)
-    {
-        return static_cast<unsigned int>(value / smallLimit);
-    }
-    static inline unsigned long long lowDigits(unsigned long long value)
-    {
-        return value % smallLimit;
-    }
-    static inline StorageType setSignBit(StorageType value)
-    {
-        return value | signBit;
-    }
-    static inline void convert(ValueType *target, StorageType bits)
-    {
-        ValueTypeRaw v;
-        v.bits = bits;
-        *target = v.value;
-    }
+    static inline void convert(ValueType *target, StorageType bits);
+    static inline unsigned long long lowDigits(unsigned long long value);
+    static inline StorageType setSignBit(StorageType value);
+    static inline unsigned int topDigit(unsigned long long value);
 };
+
+inline void Properties<64>::convert(ValueType *target, StorageType bits)
+{
+    ValueTypeRaw v;
+    v.bits = bits;
+    *target = v.value;
+}
+
+inline unsigned long long Properties<64>::lowDigits(unsigned long long value)
+{
+    return value % smallLimit;
+}
+
+inline Properties<64>::StorageType Properties<64>::setSignBit(
+                                                             StorageType value)
+{
+    return value | signBit;
+}
+
+inline unsigned int Properties<64>::topDigit(unsigned long long value)
+{
+    return static_cast<unsigned int>(value / smallLimit);
+}
 
 // Properties of the 128-bit decimal floating point type.
 template <>
@@ -353,24 +374,33 @@ struct Properties<128>
     static const int bias            = 6176;
     static const int maxExponent     = 6111;
 
-    static inline unsigned int topDigit(unsigned long long)
-    {
-        return 0;
-    }
-    static inline unsigned long long lowDigits(unsigned long long value)
-    {
-        return value;
-    }
-    static inline StorageType setSignBit(StorageType value)
-    {
-        StorageType signBit(0x8000000000000000ull, 0ull);
-        return value | signBit;
-    }
-    static inline void convert(ValueType *target, StorageType bits)
-    {
-        bsl::memcpy(target, &bits, 16);
-    }
+    static inline void convert(ValueType *target, StorageType bits);
+    static inline unsigned long long lowDigits(unsigned long long value);
+    static inline StorageType setSignBit(StorageType value);
+    static inline unsigned int topDigit(unsigned long long);
 };
+
+inline void Properties<128>::convert(ValueType *target, StorageType bits)
+{
+    bsl::memcpy(target, &bits, 16);
+}
+
+inline unsigned long long Properties<128>::lowDigits(unsigned long long value)
+{
+    return value;
+}
+
+inline Properties<128>::StorageType Properties<128>::setSignBit(
+                                                             StorageType value)
+{
+    StorageType signBit(0x8000000000000000ull, 0ull);
+    return value | signBit;
+}
+
+inline unsigned int Properties<128>::topDigit(unsigned long long)
+{
+    return 0;
+}
 
 // Create the binary-encoded declets of the mantissa, excluding the leading
 // digit which is encoded in the combination field.
@@ -388,17 +418,21 @@ static typename Properties<Size>::StorageType getDeclets(
     return bits;
 }
 
-// Create the binary-encoded combination field, which combines the exponent
-// with the leading digit of the mantissa.
+                        // combination field functions
+
 template <int Size>
 static typename Properties<Size>::StorageType makeCombinationField(
                                                             unsigned int digit,
                                                             int          exp)
+    // Create the binary-encoded combination field, which combines the exponent
+    // with the leading digit of the mantissa.
 {
-    // lower (size - 5) bits: the bits of the exp with the bias addded
-    // top 5 bits: G0...G4
-    // - top two bits of the exponent (E0E1)
-    // - four bits of the digit (D0...D3)
+    // lower (size - 5) bits: the bits of the exp with the bias addded top 5
+    // bits: G0...G4
+    //
+    //: o top two bits of the exponent (E0E1)
+    //: o four bits of the digit (D0...D3)
+    //
     // G0G1G2G3G4  E0E1  D0D1D2D3 comment
     // 1 1 1 0 a   1 0   1 0 0 a  digit == 8 || digit == 9
     // 1 1 0 a b   0 a   1 0 0 b  digit == 8 || digit == 9
@@ -423,13 +457,13 @@ static typename Properties<Size>::StorageType makeCombinationField(
     return exponent <<= (Size - size - 1);
 }
 
-// Given the mantissa, exponent, and sign, create the bits of the decimal
-// floating point value.
 template <int Size>
 static typename Properties<Size>::StorageType
 combineDecimalRaw(unsigned long long value,
                   int                exp,
                   bool               negative)
+    // Given the mantissa, exponent, and sign, create the bits of the decimal
+    // floating point value.
 {
     typedef typename Properties<Size>::StorageType StorageType;
     StorageType exponent(makeCombinationField<Size>(
@@ -457,19 +491,21 @@ template <int Size>
 void toDecimalRaw(typename Properties<Size>::ValueType *target,
                   unsigned long long                    value)
 {
-    typename Properties<Size>::StorageType bits(::toDecimalRaw<Size>(
+    typename Properties<Size>::StorageType bits(toDecimalRaw<Size>(
                                                              value, 0, false));
     Properties<Size>::convert(target, bits);
 }
+
+                        // makeDecimalRaw implementation functions
 
 template<int Size>
 void makeDecimalRaw(typename Properties<Size>::ValueType *target,
                     unsigned long long                    value,
                     int                                   exponent)
 {
-    typename Properties<Size>::StorageType bits(::toDecimalRaw<Size>(value,
-                                                                     exponent,
-                                                                     false));
+    typename Properties<Size>::StorageType bits(toDecimalRaw<Size>(value,
+                                                                   exponent,
+                                                                   false));
     Properties<Size>::convert(target, bits);
 }
 
@@ -480,19 +516,19 @@ void makeDecimalRaw(typename Properties<Size>::ValueType *target,
 {
 
     if (0 <= value) {
-        typename Properties<Size>::StorageType bits(::toDecimalRaw<Size>(
+        typename Properties<Size>::StorageType bits(toDecimalRaw<Size>(
                                                       value, exponent, false));
         Properties<Size>::convert(target, bits);
     }
     else if (value == std::numeric_limits<long long>::min()) {
         typename Properties<Size>::StorageType bits(
-            ::toDecimalRaw<Size>(static_cast<unsigned long long>(
+            toDecimalRaw<Size>(static_cast<unsigned long long>(
                   std::numeric_limits<long long>::max()) + 1, exponent, true));
         bits = Properties<Size>::setSignBit(bits);
         Properties<Size>::convert(target, bits);
     }
     else {
-        typename Properties<Size>::StorageType bits(::toDecimalRaw<Size>(
+        typename Properties<Size>::StorageType bits(toDecimalRaw<Size>(
                                                       -value, exponent, true));
         bits = Properties<Size>::setSignBit(bits);
         Properties<Size>::convert(target, bits);
@@ -517,28 +553,22 @@ void makeDecimalRaw(typename Properties<Size>::ValueType *target,
                        target, static_cast<signed long long>(value), exponent);
 }
 
-}  // close unnamed namespace
+static inline DecimalImplUtil::ValueType64 minusInf64()
+    // Return the 64-bit decimal floating point value '-inf'.
+{
+    DecimalImplUtil::ValueType64 value;
+    Properties<64>::convert(&value, Properties<64>::minusInfBits);
+    return value;
+}
 
-namespace BloombergLP {
-namespace bdldfp {
-
-namespace {
-
-// Create the 64-bit decimal floating point value '+inf'.
 static inline DecimalImplUtil::ValueType64 plusInf64()
+    // Return the 64-bit decimal floating point value '+inf'.
 {
     DecimalImplUtil::ValueType64 value;
     Properties<64>::convert(&value, Properties<64>::plusInfBits);
     return value;
 }
 
-// Create the 64-bit decimal floating point value '-inf'.
-static inline DecimalImplUtil::ValueType64 minusInf64()
-{
-    DecimalImplUtil::ValueType64 value;
-    Properties<64>::convert(&value, Properties<64>::minusInfBits);
-    return value;
-}
 
 }  // close unnamed namespace
 
@@ -610,6 +640,7 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::parse128(const char *input)
     return out;
 }
 
+                        // convertToDecimal functions
 
 DecimalImplUtil::ValueType32 DecimalImplUtil::convertToDecimal32(
                                                       const ValueType64& input)
@@ -967,6 +998,8 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(int mantissa,
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
     return valuetype64;
 }
+
+                        // equality comparison functions
 
 bool DecimalImplUtil::equals(DecimalImplUtil::ValueType128 lhs,
                              DecimalImplUtil::ValueType128 rhs)

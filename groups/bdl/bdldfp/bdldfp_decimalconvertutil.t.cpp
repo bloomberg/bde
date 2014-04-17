@@ -2,9 +2,6 @@
 
 #include <bdldfp_decimalconvertutil.h>
 
-#include <bslma_testallocator.h>
-#include <bslma_defaultallocatorguard.h>
-
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_cstdlib.h>
@@ -12,6 +9,9 @@
 #include <bsl_limits.h>
 #include <bsl_cmath.h>
 #include <bsl_cfloat.h>
+
+#include <bslma_testallocator.h>
+#include <bslma_defaultallocatorguard.h>
 
 #include <typeinfo>
 
@@ -23,13 +23,13 @@ using bsl::endl;
 using bsl::hex;
 using bsl::atoi;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // TBD:
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CREATORS
 //
 // MANIPULATORS
@@ -39,15 +39,16 @@ using bsl::atoi;
 // FREE OPERATORS
 //
 // TRAITS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [ 2] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -55,15 +56,15 @@ static void aSsErT(int c, const char *s, int i)
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -92,20 +93,21 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
 
 #define PX(X) cout << #X " = " << hex << (X) << endl; // Print id and hex value
 
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BDEC = BloombergLP::bdldfp;
 
@@ -125,37 +127,53 @@ struct DecBinTestCase {
     double      d_d;
     float       d_f;
 
+                        // Decimal test case checking functions
+
     bool doD32() const
+        // Return true, if this test case is for 'Decimal32', and false
+        // otherwise.
     {
         return d_decimalType & 32;
     }
 
     bool doD64() const
+        // Return true, if this test case is for 'Decimal64', and false
+        // otherwise.
     {
         return d_decimalType & 64;
     }
 
     bool doD128() const
+        // Return true, if this test case is for 'Decimal128', and false
+        // otherwise.
     {
         return d_decimalType & 128;
     }
 
+                        // Decmial construction functions
+
     BDEC::Decimal32 d32() const
+        // Return a 'Decimal32' value for use in a test case, if applicable,
+        // and '0' otherwise.
     {
         return doD32()?PARSEDEC32(d_decimalLiteral):BDEC::Decimal32(0);
     }
 
     BDEC::Decimal64 d64() const
+        // Return a 'Decimal32' value for use in a test case, if applicable,
+        // and '0' otherwise.
     {
         return doD64()?PARSEDEC64(d_decimalLiteral):BDEC::Decimal64(0);
     }
 
     BDEC::Decimal128 d128() const
+        // Return a 'Decimal32' value for use in a test case, if applicable,
+        // and '0' otherwise.
     {
         // workaround for IBM compiler bug
         typedef BDEC::DecimalImplUtil::ValueType128 Vt128;
         Vt128 x(BDEC::DecimalImplUtil::parse128(d_decimalLiteral));
-        return doD128()?BDEC::Decimal128(x):BDEC::Decimal128(0);
+        return doD128()?BDEC::Decimal128(x):BDEC::Decimal128(0);      // RETURN
         // END - workaround for IBM compiler bug
 
         // Restore this when IBM bugfix is in production
@@ -238,6 +256,8 @@ namespace UsageExample {
                  // stringstream helpers - not thread safe!
 
 void getStringFromStream(bsl::ostringstream &o, bsl::string  *out)
+    // Set the specified 'out' string to the characters inserted into the
+    // specified 'o' output stream.
 {
     bslma::TestAllocator osa("osstream");
     bslma::DefaultAllocatorGuard g(&osa);
@@ -245,6 +265,8 @@ void getStringFromStream(bsl::ostringstream &o, bsl::string  *out)
 }
 
 void getStringFromStream(bsl::wostringstream &o, bsl::wstring *out)
+    // Set the specified 'out' wide-string to the (wide) characters inserted
+    // into the specified 'o' wide output stream.
 {
     bslma::TestAllocator osa("osstream");
     bslma::DefaultAllocatorGuard g(&osa);
@@ -254,12 +276,16 @@ void getStringFromStream(bsl::wostringstream &o, bsl::wstring *out)
  // String compare for decimal floating point numbers needs 'e'/'E' conversion
 
 bsl::string& decLower(bsl::string& s)
+    // Convert all 'E' characters to 'e' characters, in the specified 's'
+    // string, and return a reference providing modifiable access.
 {
     for (size_t i = 0; i < s.length(); ++i) if ('E' == s[i]) s[i] = 'e';
     return s;
 }
 
 bsl::wstring& decLower(bsl::wstring& s)
+    // Convert all 'E' wide-characters to 'e' wide-characters, in the specified
+    // 's' wide-string, and return a reference providing modifiable access.
 {
     for (size_t i = 0; i < s.length(); ++i) if (L'E' == s[i]) s[i] = L'e';
     return s;
@@ -267,10 +293,12 @@ bsl::wstring& decLower(bsl::wstring& s)
 
 //-----------------------------------------------------------------------------
 
-template <class Expect, class Received>
-void checkType(const Received&)
+template <class EXPECT, class RECEIVED>
+void checkType(const RECEIVED&)
+    // Assert that the run-time type information for the specified 'EXPECT'
+    // type matches that of the implicitly specified 'RECEIVED' type.
 {
-    ASSERT(typeid(Expect) == typeid(Received));
+    ASSERT(typeid(EXPECT) == typeid(RECEIVED));
 }
 
                           // Stream buffer helpers
@@ -278,13 +306,17 @@ void checkType(const Received&)
 template <int Size>
 struct BufferBuf : bsl::streambuf {
     BufferBuf() { reset(); }
-    const char *str() { *this->pptr() =0; return this->pbase(); }
     void reset() { this->setp(this->d_buf, this->d_buf + Size); }
+        // Overrides, and implements 'streambuf::reset'.
+    const char *str() { *this->pptr() =0; return this->pbase(); }
+        // Overrides, and implements 'streambuf::str'.
     char d_buf[Size + 1];
 };
 
 struct PtrInputBuf : bsl::streambuf {
-    explicit PtrInputBuf(const char *s) {
+    explicit PtrInputBuf(const char *s)
+        // Construct a 'PtrInputBuf', from the specified 's' string.
+    {
         char *x = const_cast<char *>(s);
         this->setg(x, x, x + strlen(x));
     }
@@ -292,7 +324,10 @@ struct PtrInputBuf : bsl::streambuf {
 
 struct NulBuf : bsl::streambuf {
     char d_dummy[64];
-    virtual int overflow(int c) {
+    virtual int overflow(int c)
+        // Overrides, and implements 'streambuf::overflow', passing the
+        // specified 'c'.
+    {
         setp( d_dummy, d_dummy + sizeof(d_dummy));
         return traits_type::not_eof(c);
     }
@@ -302,8 +337,8 @@ struct NulBuf : bsl::streambuf {
 
 BSLMF_ASSERT(sizeof(float) == sizeof(int));
 int mantissaBits(float f)
-    // Return, as a binary integer, the significand bits from the specified
-    // binary floating point value.  Note that sign is ignored.
+    // Return, as a binary integer, the significand bits from the binary
+    // floating point value specified by 'f'.  Note that sign is ignored.
 {
     union {
         float    as_float;
@@ -315,8 +350,9 @@ int mantissaBits(float f)
 
 BSLMF_ASSERT(sizeof(double) == sizeof(long long));
 long long mantissaBits(double d)
-    // Return, as a binary integer, the significand bits from the specified
-    // binary floating point value.  Note that sign is ignored.
+    // Return, as a binary integer, the significand bits from the double
+    // precision binary floating point value specified by 'd'.  Note that sign
+    // is ignored.
 {
     union {
         double                 as_double;
@@ -363,12 +399,14 @@ Mantissa128 mantissaBits(long double ld)
 
                             // Strict comparators
 
-template <class DecimalType>
-bool strictEqual(DecimalType lhs, DecimalType rhs)
+template <class DECIMAL_TYPE>
+bool strictEqual(DECIMAL_TYPE lhs, DECIMAL_TYPE rhs)
+    // Return true if the bit pattern in the specified 'lhs' decimal type
+    // matches that in the specified 'rhs' decimal type.
 {
     const void *blhs = &lhs;
     const void *brhs = &rhs;
-    return memcmp(blhs, brhs, sizeof(DecimalType)) == 0;
+    return memcmp(blhs, brhs, sizeof(DECIMAL_TYPE)) == 0;
 }
 
 //=============================================================================
@@ -377,21 +415,21 @@ bool strictEqual(DecimalType lhs, DecimalType rhs)
 
 int main(int argc, char* argv[])
 {
-    int               test = argc > 1 ? atoi(argv[1]) : 0;
-    int           verbose1 = argc > 2;
-    int           verbose2 = argc > 3;
-    int           verbose3 = argc > 4;
-    int allocatorVerbosity = argc > 5;  // always the last
+    int                test = argc > 1 ? atoi(argv[1]) : 0;
+    int             verbose = argc > 2;
+    int         veryVerbose = argc > 3;
+    int     veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;  // always the last
 
-    bslma::TestAllocator defaultAllocator("default", allocatorVerbosity);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    bslma::TestAllocator globalAllocator("global", allocatorVerbosity);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma::TestAllocator  ta(allocatorVerbosity);
+    bslma::TestAllocator  ta(veryVeryVeryVerbose);
     bslma::TestAllocator *pa = &ta;
 
     typedef BDEC::DecimalConvertUtil Util;
@@ -401,14 +439,27 @@ int main(int argc, char* argv[])
     switch (test) { case 0:
     case 2: {
         // --------------------------------------------------------------------
-        // TESTING Usage Examples
-        // Concerns: Usage Examples build and work
-        // Testing: Usage examples
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "\nTesting Usage Examples"
-                                << "\n======================" << bsl::endl;
+        if (verbose) cout << endl
+                           << "USAGE EXAMPLE" << endl
+                           << "=============" << endl;
 
-        if (verbose2) bsl::cout << "\nSending decimals as octets "
+        if (veryVerbose) bsl::cout << "\nSending decimals as octets "
                                    "using network format" << bsl::endl;
         // Suppose you have two communicating entities (programs) that talk to
         // each other using a binary (as opposed to text) protocol.  In such
@@ -441,13 +492,14 @@ int main(int argc, char* argv[])
             BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
 
             unsigned char *next = msgbuffer;
-            next = bdldfp::DecimalConvertUtil::decimalFromNetwork(&number, next);
+            next = bdldfp::DecimalConvertUtil::decimalFromNetwork(&number,
+                                                                  next);
 
             ASSERT(number == expected);
         }
         //..
 
-        if (verbose2) bsl::cout << "\nStoring/sending decimals in binary"
+        if (veryVerbose) bsl::cout << "\nStoring/sending decimals in binary"
                                     " floating-point" << bsl::endl;
         // Suppose you have two communicating entities (programs) that talk to
         // each other using a legacy protocol that employs binary
@@ -459,7 +511,7 @@ int main(int argc, char* argv[])
         //..
         {
             const BDEC::Decimal64 number(
-                                       BDLDFP_DECIMAL_DD(1.23456789012345e-42));
+                                      BDLDFP_DECIMAL_DD(1.23456789012345e-42));
 
             double dbl = Util::decimalToDouble(number);
 
@@ -479,18 +531,28 @@ int main(int argc, char* argv[])
 
     case 1: {
         // --------------------------------------------------------------------
-        // TESTING Breathing test
-        // Concerns: Forwarding to the right routines
-        // Plan: Try all operations see if basics work
-        // Testing: all functions
+        // BREATHING TEST
+        //
+        // Concerns:
+        //: 1 Forwarding to the right routines
+        //
+        // Plan:
+        //: 1 Try all operations see if basics work
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "\nBreathing Test"
-                                << "\n==============" << bsl::endl;
+        if (verbose) bsl::cout << bsl::endl
+                               << "BREATHING TEST" << bsl::endl
+                               << "==============" << bsl::endl;
 
-        if (verbose2) bsl::cout << "C++ Decimal FP to Binary FP" << bsl::endl;
+        if (veryVerbose) bsl::cout << "C++ Decimal FP to Binary FP"
+                                   << bsl::endl;
 
         for (int i = 0; i < DEC2BIN_DATA_COUNT; ++i) {
+            if (veryVerbose) bsl::cout << "Decimal test case: " << i
+                                       << bsl::endl;
             const DecBinTestCase& tc = DEC2BIN_DATA[i];
 
             BDEC::Decimal32  d32 (tc.d32());
@@ -517,7 +579,8 @@ int main(int argc, char* argv[])
 #undef D2B_ASSERT
         }
 
-        if (verbose2) bsl::cout << "Network format conversions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Network format conversions"
+                                   << bsl::endl;
 
         { // 32
             unsigned char n_d32[] = { 0x26, 0x54, 0xD2, 0xE7 };
@@ -552,7 +615,7 @@ int main(int argc, char* argv[])
                                        0x6F, 0x3C, 0x12, 0x71,
                                        0x77, 0x82, 0x35, 0x34,};
             BDEC::Decimal128 h_d128(
-                        BDLDFP_DECIMAL_DL(1234567890123456789012345678901234.));
+                       BDLDFP_DECIMAL_DL(1234567890123456789012345678901234.));
             unsigned char buffer[sizeof(BDEC::Decimal128)];
             BDEC::Decimal128 d128;
 
@@ -563,7 +626,8 @@ int main(int argc, char* argv[])
             ASSERT(d128 == h_d128);
         }
 
-        if (verbose2) bsl::cout << "Decimal-binary-decimal trip" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Decimal-binary-decimal trip"
+                                   << bsl::endl;
 
         // No guarantees if these aren't binary:
 
@@ -571,7 +635,7 @@ int main(int argc, char* argv[])
             std::numeric_limits<     double>::radix == 2 &&
             std::numeric_limits<      float>::radix == 2)
         {
-            if (verbose3) bsl::cout << "Decimal32" << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "Decimal32" << bsl::endl;
             {
                 BDEC::Decimal32 original;
 
@@ -802,7 +866,7 @@ int main(int argc, char* argv[])
                 ASSERT(strictEqual(original, restored));
             }
 
-            if (verbose3) bsl::cout << "Decimal64" << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "Decimal64" << bsl::endl;
             {
                 BDEC::Decimal64 original;
 
@@ -1033,7 +1097,7 @@ int main(int argc, char* argv[])
                 ASSERT(strictEqual(original, restored));
             }
 
-            if (verbose3) bsl::cout << "Decimal128" << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "Decimal128" << bsl::endl;
             {
                 BDEC::Decimal128 original;
 
@@ -1243,7 +1307,7 @@ int main(int argc, char* argv[])
             }
         }
         else {
-            if (verbose2) bsl::cout << "Skipped, no binary FP" << bsl::endl;
+            if (veryVerbose) bsl::cout << "Skipped, no binary FP" << bsl::endl;
         }
 
     } break;

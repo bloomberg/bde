@@ -89,9 +89,10 @@ PtrInputBuf::PtrInputBuf(const char *s) {
     this->setg(x, x, x + strlen(x));
 }
 
-template <class DecimalType, class BinaryType>
-inline
-void makeBinaryFloatingPoint(BinaryType *bfp, DecimalType dfp)
+template <class DECIMAL_TYPE, class BINARY_TYPE>
+void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
+    // Construct, in the specified 'bfp', a Binary Floating Point
+    // representation of the value of the specified 'dfp'.
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     *bfp = dfp.value();
@@ -102,51 +103,52 @@ void makeBinaryFloatingPoint(BinaryType *bfp, DecimalType dfp)
     // ::decClass fclass(decFloatClass(dfp)); -- to be used for NaNs
 
     if (dfp != dfp) {
-        *bfp = bsl::numeric_limits<BinaryType>::quiet_NaN();
-        if (dfp < DecimalType(0)) {
+        *bfp = bsl::numeric_limits<BINARY_TYPE>::quiet_NaN();
+        if (dfp < DECIMAL_TYPE(0)) {
             *bfp = -*bfp;
         }
         return;                                                       // RETURN
     }
 
-    if (dfp == bsl::numeric_limits<DecimalType>::infinity()) {
-        *bfp = bsl::numeric_limits<BinaryType>::infinity();
+    if (dfp == bsl::numeric_limits<DECIMAL_TYPE>::infinity()) {
+        *bfp = bsl::numeric_limits<BINARY_TYPE>::infinity();
         return;                                                       // RETURN
     }
 
-    if (dfp == -bsl::numeric_limits<DecimalType>::infinity()) {
-        *bfp = -bsl::numeric_limits<BinaryType>::infinity();
+    if (dfp == -bsl::numeric_limits<DECIMAL_TYPE>::infinity()) {
+        *bfp = -bsl::numeric_limits<BINARY_TYPE>::infinity();
         return;                                                       // RETURN
     }
 
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
-    out.precision(std::numeric_limits<DecimalType>::digits10);
+    out.precision(std::numeric_limits<DECIMAL_TYPE>::digits10);
     out << dfp;
     BSLS_ASSERT(out);
 
     PtrInputBuf pb(bb.str());
     bsl::istream in(&pb);
     if (!(in >> *bfp)) {
-        if (dfp > DecimalType(1) || dfp < DecimalType(-1)) { // overflow
-            *bfp = bsl::numeric_limits<BinaryType>::infinity();
+        if (dfp > DECIMAL_TYPE(1) || dfp < DECIMAL_TYPE(-1)) { // overflow
+            *bfp = bsl::numeric_limits<BINARY_TYPE>::infinity();
         } else { // underflow
             *bfp = 0.0;
         }
-        if (dfp < DecimalType(0)) {
+        if (dfp < DECIMAL_TYPE(0)) {
             *bfp = -*bfp;
         }
     }
 #endif
 }
 
-                    // Network format related helpers
+                        // Reverse Memory
 
 static void memrev(void *buffer, size_t count)
-    // Reverse the order of 'count' bytes at the beginning of 'buffer'.
-    // count % 2 must be zero.
+    // Reverse the order of the first specified 'count' bytes, at the beginning
+    // of the specified 'buffer'.  'count % 2' must be zero.
 {
     char *b = static_cast<char *>(buffer);
     for (unsigned int i = 0; i < count / 2; ++i) {
@@ -154,35 +156,51 @@ static void memrev(void *buffer, size_t count)
     }
 }
 
-unsigned char *memCpyFlip(void *out, const void *in, size_t c)
-    // Copy 'c' bytes from 'in' to 'out' and flip byte order if needed
+                        // Mem copy with reversal functions
+
+unsigned char *memCpyFlip(void *out, const void *in, size_t count)
+    // Copy the first specified 'count' bytes from the specified 'in' buffer to
+    // the specified 'out' buffer and flip the byte order if needed.
 {
     // Just stick the bytes into the buffer first
-    memcpy(out, in, c);
+    memcpy(out, in, count);
 #if BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
     // little endian, needs to do some byte juggling
-    memrev(out, c);
+    memrev(out, count);
 #endif
-    return static_cast<unsigned char*>(out) + c;
+    return static_cast<unsigned char*>(out) + count;
 }
 
-template <class DecimalT>
-unsigned char *decimalToNetworkT(unsigned char *buffer, DecimalT decimal)
+                        // Decimal-network conversion functions
+
+template <class DECIMAL_TYPE>
+unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
+                                   const unsigned char *buffer)
+    // Construct into the specified 'decimal', the base-10 value represented by
+    // the network-ordered bytes in the specified 'buffer', and return a raw
+    // memory pointer, providing modifiable access, to one byte past the last
+    // byte of 'decimal'.
+{
+    return memCpyFlip(decimal, buffer, sizeof(DECIMAL_TYPE));
+}
+
+template <class DECIMAL_TYPE>
+unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
+    // Construct into the specified 'buffer', the network-ordered byte
+    // representation of the base-10 value of the specified 'decimal', and,
+    // return a raw memory pointer, providing modifiable access, to one byte
+    // past the last written byte of the 'buffer'.
 {
     return memCpyFlip(buffer, &decimal, sizeof(decimal));
 }
 
-template <class DecimalT>
-unsigned char *decimalFromNetworkT(DecimalT *decimal, const unsigned char *buf)
-{
-    return memCpyFlip(decimal, buf, sizeof(DecimalT));
-}
-
                   // Helpers for Restoring Decimal from Binary
 
-template <class DecimalType, class BinaryType>
-inline
-void restoreDecimalFromBinary(DecimalType *dfp, BinaryType bfp)
+template <class DECIMAL_TYPE, class BINARY_TYPE>
+void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
+    // Construct, in the specified 'dfp', a decimal floating point
+    // representation of the value of the binary floating point value specified
+    // by 'bfp'.
 {
     // Handle special values of +/-INF, and NaNs without use of streams
 
@@ -190,28 +208,29 @@ void restoreDecimalFromBinary(DecimalType *dfp, BinaryType bfp)
     // ::decClass fclass(decFloatClass(dfp)); -- to be used for NaNs
 
     if (bfp != bfp) {
-        *dfp = bsl::numeric_limits<DecimalType>::quiet_NaN();
+        *dfp = bsl::numeric_limits<DECIMAL_TYPE>::quiet_NaN();
         if (bfp < 0) {
             *dfp = -*dfp;
         }
         return;                                                       // RETURN
     }
 
-    if (bfp == bsl::numeric_limits<BinaryType>::infinity()) {
-        *dfp = bsl::numeric_limits<DecimalType>::infinity();
+    if (bfp == bsl::numeric_limits<BINARY_TYPE>::infinity()) {
+        *dfp = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
         return;                                                       // RETURN
     }
 
-    if (bfp == -bsl::numeric_limits<BinaryType>::infinity()) {
-        *dfp = -bsl::numeric_limits<DecimalType>::infinity();
+    if (bfp == -bsl::numeric_limits<BINARY_TYPE>::infinity()) {
+        *dfp = -bsl::numeric_limits<DECIMAL_TYPE>::infinity();
         return;                                                       // RETURN
     }
 
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
-    out.precision(std::numeric_limits<BinaryType>::digits10);
+    out.precision(std::numeric_limits<BINARY_TYPE>::digits10);
     out << bfp;
     BSLS_ASSERT(out);
 
@@ -219,9 +238,9 @@ void restoreDecimalFromBinary(DecimalType *dfp, BinaryType bfp)
     bsl::istream in(&pb);
     if (!(in >> *dfp)) { // Try to be sensible in case of error
         if (bfp > 1 || bfp < -1) { // overflow
-            *dfp = bsl::numeric_limits<DecimalType>::infinity();
+            *dfp = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
         } else { // underflow
-            *dfp = DecimalType(0);
+            *dfp = DECIMAL_TYPE(0);
         }
         if (bfp < 0) {
             *dfp = -*dfp;
@@ -230,6 +249,8 @@ void restoreDecimalFromBinary(DecimalType *dfp, BinaryType bfp)
 }
 
 } // end anonymous namespace
+
+                        // decimalToLongDouble functions
 
 long double DecimalConvertUtil::decimal32ToLongDouble(Decimal32 decimal)
 {
@@ -262,6 +283,8 @@ long double DecimalConvertUtil::decimalToLongDouble(Decimal128 decimal)
     return decimal128ToLongDouble(decimal);
 }
 
+                        // decimalToDouble functions
+
 double DecimalConvertUtil::decimal32ToDouble(Decimal32 decimal)
 {
     double rv;
@@ -292,6 +315,8 @@ double DecimalConvertUtil::decimalToDouble(Decimal128 decimal)
 {
     return decimal128ToDouble(decimal);
 }
+
+                        // decimalToFloat functions
 
 float DecimalConvertUtil::decimal32ToFloat (Decimal32 decimal)
 {
@@ -338,6 +363,8 @@ BinaryIntegerSignificant_FormatNotSupported //
 // strict-aliasing rules.  We may solve that later on using the "union trick"
 // and delegating to 'bsls_byteorder', but for now let's take it slow.
 
+                        // Conversion to Network functions
+
 unsigned char *DecimalConvertUtil::decimal32ToNetwork(unsigned char *buffer,
                                                       Decimal32      decimal)
 {
@@ -379,6 +406,8 @@ unsigned char *DecimalConvertUtil::decimalToNetwork(unsigned char *buffer,
     BSLS_ASSERT(buffer != 0);
     return decimalToNetworkT(buffer, decimal);
 }
+
+                        // Conversion to Network functions
 
 unsigned char *DecimalConvertUtil::decimal32FromNetwork(
                                                   Decimal32           *decimal,
@@ -428,7 +457,9 @@ unsigned char *DecimalConvertUtil::decimalFromNetwork(
     return decimalFromNetworkT(decimal, buffer);
 }
 
-             // Restore a Decimal Floating-Point from a Binary
+            // Restore a Decimal Floating-Point from a Binary
+
+                        // DecimalFromLongDouble functions
 
 Decimal32 DecimalConvertUtil::decimal32FromLongDouble(long double binary)
 {
@@ -449,6 +480,8 @@ Decimal128 DecimalConvertUtil::decimal128FromLongDouble(long double binary)
     return rv;
 }
 
+                        // DecimalFromDouble functions
+
 Decimal32 DecimalConvertUtil::decimal32FromDouble(double binary)
 {
     Decimal32 rv;
@@ -467,6 +500,8 @@ Decimal128 DecimalConvertUtil::decimal128FromDouble(double binary)
     restoreDecimalFromBinary(&rv, binary);
     return rv;
 }
+
+                        // DecimalFromFloat functions
 
 Decimal32 DecimalConvertUtil::decimal32FromFloat(float binary)
 {

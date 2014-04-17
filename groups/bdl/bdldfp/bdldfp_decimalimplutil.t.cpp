@@ -28,9 +28,9 @@ using bsl::hex;
 using bsl::atoi;
 using bsl::stringstream;
 
-//=============================================================================
+// ============================================================================
 //                                 TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
 // 'bdldfp_decimalimplutil' implements parsing and creation of 32-, 64-, and
@@ -40,7 +40,7 @@ using bsl::stringstream;
 //: o The rules of the 754-2008 IEEE Standard for Floating-Point Arithmetic,
 //:   the decNumber C library, and the Rationale for TR 24732 Extension to the
 //:   programming language C Decimal Floating-Point Arithmetic
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // CLASS METHODS
 // [ 2] makeDecimalRaw32 (int mantissa,                int exponent);
 // [ 2] makeDecimalRaw64 (long long mantissa,          int exponent);
@@ -72,13 +72,15 @@ using bsl::stringstream;
 // [ 6] makeDecimal64(unsigned long long mantissa, int exponent);
 // [ 6] makeDecimal64(int mantissa,                int exponent);
 // [ 6] makeDecimal64(unsigned int mantissa,       int exponent);
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)
@@ -86,15 +88,15 @@ static void aSsErT(int c, const char *s, int i)
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-//=============================================================================
+// ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
@@ -123,20 +125,19 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
-//=============================================================================
+// ============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
+#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
 #define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-#define PX(X) cout << #X " = " << hex << (X) << endl; // Print id and hex value
-
-//=============================================================================
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 namespace BDEC = BloombergLP::bdldfp;
 
@@ -202,8 +203,8 @@ bool parseInt(const bsl::string& s, int *result, bslma::TestAllocator *pa)
 bool parseUInt(const bsl::string& s, unsigned int *result,
                bslma::TestAllocator *pa)
 {
-    if (s.empty()) return 0;
-    if (s[0] == '-') return 0;
+    if (s.empty()) return 0;                                          // RETURN
+    if (s[0] == '-') return 0;                                        // RETURN
     bsl::istringstream ss(s, pa);
     return !(ss >> *result).fail();
 }
@@ -226,8 +227,8 @@ bool parseLL(const bsl::string& s, long long *result,
 bool parseULL(const bsl::string& s, unsigned long long *result,
               bslma::TestAllocator *pa)
 {
-    if (s.empty()) return 0;
-    if (s[0] == '-') return 0;
+    if (s.empty()) return 0;                                          // RETURN
+    if (s[0] == '-') return 0;                                        // RETURN
     bsl::istringstream ss(s, pa);
     return !(ss >> *result).fail();
 }
@@ -262,20 +263,20 @@ bool decimalNormalizedCompare(long long lhs_mantissa, int lhs_exponent,
 
 //-----------------------------------------------------------------------------
 
-template <class Expect, class Received>
-bool sameType(const Received&)
+template <class EXPECT, class RECEIVED>
+bool sameType(const RECEIVED&)
 {
-    return typeid(Expect) == typeid(Received);
+    return typeid(EXPECT) == typeid(RECEIVED);
 }
 
                           // Stream buffer helpers
 
-template <int Size>
+template <int SIZE>
 struct BufferBuf : bsl::streambuf {
     BufferBuf() { reset(); }
+    void reset() { this->setp(this->d_buf, this->d_buf + SIZE); }
     const char *str() { *this->pptr() =0; return this->pbase(); }
-    void reset() { this->setp(this->d_buf, this->d_buf + Size); }
-    char d_buf[Size + 1];
+    char d_buf[SIZE + 1];
 };
 
 struct PtrInputBuf : bsl::streambuf {
@@ -619,23 +620,23 @@ struct DecConsts<32>
 
 int main(int argc, char *argv[])
 {
-    int               test = argc > 1 ? atoi(argv[1]) : 0;
-    int           verbose1 = argc > 2;
-    int           verbose2 = argc > 3;
-    int           verbose3 = argc > 4;
-    int allocatorVerbosity = argc > 5;  // always the last
+    int                test = argc > 1 ? atoi(argv[1]) : 0;
+    int             verbose = argc > 2;
+    int         veryVerbose = argc > 3;
+    int     veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;  // always the last
 
     using bsls::AssertFailureHandlerGuard;
 
-    bslma::TestAllocator defaultAllocator("default", allocatorVerbosity);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    bslma::TestAllocator globalAllocator("global", allocatorVerbosity);
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma::TestAllocator  ta(allocatorVerbosity);
+    bslma::TestAllocator  ta(veryVeryVeryVerbose);
     bslma::TestAllocator *pa = &ta;
 
     cout.precision(35);
@@ -946,9 +947,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         //   makeDecimal64(int mantissa,                int exponent);
         //   makeDecimal64(unsigned int mantissa,       int exponent);
         // --------------------------------------------------------------------
-          if (verbose1) bsl::cout << "\nTesting 'makeDecimal64'"
-                                  << "\n======================="
-                                  << bsl::endl;
+          if (verbose) bsl::cout << bsl::endl
+                                  << "TESTING 'makeDecimal64'" << bsl::endl
+                                  << "=======================" << bsl::endl;
           {
               for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
                   for (int ei = 0; ei < NUM_TEST_EXPONENTS; ++ei) {
@@ -1036,7 +1037,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'parse32', 'parse64', 'parse128'
+        // CLASS METHODS
+        //   'parse32', 'parse64', 'parse128'
+        //
         // Concerns:
         //: 1 'parseXX' passes its arguments to the 'decNumber' library, or to
         //:   scanf in the context of a hardware implementation, correctly.
@@ -1064,11 +1067,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         //   parse128(char *s);
         // --------------------------------------------------------------------
           {
-              if (verbose1) bsl::cout << "\nTesting parse functions"
-                                      << "\n======================="
-                                      << bsl::endl;
+              if (verbose) bsl::cout
+                                     << bsl::endl
+                                     << "TESTING PARSE FUNCTIONS" << bsl::endl
+                                     << "=======================" << bsl::endl;
 
-              if (verbose2) bsl::cout << "\nTesting non-rounding cases."
+              if (veryVerbose) bsl::cout << "\nTesting non-rounding cases."
                                       << bsl::endl;
               {
                   for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
@@ -1190,8 +1194,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                   }
               }
 
-              if (verbose2) bsl::cout << "\nTest cases involving combination "
-                                         "field" << bsl::endl;
+              if (veryVerbose) bsl::cout << bsl::endl
+                                         << "Test cases involving combination "
+                                         << "field" << bsl::endl;
               {
                   for (int LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
                        ++LEADING_DIGIT) {
@@ -1308,7 +1313,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                   }
               }
 
-              if (verbose2) bsl::cout << "\nTesting rounding cases"
+              if (veryVerbose) bsl::cout << "\nTesting rounding cases"
                                       << bsl::endl;
               {
                   // Test the parse function for cases in which rounding is
@@ -1530,11 +1535,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                                Util::parse64(STRING_VAL_ROUND);
                       Util::ValueType64 EXPECTED =
                             Util::makeDecimalRaw64(4444444444444445LL, e - 16);
-                      LOOP_ASSERT(STRING_VAL_ROUND, Util::equals(ACTUAL, EXPECTED));
+                      LOOP_ASSERT(STRING_VAL_ROUND, Util::equals(ACTUAL,
+                                                                 EXPECTED));
                   }
               }
 
-              if (verbose2) bsl::cout << "\nTesting infinity cases."
+              if (veryVerbose) bsl::cout << "\nTesting infinity cases."
                                       << bsl::endl;
               {
                   // All of these string should parse to plus or minus
@@ -1700,7 +1706,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                       LOOP_ASSERT(STRING_VAL, ACTUAL == EXPECTED);
                   }
               }
-              if (verbose2) bsl::cout << "\nTesting NaN cases."
+              if (veryVerbose) bsl::cout << "\nTesting NaN cases."
                                       << bsl::endl;
               {
                   // All of these string should parse to sNan or qNan.
@@ -1772,24 +1778,26 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         // Plan:
         //: 1 Test the equality comparison of numbers generated by an array of
         //:   mantissa and exponents.
+        //:
         //: 2 Use the testing apparatus, in particular 'normalize', to
         //:   determine if the correct equality result is returned.
         //
         // Testing:
-        //  equals(ValueType32  lhs, ValueType32  rhs);
-        //  equals(ValueType32  lhs, ValueType64  rhs);
-        //  equals(ValueType32  lhs, ValueType128 rhs);
-        //  equals(ValueType64  lhs, ValueType32  rhs);
-        //  equals(ValueType64  lhs, ValueType64  rhs);
-        //  equals(ValueType64  lhs, ValueType128 rhs);
-        //  equals(ValueType128 lhs, ValueType32  rhs);
-        //  equals(ValueType128 lhs, ValueType64  rhs);
-        //  equals(ValueType128 lhs, ValueType128 rhs);
+        //  equals(ValueType32  lhs, ValueType32  rhs)
+        //  equals(ValueType32  lhs, ValueType64  rhs)
+        //  equals(ValueType32  lhs, ValueType128 rhs)
+        //  equals(ValueType64  lhs, ValueType32  rhs)
+        //  equals(ValueType64  lhs, ValueType64  rhs)
+        //  equals(ValueType64  lhs, ValueType128 rhs)
+        //  equals(ValueType128 lhs, ValueType32  rhs)
+        //  equals(ValueType128 lhs, ValueType64  rhs)
+        //  equals(ValueType128 lhs, ValueType128 rhs)
         // --------------------------------------------------------------------
           {
-              if (verbose1) bsl::cout << "\nTesting equality comparison"
-                                      << "\n==========================="
-                                      << bsl::endl;
+              if (verbose) bsl::cout
+                                 << bsl::endl
+                                 << "TESTING EQUALITY COMPARISON" << bsl::endl
+                                 << "===========================" << bsl::endl;
 
               for (int m1i = 0; m1i < NUM_TEST_NONZERO_MANTISSAS; ++m1i) {
                   for (int e1i = 0; e1i < NUM_TEST_EXPONENTS; ++e1i) {
@@ -2249,38 +2257,43 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING Simple test apparatus
+        // Testing:
+        //   Simple test apparatus
         //
         // Concerns:
         //: 1 The parsing of string literals to the four integral types of
-        //    int, unsigned int, long long, and unsigned long long, and the
-        //    determination of the suitability of the string literal to each
-        //    type of test. This assists in testing overloaded functions such
-        //    as 'makeDecimal64'.
+        //:   int, unsigned int, long long, and unsigned long long, and the
+        //:   determination of the suitability of the string literal to each
+        //:   type of test. This assists in testing overloaded functions such
+        //:   as 'makeDecimal64'.
+        //:
         //: 2 The normalization of mantissa, exponent pairs, such that the
-        //    value of 'mantissa * pow(10, exponent)' is preserved and 10 does
-        //    not divide the adjusted 'mantissa'.
+        //:   value of 'mantissa * pow(10, exponent)' is preserved and 10 does
+        //:   not divide the adjusted 'mantissa'.
         //
         // Plan:
         //: 1 Test the parsing of integral numbers of each length in base 10.
+        //:
         //: 2 Test the parsing of boundary condition numbers of each integral
         //:   value.
+        //:
         //: 3 Test the normalizing of numbers of each length in base 10 and
         //:   with powers of ten of each size.
         //
         // Testing:
-        //   parseInt (char *s, int *i,                Allocator *ma);
+        //   parseInt (char *s, int *i,                Allocator *ma) 
         //   parseUInt(char *s, unsigned int *i,       Allocator *ma)
         //   parseLL  (char *s, long long *i,          Allocator *ma)
         //   parseULL (char *s, unsigned long long *i, Allocator *ma)
         //   normalize(long long *mantissa,            int *exponent)
         // --------------------------------------------------------------------
-        if (verbose1) bsl::cout << "\nTesting simple test apparatus"
-                                << "\n============================="
-                                << bsl::endl;
+        if (verbose) bsl::cout << bsl::endl
+                               << "TESTING SIMPLE TEST APPARATUS" << bsl::endl
+                               << "=============================" << bsl::endl;
 
-        if (verbose2) bsl::cout << "\nTesting helper parsing function for "
-                                   "parsing ints." << bsl::endl;
+        if (veryVerbose) bsl::cout << bsl::endl
+                                   << "Testing helper parsing function for "
+                                   << "parsing ints." << bsl::endl;
         {
             static const struct {
                 int         d_lineNum;
@@ -2366,7 +2379,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             }
         }
 
-        if (verbose2) bsl::cout << "\nTesting helper parsing function for "
+        if (veryVerbose) bsl::cout << "\nTesting helper parsing function for "
                                    "parsing unsigned ints." << bsl::endl;
         {
             static const struct {
@@ -2451,7 +2464,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             }
         }
 
-        if (verbose2) bsl::cout << "\nTesting helper parsing function for "
+        if (veryVerbose) bsl::cout << "\nTesting helper parsing function for "
                                    "parsing long longs." << bsl::endl;
         {
             static const struct {
@@ -2536,7 +2549,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             }
         }
 
-        if (verbose2) bsl::cout << "\nTesting helper parsing function for "
+        if (veryVerbose) bsl::cout << "\nTesting helper parsing function for "
                                    "parsing unsigned long longs." << bsl::endl;
         {
             static const struct {
@@ -2621,7 +2634,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             }
         }
 
-        if (verbose2) bsl::cout << "\nTesting helper parsing function for "
+        if (veryVerbose) bsl::cout << "\nTesting helper parsing function for "
                                    "comparing mantissa/exponent pairs."
                                 << bsl::endl;
         {
@@ -2791,8 +2804,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         //   makeDecimalRaw128(int mantissa,                int exponent);
         //   makeDecimalRaw128(unsigned int mantissa,       int exponent);
         // --------------------------------------------------------------------
-        if (verbose1) bsl::cout << "\nPrimary manipulators"
-                                << "\n====================" << bsl::endl;
+        if (verbose) bsl::cout << bsl::endl
+                                << "PRIMARY MANIPULATORS"
+                                << "====================" << bsl::endl;
 
         // Test that 'makeDecimalRaw32' enforces undefined behavior in the
         // right build mode
@@ -2960,7 +2974,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         }
 
 
-        if (verbose2) bsl::cout << "Test the correctness of the declets "
+        if (veryVerbose) bsl::cout << "Test the correctness of the declets "
                                    "table in this implementation by parsing "
                                    "each number between 0 and 999, "
                                    "inclusive." << bsl::endl;
@@ -2992,7 +3006,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
             }
         }
-        if (verbose2) bsl::cout << "Test that each declet can be correctly "
+        if (veryVerbose) bsl::cout << "Test that each declet can be correctly "
                                    "placed into each 10-bit shift pattern."
                                 << bsl::endl;
         {
@@ -3086,7 +3100,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             }
         }
 
-        if (verbose2) bsl::cout << "Test some special cases to prove the "
+        if (veryVerbose) bsl::cout << "Test some special cases to prove the "
                                    "correcness of declet bit arithmetic."
                                 << bsl::endl;
         {
@@ -3286,8 +3300,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             }
         }
 
-        if (verbose2) bsl::cout << "Test the correctness of the computation "
-                                   "of the combination field." << bsl::endl;
+        if (veryVerbose) bsl::cout << "Test the correctness of the "
+                                   << "computation of the combination field."
+                                   << bsl::endl;
         {
             // Test each of the 9 possible leading digits with each exponent
             // value.
@@ -3346,8 +3361,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             }
         }
 
-        if (verbose2) bsl::cout << "Test makeDecimalRaw32, makeDecimalRaw64,"
-                                   "and makeDecimal128." << bsl::endl;
+        if (veryVerbose) bsl::cout << "Test makeDecimalRaw32, "
+                                   << "makeDecimalRaw64, and makeDecimal128."
+                                   << bsl::endl;
         static const struct {
             int           d_lineNum;
             const char   *d_mantissa;
@@ -3733,25 +3749,29 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 if (parseInt(MANTISSA, &mantissa_in_int, pa)) {
                     const Util::ValueType64 ACTUAL64 =
                         Util::makeDecimalRaw64(mantissa_in_int, EXPONENT);
-                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64, ACTUAL64 == EXPECTED64);
+                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
+                                 ACTUAL64 == EXPECTED64);
                 }
 
                 if (parseUInt(MANTISSA, &mantissa_in_uint, pa)) {
                     const Util::ValueType64 ACTUAL64 =
                         Util::makeDecimalRaw64(mantissa_in_uint, EXPONENT);
-                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64, ACTUAL64 == EXPECTED64);
+                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
+                                 ACTUAL64 == EXPECTED64);
                 }
 
                 if (parseLL(MANTISSA, &mantissa_in_ll, pa)) {
                     const Util::ValueType64 ACTUAL64 =
                         Util::makeDecimalRaw64(mantissa_in_ll, EXPONENT);
-                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64, ACTUAL64 == EXPECTED64);
+                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
+                                 ACTUAL64 == EXPECTED64);
                 }
 
                 if (parseULL(MANTISSA, &mantissa_in_ull, pa)) {
                     const Util::ValueType64 ACTUAL64 =
                         Util::makeDecimalRaw64(mantissa_in_ull, EXPONENT);
-                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64, ACTUAL64 == EXPECTED64);
+                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
+                                 ACTUAL64 == EXPECTED64);
                 }
             }
 
@@ -3775,16 +3795,24 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING Breathing test
-        // Concerns: Forwarding to the right routines
-        // Plan: Try all operations see if basics work
-        // Testing: all functions
+        // BREATHING TEST
+        //   test all functions
+        //
+        // Concerns:
+        //: 1 Forwarding to the right routines
+        //
+        // Plan:
+        //: 1 Try all operations see if basics work
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "\nBreathing Test"
-                                << "\n==============" << bsl::endl;
+        if (verbose) bsl::cout << bsl::endl
+                                << "BREATHING TEST" << bsl::endl
+                                << "==============" << bsl::endl;
 
-        if (verbose2) bsl::cout << "Types" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Types" << bsl::endl;
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
         ASSERT(sameType<_Decimal32 >(Util::ValueType32()));
@@ -3796,7 +3824,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         ASSERT(sameType<decQuad  >(Util::ValueType128()));
 #endif
 
-        if (verbose2) bsl::cout << "Helper functions" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Helper functions" << bsl::endl;
 
 #if BDLDFP_DECIMALPLATFORM_DECNUMBER
 
@@ -3806,7 +3834,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
 
 #endif
 
-        if (verbose2) bsl::cout << "Parsers" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Parsers" << bsl::endl;
 
         // While checking the parsers we cannot use our BDLDFP_DECIMALIMPL_Dx
         // macros to provide portable decimal floating point literals, since
@@ -3893,7 +3921,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             ASSERT(Util::parse128("-4.2") == expected);
         }
 
-        if (verbose2) bsl::cout << "Literal macros" << bsl::endl;
+        if (veryVerbose) bsl::cout << "Literal macros" << bsl::endl;
 
         {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
