@@ -217,7 +217,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // Suspend execution of the current thread until the specified
         // 'absoluteTime'.  Optionally specify 'clockType' which determines the
         // epoch from which the interval 'absoluteTime' is measured (see
-        // {Supported Clock-Types} in the component documentation).  Return 0
+        // {'Supported Clock-Types'} in the component documentation).  Return 0
         // on success, and a non-zero value otherwise.  The behavior is
         // undefined unless 'absoluteTime' represents a time after January 1,
         // 1970 and before the end of December 31, 9999 (i.e., a time interval
@@ -235,17 +235,18 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // indicating whether to put this thread to sleep again if the
         // operating system interupts the sleep because of a signal.
         // Optionally specify 'clockType' which determines the epoch from which
-        // the interval 'absoluteTime' is measured (see {Supported Clock-Types}
-        // in the component documentation).  Return 0 on success, and a
-        // non-zero value otherwise.  If 'retryOnSignalInterrupt' is 'true', an
-        // interupt from a signal will be ignored and the current the thread
-        // will be put back to sleep until 'absoluteTime', otherwise this call
-        // will return 0 to the calling thread immediately.  The behavior is
-        // undefined unless 'absoluteTime' represents a time after January 1,
-        // 1970 and before the end of December 31, 9999 (i.e., a time interval
-        // greater than or equal to 0, and less than 253,402,300,800 seconds).
-        // Note that the actual time suspended depends on many factors
-        // including system scheduling and system timer resolution.
+        // the interval 'absoluteTime' is measured (see
+        // {'Supported Clock-Types'} in the component documentation).  Return 0
+        // on success, and a non-zero value otherwise.  If
+        // 'retryOnSignalInterrupt' is 'true', an interupt from a signal will
+        // be ignored and the current the thread will be put back to sleep
+        // until 'absoluteTime', otherwise this call will return 0 to the
+        // calling thread immediately.  The behavior is undefined unless
+        // 'absoluteTime' represents a time after January 1, 1970 and before
+        // the end of December 31, 9999 (i.e., a time interval greater than or
+        // equal to 0, and less than 253,402,300,800 seconds).  Note that the
+        // actual time suspended depends on many factors including system
+        // scheduling and system timer resolution.
 
     static void yield();
         // Put the current thread to the end of the scheduler's queue and

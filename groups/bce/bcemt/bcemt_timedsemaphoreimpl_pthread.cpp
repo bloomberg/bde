@@ -86,11 +86,14 @@ void initializeCondition(pthread_cond_t              *cond,
 #ifdef BSLS_PLATFORM_OS_DARWIN
     (void) clockType;
     int rc = pthread_cond_init(cond, 0);
-    (void) rc; BSLS_ASSERT(0 == rc);
+    (void) rc; BSLS_ASSERT(0 == rc); // can only fail for lack of system
+                                     // resources or attempt to re-initialise
 #else
     CondAttr attr(clockType);
     int rc = pthread_cond_init(cond, &attr.conditonAttributes());
-    (void) rc; BSLS_ASSERT(0 == rc);
+    (void) rc; BSLS_ASSERT(0 == rc); // can only fail for lack of system
+                                     // resources, attempt to re-initialise
+                                     // or the attribute is invalid
 #endif
 }
 

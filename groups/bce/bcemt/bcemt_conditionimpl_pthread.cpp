@@ -77,11 +77,14 @@ void initializeCondition(pthread_cond_t              *cond,
 #ifdef BSLS_PLATFORM_OS_DARWIN
     (void) clockType;
     int rc = pthread_cond_init(cond, 0);
-    (void) rc; BSLS_ASSERT(0 == rc);
+    (void) rc; BSLS_ASSERT(0 == rc); // can only fail for lack of system
+                                     // resources or attempt to re-initialise
 #else
     CondAttr attr(clockType);
     int rc = pthread_cond_init(cond, &attr.conditonAttributes());
-    (void) rc; BSLS_ASSERT(0 == rc);
+    (void) rc; BSLS_ASSERT(0 == rc); // can only fail for lack of system
+                                     // resources, attempt to re-initialise
+                                     // or the attribute is invalid
 #endif
 }
 
@@ -108,8 +111,8 @@ int bcemt_ConditionImpl<bces_Platform::PosixThreads>::timedWait(
     // This implementation is very sensitive to the 'd_clockType'.  For
     // safety, we will assert the value is one of the two currently expected
     // values.
-    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == d_clockType
-                || bdetu_SystemClockType::e_MONOTONIC == d_clockType);
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == d_clockType ||
+                bdetu_SystemClockType::e_MONOTONIC == d_clockType);
 
     bdet_TimeInterval realTimeout(timeout);
 

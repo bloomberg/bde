@@ -242,7 +242,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // Suspend execution of the current thread until the specified
         // 'absoluteTime'.  Optionally specify 'clockType' which determines the
         // epoch from which the interval 'absoluteTime' is measured (see
-        // {Supported Clock-Types} in the component documentation).  Return 0
+        // {'Supported Clock-Types'} in the component documentation).  Return 0
         // on success, and a non-zero value otherwise.  The behavior is
         // undefined unless 'absoluteTime' represents a time after January 1,
         // 1970 and before the end of December 31, 9999 (i.e., a time interval

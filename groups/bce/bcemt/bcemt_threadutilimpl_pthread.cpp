@@ -201,64 +201,6 @@ class MachClockGuard {
 
 }  // close unnamed namespace
 
-static bdet_TimeInterval getDarwinSystemBootTime()
-    // Return the system-start time as a time interval from the UNIX epoch
-    // time, January 1, 1970
-{
-    // TBD: We currently obtain the system start time (the time basis for the
-    // 'REALTIME_CLOCK' by computing the the difference between the
-    // 'REALTIME_CLOCK' and 'CALENDAR_CLOCK'.  This has the potential to be
-    // inaccurate, but after a day of investigation is the best alternative
-    // I've found.  The one other alternative I tested ('sysctl' to obtain the
-    // 'KERN_BOOTTIME'), was, significantly less accurate:
-    // http://stackoverflow.com/questions/11282897/
-
-    static bsls::AtomicOperations::AtomicTypes::Int64 bootSecs     = { 0 };
-    static bsls::AtomicOperations::AtomicTypes::Int   bootNanoSecs = { 0 };
-
-    if (!bsls::AtomicOperations::getInt64Acquire(&bootSecs)) {
-        static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-        if (0 != pthread_mutex_lock(&mutex)) {
-            BSLS_ASSERT_OPT(false);
-        }
-
-        PthreadMutexGuard guard(&mutex);
-        if (!bsls::AtomicOperations::getInt64Relaxed(&bootSecs)) {
-            clock_serv_t calendarClock, realtimeClock;
-
-            kern_return_t status1 = host_get_clock_service(mach_host_self(),
-                                                           REALTIME_CLOCK,
-                                                           &realtimeClock);
-            MachClockGuard realTimeClockGuard(realtimeClock);
-            kern_return_t status2 = host_get_clock_service(mach_host_self(),
-                                                           CALENDAR_CLOCK,
-                                                           &calendarClock);
-            MachClockGuard calendarClockGuard(calendarClock);
-
-            BSLS_ASSERT_OPT(0 == status1);
-            BSLS_ASSERT_OPT(0 == status2);
-
-            mach_timespec_t nowCalendar;
-            mach_timespec_t nowRealtime;
-
-            clock_get_time(realtimeClock, &nowRealtime);
-            clock_get_time(calendarClock, &nowCalendar);
-            bdet_TimeInterval adjustment =
-                bdet_TimeInterval(nowCalendar.tv_sec, nowCalendar.tv_nsec) -
-                bdet_TimeInterval(nowRealtime.tv_sec, nowRealtime.tv_nsec);
-
-            bsls::AtomicOperations::setIntRelease(&bootNanoSecs,
-                                                  adjustment.nanoseconds());
-            bsls::AtomicOperations::setInt64Release(&bootSecs,
-                                                    adjustment.seconds());
-        }
-    }
-
-    return bdet_TimeInterval(
-        bsls::AtomicOperations::getInt64Relaxed(&bootSecs),
-        bsls::AtomicOperations::getIntRelaxed(&bootNanoSecs));
-}
 #endif  // defined(BSLS_PLATFORM_OS_DARWIN)
 
             // -------------------------------------------------------
@@ -490,13 +432,13 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     // This implementation is very sensitive to the 'clockType'.  For
     // safety, we will assert the value is one of the two currently expected
     // values.
-    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == clockType
-                || bdetu_SystemClockType::e_MONOTONIC == clockType);
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == clockType ||
+                bdetu_SystemClockType::e_MONOTONIC == clockType);
 
-    if (clockType != bdetu_SystemClockType::e_REALTIME) {
-        // since we will be operating with the realtime clock, adjust
-        // the timeout value to make it consistent with the realtime clock
-        absoluteTime += bdetu_SystemTime::nowRealtimeClock()
+    if (clockType != bdetu_SystemClockType::e_MONOTONIC) {
+        // since we will be operating with the monotonic clock, adjust
+        // the timeout value to make it consistent with the monotonic clock
+        absoluteTime += bdetu_SystemTime::nowMonotonicClock()
                                             - bdetu_SystemTime::now(clockType);
     }
 
@@ -515,16 +457,14 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
         return status;                                                // RETURN
     }
 
-    bdet_TimeInterval systemTime = absoluteTime - getDarwinSystemBootTime();
-
-    if (systemTime <= bdet_TimeInterval()) {
+    if (absoluteTime <= bdet_TimeInterval()) {
         return 0;                                                     // RETURN
     }
 
     mach_timespec_t clockTime;
     mach_timespec_t resultTime;
 
-    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, systemTime);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, absoluteTime);
 
     status = clock_sleep(clock, TIME_ABSOLUTE, clockTime, &resultTime);
 
@@ -535,10 +475,27 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, absoluteTime);
 
     int result;
-    do {
-        result = clock_nanosleep(clockType, TIMER_ABSTIME, &clockTime, 0);
-
-    } while (EINTR == result && retryOnSignalInterupt);
+    switch (clockType) {
+      case bdetu_SystemClockType::e_MONOTONIC: {
+        do {
+            result = clock_nanosleep(CLOCK_MONOTONIC,
+                                     TIMER_ABSTIME,
+                                     &clockTime,
+                                     0);
+        } while (EINTR == result && retryOnSignalInterupt);
+      } break;
+      case bdetu_SystemClockType::e_REALTIME: {
+        do {
+            result = clock_nanosleep(CLOCK_REALTIME,
+                                     TIMER_ABSTIME,
+                                     &clockTime,
+                                     0);
+        } while (EINTR == result && retryOnSignalInterupt);
+      } break;
+      default:
+        BSLS_ASSERT_OPT("Invalid clockType parameter value" && 0);
+        return 1;                                                     // RETURN
+    }
 
     // An signal interrupt is not considered an error.
 

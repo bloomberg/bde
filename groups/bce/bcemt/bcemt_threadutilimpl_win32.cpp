@@ -542,48 +542,58 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
     // This implementation is very sensitive to the 'clockType'.  For
     // safety, we will assert the value is one of the two currently expected
     // values.
-    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == clockType
-                || bdetu_SystemClockType::e_MONOTONIC == clockType);
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == clockType ||
+                bdetu_SystemClockType::e_MONOTONIC == clockType);
 
-    if (clockType != bdetu_SystemClockType::e_REALTIME) {
-        // since we will be operating with the realtime clock, adjust
-        // the timeout value to make it consistent with the realtime clock
-        absoluteTime += bdetu_SystemTime::nowRealtimeClock()
-                                            - bdetu_SystemTime::now(clockType);
+    // To sleep until an absolute time a realtime clock must be used.  Instead
+    // of approximating a delta on the monotonic clock with a delta on the
+    // realtime clock, 'sleep' will be used for montonic clocks.  This prevents
+    // adjustments that affect the realtime clock, but not the monotonic clock,
+    // from causing unexpected behavior.
+
+    if (clockType == bdetu_SystemClockType::e_REALTIME) {
+
+        HANDLE timer = CreateWaitableTimer(0, false, 0);
+        if (0 == timer) {
+            return GetLastError();                                    // RETURN
+        }
+        HandleGuard guard(timer);
+
+        LARGE_INTEGER clockTime;
+
+        // As indicated in the documentation for 'SetWaitableTimer':
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
+        // A positive value represents an absolute time in increments of 100
+        // nanoseconds.  Critically though, Microsoft's epoch is different
+        // for epoch used by the C run-time (and BDE).  BDE uses January 1,
+        // 1970, Microsoft uses January 1, 1601, see:
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
+        // The following page on converting a 'time_t' to a 'FILETIME' shows
+        // the constant, 116444736000000000 in 100ns (or 11643609600 seconds)
+        // needed to convert between the two epochs:
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
+
+        enum { HUNDRED_NANOSECS_PER_SEC = 10 * 1000 * 1000 };  // 10 million
+        clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
+                           + absoluteTime.nanoseconds() / 100
+                           + 116444736000000000LL;
+
+        if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
+            return GetLastError();                                    // RETURN
+        }
+
+        if (WAIT_OBJECT_0 != WaitForSingleObject(timer, INFINITE)) {
+            return GetLastError();                                    // RETURN
+        }
+    }
+    else { // montonic clock
+
+        bdet_TimeInterval relativeTime =
+                          absoluteTime - bdetu_SystemTime::nowMonotonicClock();
+        if (relativeTime > bdet_TimeInterval(0, 0)) sleep(relativeTime);
+
     }
 
-    HANDLE timer = CreateWaitableTimer(0, false, 0);
-    if (0 == timer) {
-        return GetLastError();                                        // RETURN
-    }
-    HandleGuard guard(timer);
-
-    LARGE_INTEGER clockTime;
-
-    // As indicated in the documentation for 'SetWaitableTimer':
-    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
-    // A positive value represents an absolute time in increments of 100
-    // nanoseconds.  Critically though, Microsoft's epoch is different
-    // for epoch used by the C run-time (and BDE).  BDE uses January 1, 1970,
-    // Microsoft uses January 1, 1601, see:
-    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
-    // The following page on converting a 'time_t' to a 'FILETIME' shows the
-    // constant, 116444736000000000 in 100ns (or 11643609600 seconds) needed
-    // to convert between the two epochs:
-    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
-
-    enum { HUNDRED_NANOSECS_PER_SEC = 10 * 1000 * 1000 };  // 10 million
-    clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
-                       + absoluteTime.nanoseconds() / 100
-                       + 116444736000000000LL;
-
-    if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
-        return GetLastError();                                        // RETURN
-    }
-
-    if (WAIT_OBJECT_0 != WaitForSingleObject(timer, INFINITE)) {
-        return GetLastError();                                        // RETURN
-    }
     return 0;
 }
 

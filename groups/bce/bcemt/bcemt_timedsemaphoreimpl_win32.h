@@ -119,8 +119,11 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore> {
     // This class implements a timed semaphore in terms of Windows semaphores.
 
     // DATA
-    void *d_handle;  // handle to Window's implementation of timed semaphore
-    bdetu_SystemClockType::Enum d_clockType; // clock used in timedWait
+    void                        *d_handle;    // handle to Window's
+                                              // implementation of timed
+                                              // semaphore
+
+    bdetu_SystemClockType::Enum  d_clockType; // clock used in timedWait
 
     // NOT IMPLEMENTED
     bcemt_TimedSemaphoreImpl(const bcemt_TimedSemaphoreImpl&);
@@ -163,11 +166,11 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore> {
         // Block until the count of this semaphore is a positive value, or
         // until the specified 'timeout' expires.  The 'timeout' is an absolute
         // time represented as an interval from some epoch, which is detemined
-        // by the clock indicated at construction (see {Supported Clock-Types}
-        // in the component documentation).  If the 'timeout' did not expire
-        // before the count attained a positive value, atomically decrement the
-        // count and return 0; otherwise, return a non-zero value with no
-        // effect on the count.
+        // by the clock indicated at construction (see
+        // {'Supported Clock-Types'} in the component documentation).  If the
+        // 'timeout' did not expire before the count attained a positive value,
+        // atomically decrement the count and return 0; otherwise, return a
+        // non-zero value with no effect on the count.
 
     int tryWait();
         // Decrement the count of this semaphore if it is positive and return
@@ -242,11 +245,11 @@ void bcemt_TimedSemaphoreImpl<bces_Platform::Win32TimedSemaphore>::wait()
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

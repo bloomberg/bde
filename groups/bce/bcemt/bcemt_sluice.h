@@ -197,12 +197,12 @@ class bcemt_Sluice {
         // Wait for the specified 'token' to be signaled, or until the
         // specified 'timeout' expires.  The 'timeout' is an absolute time
         // represented as an interval from some epoch, which is detemined by
-        // the clock indicated at construction (see {Supported Clock-Types} in
-        // the component documentation).  Return 0 on success, and a non-zero
-        // value on timeout.  The 'token' is released whether or not a timeout
-        // occurred.  The behavior is undefined unless 'token' was obtained
-        // from a call to 'enter' by this thread, and was not subsequently
-        // released (via a call to 'timedWait' or 'wait').
+        // the clock indicated at construction (see {'Supported Clock-Types'}
+        // in the component documentation).  Return 0 on success, and a
+        // non-zero value on timeout.  The 'token' is released whether or not a
+        // timeout occurred.  The behavior is undefined unless 'token' was
+        // obtained from a call to 'enter' by this thread, and was not
+        // subsequently released (via a call to 'timedWait' or 'wait').
 
     void wait(const void *token);
         // Wait for the specified 'token' to be signaled, and release the

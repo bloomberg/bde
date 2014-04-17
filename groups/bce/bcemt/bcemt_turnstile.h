@@ -21,11 +21,7 @@ BDES_IDENT("$Id: $")
 // method, which blocks until the next interval arrives.  If the turnstile is
 // not called at or above the configured rate (e.g., due to processing
 // performed at each interval), the turnstile is said to be "lagging behind."
-// The amount of lag time is obtained from the 'lagTime' method.  Note that
-// this component uses the monotonic system clock and hence may not be
-// appropriate for applications that must be synchronized to the realtime
-// (wall) clock (for example, distributed periodic computation of aggregate
-// values that are then compared presuming nearly identical computation time).
+// The amount of lag time is obtained from the 'lagTime' method.
 //
 ///Comparison With Sleep
 ///---------------------
