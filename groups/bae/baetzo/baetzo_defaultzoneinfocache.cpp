@@ -26,8 +26,10 @@ static const char LOG_CATEGORY[] = "BAETZO.DEFAULTZONEINFOCACHE";
 // Potential locations of TZ Database time-zone information.
 static const char *BAETZO_DATA_LOCATIONS[] = {
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-    "/bb/data/datetime/zoneinfo/"  // Bloomberg-specific
-  , "/usr/share/lib/zoneinfo/"
+    "/opt/bb/share/zoneinfo/"      // Bloomberg standard data location
+  , "/bb/data/datetime/zoneinfo/"  // deprecated Bloomberg stnd data location
+  , "/usr/share/zoneinfo/"         // Unix standard location (Linux, OSX)
+  , "/usr/share/lib/zoneinfo/"     // Solaris standard location
   , 0
 #else
     0
