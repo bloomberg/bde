@@ -493,12 +493,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_ITERATOR
-#include <bslstl_iterator.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #include <bslstl_allocatortraits.h>
+#endif
+
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include <bslstl_iterator.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
@@ -513,32 +513,28 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
-#include <bslmf_nestedtraitdeclaration.h>
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
-#include <bslmf_enableif.h>
+#ifndef INCLUDED_BSLMF_ISENUM
+#include <bslmf_isenum.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISENUM
-#include <bslmf_isenum.h>
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
-#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -547,6 +543,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 namespace bsl {
@@ -810,9 +810,9 @@ class list
         size_type d_size;  // allocated size
 
         // CREATORS
-        explicit AllocAndSizeWrapper(const NodeAlloc& allocator,
+        explicit AllocAndSizeWrapper(const NodeAlloc& basicAllocator,
                                      size_type size)
-        : NodeAlloc(allocator), d_size(size)
+        : NodeAlloc(basicAllocator), d_size(size)
             // Create an allocator wrapper having the specified allocator type
             // 'allocator' and the specified allocated 'size'.
         {
@@ -903,9 +903,9 @@ class list
 
     void create_sentinel();
         // Create the 'd_sentinel' node of this list.  The 'd_sentinel' node
-        // does not hold a value.  When first created it's forward and
-        // backward pointers point to itself, creating a circular linked list.
-        // This function also sets this list's size to zero.
+        // does not hold a value.  When first created it's forward and backward
+        // pointers point to itself, creating a circular linked list.  This
+        // function also sets this list's size to zero.
 
     void destroy_all();
         // Erase all elements, destroy and deallocate the 'd_sentinel' node,
@@ -984,21 +984,21 @@ class list
     NodePtr sort_imp(NodePtr       *pnode1,
                      size_type      size,
                      const COMPARE& comp);
-        // Sort the sequence of 'size' nodes starting with '*pnode1'.
-        // Modifies '*pnode1' to refer to the first node of the sorted
-        // sequence.  If an exception is thrown, all nodes remain properly
-        // linked, but their order is unspecified.  The behavior is undefined
-        // unless '*pnode1' begins a sequence of at least 'size' nodes, none
-        // of which are sentinel nodes.
+        // Sort the sequence of 'size' nodes starting with '*pnode1'.  Modifies
+        // '*pnode1' to refer to the first node of the sorted sequence.  If an
+        // exception is thrown, all nodes remain properly linked, but their
+        // order is unspecified.  The behavior is undefined unless '*pnode1'
+        // begins a sequence of at least 'size' nodes, none of which are
+        // sentinel nodes.
 
   public:
     // CREATORS
 
     // 23.3.5.2 construct/copy/destroy:
 
-    explicit list(const ALLOCATOR& allocator = ALLOCATOR());
+    explicit list(const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create an empty list that allocates memory using the specified
-        // 'allocator'.
+        // 'basicAllocator'.
 
     explicit list(size_type n);
         // Create a list containing the specified 'n' elements and using a
@@ -1007,20 +1007,20 @@ class list
 
     list(size_type n,
          const VALUE& value,
-         const ALLOCATOR& allocator = ALLOCATOR());
-        // Create a list using the specified 'allocator' and insert the
+         const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create a list using the specified 'basicAllocator' and insert the
         // specified 'n' number of elements created by "copy-insertion" from
         // 'value'.
 
     template <class InputIter>
     list(InputIter first,
          InputIter last,
-         const ALLOCATOR& allocator = ALLOCATOR(),
+         const ALLOCATOR& basicAllocator = ALLOCATOR(),
          typename enable_if<
              !is_fundamental<InputIter>::value && !is_enum<InputIter>::value
          >::type * = 0)
-        // Create a list using the specified 'allocator' and insert the number
-        // of elements determined by the size of the specified range
+        // Create a list using the specified 'basicAllocator' and insert the
+        // number of elements determined by the size of the specified range
         // '[first, last)'.  Each initial element is created by
         // "copy-insertion" from the corresponding element in '[first, last)'.
         // Does not participate in overload resolution unless 'InputIter' is an
@@ -1030,7 +1030,7 @@ class list
         // TBD: It would be better to use 'std::is_arithmetic' (a currently
         // unavailable metafunction) instead of 'is_fundamental' in the
         // 'enable_if' expression.
-    : d_alloc_and_size(allocator, size_type(-1))
+    : d_alloc_and_size(basicAllocator, size_type(-1))
     {
         // MS Visual Studio 2008 compiler requires that a function using
         // enable_if be in-place inline.
@@ -1054,10 +1054,10 @@ class list
         // Each element in the resulting list is constructed by
         // "copy-insertion" from the corresponding element in 'original'.
 
-    list(const list& original, const ALLOCATOR& allocator);
+    list(const list& original, const ALLOCATOR& basicAllocator);
         // Create a list having the same value as that of the specified
-        // 'original' that will use the specified 'allocator' to supply memory.
-        // Each element in the resulting list is constructed by
+        // 'original' that will use the specified 'basicAllocator' to supply
+        // memory.  Each element in the resulting list is constructed by
         // "copy-insertion" from the corresponding element in 'allocator'.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1069,10 +1069,10 @@ class list
         // may allocate memory and may, therefore, throw an allocation-related
         // exception.
 
-    list(list&& original, const ALLOCATOR& allocator);
+    list(list&& original, const ALLOCATOR& basicAllocator);
         // Create a new list using the contents from the specified list
-        // 'original' and using a copy of the specified 'allocator'.  If
-        // 'allocator == original.get_allocator()', then no copy or move
+        // 'original' and using a copy of the specified 'basicAllocator'.  If
+        // 'basicAllocator == original.get_allocator()', then no copy or move
         // constructors are called for individual elements.  Otherwise, each
         // element in the resulting list is constructed by "copy-insertion"
         // from the corresponding element in 'original'.  After the
@@ -1252,8 +1252,8 @@ class list
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... ARGS>
     void emplace_back(ARGS&&... args);
-        // Insert a new element at the back of this list and construct it
-        // using "emplace-construction" from the specified 'args'.
+        // Insert a new element at the back of this list and construct it using
+        // "emplace-construction" from the specified 'args'.
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -1309,7 +1309,7 @@ class list
         // Insert a new element at the front of this list using
         // "copy-insertion" from the specified value 'value'.
 
-    void push_back(const VALUE& vaule);
+    void push_back(const VALUE& value);
         // Append a new element to the end of this list using "copy-insertion"
         // from the specified value 'value'.
 
@@ -1677,9 +1677,9 @@ void swap(list<VALUE, ALLOCATOR>& lhs, list<VALUE, ALLOCATOR>& rhs);
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                   INLINE AND TEMPLATE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                         // ---------------------
                         // struct bsl::List_Node
@@ -1689,10 +1689,10 @@ template <class VALUE>
 inline
 void bsl::List_Node<VALUE>::init()
 {
-    // If 'List_Node' is ever enhanced to allow for generalized pointers
-    // (e.g., a 'NodePtr' that is not a raw pointer), then this function
-    // will be responsible for constructing 'd_prev' and 'd_next', rather
-    // than just setting them to null:
+    // If 'List_Node' is ever enhanced to allow for generalized pointers (e.g.,
+    // a 'NodePtr' that is not a raw pointer), then this function will be
+    // responsible for constructing 'd_prev' and 'd_next', rather than just
+    // setting them to null:
     //
     //    new ((void*) BloombergLP::bsls::Util::addressOf(d_prev))
     //                                                        NodePtr(nullptr);
@@ -1706,10 +1706,9 @@ template <class VALUE>
 inline
 void bsl::List_Node<VALUE>::destroy()
 {
-    // If 'List_Node' is ever enhanced to allow for generalized pointers
-    // (e.g., a 'NodePtr' that is not a raw pointer), then this function
-    // will be responsible for calling the destructors for 'd_prev' and
-    // 'd_next':
+    // If 'List_Node' is ever enhanced to allow for generalized pointers (e.g.,
+    // a 'NodePtr' that is not a raw pointer), then this function will be
+    // responsible for calling the destructors for 'd_prev' and 'd_next':
     //
     //    d_prev.~NodePtr();
     //    d_next.~NodePtr();
@@ -1922,8 +1921,8 @@ list<VALUE, ALLOCATOR>::merge_imp(NodePtr node1,
     // state, with no disconnected nodes, before the comparison functor is
     // called.
 
-    // Having the two sublists be contiguous parts of the same list has
-    // the following advantages:
+    // Having the two sublists be contiguous parts of the same list has the
+    // following advantages:
     // 1. When we reach the end of a sublist, there is no "finalization"
     //    step where the end of the remaining sublist must be spliced onto the
     //    merged list.
@@ -2017,8 +2016,8 @@ list<VALUE, ALLOCATOR>::size_ref() const
 
 // 23.3.5.2 construct/copy/destroy:
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>::list(const ALLOCATOR& allocator)
-: d_alloc_and_size(allocator, 0)
+list<VALUE, ALLOCATOR>::list(const ALLOCATOR& basicAllocator)
+: d_alloc_and_size(basicAllocator, 0)
 {
     create_sentinel();
 }
@@ -2045,8 +2044,8 @@ list<VALUE, ALLOCATOR>::list(size_type n)
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(size_type n,
                              const VALUE& value,
-                             const ALLOCATOR& allocator)
-: d_alloc_and_size(allocator, size_type(-1))
+                             const ALLOCATOR& basicAllocator)
+: d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2074,8 +2073,9 @@ list<VALUE, ALLOCATOR>::list(const list& original)
 }
 
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>::list(const list& original, const ALLOCATOR& allocator)
-: d_alloc_and_size(allocator, size_type(-1))
+list<VALUE, ALLOCATOR>::list(const list&      original,
+                             const ALLOCATOR& basicAllocator)
+: d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2101,12 +2101,12 @@ list<VALUE, ALLOCATOR>::list(list&& original)
 }
 
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>::list(list&& original, const ALLOCATOR& allocator)
-: d_alloc_and_size(allocator, size_type(-1))
+list<VALUE, ALLOCATOR>::list(list&& original, const ALLOCATOR& basicAllocator)
+: d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
-    if (allocator == original.allocator()) {
+    if (basicAllocator == original.allocator()) {
         create_sentinel();
         size_ref() = 0;  // '*this' is now in a valid state.
         quick_swap(original);
@@ -2136,20 +2136,20 @@ list<VALUE, ALLOCATOR>::~list()
 
 // MANIPULATORS
 template <class VALUE, class ALLOCATOR>
-list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& original)
+list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& rhs)
 {
-    if (this == &original) {
+    if (this == &rhs) {
         return *this;                                                 // RETURN
     }
 
     if (AllocTraits::propagate_on_container_copy_assignment::value &&
-        allocator() != original.allocator()) {
+        allocator() != rhs.allocator()) {
         // Completely destroy and rebuild list using new allocator.
 
         // Create a new list with the new allocator.  This operation might
         // throw, so we do it before destroying the old list.
 
-        list temp(original.get_allocator());
+        list temp(rhs.get_allocator());
 
         // Clear existing list and leave in an invalid but destructible state.
 
@@ -2157,14 +2157,14 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& original)
 
         // Assign allocator (required not to throw).
 
-        allocator() = original.allocator();
+        allocator() = rhs.allocator();
 
         // Now swap lists, leaving 'temp' in an invalid but destructible state.
 
         quick_swap(temp);
     }
 
-    assign(original.begin(), original.end());
+    assign(rhs.begin(), rhs.end());
     return *this;
 }
 
