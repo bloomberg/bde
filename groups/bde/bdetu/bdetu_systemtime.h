@@ -19,8 +19,8 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides static methods for retrieving system
 // time.  This component provides access to a monotonic clock, a realtime
 // (wall) clock, and also a dynamically replaceable callback mechanism for
-// determining system time; note that this mechanism does not affect the
-// 'now(bdetu_SystemClockType::Enum clockType)', 'nowMonotonicClock', and
+// determining system time; note that the callback mechanism does not affect
+// the 'now(bdetu_SystemClockType::Enum clockType)', 'nowMonotonicClock', and
 // 'nowRealtimeClock' methods.
 //
 // For applications that choose to define their own mechanism for determining
@@ -394,20 +394,6 @@ struct bdetu_SystemTime {
         // time using the currently installed callback function consistent with
         // 'now'.  Note that the returned value is in Utc.
 
-    static bdet_Datetime nowAsDatetime();
-        // Return the 'bdet_Datetime' value representing the current system
-        // time using the currently installed callback function consistent with
-        // 'now'.  Note that the returned value is in Utc.
-        //
-        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
-
-    static bdet_Datetime nowAsDatetimeGMT();
-        // Return the 'bdet_Datetime' value representing the current system
-        // time using the currently installed callback function consistent with
-        // 'now'.  Note that the returned value is in Utc.
-        //
-        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
-
     static bdet_Datetime nowAsDatetimeLocal();
         // Return the 'bdet_Datetime' value representing the current system
         // time in the local time zone using the currently installed system
@@ -471,17 +457,34 @@ struct bdetu_SystemTime {
 
                         // ** get current callbacks **
 
-    static SystemTimeCallback currentCallback();
-        // Return the currently installed 'SystemTimeCallback' function.
-        //
-        // DEPRECATED: replaced by 'currentSystemTimeCallback'
-
     static LoadLocalTimeOffsetCallback currentLoadLocalTimeOffsetCallback();
         // Return the currently installed 'LoadLocalTimeOffsetCallback'
         // function.
 
     static SystemTimeCallback currentSystemTimeCallback();
         // Return the currently installed 'SystemTimeCallback' function.
+
+                        // ** deprecated methods **
+
+    static bdet_Datetime nowAsDatetime();
+        // Return the 'bdet_Datetime' value representing the current system
+        // time using the currently installed callback function consistent with
+        // 'now'.  Note that the returned value is in Utc.
+        //
+        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
+
+    static bdet_Datetime nowAsDatetimeGMT();
+        // Return the 'bdet_Datetime' value representing the current system
+        // time using the currently installed callback function consistent with
+        // 'now'.  Note that the returned value is in Utc.
+        //
+        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
+
+    static SystemTimeCallback currentCallback();
+        // Return the currently installed 'SystemTimeCallback' function.
+        //
+        // DEPRECATED: replaced by 'currentSystemTimeCallback'
+
 };
 
 // ============================================================================
@@ -535,18 +538,6 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeUtc()
     return bdetu_Epoch::epoch() + datetimeInterval;
 }
 
-inline
-bdet_Datetime bdetu_SystemTime::nowAsDatetime()
-{
-    return nowAsDatetimeGMT();
-}
-
-inline
-bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
-{
-    return nowAsDatetimeUtc();
-}
-
                         // ** load methods **
 
 inline
@@ -595,13 +586,6 @@ bdetu_SystemTime::setSystemTimeCallback(
                         // ** get current callbacks **
 
 inline
-bdetu_SystemTime::SystemTimeCallback
-bdetu_SystemTime::currentCallback()
-{
-    return s_systime_callback_p;
-}
-
-inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
 bdetu_SystemTime::currentLoadLocalTimeOffsetCallback()
 {
@@ -611,6 +595,28 @@ bdetu_SystemTime::currentLoadLocalTimeOffsetCallback()
 inline
 bdetu_SystemTime::SystemTimeCallback
 bdetu_SystemTime::currentSystemTimeCallback()
+{
+    return s_systime_callback_p;
+}
+
+
+                        // ** deprecated methods **
+
+inline
+bdet_Datetime bdetu_SystemTime::nowAsDatetime()
+{
+    return nowAsDatetimeGMT();
+}
+
+inline
+bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
+{
+    return nowAsDatetimeUtc();
+}
+
+inline
+bdetu_SystemTime::SystemTimeCallback
+bdetu_SystemTime::currentCallback()
 {
     return s_systime_callback_p;
 }

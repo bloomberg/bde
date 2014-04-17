@@ -54,7 +54,7 @@ static bsls::AtomicOperations::AtomicTypes::Int g_calendarClock =
 static bsls::AtomicOperations::AtomicTypes::Int g_realtimeClock =
                                                      { k_UNINITIALIZED_CLOCK };
 
-static inline
+static
 clock_serv_t getClockService(clock_id_t       clockId,
                              bsls::AtomicInt& atomicClockStore)
     // Return a MACH clock service handle for the specified 'clockId'.  Use the

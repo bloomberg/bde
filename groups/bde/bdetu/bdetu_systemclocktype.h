@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Enumerate the set of clock types.
+//@PURPOSE: Enumerate the set of sytem clock types.
 //
 //@CLASSES:
 //  bdetu_SystemClockType: namespace for a clock type 'enum'
@@ -17,9 +17,9 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Alexei Zakharov, Jeffrey Mendelsohn (jmendelsohn4)
 //
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
-// 'bdetu_SystemTimeClock::Enum', which enumerates the set of clock types.  A
-// 'bdetu_SystemTimeClock' is particularly important when providing time-out
-// values to synchronization methods like 'timedWait' (e.g., see
+// 'bdetu_SystemTimeClock::Enum', which enumerates the set of system clock
+// types.  A 'bdetu_SystemTimeClock' is particularly important when providing
+// time-out values to synchronization methods like 'timedWait' (e.g., see
 // 'bcemt_condition') where those time-outs must be consistent in environments
 // where the system clocks may be changed.
 //
@@ -28,13 +28,16 @@ BDES_IDENT("$Id: $")
 //..
 //  Name          Description
 //  -----------   -------------------------------------------------------------
-//  e_REALTIME    System clock that measures real ("wall") time and is affected
-//                by all adjustments including discontinuous jumps "backwards".
+//  e_REALTIME    System clock that returns the current wall time maintained by
+//                the system, and which is affected by adjustments to the
+//                system's clock (i.e., time values returned may jump
+//                "forwards" and "backwards" as the current time-of-day is
+//                changed on the system).
 //
-//  e_MONOTONIC   System clock representing monotonic time since some
-//                unspecified starting point that is affected by incremental
-//                adjustments but the values returned by this clock are
-//                monotonic non-decreasing.
+//  e_MONOTONIC   System clock that returns the elapsed time since some
+//                unspecified starting point in the past.  The returned values
+//                are monotonically non-decreasing, and are generally not
+//                affected by changes to the system time.
 //..
 //
 ///USAGE
@@ -97,12 +100,16 @@ struct bdetu_SystemClockType {
     enum Enum {
         // Enumeration clock type values.
 
-        e_REALTIME,     // Clock corresponding to "wall" time (includes all
-                        // system adjustments).
+        e_REALTIME,   // System clock that returns the current wall time
+                      // maintained by the system, and which is affected by
+                      // adjustments to the system's clock (i.e., time values
+                      // returned may jump "forwards" and "backwards" as the
+                      // current time-of-day is changed on the system).
 
-        e_MONOTONIC,    // Monotonic non-decreasing clock which includes a
-                        // subset, dependant upon platform, of the adjustments
-                        // to the realtime clock.
+        e_MONOTONIC,  // System clock that returns the elapsed time since some
+                      // unspecified starting point in the past.  The returned
+                      // values are monotonically non-decreasing, and are
+                      // generally not affected by changes to the system time.
     };
 
     // CLASS METHODS
