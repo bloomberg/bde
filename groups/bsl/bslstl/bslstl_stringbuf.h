@@ -426,16 +426,16 @@ class basic_stringbuf
   public:
     // CREATORS
     explicit
-    basic_stringbuf(const allocator_type& allocator = allocator_type());
+    basic_stringbuf(const allocator_type& basicAllocator = allocator_type());
     explicit
     basic_stringbuf(ios_base::openmode    modeBitMask,
-                    const allocator_type& allocator = allocator_type());
+                    const allocator_type& basicAllocator = allocator_type());
     explicit
     basic_stringbuf(const StringType&     initialString,
-                    const allocator_type& allocator = allocator_type());
+                    const allocator_type& basicAllocator = allocator_type());
     basic_stringbuf(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type& allocator = allocator_type());
+                    const allocator_type& basicAllocator = allocator_type());
         // Create a 'basic_stringbuf' object.  Optionally specify a
         // 'modeBitMask' indicating whether this buffer may be read from,
         // written to, or both.  If 'modeBitMask' is not supplied, this buffer
@@ -443,13 +443,13 @@ class basic_stringbuf
         // an 'initialString' indicating the initial sequence of characters
         // that this buffer will access or manipulate.  If 'initialString' is
         // not supplied, the initial sequence of characters will be empty.
-        // Optionally specify an 'allocator' used to supply memory.  If
-        // 'allocator' is not supplied, a default-constructed object of the
-        // (template parameter) 'ALLOCATOR' type is used.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' (the default), then
-        // 'allocator', if supplied, shall be convertible to
+        // Optionally specify the 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is not supplied, a default-constructed object of
+        // the (template parameter) 'ALLOCATOR' type is used.  If the
+        // 'ALLOCATOR' argument is of type 'bsl::allocator' (the default), then
+        // 'basicAllocator', if supplied, shall be convertible to
         // 'bslma::Allocator *'.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' and 'allocator' is not supplied, the currently
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
     ~basic_stringbuf();
@@ -460,9 +460,9 @@ class basic_stringbuf
         // Reset the internally buffered sequence of characters to the
         // specified 'value'.  Update the beginning and end of both the input
         // and output sequences to be the beginning and end of the updated
-        // buffer, update the current input position to be the beginning of
-        // the updated buffer, and update the current output position to be the
-        // end of the updated buffer.
+        // buffer, update the current input position to be the beginning of the
+        // updated buffer, and update the current output position to be the end
+        // of the updated buffer.
 
     // ACCESSORS
     StringType str() const;
@@ -512,27 +512,27 @@ class StringBufContainer {
   public:
     // CREATORS
     explicit
-    StringBufContainer(const ALLOCATOR& allocator)
-    : d_bufObj(allocator)
+    StringBufContainer(const ALLOCATOR& basicAllocator)
+    : d_bufObj(basicAllocator)
     {
     }
 
     StringBufContainer(ios_base::openmode modeBitMask,
-                       const ALLOCATOR&   allocator)
-    : d_bufObj(modeBitMask, allocator)
+                       const ALLOCATOR&   basicAllocator)
+    : d_bufObj(modeBitMask, basicAllocator)
     {
     }
 
     StringBufContainer(const StringType& initialString,
-                       const ALLOCATOR&  allocator)
-    : d_bufObj(initialString, allocator)
+                       const ALLOCATOR&  basicAllocator)
+    : d_bufObj(initialString, basicAllocator)
     {
     }
 
     StringBufContainer(const StringType&  initialString,
                        ios_base::openmode modeBitMask,
-                       const ALLOCATOR&   allocator)
-    : d_bufObj(initialString, modeBitMask, allocator)
+                       const ALLOCATOR&   basicAllocator)
+    : d_bufObj(initialString, modeBitMask, basicAllocator)
     {
     }
 
@@ -746,9 +746,9 @@ native_std::streamsize
         return 0;                                                     // RETURN
     }
 
-    // Additional characters may become available for reading when the
-    // input area is extended to account for any characters newly written
-    // to the output sequence.
+    // Additional characters may become available for reading when the input
+    // area is extended to account for any characters newly written to the
+    // output sequence.
     extendInputArea();
 
     if (this->gptr() != this->egptr()) {
@@ -950,9 +950,9 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::int_type
 // CREATORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-    basic_stringbuf(const allocator_type& allocator)
+    basic_stringbuf(const allocator_type& basicAllocator)
 : BaseType()
-, d_str(allocator)
+, d_str(basicAllocator)
 , d_lastWrittenChar(0)
 , d_mode(ios_base::in | ios_base::out)
 {
@@ -962,9 +962,9 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_stringbuf(ios_base::openmode    modeBitMask,
-                    const allocator_type& allocator)
+                    const allocator_type& basicAllocator)
 : BaseType()
-, d_str(allocator)
+, d_str(basicAllocator)
 , d_lastWrittenChar(0)
 , d_mode(modeBitMask)
 {
@@ -974,9 +974,9 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_stringbuf(const StringType&     initialString,
-                    const allocator_type& allocator)
+                    const allocator_type& basicAllocator)
 : BaseType()
-, d_str(initialString, allocator)
+, d_str(initialString, basicAllocator)
 , d_lastWrittenChar(initialString.size())
 , d_mode(ios_base::in | ios_base::out)
 {
@@ -988,9 +988,9 @@ inline
 basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
     basic_stringbuf(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type& allocator)
+                    const allocator_type& basicAllocator)
 : BaseType()
-, d_str(initialString, allocator)
+, d_str(initialString, basicAllocator)
 , d_lastWrittenChar(initialString.size())
 , d_mode(modeBitMask)
 {
