@@ -424,9 +424,13 @@ bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::handleToId(
 inline
 bsls::Types::Uint64
 bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::idAsUint64(
-                                                             const Id& threadId)
+                                                            const Id& threadId)
 {
+#ifdef BSLS_PLATFORM_OS_DARWIN
+    return reinterpret_cast<bsls::Types::Uint64>(threadId);
+#else
     return static_cast<bsls::Types::Uint64>(threadId);
+#endif
 }
 
 

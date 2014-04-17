@@ -8,6 +8,12 @@
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+// Undefine some awkwardly named Windows macros that interfere with this cpp
+// file, but only after the last #include.
+# undef ERROR
+#endif
+
 using namespace BloombergLP;
 
 //=============================================================================

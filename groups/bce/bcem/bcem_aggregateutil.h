@@ -1950,7 +1950,6 @@ int bcem_AggregateUtil::toAggregateFromVector(
                                            const bsl::vector<TYPE>&  source,
                                            bdeat_TypeCategory::NullableValue)
 {
-    typedef typename TYPE::ValueType                           VALUE_TYPE;
     typedef typename
     bdeat_TypeCategory::Select<typename TYPE::ValueType>::Type TypeTag;
 

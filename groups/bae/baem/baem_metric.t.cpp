@@ -1,4 +1,4 @@
-// baem_metric.t.cpp  -*-C++-*-
+// baem_metric.t.cpp                                                  -*-C++-*-
 #include <baem_metric.h>
 
 #include <baem_metricregistry.h>
@@ -307,7 +307,6 @@ void MetricConcurrencyTest::runTest()
         baem_Metric d_failedRequests;
 
       public:
-
         // CREATORS
         EventManager()
         : d_messageSize("MyCategory", "EventManager/size")
@@ -406,8 +405,8 @@ int main(int argc, char *argv[])
 // Once the default instance has been created, it can be accessed using the
 // 'instance' operation
 //..
-        baem_MetricsManager *manager  = baem_DefaultMetricsManager::instance();
-                        ASSERT(0       != manager);
+        baem_MetricsManager *manager = baem_DefaultMetricsManager::instance();
+        ASSERT(0 != manager);
 //..
 // Note that the default metrics manager will be released when the
 // 'managerGuard' exits this scoped and is destroyed.  Clients that choose to

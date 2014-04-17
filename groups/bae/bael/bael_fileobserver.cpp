@@ -62,10 +62,10 @@ bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
                                      bool                  publishInLocalTime,
                                      bslma::Allocator     *basicAllocator)
 : d_logFileFormatter(DEFAULT_LONG_FORMAT,
-                     bdet_DatetimeInterval(0),
+                     publishInLocalTime,
                      basicAllocator)
 , d_stdoutFormatter(DEFAULT_LONG_FORMAT,
-                    bdet_DatetimeInterval(0),
+                    publishInLocalTime,
                     basicAllocator)
 , d_stdoutThreshold(stdoutThreshold)
 , d_useRegularFormatOnStdoutFlag(true)
@@ -76,12 +76,8 @@ bael_FileObserver::bael_FileObserver(bael_Severity::Level  stdoutThreshold,
 , d_fileObserver2(basicAllocator)
 {
     if (d_publishInLocalTime) {
-        d_logFileFormatter.setTimestampOffset(
-                                            d_fileObserver2.localTimeOffset());
-        d_stdoutFormatter.setTimestampOffset(
-                                            d_fileObserver2.localTimeOffset());
         d_fileObserver2.enablePublishInLocalTime();
-    }
+    } 
 }
 
 bael_FileObserver::~bael_FileObserver()
@@ -125,8 +121,12 @@ void bael_FileObserver::disablePublishInLocalTime()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_publishInLocalTime = false;
-    d_stdoutFormatter.setTimestampOffset(bdet_DatetimeInterval(0));
-    d_logFileFormatter.setTimestampOffset(bdet_DatetimeInterval(0));
+    d_stdoutFormatter.disablePublishInLocalTime();
+    d_logFileFormatter.disablePublishInLocalTime();
+
+    // Unfortunately, this is necessary because 'd_fileObserver2' has a *copy*
+    // of the log file formatter.
+
     d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 
@@ -166,8 +166,12 @@ void bael_FileObserver::enablePublishInLocalTime()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_publishInLocalTime = true;
-    d_stdoutFormatter.setTimestampOffset(d_fileObserver2.localTimeOffset());
-    d_logFileFormatter.setTimestampOffset(d_fileObserver2.localTimeOffset());
+    d_stdoutFormatter.enablePublishInLocalTime();
+    d_logFileFormatter.enablePublishInLocalTime();
+
+    // Unfortunately, this is necessary because 'd_fileObserver2' has a *copy*
+    // of the log file formatter.
+
     d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 

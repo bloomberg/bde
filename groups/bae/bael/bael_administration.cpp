@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bael_administration_cpp,"$Id$ $CSID$")
 #include <bael_loggercategoryutil.h>
 #include <bael_loggermanager.h>
 
+#include <bael_defaultobserver.h>         // for testing only
 #include <bael_testobserver.h>            // for testing only
 
 namespace BloombergLP {

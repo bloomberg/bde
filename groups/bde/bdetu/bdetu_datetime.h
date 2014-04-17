@@ -485,7 +485,7 @@ struct bdetu_Datetime {
         // Load into the specified 'result' the value of the specified
         // 'datetime'.  Each field in 'result' is set to its proper value
         // except 'tm_isdst', which is set to '-1' to indicate that no
-        // information on daylight savings time is available.  A time value of
+        // information on daylight saving time is available.  A time value of
         // 24:00:00:00 will be converted to 0:00:00.  Note that time zones are
         // irrelevant for this conversion.
 

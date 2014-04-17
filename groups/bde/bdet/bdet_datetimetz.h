@@ -205,7 +205,7 @@ BDES_IDENT("$Id: $")
 //  #endif
 //
 //      return bdet_Datetime(1900 + utcTime.tm_year,
-//                           utcTime.tm_mon,
+//                           utcTime.tm_mon + 1,
 //                           utcTime.tm_mday,
 //                           utcTime.tm_hour,
 //                           utcTime.tm_min,

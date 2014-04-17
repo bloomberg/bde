@@ -1889,7 +1889,7 @@ int main(int argc, char *argv[])
                 const int NUM_BLOCKS = testAllocator.numBlocksInUse();
                 const int NUM_BYTES  = testAllocator.numBytesInUse();
                 for (int j = 0; j < NUM_ODATA; ++j) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(NUM_POOLS, Z);
                     const int OBJ_SIZE = ODATA[j];
                     if (veryVerbose) { TAB; P(OBJ_SIZE); }
@@ -1902,21 +1902,21 @@ int main(int argc, char *argv[])
                         P_(pCalculatedPool); P(pRecordedPool);
                     }
                     LOOP2_ASSERT(i, j, pCalculatedPool == pRecordedPool);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                   LOOP2_ASSERT(i, j, NUM_BLOCKS ==
                                                testAllocator.numBlocksInUse());
                   LOOP2_ASSERT(i, j, NUM_BYTES  ==
                                                 testAllocator.numBytesInUse());
                 }
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   Obj mX(NUM_POOLS, Z);
                   char *p = (char *) mX.allocate(2048);  // "overflow" pool
                   LOOP_ASSERT(i, p);
                   const int pRecordedPool = recPool(p);
                   if (veryVerbose) { TAB; P_((void *)p); P(pRecordedPool); }
                   LOOP_ASSERT(i, -1 == pRecordedPool);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 LOOP_ASSERT(i, NUM_BLOCKS == testAllocator.numBlocksInUse());
                 LOOP_ASSERT(i, NUM_BYTES  == testAllocator.numBytesInUse());
             }

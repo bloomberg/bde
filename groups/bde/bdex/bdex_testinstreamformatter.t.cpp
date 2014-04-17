@@ -1245,9 +1245,7 @@ int main(int argc, char *argv[])
         //   and 'my_DoubleArray::streamIn' functions according to the
         //   following test plan.  Note that the 'bdex_TestInStreamFormatter'
         //   and 'bdex_TestOutStreamFormatter' components are used to test the
-        //   'my_DoubleArray' functionality.  Also note that the macros
-        //   'BEGIN_BSLMA_EXCEPTION_TEST' and 'END_BSLMA_EXCEPTION_TEST' are
-        //   defined to be empty here for simplicity.
+        //   'my_DoubleArray' functionality.
         // --------------------------------------------------------------------
         // TESTING STREAMING FUNCTIONALITY:
         //   1. The (free) streaming operators '<<' and '>>' are implemented
@@ -1415,7 +1413,6 @@ int main(int argc, char *argv[])
                         const int Z = ui == vi; // flag indicating same values
 
                         for (int vj = 0; vj < NUM_EXTEND; ++vj) {
-//                          BEGIN_BSLMA_EXCEPTION_TEST {
                           BEGIN_BDEX_EXCEPTION_TEST {
                             testInStream.reset();
                             const int V_N = EXTEND[vj];
@@ -1447,7 +1444,6 @@ int main(int argc, char *argv[])
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,  U == V);
 
                           } END_BDEX_EXCEPTION_TEST
-//                          } END_BSLMA_EXCEPTION_TEST
                         }
                     }
                 }
@@ -1489,7 +1485,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(ti, curLen == X.length());  // same lengths
 
                 for (int ei = 0; ei < NUM_EXTEND; ++ei) {
-//                  BEGIN_BSLMA_EXCEPTION_TEST {
                   BEGIN_BDEX_EXCEPTION_TEST {
                     testInStream.reset();
 
@@ -1515,7 +1510,6 @@ int main(int argc, char *argv[])
                                     LOOP2_ASSERT(ti, ei, X == t);
 
                   } END_BDEX_EXCEPTION_TEST
-//                  } END_BSLMA_EXCEPTION_TEST
                 }
             }
         }
@@ -1545,7 +1539,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { cout << "\t\t"; P(i); }
 
-//                BEGIN_BSLMA_EXCEPTION_TEST {
                 BEGIN_BDEX_EXCEPTION_TEST { in.reset();
 
                 LOOP_ASSERT(i, in);  LOOP_ASSERT(i, !i == (sb.length() == 0));
@@ -1593,7 +1586,6 @@ int main(int argc, char *argv[])
                 w3 = Z3;        LOOP_ASSERT(i, Z3 == w3);
 
                 } END_BDEX_EXCEPTION_TEST
-//                } END_BSLMA_EXCEPTION_TEST
             }
         }
         if (verbose) cout << "\tOn corrupted data." << endl;

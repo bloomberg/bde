@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
 //..
 // Next we create a series of transitions between these local-time descriptors
 // for the years 2007-2011.  Note that the United States transitions to
-// daylight savings time on the second Sunday in March, at 2am local time
+// daylight saving time on the second Sunday in March, at 2am local time
 // (07:00 UTC), and transitions back to standard time on the first Sunday in
 // November at 2am local time (06:00 UTC), resulting in an even number of
 // transitions:

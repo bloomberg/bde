@@ -19,7 +19,10 @@ using namespace BloombergLP;
 //                                 Overview
 //                                 --------
 //-----------------------------------------------------------------------------
+// FREE OPERATORS
+// [ 2] bsl::ostream& operator(bsl::ostream&, baexml_Reader::NodeType);
 //-----------------------------------------------------------------------------
+// [ 3] USAGE EXMAPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -841,7 +844,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -883,6 +886,58 @@ int main(int argc, char *argv[])
 
         usageExample();
 
+      } break;
+      case 2: {
+        // ------------------------------------------------------------------
+        // NODETYPE STREAMING
+        //
+        // Concerns:
+        //: 1 Streaming a NodeType enumeration value results in the same
+        //:   string as calling 'nodeTypeAsString()'.
+        //
+        // Plan:
+        //: 1 Stream various NodeType values to a string stream and compare
+        //:   the results to 'nodeTypeAsString()'. (C-1)
+        //
+        // Testing:
+        //   bsl::ostream& operator(bsl::ostream&, baexml_Reader::NodeType);
+        // ------------------------------------------------------------------
+
+        if (verbose) bsl::cout      << bsl::endl
+            << "NODETYPE STREAMING" << bsl::endl
+            << "==================" << bsl::endl;
+
+        static const baexml_Reader::NodeType DATA[] = {
+            baexml_Reader::BAEXML_NODE_TYPE_NONE,
+            baexml_Reader::BAEXML_NODE_TYPE_ELEMENT,
+            baexml_Reader::BAEXML_NODE_TYPE_TEXT,
+            baexml_Reader::BAEXML_NODE_TYPE_CDATA,
+            baexml_Reader::BAEXML_NODE_TYPE_ENTITY_REFERENCE,
+            baexml_Reader::BAEXML_NODE_TYPE_ENTITY,
+            baexml_Reader::BAEXML_NODE_TYPE_PROCESSING_INSTRUCTION,
+            baexml_Reader::BAEXML_NODE_TYPE_COMMENT,
+            baexml_Reader::BAEXML_NODE_TYPE_DOCUMENT,
+            baexml_Reader::BAEXML_NODE_TYPE_DOCUMENT_TYPE,
+            baexml_Reader::BAEXML_NODE_TYPE_DOCUMENT_FRAGMENT,
+            baexml_Reader::BAEXML_NODE_TYPE_NOTATION,
+            baexml_Reader::BAEXML_NODE_TYPE_WHITESPACE,
+            baexml_Reader::BAEXML_NODE_TYPE_SIGNIFICANT_WHITESPACE,
+            baexml_Reader::BAEXML_NODE_TYPE_END_ELEMENT,
+            baexml_Reader::BAEXML_NODE_TYPE_END_ENTITY,
+            baexml_Reader::BAEXML_NODE_TYPE_XML_DECLARATION,
+            baexml_Reader::NodeType(31)   // out of range value
+        };
+        static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            baexml_Reader::NodeType NT = DATA[i];
+            if (veryVerbose) {
+                T_ bsl::cout << "Streaming " << NT << bsl::endl;
+            }
+            bsl::ostringstream os;
+            os << NT;
+            LOOP_ASSERT(NT, baexml_Reader::nodeTypeAsString(NT) == os.str());
+        }
       } break;
       case 1: {
             // ------------------------------------------------------------

@@ -592,6 +592,16 @@ class baexml_Reader {
         // Return the option flags.
 };
 
+// FREE OPERATORS
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, baexml_Reader::NodeType value)
+    // Print the specified node type 'value' to the specified 'stream' in
+    // human-readable form and return a modifiable reference to 'stream'.
+{
+    return stream << baexml_Reader::nodeTypeAsString(value);
+}
+
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================

@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
                          = bdesu_FilesystemUtil::open(s.str(),
                                                       Obj::e_OPEN_OR_CREATE,
                                                       Obj::e_READ_WRITE);
-            ASSERT(0 != fd);
+            ASSERT(bdesu_FilesystemUtil::k_INVALID_FD != fd);
 
             const char buffer[] = "testing";
             int bytes           = sizeof buffer;
@@ -593,8 +593,8 @@ int main(int argc, char *argv[])
         // create a new file
         bdesu_FilesystemUtil::FileDescriptor fd = bdesu_FilesystemUtil::open(
                                                          "tempfile",.
-                                                         Obj::e_OPEN_OR_CREATE,.
-                                                         Obj::e_READ_WRITE);.
+                                                         Obj::e_OPEN_OR_CREATE,
+                                                         Obj::e_READ_WRITE);
         ASSERT(fd != bdesu_FilesystemUtil::k_INVALID_FD);
         // allocate a buffer with the size equal to memory page size and
         // fill with some data
@@ -1999,7 +1999,7 @@ int main(int argc, char *argv[])
         Obj::FileDescriptor fd = Obj::open(fileName,
                                            Obj::e_OPEN_OR_CREATE,
                                            Obj::e_READ_WRITE);
-        ASSERT(0 != fd);
+        ASSERT(Obj::k_INVALID_FD != fd);
 
         const char buffer[] = "testing";
         int bytes           = sizeof buffer;
@@ -2084,7 +2084,7 @@ int main(int argc, char *argv[])
             Obj::FileDescriptor fd = Obj::open(fileName,
                                                Obj::e_OPEN_OR_CREATE,
                                                Obj::e_READ_WRITE);
-            ASSERT(0 != fd);
+            ASSERT(Obj::k_INVALID_FD != fd);
 
             const char buffer[] = "testing";
             int bytes           = sizeof buffer;
@@ -2645,16 +2645,16 @@ int main(int argc, char *argv[])
         //:   any, are preserved.
         //
         // Plan:
-        //: 1  Create a file in append mode, write a charater, use seek to
-        //:    change the position of output, write another character, and
-        //:    verify that the new character is added after the original
-        //:    character.
+        //: 1 Create a file in append mode, write a character, use seek to
+        //:   change the position of output, write another character, and
+        //:   verify that the new character is added after the original
+        //:   character.
         //:
-        //: 2  Reopen the file in append mode, write a charater and ensure that
-        //:    it is added to the end of the file.
+        //: 2 Reopen the file in append mode, write a character and ensure that
+        //:   it is added to the end of the file.
         //:
-        //: 3  Reopen the file in normal mode, write a charater and ensure that
-        //:    it overwrites the data in the file instead of appending to it.
+        //: 3 Reopen the file in normal mode, write a character and ensure that
+        //:   it overwrites the data in the file instead of appending to it.
         //:
         //: 4  Note that the !EXISTS case should be tested before the EXISTS
         //: cases, so that we can establish that 'open' is capable of creating
@@ -2673,7 +2673,7 @@ int main(int argc, char *argv[])
             k_READ_BUFFER_SIZE = 64
         };
 
-        if (verbose) cout << "\nBoostrap, phase 1: 'open' file mode."
+        if (verbose) cout << "\nBootstrap, phase 1: 'open' file mode."
                           << endl;
         {
             const Obj::FileOpenPolicy OP = Obj::e_OPEN;
@@ -2827,7 +2827,7 @@ int main(int argc, char *argv[])
                 Obj::FileDescriptor fd = Obj::open(
                                 fileName, OPEN_POLICY, IO_POLICY, INIT_POLICY);
                 LOOP3_ASSERT(LINE, EXP_SUCCESS, fd,
-                                       EXP_SUCCESS == (Obj::k_INVALID_FD != fd));
+                                     EXP_SUCCESS == (Obj::k_INVALID_FD != fd));
 
                 if (Obj::k_INVALID_FD == fd) {
                     // Expected failure.  We can do no more testing with an
@@ -2896,7 +2896,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nBoostrap, phase 2: basic IO test."
+        if (verbose) cout << "\nBootstrap, phase 2: basic IO test."
                           << endl;
         {
             bsl::string fileName(tempFileName());
@@ -2978,7 +2978,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                            "\nBoostrap, phase 3: 'read' and 'write'."
+                            "\nBootstrap, phase 3: 'read' and 'write'."
                           << endl;
         {
             const char blockA[]   = { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
@@ -3321,7 +3321,7 @@ int main(int argc, char *argv[])
                 int bytesRead = Obj::read(fd, buffer, 1);
                 LOOP2_ASSERT(lengths[i], bytesRead, 1 == bytesRead);
 
-                //  Confirm that read occured at end position of write.
+                //  Confirm that read occurred at end position of write.
 
                 LOOP2_ASSERT(lengths[i], buffer[0],
                                               buffer[0] == blockA[lengths[i]]);
@@ -3422,7 +3422,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\nBoostrap, phase 4: 'seek'."
+        if (verbose) cout << "\nBootstrap, phase 4: 'seek'."
                           << endl;
         {
             const char blockA[]   = { 'a', 'b', 'c', 'd', 'e', 'f', 'g' };
@@ -3712,7 +3712,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                        "\nBoostrap, phase 5: 'open' with truncation."
+                        "\nBootstrap, phase 5: 'open' with truncation."
                           << endl;
         {
             const Obj::FileOpenPolicy OP = Obj::e_OPEN;
@@ -3864,7 +3864,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                            "\nBoostrap, phase 6: 'open' with append."
+                            "\nBootstrap, phase 6: 'open' with append."
                           << endl;
         {
             const Obj::FileOpenPolicy OP = Obj::e_OPEN;
@@ -4297,6 +4297,48 @@ int main(int argc, char *argv[])
                 }
 
                 Obj::close(fd);
+                Obj::remove(fileName);
+            }
+        }
+
+        if (verbose) cout << "\nNegative testing" << endl;
+        {
+            bsl::string fileName(tempFileName());
+
+            if (Obj::exists(fileName)) {
+                Obj::remove(fileName);
+            }
+            LOOP_ASSERT(fileName, !Obj::exists(fileName));
+
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            {
+                Obj::FileDescriptor fd = Obj::k_INVALID_FD;
+
+                ASSERT_PASS(fd = Obj::open(fileName.c_str(),
+                                           Obj::e_OPEN_OR_CREATE,
+                                           Obj::e_READ_ONLY));
+
+                if (fd != Obj::k_INVALID_FD) {
+                    Obj::close(fd);
+                }
+            }
+
+            {
+                Obj::FileDescriptor fd = Obj::k_INVALID_FD;
+
+                ASSERT_FAIL(fd = Obj::open(0,
+                                           Obj::e_OPEN_OR_CREATE,
+                                           Obj::e_READ_ONLY));
+
+                ASSERT(Obj::k_INVALID_FD == fd);
+                if (fd != Obj::k_INVALID_FD) {
+                    Obj::close(fd);
+                }
+            }
+
+            if (Obj::exists(fileName)) {
                 Obj::remove(fileName);
             }
         }

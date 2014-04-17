@@ -262,7 +262,7 @@ namespace UsageExample4 {
 // First, create a utility class that provides a method of type
 // 'bdetu_SystemTime::LoadLocalTimeOffsetCallback' that is valid for the
 // location of interest (New York) for the period of interest (the year 2013).
-// Note that the transition times into and out of daylight savings for
+// Note that the transition times into and out of daylight saving for
 // New York are given in UTC.
 //..
     struct MyLocalTimeOffsetUtilNewYork2013 {

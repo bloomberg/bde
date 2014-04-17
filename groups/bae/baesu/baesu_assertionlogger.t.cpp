@@ -1,8 +1,11 @@
 // baesu_AssertionLogger.t.cpp                                        -*-C++-*-
 
-// Force assertion in string to trigger.
+// Try to force assertion in string to trigger, for the usage example.
+#undef  BDE_BUILD_TARGET_SAFE_2
 #define BDE_BUILD_TARGET_SAFE_2
+#undef  BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_SAFE
+#undef  BDE_BUILD_TARGET_OPT
 #define BDE_BUILD_TARGET_OPT
 
 #include <baesu_assertionlogger.h>

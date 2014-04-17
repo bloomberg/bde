@@ -19,6 +19,7 @@
 #include <bdesu_processutil.h>
 #include <bdetu_datetime.h>
 #include <bdetu_systemtime.h>
+#include <bdeut_strtokeniter.h>
 
 #include <bsls_platform.h>                    // for testing only
 
@@ -410,6 +411,163 @@ class LogRotationCallbackTester {
 
 typedef LogRotationCallbackTester RotCb;
 
+struct TestSystemTimeCallback {
+  private:
+    // DATA
+    static bdet_TimeInterval s_utcTime;
+
+  public:
+    // CLASS METHODS
+    static void load(bdet_TimeInterval *result);
+        // Load, into the specified 'result', the value corresponding to the
+        // most recent call to the 'setTimeToReport' method.  The behavior is
+        // undefined unless 'setUtcTime' has been called.
+
+    static void setUtcDatetime(const bdet_Datetime& utcTime);
+        // Set the specified 'utcTime' as the value obtained (after conversion
+        // to 'bdetu_TimeInterval') from calls to the 'load' method.  The
+        // behavior is undefined unless 'bdetu_Epoch::epoch() <= utcTime'.
+};
+
+bdet_TimeInterval TestSystemTimeCallback::s_utcTime;
+
+void TestSystemTimeCallback::load(bdet_TimeInterval *result)
+{
+    ASSERT(result);
+    *result = s_utcTime;
+}
+
+void TestSystemTimeCallback::setUtcDatetime(const bdet_Datetime &utcTime)
+{
+    ASSERT(bdetu_Epoch::epoch() <= utcTime);
+
+    int rc = bdetu_Epoch::convertToTimeInterval(&s_utcTime, utcTime);
+    ASSERT(0 == rc);
+}
+
+struct TestLocalTimeOffsetCallback {
+  private:
+    // DATA
+    static int s_localTimeOffsetInSeconds;
+    static int s_loadCount;
+
+  public:
+    // CLASS METHODS
+    static void loadLocalTimeOffset(int                  *result,
+                                    const bdet_Datetime&  utcDatetime);
+        // Load, to the specified 'result', the local time offset (in seconds)
+        // that was set by the previous call to the 'setLocalTimeOffset'
+        // method.  If the 'setLocalTimeOffset' method has not been called,
+        // load 0.  Note that the specified 'utcDateime' is ignored.
+
+    static void setLocalTimeOffset(int localTimeOffsetInSeconds);
+        // Set the specified 'localTimeOffsetInSeconds' as the value loaded by
+        // calls to the loadLocalTimeOffset' method.
+
+    static int loadCount();
+        // Return the number of times the 'loadLocalTimeOffset' method has been
+        // called since the start of process.
+};
+
+int TestLocalTimeOffsetCallback::s_localTimeOffsetInSeconds = 0;
+int TestLocalTimeOffsetCallback::s_loadCount                = 0;
+
+void TestLocalTimeOffsetCallback::loadLocalTimeOffset(
+                                             int                  *result,
+                                             const bdet_Datetime&  utcDatetime)
+{
+    ASSERT(result);
+    *result = s_localTimeOffsetInSeconds;
+    ++s_loadCount;
+}
+
+void TestLocalTimeOffsetCallback::setLocalTimeOffset(
+                                                  int localTimeOffsetInSeconds)
+{
+    s_localTimeOffsetInSeconds = localTimeOffsetInSeconds;
+}
+
+int TestLocalTimeOffsetCallback::loadCount()
+{
+    return s_loadCount;
+}
+
+void splitStringIntoLines(bsl::vector<bsl::string> *result,
+                          const char               *ascii)
+{
+    ASSERT(result)
+    ASSERT(ascii)
+
+    for (bdeut_StrTokenIter itr(ascii, 0, "\n"); itr; ++itr) {
+       if (bsl::strlen(itr()) > 0) {
+           result->push_back(itr());
+       }
+    }
+}
+
+int readFileIntoString(int lineNum, const bsl::string& filename,
+                       bsl::string& fileContent)
+{
+#ifdef BSLS_PLATFORM_OS_UNIX
+    glob_t globbuf;
+    LOOP_ASSERT(lineNum, 0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
+    LOOP_ASSERT(lineNum, 1 == globbuf.gl_pathc);
+
+    bsl::ifstream fs;
+    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+    globfree(&globbuf);
+    LOOP_ASSERT(lineNum, fs.is_open());
+    fileContent = "";
+    bsl::string lineContent;
+    int lines = 0;
+    while (getline(fs, lineContent))
+    {
+        fileContent += lineContent;
+        fileContent += '\n';
+        lines++;
+    }
+    fs.close();
+    //bsl::cerr << "number of lines: " << lines << endl;
+    return lines;
+#else
+    bsl::ifstream fs;
+    fs.open(filename.c_str(), bsl::ifstream::in);
+    LOOP_ASSERT(lineNum, fs.is_open());
+    fileContent = "";
+    bsl::string lineContent;
+    int lines = 0;
+    while (getline(fs, lineContent))
+    {
+        fileContent += lineContent;
+        fileContent += '\n';
+        lines++;
+    }
+    fs.close();
+    //bsl::cerr << "number of lines: " << lines << endl;
+    return lines;
+#endif
+}
+
+void getDatetimeField(bsl::string       *result,
+                      const bsl::string& filename,
+                      int                recordNumber)
+{
+    ASSERT(1 <= recordNumber);
+
+    bsl::string fileContent;
+    int lineCount = readFileIntoString(__LINE__, filename, fileContent);
+    ASSERT(recordNumber * 2 <= lineCount);
+
+    bsl::vector<bsl::string> lines;
+    splitStringIntoLines(&lines, fileContent.c_str());
+    int recordIndex = recordNumber  - 1;
+    ASSERT(0            <= recordIndex);
+    ASSERT(lines.size() >  recordIndex);
+
+    const bsl::size_t dateFieldLength = bsl::strlen("23DEC2013_16:40:44.052");
+    *result = lines[recordIndex].substr(0, dateFieldLength);
+}
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -431,6 +589,380 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING: Published Records Show Current Local-Time Offset
+        //   Per DRQS 13681097, log records observe DST time transitions when
+        //   the default logging functor is used and the 'publishInLocalTime'
+        //   attribute is 'true'.
+        //
+        // Concern:
+        //: 1 Log records show the current local time offset (possibly
+        //:   different from the local time offset in effect on construction),
+        //:   when 'true == isPublishInLocalTimeEnabled()'.
+        //:
+        //: 2 Log records show UTC when
+        //:   'false == isPublishInLocalTimeEnabled()'.
+        //:
+        //: 3 QoI: The local-time offset is obtained not more than once per log
+        //:   record.
+        //:
+        //: 4 The helper class 'TestSystemTimeCallback' has a method, 'load',
+        //:   that loads the user-specified UTC time, and that method can be
+        //:   installed as the system-time callback of 'bdetu_SystemTime'.
+        //:
+        //: 5 The helper class 'TestLocalTimeOffsetCallback' has a method,
+        //:   'loadLocalTimeOffset', that loads the user-specified local-time
+        //:   offset value, and that method can be installed as the local-time
+        //:   callback of 'bdetu_SystemTime', and that the value loaded is not
+        //:   influenced by the user-specified 'utcDatetime'.
+        //:
+        //: 6 The helper class method 'TestLocalTimeOffsetCallback::loadCount'
+        //:   provides an accurate count of the calls to the
+        //:   'TestLocalTimeOffsetCallback::loadLocalTimeOffset' method.
+        //
+        // Plan:
+        //: 1 Test the helper 'TestSystemTimeCallback' class (C-4):
+        //:
+        //:   1 Using the array-driven technique, confirm that the 'load'
+        //:     method obtains the value last set by the 'setUtcDatetime'
+        //:     method.  Use UTC values that do not coincide with the actual
+        //:     UTC datetime.
+        //:
+        //:   2 Install the 'TestSystemTimeCallback::load' method as the
+        //:     system-time callback of system-time offset callback of
+        //:     'bdetu_SystemTime', and run through the same values as used in
+        //:     P-1.1.  Confirm that values returned from 'bdetu_SystemTime'
+        //:     match the user-specified values.
+        //:
+        //: 2 Test the helper 'TestLocalTimeOffsetCallback' class (C-5):
+        //:
+        //:   1 Using the array-driven technique, confirm that the
+        //:     'loadLocalTimeOffset' method obtains the value last set by the
+        //:     'setLocalTimeOffset' method.  At least one value should differ
+        //:     from the current, actual local-time offset.
+        //:
+        //:   2 Install the 'TestLocalTimeOffsetCallback::loadLocalTimeOffset'
+        //:     method as the local-time offset callback of 'bdetu_SystemTime',
+        //:     and run through the same same user-specified local time offsets
+        //:     as used in P-2.1.  Confirm that values returned from
+        //:     'bdetu_SystemTime' match the user-specified values.  Repeat the
+        //:     request for (widely) different UTC datetime values to confirm
+        //:     that the local time offset value remains that defined by the
+        //:     callback.
+        //:
+        //:   3 Confirm that the value returned by the 'loadCount' method
+        //:     increases by exactly 1 each time a local-time offset is
+        //:     obtained via 'bdetu_SystemTime'.  (C-6)
+        //:
+        //: 3 Using an ad hoc approach, confirm that the datetime field of a
+        //:   published log record is the expected (arbitrary) UTC datetime
+        //:   value when publishing in local-time is disabled.  Enable
+        //:   publishing in local-time and confirm that the published datetime
+        //:   field matches that of the (arbitrary) user-defined local-time
+        //:   offsets.  Disable publishing in local time, and confirm that log
+        //:   records are again published with the UTC datetime.  (C-1, C-2)
+        //:
+        //: 4 When publishing in local time is enabled, confirm that that there
+        //:   exactly 1 request for local time offset for each published
+        //:   record.  (C-3);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout
+         << endl
+         << "TESTING: Published Records Show Current Local-Time Offset" <<endl
+         << "=========================================================" <<endl;
+
+        const bdet_Datetime UTC_ARRAY[] = { bdetu_Epoch::epoch(),
+                                        bdet_Datetime(2001,
+                                                         9,
+                                                        11,
+                                                     8 + 4, // UTC
+                                                        46,
+                                                        30,
+                                                         0),
+                                        bdet_Datetime(9999,
+                                                        12,
+                                                        31,
+                                                        23,
+                                                        59,
+                                                        59,
+                                                       999)
+                                      };
+        const int NUM_UTC_ARRAY = sizeof UTC_ARRAY / sizeof *UTC_ARRAY;
+
+        if (verbose) cout << "\nTest TestSystemTimeCallback: Direct" << endl;
+        {
+            for (int i = 0; i < NUM_UTC_ARRAY; ++i) {
+                bdet_Datetime utcDatetime = UTC_ARRAY[i];
+
+                if (veryVerbose) { T_() P_(i) P(utcDatetime) }
+
+                bdet_TimeInterval result;
+
+                TestSystemTimeCallback::setUtcDatetime(utcDatetime);
+                TestSystemTimeCallback::load(&result);
+
+                bdet_Datetime resultAsDatetime =
+                                  bdetu_Epoch::convertFromTimeInterval(result);
+                LOOP_ASSERT(i, utcDatetime == resultAsDatetime);
+            }
+        }
+
+        if (verbose) cout << "\nTest TestSystemTimeCallback: Installed"
+                          << endl;
+        {
+            // Install callback from 'TestSystemTimeCallback'.
+
+            bdetu_SystemTime::SystemTimeCallback originalSystemTimeCallback =
+            bdetu_SystemTime::setSystemTimeCallback(
+                                                &TestSystemTimeCallback::load);
+
+            for (int i = 0; i < NUM_UTC_ARRAY; ++i) {
+                bdet_Datetime utcDatetime = UTC_ARRAY[i];
+
+                if (veryVerbose) { T_() P_(i) P(utcDatetime) }
+
+                TestSystemTimeCallback::setUtcDatetime(utcDatetime);
+
+                bdet_Datetime result1 = bdetu_SystemTime::nowAsDatetimeUtc();
+                bcemt_ThreadUtil::microSleep(0, 2); // two seconds
+                bdet_Datetime result2 = bdetu_SystemTime::nowAsDatetimeUtc();
+
+                LOOP_ASSERT(i, utcDatetime == result1);
+                LOOP_ASSERT(i, result2     == result1);
+            }
+
+           // Restore original system-time callback.
+
+           bdetu_SystemTime::setSystemTimeCallback(originalSystemTimeCallback);
+        }
+
+        const int     LTO_ARRAY[] = { -86399, -1, 0, 1, 86399 };
+        const int NUM_LTO_ARRAY   = sizeof LTO_ARRAY / sizeof *LTO_ARRAY;
+
+        int loadCount = TestLocalTimeOffsetCallback::loadCount();
+        ASSERT(0 ==  loadCount);
+
+        if (verbose) cout << "\nTest TestLocalTimeOffsetCallback: Direct"
+                          << endl;
+        {
+            for (int i = 0; i < NUM_LTO_ARRAY; ++i) {
+                int localTimeOffset = LTO_ARRAY[i];
+
+                if (veryVerbose) { T_() P_(i) P(localTimeOffset) }
+
+                TestLocalTimeOffsetCallback::setLocalTimeOffset(
+                                                              localTimeOffset);
+                for (int j = 0; j < NUM_UTC_ARRAY; ++j) {
+                    bdet_Datetime utcDatetime  = UTC_ARRAY[j];
+
+                    if (veryVerbose) { T_() T_() P_(j) P(utcDatetime) }
+
+                    int result;
+                    TestLocalTimeOffsetCallback::loadLocalTimeOffset(
+                                                                  &result,
+                                                                  utcDatetime);
+                    ++loadCount;
+
+                    LOOP2_ASSERT(i, j, localTimeOffset == result);
+                    LOOP2_ASSERT(i, j, loadCount       ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+                }
+            }
+
+        }
+
+        if (verbose) cout << "\nTest TestLocalTimeOffsetCallback: Installed"
+                          << endl;
+        {
+            bdetu_SystemTime::LoadLocalTimeOffsetCallback
+                                             originalLocalTimeOffsetCallback
+                           = bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
+                            &TestLocalTimeOffsetCallback::loadLocalTimeOffset);
+
+            for (int i = 0; i < NUM_LTO_ARRAY; ++i) {
+                int localTimeOffset = LTO_ARRAY[i];
+
+                if (veryVerbose) { T_() P_(i) P(localTimeOffset) }
+
+                TestLocalTimeOffsetCallback::setLocalTimeOffset(
+                                                              localTimeOffset);
+                for (int j = 0; j < NUM_UTC_ARRAY; ++j) {
+                    bdet_Datetime utcDatetime  = UTC_ARRAY[j];
+
+                    if (veryVerbose) { T_() T_() P_(j) P(utcDatetime) }
+
+                    int result;
+                    bdetu_SystemTime::loadLocalTimeOffset(&result,
+                                                          utcDatetime);
+                    ++loadCount;
+
+                    LOOP2_ASSERT(i, j, localTimeOffset == result);
+                    LOOP2_ASSERT(i, j, loadCount       ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+                }
+            }
+
+            bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
+                                              originalLocalTimeOffsetCallback);
+        }
+
+        if (verbose) cout << "\nTest Logger" << endl;
+
+        if (veryVerbose) cout << "\tConfigure Logger and Callbacks" << endl;
+
+        bael_LoggerManagerConfiguration configuration;
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        bsl::string BASENAME = tempFileName(veryVerbose);
+        P(BASENAME);
+        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str(), true));
+
+        bsl::string logfilename;
+        ASSERT(X.isFileLoggingEnabled(&logfilename));
+        P(logfilename);
+
+        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+        int                 logRecordCount  = 0;
+        int                 testLocalTimeOffsetInSeconds;
+        bsl::string         datetimeField;
+        bsl::ostringstream  expectedDatetimeField;
+        const bdet_Datetime testUtcDatetime = UTC_ARRAY[1];
+
+        bdetu_SystemTime::SystemTimeCallback originalSystemTimeCallback =
+        bdetu_SystemTime::setSystemTimeCallback(&TestSystemTimeCallback::load);
+        TestSystemTimeCallback::setUtcDatetime(testUtcDatetime);
+
+        bdetu_SystemTime::LoadLocalTimeOffsetCallback
+                                             originalLocalTimeOffsetCallback
+                           = bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
+                            &TestLocalTimeOffsetCallback::loadLocalTimeOffset);
+
+        int expectedLoadCount = TestLocalTimeOffsetCallback::loadCount();
+
+        if (veryVerbose) cout << "\tLog with Publish In Local Time Disabled"
+                              << endl;
+
+        ASSERT(!X.isPublishInLocalTimeEnabled());
+
+        BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END; ++logRecordCount;
+        getDatetimeField(&datetimeField, logfilename, logRecordCount);
+        expectedDatetimeField.str("");
+        expectedDatetimeField << testUtcDatetime;
+        if (veryVerbose) { T_()
+                           P_(expectedDatetimeField.str())
+                           P(datetimeField) }
+        ASSERT(expectedDatetimeField.str() == datetimeField);
+        ASSERT(expectedLoadCount           ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+        BAEL_LOG_TRACE << "log 2" << BAEL_LOG_END; ++logRecordCount;
+        getDatetimeField(&datetimeField, logfilename, logRecordCount);
+        expectedDatetimeField.str("");
+        expectedDatetimeField << testUtcDatetime;
+        if (veryVerbose) { T_()
+                           P_(expectedDatetimeField.str())
+                           P(datetimeField) }
+        ASSERT(expectedDatetimeField.str() == datetimeField);
+        ASSERT(expectedLoadCount           ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+        if (veryVerbose) cout << "\tLog with Publish In Local Time Enabled"
+                              << endl;
+
+        mX.enablePublishInLocalTime();
+        ASSERT(X.isPublishInLocalTimeEnabled());
+
+        testLocalTimeOffsetInSeconds = -1 * 60 * 60;
+        TestLocalTimeOffsetCallback::setLocalTimeOffset(
+                                                 testLocalTimeOffsetInSeconds);
+
+        if (veryVerbose) { T_() P(testLocalTimeOffsetInSeconds); }
+
+        BAEL_LOG_TRACE << "log 3" << BAEL_LOG_END; ++logRecordCount;
+                                                   ++expectedLoadCount;
+        getDatetimeField(&datetimeField, logfilename, logRecordCount);
+        expectedDatetimeField.str("");
+        expectedDatetimeField << testUtcDatetime +
+                                 bdet_DatetimeInterval(
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  testLocalTimeOffsetInSeconds,
+                                                  0);
+        if (veryVerbose) { T_()
+                           P_(expectedDatetimeField.str())
+                           P(datetimeField) }
+        ASSERT(expectedDatetimeField.str() == datetimeField);
+        ASSERT(expectedLoadCount           ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+        testLocalTimeOffsetInSeconds = -2 * 60 * 60;
+        TestLocalTimeOffsetCallback::setLocalTimeOffset(
+                                                 testLocalTimeOffsetInSeconds);
+
+        if (veryVerbose) { T_() P(testLocalTimeOffsetInSeconds); }
+
+        BAEL_LOG_TRACE << "log 4" << BAEL_LOG_END; ++logRecordCount;
+                                                   ++expectedLoadCount;
+        getDatetimeField(&datetimeField, logfilename, logRecordCount);
+        expectedDatetimeField.str("");
+        expectedDatetimeField << testUtcDatetime +
+                                 bdet_DatetimeInterval(
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  testLocalTimeOffsetInSeconds,
+                                                  0);
+        if (veryVerbose) { T_()
+                           P_(expectedDatetimeField.str())
+                           P(datetimeField) }
+        ASSERT(expectedDatetimeField.str() == datetimeField);
+        ASSERT(expectedLoadCount           ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+        mX.disablePublishInLocalTime();
+        ASSERT(!X.isPublishInLocalTimeEnabled());
+
+        BAEL_LOG_TRACE << "log 5" << BAEL_LOG_END; ++logRecordCount;
+                                                // ++expectedLoadCount;
+        getDatetimeField(&datetimeField, logfilename, logRecordCount);
+        expectedDatetimeField.str("");
+        expectedDatetimeField << testUtcDatetime;
+        if (veryVerbose) { T_()
+                           P_(expectedDatetimeField.str())
+                           P(datetimeField) }
+        ASSERT(expectedDatetimeField.str() == datetimeField);
+        ASSERT(expectedLoadCount           ==
+                                     TestLocalTimeOffsetCallback::loadCount());
+
+        if (veryVerbose) cout
+                           << "\tLog with Publish In Local Time Disabled Again"
+                           << endl;
+
+        if (veryVerbose) cout << "\tCleanup" << endl;
+
+        bdetu_SystemTime::setSystemTimeCallback(originalSystemTimeCallback);
+        bdetu_SystemTime::setLoadLocalTimeOffsetCallback(
+                                              originalLocalTimeOffsetCallback);
+
+        mX.disableFileLogging();
+        bdesu_FileUtil::remove(logfilename.c_str());
+
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION

@@ -170,7 +170,7 @@ int myResolveByNameCallback(bsl::vector<bteso_IPv4Address> *hostAddresses,
         if (errorCode) {
             *errorCode = NOT_FOUND;
         }
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     // Copy up to 'numAddresses' addresses (or all if 'numAddresses' is -1)
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
                     { L_,  "sdv3",              0, "10.122.130.92",  SUCCESS },
                     { L_,  "jlu_wrong",  &errCode, 0,                FAIL    },
                     { L_,  "jlu_wrong",         0, 0,                FAIL    },
-                    { L_,  "n299",       &errCode, "10.126.19.149",  SUCCESS },
+                    { L_,  "n299",       &errCode, "10.126.48.90",   SUCCESS },
                 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                     { L_,  "bny14",      &errCode, 0,                FAIL    },
                     { L_,  "bny14",             0, 0,                FAIL    },
@@ -527,10 +527,10 @@ int main(int argc, char *argv[])
                 // Cannot come up with any multi-homed hosts
                 // resolvable on BLP CORP PCs! TBD FIXME
 
-        const char* sundev1[] = { "172.17.1.20",   0 };
-        const char* sundev5[] = { "10.126.149.12", 0 };
-        const char* ibm1[]    = { "172.17.1.27",   0 };
-        const char* n100[]    = { "10.126.151.36", 0 };
+        const char* sundev1[] = { "172.17.1.20",    0 };
+        const char* sundev5[] = { "10.126.149.12",  0 };
+        const char* ibm1[]    = { "172.17.5.40",    0 };
+        const char* n100[]    = { "10.126.161.141", 0 };
             #endif
 
                 struct {
@@ -851,9 +851,9 @@ int main(int argc, char *argv[])
             // resolvable on BLP CORP PCs! TBD: FIXME!
 
             const char* sundev31[] = { "172.17.5.196",   0 };
-            const char* sundev5[]  = { "10.126.149.12", 0 };
-            const char* ibm1[]     = { "172.17.1.27",   0 };
-            const char* n100[]     = { "10.126.151.36", 0 };
+            const char* sundev5[]  = { "10.126.149.12",  0 };
+            const char* ibm1[]     = { "172.17.5.40",    0 };
+            const char* n100[]     = { "10.126.151.36",  0 };
         #endif
 
             struct {
@@ -992,12 +992,12 @@ int main(int argc, char *argv[])
             int errCode = UNUSED_VALUE;
 
             struct {
-              int         d_lineNum;      // line number
-              const char *d_serviceName;  // service name string
-              const char *d_protocol;     // protocol level
-              int        *d_errCode_p;    // NULL or valid address
-              short       d_expPort;      // expected port value
-              int         d_expRet;       // expected return value
+                int         d_lineNum;      // line number
+                const char *d_serviceName;  // service name string
+                const char *d_protocol;     // protocol level
+                int        *d_errCode_p;    // NULL or valid address
+                short       d_expPort;      // expected port value
+                int         d_expRet;       // expected return value
             } DATA[] =
             //  line   serviceName   protocol   errorCode  expPort   expRet
             //  ----   -----------   --------   ---------  -------   ------
@@ -1123,6 +1123,7 @@ int main(int argc, char *argv[])
 
             int errCode = UNUSED_VALUE;
 
+            const char *me[]      = { "127.0.0.1", 0 };
         #ifdef BSLS_PLATFORM_OS_UNIX
             // Cannot come up with any multi-homed hosts
             // resolvable on BLP CORP LINUX machines! TBD FIXME
@@ -1165,10 +1166,10 @@ int main(int argc, char *argv[])
             // Cannot come up with any multi-homed hosts
             // resolvable on BLP CORP PCs! TBD FIXME
 
-            const char* sundev1[] = { "172.17.1.20",   0 };
-            const char* sundev5[] = { "10.126.149.12", 0 };
-            const char* ibm1[]    = { "172.17.1.27",   0 };
-            const char* n100[]    = { "10.126.151.36", 0 };
+            const char* sundev1[] = { "172.17.1.20",    0 };
+            const char* sundev5[] = { "10.126.149.12",  0 };
+            const char* ibm1[]    = { "172.17.5.40",    0 };
+            const char* n100[]    = { "10.126.161.141", 0 };
         #endif
 
             struct {
@@ -1181,6 +1182,8 @@ int main(int argc, char *argv[])
             //  line  hostname              errorCode   expAddr     expRet
             //  ----  --------              ---------   -------     ------
             {
+                { L_, "localhost",          &errCode,      me,     SUCCESS },
+                { L_, "localhost",                 0,      me,     SUCCESS },
         #ifdef BSLS_PLATFORM_OS_UNIX
                 { L_, "jlu1",               &errCode,        0,       FAIL },
                 { L_, "jlu1",                      0,        0,       FAIL },
@@ -1353,8 +1356,8 @@ int main(int argc, char *argv[])
                 { L_,  "sdv3",              0,  "10.122.130.92",  SUCCESS },
                 { L_,  "jlu_wrong",  &errCode,  0,                FAIL    },
                 { L_,  "jlu_wrong",         0,  0,                FAIL    },
-                { L_,  "n270",       &errCode,  "10.126.17.150",  SUCCESS },
-                { L_,  "n299",       &errCode,  "10.126.19.149",  SUCCESS },
+                { L_,  "n270",       &errCode,  "10.126.45.63",   SUCCESS },
+                { L_,  "n299",       &errCode,  "10.126.48.90",   SUCCESS },
             #elif defined(BSLS_PLATFORM_OS_WINDOWS)
                 { L_,  "bny14",      &errCode,  0,                FAIL    },
                 { L_,  "bny14",             0,  0,                FAIL    },

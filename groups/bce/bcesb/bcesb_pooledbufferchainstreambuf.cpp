@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bcesb_pooledbufferchainstreambuf_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_algorithm.h>  // min
 #include <bsl_cstdio.h>
 
 // Note: on Windows -> WinDef.h:#define min(a,b) ...

@@ -2023,7 +2023,7 @@ int main(int argc, char *argv[])
                 }
             }
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 bslma::DefaultAllocatorGuard guard(&testAllocator);
                 tp.reset();
                 mX.publishAll();
@@ -2032,7 +2032,7 @@ int main(int argc, char *argv[])
                 ASSERT(2 == tp.invocations());
                 mX.publishAll();
                 ASSERT(3 == tp.invocations());
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
     } break;
@@ -2067,7 +2067,7 @@ int main(int argc, char *argv[])
             PubPtr pub_p(&tp, bcema_SharedPtrNilDeleter(), Z);
             mX.addGeneralPublisher(pub_p);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_CATEGORIES; ++i) {
                     for (int j = 0; j < NUM_METRICS; ++j) {
                         const char *CAT = CATEGORIES[i];
@@ -2079,7 +2079,7 @@ int main(int argc, char *argv[])
                         ASSERT(0 == mX.removeCollectionCallback(handle));
                     }
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             mX.publishAll();
             ASSERT(0 == tp.invocations());
@@ -2111,7 +2111,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator testAllocator;
             Obj mX(&testAllocator); const Obj& MX = mX;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 for (int i = 0; i < NUM_PUBS; ++i) {
                     // Verify that the set of general publishers is correct
                     bsl::vector<baem_Publisher *> publishers;
@@ -2140,7 +2140,7 @@ int main(int argc, char *argv[])
                     ASSERT(0 == MX.findSpecificPublishers(&publishers,
                                                           CATEGORIES[i]));
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
     } break;

@@ -6,6 +6,7 @@ BDES_IDENT_RCSID(baejsn_tokenizer_cpp,"$Id$ $CSID$")
 
 #include <bdeu_chartype.h>
 
+#include <bsl_ios.h>
 #include <bsl_streambuf.h>
 
 #include <baejsn_parserutil.h>                 // for testing only

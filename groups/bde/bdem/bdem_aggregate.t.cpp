@@ -3876,7 +3876,7 @@ DEFINE_TEST_CASE(37) {
                     cout << "\t\t"; P(R);
                 }
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   Table x(W, &testAllocator);  Table &X = x;
                   Table z(W, &testAllocator);  Table &Z = z;
                   {
@@ -4079,7 +4079,7 @@ DEFINE_TEST_CASE(37) {
                   }
                   LOOP_ASSERT(LINE, X == R);      // readonly is out of scope
                   LOOP_ASSERT(LINE, Z == R);      // readonly is out of scope
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       }
@@ -4389,7 +4389,7 @@ DEFINE_TEST_CASE(36) {
                     cout << "\t\t"; P(R);
                 }
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   List x(W, &testAllocator);  List &X = x;
                   List z(W, &testAllocator);  List &Z = z;
                   Row& rZ = Z.row();
@@ -4586,7 +4586,7 @@ DEFINE_TEST_CASE(36) {
                   }
                   LOOP_ASSERT(LINE, X == R);      // readonly is out of scope
                   LOOP_ASSERT(LINE, Z == R);      // readonly is out of scope
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       }
@@ -4857,7 +4857,7 @@ DEFINE_TEST_CASE(35) {
                     cout << "\t\t"; P(R);
                 }
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   List x(W, &testAllocator);  List &X = x;
                   Row& RX = X.row();
                   {
@@ -5015,7 +5015,7 @@ DEFINE_TEST_CASE(35) {
                       LOOP_ASSERT(LINE, RX == RY);
                   }
                   LOOP_ASSERT(LINE, X == R);      // readonly is out of scope
-               } END_BSLMA_EXCEPTION_TEST
+               } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       }
@@ -5286,7 +5286,7 @@ DEFINE_TEST_CASE(34) {
                   bslma::TestAllocator ta;
                   bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
 
                     Table x(DD, bdem_AggregateOption::BDEM_PASS_THROUGH,
                             &ta);
@@ -5305,7 +5305,7 @@ DEFINE_TEST_CASE(34) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -5329,7 +5329,7 @@ DEFINE_TEST_CASE(34) {
 
             Table R(PS, Z);
             if (veryVeryVerbose) P(R);
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
               const int AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
               Table U(bdem_AggregateOption::BDEM_PASS_THROUGH,
@@ -5353,7 +5353,7 @@ DEFINE_TEST_CASE(34) {
 
               U.appendNullRow();
               ASSERT(U.numRows() == 1);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << endl
@@ -5383,7 +5383,7 @@ DEFINE_TEST_CASE(34) {
                 appendToElemTypeArray(&SS, S_SPEC);
                 R.theModifiableRow(0).theModifiableTable(0).reset(SS);
                 if (veryVeryVerbose) P(R);
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   const int AL = testAllocator.allocationLimit();
                   testAllocator.setAllocationLimit(-1);
                   Table U(bdem_AggregateOption::BDEM_PASS_THROUGH, Z);
@@ -5407,7 +5407,7 @@ DEFINE_TEST_CASE(34) {
 
                   U.appendNullRow();
                   ASSERT(U.numRows() == 1);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
 
@@ -5435,7 +5435,7 @@ DEFINE_TEST_CASE(34) {
                 appendToElemTypeArray(&SS, S_SPEC);
                 R.theModifiableRow(0).theModifiableList(0).reset(SS);
                 if (veryVeryVerbose) P(R);
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                   const int AL = testAllocator.allocationLimit();
                   testAllocator.setAllocationLimit(-1);
                   Table U(bdem_AggregateOption::BDEM_PASS_THROUGH, Z);
@@ -5459,7 +5459,7 @@ DEFINE_TEST_CASE(34) {
 
                   U.appendNullRow();
                   ASSERT(U.numRows() == 1);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
       }
@@ -6057,7 +6057,7 @@ DEFINE_TEST_CASE(31) {
                 if (veryVerbose) cout << "\t\treplaceValues(di, sr, si, ne)"
                                       << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, optval, &testAllocator);
                     const List &X = x;
                     {
@@ -6070,13 +6070,13 @@ DEFINE_TEST_CASE(31) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
                     cout << "\t\treplaceValue(di, src, si)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, optval,
                            &testAllocator);
                     const List &X = x;
@@ -6091,7 +6091,7 @@ DEFINE_TEST_CASE(31) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
                 }
             }
@@ -6217,19 +6217,19 @@ DEFINE_TEST_CASE(30) {
                 if (veryVerbose)
                     cout << "\t\treplaceValues(di, sr, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     replaceValues(&x, DI, X, SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
                     cout << "\t\treplaceValue(di, sr, si)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
 
@@ -6237,7 +6237,7 @@ DEFINE_TEST_CASE(30) {
 
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -6371,7 +6371,7 @@ DEFINE_TEST_CASE(29) {
                 if (veryVerbose)
                     cout << "\t\treplaceValues(di, sr, si, ne)" << endl;
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     List x(DD, &testAllocator);  const List &X = x;
@@ -6380,12 +6380,12 @@ DEFINE_TEST_CASE(29) {
                     replaceValues(&x, DI, X.theList(YI), SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 if (veryVerbose)
                     cout << "\t\tassignment within row" << endl;
                 if (1 == NE) {
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const int AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
                         List x(DD, &testAllocator);  const List &X = x;
@@ -6405,13 +6405,13 @@ DEFINE_TEST_CASE(29) {
                             }
 //                             LOOP_ASSERT(LINE, EE == X);
                         }
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
                     cout << "\t\treplaceValue(di, sr, si)" << endl;
                 if (1 == NE) {
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const int AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
                         List x(DD, &testAllocator);  const List &X = x;
@@ -6421,7 +6421,7 @@ DEFINE_TEST_CASE(29) {
 
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
 //                         LOOP_ASSERT(LINE, EE == X);
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -6545,7 +6545,7 @@ DEFINE_TEST_CASE(28) {
                 if (veryVerbose)
                     cout << "\t\treplaceValues(di, sr, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     List x(DD, &testAllocator);  const List &X = x;
@@ -6556,13 +6556,13 @@ DEFINE_TEST_CASE(28) {
                     if (veryVerbose) {
                         cout << "\t\t\t AFTER: "; P(YI) P(DI) P(SI) P(NE) }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
                     cout << "\t\treplaceValue(di, sr, si)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     List x(DD, &testAllocator);  const List &X = x;
@@ -6572,7 +6572,7 @@ DEFINE_TEST_CASE(28) {
                                                      replaceValue(X.row()[SI]);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -6756,7 +6756,7 @@ DEFINE_TEST_CASE(26) {
                 }
 
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table mU(&testAllocator);
@@ -6771,11 +6771,11 @@ DEFINE_TEST_CASE(26) {
                     mU.makeRowsNull(SI, NE);
 
                     LOOP_ASSERT(LINE, mU == NN);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if ((int)strlen(SPEC) == NE && SI == 0) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table mU(&testAllocator);
                     hhx(&mU, COLSPEC, SPEC);
 
@@ -6787,11 +6787,11 @@ DEFINE_TEST_CASE(26) {
                     mU.makeAllNull();
 
                     LOOP3_ASSERT(LINE, mU, NN, mU == NN);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (NE == 1) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table mU(&testAllocator);
                     hhx(&mU, COLSPEC, SPEC);
                     if (veryVerbose) {
@@ -6802,7 +6802,7 @@ DEFINE_TEST_CASE(26) {
                     mU.theModifiableRow(SI).makeAllNull();
 
                     LOOP3_ASSERT(LINE, mU, EE, mU == EE);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -6877,7 +6877,7 @@ DEFINE_TEST_CASE(26) {
                 Table EE(h(E_SPEC));     // control for expected value
 
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table mU(&testAllocator);
                     hh(&mU, SPEC);
 
@@ -6891,11 +6891,11 @@ DEFINE_TEST_CASE(26) {
                     }
 
                     LOOP_ASSERT(LINE, mU == EE);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (NE == 1) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table mU(&testAllocator);
                     hh(&mU, SPEC);
 
@@ -6907,7 +6907,7 @@ DEFINE_TEST_CASE(26) {
                     mU.makeColumnNull(SI);
 
                     LOOP_ASSERT(LINE, mU == EE);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -6964,7 +6964,7 @@ DEFINE_TEST_CASE(26) {
                 Table EE(h(E_SPEC));     // control for expected value
 
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table mU(&testAllocator);
                     hh(&mU, SPEC);
 
@@ -6976,7 +6976,7 @@ DEFINE_TEST_CASE(26) {
                     mU.theModifiableRow(RI)[CI].makeNull();
 
                     LOOP3_ASSERT(LINE, mU, EE, mU == EE);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -7137,18 +7137,18 @@ DEFINE_TEST_CASE(25) {
 
                 if (veryVerbose) cout << "\t\tinsertNullRows(di, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; PR(X); }
                     x.insertNullRows(DI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP3_ASSERT(LINE, X, EE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsertNullRow(di)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; PR(X); }
                     x.insertNullRow(DI);
@@ -7156,25 +7156,25 @@ DEFINE_TEST_CASE(25) {
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP3_ASSERT(LINE, EE, X, EE  == X);
                     LOOP_ASSERT(LINE, &NR == &X[DI]);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                 if (veryVerbose) cout << "\t\tappendNullRows(ne)" << endl;
                 if ((int) strlen(D_SPEC) == DI) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; PR(X); }
                     x.appendNullRows(NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappendNullRow()" << endl;
                 if ((int) strlen(D_SPEC) == DI && 1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; PR(X); }
                     x.appendNullRow();
@@ -7182,7 +7182,7 @@ DEFINE_TEST_CASE(25) {
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, EE  == X);
                     LOOP_ASSERT(LINE, &NR == &X[X.numRows() - 1]);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -7483,7 +7483,7 @@ DEFINE_TEST_CASE(24) {
                 if (veryVerbose)
                     cout << "\t\treplaceRows(di, sa, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     {
                         Table s(SS, &testAllocator);  const Table &S = s;
@@ -7494,12 +7494,12 @@ DEFINE_TEST_CASE(24) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\treplaceRow(di, st, si)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     {
                         Table s(SS, &testAllocator);  const Table &S = s;
@@ -7512,12 +7512,12 @@ DEFINE_TEST_CASE(24) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\treplaceRow(di, row)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     {
                         Table s(SS, &testAllocator);  const Table &S = s;
@@ -7530,7 +7530,7 @@ DEFINE_TEST_CASE(24) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -7823,7 +7823,7 @@ DEFINE_TEST_CASE(24) {
                 if (veryVerbose)
                     cout << "\t\treplaceRows(di, sa, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
 
@@ -7831,12 +7831,12 @@ DEFINE_TEST_CASE(24) {
 
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\treplaceRow(di, st, si)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Table x(DD, &testAllocator);  const Table &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
 
@@ -7844,7 +7844,7 @@ DEFINE_TEST_CASE(24) {
 
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -7952,7 +7952,8 @@ DEFINE_TEST_CASE(23) {
                         for (int vj = 0; vj < NUM_EXTEND; ++vj) {
                           const int V_N = EXTEND[vj];
 
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
                             Table mU(&testAllocator);
@@ -7984,7 +7985,7 @@ DEFINE_TEST_CASE(23) {
                             }
                             // 'mV' (and therefore 'V') now out of scope
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
                     }
                 }
@@ -8023,7 +8024,7 @@ DEFINE_TEST_CASE(23) {
                 LOOP_ASSERT(ti, curLen == X.numRows());  // same lengths
 
                 for (int tj = 0; tj < NUM_EXTEND; ++tj) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -8043,7 +8044,7 @@ DEFINE_TEST_CASE(23) {
                     LOOP2_ASSERT(SPEC, N, Y == Y);
                     LOOP2_ASSERT(SPEC, N, X == Y);
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -8147,7 +8148,8 @@ DEFINE_TEST_CASE(22) {
 
                         for (int v = 0; v < NUM_PERMUTATIONS; ++v) {
 
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
                             List mU(&testAllocator);
@@ -8181,9 +8183,10 @@ DEFINE_TEST_CASE(22) {
                             }
                             // 'mV' (and therefore 'V') now out of scope
                             LOOP4_ASSERT(U_SPEC, u, V_SPEC, v, VV == U);
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
                             List mW(&testAllocator);
@@ -8215,7 +8218,7 @@ DEFINE_TEST_CASE(22) {
                             }
                             // 'mV' (and therefore 'V') now out of scope
                             LOOP4_ASSERT(U_SPEC, u, V_SPEC, v, VV == W);
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                         }
                     }
                 }
@@ -8253,7 +8256,7 @@ DEFINE_TEST_CASE(22) {
                 LOOP_ASSERT(ti, curLen == X.length());  // same lengths
 
                 for (int tj = 0; tj < NUM_EXTEND; ++tj) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -8273,7 +8276,7 @@ DEFINE_TEST_CASE(22) {
                     LOOP2_ASSERT(SPEC, N, Y == Y);
                     LOOP2_ASSERT(SPEC, N, X == Y);
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -8649,7 +8652,7 @@ DEFINE_TEST_CASE(21) {
                 if (veryVerbose)
                     cout << "\t\tinsertRows(di, sa, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -8663,12 +8666,12 @@ DEFINE_TEST_CASE(21) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsertRows(di, sa)" << endl;
                 if ((int) strlen(S_SPEC) == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -8682,12 +8685,12 @@ DEFINE_TEST_CASE(21) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsertRow(di, list)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -8701,14 +8704,14 @@ DEFINE_TEST_CASE(21) {
                         //LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                 if (veryVerbose) cout << "\t\tappendRows(sa, si, ne)" << endl;
                 if ((int) strlen(D_SPEC) == DI) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table& X = x;
@@ -8722,12 +8725,12 @@ DEFINE_TEST_CASE(21) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappendRows(sa)" << endl;
                 if ((int) strlen(D_SPEC) == DI && (int) strlen(S_SPEC) == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -8741,12 +8744,12 @@ DEFINE_TEST_CASE(21) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappendRow(table, idx)" << endl;
                 if ((int) strlen(D_SPEC) == DI && 1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -8760,12 +8763,12 @@ DEFINE_TEST_CASE(21) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappendRow(list)" << endl;
                 if ((int) strlen(D_SPEC) == DI && 1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -8779,13 +8782,15 @@ DEFINE_TEST_CASE(21) {
                         //LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                 if (veryVerbose) cout << "\t\tremoveRows(index, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched.
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(EE, &testAllocator);  const Table &X = x;
@@ -8795,13 +8800,15 @@ DEFINE_TEST_CASE(21) {
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, DD == X);
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tremoveAllRows()" << endl;
                 if (DI == 0 && strlen(D_SPEC) == 0)
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched.
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(EE, &testAllocator);  const Table &X = x;
@@ -8810,7 +8817,7 @@ DEFINE_TEST_CASE(21) {
                     x.removeAllRows();
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, DD == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // verify that table can be used after removing all rows
@@ -8831,7 +8838,9 @@ DEFINE_TEST_CASE(21) {
 
                 if (veryVerbose) cout << "\t\tremoveRow(index)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(EE, &testAllocator);  const Table &X = x;
@@ -8840,12 +8849,14 @@ DEFINE_TEST_CASE(21) {
                     x.removeRow(DI);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, DD == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tremoveAll()" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(EE, &testAllocator);  const Table &X = x;
@@ -8854,7 +8865,7 @@ DEFINE_TEST_CASE(21) {
                     x.removeAll();
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, MT == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -9217,7 +9228,7 @@ DEFINE_TEST_CASE(21) {
                 if (veryVerbose) cout << "\t\tinsertRows(di, sa, si, ne)"
                                       << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -9226,12 +9237,12 @@ DEFINE_TEST_CASE(21) {
                     x.insertRows(DI, X, SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsertRows(di, sa)" << endl;
                 if ((int) strlen(X_SPEC) == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -9240,12 +9251,12 @@ DEFINE_TEST_CASE(21) {
                     x.insertRows(DI, X);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tinsertRow(di, table, si)" <<endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -9254,14 +9265,14 @@ DEFINE_TEST_CASE(21) {
                     x.insertRow(DI, X, SI);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
                 if (veryVerbose) cout << "\t\tappendRows(sa, si, ne)" << endl;
                 if ((int) strlen(X_SPEC) == DI) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -9270,12 +9281,12 @@ DEFINE_TEST_CASE(21) {
                     x.appendRows(X, SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappendRows(sa)" << endl;
                 if ((int) strlen(X_SPEC) == DI && (int) strlen(X_SPEC) == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -9284,12 +9295,12 @@ DEFINE_TEST_CASE(21) {
                     x.appendRows(X);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\tappend(table, idx)" << endl;
                 if ((int) strlen(X_SPEC) == DI && 1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Table x(DD, &testAllocator);  const Table &X = x;
@@ -9298,7 +9309,7 @@ DEFINE_TEST_CASE(21) {
                     x.appendRow(X, SI);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; PR(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -9693,7 +9704,7 @@ DEFINE_TEST_CASE(20) {
                     if (veryVerbose) cout << "\t\treplace(di, sl, si, ne)"
                                           << endl;
                     {
-                      BEGIN_BSLMA_EXCEPTION_TEST {
+                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         List x(DD, optval,
                                &testAllocator);
                         const List &X = x;
@@ -9715,13 +9726,13 @@ DEFINE_TEST_CASE(20) {
                             LOOP_ASSERT(LINE, SS == S);   // source unchanged?
                         }
                         LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                      } END_BSLMA_EXCEPTION_TEST
+                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
 
                     if (veryVerbose) cout << "\t\treplace(di, src, si)"
                                           << endl;
                     if (1 == NE) {
-                      BEGIN_BSLMA_EXCEPTION_TEST {
+                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         List x(DD, optval,
                                &testAllocator);
                         const List &X = x;
@@ -9738,7 +9749,7 @@ DEFINE_TEST_CASE(20) {
                             LOOP_ASSERT(LINE, SS == S);    // source unchanged?
                         }
                         LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                      } END_BSLMA_EXCEPTION_TEST
+                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
                 }
             }
@@ -10091,24 +10102,24 @@ DEFINE_TEST_CASE(19) {
 
                 if (veryVerbose) cout << "\t\treplace(di, sl, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     replaceListElements(x, DI, X.row(), SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\treplace(di, sl, si)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     x.replaceElement(DI, X[SI]);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -10233,25 +10244,25 @@ DEFINE_TEST_CASE(18) {
 
                 if (veryVerbose) cout << "\t\treplace(di, sl, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     replaceListElements(x, DI, X.theList(YI).row(), SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\treplace(di, sl, si)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X);
                                        P(DI) P(YI) P(SI) }
                     x.replaceElement(DI, X.theList(YI)[SI]);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -10380,26 +10391,26 @@ DEFINE_TEST_CASE(17) {
 
                 if (veryVerbose) cout << "\t\treplace(di, sl, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); }
                     replaceListElements(x.theModifiableList(YI), DI, X.row(),
                                                                        SI, NE);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\treplace(di, sl, si)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     if (veryVerbose) { cout << "\t\t\tBEFORE: "; P(X); P(SI)
                                                                        P(YI) }
                     x.theModifiableList(YI).replaceElement(DI, X[SI]);
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, EE == X);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -11231,7 +11242,7 @@ DEFINE_TEST_CASE(16) {
                 {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -11248,7 +11259,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11258,7 +11269,7 @@ DEFINE_TEST_CASE(16) {
                 {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -11276,7 +11287,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11285,7 +11296,7 @@ DEFINE_TEST_CASE(16) {
                 if ((int)strlen(S_SPEC)/2 == NE) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -11302,7 +11313,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11311,7 +11322,7 @@ DEFINE_TEST_CASE(16) {
                 if ((int)strlen(S_SPEC)/2 == NE) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -11328,7 +11339,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11340,7 +11351,7 @@ DEFINE_TEST_CASE(16) {
                       cout << "\t\tinsertElement(di, sl, si)" << endl;
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -11357,7 +11368,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11365,7 +11376,7 @@ DEFINE_TEST_CASE(16) {
                 if (1 == NE) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -11486,7 +11497,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11494,7 +11505,7 @@ DEFINE_TEST_CASE(16) {
                 if (1 == NE && S_SPEC[2 * SI] == 'u') {
                     passCount = 0;
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       ++passCount;
 
                       List x(DD, &testAllocator);  const List &X = x;
@@ -11609,7 +11620,7 @@ DEFINE_TEST_CASE(16) {
                       }
                       LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                       LOOP_ASSERT(LINE, listInvariants(X));
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11617,7 +11628,7 @@ DEFINE_TEST_CASE(16) {
                 if (1 == NE) {
                     passCount = 0;
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       ++passCount;
 
                       List x(DD, &testAllocator);  const List &X = x;
@@ -11734,7 +11745,7 @@ DEFINE_TEST_CASE(16) {
                       }
                       LOOP_ASSERT(LINE, mExp == X);  // source is out of scope
                       LOOP_ASSERT(LINE, listInvariants(X));
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11742,7 +11753,7 @@ DEFINE_TEST_CASE(16) {
                 if (1 == NE) {
                     passCount = 0;
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       ++passCount;
 
                       List x(DD, &testAllocator);  const List &X = x;
@@ -11863,7 +11874,7 @@ DEFINE_TEST_CASE(16) {
                       }
                       LOOP_ASSERT(LINE, mExp == X);    // source out of scope
                       LOOP_ASSERT(LINE, listInvariants(X));
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11875,7 +11886,7 @@ DEFINE_TEST_CASE(16) {
                 if ((int)strlen(D_SPEC)/2 == DI) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -11892,7 +11903,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11902,7 +11913,7 @@ DEFINE_TEST_CASE(16) {
                     && (int)strlen(S_SPEC)/2 == NE) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     ASSERT(0 == SI);
@@ -11920,7 +11931,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11930,7 +11941,7 @@ DEFINE_TEST_CASE(16) {
                   if (veryVerbose) cout << "\t\tappendElement(sl[si])" << endl;
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -11947,7 +11958,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -11955,7 +11966,7 @@ DEFINE_TEST_CASE(16) {
                 if ((int)strlen(D_SPEC)/2 == DI && 1 == NE) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     ++passCount;
 
                     List x(DD, &testAllocator);  const List &X = x;
@@ -12080,7 +12091,7 @@ DEFINE_TEST_CASE(16) {
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) LOOP_ASSERT(passCount, passCount > 1);
                 }
@@ -12088,7 +12099,7 @@ DEFINE_TEST_CASE(16) {
                 if ((int)strlen(D_SPEC)/2 == DI && 1 == NE) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       ++passCount;
 
                       List x(DD, &testAllocator);  const List &X = x;
@@ -12206,7 +12217,7 @@ DEFINE_TEST_CASE(16) {
                       }
                       LOOP_ASSERT(LINE, mExp == X);
                       LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -12214,7 +12225,7 @@ DEFINE_TEST_CASE(16) {
                 if ((int)strlen(D_SPEC)/2 == DI && 1 == NE) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       ++passCount;
 
                       List x(DD, &testAllocator);  const List &X = x;
@@ -12334,7 +12345,7 @@ DEFINE_TEST_CASE(16) {
                       }
                       LOOP_ASSERT(LINE, mExp == X);
                       LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -12344,7 +12355,9 @@ DEFINE_TEST_CASE(16) {
                 {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched.
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     ++passCount;
 
                     List x(EE, &testAllocator);  const List &X = x;
@@ -12355,7 +12368,7 @@ DEFINE_TEST_CASE(16) {
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, DD == X);
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -12364,7 +12377,9 @@ DEFINE_TEST_CASE(16) {
                 if (1 == NE) {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     ++passCount;
 
                     List x(EE, &testAllocator);  const List &X = x;
@@ -12375,7 +12390,7 @@ DEFINE_TEST_CASE(16) {
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, DD == X);
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -12384,7 +12399,9 @@ DEFINE_TEST_CASE(16) {
                 {
                   passCount = 0;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {  // Note specs are switched.
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                    // Note that specs are switched.
+
                     ++passCount;
 
                     List x(EE, &testAllocator);  const List &X = x;
@@ -12394,7 +12411,7 @@ DEFINE_TEST_CASE(16) {
                     if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                     LOOP_ASSERT(LINE, MT == X);
                     LOOP_ASSERT(LINE, listInvariants(X));
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                   if (EXCEPTIONS_ON) ASSERT(passCount > 1);
                 }
@@ -12701,7 +12718,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     {
                         my_ElemTypeArray s(SS, &testAllocator);
@@ -12714,7 +12731,7 @@ DEFINE_TEST_CASE(15) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
@@ -12723,7 +12740,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     List mExp(EE, &testAllocator); const List& Exp = mExp;
                     for (int i = 0; i < SS.size(); ++i) {
@@ -12740,7 +12757,7 @@ DEFINE_TEST_CASE(15) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, Exp == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
@@ -12749,7 +12766,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     {
                         bdem_ElemType::Type elemType = SS[0];
@@ -12758,7 +12775,7 @@ DEFINE_TEST_CASE(15) {
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
@@ -12767,7 +12784,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     List mExp(EE, &testAllocator); const List& Exp = mExp;
                     mExp[DI].makeNull();
@@ -12778,7 +12795,7 @@ DEFINE_TEST_CASE(15) {
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, Exp == X);
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
@@ -12787,7 +12804,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     {
                         my_ElemTypeArray s(SS, &testAllocator);
@@ -12800,7 +12817,7 @@ DEFINE_TEST_CASE(15) {
                         LOOP_ASSERT(LINE, SS == S);    // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
@@ -12809,7 +12826,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List mExp(EE, &testAllocator); const List& Exp = mExp;
                     for (int i = 0; i < SS.size(); ++i) {
                         mExp[DI + i].makeNull();
@@ -12826,7 +12843,7 @@ DEFINE_TEST_CASE(15) {
                         LOOP_ASSERT(LINE, SS == S);    // source unchanged?
                     }
                     LOOP_ASSERT(LINE, Exp == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
@@ -12835,7 +12852,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     {
                         bdem_ElemType::Type elemType = SS[0];
@@ -12844,7 +12861,7 @@ DEFINE_TEST_CASE(15) {
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, EE == X);
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose)
@@ -12853,7 +12870,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     List mExp(EE, &testAllocator); const List& Exp = mExp;
                     mExp[DI].makeNull();
@@ -12864,7 +12881,7 @@ DEFINE_TEST_CASE(15) {
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP_ASSERT(LINE, Exp == X);
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -13041,7 +13058,7 @@ DEFINE_TEST_CASE(15) {
                 if (veryVerbose)
                     cout << "\t\treplaceTypes(di, se, si, ne)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     {
                         my_ElemTypeArray s(SS, &testAllocator);
@@ -13054,12 +13071,12 @@ DEFINE_TEST_CASE(15) {
                         LOOP_ASSERT(LINE, SS == S);      // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if (veryVerbose) cout << "\t\treplaceType(di, item)" << endl;
                 if (1 == NE) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     {
                         bdem_ElemType::Type elemType = SS[SI];
@@ -13068,7 +13085,7 @@ DEFINE_TEST_CASE(15) {
                         if (veryVerbose) { cout << "\t\t\t AFTER: "; P(X); }
                         LOOP3_ASSERT(LINE, EE, X, EE == X);
                     }
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -13212,7 +13229,7 @@ DEFINE_TEST_CASE(15) {
 
                 if (veryVerbose) cout << "\t\treset(se)" << endl;
                 {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List x(DD, &testAllocator);  const List &X = x;
                     {
                         my_ElemTypeArray s(SS, &testAllocator);
@@ -13225,7 +13242,7 @@ DEFINE_TEST_CASE(15) {
                         LOOP_ASSERT(LINE, SS == S);     // source unchanged?
                     }
                     LOOP_ASSERT(LINE, EE == X);  // source is out of scope
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -13338,7 +13355,7 @@ DEFINE_TEST_CASE(15) {
                     bslma::TestAllocator ta;
                     bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List mU(&testAllocator);
                     makePermutation(&mU, SPEC, perm%2, perm/2);
                     const List& U = mU;
@@ -13355,7 +13372,7 @@ DEFINE_TEST_CASE(15) {
 //                     LOOP_ASSERT(SPEC, refMaxOffset == newMaxOffset);
 //                     LOOP_ASSERT(SPEC, initialMaxOffset >= newMaxOffset);
                     LOOP_ASSERT(SPEC, U == EE);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -13537,7 +13554,7 @@ DEFINE_TEST_CASE(14) {
                     hh(&mVS, STARTSPEC);
                     const Table& VS = mVS;
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       testInStream.reset();
                       const int AL = testAllocator.allocationLimit();
                       testAllocator.setAllocationLimit(-1);
@@ -13564,7 +13581,7 @@ DEFINE_TEST_CASE(14) {
                       LOOP2_ASSERT(UU, U, UU == U);
                       LOOP2_ASSERT(UU, V, UU == V);
                       LOOP2_ASSERT(U, V, U == V);
-                   } END_BSLMA_EXCEPTION_TEST
+                   } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                    BEGIN_BDEX_EXCEPTION_TEST {
                      testInStream.reset();
@@ -14059,7 +14076,8 @@ DEFINE_TEST_CASE(13) {
 
                         const int Z = ui == vi; // flag indicating same values
 
-                        BEGIN_BSLMA_EXCEPTION_TEST {
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                           testInStream.reset();
                           const int AL = testAllocator.allocationLimit();
                           testAllocator.setAllocationLimit(-1);
@@ -14094,7 +14112,7 @@ DEFINE_TEST_CASE(13) {
                                P(V);
                           }
 
-                        } END_BSLMA_EXCEPTION_TEST
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                         BEGIN_BDEX_EXCEPTION_TEST {
                           testInStream.reset();
@@ -14145,7 +14163,7 @@ DEFINE_TEST_CASE(13) {
                 my_ElemTypeArray elemTypes;
                 getElemTypes(&elemTypes, U);
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     bdex_TestOutStream out;
 
                     // testing stream-out operator here
@@ -14188,7 +14206,7 @@ DEFINE_TEST_CASE(13) {
                         LOOP_ASSERT(ui, testInStream);
                         LOOP_ASSERT(ui, testInStream.isEmpty());
                     } END_BDEX_EXCEPTION_TEST
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
 
             if (verbose) cout <<
@@ -14659,7 +14677,7 @@ DEFINE_TEST_CASE(13) {
                     LOOP_ASSERT(ti, curLen == X.length());  // same lengths
 
                     for (int ei = 0; ei < NUM_EXTEND; ++ei) {
-                      BEGIN_BSLMA_EXCEPTION_TEST {
+                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                       BEGIN_BDEX_EXCEPTION_TEST {
                         testInStream.reset();
 
@@ -14711,7 +14729,7 @@ DEFINE_TEST_CASE(13) {
                         LOOP2_ASSERT(ti, ei, X.row() == t.row());
 
                       } END_BDEX_EXCEPTION_TEST
-                      } END_BSLMA_EXCEPTION_TEST
+                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
                 }
             }
@@ -14777,7 +14795,7 @@ DEFINE_TEST_CASE(12) {
 
         my_ElemTypeArray ETA;
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Table T1(Z);
             ASSERT(T1.numRows() == 0 && T1.numColumns() == 0);
             const bdem_ElemType::Type ETA[] = {
@@ -14794,7 +14812,7 @@ DEFINE_TEST_CASE(12) {
             mR[1].theModifiableCharArray()   = XK;
             mR[2].theModifiableStringArray() = XQ;
             ASSERT(T1.numRows() == 1 && T1.numColumns() == 3);
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) cout << "verify BDEM_PASS_THROUGH default" << endl;
         {
@@ -14909,7 +14927,7 @@ DEFINE_TEST_CASE(12) {
                 cout << "bdem_Table(" << optionToString(OPTVAL)
                      << ", alloc)" << endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Table T2(OPTVAL, Z);
                 ASSERT(T2.numRows() == 0 && T2.numColumns() == 0);
                 const bdem_ElemType::Type ETA[] = {
@@ -14925,7 +14943,7 @@ DEFINE_TEST_CASE(12) {
                 T2.theModifiableRow(0)[1].theModifiableCharArray()   = XK;
                 T2.theModifiableRow(0)[2].theModifiableStringArray() = XQ;
                 ASSERT(T2.numRows() == 1 && T2.numColumns() == 3);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (verbose) cout << "\t\tverify pool option "
                               << optionToString(OPTVAL) << endl;
@@ -15009,7 +15027,7 @@ DEFINE_TEST_CASE(12) {
         };
 
         if (verbose) cout << "bdem_Table(elems, alloc)" << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             Table T11(elems, NUM_ARRYELEMS(elems), Z);
 
             T11.appendNullRow();
@@ -15017,7 +15035,7 @@ DEFINE_TEST_CASE(12) {
             mR[0].theModifiableChar() = ' ';
             mR[1].theModifiableList() = XU;
             ASSERT(T11.numRows() == 1 && T11.numColumns() == 2);
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) cout << "verify BDEM_PASS_THROUGH default" << endl;
         {
@@ -15110,7 +15128,7 @@ DEFINE_TEST_CASE(12) {
                 cout << "bdem_Table(elems, " << optionToString(OPTVAL)
                      << ", alloc)" << endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Table T3(elems, NUM_ARRYELEMS(elems), OPTVAL, Z);
                 ASSERT(T3.numRows() == 0 && T3.numColumns() == 2);
                 T3.removeAll();
@@ -15126,7 +15144,7 @@ DEFINE_TEST_CASE(12) {
                 T3.theModifiableRow(0)[1].theModifiableCharArray()   = XK;
                 T3.theModifiableRow(0)[2].theModifiableStringArray() = XQ;
                 ASSERT(T3.numRows() == 1 && T3.numColumns() == 3);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (verbose) cout << "\tverify pool option "
                               << optionToString(OPTVAL) << endl;
@@ -15360,7 +15378,7 @@ DEFINE_TEST_CASE(12) {
                 cout << "bdem_Table(Table, " << optionToString(OPTVAL)
                      << ", alloc)" << endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Table T3(CC, OPTVAL, Z);
                 ASSERT(T3.numRows() == 0 && T3.numColumns() == 0);
                 ETA.clear();
@@ -15373,7 +15391,7 @@ DEFINE_TEST_CASE(12) {
                 T3.theModifiableRow(0)[1].theModifiableCharArray()   = XK;
                 T3.theModifiableRow(0)[2].theModifiableStringArray() = XQ;
                 ASSERT(T3.numRows() == 1 && T3.numColumns() == 3);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (verbose) cout << "\tverify pool option "
                               << optionToString(OPTVAL) << endl;
@@ -15469,14 +15487,14 @@ DEFINE_TEST_CASE(11) {
 
         if (verbose) cout << "bdem_List(alloc)" << endl;
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             List L1(Z);
             ASSERT (L1.length() == 0);
             L1.appendChar(' ');
             L1.appendCharArray(XK);
             L1.appendStringArray(XQ);
             ASSERT (L1.length() == 3);
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) cout << "verify BDEM_PASS_THROUGH default" << endl;
         {
@@ -15584,14 +15602,14 @@ DEFINE_TEST_CASE(11) {
                 cout << "bdem_List(" << optionToString(OPTVAL)
                      << ", alloc)" << endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 List L2(OPTVAL, Z);
                 ASSERT (L2.length() == 0);
                 L2.appendChar(' ');
                 L2.appendCharArray(XK);
                 L2.appendStringArray(XQ);
                 ASSERT (L2.length() == 3);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (verbose) cout << "\t\tverify pool option "
                               << optionToString(OPTVAL) << endl;
@@ -15686,13 +15704,13 @@ DEFINE_TEST_CASE(11) {
         elems.push_back(bdem_ElemType::BDEM_LIST);
 
         if (verbose) cout << "bdem_List(elems, alloc)" << endl;
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             List L11(vectorData(elems), elems.size(), Z);
 
             L11.appendChar(' ');
             L11.appendStringArray(XQ);
             ASSERT(L11.length() == 4);
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (verbose) cout << "verify BDEM_WRITE_MANY default" << endl;
         {
@@ -15773,7 +15791,7 @@ DEFINE_TEST_CASE(11) {
                 cout << "bdem_List(elems, " << optionToString(OPTVAL)
                      << ", alloc)" << endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 List L3(vectorData(elems), elems.size(), OPTVAL, Z);
                 L3.removeAll();
                 ASSERT (L3.length() == 0);
@@ -15781,7 +15799,7 @@ DEFINE_TEST_CASE(11) {
                 L3.appendCharArray(XK);
                     L3.appendStringArray(XQ);
                     ASSERT (L3.length() == 3);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (verbose) cout << "\tverify pool option "
                               << optionToString(OPTVAL) << endl;
@@ -15978,7 +15996,7 @@ DEFINE_TEST_CASE(11) {
                 cout << "bdem_List(List, " << optionToString(OPTVAL)
                      << ", " << ", alloc)" << endl;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 List L3(CC, OPTVAL, Z);
                 L3.removeAll();
                 ASSERT (L3.length() == 0);
@@ -15986,7 +16004,7 @@ DEFINE_TEST_CASE(11) {
                 L3.appendCharArray(XK);
                 L3.appendStringArray(XQ);
                 ASSERT (L3.length() == 3);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (verbose) cout << "\tverify pool option "
                               << optionToString(OPTVAL) << endl;
@@ -16249,7 +16267,7 @@ DEFINE_TEST_CASE(10) {
                   bslma::TestAllocator ta;
                   bslma::TestAllocator& testAllocator = ta;
 
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     List mU(&testAllocator);
                     makePermutation(&mU, SPEC, perm%2, perm/2);
 
@@ -16261,7 +16279,7 @@ DEFINE_TEST_CASE(10) {
                     makeRangeNull(mU.row(),SI, NE);
 
                     LOOP3_ASSERT(LINE, mU, EE, mU == EE);
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
 
                 if ((int)(strlen(SPEC) / 2) == NE && 0 == SI) {
@@ -16269,7 +16287,7 @@ DEFINE_TEST_CASE(10) {
                         bslma::TestAllocator ta;
                         bslma::TestAllocator& testAllocator = ta;
 
-                      BEGIN_BSLMA_EXCEPTION_TEST {
+                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         List mU(&testAllocator);
                         makePermutation(&mU, SPEC, perm%2, perm/2);
 
@@ -16281,7 +16299,7 @@ DEFINE_TEST_CASE(10) {
                         mU.makeAllNull();
 
                         LOOP3_ASSERT(LINE, mU, EE, mU == EE);
-                      } END_BSLMA_EXCEPTION_TEST
+                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
                 }
 
@@ -16290,7 +16308,7 @@ DEFINE_TEST_CASE(10) {
                         bslma::TestAllocator ta;
                         bslma::TestAllocator& testAllocator = ta;
 
-                      BEGIN_BSLMA_EXCEPTION_TEST {
+                      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         List mU(&testAllocator);
                         makePermutation(&mU, SPEC, perm%2, perm/2);
 
@@ -16302,7 +16320,7 @@ DEFINE_TEST_CASE(10) {
                         mU[SI].makeNull();
 
                         LOOP3_ASSERT(LINE, mU, EE, mU == EE);
-                      } END_BSLMA_EXCEPTION_TEST
+                      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                     }
                 }
             }

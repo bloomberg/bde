@@ -211,6 +211,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstring.h>
 #endif
 
+#ifndef INCLUDED_BSL_LOCALE
+#include <bsl_locale.h>
+#endif
+
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
     // Note: on Windows -> WinDef.h:#define min(a,b) ...
 #undef min

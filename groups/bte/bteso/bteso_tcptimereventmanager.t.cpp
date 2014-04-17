@@ -1,19 +1,25 @@
 // bteso_tcptimereventmanager.t.cpp                                   -*-C++-*-
 #include <bteso_tcptimereventmanager.h>
-#include <bteso_socketimputil.h>
+
 #include <bteso_flag.h>
+#include <bteso_socketimputil.h>
+
 #include <bcemt_thread.h>
+
+#include <bdef_bind.h>
+#include <bdef_function.h>
+#include <bdef_memfn.h>
+#include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
+
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bsls_platform.h>
-#include <bdet_timeinterval.h>
-#include <bdetu_systemtime.h>
-#include <bdef_function.h>
-#include <bdef_bind.h>
-#include <bdef_memfn.h>
+
+#include <bsl_iostream.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
-#include <bsl_iostream.h>
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 

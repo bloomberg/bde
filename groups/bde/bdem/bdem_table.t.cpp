@@ -4780,13 +4780,13 @@ DEFINE_TEST_CASE(13)
             // verify copying and assigning strings allocates memory
             string s1(Z), s2(Z);
             s1 = "woof                                          woof";
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                 ++passCount;
 
                 s2 = s1;
 
                 string s3(s1, &testAllocator);
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             LOOP_ASSERT(passCount, 1 == passCount || 3 == passCount);
 
@@ -4828,7 +4828,7 @@ DEFINE_TEST_CASE(13)
 
                     int passCount = 0;
 
-                    BEGIN_BSLMA_EXCEPTION_TEST
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
                         ++passCount;
 
                         mT.insertNullRows(T.numRows(), 10);
@@ -4843,7 +4843,7 @@ DEFINE_TEST_CASE(13)
                         if (ti > 7) mT.insertRow(2, TOrig, 0);
                         if (ti > 8) mT.insertRows(2, TOrig);
                         if (ti > 9) (mT.insertRows(2, TOrig, 1, 2), done = 1);
-                    END_BSLMA_EXCEPTION_TEST
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                     if (verbose) {
                         P_(ti); P_(passCount); P(T.numRows());
@@ -4870,7 +4870,8 @@ DEFINE_TEST_CASE(13)
                             const bdem_Table& T = mT;
 
                             int passCount = 0;
-                            BEGIN_BSLMA_EXCEPTION_TEST
+                            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                                 testAllocator)
                                 ++passCount;
                                 for (size_t tm = 0; tm < 3; ++tm) {
                                     int dstRow = bsl::min(T.numRows(), 2);
@@ -4909,7 +4910,7 @@ DEFINE_TEST_CASE(13)
                                       }
                                     }
                                 }
-                            END_BSLMA_EXCEPTION_TEST
+                            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                             ASSERT(passCount >= 3);
                         }
                     }
