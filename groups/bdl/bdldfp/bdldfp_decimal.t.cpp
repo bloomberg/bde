@@ -353,8 +353,8 @@ int main(int argc, char* argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose1) bsl::cout << "\nTesting do_put"
-                                << "\n==============" << bsl::endl;
+        if (verbose) bsl::cout << "\nTesting do_put"
+                               << "\n==============" << bsl::endl;
 
         static const struct {
             int              d_line;
