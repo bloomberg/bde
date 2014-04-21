@@ -29,7 +29,8 @@ bool bsl::Function_Rep::moveInit(Function_Rep& other)
             // Initialize the rep using other's allocator.
             other.d_allocManager_p(e_INIT_REP, this, other.d_allocator_p);
 
-            // Move-construct function
+            // Move-construct function.  This is a nothrow operation because
+            // only nothrow-moveable functors are inplace.
             PtrOrSize_t source =
                 d_funcManager_p(e_GET_TARGET,
                                 const_cast<Function_Rep*>(&other),
@@ -41,13 +42,41 @@ bool bsl::Function_Rep::moveInit(Function_Rep& other)
             // Just move the pointers from other.
             inplace = false;
 
+            // Pointerwise move contents of 'other' into '*this'
             d_objbuf.d_object_p = other.d_objbuf.d_object_p;
             d_allocManager_p    = other.d_allocManager_p;
             d_allocator_p       = other.d_allocator_p;
 
-            // Now re-initialize 'other' as an empty object
-            other.d_funcManager_p = NULL;
-            d_allocManager_p(e_INIT_REP, &other, d_allocator_p);
+            // Set 'other' to be empty, but with its original allocator.
+
+            // Before making any changes to 'other', allocate space (if
+            // needed) for a copy of the allocator.  That way, if the
+            // allocation fails with an exception, nothing will be altered.
+            // The allocator will be separately allocated if it is too big to
+            // fit (by itself) into the small object buffer.
+            if (d_allocManager_p != &unownedAllocManager) {
+                // Allocator is owned by this 'function'.  Check to see if we
+                // will be using the small object optimization for the
+                // allocator.
+                std::size_t allocSize = d_allocManager_p(e_GET_SIZE, this,
+                                                     PtrOrSize_t()).asSize_t();
+                if (allocSize > sizeof(InplaceBuffer)) {
+                    // Allocator will be stored out-of-place.  Allocate space.
+                    other.d_allocator_p = static_cast<bslma::Allocator*>(
+                        d_allocator_p->allocate(allocSize));
+                }
+                else {
+                    // Allocator will be stored inplace.
+                    other.d_allocator_p = reinterpret_cast<bslma::Allocator*>(
+                        &other.d_objbuf);
+                }
+                // Construction of allocator is a nothrow operation.
+                d_allocManager_p(e_COPY_CONSTRUCT, &other, d_allocator_p);
+            }
+            // Else (if unowned allocator) leave allocator pointer unchanged.
+
+            // If got here, allocator has been successfully constructed.
+            other.d_funcManager_p     = NULL;
         }
     }
     else {

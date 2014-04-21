@@ -707,11 +707,14 @@ public:
     // MANIPULATORS
     function& operator=(const function&);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    function& operator=(function&);
+        // Copy constructor.  Needed to overload in preference to
+        // 'operator=(FUNC&&)'.
     function& operator=(function&&);
-#endif
-    function& operator=(nullptr_t);
     template<class FUNC>
     function& operator=(FUNC&&);
+#endif
+    function& operator=(nullptr_t);
 
     // TBD: Need to implement reference_wrapper.
     // template<class FUNC>
@@ -1622,17 +1625,70 @@ bsl::function<RET(ARGS...)>::~function()
 // MANIPULATORS
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>&
-bsl::function<RET(ARGS...)>::operator=(const function&)
+bsl::function<RET(ARGS...)>::operator=(const function& rhs)
 {
-    // TBD
+    function temp;
+
+    temp.d_funcManager_p = rhs.d_funcManager_p;
+    temp.d_invoker_p     = rhs.d_invoker_p;
+
+    // Initialize temp using allocator from 'this'
+    this->d_allocManager_p(e_INIT_REP, &temp, this->d_allocator_p);
+
+    // Copy function into initialized temp.
+    if (temp.d_funcManager_p) {
+        PtrOrSize_t source = rhs.d_funcManager_p(e_GET_TARGET,
+                                                 const_cast<function*>(&rhs),
+                                                 PtrOrSize_t());
+        temp.d_funcManager_p(e_COPY_CONSTRUCT, &temp, source);
+    }
+
+    // If successful (no exceptions thrown) 'temp' swap into '*this'.
+    temp.swap(*this);
+
     return *this;
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 template <class RET, class... ARGS>
+inline
 bsl::function<RET(ARGS...)>&
-bsl::function<RET(ARGS...)>::operator=(function&&)
+bsl::function<RET(ARGS...)>::operator=(function& rhs)
+{
+    return operator=(const_cast<const function&>(rhs));
+}
+
+template <class RET, class... ARGS>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(function&& rhs)
+{
+    function temp;
+
+    temp.d_funcManager_p = rhs.d_funcManager_p;
+    temp.d_invoker_p     = rhs.d_invoker_p;
+
+    // Initialize temp using allocator from 'this'
+    this->d_allocManager_p(e_INIT_REP, &temp, this->d_allocator_p);
+
+    // Copy function into initialized temp.
+    if (temp.d_funcManager_p) {
+        PtrOrSize_t source = rhs.d_funcManager_p(e_GET_TARGET,
+                                                 const_cast<function*>(&rhs),
+                                                 PtrOrSize_t());
+        temp.d_funcManager_p(e_MOVE_CONSTRUCT, &temp, source);
+    }
+
+    // If successful (no exceptions thrown) 'temp' swap into '*this'.
+    temp.swap(*this);
+
+    return *this;
+}
+
+template <class RET, class... ARGS>
+template<class FUNC>
+bsl::function<RET(ARGS...)>&
+bsl::function<RET(ARGS...)>::operator=(FUNC&&)
 {
     // TBD
     return *this;
@@ -1643,15 +1699,6 @@ bsl::function<RET(ARGS...)>::operator=(function&&)
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(nullptr_t)
-{
-    // TBD
-    return *this;
-}
-
-template <class RET, class... ARGS>
-template<class FUNC>
-bsl::function<RET(ARGS...)>&
-bsl::function<RET(ARGS...)>::operator=(FUNC&&)
 {
     // TBD
     return *this;

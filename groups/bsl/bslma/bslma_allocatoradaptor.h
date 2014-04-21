@@ -228,6 +228,7 @@ class AllocatorAdaptor_Imp : public Allocator {
 
     // ACCESSORS
     STL_ALLOC adaptedAllocator() const;
+        // Return a copy of the STL allocator stored within this object.
 };
 
                         // ===============================
