@@ -54,6 +54,36 @@ static bsls::AtomicOperations::AtomicTypes::Int g_calendarClock =
 static bsls::AtomicOperations::AtomicTypes::Int g_realtimeClock =
                                                      { k_UNINITIALIZED_CLOCK };
 
+class MachClockGuard {
+    // A guard that deallocates a Darwin (mach kernel) 'clock_serv_t' on its
+    // destruction.
+
+    // DATA
+    bsls::AtomicOperations::AtomicTypes::Int& d_clock;  // clock identifier
+
+  private:
+    // NOT IMPLEMENTED
+    MachClockGuard(const MachClockGuard&);
+    MachClockGuard operator=(const MachClockGuard&);
+  public:
+
+    // CREATORS
+    explicit MachClockGuard(bsls::AtomicOperations::AtomicTypes::Int& clock)
+        : d_clock(clock) {}
+
+    ~MachClockGuard()  
+    {
+        int clock = d_clock.swap(k_UNINITIALIZED_CLOCK);
+        if (clock != k_UNINITIALIZED_CLOCK) {
+            mach_port_deallocate(mach_task_self(),
+                                 static_cast<clock_serv_t>(clock));
+        }
+    }
+};
+
+static MachClockGuard g_calendarClockGuard(g_calendarClock);
+static MachClockGuard g_realtimeClockGuard(g_realtimeClock);
+
 static
 clock_serv_t getClockService(clock_id_t       clockId,
                              bsls::AtomicInt& atomicClockStore)
@@ -64,10 +94,9 @@ clock_serv_t getClockService(clock_id_t       clockId,
     BSLMF_ASSERT(sizeof(clock_serv_t) == sizeof(int));
 
     // One-time initialization (note: the sucessfully initialized clock service
-    // is never released).
+    // is released at the task's destruction).
 
-    if (k_UNINITIALIZED_CLOCK == atomicClockStore.loadAcquire())
-    {
+    if (k_UNINITIALIZED_CLOCK == atomicClockStore.loadAcquire()) {
         clock_serv_t clockServ;
         kern_return_t rc = host_get_clock_service(mach_host_self(),
                                                   clockId,
