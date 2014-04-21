@@ -465,6 +465,8 @@ class bdeut_NullableValue_WithAllocator {
     bool                      d_isNull;
     bslma::Allocator         *d_allocator_p;
 
+    friend class bdeut_NullableValue<TYPE>;
+
   public:
     // CREATORS
     explicit bdeut_NullableValue_WithAllocator(
@@ -528,9 +530,6 @@ class bdeut_NullableValue_WithAllocator {
         // is null.
 
     // ACCESSORS
-    const void *bufferPtr() const;
-        // Return a pointer to the object buffer contained in this object.
-
     bool isNull() const;
         // Return 'true' if this object is null, and 'false' otherwise.
 
@@ -552,6 +551,8 @@ class bdeut_NullableValue_WithoutAllocator {
     // DATA
     bsls::ObjectBuffer<TYPE> d_buffer;
     bool                     d_isNull;
+
+    friend class bdeut_NullableValue<TYPE>;
 
   public:
     // CREATORS
@@ -609,9 +610,6 @@ class bdeut_NullableValue_WithoutAllocator {
         // is null.
 
     // ACCESSORS
-    const void *bufferPtr() const;
-        // Return a pointer to the object buffer contained in this object.
-
     bool isNull() const;
         // Return 'true' if this object is null, and 'false' otherwise.
 
@@ -848,9 +846,7 @@ template <typename TYPE>
 inline
 int bdeut_NullableValue<TYPE>::maxSupportedBdexVersion() const
 {
-    const TYPE *p = static_cast<const TYPE *>(d_imp.bufferPtr());
-
-    return bdex_VersionFunctions::maxSupportedVersion(*p);
+    return bdex_VersionFunctions::maxSupportedVersion(d_imp.d_buffer.object());
 }
 
 template <typename TYPE>
@@ -1137,13 +1133,6 @@ TYPE& bdeut_NullableValue_WithAllocator<TYPE>::value()
 // ACCESSORS
 template <typename TYPE>
 inline
-const void *bdeut_NullableValue_WithAllocator<TYPE>::bufferPtr() const
-{
-    return &d_buffer;
-}
-
-template <typename TYPE>
-inline
 bool bdeut_NullableValue_WithAllocator<TYPE>::isNull() const
 {
     return d_isNull;
@@ -1314,13 +1303,6 @@ TYPE& bdeut_NullableValue_WithoutAllocator<TYPE>::value()
 }
 
 // ACCESSORS
-template <typename TYPE>
-inline
-const void *bdeut_NullableValue_WithoutAllocator<TYPE>::bufferPtr() const
-{
-    return &d_buffer;
-}
-
 template <typename TYPE>
 inline
 bool bdeut_NullableValue_WithoutAllocator<TYPE>::isNull() const
