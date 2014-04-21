@@ -835,16 +835,22 @@ int main(int argc, char *argv[])
                 bdef_Function<void (*)()> readFunctor, writeFunctor;
                 readFunctor = bdef_BindUtil::bind(readData,
                                                   &readDataArgs[j]);
-                rc = mX.registerSocketEvent(fds[0],
-                                            bteso_EventType::BTESO_READ,
-                                            readFunctor);
+                do {
+                    rc = mX.registerSocketEvent(fds[0],
+                                                bteso_EventType::BTESO_READ,
+                                                readFunctor);
+                } while (0 != rc);
+
                 ASSERT(0 == rc);
 
                 writeFunctor = bdef_BindUtil::bind(writeData,
                                                    &writeDataArgs[j]);
-                rc = mX.registerSocketEvent(fds[1],
-                                             bteso_EventType::BTESO_WRITE,
-                                            writeFunctor);
+                do {
+                    rc = mX.registerSocketEvent(fds[1],
+                                                bteso_EventType::BTESO_WRITE,
+                                                writeFunctor);
+                } while (0 != rc);
+
                 ASSERT(0 == rc);
 
                 bcemt_ThreadUtil::microSleep(1000, 0);
@@ -897,16 +903,23 @@ int main(int argc, char *argv[])
                 bdef_Function<void (*)()> readFunctor, writeFunctor;
                 readFunctor = bdef_BindUtil::bind(readData,
                                                   &readDataArgs[j]);
-                rc = mX.registerSocketEvent(fds[0],
-                                            bteso_EventType::BTESO_READ,
-                                            readFunctor);
+                do {
+                    rc = mX.registerSocketEvent(fds[0],
+                                                bteso_EventType::BTESO_READ,
+                                                readFunctor);
+                } while (0 != rc);
+
                 ASSERT(0 == rc);
 
                 writeFunctor = bdef_BindUtil::bind(writeData,
                                                    &writeDataArgs[j]);
-                rc = mX.registerSocketEvent(fds[1],
-                                             bteso_EventType::BTESO_WRITE,
-                                            writeFunctor);
+
+                do {
+                    rc = mX.registerSocketEvent(fds[1],
+                                                bteso_EventType::BTESO_WRITE,
+                                                writeFunctor);
+                } while (0 != rc);
+
                 ASSERT(0 == rc);
 
                 bcemt_ThreadUtil::microSleep(1000, 0);
@@ -947,8 +960,8 @@ int main(int argc, char *argv[])
             //mX.deregisterAll();
             //
             //for (int j = 0; j < NUM_CONNS; ++j) {
-            //    bteso_SocketHandle::Handle serverFd = readDataArgs[j].d_handle;
-            //    bteso_SocketHandle::Handle clientFd = writeDataArgs[j].d_handle;
+            // bteso_SocketHandle::Handle serverFd = readDataArgs[j].d_handle;
+            // bteso_SocketHandle::Handle clientFd = writeDataArgs[j].d_handle;
 
             //    ASSERT(0 == bteso_SocketImpUtil::close(serverFd));
             //    ASSERT(0 == bteso_SocketImpUtil::close(clientFd));

@@ -607,6 +607,8 @@ bsl::ostream& operator<<(bsl::ostream& stream,
               // -----------------------------------------------
 int btemt_TcpTimerEventManager_ControlChannel::initialize()
 {
+    bteso_SocketHandle::Handle fds[2];
+
 #ifdef BTESO_PLATFORM_BSD_SOCKETS
     // Use UNIX domain sockets, if possible, rather than a standard socket
     // pair, to avoid using ephemeral ports for the control channel.  AIX and
@@ -615,8 +617,6 @@ int btemt_TcpTimerEventManager_ControlChannel::initialize()
     // 28135201<GO>}).  Note that the posix standard 'AF_LOCAL', is not
     // supported by a number of platforms -- use the legacy identifier,
     // 'AF_UNIX', instead.
-
-    bteso_SocketHandle::Handle fds[2];
 
     int rc = ::socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
 #else
