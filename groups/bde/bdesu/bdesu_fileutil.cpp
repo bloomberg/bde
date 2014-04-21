@@ -49,11 +49,56 @@ BDES_IDENT_RCSID(bdesu_fileutil_cpp,"$Id$ $CSID$")
 #include <sys/statvfs.h>
 #endif
 
-namespace BloombergLP {
+// STATIC HELPER FUNCTIONS
+
+#if defined(BSLS_PLATFORM_OS_UNIX)
+
+#ifdef BSLS_PLATFORM_OS_CYGWIN
 
 namespace {
+    typedef struct stat   StatResult;
+}  // close unnamed namespace
 
-// STATIC HELPER FUNCTIONS
+#else
+
+namespace {
+    typedef struct stat64 StatResult;
+}  // close unnamed namespace
+
+#endif
+
+static inline
+int performStat(const char *fileName, StatResult *statResult)
+    // Run the appropriate 'stat' or 'stat64' function on the specified
+    // 'fileName', returning the results in the specified 'statResult'.
+{
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+    return stat  (fileName, statResult);
+#else
+    return stat64(fileName, statResult);
+#endif
+}
+
+static inline
+int performStat(const char *fileName, StatResult *statResult, bool followLinks)
+    // Run the appropriate 'stat' or 'stat64' function on the specified
+    // 'fileName', returning the results in the specified 'statResult', where
+    // the specified 'followLinks' indicates whether symlinks are to be
+    // followed.
+{
+#if defined(BSLS_PLATFORM_OS_CYGWIN)
+    return followLinks ?  stat(fileName, statResult)
+                       : lstat(fileName, statResult);
+#else
+    return followLinks ?  stat64(fileName, statResult)
+                       : lstat64(fileName, statResult);
+#endif
+}
+
+#endif
+
+namespace BloombergLP {
+
 static
 void pushBackWrapper(bsl::vector<bsl::string> *vector, const char *item)
     // A 'thunk' to be bound to a vector that can be called to push an item to
@@ -107,14 +152,6 @@ int removeFile(const char *path)
 
 #else
 // unix-specific helper functions
-
-extern "C" {
-    // Need a special 'typedef' because some compilers put the 'extern'
-    // into the function type itself...but provide no way to declare
-    // a function pointer of extern type local to a function.
-
-    typedef int (*StatFuncType)(const char *, struct stat *);
-}
 
 static
 int localFcntlLock(int fd, int cmd, short int type)
@@ -202,8 +239,6 @@ int removeFile(const char *path)
 }
 
 #endif
-
-}  // close unnamed namespace
 
                               // ---------------------
                               // struct bdesu_FileUtil
@@ -761,7 +796,7 @@ int bdesu_FileUtil::remove(const char *path, bool recursive)
 
          struct dirent& entry = entryHolder.d_entry;
          struct dirent *entry_p;
-         struct stat64 dummy;
+         StatResult dummy;
          int rc;
          do {
             rc = readdir_r(dir, &entry, &entry_p);
@@ -774,7 +809,7 @@ int bdesu_FileUtil::remove(const char *path, bool recursive)
             }
 
             bdesu_PathUtil::appendRaw(&workingPath, entry.d_name);
-            if (0 == lstat64(workingPath.c_str(), &dummy) &&
+            if (0 == ::performStat(workingPath.c_str(), &dummy, false) &&
                 0 != remove(workingPath.c_str(), true)) {
                return -1;                                             // RETURN
             }
@@ -905,11 +940,9 @@ bool bdesu_FileUtil::isRegularFile(const char *path, bool followLinks)
 {
     BSLS_ASSERT(path);
 
-    struct stat fileStats;
+    StatResult fileStats;
 
-    StatFuncType statFunc = followLinks ? stat : lstat;
-
-    if (0 != statFunc(path, &fileStats)) {
+    if (0 != ::performStat(path, &fileStats, followLinks)) {
         return false;                                                 // RETURN
     }
 
@@ -920,11 +953,9 @@ bool bdesu_FileUtil::isDirectory(const char *path, bool followLinks)
 {
     BSLS_ASSERT(path);
 
-    struct stat fileStats;
+    StatResult fileStats;
 
-    StatFuncType statFunc = followLinks ? stat : lstat;
-
-    if (0 != statFunc(path, &fileStats)) {
+    if (0 != ::performStat(path, &fileStats, followLinks)) {
         return false;                                                 // RETURN
     }
 
@@ -937,9 +968,9 @@ int bdesu_FileUtil::getLastModificationTime(bdet_Datetime *time,
     BSLS_ASSERT(time);
     BSLS_ASSERT(path);
 
-    struct stat fileStats;
+    StatResult fileStats;
 
-    if (0 != stat(path, &fileStats)) {
+    if (0 != ::performStat(path, &fileStats)) {
         return -1;                                                    // RETURN
     }
 
@@ -1017,15 +1048,9 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
 
 bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
 {
-#if defined(BSLS_PLATFORM_OS_CYGWIN)
-    struct stat fileStats;
+    StatResult fileStats;
 
-    if (0 != stat(path, &fileStats)) {
-#else
-    struct stat64 fileStats;
-
-    if (0 != stat64(path, &fileStats)) {
-#endif
+    if (0 != ::performStat(path, &fileStats)) {
         return -1;                                                    // RETURN
     }
 

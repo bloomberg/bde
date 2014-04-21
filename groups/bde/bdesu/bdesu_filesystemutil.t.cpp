@@ -36,7 +36,6 @@
 #include <io.h>
 #endif
 
-
 using namespace BloombergLP;
 using namespace bsl;
 
@@ -161,13 +160,13 @@ typedef bdesu_FilesystemUtil Obj;
 inline
 bool isBackslash (char t)
 {
-   return t == '\\';
+    return t == '\\';
 }
 
 inline
 bool isForwardSlash (char t)
 {
-   return t == '/';
+    return t == '/';
 }
 
 #endif
@@ -192,6 +191,15 @@ void localSleep(int seconds)
 #endif
 }
 
+bsls::Types::Int64 localGetPId()
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return GetCurrentProcessId();
+#else
+    return ::getpid();
+#endif
+}
+
 static
 void localForkExec(bsl::string command)
 {
@@ -201,17 +209,24 @@ void localForkExec(bsl::string command)
 
         bsl::vector<char *>  argvec;
         const char          *endp = command.data() + command.length();
+        BSLS_ASSERT_OPT(*endp == 0);
 
-        for (char *pc = &command[0]; pc < endp; ++pc) {
+        char *pc;
+        for (pc = &command[0]; pc < endp; ) {
             argvec.push_back(pc);
             while (*pc && ' ' != *pc) {
                 ++pc;
             }
-            *pc = 0;
+            if (pc < endp) {
+                *pc++ = 0;
+            }
         }
+        BSLS_ASSERT_OPT(endp == pc);
         argvec.push_back(0);
 
         execv(argvec[0], argvec.data());
+
+        BSLS_ASSERT_OPT(0 && "execv failed");
     }
 #else
     STARTUPINFO sui;
@@ -251,7 +266,7 @@ string rollupPaths(vector<bsl::string>& paths)
    }
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-   replace_if(result.begin(), result.end(), isBackslash, '/');
+   replace_if(result.begin(), result.end(), ::isBackslash, '/');
 #endif
    return result;
 }
@@ -267,28 +282,46 @@ void makeArbitraryFile(const char *path)
     ASSERT(0 == Obj::close(fd));
 }
 
-bsl::string tempFileName(const char *fnTemplate = 0, int nocheck = 0)
-    // Return a temporary file name.  Optionally specify 'fnTemplate' to serve
-    // as a part of the resulting name.  On Windows, optionally specify a non-
-    // zero value for 'nocheck' to prevent the filename for being checked for
-    // uniqueness (and, as a side-effect, from being created).
+static
+bsl::string tempFileName(int         testCase,
+                         const char *fnTemplate = 0)
+    // Return a temporary file name, with 'testCase' being part of the file
+    // name, with with 'fnTemplate', if specified, also being part of the file
+    // name.
 {
-    bsl::string result;
 
-    if (!fnTemplate) {
-        fnTemplate = "bdesu_filesystemutil.test";
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+    bsl::ostringstream oss;
+    oss << "tmp.filesystemutil." << testCase << '.' << ::localGetPId();
+    if (fnTemplate) {
+        oss << '.' << fnTemplate;
     }
 
-    (void) nocheck;  // Avoid warning.
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    char tmpPathBuf[MAX_PATH], tmpNameBuf[MAX_PATH];
-    GetTempPath(sizeof tmpPathBuf, tmpPathBuf);
-    GetTempFileName(tmpPathBuf, fnTemplate, nocheck, tmpNameBuf);
-    result = tmpNameBuf;
-#else
-    result = fnTemplate + string("_XXXXXX");
+    bsl::string result(oss.str());
+    result += "_XXXXXX";
     close(mkstemp(&result[0]));
+#else
+    // We can't make proper use of 'fnTemplate' on Windows.  We have created
+    // a local directory to put our files in and chdir'ed to it, so
+    // 'tmpPathBuf' should just be ".".  'GetTempFileName' is a really lame
+    // utility, other than the path, it allows us to specify only 3 chars of
+    // file name (!????!!!!!).
+    //: o The first will be 'T' (for 'tmp').
+    //: o The next will be 'A' + test case #, accomodating up to 25 test cases.
+    //: o The third will be 'A' - 1 + '# of calls' allowing this function to
+    //:   be called 26 times in any one process (each test case is run in a
+    //:   separate process).
+
+    (void) fnTemplate;    // We have to ignore this -- can't use it.
+
+    static int calls = 0;
+    char tplt[4] = { 'T', char('A' + testCase), char('A' + calls++), '\0' };
+    ASSERT(tplt[1] <= 'Z');
+    ASSERT(tplt[2] <= 'Z');
+
+    char tmpPathBuf[MAX_PATH] = { "." }, tmpNameBuf[MAX_PATH];
+    GetTempFileName(tmpPathBuf, tplt, 0, tmpNameBuf);
+    bsl::string result(tmpNameBuf);
 #endif
 
     // Test Invariant:
@@ -426,6 +459,53 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    bsl::string origWorkingDirectory;
+    ASSERT(0 == Obj::getWorkingDirectory(&origWorkingDirectory));
+
+    // Make 'taskAbsolutePath' be a absolute path to the executable, for when
+    // we fork / exec from different directories.
+
+    const bsl::string taskAbsolutePath = PS[0] == argv[0][0] ||
+                                                    bsl::strstr(argv[0], ":\\")
+                                       ? bsl::string(argv[0])
+                                       : origWorkingDirectory + PS + argv[0];
+    LOOP_ASSERT(taskAbsolutePath, Obj::exists(taskAbsolutePath));
+
+    bsl::string tmpWorkingDir;
+    {
+        // Must not call 'tempFileName' here, because 'tempFileName' would
+        // create a plain file with the result name, and the attempt to
+        // create the directory would fail.
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+        char host[80];
+        ASSERT(0 == ::gethostname(host, sizeof(host)));
+#else
+        const char *host = "win";     // 'gethostname' is difficult on
+                                      // Windows, and we usually aren't using
+                                      // nfs there anyway.
+#endif
+
+        bsl::ostringstream oss;
+        oss << "tmp.filesystemutil.case_" << test << '.' << host << '.' <<
+                                                               ::localGetPId();
+        tmpWorkingDir = oss.str();
+    }
+    if (veryVerbose) P(tmpWorkingDir);
+
+    if (Obj::exists(tmpWorkingDir)) {
+        // Sometimes the cleanup at the end of this program is unable to clean
+        // up files, so we might encounter leftovers from a previous run, but
+        // these can usually be deleted if sufficient time has elapsed.  If
+        // we're not able to clean it up now, old files may prevent the test
+        // case we're running this time from working.  So we want this assert
+        // to fail to give the tester a 'heads-up' as to what went wrong.
+
+        LOOP_ASSERT(tmpWorkingDir, 0 == Obj::remove(tmpWorkingDir, true));
+    }
+    ASSERT(0 == Obj::createDirectories(  tmpWorkingDir, true));
+    ASSERT(0 == Obj::setWorkingDirectory(tmpWorkingDir));
+
     switch(test) { case 0:
       case 19: {
         // --------------------------------------------------------------------
@@ -451,11 +531,11 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdesu_FilesystemUtil::remove("temp.2", true);
+        bdesu_FilesystemUtil::remove("bdesu_filesystemutil.temp.2", true);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        bsl::string logPath =  "temp.2\\logs2\\";
+        bsl::string logPath =  "bdesu_filesystemutil.temp.temp.2\\logs2\\";
 #else
-        bsl::string logPath =  "temp.2/logs2/";
+        bsl::string logPath =  "bdesu_filesystemutil.temp.temp.2/logs2/";
 #endif
 
         ASSERT(0 == bdesu_FilesystemUtil::createDirectories(logPath.c_str(),
@@ -533,7 +613,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bdesu_FilesystemUtil::remove("temp.1");
+        bdesu_FilesystemUtil::remove("bdesu_filesystemutil.temp.temp.1");
 
 ///Example 1: General Usage
 /// - - - - - - - - - - - -
@@ -541,9 +621,9 @@ int main(int argc, char *argv[])
 // containing log files:
 //..
     #ifdef BSLS_PLATFORM_OS_WINDOWS
-      bsl::string logPath = "temp.1\\logs";
+      bsl::string logPath = "bdesu_filesystemutil.temp.temp.1\\logs";
     #else
-      bsl::string logPath = "temp.1/logs";
+      bsl::string logPath = "bdesu_filesystemutil.temp.temp.1/logs";
     #endif
 //..
 // Suppose that we want to separate files into "old" and "new" subdirectories
@@ -669,9 +749,8 @@ int main(int argc, char *argv[])
         //:   wchar_t name and verify that it is the correct name. (C-4)
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-            "TESTING: UTF-8 Filenames\n"
-            "========================\n";
+        if (verbose) cout << "TESTING: UTF-8 Filenames\n"
+                             "========================\n";
 
         static const wchar_t *const filenames[] = {
             L"\u00e3\u00e5\u00e8\u00e9\u00ee\u00ef\u00f4\u00f5\u00f9\u00fa",
@@ -694,7 +773,7 @@ int main(int argc, char *argv[])
 
         // make sure there isn't an unfortunately named file in the way
 
-        bsl::string dir = "temp.2";
+        bsl::string dir = "bdesu_filesystemutil.temp.17";
         bsl::string logPath = dir;
 
         Obj::remove(dir, true);
@@ -786,7 +865,8 @@ int main(int argc, char *argv[])
         for (size_t i = 0; i < NUM_FILES; ++i) {
             WIN32_FIND_DATAW   findDataW;
             const bsl::wstring name = bsl::wstring(filenames[i]) + L".log";
-            const bsl::wstring path = L"temp.2\\logs2\\" + name;
+            const bsl::wstring path =
+                            L"bdesu_filesystemutil.temp.17\\logs2\\" + name;
 
             if (veryVerbose) {
                 int mode = _setmode(_fileno(stdout), _O_U16TEXT);
@@ -809,7 +889,8 @@ int main(int argc, char *argv[])
         for (size_t i = 0; i < NUM_NAMES; ++i) {
             WIN32_FIND_DATAA findDataA;
             const bsl::string name = bsl::string(NAMES[i]) + ".log";
-            const bsl::string path = "temp.2" PS "logs2" PS + name;
+            const bsl::string path =
+                           "bdesu_filesystemutil.temp.17" PS "logs2" PS + name;
 
             if (veryVerbose) { T_() P_(i) P(name) }
 
@@ -961,8 +1042,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "TESTING: Unix File Permissions for 'createDirectories\n"
-            "=====================================================\n";
+                     "TESTING: Unix File Permissions for 'createDirectories\n"
+                     "=====================================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
@@ -971,7 +1052,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing 'createDirectories'\n";
         {
-            const bsl::string& testBaseDir = tempFileName(
+            const bsl::string& testBaseDir = ::tempFileName(test,
                                          "tmp.bdesu_filesystemutil_16.mkdir1");
             bsl::string fullPath = testBaseDir;
             bdesu_PathUtil::appendRaw(&fullPath, "dir2");
@@ -1046,9 +1127,8 @@ int main(int argc, char *argv[])
         //: 3 Observe that the permission are chmod 0666 (C-1).
         // --------------------------------------------------------------------
 
-        if (verbose) cout <<
-            "TESTING: Unix File Permissions for 'open'\n"
-            "=========================================\n";
+        if (verbose) cout << "TESTING: Unix File Permissions for 'open'\n"
+                             "=========================================\n";
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         if (verbose) cout << "TEST SKIPPED ON WINDOWS\n";
@@ -1059,7 +1139,7 @@ int main(int argc, char *argv[])
         {
             typedef Obj::FileDescriptor FD;
 
-            const bsl::string& testFile = tempFileName(
+            const bsl::string& testFile = ::tempFileName(test,
                                        "tmp.bdesu_filesystemutil_15.open.txt");
             if (veryVerbose) P(testFile);
 
@@ -1142,9 +1222,8 @@ int main(int argc, char *argv[])
         //   int sync(char *, int , bool )
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING: 'sync'" << endl
-                          << "===============" << endl;
+        if (verbose) cout << "TESTING: 'sync'\n"
+                             "===============\n";
 
         typedef Obj::FileDescriptor FD;
 
@@ -1159,7 +1238,7 @@ int main(int argc, char *argv[])
         int         rc     = 0;
         Obj::Offset offset = 0;
 
-        bsl::string testFileName(tempFileName());
+        bsl::string testFileName(::tempFileName(test));
         Obj::remove(testFileName);
         FD writeFd = Obj::open(testFileName,
                                Obj::e_OPEN_OR_CREATE,
@@ -1268,8 +1347,8 @@ int main(int argc, char *argv[])
         typedef Obj::FileDescriptor FD;
 
         const char *testFile = "tmp.bdesu_filesystemutil_13.append.txt";
-        const char *tag1     = "tmp.bdesu_fileUtil_13.tag.1.txt";
-        const char *success  = "tmp.bdesu_fileUtil_13.success.txt";
+        const char *tag1     = "tmp.bdesu_filesystemutil_13.tag.1.txt";
+        const char *success  = "tmp.bdesu_filesystemutil_13.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -1280,8 +1359,8 @@ int main(int argc, char *argv[])
 
         bool isParent = !verbose || bsl::string(argv[2]) != "child";
         if (isParent)  {
-            if (verbose) cout << "APPEND TEST\n"
-                                 "===========\n";
+            if (verbose) cout << "APPEND TEST -- PARENT\n"
+                                 "=====================\n";
 
             Obj::remove(testFile);
             Obj::remove(tag1);
@@ -1329,18 +1408,18 @@ int main(int argc, char *argv[])
             off = Obj::seek(fd, 0, Obj::e_SEEK_FROM_CURRENT);
             LOOP_ASSERT(off, 4 * SZ10 == off);
 
-            bsl::stringstream cmd;
-            cmd << argv[0] << ' ' << argv[1] << " child";
-            cmd << (verbose     ? " v" : "");
-            cmd << (veryVerbose ? " v" : "");
+            bsl::string cmd = taskAbsolutePath + ' ' + argv[1] + " child";
+            cmd += (verbose     ? " v" : "");
+            cmd += (veryVerbose ? " v" : "");
 
-            localForkExec(cmd.str().c_str());
+            ::localForkExec(cmd);
 
-            while (!Obj::exists(tag1)) {
+            for (int sec = 0; sec < 4 && !Obj::exists(tag1); ++sec) {
                 if (veryVerbose) Q(Parent sleeping);
-                localSleep(1);
+                ::localSleep(1);
             }
-            if (verbose) Q(Parent detected tag1);
+            ASSERT(Obj::exists(tag1));
+            if (verbose && Obj::exists(tag1)) Q(Parent detected tag1);
 
             rc = Obj::write(fd, testString, SZ10);
             ASSERT(SZ10 == rc);
@@ -1351,6 +1430,12 @@ int main(int argc, char *argv[])
 
             ASSERT(Obj::exists(success));
 
+#if defined(BSLS_PLATFORM_OS_UNIX)
+            int childSts;
+            ::wait(&childSts);
+            ASSERT(0 == childSts);
+#endif
+
             Obj::close(fd);
             Obj::close(fd2);
             Obj::remove(testFile);
@@ -1358,10 +1443,6 @@ int main(int argc, char *argv[])
             Obj::remove(success);
 
             if (verbose) Q(Parent finished);
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-            wait(0);
-#endif
         }
         else {
             // child process
@@ -1369,6 +1450,11 @@ int main(int argc, char *argv[])
             verbose = veryVerbose;
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
+
+            if (verbose) cout << "APPEND TEST -- CHILD\n"
+                                 "====================\n";
+
+            ASSERT(0 == Obj::setWorkingDirectory(origWorkingDirectory));
 
             ASSERT(Obj::exists(testFile));
             LOOP_ASSERT(fs, 4 * SZ10 == (fs = Obj::getFileSize(testFile)));
@@ -1385,14 +1471,18 @@ int main(int argc, char *argv[])
             ASSERT(SZ10 == rc);
 
             if (0 == testStatus) {
-                localTouch(success);
+                ::localTouch(success);
             }
 
-            localTouch(tag1);
+            ::localTouch(tag1);
 
             Obj::close(fdChild);
 
             if (verbose) Q(Child finished);
+
+            // Exit main to avoid doing cleanup at end of 'main' twice.
+
+            return testStatus;                                        // RETURN
         }
       } break;
 
@@ -1420,7 +1510,7 @@ int main(int argc, char *argv[])
       //   test, I found that on Windows, 'system' was ignoring the '&' and
       //   blocking until the child process terminated.  This was not a problem
       //   in the tryLock tests, but it caused the append test to hang.  So
-      //   'localForkExec' was written.
+      //   '::localForkExec' was written.
       //
       // Plan:
       //   Given that the behaviors are so different, I'm doing completely
@@ -1433,14 +1523,19 @@ int main(int argc, char *argv[])
         // WINDOWS TRYLOCK TEST
         // --------------------------------------------------------------------
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_UNIX
+        if (verbose) cout << "Skippng test 12 on Unix\n";
+#else
+        if (verbose) cout << "WINDOWS TRYLOCK TEST\n"
+                             "====================\n";
+
         typedef Obj::FileDescriptor FD;
 
         int rc;
 
-        bsl::string fileNameWrite   = tempFileName("write", 11);
-        bsl::string fileNameRead    = tempFileName("read", 11);
-        bsl::string fileNameSuccess = tempFileName("success", 11);
+        bsl::string fileNameWrite   = "tmp.filesystemutil.case_12.write";
+        bsl::string fileNameRead    = "tmp.filesystemutil.case_12.read";
+        bsl::string fileNameSuccess = "tmp.filesystemutil.case_12.success";
 
         if (veryVerbose) {
             T_() P(fileNameWrite) T_() P(fileNameRead) T_() P(fileNameSuccess)
@@ -1505,14 +1600,13 @@ int main(int argc, char *argv[])
             rc = Obj::tryLock(fdRead,  false);
             LOOP_ASSERT(rc, 0 == rc);
 
-            bsl::stringstream cmd;
-            cmd << argv[0] << ' ' << argv[1] << " child";
-            cmd << (verbose     ? " v" : "");
-            cmd << (veryVerbose ? " v" : "");
+            bsl::string cmd = taskAbsolutePath + ' ' + argv[1] + " child";
+            cmd += (verbose     ? " v" : "");
+            cmd += (veryVerbose ? " v" : "");
 
-            localForkExec(cmd.str().c_str());
+            ::localForkExec(cmd);
 
-            localSleep(3);
+            ::localSleep(3);
 
             LOOP_ASSERT(fileNameSuccess, Obj::exists(fileNameSuccess));
 
@@ -1559,6 +1653,8 @@ int main(int argc, char *argv[])
             verbose = veryVerbose;
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
+
+            ASSERT(0 == Obj::setWorkingDirectory(origWorkingDirectory));
 
             LOOP_ASSERT(fileNameWrite, Obj::exists(fileNameWrite));
             LOOP_ASSERT(fileNameRead, Obj::exists(fileNameRead));
@@ -1631,6 +1727,11 @@ int main(int argc, char *argv[])
                                          Obj::e_READ_WRITE);
                 Obj::close(fdSuccess);
             }
+
+            // Exit 'main' to avoid doing the cleanup at the end of 'main'
+            // twice.
+
+            return testStatus;                                        // RETURN
         }
 #endif
       } break;
@@ -1659,13 +1760,12 @@ int main(int argc, char *argv[])
 
         int rc;
 
-        // It is important not to use 'tempFileName' here because otherwise
+        // It is important not to use '::tempFileName' here because otherwise
         // the parent and child will have different file names.
 
-        bsl::string fileNameWrite   = "tmp.bdesu_filesystemutil_11.write.txt";
-        bsl::string fileNameRead    = "tmp.bdesu_filesystemutil_11.read.txt";
-        bsl::string fileNameSuccess =
-                                     "tmp.bdesu_filesystemutil_11.success.txt";
+        bsl::string fileNameWrite   = "tmp.filesystemutil.case_11.write.txt";
+        bsl::string fileNameRead    = "tmp.filesystemutil.case_11.read.txt";
+        bsl::string fileNameSuccess = "tmp.filesystemutil.case_11.success.txt";
 
         if (veryVerbose) {
             P_(fileNameWrite);    P_(fileNameRead);    P(fileNameSuccess);
@@ -1676,8 +1776,8 @@ int main(int argc, char *argv[])
 
         bool isParent = !verbose || bsl::string(argv[2]) != "child";
         if (isParent) {
-            if (verbose) cout << "tryLock test\n"
-                                 "============\n";
+            if (verbose) cout << "UNIX TRYLOCK TEST -- PARENT\n"
+                                 "===========================\n";
 
             Obj::remove(fileNameWrite);
             Obj::remove(fileNameRead);
@@ -1714,14 +1814,13 @@ int main(int argc, char *argv[])
             rc = Obj::tryLock(fdRead,  false);
             ASSERT(0 == rc);
 
-            bsl::stringstream cmd;
-            cmd << argv[0] << ' ' << argv[1] << " child";
-            cmd << (verbose     ? " v" : "");
-            cmd << (veryVerbose ? " v" : "");
+            bsl::string cmd = taskAbsolutePath + ' ' + argv[1] + " child";
+            cmd += (verbose     ? " v" : "");
+            cmd += (veryVerbose ? " v" : "");
 
-            localForkExec(cmd.str().c_str());
+            ::localForkExec(cmd);
 
-            localSleep(3);
+            ::localSleep(3);
 
             ASSERT(Obj::exists(fileNameSuccess));
 
@@ -1758,6 +1857,11 @@ int main(int argc, char *argv[])
             verbose = veryVerbose;
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
+
+            if (verbose) cout << "UNIX TRYLOCK TEST -- CHILD\n"
+                                 "==========================\n";
+
+            ASSERT(0 == Obj::setWorkingDirectory(origWorkingDirectory));
 
             ASSERT(Obj::exists(fileNameWrite));
             ASSERT(Obj::exists(fileNameRead));
@@ -1838,6 +1942,11 @@ int main(int argc, char *argv[])
                                          Obj::e_READ_WRITE);
                 Obj::close(fdSuccess);
             }
+
+            // Exit 'main' to avoid doing the cleanup at the end of 'main'
+            // twice.
+
+            return testStatus;                                        // RETURN
         }
 #else
         if (verbose) {
@@ -1862,7 +1971,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // APPEND TEST
+        // APPEND TEST -- SINGLE PROCESS
         //
         // Concerns:
         //  1. A 'write' puts data at the end of the file when open in append
@@ -1886,7 +1995,10 @@ int main(int argc, char *argv[])
         //   FD open(const char *p, bool writable, bool exist, bool append)
         // --------------------------------------------------------------------
 
-        bsl::string fileName(tempFileName());
+        if (verbose) cout << "APPEND TEST -- SINGLE PROCESS\n"
+                             "=============================\n";
+
+        bsl::string fileName(::tempFileName(test));
 
         if (verbose) { P(fileName) }
 
@@ -1940,13 +2052,9 @@ int main(int argc, char *argv[])
         //   Run the usage example 1
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nSimple matching test"
-                          << "\n====================" << endl;
+        if (verbose) cout << "Simple matching test\n"
+                             "====================\n";
 
-        const char* dirName = "testDirCase7";
-        Obj::remove(dirName, true);
-        Obj::createDirectories(dirName, true);
-        Obj::setWorkingDirectory(dirName);
         for (int i=0; i<4; ++i) {
             char name[16];
             sprintf(name, "woof.a.%d", i);
@@ -1967,8 +2075,10 @@ int main(int argc, char *argv[])
         ASSERT(vs[2] == "woof.a.2");
         ASSERT(vs[3] == "woof.a.3");
 
-        Obj::setWorkingDirectory("..");
-        Obj::remove(dirName, true);
+        ASSERT(0 == Obj::remove("woof.a.0"));
+        ASSERT(0 == Obj::remove("woof.a.1"));
+        ASSERT(0 == Obj::remove("woof.a.2"));
+        ASSERT(0 == Obj::remove("woof.a.3"));
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -1990,11 +2100,11 @@ int main(int argc, char *argv[])
         //   Offset getFileSize(const char *)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getFileSize'"
-                          << "\n=====================" << endl;
+        if (verbose) cout << "Testing 'getFileSize'\n"
+                             "=====================\n";
 
         // Setup by first creating a tmp file
-        string fileName = tempFileName("tmp.getFileSizeTest");
+        string fileName = ::tempFileName(test, "tmp.getFileSizeTest.7");
         if (veryVerbose) P(fileName);
         Obj::FileDescriptor fd = Obj::open(fileName,
                                            Obj::e_OPEN_OR_CREATE,
@@ -2166,8 +2276,8 @@ int main(int argc, char *argv[])
         //   We cannot verify it properly.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'getAvailableSpace'"
-                          << "\n===========================" << endl;
+        if (verbose) cout << "Testing 'getAvailableSpace'\n"
+                             "===========================\n";
 
         Obj::Offset avail = Obj::getAvailableSpace(".");
         if (veryVerbose) {
@@ -2175,7 +2285,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 <= avail);
 
-        string fileName = tempFileName();
+        string fileName = ::tempFileName(test);
         Obj::FileDescriptor fd = Obj::open(fileName,
                                            Obj::e_OPEN_OR_CREATE,
                                            Obj::e_READ_WRITE);
@@ -2201,11 +2311,11 @@ int main(int argc, char *argv[])
         //   contain 0-2 (3 rolled off the end).
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'rollFileChain' (files)"
-                          << "\n===============================" << endl;
+        if (verbose) cout << "Testing 'rollFileChain' (files)\n"
+                             "===============================\n";
 
         enum { MAXSUFFIX=3 };
-        bsl::string tmpFile(tempFileName());
+        bsl::string tmpFile(::tempFileName(test));
         Obj::FileDescriptor f;
 
         ASSERT(0 == Obj::rollFileChain(tmpFile, MAXSUFFIX));
@@ -2290,9 +2400,8 @@ int main(int argc, char *argv[])
         //   directories to test.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'isRegularFile' & 'isDirectory'"
-                          << "\n======================================="
-                          << endl;
+        if (verbose) cout << "Testing 'isRegularFile' & 'isDirectory'\n"
+                             "=======================================\n";
 
         struct Parameters {
             const char* good;
@@ -2304,8 +2413,12 @@ int main(int argc, char *argv[])
             Parameters regular;
             Parameters directory;
         } parameters = {
-            { "case4" PS "file", "case4" PS "file2", "case4" PS "dir"  },
-            { "case4" PS "dir",  "case4" PS "dir2",  "case4" PS "file" }
+            { "tmp.filesystemutil.case4" PS "file",
+              "tmp.filesystemutil.case4" PS "file2",
+              "tmp.filesystemutil.case4" PS "dir"  },
+            { "tmp.filesystemutil.case4" PS "dir",
+              "tmp.filesystemutil.case4" PS "dir2",
+              "tmp.filesystemutil.case4" PS "file" }
         };
 
         const Parameters& r = parameters.regular;
@@ -2313,13 +2426,13 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == Obj::createDirectories(r.good));
 
-        makeArbitraryFile(r.good);
+        ::makeArbitraryFile(r.good);
         ASSERT(0 == Obj::createDirectories(r.badWrongType, true));
         ASSERT(true == Obj::isRegularFile(r.good));
         ASSERT(false == Obj::isRegularFile(r.badNoExist));
         ASSERT(false == Obj::isRegularFile(r.badWrongType));
 
-        makeArbitraryFile(d.badWrongType);
+        ::makeArbitraryFile(d.badWrongType);
         ASSERT(0 == Obj::createDirectories(d.good, true));
         ASSERT(true == Obj::isDirectory(d.good));
         ASSERT(false == Obj::isDirectory(d.badNoExist));
@@ -2425,7 +2538,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "...unix domain socket..." << endl;
             }
-            bsl::string filename = tempFileName();
+            bsl::string filename = ::tempFileName(test);
             Obj::remove(filename);
 
             int socketFd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -2454,7 +2567,8 @@ int main(int argc, char *argv[])
 
         //clean up
 
-        ASSERT(0 == Obj::remove("case4", true));
+       ASSERT(0 == Obj::remove("tmp.filesystemutil.case4",
+                                                true));
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2468,8 +2582,8 @@ int main(int argc, char *argv[])
         //   'findMatchingPath'
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting pattern matching"
-                          << "\n========================" << endl;
+        if (verbose) cout << "Testing pattern matching\n"
+                             "========================\n";
 
         const char* filenames[] = {
            "abcd",
@@ -2479,41 +2593,54 @@ int main(int argc, char *argv[])
            "abc.def",
         };
 
-        bsl::string path("futc3");
+#define PATH  "bdesu_filesystemutil.temp.3.futc3"
+#define PATHQ "bdesu_filesystemutil.temp.3.futc?"
+
+        bsl::string path(PATH);
+
+        ASSERT(Obj::remove(path.c_str(), true));
 
         // The string literal "futc3/b???/*d*" seems to confuse the
         // Sun compiler, which complains about the character sequence "\*".
         // So let's hard-code it.
 
-        const char tripleQMarkLiteral[] = {'f','u','t','c','3','/','b',
+        const char tripleQMarkLiteral[] = {'b','d','e','s','u','_','f','i','l',
+                                           'e','s','y','s','t','e','m','u','t',
+                                           'i','l','.','t','e','m','p','.','3',
+                                           '.','f','u','t','c','3','/','b',
                                            '?','?','?','/','*','d','*', 0};
 
         struct Parameters {
+            int         line;
             const char* pattern;
             const char* result;
         } parameters[] = {
-            {"", ""},
-            {"futc3/*/*foo*", ""},
-            {"futc3/*/*d*", "futc3/alpha/abc.def:futc3/alpha/abcd:"
-                            "futc3/beta/abc.def:futc3/beta/abcd"},
-            {tripleQMarkLiteral, "futc3/beta/abc.def:futc3/beta/abcd"},
-            {"futc3/*b*", "futc3/beta"},
+            {L_, "", ""},
+            {L_, PATH "/*/*foo*", ""},
+            {L_, PATH "/*/*d*", PATH "/alpha/abc.def:" PATH "/alpha/abcd:"
+                            PATH "/beta/abc.def:" PATH "/beta/abcd"},
+            {L_, tripleQMarkLiteral, PATH "/beta/abc.def:" PATH "/beta/abcd"},
+            {L_, PATH "/*b*", PATH "/beta"},
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            {"futc3/*b*/*.?","futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-            {"futc?/*b*/*.?","futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-            {"futc?/*/abcd.*","futc3/alpha/abcd:futc3/beta/abcd"},
-            {"futc?/*b*/*.*","futc3/beta/abc.def:futc3/beta/abc.zzz:"
-                             "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"},
-            {"futc3*/*/*.?",
-               "futc3/alpha/abcd:futc3/alpha/zy.z:futc3/alpha/zyx:"
-               "futc3/beta/abcd:futc3/beta/zy.z:futc3/beta/zyx"}
+            {L_, PATH "/*b*/*.?",
+                      PATH "/beta/abcd:" PATH "/beta/zy.z:" PATH "/beta/zyx" },
+            {L_, PATHQ "/*b*/*.?",
+                       PATH "/beta/abcd:" PATH "/beta/zy.z:" PATH "/beta/zyx"},
+            {L_, PATHQ "/*/abcd.*",PATH "/alpha/abcd:" PATH "/beta/abcd"},
+            {L_, PATHQ "/*b*/*.*", PATH "/beta/abc.def:" PATH "/beta/abc.zzz:"
+                              PATH "/beta/abcd:" PATH "/beta/zy.z:"
+                              PATH "/beta/zyx"},
+            {L_, PATH "*/*/*.?",
+               PATH "/alpha/abcd:" PATH "/alpha/zy.z:" PATH "/alpha/zyx:"
+               PATH "/beta/abcd:" PATH "/beta/zy.z:" PATH "/beta/zyx"}
 #else
-            {"futc3/*b*/*.?", "futc3/beta/zy.z"},
-            {"futc?/*b*/*.?", "futc3/beta/zy.z"},
-            {"futc?/*/abcd.*", ""},
-            {"futc?/*b*/*.*",
-                      "futc3/beta/abc.def:futc3/beta/abc.zzz:futc3/beta/zy.z"},
-            {"futc3*/*/*.?", "futc3/alpha/zy.z:futc3/beta/zy.z"}
+            {L_, PATH "/*b*/*.?", PATH "/beta/zy.z"},
+            {L_, PATHQ "/*b*/*.?", PATH "/beta/zy.z"},
+            {L_, PATHQ "/*/abcd.*", ""},
+            {L_, PATHQ "/*b*/*.*",
+                   PATH "/beta/abc.def:" PATH "/beta/abc.zzz:"
+                   PATH "/beta/zy.z"},
+            {L_, PATH "*/*/*.?", PATH "/alpha/zy.z:" PATH "/beta/zy.z"}
 #endif
         };
 
@@ -2529,9 +2656,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_() T_() cout << "Creating file "; P(path) }
 
-            Obj::FileDescriptor f = Obj::open(path,
-                                              Obj::e_OPEN_OR_CREATE,
-                                              Obj::e_READ_WRITE);
+            Obj::FileDescriptor f =  Obj::open(path,
+                                               Obj::e_CREATE,
+                                               Obj::e_READ_WRITE);
             ASSERT(Obj::k_INVALID_FD != f);
             ASSERT(0 == Obj::close(f));
 
@@ -2539,9 +2666,9 @@ int main(int argc, char *argv[])
 
             vector<bsl::string> lookup;
             Obj::findMatchingPaths(&lookup, path.c_str());
-            string rollup = rollupPaths(lookup);
+            string rollup = ::rollupPaths(lookup);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            replace_if(rollup.begin(), rollup.end(), isForwardSlash, *PS);
+            replace_if(rollup.begin(), rollup.end(), ::isForwardSlash, *PS);
 #endif
             LOOP2_ASSERT(path, rollup, path == rollup);
 
@@ -2560,7 +2687,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) { T_() T_() cout << "Creating file "; P(path) }
 
             Obj::FileDescriptor f = Obj::open(path,
-                                              Obj::e_OPEN_OR_CREATE,
+                                              Obj::e_CREATE,
                                               Obj::e_READ_WRITE);
             ASSERT(Obj::k_INVALID_FD != f);
             ASSERT(0 == Obj::close(f));
@@ -2569,9 +2696,9 @@ int main(int argc, char *argv[])
 
             vector<bsl::string> lookup;
             Obj::findMatchingPaths(&lookup, path.c_str());
-            string rollup = rollupPaths(lookup);
+            string rollup = ::rollupPaths(lookup);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            replace_if(rollup.begin(), rollup.end(), isForwardSlash, *PS);
+            replace_if(rollup.begin(), rollup.end(), ::isForwardSlash, *PS);
 #endif
             LOOP2_ASSERT(path, rollup, path == rollup);
 
@@ -2583,16 +2710,18 @@ int main(int argc, char *argv[])
         enum { NUM_PARAMETERS = sizeof(parameters) / sizeof(*parameters) };
         for (int i = 0; i < NUM_PARAMETERS; ++i) {
             const Parameters& p = parameters[i];
+            const int LINE      =  p.line;
+
             string pattern(p.pattern);
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-            replace_if(pattern.begin(), pattern.end(), isForwardSlash, *PS);
+            replace_if(pattern.begin(), pattern.end(), ::isForwardSlash, *PS);
 #endif
 
             if (veryVerbose) { T_() T_() cout << "Looking up "; P(path) }
 
             Obj::findMatchingPaths(&resultPaths, pattern.c_str());
-            string rollup = rollupPaths(resultPaths);
-            LOOP2_ASSERT(p.result, rollup, string(p.result) == rollup);
+            string rollup = ::rollupPaths(resultPaths);
+            LOOP3_ASSERT(LINE, p.result, rollup, string(p.result) == rollup);
         }
 
         ASSERT(0 == Obj::remove(path.c_str(), true));
@@ -2665,9 +2794,8 @@ int main(int argc, char *argv[])
         //   FD open(const string& path, openPolicy, ioPolicy, truncatePolicy)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "OPEN" << endl
-                          << "====" << endl;
+        if (verbose) cout << "OPEN TEST\n"
+                             "=========\n";
 
         enum {
             k_READ_BUFFER_SIZE = 64
@@ -2776,7 +2904,7 @@ int main(int argc, char *argv[])
 
             bool isCreateFileTested = false;
 
-            bsl::string fileName(tempFileName());
+            bsl::string fileName(::tempFileName(test));
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                  LINE        = DATA[ti].d_line;
@@ -2899,7 +3027,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBootstrap, phase 2: basic IO test."
                           << endl;
         {
-            bsl::string fileName(tempFileName());
+            bsl::string fileName(::tempFileName(test));
 
             if (Obj::exists(fileName)) {
                 Obj::remove(fileName);
@@ -2992,7 +3120,7 @@ int main(int argc, char *argv[])
                           static_cast<int>(sizeof(lengths) / sizeof(*lengths));
             char       buffer[k_READ_BUFFER_SIZE];
 
-            bsl::string fileName(tempFileName());
+            bsl::string fileName(::tempFileName(test));
 
             if (veryVerbose) { cout << "\tBasic write" << endl; }
 
@@ -3434,7 +3562,7 @@ int main(int argc, char *argv[])
                           static_cast<int>(sizeof(lengths) / sizeof(*lengths));
             char       buffer[k_READ_BUFFER_SIZE];
 
-            bsl::string fileName(tempFileName());
+            bsl::string fileName(::tempFileName(test));
 
             if (veryVerbose) { cout << "\tSeek in empty file." << endl; }
 
@@ -3792,7 +3920,7 @@ int main(int argc, char *argv[])
             };
             int NUM_DATA = sizeof(DATA) / sizeof(DataRow);
 
-            bsl::string fileName(tempFileName());
+            bsl::string fileName(::tempFileName(test));
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                       LINE   = DATA[ti].d_line;
@@ -3949,7 +4077,7 @@ int main(int argc, char *argv[])
             const char blockB[]  = { '0', '1', '2', '3', '4' };
             const int  numBytesB = sizeof(blockB);
 
-            bsl::string fileName(tempFileName());
+            bsl::string fileName(::tempFileName(test));
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                       LINE   = DATA[ti].d_line;
@@ -4154,7 +4282,7 @@ int main(int argc, char *argv[])
 
             bool isCreateFileTested = false;
 
-            bsl::string fileName(tempFileName());
+            bsl::string fileName(::tempFileName(test));
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int                  LINE        = DATA[ti].d_line;
@@ -4303,7 +4431,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing" << endl;
         {
-            bsl::string fileName(tempFileName());
+            bsl::string fileName(::tempFileName(test));
 
             if (Obj::exists(fileName)) {
                 Obj::remove(fileName);
@@ -4370,9 +4498,8 @@ int main(int argc, char *argv[])
         //       open(), and write().
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nUsage Example like Testing"
-                          << "\n==========================" << endl;
-
+        if (verbose) cout << "Usage Example like Testing\n"
+                             "==========================\n";
 
         for (size_t ni = 0; ni < NUM_VALID_NAMES; ++ni) {
             const char *const NAME = NAMES[ni];
@@ -4516,7 +4643,12 @@ int main(int argc, char *argv[])
         //
         // --------------------------------------------------------------------
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        cout << "Test Disabled on Windows\n";
+#else
+        if (verbose) cout << "TESTING detection of large files\n"
+                             "================================\n";
+
         // Not sure how to create large files on windows, so test only on UNIX.
         // However, this function had been tested on windows by creating the
         // large file through cygwin.
@@ -4600,8 +4732,8 @@ int main(int argc, char *argv[])
         //   to create and read back a 5G file.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "SIMPLE 5G FILE TEST CASE\n"
-                             "========================\n";
+        if (verbose) cout << "SIMPLE 5 GIGABYTE FILE TEST CASE\n"
+                             "================================\n";
 
         typedef bdesu_FilesystemUtil Util;
 
@@ -4662,6 +4794,7 @@ int main(int argc, char *argv[])
         if (verbose) P(bytesWritten);
 
         ASSERT(Util::getFileSize(fileName) == bytesWritten);
+        ASSERT(Util::isRegularFile(fileName));
 
         char inBuf[80];
         bsls::Types::Int64 bytesRead = 0;
@@ -4712,6 +4845,19 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERT(0 == Obj::setWorkingDirectory(origWorkingDirectory));
+    LOOP_ASSERT(tmpWorkingDir, Obj::exists(tmpWorkingDir));
+
+    // Sometimes this delete won't work because of '.nfs*' gremlin files that
+    // mysteriously get created in the directory.  Leave the directory behind
+    // and move on.  Also remove twice, because sometimes the first 'remove'
+    // 'sorta' fails -- it returns a negative status after successfully killing
+    // the gremlin file.  Worst case, leave the file there to be cleaned up
+    // in a sweep later.
+
+    Obj::remove(tmpWorkingDir, true);
+    Obj::remove(tmpWorkingDir, true);
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."
