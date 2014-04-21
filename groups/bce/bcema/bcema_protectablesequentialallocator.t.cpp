@@ -687,10 +687,11 @@ int main(int argc, char *argv[])
             for (int i = 0; i < MAX_ALLOCS; ++i) {
                 void *ptr = a.allocate(1);
 
-                LOOP3_ASSERT(i,
-                             EXPECTED,
-                             testDispenser.lastAllocateNumBytes(),
-                             EXPECTED == testDispenser.lastAllocateNumBytes());
+                LOOP3_ASSERT(
+                    i,
+                    EXPECTED,
+                    testDispenser.lastAllocatedNumBytes(),
+                    EXPECTED == testDispenser.lastAllocatedNumBytes());
 
                 a.expand(ptr, 1);
             }
@@ -700,8 +701,8 @@ int main(int argc, char *argv[])
             a.allocate(3 * LIMIT);
 
             LOOP2_ASSERT(EXPECTED2,
-                         testDispenser.lastAllocateNumBytes(),
-                         EXPECTED2 == testDispenser.lastAllocateNumBytes());
+                         testDispenser.lastAllocatedNumBytes(),
+                         EXPECTED2 == testDispenser.lastAllocatedNumBytes());
         }
       } break;
       case 11: {
@@ -770,11 +771,11 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) {
                     P_(size); P_(nextAlloc);
-                    P(testDispenser.lastAllocateNumBytes());
+                    P(testDispenser.lastAllocatedNumBytes());
                 }
 
                 ASSERT(nextAlloc ==
-                              (SizeType) testDispenser.lastAllocateNumBytes());
+                             (SizeType) testDispenser.lastAllocatedNumBytes());
 
                 a.expand(ptr, 1);
 
@@ -816,22 +817,22 @@ int main(int argc, char *argv[])
             void *ptr = a.allocate(LIMIT);
 
             LOOP2_ASSERT(EXP_ALLOC,
-                         testDispenser.lastAllocateNumBytes(),
-                         EXP_ALLOC == testDispenser.lastAllocateNumBytes());
+                         testDispenser.lastAllocatedNumBytes(),
+                         EXP_ALLOC == testDispenser.lastAllocatedNumBytes());
 
             ptr = a.allocate(2 * LIMIT);
 
             LOOP2_ASSERT(EXP_DBL_ALLOC,
-                         testDispenser.lastAllocateNumBytes(),
+                         testDispenser.lastAllocatedNumBytes(),
                          EXP_DBL_ALLOC ==
-                         testDispenser.lastAllocateNumBytes());
+                         testDispenser.lastAllocatedNumBytes());
 
             a.expand(ptr, 2 * LIMIT);
             a.allocate(1);
 
             LOOP2_ASSERT(EXP_ALLOC,
-                         testDispenser.lastAllocateNumBytes(),
-                         EXP_ALLOC == testDispenser.lastAllocateNumBytes());
+                         testDispenser.lastAllocatedNumBytes(),
+                         EXP_ALLOC == testDispenser.lastAllocatedNumBytes());
 
         }
       } break;
@@ -1293,7 +1294,7 @@ int main(int argc, char *argv[])
                 a.allocate(ALLOC_SIZE);
 
                 LOOP_ASSERT(i, DATA[i].d_actualAlloc ==
-                                         testDispenser.lastAllocateNumBytes());
+                                        testDispenser.lastAllocatedNumBytes());
             }
 
         }

@@ -504,13 +504,13 @@ class bdema_TestProtectableBlockDispenser :
         // exception is thrown.  A negative value indicates that no exception
         // is scheduled.
 
-    int lastAllocateNumBytes() const;
+    int lastAllocatedNumBytes() const;
         // Return the number of bytes of the most recent memory request.  The
         // behavior is undefined if no such request has occurred.  Note that
         // this number is always recorded regardless of the validity of the
         // request.
 
-    int lastDeallocateNumBytes() const;
+    int lastDeallocatedNumBytes() const;
         // Return the number of bytes of the most recent memory deallocation
         // request.  Return 0 if the deallocation was performed on a null
         // block descriptor or the deallocation request was invalid (e.g.,
@@ -518,13 +518,13 @@ class bdema_TestProtectableBlockDispenser :
         // dispenser).  The behavior is undefined if no such request has
         // occurred.
 
-    void *lastAllocateAddress() const;
+    void *lastAllocatedAddress() const;
         // Return the allocated memory address of the most recent memory
         // request.  Return 0 if the request was for 0 bytes or if the request
         // was invalid (e.g., allocate non-positive number of bytes).  The
         // behavior is undefined if no such request has occurred.
 
-    void *lastDeallocateAddress() const;
+    void *lastDeallocatedAddress() const;
         // Return the memory address of the last memory deallocation request.
         // Note that the address is always recorded regardless of the validity
         // of the request.  The behavior is undefined if no such request has
@@ -670,25 +670,25 @@ int bdema_TestProtectableBlockDispenser::allocationLimit() const
 }
 
 inline
-int bdema_TestProtectableBlockDispenser::lastAllocateNumBytes() const
+int bdema_TestProtectableBlockDispenser::lastAllocatedNumBytes() const
 {
     return d_lastAllocateNumBytes;
 }
 
 inline
-int bdema_TestProtectableBlockDispenser::lastDeallocateNumBytes() const
+int bdema_TestProtectableBlockDispenser::lastDeallocatedNumBytes() const
 {
     return d_lastDeallocateNumBytes;
 }
 
 inline
-void *bdema_TestProtectableBlockDispenser::lastAllocateAddress() const
+void *bdema_TestProtectableBlockDispenser::lastAllocatedAddress() const
 {
     return d_lastAllocateAddress;
 }
 
 inline
-void *bdema_TestProtectableBlockDispenser::lastDeallocateAddress() const
+void *bdema_TestProtectableBlockDispenser::lastDeallocatedAddress() const
 {
     return d_lastDeallocateAddress;
 }
