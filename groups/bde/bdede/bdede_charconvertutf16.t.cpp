@@ -174,31 +174,38 @@ bool aSsErT(int c, const char *s, int i)
 //---------------------------------------------------------------------------
 
 #define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+   if (!(X)) { cout << #I << ": " << (I) << "\n"; aSsErT(1, #X, __LINE__); }}
 
 #define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " \
+              << (J) << "\n"; aSsErT(1, #X, __LINE__); } }
 
 #define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
+   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << "\t" \
+              << #K << ": " << (K) << "\n"; aSsErT(1, #X, __LINE__); } }
 
 #define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
+   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << "\t" \
+        << #K << ": " << (K) << "\t" << #L << ": " << L << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
 #define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
+   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << \
+       "\t" <<  #K << ": " << (K) << "\t" << #L << ": " << (L) << "\t" << \
+       #M << ": " << (M) << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
 #define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
+   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << \
+        "\t" << #K << ": " << (K) << "\t" << #L << ": " << (L) << "\t" << \
+       #M << ": " << (M) << "\t" << #N << ": " << (N) << "\n"; \
+       aSsErT(1, #X, __LINE__); } }
+
+#define LOOP7_ASSERT(I,J,K,L,M,N,P,X) { \
+   if (!(X)) { cout << #I << ": " << (I) << "\t" << #J << ": " << (J) << \
+        "\t" << #K << ": " << (K) << "\t" << #L << ": " << (L) << "\t" << \
+       #M << ": " << (M) << "\t" << #N << ": " << (N) << "\t" << \
+       #P << ": " << (P) << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
 //=============================================================================
@@ -1503,10 +1510,10 @@ struct FourWayRunner {
 #define RUN_FOUR_WAYS(RUNNER) ((RUNNER).runFourWays(__LINE__))
 
 //=============================================================================
-//                               USAGE EXAMPLE 1
+//                               USAGE EXAMPLE 2
 //-----------------------------------------------------------------------------
 
-///Usage Example 1
+///Usage Example 2
 ///---------------
 // The following snippets of code illustrate a typical use of the
 // 'bdede_CharConvertUtf16' struct's utility functions, first converting from
@@ -4551,7 +4558,7 @@ int main(int argc, char**argv)
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         // --------------------------------------------------------------------
@@ -4559,122 +4566,117 @@ int main(int argc, char**argv)
         if (verbose) cout << "USAGE EXAMPLE 2\n"
                              "===============\n";
 
-        // The following snippets of code illustrate a typical use of the
-        // 'bdede_CharConvertUtf16' struct's utility functions, first
-        // converting from UTF-8 to UTF-16, and then converting back to make
-        // sure the round trip returns the same value.
+// The following snippets of code illustrate a typical use of the
+// 'bdede_CharConvertUtf16' struct's utility functions, first converting from
+// UTF-8 to UTF-16, and then converting back to make sure the round trip
+// returns the same value, translating to containers in both directions.
 
-        // First, we declare a string of utf8 containing single-, double-,
-        // triple-, and quadruple-octet characters.
+// First, we declare a string of utf8 containing single-, double-, triple-, and
+// quadruple-octet characters:
 
-        const char utf8MultiLang[] = {
-            "Hello"                                         // -- Ascii
-            "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
-            "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
-            "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
-            "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
+    const char utf8MultiLang[] = {
+        "Hello"                                         // -- Ascii
+        "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
+        "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
+        "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
+        "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
 
-        // Then, we declare an enum summarizing the counts of characters in the
-        // string and verify that the counts add up to the length of the
-        // string.
+// Then, we declare an 'enum' summarizing the counts of characters in the
+// string and verify that the counts add up to the length of the string:
 
-        enum { NUM_ASCII_CHARS   = 5,
-               NUM_GREEK_CHARS   = 3,
-               NUM_CHINESE_CHARS = 2,
-               NUM_HINDI_CHARS   = 2,
-               NUM_QUAD_CHARS    = 2 };
+    enum { NUM_ASCII_CHARS   = 5,
+           NUM_GREEK_CHARS   = 3,
+           NUM_CHINESE_CHARS = 2,
+           NUM_HINDI_CHARS   = 2,
+           NUM_QUAD_CHARS    = 2 };
 
-        ASSERT(1 * NUM_ASCII_CHARS +
-               2 * NUM_GREEK_CHARS +
-               3 * NUM_CHINESE_CHARS +
-               3 * NUM_HINDI_CHARS +
-               4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
+    ASSERT(1 * NUM_ASCII_CHARS +
+           2 * NUM_GREEK_CHARS +
+           3 * NUM_CHINESE_CHARS +
+           3 * NUM_HINDI_CHARS +
+           4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
 
-        // Next, we declare the vector where our utf16 output will go, and a
-        // variable into which the number of characters (characters, not bytes
-        // or words) written will be stored.  It is not necessary to initialize
-        // 'utf16CharsWritten'.
+// Next, we declare the vector where our utf16 output will go, and a variable
+// into which the number of characters (characters, not bytes or words) written
+// will be stored.  It is not necessary to initialize 'utf16CharsWritten':
 
-        bsl::vector<unsigned short> v16;
-        bsl::size_t utf16CharsWritten;
+    bsl::vector<unsigned short> v16;
+    bsl::size_t utf16CharsWritten;
 
-        // Note that for performance, we should
-        // 'v16.reserve(sizeof(utf8MultiLang))', but it's not strictly
-        // necessary -- it will automatically be grown to the correct size.
-        // Note also that if 'v16' were not empty, that wouldn't be a problem
-        // -- any contents will be discarded.
+// Note that for performance, we should 'v16.reserve(sizeof(utf8MultiLang))',
+// but it's not strictly necessary -- the vector will automatically be grown to
+// the correct size.  Also note that if 'v16' were not empty, that wouldn't be
+// a problem -- any contents will be discarded.
 
-        // Then, we do the translation to 'utf16'.
+// Then, we do the translation to 'utf16':
 
-        int retVal = bdede_CharConvertUtf16::utf8ToUtf16(&v16,
-                                                         utf8MultiLang,
-                                                         &utf16CharsWritten);
+    int retVal = bdede_CharConvertUtf16::utf8ToUtf16(&v16,
+                                                     utf8MultiLang,
+                                                     &utf16CharsWritten);
 
-        ASSERT(0 == retVal);        // verify success
-        ASSERT(0 == v16.back());    // verify null terminated
+    ASSERT(0 == retVal);        // verify success
+    ASSERT(0 == v16.back());    // verify null terminated
 
-        // Next, we verify that the number of characters (characters, not bytes
-        // or words) that was returned is correct.
+// Next, we verify that the number of characters (characters, not bytes or
+// words) that was returned is correct:
 
-        enum { EXPECTED_CHARS_WRITTEN =
+    enum { EXPECTED_CHARS_WRITTEN =
                         NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
                         NUM_HINDI_CHARS + NUM_QUAD_CHARS  + 1 };
-        ASSERT(EXPECTED_CHARS_WRITTEN == utf16CharsWritten);
+    ASSERT(EXPECTED_CHARS_WRITTEN == utf16CharsWritten);
 
-        // Then, we verify that the number of 16-bit words written was correct.
-        // The quad octet chars each require 2 short words of output
+// Then, we verify that the number of 16-bit words written was correct.  The
+// quad octet chars each require 2 'short' words of output:
 
-        enum { EXPECTED_UTF16_WORDS_WRITTEN =
+    enum { EXPECTED_UTF16_WORDS_WRITTEN =
                         NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
                         NUM_HINDI_CHARS + NUM_QUAD_CHARS * 2 + 1 };
 
-        ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
+    ASSERT(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
 
-        // Next, we calculate and confirm the difference between the number of
-        // utf16 words output and the number of bytes input.  The ascii chars
-        // will take 1 16-bit word apiece, the Greek chars are double octets
-        // that will become single shorts, the Chinese chars are encoded as
-        // utf8 triple octets that will turn into single 16-bit words, the same
-        // for the Hindi chars, and the quad chars are quadruple octets that
-        // will turn into double shorts.
+// Next, we calculate and confirm the difference between the number of utf16
+// words output and the number of bytes input.  The ascii chars will take 1
+// 16-bit word apiece, the Greek chars are double octets that will become
+// single 'short' values, the Chinese chars are encoded as utf8 triple octets
+// that will turn into single 16-bit words, the same for the Hindi chars, and
+// the quad chars are quadruple octets that will turn into double 'short'
+// values:
 
-        enum { SHRINKAGE =
-                          NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
-                          NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
-                          NUM_QUAD_CHARS    * (4-2) };
+    enum { SHRINKAGE = NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
+                       NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
+                       NUM_QUAD_CHARS    * (4-2) };
 
-        ASSERT(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
+    ASSERT(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
 
-        // Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it
-        // back into utf8, and we should get a result identical to our original
-        // input.  Declare a 'bsl::string' for our output, and a variable to
-        // count the number of characters (characters, not bytes or words)
-        // translated.
+// Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it back
+// into utf8, and we should get a result identical to our original input.
+// We declare a 'bsl::string' for our output, and a variable to count the
+// number of characters (characters, not bytes or words) translated:
 
-        bsl::string    s;
-        bsl::size_t    utf8CharsWritten;
+    bsl::string s;
+    bsl::size_t utf8CharsWritten;
 
-        // Again, note that for performance, we should ideally
-        // 's.reserve(3 * v16.size())' but it's not really necessary.
+// Again, note that for performance, we should ideally
+// 's.reserve(3 * v16.size())' but it's not really necessary.
 
-        // Now, we do the reverse transform:
+// Now, we do the reverse transform:
 
-        retVal = bdede_CharConvertUtf16::utf16ToUtf8(&s,
-                                                     v16.begin(),
-                                                     &utf8CharsWritten);
+    retVal = bdede_CharConvertUtf16::utf16ToUtf8(&s,
+                                                 v16.begin(),
+                                                 &utf8CharsWritten);
 
-        // Finally, we verify a successful status was returned, that the output
-        // of the reverse transform was identical to the original input, and
-        // that the number of chars translated was as expected.
+// Finally, we verify that a successful status was returned, that the output of
+// the reverse transform was identical to the original input, and that the
+// number of chars translated was as expected:
 
-        ASSERT(0 == retVal);
-        ASSERT(utf8MultiLang == s);
-        ASSERT(s.length() + 1         == sizeof(utf8MultiLang));
+    ASSERT(0 == retVal);
+    ASSERT(utf8MultiLang == s);
+    ASSERT(s.length() + 1         == sizeof(utf8MultiLang));
 
-        ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
-        ASSERT(utf16CharsWritten      == utf8CharsWritten);
+    ASSERT(EXPECTED_CHARS_WRITTEN == utf8CharsWritten);
+    ASSERT(utf16CharsWritten      == utf8CharsWritten);
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         // --------------------------------------------------------------------
@@ -4683,88 +4685,220 @@ int main(int argc, char**argv)
                              "===============\n";
 
 // In this example, we will translate a string containing a non-ascii character
-// from UTF-16 to UTF-8 and back.
+// from UTF-16 to UTF-8 and back using fixed-length buffers.
 
 // First, we create a UTF-16 string spelling 'ecole' in French, which begins
 // with '0xc9', a non-ascii 'e' with an accent over it:
 
-        unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
+    unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
 
 // Then, we create a byte buffer to store the UTF-8 result of the translation
 // in, and variables to monitor counts of characters and bytes translated:
 
-        char utf8String[7];
-        bsl::size_t numChars, numBytes;
-        numChars = numBytes = -1;    // garbage
+    char utf8String[7];
+    bsl::size_t numChars, numBytes;
+    numChars = numBytes = -1;    // garbage
 
 // Next, we call 'utf16ToUtf8' to do the translation:
 
-        int rc = bdede_CharConvertUtf16::utf16ToUtf8(utf8String,
-                                                     sizeof(utf8String),
-                                                     utf16String,
-                                                     &numChars,
-                                                     &numBytes);
+    int rc = bdede_CharConvertUtf16::utf16ToUtf8(utf8String,
+                                                 sizeof(utf8String),
+                                                 utf16String,
+                                                 &numChars,
+                                                 &numBytes);
 
-// Then, we observe no errors or warnings occurred, and numbers of chars and
-// bytes were as expected.  note that both 'numChars' and 'numBytes' include
-// the terminating 0.
+// Then, we observe that no errors or warnings occurred, and that the numbers
+// of chars and bytes were as expected. note that both 'numChars' and
+// 'numBytes' include the terminating 0.
 
-        ASSERT(0 == rc);
-        ASSERT(6 == numChars);
-        ASSERT(7 == numBytes);
+    ASSERT(0 == rc);
+    ASSERT(6 == numChars);
+    ASSERT(7 == numBytes);
 
 // Next, we examine the length of the translated string:
 
-        ASSERT(numBytes - 1 == bsl::strlen(utf8String));
+    ASSERT(numBytes - 1 == bsl::strlen(utf8String));
 
 // Then, we examine the individual bytes of the translated UTF-8:
 
-        ASSERT((char) 0xc3 == utf8String[0]);
-        ASSERT((char) 0x89 == utf8String[1]);
-        ASSERT('c' ==         utf8String[2]);
-        ASSERT('o' ==         utf8String[3]);
-        ASSERT('l' ==         utf8String[4]);
-        ASSERT('e' ==         utf8String[5]);
-        ASSERT(0   ==         utf8String[6]);
+    ASSERT((char)0xc3 == utf8String[0]);
+    ASSERT((char)0x89 == utf8String[1]);
+    ASSERT('c' ==        utf8String[2]);
+    ASSERT('o' ==        utf8String[3]);
+    ASSERT('l' ==        utf8String[4]);
+    ASSERT('e' ==        utf8String[5]);
+    ASSERT(0   ==        utf8String[6]);
 
 // Next, in preparation for translation back to UTF-16, we create a buffer of
-// shorts and the variable 'numWords' to track the number of UTF-16 words
-// occupied by the result.
+// 'short' values and the variable 'numWords' to track the number of UTF-16
+// words occupied by the result:
 
-        unsigned short secondUtf16String[6];
-        bsl::size_t numWords;
-        numChars = numWords = -1;    // garbage
+    unsigned short secondUtf16String[6];
+    bsl::size_t numWords;
+    numChars = numWords = -1;    // garbage
 
 // Then, we do the reverse translation:
 
-        rc = bdede_CharConvertUtf16::utf8ToUtf16(secondUtf16String,
-                                                 6,
-                                                 utf8String,
-                                                 &numChars,
-                                                 &numWords);
+    rc = bdede_CharConvertUtf16::utf8ToUtf16(secondUtf16String,
+                                             6,
+                                             utf8String,
+                                             &numChars,
+                                             &numWords);
 
 // Next, we observe that no errors or warnings were reported, and that the
 // number of characters and words were as expected.  Note that 'numChars' and
 // 'numWords' both include the terminating 0:
 
-        ASSERT(0 == rc);
-        ASSERT(6 == numChars);
-        ASSERT(6 == numWords);
+    ASSERT(0 == rc);
+    ASSERT(6 == numChars);
+    ASSERT(6 == numWords);
 
 // Now, we observe that our output is identical to the original UTF-16 string:
 
-        ASSERT(0 == bsl::memcmp(utf16String,
-                                secondUtf16String,
-                                sizeof(utf16String)));
+    ASSERT(0 == bsl::memcmp(utf16String,
+                            secondUtf16String,
+                            sizeof(utf16String)));
 
-// Finally, we examine the individual words of the the reverse translation:
+// Finally, we examine the individual words of the reverse translation:
 
-        ASSERT(0xc9 == secondUtf16String[0]);
-        ASSERT('c'  == secondUtf16String[1]);
-        ASSERT('o'  == secondUtf16String[2]);
-        ASSERT('l'  == secondUtf16String[3]);
-        ASSERT('e'  == secondUtf16String[4]);
-        ASSERT(0    == secondUtf16String[5]);
+    ASSERT(0xc9 == secondUtf16String[0]);
+    ASSERT('c'  == secondUtf16String[1]);
+    ASSERT('o'  == secondUtf16String[2]);
+    ASSERT('l'  == secondUtf16String[3]);
+    ASSERT('e'  == secondUtf16String[4]);
+    ASSERT(0    == secondUtf16String[5]);
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // EMBEDDED ZEROES TEST
+        //
+        // Concern:
+        //: o That the translators correctly translate sequences contianing
+        //:   embeedeed zeroes.
+        //: o That embedded zeroes at inopportune places don't cause segfaults
+        //:   or failed asserts.
+        //
+        // Plan:
+        //: o Construct some snippet sequences with valid, random sequences of
+        //:   Unicode, and randomly mix them up, with occasional zeroes in
+        //:   between.
+        //: o Insert zeroes at places all along the string, and observe whether
+        //:   segfaults or failed asserts occur.
+        // --------------------------------------------------------------------
+
+        typedef bdede_CharConvertUtf16 Obj;
+
+        enum { k_ASCII = 0, k_GREEK = 1, k_CHINESE = 2, k_HINDI = 3,
+                                                      k_QUAD = 4, k_ZERO = 5 };
+        enum { k_NUM_SNIPPETS = k_ZERO + 1 };
+
+        bsl::string utf8s[k_NUM_SNIPPETS];
+        utf8s[k_ASCII]   = "Hello";
+        utf8s[k_GREEK]   = "\xce\x97\xce\x95\xce\xbb";
+        utf8s[k_CHINESE] = "\xe4\xb8\xad\xe5\x8d\x8e";
+        utf8s[k_HINDI]   = "\xe0\xa4\xad\xe0\xa4\xbe";
+        utf8s[k_QUAD]    = "\xf2\x94\xb4\xa5\xf3\xb8\xac\x83";
+        utf8s[k_ZERO].push_back(0);
+
+        bsl::wstring utf16s[k_NUM_SNIPPETS];
+        ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_ASCII],   utf8s[k_ASCII]));
+        ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_GREEK],   utf8s[k_GREEK]));
+        ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_CHINESE], utf8s[k_CHINESE]));
+        ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_HINDI],   utf8s[k_HINDI]));
+        ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_QUAD],    utf8s[k_QUAD]));
+        ASSERT(0 == Obj::utf8ToUtf16(&utf16s[k_ZERO],    utf8s[k_ZERO]));
+
+        const bsl::size_t numChars[] = { 5, 3, 2, 2, 2, 1 };
+
+        for (int ti = 0; ti < k_NUM_SNIPPETS; ++ti) {
+            ASSERT(! utf8s[ ti].empty());
+            ASSERT(utf8s[ti].length() >= numChars[ti]);
+            ASSERT(! utf16s[ti].empty());
+            if (ti != k_QUAD) {
+                ASSERT(utf16s[ti].length() == numChars[ti]);
+            }
+            else {
+                ASSERT(utf16s[ti].length() == 2 * numChars[ti]);
+            }
+        }
+
+        for (int ti = 0; ti < k_NUM_SNIPPETS; ++ti) {
+            for (int tj = 0; tj < k_NUM_SNIPPETS; ++tj) {
+                for (int tk = 0; tk < k_NUM_SNIPPETS; ++tk) {
+                    for (int tm = 0; tm < k_NUM_SNIPPETS; ++tm) {
+                        for (int tn = 0; tn < k_NUM_SNIPPETS; ++tn) {
+                            const bool zeroThere = k_ZERO == ti || k_ZERO == tj
+                                                || k_ZERO == tk || k_ZERO == tm
+                                                || k_ZERO == tn;
+
+                            if (!zeroThere) continue;
+
+                            if (veryVerbose) {
+                                P_(ti) P_(tj) P_(tk) P_(tm) P(tn);
+                            }
+
+                            const bsl::size_t NUM_CHARS = 1 + numChars[ti] +
+                                                  numChars[tj] + numChars[tk] +
+                                                  numChars[tm] + numChars[tn];
+
+                            const bsl::string utf8In = utf8s[ti] + utf8s[tj] +
+                                             utf8s[tk] + utf8s[tm] + utf8s[tn];
+                            ASSERT(utf8In.length() == utf8s[ti].length() +
+                                     utf8s[tj].length() + utf8s[tk].length() +
+                                     utf8s[tm].length() + utf8s[tn].length());
+                            ASSERT(zeroThere == (bsl::strlen(utf8In.c_str()) <
+                                                             utf8In.length()));
+
+                            const bsl::wstring expectedUtf16 = utf16s[ti] +
+                                         utf16s[tj] + utf16s[tk] + utf16s[tm] +
+                                         utf16s[tn];
+                            ASSERT(expectedUtf16.length() ==
+                                    utf16s[ti].length() +
+                                    utf16s[tj].length() + utf16s[tk].length() +
+                                    utf16s[tm].length() + utf16s[tn].length());
+                            bsl::wstring utf16;
+                            bsl::size_t nc = -1;
+                            ASSERT(0 == Obj::utf8ToUtf16(&utf16, utf8In, &nc));
+                            ASSERT(expectedUtf16 == utf16);
+                            LOOP7_ASSERT(nc, NUM_CHARS, ti, tj, tk, tm, tn,
+                                                              NUM_CHARS == nc);
+
+                            bsl::string utf8Out;
+                            nc = -1;
+                            ASSERT(0 == Obj::utf16ToUtf8(&utf8Out, utf16,&nc));
+                            ASSERT(utf8In == utf8Out);
+                            LOOP7_ASSERT(nc, NUM_CHARS, ti, tj, tk, tm, tn,
+                                                              NUM_CHARS == nc);
+
+                            // Broken glass test, just making sure embedded
+                            // zeros at certain places don't cause segfaults
+                            // or failed asserts.  Only do when 'ti == tj'
+                            // to reduce the # of times this expensive test is
+                            // done.
+
+                            if (ti == tj) {
+                                for (unsigned u = 0; u < utf8Out.length();
+                                                                         ++u) {
+                                    char save = utf8Out[u];
+                                    if (0 == save) continue;
+                                    utf8Out[u] = 0;
+                                    (void) Obj::utf8ToUtf16(&utf16, utf8Out);
+                                    utf8Out[u] = save;
+                                }
+                                for (unsigned u = 0; u < utf16.length(); ++u) {
+                                    wchar_t save = utf16[u];
+                                    if (0 == save) continue;
+                                    utf16[u] = 0;
+                                    (void) Obj::utf16ToUtf8(&utf8Out,
+                                                            utf16);
+                                    utf16[u] = save;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -4898,24 +5032,6 @@ int main(int argc, char**argv)
         ASSERT(dstStr == dstStrB);
         LOOP2_ASSERT(nc2, nc, nc2 == nc);
 
-        nc2 = (bsl::size_t) -1;
-        rc2 = Util::utf16ToUtf8(&dstVecB,
-                                bslstl::StringRefWide(start, END),
-                                &nc2,
-                                errorChar);
-        ASSERT(rc2 == rc);
-        ASSERT(dstVec == dstVecB);
-        LOOP2_ASSERT(nc2, nc, nc2 == nc);
-
-        nc2 = (bsl::size_t) -1;
-        rc2 = Util::utf16ToUtf8(&dstStrB,
-                                bslstl::StringRefWide(start, END),
-                                &nc2,
-                                errorChar);
-        ASSERT(rc2 == rc);
-        ASSERT(dstStr == dstStrB);
-        LOOP2_ASSERT(nc2, nc, nc2 == nc);
-
         *end = save;
 
         srcVec.clear();
@@ -5000,26 +5116,6 @@ int main(int argc, char**argv)
             }
             else {
                 ASSERT(found == dstVec.begin() + nw2);
-            }
-
-            if (cap + 4 >= dstCap) {
-                save = *end;
-                *end = 0;
-
-                nc2 = nw2 = (bsl::size_t) -1;
-                bsl::memset(dstVecB.begin(), (char) -1, dstVecB.size());
-                int rc3 = Util::utf16ToUtf8(&dstVecB[0],
-                                            cap,
-                                            bslstl::StringRefWide(start, END),
-                                            &nc2,
-                                            &nw2,
-                                            errorChar);
-                ASSERT(rc3 == rc2);
-                ASSERT(nc2 == nc);
-                ASSERT(nw2 == nw);
-                ASSERT(0 == bsl::memcmp(&dstVec[0], &dstVecB[0], nw));
-
-                *end = save;
             }
         }
 
@@ -5125,7 +5221,8 @@ int main(int argc, char**argv)
                         char *END = INPUT.begin() + INPUT.length() - 1;
                         for (char *start = INPUT.begin();
                                                         start < END; ++start) {
-                            for (char *end = start; end <= END; ++end) {
+                            bsl::size_t max16Len = 0;
+                            for (char *end = END; end >= start; --end) {
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
 //      |<<<<<<<<<<<<<<<<<<<<<<<|
         bsl::size_t nc, nc2, nw, nw2;
@@ -5139,6 +5236,8 @@ int main(int argc, char**argv)
                        bdede_CharConvertStatus::BDEDE_INVALID_CHARS_BIT == rc);
         ASSERT(0 == (rc & bdede_CharConvertStatus::BDEDE_OUT_OF_SPACE_BIT));
         ASSERT(nc <= dst.size());
+
+        max16Len = bsl::max(max16Len, dst.size());
 
         const unsigned short *found = bsl::find(dst.begin(),
                                                 dst.end(),
@@ -5187,23 +5286,24 @@ int main(int argc, char**argv)
         ASSERT(nc2 == nc);
         ASSERT(wStrB == wStr);
 
+        // Don't test 'rc2', the implanted '\0' might have inflicted invalid
+        // chars.
+
         nc2 = (bsl::size_t) -1;
         rc2 = Util::utf8ToUtf16(&dstB,
                                 bslstl::StringRef(start, END),
                                 &nc2,
                                 errorChar);
-        ASSERT(rc2 == rc);
-        ASSERT(nc2 == nc);
-        ASSERT(dstB == dst);
+        ASSERT(END == end ? nc2 == nc : nc2 > nc);
+        ASSERT((END == end) == (dstB == dst));
 
         nc2 = (bsl::size_t) -1;
         rc2 = Util::utf8ToUtf16(&wStrB,
                                 bslstl::StringRef(start, END),
                                 &nc2,
                                 errorChar);
-        ASSERT(rc2 == rc);
-        ASSERT(nc2 == nc);
-        ASSERT(wStrB == wStr);
+        ASSERT(END == end ? nc2 == nc : nc2 > nc);
+        ASSERT((END == end) == (wStrB == wStr));
 
         *end = save;
 
@@ -5224,7 +5324,7 @@ int main(int argc, char**argv)
 
         ASSERT(wStr.length() == dst.size());
 
-        for (bsl::size_t cap = 1; cap <= dstCap + 1; ++cap) {
+        for (bsl::size_t cap = 1; cap <= dstCap; ++cap) {
             bsl::fill(dst.begin(), dst.end(), (unsigned short) -1);
 
             nc = nw = (bsl::size_t) -1;
@@ -5273,6 +5373,9 @@ int main(int argc, char**argv)
 
             *end = save;
 
+            if (cap >= wStr.length()) {
+                wStr.resize(cap + 1);
+            }
             bsl::fill(wStr.begin(), wStr.end(), (wchar_t) -1);
 
             nc2 = nw2 = (bsl::size_t) -1;
@@ -5294,6 +5397,7 @@ int main(int argc, char**argv)
             save = *end;
             *end = 0;
 
+            ASSERT(wStr.length() > cap);
             bsl::fill(wStr.begin(), wStr.end(), (wchar_t) -1);
 
             nc2 = nw2 = (bsl::size_t) -1;
@@ -5313,41 +5417,6 @@ int main(int argc, char**argv)
             }
 
             *end = save;
-
-            if (cap + 2 >= dstCap) {
-                save = *end;
-                *end = 0;
-
-                bsl::fill(dstB.begin(), dstB.end(), (unsigned short) -1);
-                nc2 = nw2 = (bsl::size_t) -1;
-                rc2 = Util::utf8ToUtf16(&dstB[0],
-                                        cap,
-                                        bslstl::StringRef(start, END),
-                                        &nc2,
-                                        &nw2,
-                                        errorChar);
-                ASSERT(rc2 == rc);
-                ASSERT(nc2 == nc);
-                ASSERT(nw2 == nw);
-                LOOP_ASSERT(dstB[cap], (unsigned short) -1 == dstB[cap]);
-                ASSERT(0 == bsl::memcmp(&dst[0], &dstB[0], nw*sizeof(short)));
-
-                bsl::fill(wStrB.begin(), wStrB.end(), (wchar_t) -1);
-                nc2 = nw2 = (bsl::size_t) -1;
-                rc2 = Util::utf8ToUtf16(&wStrB[0],
-                                        cap,
-                                        bslstl::StringRef(start, END),
-                                        &nc2,
-                                        &nw2,
-                                        errorChar);
-                ASSERT(rc2 == rc);
-                ASSERT(nc2 == nc);
-                ASSERT(nw2 == nw);
-                ASSERT((wchar_t) -1 == wStrB[cap]);
-                ASSERT(! bsl::memcmp(&wStr[0], &wStrB[0], nw*sizeof(wchar_t)));
-
-                *end = save;
-            }
         }
 
         ASSERT(bsl::strlen(INPUT.c_str()) == INPUT.length());
@@ -5843,10 +5912,13 @@ int main(int argc, char**argv)
                 ASSERT(bsl::strlen(utf8Vec.begin()) + 1 == utf8Vec.size());
                 ASSERT(!bsl::strcmp(utf8Vec.begin(), charUtf8MultiLang));
 
+                ASSERT(0 == utf16W[numWords16W - 1]);
+
                 bsl::vector<char> utf8VecB;
                 rc = Util::utf16ToUtf8(&utf8VecB,
-                                       bslstl::StringRefWide(utf16W,
-                                                             (int)numWords16W),
+                                       bslstl::StringRefWide(
+                                                         utf16W,
+                                                         (int)numWords16W - 1),
                                        &numChars8);
                 ASSERT(0 == rc);
 
@@ -5890,10 +5962,13 @@ int main(int argc, char**argv)
                 ASSERT(bsl::strlen(utf8String.c_str()) + 1 == numBytes8);
                 ASSERT(!bsl::strcmp(utf8String.begin(), charUtf8MultiLang));
 
+                ASSERT(0 == utf16W[numWords16W - 1]);
+
                 bsl::string utf8StringB(&ta);
                 rc = Util::utf16ToUtf8(&utf8StringB,
-                                       bslstl::StringRefWide(utf16W,
-                                                             (int)numWords16W),
+                                       bslstl::StringRefWide(
+                                                        utf16W,
+                                                        (int) numWords16W - 1),
                                        &numChars8);
                 ASSERT(0 == rc);
                 ASSERT(utf8String == utf8StringB);
@@ -6067,10 +6142,12 @@ int main(int argc, char**argv)
         ASSERT(bsl::strlen(utf8) + 1 == numBytes8);
         ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
 
+        ASSERT(0 == utf16W[numWords16W - 1]);
+
         rc = Util::utf16ToUtf8(utf8,
                                CAPACITY,
                                bslstl::StringRefWide(utf16W,
-                                                     (int) numWords16W),
+                                                     (int) numWords16W - 1),
                                &numChars8,
                                &numBytes8);
 
@@ -6080,9 +6157,11 @@ int main(int argc, char**argv)
         }
 
         ASSERT(0 == rc);
-        ASSERT(numChars16 == numChars8);
-        ASSERT(numBytes8  == sizeof(utf8MultiLang));
-        ASSERT(bsl::strlen(utf8) + 1 == numBytes8);
+        LOOP2_ASSERT(numChars16, numChars8, numChars16 == numChars8);
+        LOOP2_ASSERT(numBytes8, sizeof(utf8MultiLang),
+                                           numBytes8 == sizeof(utf8MultiLang));
+        LOOP2_ASSERT(bsl::strlen(utf8) + 1, numBytes8,
+                                           bsl::strlen(utf8) + 1 == numBytes8);
         ASSERT(!bsl::strcmp(utf8, charUtf8MultiLang));
 
         ta.deallocate(utf16S);
