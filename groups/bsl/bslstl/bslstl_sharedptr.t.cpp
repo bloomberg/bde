@@ -35,7 +35,9 @@
 #endif
 #endif
 
-#pragma bde_verify -TP03
+#pragma bde_verify -TP03  // Many tests without assigned test case
+
+#pragma bde_verify -UC01  // Warning on all-const identifiers is too aggressive
 
 using namespace BloombergLP;
 
@@ -1306,6 +1308,19 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 
 #pragma bde_verify pop
 
+// Define traits outside of the text of the usage example as they distract from
+// the core message.
+
+namespace BloombergLP {
+namespace bslma {
+
+template<>
+struct UsesBslmaAllocator<NAMESPACE_USAGE_EXAMPLE_1::MyUser>
+     : bsl::true_type {};
+
+}  // close traits namespace
+}  // close enterprise namespace
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -1978,14 +1993,6 @@ class MyAllocTestDeleter {
         // deleter supplied to this object's constructor.
 };
 
-namespace BloombergLP {
-namespace bslma {
-template <>
-struct UsesBslmaAllocator<MyAllocTestDeleter>
-     : bsl::true_type {};
-}  // close namespace bslma
-}  // close namespace BloombergLP
-
                         // ======================
                         // class TestSharedPtrRep
                         // ======================
@@ -2068,6 +2075,25 @@ struct PerformanceTester
         // feedback to the user, and the specified 'allocVerbose' to indicate
         // the level of feedback on allocator operations.
 };
+
+
+// Traits for test types:
+namespace BloombergLP {
+namespace bslma {
+template <>
+struct UsesBslmaAllocator<MyTestObjectFactory>
+     : bsl::false_type {};
+
+template <>
+struct UsesBslmaAllocator<MyAllocTestDeleter>
+     : bsl::true_type {};
+
+template <class TYPE>
+struct UsesBslmaAllocator<TestSharedPtrRep<TYPE> >
+     : bsl::true_type {};
+
+}  // close namespace bslma
+}  // close namespace BloombergLP
 
 // ============================================================================
 //                      MEMBER- AND TEMPLATE-FUNCTION IMPLEMENTATIONS

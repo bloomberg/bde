@@ -2752,6 +2752,14 @@ void swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b);
     // other.
 
 
+// STANDARD FREE FUNCTIONS
+template<class DELETER, class ELEMENT_TYPE>
+DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
+    // Return the address of the (template parameter) type 'DELETER' used by
+    // the specified 'p' if that is the type of the deleter installed in 'p',
+    // and a null pointer value otherwise.
+
+
 // STANDARD CAST FUNCTIONS
 template<class TO_TYPE, class FROM_TYPE>
 shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>& source);
@@ -2777,13 +2785,8 @@ shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source);
     // Note that if 'source' cannot be statically cast to 'TO_TYPE *', then a
     // compiler diagnostic will be emitted indicating the error.
 
-// STANDARD FREE FUNCTIONS
-template<class DELETER, class ELEMENT_TYPE>
-DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p);
-    // Return the address of the (template parameter) type 'DELETER' used by
-    // the specified 'p' if that is the type of the deleter installed in 'p',
-    // and a null pointer value otherwise.
 
+// STANDARD FACTORY FUNCTIONS
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
@@ -5076,6 +5079,14 @@ void bsl::swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b)
     a.swap(b);
 }
 
+// STANDARD FREE FUNCTIONS
+template<class DELETER, class ELEMENT_TYPE>
+DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
+{
+    BloombergLP::bslma::SharedPtrRep *rep = p.rep();
+    return rep ? static_cast<DELETER *>(rep->getDeleter(typeid(DELETER))) : 0;
+}
+
 // STANDARD CAST FUNCTIONS
 template<class TO_TYPE, class FROM_TYPE>
 bsl::shared_ptr<TO_TYPE>
@@ -5098,14 +5109,7 @@ bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
     return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.ptr()));
 }
 
-// STANDARD FREE FUNCTIONS
-template<class DELETER, class ELEMENT_TYPE>
-DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
-{
-    BloombergLP::bslma::SharedPtrRep *rep = p.rep();
-    return rep ? static_cast<DELETER *>(rep->getDeleter(typeid(DELETER))) : 0;
-}
-
+// STANDARD FACTORY FUNCTIONS
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<class ELEMENT_TYPE, class ALLOC, class... ARGS>
@@ -6373,18 +6377,21 @@ bsl::make_shared(const A1& a1, const A2& a2, const A3& a3, const A4& a4,
 //                              TYPE TRAITS
 // ============================================================================
 
-// Type traits for STL *sequence* containers:
-//: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise movable if the allocator is bitwise
-//:     movable.
-//: o A sequence container uses 'bslma' allocators if the parameterized
-//:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
+// Type traits for smart pointers:
+//: o 'shared_ptr' has pointer samantics, but 'weak_ptr' does not.
+//: o Although 'shared_ptr' constructs with an allocator, it does not 'use' an
+//:   allocator in the manner of the 'UsesBslmaAllocator' trait, and should be
+//:   explicitly specialized as a clear sign to code inspection tools.
+//: o Smart pointers are bitwise-movable as long as there is no opportunity for
+//:   holding a pointer to internal state in the immediate object itself.  As
+//:   'd_ptr_p' is never exposed by reference, it is not possible to create an
+//:   internal pointer, so the trait should be 'true'.
 
 namespace BloombergLP {
 
 namespace bslma {
 
-template <typename ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 struct UsesBslmaAllocator< ::bsl::shared_ptr<ELEMENT_TYPE> >
     : bsl::false_type
 {};
@@ -6393,13 +6400,18 @@ struct UsesBslmaAllocator< ::bsl::shared_ptr<ELEMENT_TYPE> >
 
 namespace bslmf {
 
-template <typename ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 struct HasPointerSemantics< ::bsl::shared_ptr<ELEMENT_TYPE> >
     : bsl::true_type
 {};
 
-template <typename ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 struct IsBitwiseMoveable< ::bsl::shared_ptr<ELEMENT_TYPE> >
+    : bsl::true_type
+{};
+
+template <class ELEMENT_TYPE>
+struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
     : bsl::true_type
 {};
 
