@@ -232,10 +232,6 @@ BDES_IDENT("$Id: $")
 #include <bcemt_lockguard.h>
 #endif
 
-#ifndef INCLUDED_BCEMT_READLOCKGUARD
-#include <bcemt_readlockguard.h>
-#endif
-
 #ifndef INCLUDED_BCES_ATOMICTYPES
 #include <bces_atomictypes.h>
 #endif

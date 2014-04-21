@@ -712,14 +712,10 @@ int btemt_TcpTimerEventManager_ControlChannel::recreateSocketPair()
 
     BSLS_ASSERT_OPT(++d_numReinitsAttempted <= MAX_NUM_RETRIES);
 
-    bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_socketPairLock);
-
-    bteso_SocketHandle::Handle clientFd = d_fds[0];
-    bteso_SocketHandle::Handle serverFd = d_fds[1];
-
-    bteso_SocketImpUtil::close(serverFd);
-    bteso_SocketImpUtil::close(clientFd);
-
+    bteso_SocketImpUtil::close(
+                            static_cast<bteso_SocketHandle::Handle>(d_fds[0]));
+    bteso_SocketImpUtil::close(
+                            static_cast<bteso_SocketHandle::Handle>(d_fds[1]));
     return initialize();
 
 #else
@@ -827,7 +823,9 @@ void btemt_TcpTimerEventManager::controlCb()
     int numRequests = d_controlChannel_p->serverRead();
 
     if (numRequests <= 0) {
-        reinitializeControlChannel();
+        const int rc = reinitializeControlChannel();
+        BSLS_ASSERT_OPT(0 == rc);
+
         return;                                                       // RETURN
     }
 

@@ -220,11 +220,7 @@ extern "C" void * case100EntryPoint(void *arg)
     printf("Thread %d has started\n", j);
     bdef_Function<void (*)()> mgrReinitFunctor;
     btemt_TcpTimerEventManager& em = *pEventManager;
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
-    btemt_TcpTimerEventManager_ControlChannel chnl(mgrReinitFunctor);
-#else
     btemt_TcpTimerEventManager_ControlChannel chnl;
-#endif
 
     bdef_Function<void (*)()> socketFunctor(
             bdef_BindUtil::bind(&socketCb, &em, &chnl, j));
@@ -802,7 +798,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl
                           << "TESTING spinning does not happen" << endl
-                          << "=================================" << endl;
+                          << "================================" << endl;
 
 #ifdef BTESO_PLATFORM_WIN_SOCKETS
         using namespace CASE15;
