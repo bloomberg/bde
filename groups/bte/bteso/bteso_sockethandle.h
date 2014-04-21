@@ -52,7 +52,7 @@ struct bteso_SocketHandle {
     typedef int Handle;
 #endif
 
-    static const Handle INVALID_SOCKET;
+    static const Handle INVALID_SOCKET_HANDLE;
         // Provide a reference specifying an invalid socket.
 
     enum {

@@ -627,8 +627,8 @@ int btemt_TcpTimerEventManager_ControlChannel::initialize()
 #endif
 
     if (rc) {
-        d_fds[0] = static_cast<int>(bteso_SocketHandle::INVALID_SOCKET);
-        d_fds[1] = static_cast<int>(bteso_SocketHandle::INVALID_SOCKET);
+        d_fds[0] = static_cast<int>(bteso_SocketHandle::INVALID_SOCKET_HANDLE);
+        d_fds[1] = static_cast<int>(bteso_SocketHandle::INVALID_SOCKET_HANDLE);
 
         bsl::printf("%s(%d): Failed to create control channel"
                     " (errno = %d, rc = %d).\n",
@@ -1290,7 +1290,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
               new (*d_allocator_p) btemt_TcpTimerEventManager_ControlChannel(),
               d_allocator_p);
 
-        if (bteso_SocketHandle::INVALID_SOCKET ==
+        if (bteso_SocketHandle::INVALID_SOCKET_HANDLE ==
                                               d_controlChannel_p->serverFd()) {
             // Sockets were not successfully created.
 
