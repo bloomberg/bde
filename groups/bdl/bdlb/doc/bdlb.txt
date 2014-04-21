@@ -1,0 +1,23 @@
+ bdlb.txt
+
+@PURPOSE: Provide utilities classes and functions.
+
+@MNEMONIC: Basic Development Library Basics (bdlb)
+
+@DESCRIPTION: The 'bdlb' package provides various utilities classes and
+ functions.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlb' package currently has 1 component having 1 level of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  1. bdlb_bitutil
+..
+
+/Component Synopsis
+/------------------
+: 'bdlb_bitutil':
+:      Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
