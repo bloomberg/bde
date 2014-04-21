@@ -160,6 +160,8 @@ bool aSsErT(int c, const char *s, int i)
         ++testFailures;
         if (testFailureLim >= 0
          && testFailures > testFailureLim)
+            cout << testFailures <<
+                   " failures.  Too many asserts failed -- terminating test\n";
             exit(1);
     }
     return c == 0;

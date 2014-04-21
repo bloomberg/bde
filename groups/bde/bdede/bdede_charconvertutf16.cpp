@@ -1,10 +1,10 @@
 // bdede_charconvertutf16.cpp                                         -*-C++-*-
 #include <bdede_charconvertutf16.h>
 
-#include <bdede_charconvertstatus.h>
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bdede_charconvertstatus.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
@@ -21,75 +21,68 @@ BSLS_IDENT("$Id$ $CSID$")
 //     http://tools.ietf.org/html/rfc3629
 //..
 ////////////////////////// BEGIN VERBATIM RFC TEXT //////////////////////////
-// UTF-8 encodes UCS characters as a varying number of octets, where the
-// number of octets, and the value of each, depend on the integer value
-// assigned to the character in ISO/IEC 10646 (the character number,
-// a.k.a. code position, code point or Unicode scalar value).  This
-// encoding form has the following characteristics (all values are in
-// hexadecimal):
+// UTF-8 encodes UCS characters as a varying number of octets, where the number
+// of octets, and the value of each, depend on the integer value assigned to
+// the character in ISO/IEC 10646 (the character number, a.k.a. code position,
+// code point or Unicode scalar value).  This encoding form has the following
+// characteristics (all values are in hexadecimal):
 //
-// o  Character numbers from U+0000 to U+007F (US-ASCII repertoire)
-//    correspond to octets 00 to 7F (7 bit US-ASCII values).  A direct
-//    consequence is that a plain ASCII string is also a valid UTF-8
-//    string.
-//
-// o  US-ASCII octet values do not appear otherwise in a UTF-8 encoded
-//    character stream.  This provides compatibility with file systems
-//    or other software (e.g., the printf() function in C libraries)
-//    that parse based on US-ASCII values but are transparent to other
-//    values.
-//
-// o  Round-trip conversion is easy between UTF-8 and other encoding
-//    forms.
-//
-// o  The first octet of a multi-octet sequence indicates the number of
-//    octets in the sequence.
-//
-// o  The octet values C0, C1, F5 to FF never appear.
-//
-// o  Character boundaries are easily found from anywhere in an octet
-//    stream.
-//
-// o  The byte-value lexicographic sorting order of UTF-8 strings is the
-//    same as if ordered by character numbers.  Of course this is of
-//    limited interest since a sort order based on character numbers is
-//    almost never culturally valid.
-//
-// o  The Boyer-Moore fast search algorithm can be used with UTF-8 data.
-//
-// o  UTF-8 strings can be fairly reliably recognized as such by a
-//    simple algorithm, i.e., the probability that a string of
-//    characters in any other encoding appears as valid UTF-8 is low,
-//    diminishing with increasing string length.
+//: o Character numbers from U+0000 to U+007F (US-ASCII repertoire) correspond
+//:   to octets 00 to 7F (7 bit US-ASCII values).  A direct consequence is that
+//:   a plain ASCII string is also a valid UTF-8 string.
+//:
+//: o US-ASCII octet values do not appear otherwise in a UTF-8 encoded
+//:   character stream.  This provides compatibility with file systems or other
+//:   software (e.g., the printf() function in C libraries) that parse based on
+//:   US-ASCII values but are transparent to other values.
+//:
+//: o Round-trip conversion is easy between UTF-8 and other encoding forms.
+//:
+//: o The first octet of a multi-octet sequence indicates the number of octets
+//:   in the sequence.
+//:
+//: o The octet values C0, C1, F5 to FF never appear.
+//:
+//: o Character boundaries are easily found from anywhere in an octet stream.
+//:
+//: o The byte-value lexicographic sorting order of UTF-8 strings is the same
+//:   as if ordered by character numbers.  Of course this is of limited
+//:   interest since a sort order based on character numbers is almost never
+//:   culturally valid.
+//:
+//: o The Boyer-Moore fast search algorithm can be used with UTF-8 data.
+//:
+//: o UTF-8 strings can be fairly reliably recognized as such by a simple
+//:   algorithm, i.e., the probability that a string of characters in any other
+//:   encoding appears as valid UTF-8 is low, diminishing with increasing
+//:   string length.
 //
 // UTF-8 was devised in September 1992 by Ken Thompson, guided by design
 // criteria specified by Rob Pike, with the objective of defining a UCS
 // transformation format usable in the Plan9 operating system in a non-
-// disruptive manner.  Thompson's design was stewarded through
-// standardization by the X/Open Joint Internationalization Group XOJIG
-// (see [FSS_UTF]), bearing the names FSS-UTF (variant FSS/UTF), UTF-2
-// and finally UTF-8 along the way.
+// disruptive manner.  Thompson's design was stewarded through standardization
+// by the X/Open Joint Internationalization Group XOJIG (see [FSS_UTF]),
+// bearing the names FSS-UTF (variant FSS/UTF), UTF-2 and finally UTF-8 along
+// the way.
 //
 // ...
 //
 // UTF-8 is defined by the Unicode Standard [UNICODE].  Descriptions and
 // formulae can also be found in Annex D of ISO/IEC 10646-1 [ISO.10646]
 //
-// In UTF-8, characters from the U+0000..U+10FFFF range (the UTF-16
-// accessible range) are encoded using sequences of 1 to 4 octets.  The
-// only octet of a "sequence" of one has the higher-order bit set to 0,
-// the remaining 7 bits being used to encode the character number.  In a
-// sequence of n octets, n>1, the initial octet has the n higher-order
-// bits set to 1, followed by a bit set to 0.  The remaining bit(s) of
-// that octet contain bits from the number of the character to be
-// encoded.  The following octet(s) all have the higher-order bit set to
-// 1 and the following bit set to 0, leaving 6 bits in each to contain
-// bits from the character to be encoded.
+// In UTF-8, characters from the U+0000..U+10FFFF range (the UTF-16 accessible
+// range) are encoded using sequences of 1 to 4 octets.  The only octet of a
+// "sequence" of one has the higher-order bit set to 0, the remaining 7 bits
+// being used to encode the character number.  In a sequence of n octets, n>1,
+// the initial octet has the n higher-order bits set to 1, followed by a bit
+// set to 0.  The remaining bit(s) of that octet contain bits from the number
+// of the character to be encoded.  The following octet(s) all have the
+// higher-order bit set to 1 and the following bit set to 0, leaving 6 bits in
+// each to contain bits from the character to be encoded.
 //
-// The table below summarizes the format of these different octet types.
-// The letter x indicates bits available for encoding bits of the
-// character number.
-//
+// The table below summarizes the format of these different octet types.  The
+// letter x indicates bits available for encoding bits of the character number.
+//..
 // Char number range   |        UTF-8 octet sequence
 //    (hexadecimal)    |              (binary)
 //  -------------------+---------------------------------------------
@@ -97,6 +90,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  000 0080-0000 07FF | 110xxxxx 10xxxxxx
 //  000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
 //  001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+//..
 /////////////////////////// END VERBATIM RFC TEXT ///////////////////////////
 // This UTF-16 documentation was copied verbatim from RFC 2781.  The original
 // version was downloaded from:
@@ -605,12 +599,12 @@ struct Utf16 {
         bool isFinished(const UTF16_CHAR *u16Buf)
         {
             if (u16Buf < d_end) {
-                return false;
+                return false;                                         // RETURN
             }
             else {
                 BSLS_ASSERT_SAFE(d_end == u16Buf);
 
-                return true;
+                return true;                                          // RETURN
             }
         }
     };
@@ -619,7 +613,7 @@ struct Utf16 {
     struct ZeroBasedEnd {
         bool isFinished(const UTF16_CHAR *u16Buf)
         {
-            return !*u16Buf;
+            return !*u16Buf;                                          // RETURN
         }
     };
 
@@ -636,28 +630,28 @@ struct Utf16 {
     //    two-word encoding, or the second word of a two-word encoding,
     //    respectively, and 'false' otherwise.
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     bool isSingleUtf8(UTF16_CHAR uc)
     {
         return 0 == (uc & (~UTF16_CHAR(0) << Utf8::ONE_OCT_CONT_WID));
     }
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     bool isSingleWord(UTF16_CHAR uc)
     {
         return (uc & RESERVED_MASK) != RESERVED_TAG;
     }
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     bool isFirstWord(UTF16_CHAR uc)
     {
         return (uc & HEADER_MASK) == FIRST_TAG;
     }
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     bool isSecondWord(UTF16_CHAR uc)
     {
@@ -682,21 +676,21 @@ struct Utf16 {
     //     words addressed by the second argument are a valid iso10646
     //     character in the specified encoding.
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     OctetType getUtf8Value(UTF16_CHAR uc)
     {
         return static_cast<OctetType>(uc);
     }
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     void decodeSingleWord(Iso10646Char *isoBuf, const UTF16_CHAR *u16Buf)
     {
         *isoBuf = *u16Buf;
     }
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     void decodeTwoWords(Iso10646Char *isoBuf, const UTF16_CHAR *u16Buf)
     {
@@ -742,14 +736,14 @@ struct Utf16 {
     //    by the first argument is not large enough, or if the character passed
     //    as the second argument is not a valid iso10646 character.
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     void encodeSingleWord(UTF16_CHAR* u16Buf, Iso10646Char uc)
     {
         *u16Buf = static_cast<UTF16_CHAR>(uc);
     }
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     void encodeTwoWords(UTF16_CHAR *u16Buf, Iso10646Char uc)
     {
@@ -760,7 +754,7 @@ struct Utf16 {
                                 (v & ~(~Iso10646Char(0) << CONTENT_CONT_WID)));
     }
 
-    template <typename UTF16_CHAR>
+    template <class UTF16_CHAR>
     static
     bsl::size_t wslen(const UTF16_CHAR *str)
     {
@@ -1165,8 +1159,8 @@ int localUtf16ToUtf8(char             *dstBuffer,
     // Translate from the specified null-terminated UTF-16 buffer 'srcBuffer',
     // using the specified 'endFunctor' to determine end of input, to the
     // specified null-terminated UTF-8 buffer 'dstBuffer' using the specified
-    // 'capacity; to evaluate the size of 'dstBuffer'.  Return the number of
-    // Unicode characters translated in the specified '*numCharsWritten' and
+    // 'dstCapacity'; to evaluate the size of 'dstBuffer'.  Return the number
+    // of Unicode characters translated in the specified '*numCharsWritten' and
     // the number of bytes written in the specified '*numBytesWritten'.  Return
     // a bit-wise or of the flags specified by 'bdede_CharConvertStatus::Enum'
     // to indicate whether error sequences were encountered and/or whether the
@@ -1689,12 +1683,12 @@ int bdede_CharConvertUtf16::utf8ToUtf16(
                         // -- UTF-16 to UTF-8 Methods
 
 int bdede_CharConvertUtf16::utf16ToUtf8(bsl::string          *dstString,
-                                        const unsigned short *srcBuffer,
+                                        const unsigned short *srcString,
                                         bsl::size_t          *numCharsWritten,
                                         char                  errorCharacter)
 {
     return localUtf16ToUtf8String(dstString,
-                                  srcBuffer,
+                                  srcString,
                                   Utf16::ZeroBasedEnd<unsigned short>(),
                                   numCharsWritten,
                                   errorCharacter);
@@ -1727,12 +1721,12 @@ int bdede_CharConvertUtf16::utf16ToUtf8(
 }
 
 int bdede_CharConvertUtf16::utf16ToUtf8(bsl::vector<char>    *dstVector,
-                                        const unsigned short *srcBuffer,
+                                        const unsigned short *srcString,
                                         bsl::size_t          *numCharsWritten,
                                         char                  errorCharacter)
 {
     return localUtf16ToUtf8Vector(dstVector,
-                                  srcBuffer,
+                                  srcString,
                                   Utf16::ZeroBasedEnd<unsigned short>(),
                                   numCharsWritten,
                                   errorCharacter);
@@ -1766,14 +1760,14 @@ int bdede_CharConvertUtf16::utf16ToUtf8(
 
 int bdede_CharConvertUtf16::utf16ToUtf8(char                 *dstBuffer,
                                         bsl::size_t           dstCapacity,
-                                        const unsigned short *srcBuffer,
+                                        const unsigned short *srcString,
                                         bsl::size_t          *numCharsWritten,
                                         bsl::size_t          *numBytesWritten,
                                         char                  errorCharacter)
 {
     return localUtf16ToUtf8(dstBuffer,
                             Capacity(dstCapacity),
-                            srcBuffer,
+                            srcString,
                             Utf16::ZeroBasedEnd<unsigned short>(),
                             numCharsWritten,
                             numBytesWritten,

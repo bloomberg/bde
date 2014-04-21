@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Mark Terribile (mterribile), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a suite of pure procedures supporting
+//@DESCRIPTION: This component provides a suite of static functions supporting
 // the *fast* conversion of *valid* UTF-8 encoded strings to *valid* UTF-16
 // 16-bit character arrays, wstrings, and vectors, and conversion of *valid*
 // UTF-16 encoded strings to *valid* UTF-8 character arrays, strings, and
@@ -295,7 +295,7 @@ namespace BloombergLP {
                         // =============================
 
 struct bdede_CharConvertUtf16 {
-    // This 'struct' provides a namespace for a suite of pure procedures to
+    // This 'struct' provides a namespace for a suite of static functions to
     // convert character buffers or containers between UTF-8 and UTF-16.  Note
     // that since all UTF-16 operations take place as 'unsigned short' values,
     // byte order is not taken into consideration, and Byte Order Mark (BOM)
@@ -695,11 +695,11 @@ struct bdede_CharConvertUtf16 {
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2009
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------
