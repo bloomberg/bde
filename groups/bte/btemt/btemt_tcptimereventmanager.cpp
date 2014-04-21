@@ -616,58 +616,50 @@ int btemt_TcpTimerEventManager_ControlChannel::initialize()
     // supported by a number of platforms -- use the legacy identifier,
     // 'AF_UNIX', instead.
 
-    int rc = ::socketpair(AF_UNIX, SOCK_STREAM, 0, d_fds);
+    bteso_SocketHandle::Handle fds[2];
+
+    int rc = ::socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
 #else
     int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                                     d_fds,
+                                     fds,
                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
 
 #endif
+
     if (rc) {
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
-        d_fds[0] = d_fds[1] = INVALID_SOCKET;
-#else
-        d_fds[0] = d_fds[1] = -1;
-#endif
+        d_fds[0] = static_cast<int>(bteso_SocketHandle::INVALID_SOCKET);
+        d_fds[1] = static_cast<int>(bteso_SocketHandle::INVALID_SOCKET);
+
         bsl::printf("%s(%d): Failed to create control channel"
                     " (errno = %d, rc = %d).\n",
                     __FILE__, __LINE__, errno, rc);
         return rc;                                                    // RETURN
     }
 
-    bteso_IoUtil::setBlockingMode(d_fds[1],
+    bteso_IoUtil::setBlockingMode(fds[1],
                                   bteso_IoUtil::BTESO_NONBLOCKING,
                                   0);
-    bteso_SocketOptUtil::setOption(d_fds[0],
+    bteso_SocketOptUtil::setOption(fds[0],
                                    bteso_SocketOptUtil::BTESO_TCPLEVEL,
                                    bteso_SocketOptUtil::BTESO_TCPNODELAY,
                                    1);
+
+    d_fds[0] = static_cast<int>(fds[0]);
+    d_fds[1] = static_cast<int>(fds[1]);
+
     return 0;
 }
 
 // CREATORS
-#ifdef BTESO_PLATFORM_BSD_SOCKETS
 btemt_TcpTimerEventManager_ControlChannel::
                                     btemt_TcpTimerEventManager_ControlChannel()
 : d_byte(0x53)
 , d_numServerReads(0)
 , d_numServerBytesRead(0)
-{
-    initialize();
-}
-#else
-btemt_TcpTimerEventManager_ControlChannel::
-                                     btemt_TcpTimerEventManager_ControlChannel(
-                                bdef_Function<void (*)()> managerReinitFunctor)
-: d_byte(0x53)
-, d_numServerReads(0)
-, d_numServerBytesRead(0)
 , d_numReinitsAttempted(0)
-, d_managerReinitFunctor(managerReinitFunctor)
 {
     initialize();
 }
-#endif
 
 // MANIPULATORS
 int btemt_TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
@@ -703,26 +695,21 @@ int btemt_TcpTimerEventManager_ControlChannel::serverRead()
     int rc = d_numPendingRequests.swap(0);
     char byte;
 
-    int numBytes = bteso_SocketImpUtil::read(&byte, serverFd(), 1);
+    const int numBytes = bteso_SocketImpUtil::read(&byte, serverFd(), 1);
+    if (numBytes <= 0) {
+        return numBytes;                                              // RETURN
+    }
 
     ++d_numServerReads;
-    if (numBytes > 0) {
-        d_numServerBytesRead += numBytes;
-    }
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
-    else {
-        // Control channel was killed.  Reinitialize the control  channel.
-
-        d_managerReinitFunctor();
-    }
-#endif
+    d_numServerBytesRead += numBytes;
 
     return rc;
 }
 
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
 int btemt_TcpTimerEventManager_ControlChannel::recreateSocketPair()
 {
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+
     BSLS_ASSERT_OPT(++d_numReinitsAttempted <= MAX_NUM_RETRIES);
 
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_socketPairLock);
@@ -734,8 +721,13 @@ int btemt_TcpTimerEventManager_ControlChannel::recreateSocketPair()
     bteso_SocketImpUtil::close(clientFd);
 
     return initialize();
-}
+
+#else
+
+    return 0;
+
 #endif
+}
 
                          // --------------------------------
                          // class btemt_TcpTimerEventManager
@@ -833,6 +825,11 @@ void btemt_TcpTimerEventManager::controlCb()
     // as there are.
 {
     int numRequests = d_controlChannel_p->serverRead();
+
+    if (numRequests <= 0) {
+        reinitializeControlChannel();
+        return;                                                       // RETURN
+    }
 
     BSLS_ASSERT(0 <= numRequests);
     BSLS_ASSERT((bcemt_LockGuard<bcemt_Mutex>(&d_requestQueue.mutex()),
@@ -932,50 +929,30 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
 
     while (1) {
         // Dispatch socket events, from shorter to longer timeout.
+        int rc = 0;
         if (d_executeQueue_p->size()) {
             bdet_TimeInterval zeroTimeout;
-            d_manager_p->dispatch(zeroTimeout, 0); // non-blocking
+            rc = d_manager_p->dispatch(zeroTimeout, 0); // non-blocking
         } else if (d_timerQueue.length()) {
             bdet_TimeInterval timeout;
             d_timerQueue.minTime(&timeout);
-            int rc = d_manager_p->dispatch(timeout, 0);  // blocking w/ timeout
-
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
-            if (rc <= 0) {
-                // Check if the control channel is still connected or not
-
-                bteso_IPv4Address address;
-                rc = bteso_SocketImpUtil::getPeerAddress(
-                                               &address,
-                                               d_controlChannel_p->serverFd());
-                if (0 != rc) {
-                    rc = reinitializeControlChannel();
-                    BSLS_ASSERT_OPT(0 == rc);
-                }
-            }
-#else
-            (void) rc;  // quash warning
-#endif
+            rc = d_manager_p->dispatch(timeout, 0);  // blocking w/ timeout
         }
         else {
-            int rc = d_manager_p->dispatch(0);  // blocking indefinitely
+            rc = d_manager_p->dispatch(0);  // blocking indefinitely
+        }
 
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
-            if (rc <= 0) {
-                // Check if the control channel is still connected or not
+        if (rc <= 0) {
+            // Check if the control channel is still connected or not
 
-                bteso_IPv4Address address;
-                rc = bteso_SocketImpUtil::getPeerAddress(
+            bteso_IPv4Address address;
+            rc = bteso_SocketImpUtil::getPeerAddress(
                                                &address,
                                                d_controlChannel_p->serverFd());
-                if (0 != rc) {
-                    rc = reinitializeControlChannel();
-                    BSLS_ASSERT_OPT(0 == rc);
-                }
+            if (0 != rc) {
+                rc = reinitializeControlChannel();
+                BSLS_ASSERT_OPT(0 == rc);
             }
-#else
-            (void) rc;  // quash warning
-#endif
         }
 
         // Process executed callbacks (without timeouts), in respective order.
@@ -1034,9 +1011,9 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
     BSLS_ASSERT("MUST BE UNREACHABLE BY DESIGN." && 0);
 }
 
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
 int btemt_TcpTimerEventManager::reinitializeControlChannel()
 {
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
     d_manager_p->deregisterSocket(d_controlChannel_p->serverFd());
 
     int rc = d_controlChannel_p->recreateSocketPair();
@@ -1061,8 +1038,10 @@ int btemt_TcpTimerEventManager::reinitializeControlChannel()
     }
 
     return initiateRead(false);
-}
+#else
+    return 0;
 #endif
+}
 
 // CREATORS
 btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
@@ -1213,10 +1192,10 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
     // method.
     d_dispatchThreadEntryPoint
         = bdef_Function<void (*)()>(
-                bdef_MemFnUtil::memFn( &btemt_TcpTimerEventManager
-                                                     ::dispatchThreadEntryPoint
-                                     , this)
-              , d_allocator_p);
+                bdef_MemFnUtil::memFn(&btemt_TcpTimerEventManager
+                                                    ::dispatchThreadEntryPoint,
+                                      this),
+                d_allocator_p);
 
     // Create the queue of executed timers.
     d_executeQueue_p
@@ -1309,22 +1288,12 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
         BSLS_ASSERT(0 == d_controlChannel_p);
 
         // Create control channel object.
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
-        d_controlChannel_p.load(
-              new (*d_allocator_p) btemt_TcpTimerEventManager_ControlChannel(
-                  bdef_MemFnUtil::memFn(
-                     &btemt_TcpTimerEventManager::reinitializeControlChannel,
-                     this)),
-              d_allocator_p);
-
-        if (INVALID_SOCKET == d_controlChannel_p->serverFd()) {
-#else
         d_controlChannel_p.load(
               new (*d_allocator_p) btemt_TcpTimerEventManager_ControlChannel(),
               d_allocator_p);
 
-        if (-1 == d_controlChannel_p->serverFd()) {
-#endif
+        if (bteso_SocketHandle::INVALID_SOCKET ==
+                                              d_controlChannel_p->serverFd()) {
             // Sockets were not successfully created.
 
             return -1;
