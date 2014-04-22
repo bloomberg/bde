@@ -15,58 +15,64 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslalg_typetraitusesblsmaallocator
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bslma::UsesBslmaAllocator', that may be used both to associate a type with
-// the uses-bslma allocator trait (i.e., declare that a type uses a bslma
+// 'bslma::UsesBslmaAllocator', that may be used to associate a type with the
+// uses-bslma allocator trait (i.e., declare that a type uses a bslma
 // allocator), and also to detect whether a type has been associated with that
-// trait (i.e., to test whether a type uses a bslma allocator).
+// trait (i.e., to test whether a type uses a bslma allocator, and follows the
+// bslma allocator model).
 //
 ///Properties of Types Declaring the 'UsesBslmaAllocator' Trait
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Types that declare the 'UsesBslmaAllocator' trait must meet some minimal
 // requirements in order for that type to be usable with code that tests for
-// the 'UsesBslmaAllocator' trait (e.g., 'bsl' containers).  In addition types
-// that use allocators are expected to have certain properties with respect to
-// memory allocation, which are not enforced by the compiler.
+// the 'UsesBslmaAllocator' trait (e.g., 'bsl' containers).  In addition, types
+// that use allocators should have certain properties with respect to memory
+// allocation, which are not enforced by the compiler (such a type is described
+// as following the bslma allocator model).
 //
 ///Compiler Enforced Requirements of Types Declaring 'UsesBslmaAllocator'
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Types declaring the 'UsesBslmaAllocator' trait must provide a constructor
 // variant that accepts a 'bslma::Allocator *' as the last parameter (typically
-// this is an optional parameter).  If a type provides a copy-constructor, it
-// must similarly provide a variant that takes a (optional)
+// this is an optional parameter).  If such a type provides a copy-constructor,
+// it must similarly provide a variant that takes a (optional)
 // 'bslma::Allocator *' as the last parameter.
 //
-// Template types (like 'bsl' containers) will frequently, at compile-time, use
-// the 'UsesBslmaAlloctor' trait to test if the template argument type uses
-// bslma allocators, and if the type does use an allocator, create the object
-// using the constructor variant taking an allocator.  In this context,
-// compilation will fail if a type declares the 'UsesBslmaAllocator' trait, but
-// does not provide the expected constructor variant accepting a
-// 'bslma::Allocator' as the last parameter.
+// Template types (such as 'bsl' containers), where the template parameter
+// 'TYPE' represents some element type encapsulated by the class template,
+// often use the 'UsesBslmaAllocator' trait to test if 'TYPE' uses 'bslma'
+// allocators, and if so, to create 'TYPE' objects using the constructor
+// variant taking an allocator.  In this context, compilation will fail if a
+// type declares the 'UsesBslmaAllocator' trait, but does not provide the
+// expected constructor variant accepting a 'bslma::Allocator *' as the last
+// parameter.
+
 //
-///Expected Properties of Types Deeclaring the 'UsesBslmaAllocator' Trait
-///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+///Expected Properties of Types Declaring the 'UsesBslmaAllocator' Trait
+///  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Types declaring the 'UsesBslmaAllocator' trait are expected to have certain
 // properties with respect to memory allocation.  These properties are not
 // enforced by the compiler, but are important to ensure consistent and
 // comprehensible allocation behavior.
 //
-//: o The allocator supplied at construction will be used for all non-transient
-//:   memory allocation during the object's lifetime.  This includes
-//:   allocations performed by sub-objects (i.e., the type will provide the
-//:   supplied allocator to any data-members which themselves accept an
-//:   allocator).
+//: o The allocator supplied at construction of an object will be used for all
+//:   non-transient memory allocation during the object's lifetime.  This
+//:   includes allocations performed by sub-objects (i.e., the type will
+//:   provide the supplied allocator to any data-members which themselves
+//:   accept an allocator).
 //:
 //: o If an allocator is not supplied at construction, then the currently
 //:   installed default allocator will be used (see 'bslma_default').
 //:
-//: o The allocator used by an object is not modified after construction (e.g.,
+//: o The allocator used by an object is not changed after construction (e.g.,
 //:   the assignment operator does not change the allocator used by a type).
 //:
-//: o Transient memory allocations -- i.e., functions that allocate memory that
-//:   is de-allocated before the function returns -- are generally *not*
-//:   performed using the object's allocator, and are instead typically
-//:   peformed using currently installed default allocator.  For example: a
+//: o Transient memory allocations -- i.e., allocations performed within the
+//:   scope of a function where the resulting memory is de-allocated before
+//:   that function returns -- are generally *not* performed using the object's
+//:   allocator.  Although clients may choose whichever allocator suits the
+//:   specific context, most often transient memory allocations are performed
+//:   using the currently installed default allocator.  For example: a
 //:   temporary 'bsl::string' that is destroyed within the scope of a method
 //:   need not be explicitly supplied an allocator, since it is a transient
 //:   allocation, and 'bsl::string' will use the default allocator by default.
@@ -98,6 +104,8 @@ BSLS_IDENT("$Id: $")
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the type with the
 // 'UsesBslmaAllocator' trait:
 //..
+//  namespace xyz {
+//
 //  class UsesAllocatorType1 {
 //      // ...
 //
@@ -136,10 +144,13 @@ BSLS_IDENT("$Id: $")
 //          // ...
 //  };
 //
+//  }  // close package namespace
+//
 //  namespace BloombergLP {
 //  namespace bslma {
 //
-//  template <> struct UsesBslmaAllocator<UsesAllocatorType2> : bsl::true_type
+//  template <> struct UsesBslmaAllocator<xyz::UsesAllocatorType2> :
+//                                                               bsl::true_type
 //  {};
 //
 //  }  // close package namespace
@@ -150,10 +161,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: Testing Whether a Types Uses a 'bslma' Allocator
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to test whether each of a set different types use a 'bslma'
-// allocator.
+// Suppose we want to test whether each of a set of different types use a
+// 'bslma' allocator.
 //
-// Here, we uses the 'UsesBslmaAllocator' template to test whether the types
+// Here, we use the 'UsesBslmaAllocator' template to test whether the types
 // 'DoesNotUseAnAllocatorType', 'UsesAllocatorType1', and 'UsesAllocatorType2'
 // (defined above) use allocators:
 //..
@@ -166,7 +177,7 @@ BSLS_IDENT("$Id: $")
 //  assert(true  ==
 //         bslma::UsesBslmaAllocator<UsesAllocatorType2>::value);
 //..
-// Finally, we deomnstrate that the trait can be tested at compilation time, by
+// Finally, we demonstrate that the trait can be tested at compilation time, by
 // testing the trait within the context of a compile-time 'BSLMF_ASSERT':
 //..
 //  BSLMF_ASSERT(false ==
@@ -245,7 +256,7 @@ private:
                     typename bsl::remove_pointer<TYPE>::type>::type>::value,
 
         // If a pointer to 'Allocator' is convertible to 'T', then 'T' has a
-        // non-explcit constructor taking an allocator.
+        // non-explicit constructor taking an allocator.
         BSLMA_POINTER_CTOR = bsl::is_convertible<Allocator *, TYPE>::value,
 
         // If a pointer to 'UniqueType' is convertible to 'T', it can only mean

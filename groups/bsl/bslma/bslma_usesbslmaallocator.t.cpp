@@ -84,6 +84,8 @@ static void aSsErT(bool b, const char *s, int i) {
 #pragma bde_verify push
 #pragma bde_verify -FD03
 
+
+
 class DoesNotUseAnAllocatorType {
 };
 
@@ -103,6 +105,8 @@ class DoesNotUseAnAllocatorType {
 // 'BSLMF_NESTED_TRAIT_DECLARATION' macro to associate the type with the
 // 'UsesBslmaAllocator' trait:
 //..
+    namespace xyz {
+
     class UsesAllocatorType1 {
         // ...
 //
@@ -141,10 +145,13 @@ class DoesNotUseAnAllocatorType {
             // ...
     };
 //
+    }  // close package namespace
+
     namespace BloombergLP {
     namespace bslma {
 //
-    template <> struct UsesBslmaAllocator<UsesAllocatorType2> : bsl::true_type
+    template <> struct UsesBslmaAllocator<xyz::UsesAllocatorType2> :
+                                                                 bsl::true_type
     {};
 //
     }  // close package namespace
@@ -152,7 +159,6 @@ class DoesNotUseAnAllocatorType {
 //..
 // Notice that the specialization must be performed in the 'BloombergLP::bslma'
 // namespace.
-
 
 #pragma bde_verify pop
 //=============================================================================
@@ -252,12 +258,14 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nMain example usage test.\n");
 
+        using namespace xyz;
+
 ///Example 2: Testing Whether a Types Uses a 'bslma' Allocator
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to test whether each of a set different types use a 'bslma'
-// allocator.
+// Suppose we want to test whether each of a set of different types use a
+// 'bslma' allocator.
 //
-// Here, we uses the 'UsesBslmaAllocator' template to test whether the types
+// Here, we use the 'UsesBslmaAllocator' template to test whether the types
 // 'DoesNotUseAnAllocatorType', 'UsesAllocatorType1', and 'UsesAllocatorType2'
 // (defined above) use allocators:
 //..
@@ -270,7 +278,7 @@ int main(int argc, char *argv[])
     ASSERT(true  ==
            bslma::UsesBslmaAllocator<UsesAllocatorType2>::value);
 //..
-// Finally, we deomnstrate that the trait can be tested at compilation time, by
+// Finally, we demonstrate that the trait can be tested at compilation time, by
 // testing the trait within the context of a compile-time 'BSLMF_ASSERT':
 //..
     BSLMF_ASSERT(false ==
