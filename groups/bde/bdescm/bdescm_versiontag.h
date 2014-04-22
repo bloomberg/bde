@@ -44,10 +44,6 @@ BDES_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_BUILDTARGET
-#include <bsls_buildtarget.h>      // need to ensure consistent build options
-#endif
-
 #define BDE_VERSION_MAJOR     2
     // Provide the major version number of the current (latest) BDE release.
 
