@@ -885,11 +885,13 @@ int main(int argc, char *argv[])
 
             for (int j = NUM_CONNS/2; j < NUM_CONNS; ++j) {
                 bteso_SocketHandle::Handle fds[2];
-                rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                do {
+                    rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
                                      fds,
                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-                // TBD:
-                //LOOP2_ASSERT(j, rc, 0 == rc);
+                } while (0 != rc);
+
+                LOOP2_ASSERT(j, rc, 0 == rc);
 
                 readDataArgs[j].d_handle           = fds[0];
                 readDataArgs[j].d_totalBytesToRead = NUM_BYTES;

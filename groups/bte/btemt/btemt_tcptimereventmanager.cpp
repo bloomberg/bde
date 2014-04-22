@@ -664,7 +664,8 @@ btemt_TcpTimerEventManager_ControlChannel::
 // MANIPULATORS
 int btemt_TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
 {
-    if (1 == ++d_numPendingRequests || forceWrite) {
+    ++d_numPendingRequests;
+    if (1 == d_numPendingRequests || forceWrite) {
         int errorNumber = 0;
         int rc;
         do {
@@ -697,7 +698,7 @@ int btemt_TcpTimerEventManager_ControlChannel::serverRead()
 
     const int numBytes = bteso_SocketImpUtil::read(&byte, serverFd(), 1);
     if (numBytes <= 0) {
-        return numBytes;                                              // RETURN
+        return -1;                                                    // RETURN
     }
 
     ++d_numServerReads;
@@ -710,7 +711,8 @@ int btemt_TcpTimerEventManager_ControlChannel::recreateSocketPair()
 {
 #ifdef BTESO_PLATFORM_WIN_SOCKETS
 
-    BSLS_ASSERT_OPT(++d_numReinitsAttempted <= MAX_NUM_RETRIES);
+    ++d_numReinitsAttempted;
+    BSLS_ASSERT_OPT(d_numReinitsAttempted <= MAX_NUM_RETRIES);
 
     bteso_SocketImpUtil::close(
                             static_cast<bteso_SocketHandle::Handle>(d_fds[0]));
@@ -822,7 +824,7 @@ void btemt_TcpTimerEventManager::controlCb()
 {
     int numRequests = d_controlChannel_p->serverRead();
 
-    if (numRequests <= 0) {
+    if (numRequests <  0) {
         const int rc = reinitializeControlChannel();
         BSLS_ASSERT_OPT(0 == rc);
 
