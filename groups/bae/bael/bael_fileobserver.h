@@ -26,29 +26,27 @@ BDES_IDENT("$Id: $")
 //                `-----------------'
 //                         |              ctor
 //                         |              disableFileLogging
-//                         |              disableLifetimeRotation
 //                         |              disableTimeIntervalRotation
 //                         |              disableSizeRotation
 //                         |              disableStdoutLoggingPrefix
-//                         |              disableUserFieldsLogging
 //                         |              disablePublishInLocalTime
 //                         |              enableFileLogging
 //                         |              enableStdoutLoggingPrefix
-//                         |              enableUserFieldsLogging
 //                         |              enablePublishInLocalTime
 //                         |              forceRotation
 //                         |              rotateOnSize
-//                         |              rotateOnLifetime
 //                         |              rotateOnTimeInterval
+//                         |              setOnFileRotationCallback
 //                         |              setStdoutThreshold
 //                         |              setLogFormat
 //                         |              isFileLoggingEnabled
 //                         |              isStdoutLoggingPrefixEnabled
 //                         |              isUserFieldsLoggingEnabled
-//                         |              isPublishInLocaltimeEnabled
+//                         |              isPublishInLocalTimeEnabled
 //                         |              rotationLifetime
 //                         |              rotationSize
 //                         |              localTimeOffset
+//                         |              stdoutThreshold
 //                         |              getLogFormat
 //                         V
 //                  ,-------------.
@@ -56,6 +54,7 @@ BDES_IDENT("$Id: $")
 //                  `-------------'
 //                                        dtor
 //                                        publish
+//                                        releaseRecords
 //..
 // A 'bael_FileObserver' object processes the log records received through its
 // 'publish' method by writing them to a user-specified file.  The format of
