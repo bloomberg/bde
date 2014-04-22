@@ -10,11 +10,6 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
-// TBD remove when 'bslma::TestAllocator' is thread-safe
-// BEGIN TEMPORARY WORKAROUND
-#include <bslma_mallocfreeallocator.h>
-// END   TEMPORARY WORKAROUND
-
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
@@ -886,8 +881,6 @@ int main(int argc, char *argv[])
 
         TestLoader loader;
 
-// TBD reinstate the following when 'bslma::TestAllocator' is thread-safe
-#if 0
         bslma::TestAllocator da("default",  veryVeryVeryVerbose);
         bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
@@ -895,15 +888,6 @@ int main(int argc, char *argv[])
 
         Obj mX(&loader,              &sa);
         Obj mY(&loader, Interval(0), &sa);
-#endif
-// BEGIN TEMPORARY WORKAROUND
-        bslma::Allocator *Z = &bslma::MallocFreeAllocator::singleton();
-
-        bslma::DefaultAllocatorGuard dag(Z);
-
-        Obj mX(&loader,              Z);
-        Obj mY(&loader, Interval(0), Z);
-// END   TEMPORARY WORKAROUND
 
         const int NUM_TEST_ITERATIONS   =   10;
         const int NUM_THREAD_ITERATIONS = 1000;
