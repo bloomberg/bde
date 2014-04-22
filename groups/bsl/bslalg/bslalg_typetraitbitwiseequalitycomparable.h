@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseEqualityComparable: bit-wise eq.-comparable trait
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO:
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //

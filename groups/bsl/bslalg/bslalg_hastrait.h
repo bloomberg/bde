@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::HasTrait: trait detection mechanism
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO:
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
@@ -66,9 +66,7 @@ template <typename TYPE, typename TRAIT>
 struct HasTrait {
     // This meta-function evaluates to 'bslmf::MetaInt<1>' if the parameterized
     // type 'TYPE' has the parameterized 'TRAIT', and to 'bslmf::MetaInt<0>'
-    // otherwise.  Note that 'TYPE' "has" the 'TRAIT' if
-    // 'bslalg_TypeTraits<TYPE>' directly includes 'TRAIT' or else includes a
-    // trait that implies 'TRAIT'.
+    // otherwise.
 
   public:
     enum {

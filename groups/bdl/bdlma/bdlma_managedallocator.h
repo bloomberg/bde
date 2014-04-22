@@ -207,8 +207,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(my_SecurityAttributes,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_SecurityAttributes,
+//                                     bslma::UsesBslmaAllocator);
 //
 //      // ...
 //  };

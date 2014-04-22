@@ -3,11 +3,12 @@
 
 #include <bdls_testutil.h>
 
-#include <bslalg_typetraits.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_protocoltest.h>
@@ -292,8 +293,8 @@ struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //
 //    public:
 //      // TRAITS
-//      BSLALG_DECLARE_NESTED_TRAITS(my_SecurityAttributes,
-//                                   bslalg::TypeTraitUsesBslmaAllocator);
+//      BSLMF_NESTED_TRAIT_DECLARATION(my_SecurityAttributes,
+//                                     bslma::UsesBslmaAllocator);
 //
 //      // ...
 //  };
@@ -428,8 +429,8 @@ class my_SecurityAttributes {
 
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(my_SecurityAttributes,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_SecurityAttributes,
+                                   bslma::UsesBslmaAllocator);
 
     // CREATORS
     explicit
