@@ -13,7 +13,7 @@ BDES_IDENT("$Id: $")
 //  bcema_WeakPtr: "weak" reference to reference-counted shared object
 //
 //@MACROS:
-//  BLOOMBERGLP_BCEMA_WEAKPTR: utility macro for transition to bsl::weak_ptr
+//  BLOOMBERGLP_BCEMA_WEAKPTR: macro to ease transition to 'bsl::weak_ptr'
 //
 //@AUTHOR: Henry Verschell (hversche), Rohan Bhindwale (rbhindwa)
 //
@@ -635,7 +635,7 @@ void swap(bcema_WeakPtr<TYPE>& a, bcema_WeakPtr<TYPE>& b);
     // pointers such that each will refer to the object (if any) and
     // representation formerly referred to by the other.
 
-#ifndef BDE_USE_BSL_SHAREDPTR
+#ifndef BDE_USE_BSL_SMART_POINTERS
 #define BLOOMBERGLP_BCEMA_WEAKPTR BloombergLP::bcema_WeakPtr
     // The 'BLOOMBERGLP_BCEMA_WEAKPTR' macro serves to facilitate the
     // transition from 'bcema_WeakPtr' to 'bsl::weak_ptr'.

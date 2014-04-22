@@ -14,8 +14,8 @@ BDES_IDENT("$Id: $")
 // bdema_ManagedPtrUtil: Namespace for deleter for stack-allocated objects
 //
 //@MACROS:
-//  BLOOMBERGLP_BDEMA_MANAGEDPTR: utility macro for transition to
-//                                bslma::ManagedPtr
+//  BLOOMBERGLP_BDEMA_MANAGEDPTR: macro to ease transition to
+//                                'bslma::ManagedPtr'
 //
 //@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
 //         Alisdair Meredith (ameredith1@bloomberg.net)
@@ -1143,7 +1143,7 @@ void swap(bdema_ManagedPtr<TARGET_TYPE>& a, bdema_ManagedPtr<TARGET_TYPE>& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
 
-#ifndef BDE_USE_BSL_SHAREDPTR
+#ifndef BDE_USE_BSL_SMART_POINTERS
 #define BLOOMBERGLP_BDEMA_MANAGEDPTR BloombergLP::bdema_ManagedPtr
     // The 'BLOOMBERGLP_BDEMA_MANAGEDPTR' macro serves to facilitate the
     // transition from 'bdema_ManagedPtr' to 'bslma::ManagedPtr'.

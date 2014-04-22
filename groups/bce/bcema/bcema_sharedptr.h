@@ -16,8 +16,7 @@ BDES_IDENT("$Id: $")
 //  bcema_SharedPtrNilDeleter: no-op deleter
 //
 //@MACROS:
-//  BLOOMBERGLP_BCEMA_SHAREDPTR: utility macro for transition to
-//                               bsl::shared_ptr
+//  BLOOMBERGLP_BCEMA_SHAREDPTR: macro to ease transition to 'bsl::shared_ptr'
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //         Herve Bronnimann (hbronnim)
@@ -2061,7 +2060,7 @@ void swap(bcema_SharedPtr<ELEMENT_TYPE>& a, bcema_SharedPtr<ELEMENT_TYPE>& b);
     // other.
 
 
-#ifndef BDE_USE_BSL_SHAREDPTR
+#ifndef BDE_USE_BSL_SMART_POINTERS
 #define   BLOOMBERGLP_BCEMA_SHAREDPTR BloombergLP::bcema_SharedPtr
     // The 'BLOOMBERGLP_BCEMA_SHAREDPTR' macro serves to facilitate the
     // transition from 'bcema_SharedPtr' to 'bsl::shared_ptr'.
