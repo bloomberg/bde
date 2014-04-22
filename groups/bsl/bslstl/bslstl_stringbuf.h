@@ -159,12 +159,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_string.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include <bslalg_typetraitusesbslmaallocator.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -200,6 +196,7 @@ BSL_OVERRIDES_STD mode"
 #include <streambuf>
 #define INCLUDED_STREAMBUF
 #endif
+
 
 namespace bsl {
 

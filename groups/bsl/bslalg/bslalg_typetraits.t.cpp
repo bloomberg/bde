@@ -1,5 +1,4 @@
 // bslalg_typetraits.t.cpp                                            -*-C++-*-
-
 #include <bslalg_typetraits.h>
 
 #include <bslma_testallocator.h>
@@ -9,11 +8,7 @@
 #include <bslmf_if.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
-#include <bslalg_typetraitbitwisecopyable.h>
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraithastrivialdefaultconstructor.h>
-
-#include <bsls_types.h>  // for testing only
+#include <bsls_types.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -113,45 +108,6 @@ struct HasTrait {
 
     typedef bslmf::MetaInt<VALUE> Type;
 };
-
-#if 0 // implied traits
-
-template <typename TYPE>
-class HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable> {
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
-    enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits,
-                                    bslalg::TypeTraitBitwiseMoveable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                                    bslalg::TypeTraitBitwiseCopyable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-template <typename TYPE>
-struct HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable> {
-  private:
-    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
-    typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
-
-  public:
-    enum {
-        VALUE = bslmf::IsConvertible<NoCvqTraits,
-                                     bslalg::TypeTraitBitwiseCopyable>::VALUE
-             || bslmf::IsConvertible<NoCvqTraits,
-                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
-    };
-
-    typedef bslmf::MetaInt<VALUE> Type;
-};
-
-#endif // implied traits
 
 // Traits bit vector
 template <typename TYPE>

@@ -1,6 +1,8 @@
 // bslstl_sharedptr.t.cpp                                             -*-C++-*-
 #include <bslstl_sharedptr.h>
 
+#include <bslalg_hastrait.h>
+#include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_managedptr.h>
 #include <bslma_newdeleteallocator.h>
