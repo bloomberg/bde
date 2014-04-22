@@ -296,16 +296,17 @@ struct Utf8 {
       public:
         // CREATORS
         explicit
-        PtrBasedEnd(const OctetType *end) : d_end(end) {}
-        explicit
         PtrBasedEnd(const char *end)
-        : d_end(reinterpret_cast<const OctetType *>(end)) {}
+            // Create a 'PtrBasedEnd' object with the end at the specified
+            // 'end'.
+        : d_end(reinterpret_cast<const OctetType *>(end))
+        {}
 
         // ACCESSORS
-        bool isFinished(const OctetType *position)
+        bool isFinished(const OctetType *position) const
             // Return 'true' if 'position' is at the end of input and 'false'
             // otherwise.  The behavior is undefined unless
-            // 'position <= d_end';
+            // 'position <= d_end'.
         {
             if (position < d_end) {
                 return false;                                         // RETURN
@@ -316,7 +317,7 @@ struct Utf8 {
             }
         }
 
-        const OctetType *skipContinuations(const OctetType *octets)
+        const OctetType *skipContinuations(const OctetType *octets) const
             // Return a pointer to after all the consequetive continuation
             // bytes following the specified 'octets' that are prior to
             // 'd_end'.  The behavior is undefined unless 'octets <= d_end'.
@@ -335,10 +336,10 @@ struct Utf8 {
             return octets;
         }
 
-        bool verifyContinuations(const OctetType *octets, int n)
+        bool verifyContinuations(const OctetType *octets, int n) const
             // Return 'true' if there are at least the specified 'n'
             // continuation bytes beginning at the specified 'octets' and prior
-            // to 'd_end' ,and 'false' otherwise.  The behavior is undefined if
+            // to 'd_end', and 'false' otherwise.  The behavior is undefined if
             // 'octets' is past the end.  The behavior is undefined unless
             // 'octets <= d_end'.
         {
@@ -364,14 +365,14 @@ struct Utf8 {
 
     struct ZeroBasedEnd {
         // ACCESSORS
-        bool isFinished(const OctetType *position)
+        bool isFinished(const OctetType *position) const
             // Return 'true' if 'position' is at the end of input, and 'false'
             // otherwise.
         {
             return 0 == *position;
         }
 
-        const OctetType *skipContinuations(const OctetType *octets)
+        const OctetType *skipContinuations(const OctetType *octets) const
             // Return a pointer to after all the consequetive continuation
             // bytes following the specified 'octets'.  The behavior is
             // undefined unless 'octets <= d_end'.
@@ -387,7 +388,7 @@ struct Utf8 {
             return octets;
         }
 
-        bool verifyContinuations(const OctetType *octets, int n)
+        bool verifyContinuations(const OctetType *octets, int n) const
             // Return 'true' if there are at least the specified 'n'
             // continuation bytes beginning at the specified 'octets' and
             // 'false' otherwise.  The behavior is undefined unless 'n >= 1'.
@@ -588,6 +589,9 @@ struct Utf16 {
 
     template <class UTF16_CHAR>
     class PtrBasedEnd {
+        // The 'class' determines whether translation is at the end of input by
+        // compaarisons with an end pointer.
+
         // DATA
         const UTF16_CHAR * const d_end;
 
@@ -595,14 +599,19 @@ struct Utf16 {
         // CREATORS
         explicit
         PtrBasedEnd(const UTF16_CHAR *end) : d_end(end) {}
+            // Create a 'PtrBasedEnd' object with the end at the specified
+            // 'end'.
 
-        bool isFinished(const UTF16_CHAR *u16Buf)
+        // ACCESSORS
+        bool isFinished(const UTF16_CHAR *utf16Buf) const
+            // Return 'true' if the specified 'utf16Buf' is at the end of
+            // input and 'false' otherwise.
         {
-            if (u16Buf < d_end) {
+            if (utf16Buf < d_end) {
                 return false;                                         // RETURN
             }
             else {
-                BSLS_ASSERT_SAFE(d_end == u16Buf);
+                BSLS_ASSERT_SAFE(d_end == utf16Buf);
 
                 return true;                                          // RETURN
             }
@@ -611,9 +620,15 @@ struct Utf16 {
 
     template <class UTF16_CHAR>
     struct ZeroBasedEnd {
-        bool isFinished(const UTF16_CHAR *u16Buf)
+        // The 'class' determines whether translation is at the end of input by
+        // evaluating whether the next word of input is 0.
+
+        // ACCESSORS    
+        bool isFinished(const UTF16_CHAR *u16Buf) const
+            // Return 'true' if the specified 'utf16Buf' is at the end of
+            // input and 'false' otherwise.
         {
-            return !*u16Buf;                                          // RETURN
+            return !*u16Buf;
         }
     };
 
@@ -658,7 +673,7 @@ struct Utf16 {
         return (uc & HEADER_MASK) == SECOND_TAG;
     }
 
-    // Part 2: The means to decode from uf16
+    // Part 2: The means to decode from UTF-16
 
     //     The 'getUtf8Value' static method returns the UTF-8 character
     //     corresponding to the single-word UTF-16 character passed in as its
@@ -768,7 +783,7 @@ struct Utf16 {
 
 // These compile-time asserts aren't strictly necessary, but we may plan to
 // expand this component to support UTF-16 wstrings someday, which won't work
-// if the size of a 'wchar_t' is less than that of a short on any platform
+// if the size of a 'wchar_t' is less than that of a 'short' on any platform
 // we port to.
 
 BSLMF_ASSERT(sizeof(wchar_t)                  >= sizeof(unsigned short));
@@ -856,16 +871,16 @@ int localUtf8ToUtf16(UTF16_CHAR       *dstBuffer,
                      UTF16_CHAR        errorCharacter)
     // Translate from the specified null-terminated UTF-8 buffer 'srcBuffer' to
     // the specified null-terminated UTF-16 buffer 'dstBuffer' whose capacity
-    // is evaluated by the specified capacity 'dstCapacity', using the
-    // specified 'endFunctor' to evaluate end of input and continuation bytes.
-    // Return the number of Unicode characters in the specified
-    // '*numCharsWritten' and the number of 'UTF16_CHAR's written in
-    // '*numWordsWritten'.  The specified 'errorCharacter' is output in place
-    // of any error sequences encountered, or nothing is output in their place
-    // if '0 == errorCharacter'.  Return a bit-wise or of the flags specified
-    // by 'bdede_CharConvertStatus::Enum' to indicate whether error sequences
-    // were encountered and/or whether the translation ran out of space.  Use
-    // type 'CAPACITY_FUNCTOR' to check if there is enough room.  If the caller
+    // is evaluated by the specified 'dstCapacity', using the specified
+    // 'endFunctor' to evaluate end of input and continuation bytes.  Return
+    // the number of Unicode characters in the specified '*numCharsWritten' and
+    // the number of 'UTF16_CHAR's written in '*numWordsWritten'.  The
+    // specified 'errorCharacter' is output in place of any error sequences
+    // encountered, or nothing is output in their place if
+    // '0 == errorCharacter'.  Return a bit-wise or of the flags specified by
+    // 'bdede_CharConvertStatus::Enum' to indicate whether error sequences were
+    // encountered and/or whether the translation ran out of space.  Use type
+    // 'CAPACITY_FUNCTOR' to check if there is enough room.  If the caller
     // isn't certain the output buffer will be big enough, 'CAPACITY_FUNCTOR'
     // should be 'Capacity' defined in this file, and the routine will
     // constantly check adequate room for output exists.  If the caller is
@@ -1114,10 +1129,10 @@ bsl::size_t utf8BufferLength(const UTF16_CHAR *srcBuffer,
                              END_FUNCTOR       endFunctor)
     // Return the length needed in bytes, for a buffer to hold the
     // null-terminated UTF-8 string translated from the specified
-    // null-terminated utf16 string 'srcBuffer', using 'endFunctor' to evaluate
-    // end of input.  Note that the method will get the length exactly right
-    // unless there are errors and the 'errorCharacter' is 0, in which case it
-    // will slightly over estimate the necessary length.
+    // null-terminated UTF-16 string 'srcBuffer', using 'endFunctor' to
+    // evaluate end of input.  Note that the method will get the length exactly
+    // right unless there are errors and the 'errorCharacter' is 0, in which
+    // case it will slightly over estimate the necessary length.
 {
     bsl::size_t bytesNeeded = 0;
     while (!endFunctor.isFinished(srcBuffer)) {
