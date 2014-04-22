@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // BSLS_ASSERT_SAFE: runtime check typically only enabled in safe build modes
 // BSLS_ASSERT_OPT: runtime check typically enabled in all build modes
 //
-//@SEE_ALSO: bsls_buildtarget
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides three "assert-like" macros,
 // 'BSLS_ASSERT', 'BSLS_ASSERT_SAFE', and 'BSLS_ASSERT_OPT', which can be used

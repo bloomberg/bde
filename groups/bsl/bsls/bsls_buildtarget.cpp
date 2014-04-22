@@ -1,10 +1,10 @@
 // bsls_buildtarget.cpp                                               -*-C++-*-
 #include <bsls_buildtarget.h>
 
-#include <bsls_bsltestutil.h>  // for testing only
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bsls_bsltestutil.h>  // for testing only
 
 namespace BloombergLP {
 
