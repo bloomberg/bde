@@ -80,11 +80,10 @@ static void aSsErT(bool b, const char *s, int i) {
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// Supporess some bde_verify warnings for the usage example
+// Suppress some bde_verify warnings for the usage example
+
 #pragma bde_verify push
-#pragma bde_verify -FD03
-
-
+#pragma bde_verify -FD03  // parameter not documented warning
 
 class DoesNotUseAnAllocatorType {
 };
@@ -170,14 +169,14 @@ namespace {
 struct SniffUsesBslmaAllocatorFromConstructor
 {
     SniffUsesBslmaAllocatorFromConstructor(bslma::Allocator *);     // IMPLICIT
-        // Create a 'SniffUsesBslmaAllocatorFromConstructor'.
+        // Create a 'SniffUsesBslmaAllocatorFromConstructor' object.
 };
 
 struct ConstructFromAnyPointer
 {
     template <class TYPE>
     ConstructFromAnyPointer(TYPE *);
-        // Create a 'ConstructFromAnyPointer'.
+        // Create a 'ConstructFromAnyPointer' object.
 };
 
 struct ClassUsingBslmaAllocator
@@ -197,7 +196,7 @@ struct ConvertibleToAny {
 
     template <class TYPE>
     operator TYPE() const { return TYPE(); }
-        // Return a default constructed instance of 'TYPE'.
+        // Return a default constructed object of 'TYPE'.
 };
 
 }
