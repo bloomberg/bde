@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // BSLS_ASSERT_SAFE: runtime check typically only enabled in safe build modes
 // BSLS_ASSERT_OPT: runtime check typically enabled in all build modes
 //
-//@SEE_ALSO: bsls_buildtarget
+//@SEE_ALSO:
 //
 //@AUTHOR: Tom Marshall (tmarshal), John Lakos (jlakos)
 //

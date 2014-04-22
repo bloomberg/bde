@@ -7,30 +7,25 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide build-target information in the object file.
+//@PURPOSE: Provide build-target information in object files.
 //
 //@CLASSES:
-//  bsls::BuildTargetExc: type name for identifying exception builds
+//  bsls::BuildTargetExc: type name for identifying exception-enabled builds
 //  bsls::BuildTargetMt: type name for identifying multi-threaded builds
-//
-//@MACROS:
-//  BDE_BUILD_TARGET_EXC: flag for exception-enabled builds
-//  BDE_BUILD_TARGET_MT:  flag for multi-threaded builds
-//
-//@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: The purpose of this component is to cause a link-time error
 // when trying to link an executable with incompatible libraries.  This
-// component defines type names that indicate the build target parameters.
-// These parameters include whether this build was exception-enabled (which is
+// component defines type names that indicate two build target parameters.
+// These parameters determine whether the build was exception-enabled (which is
 // the case unless overridden by defining the 'BDE_BUILD_TARGET_NO_EXC' macro),
-// and whether it was multi-threaded or not (it is enabled unless overridden by
+// and whether it was multi-threaded (which is enabled unless overridden by
 // defining the 'BDE_BUILD_TARGET_NO_MT' macro).  The types defined by this
 // component should not be used directly.
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.
+// There is no usage example for this component since it is not meant for
+// direct client use.
 
 #ifndef INCLUDED_BSLS_LINKCOERCION
 #include <bsls_linkcoercion.h>
@@ -44,6 +39,7 @@ namespace BloombergLP {
 
 // Default to an exception-enabled build unless 'BDE_BUILD_TARGET_NO_EXC' is
 // defined.
+
 #ifndef BDE_BUILD_TARGET_NO_EXC
 
 #ifndef BDE_BUILD_TARGET_EXC
@@ -58,11 +54,6 @@ struct BuildTargetExcYes {
 typedef BuildTargetExcYes BuildTargetExc;
 
 }  // close package namespace
-
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::BuildTargetExcYes bsls_YesExcBuildTarget;
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #else
 
@@ -79,14 +70,10 @@ typedef BuildTargetExcNo BuildTargetExc;
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::BuildTargetExcNo bsls_NoExcBuildTarget;
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
-
 #endif
 
 // Default to a threaded (MT) build unless 'BDE_BUILD_TARGET_NO_MT' is defined.
+
 #ifndef BDE_BUILD_TARGET_NO_MT
 
 #ifndef BDE_BUILD_TARGET_MT
@@ -101,11 +88,6 @@ struct BuildTargetMtYes {
 typedef BuildTargetMtYes BuildTargetMt;
 
 }  // close package namespace
-
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::BuildTargetMtYes bsls_YesMtBuildTarget;
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
 #else
 
@@ -122,11 +104,6 @@ typedef BuildTargetMtNo BuildTargetMt;
 
 }  // close package namespace
 
-#ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
-typedef bsls::BuildTargetMtNo bsls_NoMtBuildTarget;
-    // This alias is defined for backward compatibility.
-#endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
-
 #endif
 
 // Force linker to pull in this component's object file.
@@ -135,6 +112,7 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
                                       const int,
                                       bsls_buildtarget_assertion1,
                                       bsls::BuildTargetExc::s_isBuildTargetExc)
+
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
                                         const int,
                                         bsls_buildtarget_assertion2,
