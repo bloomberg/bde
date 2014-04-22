@@ -26,17 +26,17 @@ BSLS_IDENT("$Id: $")
 // Types that declare the 'UsesBslmaAllocator' trait must meet some minimal
 // requirements in order for that type to be usable with code that tests for
 // the 'UsesBslmaAllocator' trait (e.g., 'bsl' containers).  In addition, types
-// that use allocators should have certain properties with respect to memory
+// that use allocators must have certain properties with respect to memory
 // allocation, which are not enforced by the compiler (such a type is described
 // as following the bslma allocator model).
 //
 ///Compiler Enforced Requirements of Types Declaring 'UsesBslmaAllocator'
 ///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Types declaring the 'UsesBslmaAllocator' trait must provide a constructor
-// variant that accepts a 'bslma::Allocator *' as the last parameter (typically
-// this is an optional parameter).  If such a type provides a copy-constructor,
-// it must similarly provide a variant that takes a (optional)
-// 'bslma::Allocator *' as the last parameter.
+// variants that accepts a 'bslma::Allocator *' as the last parameter
+// (typically this is an optional parameter).  If such a type provides a
+// copy-constructor, it must similarly provide a variant that takes a
+// (optional) 'bslma::Allocator *' as the last parameter.
 //
 // Template types (such as 'bsl' containers), where the template parameter
 // 'TYPE' represents some element type encapsulated by the class template,
@@ -46,27 +46,24 @@ BSLS_IDENT("$Id: $")
 // type declares the 'UsesBslmaAllocator' trait, but does not provide the
 // expected constructor variant accepting a 'bslma::Allocator *' as the last
 // parameter.
-
 //
 ///Expected Properties of Types Declaring the 'UsesBslmaAllocator' Trait
 ///  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // Types declaring the 'UsesBslmaAllocator' trait are expected to have certain
 // properties with respect to memory allocation.  These properties are not
-// enforced by the compiler, but are important to ensure consistent and
+// enforced by the compiler, but are necessary to ensure consistent and
 // comprehensible allocation behavior.
 //
-//: o The allocator supplied at construction of an object will be used for all
+//: o The allocator supplied at construction of an object will be used for
 //:   non-transient memory allocation during the object's lifetime.  This
-//:   includes allocations performed by sub-objects (i.e., the type will
-//:   provide the supplied allocator to any data-members which themselves
-//:   accept an allocator).
-//:
-//: o If an allocator is not supplied at construction, then the currently
-//:   installed default allocator will be used (see 'bslma_default').
+//:   particularly includes allocations performed by sub-objects that
+//:   themselves support the bslma allocator model (i.e., the type will provide
+//:   the supplied allocator to any data-members which themselves accept an
+//:   allocator).
 //:
 //: o The allocator used by an object is not changed after construction (e.g.,
 //:   the assignment operator does not change the allocator used by a type).
-//:
+//
 //: o Transient memory allocations -- i.e., allocations performed within the
 //:   scope of a function where the resulting memory is de-allocated before
 //:   that function returns -- are generally *not* performed using the object's
@@ -77,16 +74,14 @@ BSLS_IDENT("$Id: $")
 //:   need not be explicitly supplied an allocator, since it is a transient
 //:   allocation, and 'bsl::string' will use the default allocator by default.
 //:
-//: o Singleton objects, when necessary, allocate memory from the global
-//:   allocator (see 'bslma_default')
-//:
 //: o The allocator used by an object is not part of an object's value (e.g.,
 //:   it is not tested by comparison operations like 'operator==').
-//
-// There may be circumstances where a type that uses an allocator deliberately
-// does not have one (or more) of these properties.  Because of the confusion
-// deviation from these properties can cause, such exceptions should be made
-// with care and be well documented.
+//:
+//: o If an allocator is not supplied at construction, then the currently
+//:   installed default allocator will typically be used (see 'bslma_default').
+//:
+//: o Singleton objects, when necessary, allocate memory from the global
+//:   allocator (see 'bslma_default')
 //
 ///Usage
 ///-----
