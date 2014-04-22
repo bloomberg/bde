@@ -1,3 +1,16 @@
+bsl-internal (2.21.0.0.beta.1.1.powerpc) unstable; urgency=low
+
+  * ae4ef89 [APPROVAL] INTERNAL review/remove-bslalg-cycle-drqs-49185408 to master
+  * 042ed33 [APPROVAL] review/remove-bslalg-cycle-drqs-49185408 to master
+  * 7a14f1b [APPROVAL] INTERNAL review/remove-duplicate-BSL_VERSION-drqs-51433999 to master
+  * 8d49dc0 [APPROVAL] review/remove-duplicate-BSL_VERSION-drqs-51433999 to master
+  * 0bc55db [APPROVAL] INTERNAL pending/master/remove_allocator_shadow_warnings_drqs44156923 to master
+  * 71358cd [APPROVAL] pending/master/remove_allocator_shadow_warnings_drqs44156923 to master
+  * 48e517e [APPROVAL] OSS pending/master/dfp_bde_verify_warnings_fix_drqs_50920396 to master
+  * 6edc064 [APPROVAL] pending/master/dfp_bde_verify_warnings_fix_drqs_50920396 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 22 Apr 2014 12:44:18 -0400
+
 bsl-internal (2.21.0.0.beta.1.1) unstable; urgency=low
 
   * 06095d0 [APPROVAL] correct-debian-control-for-bdl to master
