@@ -13,6 +13,10 @@ BDES_IDENT("$Id: $")
 //     bdema_ManagedPtr: proctor for automatic memory management
 // bdema_ManagedPtrUtil: Namespace for deleter for stack-allocated objects
 //
+//@MACROS:
+//  BLOOMBERGLP_BDEMA_MANAGEDPTR: macro to ease transition to
+//                                'bslma::ManagedPtr'
+//
 //@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
 //         Alisdair Meredith (ameredith1@bloomberg.net)
 //
@@ -1139,6 +1143,16 @@ void swap(bdema_ManagedPtr<TARGET_TYPE>& a, bdema_ManagedPtr<TARGET_TYPE>& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
 
+#ifndef BDE_USE_BSL_SMART_POINTERS
+#define BLOOMBERGLP_BDEMA_MANAGEDPTR BloombergLP::bdema_ManagedPtr
+    // The 'BLOOMBERGLP_BDEMA_MANAGEDPTR' macro serves to facilitate the
+    // transition from 'bdema_ManagedPtr' to 'bslma::ManagedPtr'.
+#else
+#define BLOOMBERGLP_BDEMA_MANAGEDPTR BloombergLP::bslma::ManagedPtr
+    // The 'BLOOMBERGLP_BDEMA_MANAGEDPTR' macro serves to facilitate the
+    // transition from 'bdema_ManagedPtr' to 'bslma::ManagedPtr'.
+#endif // BDE_USE_BCEMA_SHAREDPTR
+
                     // ==================================
                     // struct bdema_ManagedPtrNoOpDeleter
                     // ==================================
@@ -1238,7 +1252,7 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(
                                         TARGET_TYPE                     *ptr)
 : bslma::ManagedPtr<TARGET_TYPE>(alias, ptr)
 {
-//  This assertion is no longer valid, as 'alias' is moved by base constructor. 
+//  This assertion is no longer valid, as 'alias' is moved by base constructor.
 //  BSLS_ASSERT_SAFE(0 != alias.ptr() || 0 == ptr);
 }
 
@@ -1445,7 +1459,7 @@ bdema_ManagedPtr<TARGET_TYPE>::operator=(bdema_ManagedPtr& rhs)
 
 template <class TARGET_TYPE>
 inline
-bdema_ManagedPtr<TARGET_TYPE>& 
+bdema_ManagedPtr<TARGET_TYPE>&
 bdema_ManagedPtr<TARGET_TYPE>::operator=(
                                         bslma::ManagedPtr_Ref<TARGET_TYPE> ref)
 {
@@ -1467,7 +1481,7 @@ bsl::pair<TARGET_TYPE *, bdema_ManagedPtrDeleter>
 bdema_ManagedPtr<TARGET_TYPE>::release()
 {
     bslma::ManagedPtrDeleter deleter;
-    TARGET_TYPE *ptr = bslma::ManagedPtr<TARGET_TYPE>::release(&deleter);    
+    TARGET_TYPE *ptr = bslma::ManagedPtr<TARGET_TYPE>::release(&deleter);
     return bsl::pair<TARGET_TYPE *, bdema_ManagedPtrDeleter>(ptr, deleter);
 }
 
