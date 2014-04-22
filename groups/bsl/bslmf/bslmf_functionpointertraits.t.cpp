@@ -74,64 +74,6 @@ static void aSsErT(int c, const char *s, int i)
 #define ASSERT_SAME(T1,T2) ASSERT((1 == bsl::is_same<T1,T2>::value))
 
 //=============================================================================
-//                  STANDARD BDEX EXCEPTION TEST MACROS
-//-----------------------------------------------------------------------------
-
-#ifdef BDE_BUILD_TARGET_EXC
-#define BEGIN_BSLX_EXCEPTION_TEST                                           \
-{                                                                           \
-    {                                                                       \
-        static int firstTime = 1;                                           \
-        if (veryVerbose && firstTime)  cout <<                              \
-            "### BDEX EXCEPTION TEST -- (ENABLED) --" << endl;              \
-        firstTime = 0;                                                      \
-    }                                                                       \
-    if (veryVeryVerbose) cout <<                                            \
-        "### Begin bdex exception test." << endl;                           \
-    int bdexExceptionCounter = 0;                                           \
-    static int bdexExceptionLimit = 100;                                    \
-    testInStream.setInputLimit(bdexExceptionCounter);                       \
-    do {                                                                    \
-        try {
-
-#define END_BSLX_EXCEPTION_TEST                                             \
-        } catch (bslx_TestInStreamException& e) {                           \
-            if (veryVerbose && bdexExceptionLimit || veryVeryVerbose)       \
-            {                                                               \
-                --bdexExceptionLimit;                                       \
-                cout << "(" <<                                              \
-                bdexExceptionCounter << ')';                                \
-                if (veryVeryVerbose) { cout << " BSLX_EXCEPTION: "          \
-                    << "input limit = " << bdexExceptionCounter << ", "     \
-                    << "last data type = " << e.dataType();                 \
-                }                                                           \
-                else if (0 == bdexExceptionLimit) {                         \
-                    cout << " [ Note: 'bdexExceptionLimit' reached. ]";     \
-                }                                                           \
-                cout << endl;                                               \
-            }                                                               \
-            testInStream.setInputLimit(++bdexExceptionCounter);             \
-            continue;                                                       \
-        }                                                                   \
-        testInStream.setInputLimit(-1);                                     \
-        break;                                                              \
-    } while (1);                                                            \
-    if (veryVeryVerbose) cout <<                                            \
-        "### End bdex exception test." << endl;                             \
-}
-#else
-#define BEGIN_BSLX_EXCEPTION_TEST                                           \
-{                                                                           \
-    static int firstTime = 1;                                               \
-    if (verbose && firstTime) { cout <<                                     \
-        "### BDEX EXCEPTION TEST -- (NOT ENABLED) --" << endl;              \
-        firstTime = 0;                                                      \
-    }                                                                       \
-}
-#define END_BSLX_EXCEPTION_TEST
-#endif
-
-//=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
