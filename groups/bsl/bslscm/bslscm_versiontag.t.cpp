@@ -6,8 +6,6 @@
 #include <cstring>
 #include <cstdio>
 
-using namespace BloombergLP;
-
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
