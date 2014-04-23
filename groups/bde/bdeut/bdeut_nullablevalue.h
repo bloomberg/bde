@@ -465,6 +465,8 @@ class bdeut_NullableValue_WithAllocator {
     bool                      d_isNull;
     bslma::Allocator         *d_allocator_p;
 
+  private:
+    // FRIENDS
     friend class bdeut_NullableValue<TYPE>;
 
   public:
@@ -552,6 +554,8 @@ class bdeut_NullableValue_WithoutAllocator {
     bsls::ObjectBuffer<TYPE> d_buffer;
     bool                     d_isNull;
 
+  private:
+    // FRIENDS
     friend class bdeut_NullableValue<TYPE>;
 
   public:
