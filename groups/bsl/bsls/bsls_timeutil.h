@@ -251,9 +251,9 @@ struct TimeUtil {
                                   // Initializers
 
     static void initialize();
-        // Do a platform-dependent initialization for the utilities.  Note
-        // that the other methods in this component are only guaranteed to be
-        // thread safe after calling this method.
+        // Do a platform-dependent initialization for the utilities.  Note that
+        // the other methods in this component are guaranteed to be thread safe
+        // only after calling this method.
 
                                   // Operations
 
