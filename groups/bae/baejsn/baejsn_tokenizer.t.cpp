@@ -5995,8 +5995,7 @@ int main(int argc, char *argv[])
                 ""
             },
 
-            // Error - First character
-            {
+            // Error - First character            {
                 L_,
                 "]",
                 0,
@@ -6014,7 +6013,6 @@ int main(int argc, char *argv[])
                 false,
                 ""
             },
-
             {
                 L_,
                 "}",
@@ -6082,60 +6080,6 @@ int main(int argc, char *argv[])
             {
                 L_,
                 WS ":",
-                0,
-                false,
-                Obj::BAEJSN_ERROR,
-                false,
-                ""
-            },
-            {
-                L_,
-                "1",
-                0,
-                false,
-                Obj::BAEJSN_ERROR,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "1",
-                0,
-                false,
-                Obj::BAEJSN_ERROR,
-                false,
-                ""
-            },
-            {
-                L_,
-                "*",
-                0,
-                false,
-                Obj::BAEJSN_ERROR,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "*",
-                0,
-                false,
-                Obj::BAEJSN_ERROR,
-                false,
-                ""
-            },
-            {
-                L_,
-                "A",
-                0,
-                false,
-                Obj::BAEJSN_ERROR,
-                false,
-                ""
-            },
-            {
-                L_,
-                WS "A",
                 0,
                 false,
                 Obj::BAEJSN_ERROR,
