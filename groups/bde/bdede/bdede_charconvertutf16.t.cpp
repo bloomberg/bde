@@ -4693,8 +4693,8 @@ int main(int argc, char**argv)
                                                  &numBytes);
 
 // Then, we observe that no errors or warnings occurred, and that the numbers
-// of characters and bytes were as expected. note that both 'numChars' and
-// 'numBytes' include the terminating 0.
+// of characters and bytes were as expected.  Note that both 'numChars' and
+// 'numBytes' include the terminating 0:
 
     ASSERT(0 == rc);
     ASSERT(6 == numChars);

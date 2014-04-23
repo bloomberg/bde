@@ -71,11 +71,11 @@ BDES_IDENT("$Id: $")
 //
 ///Example 1: Translation to Fixed-Length Buffers
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will translate a string containing a non-ascii character
+// In this example, we will translate a string containing a non-ASCII character
 // from UTF-16 to UTF-8 and back using fixed-length buffers.
 //
 // First, we create a UTF-16 string spelling 'ecole' in French, which begins
-// with '0xc9', a non-ascii 'e' with an accent over it:
+// with '0xc9', a non-ASCII 'e' with an accent over it:
 //..
 //  unsigned short utf16String[] = { 0xc9, 'c', 'o', 'l', 'e', 0 };
 //..
@@ -95,8 +95,8 @@ BDES_IDENT("$Id: $")
 //                                               &numBytes);
 //..
 // Then, we observe that no errors or warnings occurred, and that the numbers
-// of characters and bytes were as expected. note that both 'numChars' and
-// 'numBytes' include the terminating 0.
+// of characters and bytes were as expected.  Note that both 'numChars' and
+// 'numBytes' include the terminating 0:
 //..
 //  assert(0 == rc);
 //  assert(6 == numChars);
@@ -160,43 +160,46 @@ BDES_IDENT("$Id: $")
 // The following snippets of code illustrate a typical use of the
 // 'bdede_CharConvertUtf16' struct's utility functions, first converting from
 // UTF-8 to UTF-16, and then converting back to make sure the round trip
-// returns the same value.
+// returns the same value, translating to STL containers in both directions.
 //
-// First, we declare a string of UTF-8 containing double-, triple-, and
-// quadruple-octet characters.
+// First, we declare a string of UTF-8 containing single-, double-, triple-,
+// and quadruple-octet characters:
 //..
 //  const char utf8MultiLang[] = {
-//      "\xce\x97"         "\xce\x95"         "\xce\xbb"    // -- Greek
-//      "\xe4\xb8\xad"     "\xe5\x8d\x8e"                   // -- Chinese
-//      "\xe0\xa4\xad"     "\xe0\xa4\xbe"                   // -- Hindi
-//      "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };            // -- Quad octets
+//      "Hello"                                         // -- ASCII
+//      "\xce\x97"         "\xce\x95"       "\xce\xbb"  // -- Greek
+//      "\xe4\xb8\xad"     "\xe5\x8d\x8e"               // -- Chinese
+//      "\xe0\xa4\xad"     "\xe0\xa4\xbe"               // -- Hindi
+//      "\xf2\x94\xb4\xa5" "\xf3\xb8\xac\x83" };        // -- Quad octets
 //..
-// Then, we declare an enum summarizing the counts of characters in the string
-// and verify that the counts add up to the length of the string.
+// Then, we declare an 'enum' summarizing the counts of characters in the
+// string and verify that the counts add up to the length of the string:
 //..
-//  enum { NUM_CHINESE_CHARS = 2,
-//         NUM_HINDI_CHARS   = 2,
+//  enum { NUM_ASCII_CHARS   = 5,
 //         NUM_GREEK_CHARS   = 3,
+//         NUM_CHINESE_CHARS = 2,
+//         NUM_HINDI_CHARS   = 2,
 //         NUM_QUAD_CHARS    = 2 };
 //
-//  assert(3 * NUM_CHINESE_CHARS +
-//         3 * NUM_HINDI_CHARS +
+//  assert(1 * NUM_ASCII_CHARS +
 //         2 * NUM_GREEK_CHARS +
-//         4 * NUM_QUAD_CHARS == bsl::strlen(UTF8MULTILANG));
+//         3 * NUM_CHINESE_CHARS +
+//         3 * NUM_HINDI_CHARS +
+//         4 * NUM_QUAD_CHARS == bsl::strlen(utf8MultiLang));
 //..
-// Next, we declare the vector where our utf16 output will go, and a variable
+// Next, we declare the vector where our UTF-16 output will go, and a variable
 // into which the number of characters (characters, not bytes or words) written
-// will be stored.  It is not necessary to initialize 'utf16CharsWritten'.
+// will be stored.  It is not necessary to initialize 'utf16CharsWritten':
 //..
 //  bsl::vector<unsigned short> v16;
 //  bsl::size_t utf16CharsWritten;
 //..
 // Note that for performance, we should 'v16.reserve(sizeof(utf8MultiLang))',
-// but it's not strictly necessary -- it will automatically be grown to the
-// correct size.  Note also that if 'v16' were not empty, that wouldn't be a
-// problem -- any contents will be discarded.
+// but it's not strictly necessary -- the vector will automatically be grown to
+// the correct size.  Also note that if 'v16' were not empty, that wouldn't be
+// a problem -- any contents will be discarded.
 //
-// Then, we do the translation to 'utf16'.
+// Then, we do the translation to UTF-16:
 //..
 //  int retVal = bdede_CharConvertUtf16::utf8ToUtf16(&v16,
 //                                                   utf8MultiLang,
@@ -206,40 +209,43 @@ BDES_IDENT("$Id: $")
 //  assert(0 == v16.back());    // verify null terminated
 //..
 // Next, we verify that the number of characters (characters, not bytes or
-// words) that was returned is correct.
+// words) that was returned is correct:
 //..
-//  enum { EXPECTED_CHARS_WRITTEN = NUM_CHINESE_CHARS + NUM_HINDI_CHARS +
-//                                      NUM_GREEK_CHARS + NUM_QUAD_CHARS + 1 };
+//  enum { EXPECTED_CHARS_WRITTEN =
+//                      NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
+//                      NUM_HINDI_CHARS + NUM_QUAD_CHARS  + 1 };
 //  assert(EXPECTED_CHARS_WRITTEN == utf16CharsWritten);
 //..
 // Then, we verify that the number of 16-bit words written was correct.  The
-// quad octet characters each require 2 short words of output
+// quad octet characters each require 2 'short' words of output:
 //..
-//  enum { EXPECTED_UTF16_WORDS_WRITTEN = NUM_CHINESE_CHARS + NUM_HINDI_CHARS +
-//                                  NUM_GREEK_CHARS + NUM_QUAD_CHARS * 2 + 1 };
+//  enum { EXPECTED_UTF16_WORDS_WRITTEN =
+//                      NUM_ASCII_CHARS + NUM_GREEK_CHARS + NUM_CHINESE_CHARS +
+//                      NUM_HINDI_CHARS + NUM_QUAD_CHARS * 2 + 1 };
 //
 //  assert(EXPECTED_UTF16_WORDS_WRITTEN == v16.size());
 //..
-// Next, we calculate and confirm the difference between the number of utf16
-// words output and the number of bytes input.  The Greek characters are double
-// octets that will become single shorts, the Chinese characters are encoded as
-// UTF-8 triple octets that will turn into single 16-bit words, the same for
-// the Hindi characters, and the quad characters are quadruple octets that will
-// turn into double shorts.
+// Next, we calculate and confirm the difference between the number of UTF-16
+// words output and the number of bytes input.  The ASCII characters will take
+// 1 16-bit word apiece, the Greek characters are double octets that will
+// become single 'short' values, the Chinese characters are encoded as UTF-8
+// triple octets that will turn into single 16-bit words, the same for the
+// Hindi characters, and the quad characters are quadruple octets that will
+// turn into double 'short' values:
 //..
-//  enum { SHRINKAGE = NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
-//                     NUM_GREEK_CHARS   * (2-1) + NUM_QUAD_CHARS  * (4-2) };
+//  enum { SHRINKAGE = NUM_ASCII_CHARS   * (1-1) + NUM_GREEK_CHARS * (2-1) +
+//                     NUM_CHINESE_CHARS * (3-1) + NUM_HINDI_CHARS * (3-1) +
+//                     NUM_QUAD_CHARS    * (4-2) };
 //
 //  assert(v16.size() == sizeof(utf8MultiLang) - SHRINKAGE);
 //..
-// Then, we got on to do the reverse 'utf16ToUtf8' transform to turn it back
-// into utf8, and we should get a result identical to our original input.
-//
-// Next, declare a 'bsl::string' for our output, and a variable to count the
-// number of characters (characters, not bytes or words) translated.
+// Then, we go on to do the reverse 'utf16ToUtf8' transform to turn it back
+// into UTF-8, and we should get a result identical to our original input.
+// We declare a 'bsl::string' for our output, and a variable to count the
+// number of characters (characters, not bytes or words) translated:
 //..
-//  bsl::string    s;
-//  bsl::size_t    utf8CharsWritten;
+//  bsl::string s;
+//  bsl::size_t utf8CharsWritten;
 //..
 // Again, note that for performance, we should ideally
 // 's.reserve(3 * v16.size())' but it's not really necessary.
@@ -250,9 +256,9 @@ BDES_IDENT("$Id: $")
 //                                               v16.begin(),
 //                                               &utf8CharsWritten);
 //..
-// Finally, we verify a successful status was returned, that the output of the
-// reverse transform was identical to the original input, and that the number
-// of characters translated was as expected.
+// Finally, we verify that a successful status was returned, that the output of
+// the reverse transform was identical to the original input, and that the
+// number of characters translated was as expected:
 //..
 //  assert(0 == retVal);
 //  assert(utf8MultiLang == s);
@@ -357,9 +363,9 @@ struct bdede_CharConvertUtf16 {
         // specified as a 'const char *'.  Note that one *character* can occupy
         // multiple 16-bit *words*.  Also note that the size of the result
         // vector is always fitted to the null-terminated result, including the
-        // terminating 0, and that if 'srcString' is a 'bslstl::StringRef', it
-        // may contain embedded null bytes which will be translated to null
-        // characters embedded in the output.
+        // terminating 0.  Also note that if 'srcString' is a
+        // 'bslstl::StringRef', it may contain embedded null bytes which will
+        // be translated to null characters embedded in the output.
 
     static int utf8ToUtf16(unsigned short           *dstBuffer,
                            bsl::size_t               dstCapacity,
@@ -411,9 +417,9 @@ struct bdede_CharConvertUtf16 {
         // input 'srcString' of 'dstCapacity' *bytes* (including null
         // terminator, if present) will always fit (since the UTF-8 encoding of
         // a character requires at least as many bytes as the UTF-16 encoding
-        // requires words), and that if 'srcString' is a 'bslstl::StringRef',
-        // it may contain embedded null bytes which will be translated to null
-        // characters embedded in the output.
+        // requires words).  Also note that if 'srcString' is a
+        // 'bslstl::StringRef', it may contain embedded null bytes which will
+        // be translated to null characters embedded in the output.
 
     static int utf8ToUtf16(wchar_t                  *dstBuffer,
                            bsl::size_t               dstCapacity,
@@ -523,9 +529,9 @@ struct bdede_CharConvertUtf16 {
         // behavior is undefined unless 'errorCharacter' is either 0 or a valid
         // single-byte encoded UTF-8 character ('0 < errorCharacter < 0x80')
         // and 'srcString' is null-terminated if supplied as a
-        // 'const wchar_t *'.  Note that if 'srcString' is a container, it may
-        // contain embedded 0 words which will be translated to nulls embedded
-        // in the output.
+        // 'const wchar_t *'.  Note that if 'srcString' is a
+        // 'bslstl::StringRefWide', it may contain embedded 0 words which will
+        // be translated to null characterss embedded in the output.
 
     static int utf16ToUtf8(bsl::vector<char>    *dstVector,
                            const unsigned short *srcString,
@@ -618,7 +624,7 @@ struct bdede_CharConvertUtf16 {
         // null terminator alone.  Also note that since UTF-8 is a
         // variable-length encoding, 'numBytesWritten' may be up to four times
         // 'numCharsWritten', and therefore that an input 'srcString' of
-        // 'dstCapacity' *characters* (including terminating 0) may not fit
+        // 'dstCapacity' *characters* (including the terminating 0) may not fit
         // into 'dstBuffer'.  A one-word (two-byte) UTF-16 character will
         // require one to three UTF-8 octets (bytes); a two-word (four-byte)
         // UTF-16 character will always require four UTF-8 octets.  Also note
@@ -672,9 +678,9 @@ struct bdede_CharConvertUtf16 {
         // null terminator alone.  Also note that since UTF-8 is a
         // variable-length encoding, 'numBytesWritten' may be up to four times
         // 'numCharsWritten', and therefore that an input 'srcString' of
-        // 'dstCapacity' *characters* (including terminating 0, if present) may
-        // not fit into 'dstBuffer'.  A one-word (two-byte) UTF-16 character
-        // will require one to three UTF-8 octets (bytes); a two-word
+        // 'dstCapacity' *characters* (including the terminating 0, if present)
+        // may not fit into 'dstBuffer'.  A one-word (two-byte) UTF-16
+        // character will require one to three UTF-8 octets (bytes); a two-word
         // (four-byte) UTF-16 character will always require four UTF-8 octets.
         // Also note that the amount of room needed will vary with the contents
         // of the data and the language being translated, but never will the
