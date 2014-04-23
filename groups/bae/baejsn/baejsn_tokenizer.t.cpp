@@ -5995,7 +5995,8 @@ int main(int argc, char *argv[])
                 ""
             },
 
-            // Error - First character            {
+            // Error - First character
+            {
                 L_,
                 "]",
                 0,
