@@ -587,7 +587,7 @@ class allocator<void> {
         // object pointed to by 'bslma::Default::defaultAllocator()'.
 
     allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
-        // Convert a 'bslma::Allocator' pointer to a 'allocator' object which
+        // Convert a 'bslma::Allocator' pointer to an 'allocator' object which
         // forwards allocation calls to the object pointed to by the specified
         // 'mechanism'.  If 'mechanism' is 0, then the current default
         // allocator is used instead.  Postcondition:
