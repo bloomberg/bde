@@ -542,14 +542,8 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
     // This implementation is very sensitive to the 'clockType'.  For
     // safety, we will assert the value is one of the two currently expected
     // values.
-    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == clockType ||
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME ==  clockType ||
                 bdetu_SystemClockType::e_MONOTONIC == clockType);
-
-    // To sleep until an absolute time a realtime clock must be used.  Instead
-    // of approximating a delta on the monotonic clock with a delta on the
-    // realtime clock, 'sleep' will be used for montonic clocks.  This prevents
-    // adjustments that affect the realtime clock, but not the monotonic clock,
-    // from causing unexpected behavior.
 
     if (clockType == bdetu_SystemClockType::e_REALTIME) {
 
@@ -587,6 +581,15 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
         }
     }
     else { // montonic clock
+        // The windows system function 'WaitForSingleObject' (which is used
+        // here to implement 'sleepUntil') is based on a real-time clock. If a
+        // client supplies a monotonic clock time, rather than convert that
+        // monotonic time to a time relative to the real-time clock (which
+        // would introduce errors), we instead determine a sleep interval
+        // relative to the monotonic clock and 'sleep' for that period (this
+        // may also introduce errors, but potentially fewer because the period
+        // over which a change in the system clock will impact the result will
+        // be smaller).
 
         bdet_TimeInterval relativeTime =
                           absoluteTime - bdetu_SystemTime::nowMonotonicClock();

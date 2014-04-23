@@ -154,29 +154,6 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 #if defined(BSLS_PLATFORM_OS_DARWIN)
 namespace {
 
-class PthreadMutexGuard {
-    // A guard that unlocks a 'pthread_mutex_t' on its destruction.
-
-    // DATA
-    pthread_mutex_t *d_lock_p;  // guarded pthread mutex
-
-  private:
-    // NOT IMPLEMENTED
-    PthreadMutexGuard(const PthreadMutexGuard&);
-    PthreadMutexGuard operator=(const PthreadMutexGuard&);
-  public:
-
-    // CREATORS
-    explicit PthreadMutexGuard(pthread_mutex_t *lock) : d_lock_p(lock) {}
-
-    ~PthreadMutexGuard()
-    {
-        if (0 != pthread_mutex_unlock(d_lock_p)) {
-            BSLS_ASSERT_OPT(false);
-        }
-    }
-};
-
 class MachClockGuard {
    // A guard that deallocates a Darwin (mach kernel) 'clock_serv_t' on its
    // destruction.
@@ -432,7 +409,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     // This implementation is very sensitive to the 'clockType'.  For
     // safety, we will assert the value is one of the two currently expected
     // values.
-    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME == clockType ||
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME ==  clockType ||
                 bdetu_SystemClockType::e_MONOTONIC == clockType);
 
     if (clockType != bdetu_SystemClockType::e_MONOTONIC) {
@@ -474,28 +451,16 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     timespec clockTime;
     bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, absoluteTime);
 
+    int pthreadClockType = (clockType == bdetu_SystemClockType::e_MONOTONIC
+                            ? CLOCK_MONOTONIC
+                            : CLOCK_REALTIME);
     int result;
-    switch (clockType) {
-      case bdetu_SystemClockType::e_MONOTONIC: {
-        do {
-            result = clock_nanosleep(CLOCK_MONOTONIC,
-                                     TIMER_ABSTIME,
-                                     &clockTime,
-                                     0);
-        } while (EINTR == result && retryOnSignalInterupt);
-      } break;
-      case bdetu_SystemClockType::e_REALTIME: {
-        do {
-            result = clock_nanosleep(CLOCK_REALTIME,
-                                     TIMER_ABSTIME,
-                                     &clockTime,
-                                     0);
-        } while (EINTR == result && retryOnSignalInterupt);
-      } break;
-      default:
-        BSLS_ASSERT_OPT("Invalid clockType parameter value" && 0);
-        return 1;                                                     // RETURN
-    }
+    do {
+        result = clock_nanosleep(pthreadClockType,
+                                 TIMER_ABSTIME,
+                                 &clockTime,
+                                 0);
+    } while (EINTR == result && retryOnSignalInterupt);
 
     // An signal interrupt is not considered an error.
 
