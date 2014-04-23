@@ -132,7 +132,8 @@ static void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
-#define PX(X) cout << #X " = " << hex << (X) << endl; // Print id and hex value
+#define PX(X) cout << #X " = " << hex << (X) << dec << endl;
+                                              // Print id and hex value
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -340,7 +341,7 @@ class D32 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-        return o << bsl::hex << *d_data.words;
+        return o << bsl::hex << *d_data.words << bsl::dec;
     }
 };
 
@@ -394,7 +395,7 @@ class D64 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-        return o << bsl::hex << *d_data.words;
+        return o << bsl::hex << *d_data.words << bsl::dec;
     }
 };
 
@@ -448,7 +449,7 @@ class D128 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-        return o << bsl::hex << *d_data.words;
+        return o << bsl::hex << *d_data.words << bsl::dec;
     }
 };
 
