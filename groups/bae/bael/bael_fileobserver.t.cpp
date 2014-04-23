@@ -2302,7 +2302,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing log file name pattern." << endl;
         {
             bsl::string baseName = tempFileName(veryVerbose);
-            bsl::string pattern  = baseName + "%Y%M%D%h%m%s";
+            bsl::string pattern  = baseName + "%Y%M%D%h%m%s-%p";
 
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -2367,6 +2367,8 @@ int main(int argc, char *argv[])
                      << startDatetime.minute();
             fnOs << bsl::setw(2) << bsl::setfill('0')
                      << startDatetime.second();
+            fnOs << "-";
+            fnOs << bdesu_ProcessUtil::getProcessId();
 
             // look for the file with the constructed name
             glob_t globbuf;

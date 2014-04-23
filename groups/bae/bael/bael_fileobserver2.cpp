@@ -26,6 +26,7 @@ BDES_IDENT_RCSID(bael_fileobserver2_cpp,"$Id$ $CSID$")
 #include <bdef_memfn.h>
 
 #include <bdesu_fileutil.h>
+#include <bdesu_processutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -165,6 +166,9 @@ void getLogFileName(bsl::string                  *logFileName,
                   case 's': {
                     os << bsl::setw(2) << bsl::setfill('0')
                        << logFileTimestamp.second();
+                  } break;
+                  case 'p': {
+                    os << bdesu_ProcessUtil::getProcessId();
                   } break;
                   case '%': {
                   } break;

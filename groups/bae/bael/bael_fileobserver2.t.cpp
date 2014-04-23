@@ -15,6 +15,7 @@
 #include <bcema_sharedptr.h>
 
 #include <bdesu_fileutil.h>
+#include <bdesu_processutil.h>
 #include <bdetu_datetime.h>
 #include <bdetu_systemtime.h>
 #include <bdetu_timeinterval.h>
@@ -1750,6 +1751,9 @@ int main(int argc, char *argv[])
         //:
         //: 2 The callback function is correctly supplied with the name of the
         //:   rotated file.
+        //:
+        //: 3 The user specified '%p'-escape sequence expands to the to the
+        //:   process id (in decimal format) in the rotated file name.
         //
         // Plans:
         //: 1 Setup the test infrastructure, including a callback.
@@ -1773,6 +1777,10 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing filename pattern" << endl;
 
         if (veryVerbose) cout << "Test infrastructure setup." << endl;
+
+        const int processId = bdesu_ProcessUtil::getProcessId();
+
+        if (veryVeryVerbose) { P(processId) }
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
@@ -1804,12 +1812,18 @@ int main(int argc, char *argv[])
             bool        d_uniqueNameFlag;
         } DATA[] = {
 
-        //LINE SUFFIX     PATTERN      UNIQUE
+            //LINE  SUFFIX             PATTERN         UNIQUE
+            //----  -----------------  -------------   ------
 
-        { L_,  "",        "",          false},
-        { L_,  "%Y",      "Y",         false},
-        { L_,  "%Y%M%D",  "YMD",       false},
-        { L_,  ".%T",     ".YMD_hms",  true},
+            { L_,   "",                "",             false  },
+            { L_,   "%Y",              "Y",            false  },
+            { L_,   "%Y%M%D",          "YMD",          false  },
+
+            { L_,   "%p-%Y",           "p-Y",          false  },
+            { L_,   "%p%Y%p%M%p%D%p",  "pYpMpDp",      false  },
+            { L_,   ".%p.%T.%p",       ".p.YMD_hms.p", true  },
+
+            { L_,   ".%T",             ".YMD_hms",     true   },
 
         };
 
@@ -1822,6 +1836,8 @@ int main(int argc, char *argv[])
             const char *SUF  = DATA[ti].d_suffix;
             const char *PAT  = DATA[ti].d_expectedPattern;
             const bool  UNI  = DATA[ti].d_uniqueNameFlag;
+
+            if (veryVeryVerbose) { P_(LINE) P_(SUF) P_(PAT) P(UNI) }
 
             bdet_Datetime startDatetime, endDatetime;
 
@@ -1892,21 +1908,30 @@ int main(int argc, char *argv[])
                     oss << bsl::setw(2) << bsl::setfill('0')
                         << startDatetime.second();
                   } break;
+                  case 'p': {
+                    oss << processId;
+                  } break;
                   default: {
                     oss << *c;
                   } break;
                 }
             }
 
+
             const bsl::string LOGNAME = oss.str().c_str();
-            LOOP_ASSERT(LINE, 1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
+
+            if (veryVeryVerbose) { P(LOGNAME) }
+
+            LOOP2_ASSERT(LINE, LOGNAME.c_str(),
+                         1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
 
             bcemt_ThreadUtil::microSleep(0, 1);
             mX.forceRotation();
 
             mX.disableFileLogging();
 
-            LOOP_ASSERT(LINE, 1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
+            LOOP2_ASSERT(LINE, LOGNAME.c_str(),
+                         1 == bdesu_FileUtil::exists(LOGNAME.c_str()));
 
             bsl::string ROTATED_NAME = LOGNAME;
             if (!UNI) {
@@ -1926,10 +1951,15 @@ int main(int argc, char *argv[])
                          << startDatetime.second();
 
                 ROTATED_NAME = oss.str();
+
+                if (veryVeryVerbose) { P(ROTATED_NAME) }
+
                 LOOP2_ASSERT(LINE, ROTATED_NAME.c_str(),
                             1 == bdesu_FileUtil::exists(ROTATED_NAME.c_str()));
                 LOOP_ASSERT(LINE, 2 == getNumLines(ROTATED_NAME.c_str()));
             }
+
+            if (veryVeryVerbose) { P(ROTATED_NAME) }
 
             LOOP2_ASSERT(ti, cb.numInvocations(), 1 == cb.numInvocations());
             LOOP2_ASSERT(ti, cb.status(), 0 == cb.status());
@@ -2819,6 +2849,7 @@ int main(int argc, char *argv[])
                 multiplexObserver.deregisterObserver(&mX);
 
             }
+
 
 #ifdef BSLS_PLATFORM_OS_UNIX
             if (verbose) cout << "Testing file logging with timestamp."
