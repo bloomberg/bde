@@ -141,25 +141,37 @@ BSLS_IDENT("$Id$ $CSID$")
 //  template <class TYPE>
 //  class MyVector {
 //      // This class implements a vector of elements of the (template
-//      // parameter) 'TYPE', which must be copy constructible.  Note that for
+//      // parameter) 'TYPE', which must be copy constructable.  Note that for
 //      // the brevity of the usage example, this class does not provide any
 //      // Exception-Safety guarantee.
 //
 //      // DATA
-//      TYPE             *d_array_p;      // pointer to the allocated array
-//
-//      int               d_capacity;     // capacity of the allocated array
-//
-//      int               d_size;         // number of objects
-//
-//      bslma::Allocator *d_allocator_p;  // allocation pointer (held, not
-//                                        // owned)
+//      TYPE             *d_array_p;     // pointer to the allocated array
+//      int               d_capacity;    // capacity of the allocated array
+//      int               d_size;        // number of objects
+//      bslma::Allocator *d_allocator_p; // allocator pointer (held, not owned)
 //
 //    public:
-//      // ...
+//      // TYPE TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(
+//          MyVector,
+//          BloombergLP::bslmf::IsBitwiseMoveable);
 //
-//      MyVector(const MyVector&   original,
-//               bslma::Allocator *basicAllocator = 0);
+//      // CREATORS
+//      explicit MyVector(bslma::Allocator *basicAllocator = 0)
+//          // Construct a 'MyVector' object having a size of 0 and and a
+//          // capacity of 0.  Optionally specify a 'basicAllocator' used to
+//          // supply memory.  If 'basicAllocator' is 0, the currently
+//          // installed default allocator is used.
+//      : d_array_p(0)
+//      , d_capacity(0)
+//      , d_size(0)
+//      , d_allocator_p(bslma::Default::allocator(basicAllocator))
+//      {
+//      }
+//
+//      MyVector(const MyVector& original,
+//              bslma::Allocator *basicAllocator = 0);
 //          // Create a 'MyVector' object having the same value as the
 //          // specified 'original' object.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
@@ -176,6 +188,20 @@ BSLS_IDENT("$Id$ $CSID$")
 //          // Insert, into this vector, the specified 'numElements' of the
 //          // specified 'value' at the specified 'dstIndex'.  The behavior is
 //          // undefined unless '0 <= dstIndex <= size()'.
+//
+//      // ACCESSORS
+//      const TYPE& operator[](int position) const
+//          // Return a reference providing non-modifiable access to the
+//          // element at the specified 'position' in this vector.
+//      {
+//          return d_array_p[position];
+//      }
+//
+//      int size() const
+//          // Return the size of this vector.
+//      {
+//          return d_size;
+//      }
 //  };
 //..
 // Then, we implement the copy constructor of 'MyVector':
@@ -188,7 +214,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  , d_size(0)
 //  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
-//      reserve(d_size);
+//      reserve(original.d_size);
 //..
 // Here, we call the 'bslalg::ArrayPrimitives::copyConstruct' class method to
 // copy each element from 'original.d_array_p' to 'd_array_p' (When
@@ -200,6 +226,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //                                        original.d_array_p,
 //                                        original.d_array_p + original.d_size,
 //                                        d_allocator_p);
+//
 //      d_size = original.d_size;
 //  }
 //..
@@ -208,7 +235,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  template <class TYPE>
 //  void MyVector<TYPE>::reserve(int capacity)
 //  {
-//      if (d_capacity >= capacity) return;
+//      if (d_capacity >= capacity) return;                           // RETURN
 //
 //      TYPE *newArrayPtr = static_cast<TYPE*>(d_allocator_p->allocate(
 //         BloombergLP::bslma::Allocator::size_type(capacity * sizeof(TYPE))));
@@ -235,9 +262,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // Finally, we implement the 'insert' method of 'MyVector':
 //..
 //  template <class TYPE>
-//  void MyVector<TYPE>::insert(int         dstIndex,
-//                              int         numElements,
-//                              const TYPE& value)
+//  void
+//  MyVector<TYPE>::insert(int dstIndex, int numElements, const TYPE& value)
 //  {
 //      int newSize = d_size + numElements;
 //
@@ -342,12 +368,12 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_REMOVECONST
 #include <bslmf_removeconst.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVEPOINTER
@@ -423,14 +449,15 @@ struct ArrayPrimitives {
                                  ALLOCATOR   *allocator);
         // Call the default constructor on each of the elements of an array of
         // the specified 'numElements' of the parameterized 'TARGET_TYPE'
-        // starting at the 'toBegin' address.  If the parameterized 'ALLOCATOR'
-        // is derived from 'bslma::Allocator' and 'TARGET_TYPE' supports
-        // 'bslma' allocators, then the specified 'allocator' is passed to each
-        // 'TARGET_TYPE' default constructor call.  The behavior is undefined
-        // unless 'begin <= end'.  If a 'TARGET_TYPE' constructor throws an
-        // exception during the operation, then the destructor is called on any
-        // newly-constructed elements, leaving the input array in an
-        // uninitialized state.
+        // starting at the specified 'begin' address.  If the (template
+        // parameter) 'ALLOCATOR' type is derived from 'bslma::Allocator' and
+        // 'TARGET_TYPE' supports 'bslma' allocators, then the specified
+        // 'allocator' is passed to each 'TARGET_TYPE' default constructor
+        // call.  The behavior is undefined unless the output array contains at
+        // least 'numElements' uninitialized elements after 'begin'.  If a
+        // 'TARGET_TYPE' constructor throws an exception during this operation,
+        // then the destructor is called on any newly-constructed elements,
+        // leaving the output array in an uninitialized state.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void uninitializedFillN(TARGET_TYPE        *begin,
@@ -440,12 +467,14 @@ struct ArrayPrimitives {
         // Construct copies of the specified 'value' of the parameterized type
         // 'TARGET_TYPE' into the uninitialized array containing the specified
         // 'numElements' starting at the specified 'begin' address.  If the
-        // parameterized 'ALLOCATOR' is derived from 'bslma::Allocator' and
-        // 'TARGET_TYPE' supports 'bslma' allocators, then the specified
-        // 'allocator' is passed to each invocation of the 'TARGET_TYPE' copy
-        // constructor.  If a 'TARGET_TYPE' constructor throws an exception
-        // during the operation, then the destructor is called on any
-        // newly-constructed elements, leaving the input array in an
+        // (template parameter) 'ALLOCATOR' type is derived from
+        // 'bslma::Allocator' and 'TARGET_TYPE' supports 'bslma' allocators,
+        // then the specified 'allocator' is passed to each invocation of the
+        // 'TARGET_TYPE' copy constructor.  The behavior is undefined unless
+        // the output array contains at least 'numElements' uninitialized
+        // elements after 'begin'.  If a 'TARGET_TYPE' constructor throws an
+        // exception during the operation, then the destructor is called on any
+        // newly-constructed elements, leaving the output array in an
         // uninitialized state.  Note that the argument order was chosen to
         // maintain compatibility with the existing 'bslalg'.
 
@@ -454,17 +483,17 @@ struct ArrayPrimitives {
                               FWD_ITER     fromBegin,
                               FWD_ITER     fromEnd,
                               ALLOCATOR   *allocator);
-        // Copy into an uninitialized array of the parameterized 'TARGET_TYPE'
-        // beginning at the specified 'toBegin' address, the elements in the
-        // array of 'TARGET_TYPE' starting at the specified 'fromBegin' address
-        // and ending immediately before the specified 'fromEnd' address.  If
-        // the parameterized 'ALLOCATOR' is derived from 'bslma::Allocator' and
-        // 'TARGET_TYPE' supports 'bslma' allocators, then the specified
-        // 'allocator' is passed to each invocation of the 'TARGET_TYPE' copy
-        // constructor.  If a 'TARGET_TYPE' constructor throws an exception
-        // during the operation, then the destructor is called on any
-        // newly-constructed elements, leaving the input array in an
-        // uninitialized state.
+        // Copy into an uninitialized array of (the template parameter)
+        // 'TARGET_TYPE' beginning at the specified 'toBegin' address, the
+        // elements in the array of 'TARGET_TYPE' starting at the specified
+        // 'fromBegin' address and ending immediately before the specified
+        // 'fromEnd' address.  If the (template parameter) 'ALLOCATOR' type is
+        // derived from 'bslma::Allocator' and 'TARGET_TYPE' supports 'bslma'
+        // allocators, then the specified 'allocator' is passed to each
+        // invocation of the 'TARGET_TYPE' copy constructor.  If a
+        // 'TARGET_TYPE' constructor throws an exception during the operation,
+        // then the destructor is called on any newly-constructed elements,
+        // leaving the output array in an uninitialized state.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(TARGET_TYPE *toBegin,
@@ -499,17 +528,16 @@ struct ArrayPrimitives {
         // of 'TARGET_TYPE' at the specified 'toBegin' address, inserting at
         // the specified 'position' (after translating from 'fromBegin' to
         // 'toBegin') the specified 'numElements' copies of the specified
-        // 'value'.  Keep the pointer at the specified 'fromEndptr' address
-        // pointing to the first uninitialized element in
-        // '[ fromBegin, fromEnd)' as the elements are moved from source to
-        // destination.  The behavior is undefined unless
-        // 'fromBegin <= position <= fromEnd' and the destination array
-        // contains at least '(fromEnd - fromBegin) + numElements'
-        // uninitialized elements.  If a copy constructor or assignment
-        // operator for 'TARGET_TYPE' throws an exception, then any elements
-        // created in the output array are destroyed and the elements in the
-        // range '[ fromBegin, *fromEndPtr )' will have unspecified but valid
-        // values.
+        // 'value'.  Keep the pointer at the specified 'fromEndPtr' address
+        // pointing to the first uninitialized element in '[ fromBegin,
+        // fromEnd)' as the elements are moved from source to destination.  The
+        // behavior is undefined unless 'fromBegin <= position <= fromEnd' and
+        // the destination array contains at least
+        // '(fromEnd - fromBegin) + numElements' uninitialized elements.  If a
+        // copy constructor or assignment operator for 'TARGET_TYPE' throws an
+        // exception, then any elements created in the output array are
+        // destroyed and the elements in the range '[ fromBegin, *fromEndPtr )'
+        // will have unspecified but valid values.
 
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
     static void destructiveMoveAndInsert(TARGET_TYPE  *toBegin,
@@ -530,7 +558,7 @@ struct ArrayPrimitives {
         // elements from the range starting at the specified 'first' iterator
         // of the parameterized 'FWD_ITER' type and ending immediately before
         // the specified 'last' iterator.  Keep the pointer at the specified
-        // 'fromEndptr' to point to the first uninitialized element in
+        // 'fromEndPtr' to point to the first uninitialized element in
         // '[fromBegin, fromEnd)' as the elements are moved from source to
         // destination.  The behavior is undefined unless
         // 'fromBegin <= position <= fromEnd' the destination array contains at
@@ -552,27 +580,27 @@ struct ArrayPrimitives {
                                              TARGET_TYPE  *last,
                                              size_type     numElements,
                                              ALLOCATOR    *allocator);
-        // Move the elements of the parameterized 'TARGET_TYPE' in the array
-        // starting at the 'fromBegin' address and ending immediately before
-        // the 'fromEnd' address into an uninitialized array of 'TARGET_TYPE'
-        // at the specified 'toBegin' address, moving into the specified
-        // 'position' (after translating from 'fromBegin' to 'toBegin') the
-        // specified 'numElements' of the 'TARGET_TYPE' from the array starting
-        // at the specified 'first' address and ending immediately before the
-        // specified 'last' address.  Keep the pointer at the specified
-        // 'fromEndptr' address pointing to the first uninitialized element in
-        // '[fromBegin, fromEnd)', and the pointer at the specified 'lastPtr'
-        // address pointing to the end of the moved range as the elements from
-        // the range '[ first, last)' are moved from source to destination.
-        // The behavior is undefined unless 'fromBegin <= position <= fromEnd',
-        // the destination array contains at least
-        // '(fromEnd - fromBegin) + numElements' uninitialized elements after
-        // 'toBegin', and 'numElements' is the distance from 'first' to 'last'.
-        // If a copy constructor or assignment operator for 'TARGET_TYPE'
-        // throws an exception, then any elements in '[ *lastPtr, last )' as
-        // well as in '[ toBegin, ... )' are destroyed, and the elements in the
-        // ranges '[ first, *lastPtr )' and '[ fromBegin, *fromEndPtr )' will
-        // have unspecified but valid values.
+        // Move the elements of (template parameter) 'TARGET_TYPE' in the array
+        // starting at the specified 'fromBegin' address and ending immediately
+        // before the specified 'fromEnd' address into an uninitialized array
+        // of 'TARGET_TYPE' at the specified 'toBegin' address, moving into the
+        // specified 'position' (after translating from 'fromBegin' to
+        // 'toBegin') the specified 'numElements' of the 'TARGET_TYPE' from the
+        // array starting at the specified 'first' address and ending
+        // immediately before the specified 'last' address.  Keep the pointer
+        // at the specified 'fromEndPtr' address pointing to the first
+        // uninitialized element in '[fromBegin, fromEnd)', and the pointer at
+        // the specified 'lastPtr' address pointing to the end of the moved
+        // range as the elements from the range '[ first, last)' are moved from
+        // source to destination.  The behavior is undefined unless
+        // 'fromBegin <= position <= fromEnd', the destination array contains
+        // at least '(fromEnd - fromBegin) + numElements' uninitialized
+        // elements after 'toBegin', and 'numElements' is the distance from
+        // 'first' to 'last'.  If a copy constructor or assignment operator for
+        // 'TARGET_TYPE' throws an exception, then any elements in
+        // '[ *lastPtr, last )' as well as in '[ toBegin, ... )' are destroyed,
+        // and the elements in the ranges '[ first, *lastPtr )' and
+        // '[ fromBegin, *fromEndPtr )' will have unspecified but valid values.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void insert(TARGET_TYPE        *toBegin,
@@ -581,15 +609,16 @@ struct ArrayPrimitives {
                        size_type           numElements,
                        ALLOCATOR          *allocator);
         // Insert the specified 'numElements' copies of the specified 'value'
-        // into the array of the parameterized 'TARGET_TYPE' starting at the
-        // 'toBegin' address and ending immediately before the specified
-        // 'toEnd' address, shifting the elements in the array by 'numElements'
-        // positions towards larger addresses.  The behavior is undefined
-        // unless the destination array contains at least 'numElements'
-        // uninitialized elements after 'toEnd'.  If a copy constructor or
-        // assignment operator for 'TARGET_TYPE' throws an exception, then any
-        // elements created after 'toEnd' are destroyed and the elements in the
-        // range '[ toBegin, toEnd )' will have unspecified, but valid, values.
+        // into the array of (template parameter) 'TARGET_TYPE' starting at the
+        // specified 'toBegin' address and ending immediately before the
+        // specified 'toEnd' address, shifting the elements in the array by
+        // 'numElements' positions towards larger addresses.  The behavior is
+        // undefined unless the destination array contains at least
+        // 'numElements' uninitialized elements after 'toEnd'.  If a copy
+        // constructor or assignment operator for 'TARGET_TYPE' throws an
+        // exception, then any elements created after 'toEnd' are destroyed and
+        // the elements in the range '[ toBegin, toEnd )' will have
+        // unspecified, but valid, values.
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class TARGET_TYPE, class ALLOCATOR, class... Args>
@@ -1493,9 +1522,9 @@ struct ArrayPrimitives_Imp {
         // *prove* that the passed range is invalid.
 };
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 // IMPLEMENTATION NOTES: Specializations of 'uninitializedFillN' for most
 // fundamental types are not templates nor inline, and thus can be found in the
 // '.cpp' file.

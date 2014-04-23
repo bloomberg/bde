@@ -157,7 +157,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
     if (0 == numElements) {
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     BSLMF_ASSERT(2 == sizeof(short));
 
@@ -181,7 +181,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
      if (0 == numElements) {
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     const char  *valueCharBuffer  = (const char *) &value;
     const short *valueShortBuffer = static_cast<const short *>(
@@ -208,7 +208,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
     if (0 == numElements) {
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     const char  *valueCharBuffer  = (const char *) &value;
     const short *valueShortBuffer = static_cast<const short *>(
@@ -241,7 +241,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
     if (0 == numElements) {
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     if (0 == value) {
         std::memset(begin, 0, numElements * sizeof value);
@@ -262,7 +262,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
     if (0 == numElements) {
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     if (0 == value) {
         std::memset(begin, 0, numElements * sizeof value);
@@ -283,7 +283,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
     if (0 == numElements) {
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     if (0 == value) {
         std::memset(begin, 0, numElements * sizeof value);
@@ -304,7 +304,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
     if (0 == numElements) {
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     if (0 == value) {
         std::memset(begin, 0, numElements * sizeof value);
@@ -325,7 +325,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
     if (0 == numElements) {
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     if (0 == value) {
         std::memset(begin, 0, numElements * sizeof value);
@@ -442,7 +442,7 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
         // This test changes into O(1) what would otherwise be O(N): do not
         // remove!
 
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
 
     const std::size_t numElements = middle - begin;
@@ -450,7 +450,7 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
 
     if (numElements == remElements) {
         bitwiseSwapRanges(begin, middle, end);
-        return;
+        return;                                                       // RETURN
     }
 
     // These cases are only interesting for bitwise moveable types, and if we
@@ -459,11 +459,11 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
 
     if (numElements <= INPLACE_BUFFER_SIZE) {
         bitwiseRotateBackward(begin, middle, end);
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
     if (remElements <= INPLACE_BUFFER_SIZE) {
         bitwiseRotateForward(begin, middle, end);
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
 
     // This algorithm proceeds exactly like the template version, char-by-char.
