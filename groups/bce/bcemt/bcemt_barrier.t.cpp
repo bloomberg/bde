@@ -310,10 +310,10 @@ extern "C" void * testThread4(void *arg)
 {
     ThreadArgs4 *args = (ThreadArgs4*)arg;
 
-    bdet_TimeInterval timeOut(bdetu_SystemTime::now(args->d_clockType));
     bdet_TimeInterval start(bdetu_SystemTime::now(args->d_clockType));
-
+    bdet_TimeInterval timeOut(start);
     timeOut.addMicroseconds(args->d_timeOut);
+
     int res = args->d_barrier.timedWait(timeOut);
 
     bdet_TimeInterval end(bdetu_SystemTime::now(args->d_clockType));
@@ -322,7 +322,7 @@ extern "C" void * testThread4(void *arg)
     if (res) {
         // relax timing by 50us for Windows
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        const int relax = 50;
+        const int relax = 2000;
 #else
         const int relax = 0;
 #endif
