@@ -90,7 +90,7 @@ BSLS_IDENT("$Id: $")
 // might be lost.  Therefore, the times reported by 'getTimer' and
 // 'convertRawTime' may be as much as two nanoseconds less than the actual time
 // expressed by the 'QueryPerformanceCounter' interface.  Note that the times
-// will still be monotonically non-decreasing. 
+// will still be monotonically non-decreasing.
 //
 ///Usage
 ///-----
@@ -249,6 +249,16 @@ struct TimeUtil {
 #endif
 
     // CLASS METHODS
+
+                                  // Initializers
+
+    static void initialize();
+        // Do a platform-dependent initialization for the utilities.  Note that
+        // the other methods in this component are guaranteed to be thread safe
+        // only after calling this method.
+
+                                  // Operations
+
     static Types::Int64 convertRawTime(OpaqueNativeTime rawTime);
         // Convert the specified 'rawTime' to a value in nanoseconds,
         // referenced to an arbitrary but fixed origin, and return the result
@@ -290,10 +300,6 @@ struct TimeUtil {
         // interpreting the results.  Note that this method is thread-safe only
         // if 'initialize' has been called before.
 
-    static void initialize();
-        // Do a platform-dependent initialization for the utilities.  Note that
-        // only after a call to this method all the following methods are
-        // guaranteed to be thread-safe.
 };
 
 }  // close package namespace
