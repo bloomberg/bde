@@ -630,7 +630,6 @@ extern "C" void *executeTest(void *arg) {
     return arg;
 }
 
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
 namespace CASE15 {
 
 struct ReadDataType {
@@ -685,7 +684,7 @@ void writeData(WriteDataType *writeDataArgs)
     char writeBuffer[SIZE] = { 'z' };
 
     int rc = bteso_SocketImpUtil::write(writeDataArgs->d_handle,
-                                           writeBuffer,
+                                        writeBuffer,
                                         SIZE);
 
     if (rc <= 0) {
@@ -701,7 +700,6 @@ void writeData(WriteDataType *writeDataArgs)
 }
 
 }  // close namespace CASE15
-#endif
 
 int main(int argc, char *argv[])
 {
@@ -800,15 +798,25 @@ int main(int argc, char *argv[])
                           << "TESTING spinning does not happen" << endl
                           << "================================" << endl;
 
+
 #ifdef BTESO_PLATFORM_WIN_SOCKETS
         using namespace CASE15;
 
         for (int i = 0; i < 2; ++i) {
+            if (verbose) {
+                if (1 == i) {
+                    cout << "Killing the client handle" << endl;
+                }
+                else {
+                    cout << "Killing the server handle" << endl;
+                }
+            }
+
             Obj mX;  const Obj& X = mX;
             mX.enable();
 
             const int NUM_CONNS = 10;
-            bsls::AtomicInt numConnsDone = 0;
+            bsls::AtomicInt numConnsDone(0);
 
             ReadDataType  readDataArgs[NUM_CONNS];
             WriteDataType writeDataArgs[NUM_CONNS];
@@ -856,19 +864,24 @@ int main(int argc, char *argv[])
                 bcemt_ThreadUtil::microSleep(1000, 0);
             }
 
+            if (veryVerbose) {
+                cout << "Created first set of connections, numConnections: "
+                     << NUM_CONNS/2 << endl;
+            }
+
+            btemt_TcpTimerEventManager_ControlChannel *controlChannel =
+                const_cast<btemt_TcpTimerEventManager_ControlChannel *>(
+                    btemt_TcpTimerEventManager_TestUtil::getControlChannel(X));
+
             int numKills = 0;
             while (numKills < 1) {
                 int errorCode = 0;
                 bteso_SocketHandle::Handle handle;
                 if (1 == i) {
-                    handle = const_cast<
-                               btemt_TcpTimerEventManager_ControlChannel *>(
-                                               X.controlChannel())->clientFd();
+                    handle = controlChannel->clientFd();
                 }
                 else {
-                    handle = const_cast<
-                               btemt_TcpTimerEventManager_ControlChannel *>(
-                                               X.controlChannel())->serverFd();
+                    handle = controlChannel->serverFd();
                 }
 
                 rc = bteso_SocketImpUtil::close(handle, &errorCode);
@@ -881,6 +894,10 @@ int main(int argc, char *argv[])
                 ++numKills;
             }
 
+            if (veryVerbose) {
+                cout << "Completed first set of kills, numKills: "
+                     << numKills << endl;
+            }
             //bcemt_ThreadUtil::microSleep(0, 3);
 
             for (int j = NUM_CONNS/2; j < NUM_CONNS; ++j) {
@@ -927,18 +944,19 @@ int main(int argc, char *argv[])
                 bcemt_ThreadUtil::microSleep(1000, 0);
             }
 
+            if (veryVerbose) {
+                cout << "Created second set of connections, numConnections: "
+                     << NUM_CONNS << endl;
+            }
+
             while (numKills < 3) {
                 int errorCode = 0;
                 bteso_SocketHandle::Handle handle;
                 if (1 == i) {
-                    handle = const_cast<
-                               btemt_TcpTimerEventManager_ControlChannel *>(
-                                               X.controlChannel())->clientFd();
+                    handle = controlChannel->clientFd();
                 }
                 else {
-                    handle = const_cast<
-                               btemt_TcpTimerEventManager_ControlChannel *>(
-                                               X.controlChannel())->serverFd();
+                    handle = controlChannel->serverFd();
                 }
 
                 rc = bteso_SocketImpUtil::close(handle, &errorCode);
@@ -952,13 +970,19 @@ int main(int argc, char *argv[])
                 ++numKills;
             }
 
+            if (veryVerbose) {
+                cout << "Completed second set of kills, numKills: "
+                     << numKills << endl;
+            }
+
             while (numConnsDone < NUM_CONNS) {
-                cout << "Waiting for conns to be done: "
-                     << numConnsDone << endl;
-                bcemt_ThreadUtil::microSleep(0, 1);
+                if (veryVerbose) {
+                    cout << "Waiting for conns to be done: "
+                         << numConnsDone << endl;
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                }
             }
             ASSERT(0 == mX.disable());
-            // TBD
             //mX.deregisterAll();
             //
             //for (int j = 0; j < NUM_CONNS; ++j) {

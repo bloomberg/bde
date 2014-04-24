@@ -30,6 +30,8 @@ BDES_IDENT_RCSID(btemt_tcptimereventmanager_cpp,"$Id$ $CSID$")
 #include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_autorawdeleter.h>
 #include <bslma_default.h>
+#include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
@@ -46,8 +48,17 @@ using namespace bsl;  // automatically added by script
 
 namespace BloombergLP {
 
+
+// Confirm that we use the right size atomic variable for the socket handle in
+// the control channel.
+
+BSLMF_ASSERT(4 == sizeof(bteso_SocketHandle::Handle));
+
 enum {
-    MAX_NUM_RETRIES = 3
+   // This 'enum' specifies the constants used in this component.
+
+    MAX_NUM_RETRIES = 3   // Maximum number of times the control channel can be
+                          // reinitialized.
 };
                 // ===============================================
                 // class btemt_TcpTimerEventManager_ControlChannel
@@ -605,7 +616,63 @@ bsl::ostream& operator<<(bsl::ostream& stream,
               // -----------------------------------------------
               // class btemt_TcpTimerEventManager_ControlChannel
               // -----------------------------------------------
-int btemt_TcpTimerEventManager_ControlChannel::initialize()
+
+// CREATORS
+btemt_TcpTimerEventManager_ControlChannel::
+                                    btemt_TcpTimerEventManager_ControlChannel()
+: d_byte(0x53)
+, d_numServerReads(0)
+, d_numServerBytesRead(0)
+{
+    const int rc = open();
+    BSLS_ASSERT(0 == rc);
+}
+
+btemt_TcpTimerEventManager_ControlChannel::
+                                   ~btemt_TcpTimerEventManager_ControlChannel()
+{
+    const int rc = close();
+    BSLS_ASSERT(0 == rc);
+}
+
+// MANIPULATORS
+int btemt_TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
+{
+    ++d_numPendingRequests;
+    if (1 == d_numPendingRequests || forceWrite) {
+        int errorNumber = 0;
+        int rc;
+        do {
+            rc = bteso_SocketImpUtil::write(clientFd(),
+                                            &d_byte,
+                                            sizeof(char),
+                                            &errorNumber);
+
+            if (rc < 0) {
+                --d_numPendingRequests;
+                return rc;                                            // RETURN
+            }
+        } while (bteso_SocketHandle::BTESO_ERROR_INTERRUPTED == rc);
+        if (rc >= 0) {
+            return rc;
+        }
+        bsl::printf("%s(%d): Failed to communicate request to control channel"
+                    " (errno = %d, errorNumber = %d, rc = %d).\n",
+                    __FILE__, __LINE__, errno, errorNumber, rc);
+        BSLS_ASSERT(errorNumber > 0);
+        return -errorNumber;
+    }
+    return 0;
+}
+
+int btemt_TcpTimerEventManager_ControlChannel::close()
+{
+    bteso_SocketImpUtil::close(clientFd());
+    bteso_SocketImpUtil::close(serverFd());
+    return 0;
+}
+
+int btemt_TcpTimerEventManager_ControlChannel::open()
 {
     bteso_SocketHandle::Handle fds[2];
 
@@ -650,47 +717,6 @@ int btemt_TcpTimerEventManager_ControlChannel::initialize()
     return 0;
 }
 
-// CREATORS
-btemt_TcpTimerEventManager_ControlChannel::
-                                    btemt_TcpTimerEventManager_ControlChannel()
-: d_byte(0x53)
-, d_numServerReads(0)
-, d_numServerBytesRead(0)
-, d_numReinitsAttempted(0)
-{
-    initialize();
-}
-
-// MANIPULATORS
-int btemt_TcpTimerEventManager_ControlChannel::clientWrite(bool forceWrite)
-{
-    ++d_numPendingRequests;
-    if (1 == d_numPendingRequests || forceWrite) {
-        int errorNumber = 0;
-        int rc;
-        do {
-            rc = bteso_SocketImpUtil::write(clientFd(),
-                                            &d_byte,
-                                            sizeof(char),
-                                            &errorNumber);
-
-            if (rc < 0) {
-                --d_numPendingRequests;
-                return rc;                                            // RETURN
-            }
-        } while (bteso_SocketHandle::BTESO_ERROR_INTERRUPTED == rc);
-        if (rc >= 0) {
-            return rc;
-        }
-        bsl::printf("%s(%d): Failed to communicate request to control channel"
-                    " (errno = %d, errorNumber = %d, rc = %d).\n",
-                    __FILE__, __LINE__, errno, errorNumber, rc);
-        BSLS_ASSERT(errorNumber > 0);
-        return -errorNumber;
-    }
-    return 0;
-}
-
 int btemt_TcpTimerEventManager_ControlChannel::serverRead()
 {
     int rc = d_numPendingRequests.swap(0);
@@ -705,26 +731,6 @@ int btemt_TcpTimerEventManager_ControlChannel::serverRead()
     d_numServerBytesRead += numBytes;
 
     return rc;
-}
-
-int btemt_TcpTimerEventManager_ControlChannel::recreateSocketPair()
-{
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
-
-    ++d_numReinitsAttempted;
-    BSLS_ASSERT_OPT(d_numReinitsAttempted <= MAX_NUM_RETRIES);
-
-    bteso_SocketImpUtil::close(
-                            static_cast<bteso_SocketHandle::Handle>(d_fds[0]));
-    bteso_SocketImpUtil::close(
-                            static_cast<bteso_SocketHandle::Handle>(d_fds[1]));
-    return initialize();
-
-#else
-
-    return 0;
-
-#endif
 }
 
                          // --------------------------------
@@ -771,50 +777,33 @@ void btemt_TcpTimerEventManager::initialize()
     d_executeQueue_p->reserve(4);
 }
 
-int btemt_TcpTimerEventManager::initiateRead(bool executeInSameThread)
+int btemt_TcpTimerEventManager::initiateRead()
 {
-    if (executeInSameThread) {
-        // Wait for the dispatcher thread to start and process
-        // the request.
+    // Wait for the dispatcher thread to start and process
+    // the request.
 
-        bcemt_Mutex mutex;
-        bcemt_Condition condition;
+    bcemt_Mutex     mutex;
+    bcemt_Condition condition;
 
-        btemt_TcpTimerEventManager_Request *req =
-            new (d_requestPool) btemt_TcpTimerEventManager_Request(
+    btemt_TcpTimerEventManager_Request *req =
+        new (d_requestPool) btemt_TcpTimerEventManager_Request(
                                      btemt_TcpTimerEventManager_Request::NO_OP,
                                      &condition,
                                      &mutex,
                                      d_allocator_p);
-        BSLS_ASSERT(-1 == req->result());
-        bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
+    BSLS_ASSERT(-1 == req->result());
+    bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
 
-        d_requestQueue.pushBack(req);
-        int ret = d_controlChannel_p->clientWrite(true);
-        if (0 > ret) {
-            d_requestQueue.popBack();
-            d_requestPool.deleteObjectRaw(req);
-            return ret;                                               // RETURN
-        }
-        req->waitForResult();
+    d_requestQueue.pushBack(req);
+    int ret = d_controlChannel_p->clientWrite(true);
+
+    if (0 > ret) {
+        d_requestQueue.popBack();
         d_requestPool.deleteObjectRaw(req);
+        return ret;                                               // RETURN
     }
-    else {
-        bcemt_ThreadUtil::Handle handle;
-        bcemt_ThreadAttributes   attributes;
-        attributes.setDetachedState(
-                                bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
-
-        bdef_Function<void (*)()> writeFunctor = bdef_Function<void (*)()>(
-                bdef_BindUtil::bindA(d_allocator_p,
-                                     &btemt_TcpTimerEventManager::initiateRead,
-                                     this,
-                                     true));
-        const int rc = bcemt_ThreadUtil::create(&handle,
-                                                attributes,
-                                                writeFunctor);
-        BSLS_ASSERT_OPT(0 == rc);
-    }
+    req->waitForResult();
+    d_requestPool.deleteObjectRaw(req);
     return 0;
 }
 
@@ -824,7 +813,7 @@ void btemt_TcpTimerEventManager::controlCb()
 {
     int numRequests = d_controlChannel_p->serverRead();
 
-    if (numRequests <  0) {
+    if (numRequests < 0) {
         const int rc = reinitializeControlChannel();
         BSLS_ASSERT_OPT(0 == rc);
 
@@ -932,17 +921,17 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
         int rc = 0;
         if (d_executeQueue_p->size()) {
             bdet_TimeInterval zeroTimeout;
-            rc = d_manager_p->dispatch(zeroTimeout, 0); // non-blocking
+            rc = d_manager_p->dispatch(zeroTimeout, 0);// non-blocking
         } else if (d_timerQueue.length()) {
             bdet_TimeInterval timeout;
             d_timerQueue.minTime(&timeout);
-            rc = d_manager_p->dispatch(timeout, 0);  // blocking w/ timeout
+            rc = d_manager_p->dispatch(timeout, 0);    // blocking w/ timeout
         }
         else {
-            rc = d_manager_p->dispatch(0);  // blocking indefinitely
+            rc = d_manager_p->dispatch(0);             // blocking indefinitely
         }
 
-        if (rc <= 0) {
+        if (rc < 0) {
             // Check if the control channel is still connected or not
 
             bteso_IPv4Address address;
@@ -1013,10 +1002,15 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
 
 int btemt_TcpTimerEventManager::reinitializeControlChannel()
 {
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    ++d_numControlChannelReinitializations;
+    BSLS_ASSERT_OPT(d_numControlChannelReinitializations <= MAX_NUM_RETRIES);
+
     d_manager_p->deregisterSocket(d_controlChannel_p->serverFd());
 
-    int rc = d_controlChannel_p->recreateSocketPair();
+    int rc = d_controlChannel_p->close();
+    BSLS_ASSERT_OPT(0 == rc);
+
+    rc = d_controlChannel_p->open();
     BSLS_ASSERT_OPT(0 == rc);
 
     // Register the server fd of 'd_controlChannel_p' for READs.
@@ -1037,10 +1031,18 @@ int btemt_TcpTimerEventManager::reinitializeControlChannel()
         return rc;
     }
 
-    return initiateRead(false);
-#else
+    bcemt_ThreadUtil::Handle handle;
+    bcemt_ThreadAttributes   attributes;
+    attributes.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
+
+    bdef_Function<void (*)()> initiateReadFunctor = bdef_Function<void (*)()>(
+                bdef_BindUtil::bindA(d_allocator_p,
+                                     &btemt_TcpTimerEventManager::initiateRead,
+                                     this));
+
+    rc = bcemt_ThreadUtil::create(&handle, attributes, initiateReadFunctor);
+    BSLS_ASSERT_OPT(0 == rc);
     return 0;
-#endif
 }
 
 // CREATORS
@@ -1058,6 +1060,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(true)
 , d_numTotalSocketEvents(0)
+, d_numControlChannelReinitializations(0)
 , d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
@@ -1078,6 +1081,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
+, d_numControlChannelReinitializations(0)
 , d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
@@ -1099,6 +1103,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
+, d_numControlChannelReinitializations(0)
 , d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
@@ -1119,6 +1124,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(true)
 , d_numTotalSocketEvents(0)
+, d_numControlChannelReinitializations(0)
 , d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
@@ -1140,6 +1146,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
+, d_numControlChannelReinitializations(0)
 , d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
@@ -1162,6 +1169,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
 , d_numTotalSocketEvents(0)
+, d_numControlChannelReinitializations(0)
 , d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     initialize();
@@ -1184,6 +1192,7 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             threadSafeAllocator)
 , d_collectMetrics(false)
 , d_numTotalSocketEvents(0)
+, d_numControlChannelReinitializations(0)
 , d_allocator_p(bslma::Default::allocator(threadSafeAllocator))
 {
     BSLS_ASSERT(rawEventManager);
@@ -1355,7 +1364,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
         if (rc) {
             return rc;
         }
-        return initiateRead(true);
+        return initiateRead();
     }
     return 0;
 }

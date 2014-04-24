@@ -280,18 +280,11 @@ class btemt_TcpTimerEventManager_ControlChannel {
     int             d_numServerBytesRead;  // total number of bytes read
     bces_AtomicInt  d_numPendingRequests;  // number of pending requests
 
-    bsls::AtomicInt d_numReinitsAttempted; // number of reinitializations
-                                           // attempted
-
     // NOT IMPLEMENTED
     btemt_TcpTimerEventManager_ControlChannel(
                              const btemt_TcpTimerEventManager_ControlChannel&);
     btemt_TcpTimerEventManager_ControlChannel& operator=(
                              const btemt_TcpTimerEventManager_ControlChannel&);
-
-    int initialize();
-        // Initialize this control channel.  Return 0 on success and a
-        // non-zero value otherwise.
 
   public:
     // CREATORS
@@ -309,17 +302,25 @@ class btemt_TcpTimerEventManager_ControlChannel {
         // write is outstanding.  By default, 'forceWrite' is 'false' and the
         // control byte is not written to the client handle if a previous write
         // is outstanding.  Return the number of bytes written on success, and
-        // a negative value otherwise.
+        // a negative value otherwise.  Note that 'forceWrite' can be used when
+        // a write might be lost because the control channel had closed and
+        // ensures that the control byte is unconditionally written to the
+        // client handle.
+
+    int close();
+        // Close the connection between the internal socket pair of this
+        // control channel.  Return 0 on success and a non-zero value
+        // otherwise.
+
+    int open();
+        // Open a socket pair and establish a connection between them to
+        // initialize this control channel.  Return 0 on success and a non-zero
+        // value otherwise.
 
     int serverRead();
         // Read as many bytes as possible from the server buffer without
         // blocking.  Return the number of bytes read on success, and a
         // negative value otherwise.
-
-    int recreateSocketPair();
-        // Close the current internal socket pair and create a new pair of
-        // connected sockets in its place.  Return 0 on success and a non-zero
-        // value otherwise.
 
     // ACCESSORS
     bteso_SocketHandle::Handle clientFd();
@@ -327,6 +328,25 @@ class btemt_TcpTimerEventManager_ControlChannel {
 
     bteso_SocketHandle::Handle serverFd();
         // Return a handle to the server socket.
+};
+
+class btemt_TcpTimerEventManager;
+
+                       // =========================================
+                       // class btemt_TcpTimerEventManager_TestUtil
+                       // =========================================
+
+struct btemt_TcpTimerEventManager_TestUtil {
+    // This 'struct' provides access to the internal control channel of a
+    // 'btemt_TcpTimerEventManager' object and is used for testing only.
+    // This 'struct' should *NOT* be used directly to gain access to the
+    // control channel.
+
+    static const btemt_TcpTimerEventManager_ControlChannel *getControlChannel(
+                                    const btemt_TcpTimerEventManager& manager);
+        // Return a pointer providing non-modifiable access to the control
+        // channel object held by the specified 'manager' or 0 if the control
+        // channel has not been initialized.
 };
 
                        // ================================
@@ -443,8 +463,16 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
                                                   // events of
                                                   // 'd_controlChannel_p')
 
+    bsls::AtomicInt            d_numControlChannelReinitializations;
+                                                  // number of times the
+                                                  // control channel was
+                                                  // reinitialized
+
     bslma::Allocator          *d_allocator_p;     // memory allocator (held,
                                                   // not owned)
+
+    // FRIENDS
+    friend struct btemt_TcpTimerEventManager_TestUtil;
 
     // NOT IMPLEMENTED
     btemt_TcpTimerEventManager(const btemt_TcpTimerEventManager&);
@@ -461,12 +489,10 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
         // Internal callback method to process control information received
         // on 'd_controlChannel_p.serverFd()'.
 
-    int initiateRead(bool executeInSameThread);
+    int initiateRead();
         // Initiate a read request to the internal control channel's 'serverFd'
-        // so that it is operational and can wait for subsequent writes.  Use
-        // the specified 'executeInSameThread' to specify if the write should
-        // happen in the same or a separate thread.  Return 0 on success and a
-        // non-zero value otherwise.
+        // to make it operational and to start waiting for subsequent writes.
+        // Return 0 on success and a non-zero value otherwise.
 
     int reinitializeControlChannel();
         // Reinitialize this event manager's internal control channel.  Return
@@ -688,10 +714,6 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     bcemt_ThreadUtil::Handle dispatcherThreadHandle() const;
         // Return the thread handle of the dispatcher thread of this object.
 
-    const ControlChannel *controlChannel() const;
-        // Return a pointer providing non-modifiable access to this object's
-        // internal control channel.
-
     int isEnabled() const;
         // Return 1 if the dispatch thread is created/running and 0
         // otherwise.
@@ -713,17 +735,6 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
                // class btemt_TcpTimerEventManager_ControlChannel
                // -----------------------------------------------
 
-// CREATORS
-inline
-btemt_TcpTimerEventManager_ControlChannel::
-    ~btemt_TcpTimerEventManager_ControlChannel()
-{
-    bteso_SocketImpUtil::close(static_cast<bteso_SocketHandle::Handle>(
-                                                                    d_fds[0]));
-    bteso_SocketImpUtil::close(static_cast<bteso_SocketHandle::Handle>(
-                                                                    d_fds[1]));
-}
-
 // MANIPULATORS
 inline
 bteso_SocketHandle::Handle
@@ -737,6 +748,18 @@ bteso_SocketHandle::Handle
 btemt_TcpTimerEventManager_ControlChannel::serverFd()
 {
     return static_cast<bteso_SocketHandle::Handle>(d_fds[1].loadRelaxed());
+}
+
+                        // -----------------------------------------
+                        // class btemt_TcpTimerEventManager_TestUtil
+                        // -----------------------------------------
+
+inline
+const btemt_TcpTimerEventManager_ControlChannel *
+btemt_TcpTimerEventManager_TestUtil::getControlChannel(
+                                     const btemt_TcpTimerEventManager& manager)
+{
+    return manager.d_controlChannel_p.ptr();
 }
 
                         // --------------------------------
@@ -768,13 +791,6 @@ bcemt_ThreadUtil::Handle
 btemt_TcpTimerEventManager::dispatcherThreadHandle() const
 {
     return d_dispatcher;
-}
-
-inline
-const btemt_TcpTimerEventManager_ControlChannel *
-btemt_TcpTimerEventManager::controlChannel() const
-{
-    return d_controlChannel_p.ptr();
 }
 
 inline
