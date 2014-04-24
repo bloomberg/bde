@@ -133,6 +133,7 @@ BDES_IDENT("$Id: $")
 //   %m - current minute (two digits with leading zeros)
 //   %s - current second (two digits with leading zeros)
 //   %T - current datetime, equivalent to "%Y%M%D_%h%m%s"
+//   %p - process Id
 //..
 // For example, a log filename pattern of "task.log.%Y%M%D_%h%m%s" will yield
 // the a filename with the appearance of "task.log.20110501_123000" if the file
@@ -429,6 +430,7 @@ class bael_FileObserver : public bael_Observer {
         //   %m - current minute (two digits with leading zeros)
         //   %s - current second (two digits with leading zeros)
         //   %T - current datetime, equivalent to "%Y%M%D_%h%m%s"
+        //   %p - process Id
         //..
         // Each time a log file is opened by this file observer (upon a
         // successful call to this method and following each log file rotation)
