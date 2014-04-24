@@ -1,0 +1,131 @@
+gmake: Nothing to be done for `preprocess_package_include'.
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.h"
+gmake: Nothing to be done for `build_package_objects'.
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.cpp"
+gmake: Nothing to be done for `build_test'.
+gmake: Nothing to be done for `build_package_library'.
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.t.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.t.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.cpp"
+gmake: Nothing to be done for `test'.
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.cpp"
+cp -p libbdl+decnumber.dbg_exc_mt.* /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/lib/unix-AIX-powerpc-7.1-xlc-11.2
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.h"
+cp -p "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/decContext.h" "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/include/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt/decContext.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.h"
+cp -p "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/decNumberLocal.h" "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/include/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt/decNumberLocal.h"
+cp -p "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/decDouble.h" "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/include/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt/decDouble.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_version.t.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/bdlscm_versiontag.t.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.cpp"
+cp -p "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/decQuad.h" "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/include/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt/decQuad.h"
+cp -p "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/decSingle.h" "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/include/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt/decSingle.h"
+cp -p "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.h" "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/include/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt/bdlscm_version.h"
+LIBPATH=/bb/util/version11-042012/usr/lib  /bb/mbigd/mbig785/bde-tools/bin/all.pl -v -t 600 -m100 -j4 -l /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.dbg_exc_mt.log /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.dbg_exc_mt
+LIBPATH=/bb/util/version11-042012/usr/lib TMPDIR=/bb/data/tmp  /bb/util/version11-042012/usr/vacpp/bin/xlC_r  -qxflag=NoKeepDebugMetaTemplateType -I.        -I/bb/mbigd/mbig785/bsl-oss/include/bsl/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt    -DBDE_BUILD_TARGET_DBG -DBDE_BUILD_TARGET_EXC -DBDE_BUILD_TARGET_MT -qarch=pwr5 -qtune=pwr7 -qnotempinc -qfuncsect -qtbtable=small -qrtti=all -qsuppress=1500-029 -qsuppress=1540-2910 -qsuppress=1501-201 -qxflag=tocrel -qxflag=dircache:71,100  -D__NOLOCK_ON_INPUT -D__NOLOCK_ON_OUTPUT -qdebug=nparseasm -qxflag=UnwindTypedefInClassDecl -qeh -qlanglvl=newexcp -qxflag=v6align -g -qalias=noansi -qxflag=inlinewithdebug:stepOverInline -qlanglvl=staticstoreoverlinkage -Q -qxflag=noautoinline    -D_THREAD_SAFE -qthreaded -D_REENTRANT -DBSLS_IDENT_OFF   -DBSL_OVERRIDES_STD     -c -o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.dbg_exc_mt.o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.cpp
+LIBPATH=/bb/util/version11-042012/usr/lib  /bb/mbigd/mbig785/bde-tools/bin/all.pl -v -t 600 -m100 -j4 -l /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.dbg_exc_mt.log /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.dbg_exc_mt
+rm -f libbdlscm.dbg_exc_mt.a
+ar: creating an archive file libbdlscm.dbg_exc_mt.a
+a - bdlscm_version.dbg_exc_mt.o
+a - bdlscm_versiontag.dbg_exc_mt.o
+true libbdlscm.dbg_exc_mt.a
+all.pl: -- Opened logfile /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.dbg_exc_mt.log 
+all.pl: ** Testing bdlscm_version.t.dbg_exc_mt built Thu Apr 24 17:05:59 2014 
+all.pl: -- Opened logfile /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.dbg_exc_mt.log 
+all.pl: ** Testing bdlscm_versiontag.t.dbg_exc_mt built Thu Apr 24 17:05:59 2014 
+cp -p libbdlscm.dbg_exc_mt.* /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/lib/unix-AIX-powerpc-7.1-xlc-11.2
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.cpp CASE 1 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.cpp CASE 1 
+all.pl: << WARNING: CASE `2' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.cpp CASE 2 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.cpp CASE 2 
+all.pl: << WARNING: CASE `3' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.cpp CASE 3 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.cpp CASE 3 
+all.pl: << WARNING: CASE `4' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.cpp CASE 4 
+all.pl: << WARNING: CASE `4' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.cpp CASE 4 
+all.pl: << WARNING: CASE `5' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.cpp CASE 5 
+all.pl: << WARNING: CASE `5' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.cpp CASE 5 
+all.pl: << WARNING: CASE `6' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.cpp CASE 6 
+all.pl: ** bdlscm_version.t.dbg_exc_mt SUCCESSFUL 
+all.pl: -- Closed logfile /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_version.t.dbg_exc_mt.log 
+all.pl: ** bdlscm_versiontag.t.dbg_exc_mt SUCCESSFUL 
+all.pl: -- Closed logfile /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/unix-AIX-powerpc-7.1-xlc-11.2/bdlscm_versiontag.t.dbg_exc_mt.log 
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimal.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimal.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimalimplutil.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalimplutil.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimalplatform.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalplatform.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_uint128.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_uint128.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimal.t.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimalimplutil.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalimplutil.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimalplatform.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalplatform.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_uint128.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_uint128.cpp"
+LIBPATH=/bb/util/version11-042012/usr/lib TMPDIR=/bb/data/tmp  /bb/util/version11-042012/usr/vacpp/bin/xlC_r  -qxflag=NoKeepDebugMetaTemplateType -I.       -I/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/include/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt -I/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/include/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt -I/bb/mbigd/mbig785/bsl-oss/include/bsl/unix-AIX-powerpc-7.1-xlc-11.2/dbg_exc_mt    -DBDE_BUILD_TARGET_DBG -DBDE_BUILD_TARGET_EXC -DBDE_BUILD_TARGET_MT -qarch=pwr5 -qtune=pwr7 -qnotempinc -qfuncsect -qtbtable=small -qrtti=all -qsuppress=1500-029 -qsuppress=1540-2910 -qsuppress=1501-201 -qxflag=tocrel -qxflag=dircache:71,100  -D__NOLOCK_ON_INPUT -D__NOLOCK_ON_OUTPUT -qdebug=nparseasm -qxflag=UnwindTypedefInClassDecl -qdfp -D__STDC_WANT_DEC_FP__ -qeh -qlanglvl=newexcp -qxflag=v6align -g -qalias=noansi -qxflag=inlinewithdebug:stepOverInline -qlanglvl=staticstoreoverlinkage -Q -qxflag=noautoinline    -D_THREAD_SAFE -qthreaded -D_REENTRANT -DBSLS_IDENT_OFF   -DBSL_OVERRIDES_STD     -c -o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.dbg_exc_mt.o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp
+LIBPATH=/bb/util/version11-042012/usr/lib TMPDIR=/bb/data/tmp  /bb/util/version11-042012/usr/vacpp/bin/xlC_r  -qxflag=NoKeepDebugMetaTemplateType -o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.dbg_exc_mt /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.dbg_exc_mt.o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.dbg_exc_mt.o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalimplutil.dbg_exc_mt.o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalplatform.dbg_exc_mt.o /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_uint128.dbg_exc_mt.o  -bstatic -L/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdl+decnumber/lib/unix-AIX-powerpc-7.1-xlc-11.2 -L/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdlscm/lib/unix-AIX-powerpc-7.1-xlc-11.2 -lbdl+decnumber.dbg_exc_mt -lbdlscm.dbg_exc_mt -L/home/alin197/bde-core/lib/unix-AIX-powerpc-7.1-xlc-11.2 -L/home/alin197/bde-tools/lib/unix-AIX-powerpc-7.1-xlc-11.2 -L/home/alin197/bsl-internal/lib/unix-AIX-powerpc-7.1-xlc-11.2 -L/home/alin197/bde-bb/lib/unix-AIX-powerpc-7.1-xlc-11.2 -L/home/alin197/bde-bdx/lib/unix-AIX-powerpc-7.1-xlc-11.2 -L/bbsrc/source/proot/lib/unix-AIX-powerpc-7.1-xlc-11.2 -L/bbsrc/stproot/lib/unix-AIX-powerpc-7.1-xlc-11.2 -lbsl.dbg_exc_mt   -qstaticinit=ld -qtwolink -bh:5 -bmaxdata:0x50000000 -bbinder:/usr/ccs/bin/bind64 -bweaklocal -bbigtoc -qarch=pwr5 -qtune=pwr7 -ldecNumber -L/bbsrc/bde/registry/lroot/lib/unix-AIX-powerpc-7.1-xlc-11.2   -bdynamic -lpthread -bstatic -qthreaded         -bdynamic
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimal.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimal.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimalimplutil.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalimplutil.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimalplatform.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalplatform.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_uint128.h "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_uint128.h"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimal.t.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimalimplutil.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalimplutil.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_decimalplatform.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimalplatform.cpp"
+cp -p /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/bdldfp_uint128.cpp "/bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_uint128.cpp"
+LIBPATH=/bb/util/version11-042012/usr/lib  /bb/mbigd/mbig785/bde-tools/bin/all.pl -v -t 600 -m100 -j4 -l /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.dbg_exc_mt.log /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.dbg_exc_mt
+all.pl: -- Opened logfile /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.dbg_exc_mt.log 
+all.pl: ** Testing bdldfp_decimal.t.dbg_exc_mt built Thu Apr 24 17:57:11 2014 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 1 
+all.pl: << s: 1.200000 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2742): "1.2" == s    (failed) 
+all.pl: << s: 1.230000 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2749): "1.23" == s    (failed) 
+all.pl: << s: 1.234000 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2756): "1.234" == s    (failed) 
+all.pl: << s: 1.234500 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2763): "1.2345" == s    (failed) 
+all.pl: << s: 1.234560 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2770): "1.23456" == s    (failed) 
+all.pl: << s: 1.000000e-9 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2791): "1e-9" == s    (failed) 
+all.pl: << s: 5.000000e+50 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2813): "5e+50" == s    (failed) 
+all.pl: << s: 5.000000e-50 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2821): "5e-50" == s    (failed) 
+all.pl: << s: 5.000000E+50 
+all.pl: << Error /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp(2829): "5E+50" == s    (failed) 
+all.pl: << Error, non-zero test status = 9. 
+all.pl: !! CASE 1 FOR bdldfp_decimal.t.dbg_exc_mt FAILED (<1s) 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 2 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 3 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 4 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 5 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 6 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 7 
+all.pl: << WARNING: CASE `7' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 8 
+all.pl: << WARNING: CASE `8' NOT FOUND. 
+all.pl: << TEST /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.cpp CASE 9 
+all.pl: << WARNING: CASE `9' NOT FOUND. 
+all.pl: ** bdldfp_decimal.t.dbg_exc_mt ABNORMAL TEST FAILURE (1) 
+all.pl: -- Closed logfile /bb/mbigd/mbig785/bsl-oss/groups/bdl/bdldfp/unix-AIX-powerpc-7.1-xlc-11.2/bdldfp_decimal.t.dbg_exc_mt.log 
+gmake: *** [test.bdldfp_decimal.t.dbg_exc_mt] Error 1
