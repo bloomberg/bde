@@ -21,6 +21,7 @@ BDES_IDENT_RCSID(baesu_stacktraceutil_cpp,"$Id$ $CSID$")
 #include <bsls_types.h>
 
 #include <bsl_iomanip.h>
+#include <bsl_ios.h>
 #include <bsl_ostream.h>
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_OPT)

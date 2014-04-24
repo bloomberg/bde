@@ -3646,7 +3646,8 @@ int main(int argc, char *argv[])
 
                           if (iteration % iterationModulus == 0)
                           {
-                          BEGIN_BSLMA_EXCEPTION_TEST {
+                          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
+                                                               testAllocator) {
                             const int AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
                             Obj mU(&testAllocator);
@@ -3672,7 +3673,7 @@ int main(int argc, char *argv[])
                             // 'mV' (and therefore 'V') now out of scope
                             LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N,
                                          functionsHaveSameValue(VV, U));
-                          } END_BSLMA_EXCEPTION_TEST
+                          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                           }
                           ++iteration;
@@ -3696,7 +3697,7 @@ int main(int argc, char *argv[])
                 const Obj X = g<Proto>(SPEC);
 
                 for (int tj = 0; PERTURB[tj]; ++tj) {
-                  BEGIN_BSLMA_EXCEPTION_TEST {
+                  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     const int AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
@@ -3715,7 +3716,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(SPEC, N, functionsHaveSameValue(Y, Y));
                     LOOP2_ASSERT(SPEC, N, functionsHaveSameValue(X, Y));
 
-                  } END_BSLMA_EXCEPTION_TEST
+                  } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
                 }
             }
         }
@@ -3920,15 +3921,16 @@ int main(int argc, char *argv[])
                                      functionsHaveSameValue(W, X))
                     }
 
-                    BEGIN_BSLMA_EXCEPTION_TEST {    // Test allocator
+                                                        // Test allocator
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const Obj Y2(X, &testAllocator);
                         LOOP2_ASSERT(SPEC, PERTURB[ei],
                                      functionsHaveSameValue(W, Y2));
                         LOOP2_ASSERT(SPEC, PERTURB[ei],
                                      functionsHaveSameValue(W, X))
-                    } END_BSLMA_EXCEPTION_TEST
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    {                               // Buffer Allocator.
+                    {                                   // Buffer Allocator.
                         char memory[8192];
                         bdema_BufferedSequentialAllocator a(memory,
                                                             sizeof memory);
@@ -4706,14 +4708,14 @@ int main(int argc, char *argv[])
             Obj mX(&ta); const Obj& X = mX;
             ASSERT(!X);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 FunctorL mL; mL.d_value = VL;
                 mX = mL;
 
                 ASSERT(X);
                 ASSERT(!X.isInplace());
                 ASSERT(VL == X(1));
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         {
             if (verbose) cout << "\t\tOn a non-empty object." << endl;
@@ -4721,7 +4723,7 @@ int main(int argc, char *argv[])
             Obj mX(&ta); const Obj& X = mX;
             ASSERT(!X);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 FunctorU mU; mU.d_value = VU;
                 mX = mU;
                 ASSERT(X);
@@ -4745,7 +4747,7 @@ int main(int argc, char *argv[])
                 ASSERT(X);
                 ASSERT(!X.isInplace());
                 ASSERT(VP == X(4));
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(0 == ta.numBlocksInUse());
         ASSERT(0 == ta.numMismatches());
@@ -4853,7 +4855,7 @@ int main(int argc, char *argv[])
             Obj mX(&ta); const Obj& X = mX;
             ASSERT(!X);
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 FunctorS mS; mS.d_value = VS;
                 mX = mS;
                 ASSERT(X);
@@ -4885,7 +4887,7 @@ int main(int argc, char *argv[])
                 ASSERT(!X);
                 ASSERT(X.isInplace());
                 ASSERT(0 == ta.numBlocksInUse());
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         ASSERT(0 == ta.numBlocksInUse());
 

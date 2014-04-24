@@ -2856,7 +2856,7 @@ int main(int argc, char *argv[])
                 //                        const bdet_Date&,
                 //                        bslma::Allocator *).
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     Obj mX(dateFirst, dateLast, &testAllocator);
                     const Obj& X = mX;
                     if (veryVerbose) P(X);
@@ -2872,12 +2872,12 @@ int main(int argc, char *argv[])
                     }
                     LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
                     LOOP_ASSERT(i, 0 == X.numWeekendDaysTransitions());
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
                 // Testing bdet_Calendar(const bdet_PackedCalendar&,
                 //                        bslma::Allocator *).
 
-                BEGIN_BSLMA_EXCEPTION_TEST {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                     bdet_PackedCalendar packedCal(dateFirst, dateLast,
                                                                &testAllocator);
                     const Obj X(packedCal, &testAllocator);
@@ -2894,7 +2894,7 @@ int main(int argc, char *argv[])
                     }
                     LOOP_ASSERT(i, X.beginHolidays() == X.endHolidays());
                     LOOP_ASSERT(i, 0 == X.numWeekendDaysTransitions());
-                } END_BSLMA_EXCEPTION_TEST
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
             }
         }
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
@@ -5175,12 +5175,12 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\twith a specified allocator and exceptions"
                               << endl;
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int previousTotal = testAllocator.numBlocksTotal();
                 const Obj X(&testAllocator);
                 ASSERT(0 == X.length());
                 ASSERT(testAllocator.numBlocksTotal() >= previousTotal);
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << "\nTesting 'addDay'." << endl;

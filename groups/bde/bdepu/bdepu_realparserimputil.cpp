@@ -22,6 +22,14 @@ namespace BloombergLP {
 typedef bsls::Types::Int64  Int64;
 typedef bsls::Types::Uint64 Uint64;
 
+namespace {
+
+    static const Uint64 decFracHalf  = 1000000000uLL;
+    static const Uint64 decFracLower = 100000000000000000uLL;
+    static const Uint64 decFracUpper = 1000000000000000000uLL;
+
+}  // close unnamed namespace
+
 enum {
     BDEPU_SUCCESS = 0,
     BDEPU_FAILURE = 1
@@ -35,7 +43,7 @@ void bdepu_RealParserImpUtil::
 
     if (0 == binExp) {  // simple case; 2^0 == 1
         //                 eighteen digit num
-        *decFrac = (Uint64)100000000000000000uLL;
+        *decFrac = (Uint64) decFracLower;
         *decExp = 1;
         return;                                                       // RETURN
     }
@@ -43,7 +51,8 @@ void bdepu_RealParserImpUtil::
     // Initialize the result to 1.
 
     //                   eighteen digit num
-    Uint64 res = (Uint64)100000000000000000uLL;
+    Uint64 res = (Uint64) decFracLower;
+    Uint64 res_low;
     int    exp = 1;
 
     Uint64 dF;   // decimal fraction of currently computed 2^bE
@@ -65,13 +74,13 @@ void bdepu_RealParserImpUtil::
 
     if (binExp > 0) {
         //           eighteen digit num
-        dF = (Uint64)200000000000000000uLL;
+        dF = (Uint64) 2 * decFracLower;
         dE = 1;
     }
     else {
         binExp = -binExp;
         //           eighteen digit num
-        dF = (Uint64)500000000000000000uLL;
+        dF = (Uint64) 5 * decFracLower;
         dE = 0;
     }
 
@@ -86,30 +95,39 @@ void bdepu_RealParserImpUtil::
             // overflow.
 
             //               ten digits
-            Uint64 a = res / 1000000000uLL;
-            Uint64 b = res % 1000000000uLL;
-            Uint64 c = dF  / 1000000000uLL;
-            Uint64 d = dF  % 1000000000uLL;
-            res = a * c + (a * d) / 1000000000uLL + (b * c) / 1000000000uLL;
+            Uint64 a = res / decFracHalf;
+            Uint64 b = res % decFracHalf;
+            Uint64 c = dF  / decFracHalf;
+            Uint64 d = dF  % decFracHalf;
+            res = a * c + (a * d) / decFracHalf + (b * c) / decFracHalf;
+            res_low = ((a * d) % decFracHalf + (b * c) % decFracHalf) *
+                decFracHalf + b * d;
+
+            res += (res_low / decFracUpper);
+            res_low %= decFracUpper;
+
             exp += dE;
 
             // Normalize representation.
 
-            while (res < 100000000000000000uLL) {
+            while (res < decFracLower) {
                 res *= 10;
+                res += res_low / decFracLower;
+                res_low = (res_low % decFracLower) * 10;
                 --exp;
             }
+            res += res_low / (5 * decFracLower);
         }
         //              ten digits
-        Uint64 a = dF / 1000000000uLL;
-        Uint64 b = dF % 1000000000uLL;
-        dF = a * a + ((a * b) / 500000000uLL);
+        Uint64 a = dF / decFracHalf;
+        Uint64 b = dF % decFracHalf;
+        dF = a * a + ((a * b) / (decFracHalf / 2));
         dE *= 2;
         bE = bE < 0x40000000 ? bE * 2 : binExp + 1;  // do not allow overflow
 
         // Normalize representation.
 
-        while (dF < 100000000000000000uLL) {
+        while (dF < decFracLower) {
             dF *= 10;
             --dE;
         }
@@ -127,7 +145,7 @@ void bdepu_RealParserImpUtil::
 
     Uint64 res = 0;
     //                     eighteen digit num
-    Uint64 digitLocation = 100000000000000000uLL;
+    Uint64 digitLocation = decFracLower;
     const Uint64 max = (Uint64)1 << 60;
 
     // Drop the lowest order four bits (to prevent overflow when binFrac is
@@ -149,7 +167,7 @@ void bdepu_RealParserImpUtil::
     // Rounding.
 
     //                                eighteen digit num
-    if (binFrac & (max >> 1) && res < 999999999999999999uLL) {
+    if (binFrac & (max >> 1) && res < decFracUpper - 1) {
         ++res;
     }
 
@@ -173,6 +191,7 @@ void bdepu_RealParserImpUtil::convertBinaryToDecimal(Uint64 *decFrac,
     Uint64 decFrac1;
     Uint64 decFrac2;
     Uint64 res;
+    Uint64 res_low;
     int    exp;
 
     // Convert the exponential and fraction parts and then multiply these
@@ -184,20 +203,28 @@ void bdepu_RealParserImpUtil::convertBinaryToDecimal(Uint64 *decFrac,
     // Multiply the two fractional portions without overflowing.
 
     //                    ten digits
-    Uint64 a = decFrac1 / 1000000000uLL;
-    Uint64 b = decFrac1 % 1000000000uLL;
-    Uint64 c = decFrac2 / 1000000000uLL;
-    Uint64 d = decFrac2 % 1000000000uLL;
+    Uint64 a = decFrac1 / decFracHalf;
+    Uint64 b = decFrac1 % decFracHalf;
+    Uint64 c = decFrac2 / decFracHalf;
+    Uint64 d = decFrac2 % decFracHalf;
 
-    res = a * c + (a * d) / 1000000000uLL + (b * c) / 1000000000uLL;
+    res = a * c + (a * d) / decFracHalf + (b * c) / decFracHalf;
+    res_low = ((a * d) % decFracHalf + (b * c) % decFracHalf) *
+        decFracHalf + b * d;
+
+    res += (res_low / decFracUpper);
+    res_low %= decFracUpper;
 
     // Normalize representation.
 
     //           eighteen digit num
-    while (res < 100000000000000000uLL) {
+    while (res < decFracLower) {
         res *= 10;
+        res += res_low / decFracLower;
+        res_low = (res_low % decFracLower) * 10;
         --exp;
     }
+    res += res_low / (5 * decFracLower);
 
     *decFrac = res;
     *decExp = exp;
@@ -295,6 +322,7 @@ int bdepu_RealParserImpUtil::
 
     //                     sixteen digit num
     Uint64 res = (Uint64)0x8000000000000000uLL;
+    Uint64 res_low;
     int    exp = 1;
 
     Uint64 bF;   // binary fraction of currently computed 10^dE
@@ -333,19 +361,36 @@ int bdepu_RealParserImpUtil::
 
     while (dE <= decExp) {
         if (decExp & dE) {
+            // Multiply res * bF, obtaining 128 bits of result.
             Uint64 a = res >> 32;
             Uint64 b = res & 0xFFFFFFFFuLL;
             Uint64 c = bF >> 32;
             Uint64 d = bF & 0xFFFFFFFFuLL;
-            res = a * c + ((a * d) >> 32) + ((b * c) >> 32);
+
+            Uint64 ac      =  a * c;
+            Uint64 ad_high = (a * d) >> 32;
+            Uint64 ad_low  = (a * d) << 32;
+            Uint64 bc_high = (b * c) >> 32;
+            Uint64 bc_low  = (b * c) << 32;
+            Uint64 bd      =  b * d;
+
+            Uint64 carry = ((bd + ad_low         ) < ad_low) ||
+                           ((bd + ad_low + bc_low) < bc_low); 
+            res_low = bd + ad_low + bc_low;
+            res = carry + ac + ad_high + bc_high;
+
             exp += bE;
 
             // Normalize representation.
 
             while (0 == (res & max)) {
                 res = res << 1;
+                res += (res_low >> 63);
+                res_low = res_low << 1;
                 --exp;
             }
+
+            res += (res_low >> 63);
         }
         Uint64 a = bF >> 32;
         Uint64 b = bF & 0xFFFFFFFFuLL;
@@ -380,17 +425,17 @@ void bdepu_RealParserImpUtil::
     while (decFrac && bit) {
         decFrac = decFrac << 1;
         //             nineteen digit num
-        if (decFrac >= 1000000000000000000uLL) {
+        if (decFrac >= decFracUpper) {
             res |= bit;
             //         nineteen digit num
-            decFrac -= 1000000000000000000uLL;
+            decFrac -= decFracUpper;
         }
         bit = bit >> 1;
     }
 
     // Rounding.
-    //             eighteen digit num               sixteen digit num
-    if (decFrac >= 500000000000000000uLL && res < 0xFFFFFFFFFFFFF800uLL) {
+    //             eighteen digit num          sixteen digit num
+    if (decFrac >= (5 * decFracLower) && res < 0xFFFFFFFFFFFFF800uLL) {
         ++res;
     }
 
@@ -467,6 +512,7 @@ int bdepu_RealParserImpUtil::convertDecimalToBinary(Uint64 *binFrac,
     Uint64 binFrac1;
     Uint64 binFrac2;
     Uint64 res;
+    Uint64 res_low;
     int    exp;
 
     // Convert the exponential and fraction parts and then multiply these
@@ -477,19 +523,32 @@ int bdepu_RealParserImpUtil::convertDecimalToBinary(Uint64 *binFrac,
     }
     convertDecimalFractionToBinaryFraction(&binFrac2, decFrac);
 
-    // Multiply the two fractional portions without overflowing.
+    // Multiply the two fractional portions, obtaining 128 bits of result.
 
     Uint64 a = binFrac1 >> 32;
     Uint64 b = binFrac1 & 0xFFFFFFFFuLL;
     Uint64 c = binFrac2 >> 32;
     Uint64 d = binFrac2 & 0xFFFFFFFFuLL;
 
-    res = a * c + ((a * d) >> 32) + ((b * c) >> 32);
+    Uint64 ac      =  a * c;
+    Uint64 ad_high = (a * d) >> 32;
+    Uint64 ad_low  = (a * d) << 32;
+    Uint64 bc_high = (b * c) >> 32;
+    Uint64 bc_low  = (b * c) << 32;
+    Uint64 bd      =  b * d;
+
+    Uint64 carry = ((bd + ad_low         ) < ad_low) ||
+                   ((bd + ad_low + bc_low) < bc_low); 
+    res_low = bd + ad_low + bc_low;
+    res = carry + ac + ad_high + bc_high;
 
     const Uint64 max = (Uint64)1 << 63;
 
     while (res && 0 == (res & max)) {
         res = res << 1;
+        res += (res_low >> 63);
+        res_low = res_low << 1;
+
         if (-2147483648LL == exp) {  // handle underflow at INT_MIN
             *binFrac = 0;
             *binExp = 0;
@@ -498,6 +557,8 @@ int bdepu_RealParserImpUtil::convertDecimalToBinary(Uint64 *binFrac,
         }
         --exp;
     }
+
+    res += (res_low >> 63);
 
     *binFrac = res;
     *binExp = exp;

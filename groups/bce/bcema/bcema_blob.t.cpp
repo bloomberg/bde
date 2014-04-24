@@ -963,7 +963,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
 
         bslma::TestAllocator& testAllocator = ta;
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             typedef bcema_Blob Obj;
             const int BUFFER_SIZE = 4;
@@ -1023,7 +1023,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == defaultAlloc.numAllocations());
 
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -1285,7 +1285,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
 
             bslma::TestAllocator& testAllocator = ta;
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE     = bufferSize;
                 const int LENGTH          = dataLength;
@@ -1335,7 +1335,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numMismatches());
             ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 9: {
@@ -1362,7 +1362,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
 
         bslma::TestAllocator& testAllocator = ta;
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
         for (int bufferSize = 1; bufferSize < 20; bufferSize +=2) {
         for (int numBuffers = 0; numBuffers < 10; ++numBuffers) {
             const int BUFFER_SIZE = bufferSize;
@@ -1420,7 +1420,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == defaultAlloc.numAllocations());
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1466,7 +1466,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
 
             bslma::TestAllocator& testAllocator = ta;
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1543,7 +1543,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numMismatches());
             ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
 #ifdef  BDE_BUILD_TARGET_SAFE
@@ -1563,7 +1563,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
 
             bslma::TestAllocator& testAllocator = ta;
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1617,7 +1617,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numMismatches());
             ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
       } break;
@@ -1666,7 +1666,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
 
             bslma::TestAllocator& testAllocator = ta;
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1730,7 +1730,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numMismatches());
             ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << "\nTesting 'removeAll'" << endl;
@@ -1745,7 +1745,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
 
             bslma::TestAllocator& testAllocator = ta;
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1786,7 +1786,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numMismatches());
             ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
       } break;
@@ -1832,7 +1832,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
 
             bslma::TestAllocator& testAllocator = ta;
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1881,7 +1881,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numMismatches());
             ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
       } break;
@@ -1933,7 +1933,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
 
             bslma::TestAllocator& testAllocator = ta;
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE          = bufferSize;
                 const int DATA_LENGTH          = dataLength;
@@ -1998,7 +1998,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numMismatches());
             ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
       } break;
@@ -2162,7 +2162,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator ta(veryVeryVerbose);
 
             bslma::TestAllocator& testAllocator = ta;
-            BEGIN_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
                 const int BUFFER_SIZE     = bufferSize;
                 const int LENGTH          = dataLength;
@@ -2252,7 +2252,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numMismatches());
             ASSERT(0 == defaultAlloc.numAllocations());
 
-            END_BSLMA_EXCEPTION_TEST
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << "\nTesting blob with different buffer sizes.\n";
@@ -2354,7 +2354,7 @@ int main(int argc, char *argv[])
 #endif
 
         if (verbose) cout << "\nTesting creating blob with factory.\n";
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
@@ -2429,11 +2429,11 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == defaultAlloc.numAllocations());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
 #if 0
         if (verbose) cout << "\nTesting creating blob importing buffers.\n";
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
@@ -2482,12 +2482,12 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == defaultAlloc.numAllocations());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
         if (verbose)
            cout << "\nTesting creating blob with factory importing buffers.\n";
-        BEGIN_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
         {
             bsls::AssertFailureHandlerGuard guard(&unknownFactoryHandler);
             numUnknownFactoryHandlerInvocations = 0;
@@ -2533,7 +2533,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
         ASSERT(0 == ta.numMismatches());
         ASSERT(0 == defaultAlloc.numAllocations());
-        END_BSLMA_EXCEPTION_TEST
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
       } break;
       case 1: {

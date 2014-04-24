@@ -1,132 +1,145 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-MAKE_JOBS:=12
-PATH:=/bbshr/bde/bde-tools/bin:/usr/bin:/bin
+
+MAKE_JOBS:=4
 TMPDIR:=/tmp
 SHELL:=/bin/bash
-RSSUITE_TOOLS=/bbsrc/rssuite-tools
+
+RSSUITE_TOOLS:=$(DISTRIBUTION_REFROOT)/bbsrc/rssuite-tools
 RSSUITE:=$(shell cat $(RSSUITE_TOOLS)/RSSUITE.version)
-PRODUCEMAKE:=/bbsrc/bin/prod/bin/producemake
+include $(RSSUITE_TOOLS)/rssuite-vars.mk
 
-BDE_TOOLS_ETC=/bbshr/bde/bde-tools/etc
-
+BDE_TOOLS_ETC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/etc/bde-tools
 include $(BDE_TOOLS_ETC)/debian-rules-uplid
 include $(BDE_TOOLS_ETC)/debian-rules-flavors
 
-GROUPS:=bae bce bde bte bbe
+BDE_OSS_TOOLS_ETC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/etc/bde-oss-tools
+
+BDE_TOOLS_LIBEXEC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/libexec/bde-tools
+BDE_OSS_TOOLS_LIBEXEC:=$(DISTRIBUTION_REFROOT)/$(PREFIX)/libexec/bde-oss-tools
+
+PATH:=$(BDE_OSS_TOOLS_LIBEXEC):$(BDE_TOOLS_LIBEXEC):$(PREFIX)/bin::/opt/swt/bin:/usr/bin:/bin:/usr/ccs/bin:$(PATH)
+
+BDE_SETWAFENV=$(BDE_TOOLS_LIBEXEC)/bde_setwafenv.py
+WAF=$(BDE_OSS_TOOLS_LIBEXEC)/waf
+PKGCONFIG=$(PREFIX)/bin/pkg-config.64
+
+GROUPS_STATIC:=bae bce bde bte bbe
 
 comma:= ,
 empty:=
 space:= $(empty) $(empty)
+join-with = $(subst $(space),$1,$(strip $2))
+lc = $(subst A,a,$(subst B,b,$(subst C,c,$(subst D,d,$(subst E,e,$(subst F,f,$(subst G,g,$(subst H,h,$(subst I,i,$(subst J,j,$(subst K,k,$(subst L,l,$(subst M,m,$(subst N,n,$(subst O,o,$(subst P,p,$(subst Q,q,$(subst R,r,$(subst S,s,$(subst T,t,$(subst U,u,$(subst V,v,$(subst W,w,$(subst X,x,$(subst Y,y,$(subst Z,z,$1))))))))))))))))))))))))))
+uplid:=$(call lc,$(UPLID))
 
+
+# ============================================================================
+# build targets
+# ============================================================================
+
+.PHONY: clean
 clean:
 	rm -rf debian/lib{bae,bce,bde,bte,bbe}-dev debian/bde-core-bdemeta
-	rm -f debian/*files debian/files
-	rm -f debian/build-stamp
-	rm -f debian/binary-stamp
-	rm -rf lib include
-	find . -type d \
-	   -name $(UPLID) \
-	   -prune -exec rm -rf {} \;
+	rm -rf unix-*
+	rm -rf .lock-waf-*
+	rm -rf etc
 
-# A few levels of hackery to keep producemake happy:
-#   o Copy default.opts into "etc" in the source tree
-#   o Copy default_internal.opts into "etc" in the source tree, if available
-#   o Add a line to default.opts adding the -I rules for /bb/include and
-#     /bb/include/stlport to USER_CXXFLAGS.
-#   o Copy all the bsl metadata from /bb/bdemeta/groups/ into groups/
-producemake:
+etc/default.opts:
 	mkdir -p etc
-	cp $(BDE_TOOLS_ETC)/default.opts etc/
-	cp $(BDE_TOOLS_ETC)/default_internal.opts etc/ || true
-	echo "* _ USER_CXXFLAGS = -I/bb/include -I/bb/include/stlport" >> etc/default.opts
-	rsync -a /bb/bdemeta/groups/ groups/
-	BDE_ROOT=. BDE_PATH=/bb/bdemeta:. PATH=$(PATH)               \
-	  $(PRODUCEMAKE) -Lgv -r . --nonmake                         \
-	  -p $(UPLID)                                                \
-	  -g $(subst $(space),$(comma),$(GROUPS))        \
-	  -t $(subst $(space),$(comma),$(STATIC_FLAVORS))
+	cp $(BDE_OSS_TOOLS_ETC)/default.opts etc/
+	cp $(BDE_TOOLS_ETC)/default_internal.opts etc/
+	sed /BDE_REFROOT_VER/d etc/default_internal.opts > etc/default_internal.opts.1
+	mv etc/default_internal.opts.1 etc/default_internal.opts
 
-##################################################################
-# First we're going to define the rules for the actual build....
-##################################################################
-# the use of stamp files is to avoid unecessary build calls
-# when doing a rerun of the build target.
+define flavor-template-static-32
 
-# The canonical list
-# of packages that should *NOT* be installed in production
-# is:
-#    bde+pcre bsl+stdhdrs bsl+apache
-# All other packages need to be installed.
-PACKAGES_NO_INSTALL:=bde+pcre
-
-define GROUP_template
-GROUP_$(1)_DEPENDS:=$(filter $GROUPS,$(shell cat groups/$(1)/group/$(1).dep))
-GROUP_$(1)_INSTALL_PACKAGES:=$(filter-out $(PACKAGES_NO_INSTALL),$(shell cat groups/$(1)/group/$(1).mem | perl -pi -e 's/\#.*$$//'))
-GROUP_$(1)_INSTALL_HEADERS:=$$(foreach package,$$(GROUP_$(1)_INSTALL_PACKAGES),$$(shell find groups/$(1)/$$(package)/ -name '*.h'))
-
-groups/$(1)/group/$(1).mk: producemake
-
-lib/$(UPLID)/$(1).stamp: groups/$(1)/group/$(1).mk $$(foreach dep,$$(GROUP_$(1)_DEPENDS),lib/$(UPLID)/$$(dep).stamp )
-	$(MAKE_ENV) SUNW_NO_UPDATE_NOTIFY=1 BDE_ROOT=. PATH=$(PATH) $(MAKE) -j$(MAKE_JOBS) -C groups/$(1)/group -f $(1).mk build install PLATFORM=$(UPLID) SONAME=lib$(1)_$(RSSUITE).so
-	touch lib/$(UPLID)/$(1).stamp
+.PHONY: $(1)-build-static-32
+$(1)-build-static-32: etc/default.opts
+ifneq ($(GROUPS_STATIC),)
+	eval `PATH=$(PATH) HOME=/ BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`;	\
+	PATH=$(PATH) HOME=/ PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) PKGCONFIG=$(PKGCONFIG) PKG_CONFIG_PATH=$(DISTRIBUTION_REFROOT)/$(PREFIX)/lib/pkgconfig BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport $(WAF) configure build --lib-suffix .$(1) --install-flat-include --target $(call join-with,$(comma),$(GROUPS_STATIC))
+endif
 
 endef
 
-$(foreach group,$(GROUPS),$(eval $(call GROUP_template,$(group))))
+define flavor-template-static-64
 
-#################################################################
-# now the part that generates the deb packages
-#################################################################
+.PHONY: $(1)-build-static-64
+$(1)-build-static-64: etc/default.opts
+ifneq ($(GROUPS_STATIC),)
+	eval `PATH=$(PATH) HOME=/ BDE_ROOT=. $(BDE_SETWAFENV) -t $(1) --force_uplid $(UPLID)`;	\
+	PATH=$(PATH) HOME=/ PREFIX=$(DISTRIBUTION_REFROOT)/$(PREFIX) PKGCONFIG=$(PKGCONFIG) PKG_CONFIG_PATH=$(DISTRIBUTION_REFROOT)/$(PREFIX)/lib64/pkgconfig BDE_ROOT=. PC_EXTRA_INCLUDE_DIRS=$(DISTRIBUTION_REFROOT)/$(PREFIX)/include/stlport $(WAF) configure build --lib-suffix .$(1) --install-flat-include --install-lib-dir lib64 --target $(call join-with,$(comma),$(GROUPS_STATIC))
+endif
 
-############
-# static libraries and headers...
-############
+endef
 
-# This was taken from $cstools/build/build_prebuild. Comment in there was:
-## the non-conformant bde directories are not deployed
-## normally (perhaps we should just test for '+' instead of listing
-## them out?), mostly they're not deployed at all. the only
-## exception being stlport (in BDE 2.0+ stdhdrs) which is deployed
-## by a special-case top level symlink elsewhere
-define GROUPdev_template
+$(foreach flavor,$(STATIC_FLAVORS_32bit),$(eval $(call flavor-template-static-32,$(flavor))))
+$(foreach flavor,$(STATIC_FLAVORS_64bit),$(eval $(call flavor-template-static-64,$(flavor))))
+
+build-libs: $(foreach flavor,$(STATIC_FLAVORS_32bit),$(flavor)-build-static-32) $(foreach flavor,$(STATIC_FLAVORS_64bit),$(flavor)-build-static-64)
+
+# ============================================================================
+# dev binary targets
+# ============================================================================
+
+PACKAGES_NO_INSTALL:=bde+pcre
+define GROUP_template
+GROUP_$(1)_DEPENDS:=$(shell cat groups/$(1)/group/$(1).dep)
+GROUP_$(1)_INSTALL_PACKAGES:=$(filter-out $(PACKAGES_NO_INSTALL),$(shell cat groups/$(1)/group/$(1).mem | perl -pi -e 's/\#.*$$//'))
+GROUP_$(1)_INSTALL_HEADERS:=$$(foreach package,$$(GROUP_$(1)_INSTALL_PACKAGES),$$(shell find groups/$(1)/$$(package)/ -name '*.h'))
+endef
+
+$(foreach group,$(GROUPS_STATIC),$(eval $(call GROUP_template,$(group))))
+
+define group-dev-template
 
 # default empty rule for packages that don't need override.
 lib$(1)-dev-additional:
 
-lib$(1)-dev: lib/$(UPLID)/$(1).stamp lib$(1)-dev-additional
-	mkdir -p debian/lib$(1)-dev/bb/lib debian/lib$(1)-dev/bb/lib64
+lib$(1)-dev: lib$(1)-dev-additional $(foreach flavor,$(STATIC_FLAVORS_32bit),$(flavor)-build-static-32) $(foreach flavor,$(STATIC_FLAVORS_64bit),$(flavor)-build-static-64)
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/lib debian/lib$(1)-dev/$(PREFIX)/lib64
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/lib/pkgconfig debian/lib$(1)-dev/$(PREFIX)/lib64/pkgconfig
 	mkdir -p debian/lib$(1)-dev/DEBIAN
-ifeq ($(STATIC_FLAVORS),)
-else
-	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/bb/lib/
+ifneq ($(STATIC_FLAVORS),)
+	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp $(uplid)-$(flavor)/groups/$(1)/lib$(1).$(flavor).a debian/lib$(1)-dev/$(PREFIX)/lib/
 	)
-	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp lib/$(UPLID)/lib$(1).$(flavor).a debian/lib$(1)-dev/bb/lib64/
+	$(foreach flavor,$(STATIC_FLAVORS_32bit),cp $(uplid)-$(flavor)/vc/$(1).$(flavor).pc debian/lib$(1)-dev/$(PREFIX)/lib/pkgconfig/
 	)
-	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/bb/lib/lib$(1).a
-	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/bb/lib64/lib$(1).a
+	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp $(uplid)-$(flavor)/groups/$(1)/lib$(1).$(flavor).a debian/lib$(1)-dev/$(PREFIX)/lib64/
+	)
+	$(foreach flavor,$(STATIC_FLAVORS_64bit),cp $(uplid)-$(flavor)/vc/$(1).$(flavor).pc debian/lib$(1)-dev/$(PREFIX)/lib64/pkgconfig/
+	)
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_32bit).a debian/lib$(1)-dev/$(PREFIX)/lib/lib$(1).a
+	ln -sf lib$(1).$(DEFAULT_STATIC_FLAVOR_64bit).a debian/lib$(1)-dev/$(PREFIX)/lib64/lib$(1).a
+	mkdir -p debian/lib$(1)-dev/$(PREFIX)/include
+	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/$(PREFIX)/include/
 endif
-	mkdir -p debian/lib$(1)-dev/bb/include
-	cp $$(GROUP_$(1)_INSTALL_HEADERS) debian/lib$(1)-dev/bb/include/
 
-ALL_DEV_PACKAGES+=lib$(1)-dev-binary
 lib$(1)-dev-binary: lib$(1)-dev
-	dpkg-gencontrol -plib$(1)-dev -Pdebian/lib$(1)-dev
+	dpkg-gencontrol -plib$(1)-dev -V"shlib:RSSUITE=$(RSSUITE)" \
+	     -Pdebian/lib$(1)-dev
 	dpkg-deb -b debian/lib$(1)-dev ../
 
 endef
 
-$(foreach group,$(GROUPS),$(eval $(call GROUPdev_template,$(group))))
+$(foreach group,$(GROUPS_STATIC),$(eval $(call group-dev-template,$(group))))
 
-debian/bde-core-bdemeta.stamp:
+libs-dev: $(foreach group,$(GROUPS_STATIC), lib$(group)-dev-binary)
+
+# ============================================================================
+# bde meta target
+# ============================================================================
+
+bde-core-bdemeta:
 	mkdir -p debian/bde-core-bdemeta/DEBIAN
 	find $(foreach g,$(GROUPS),groups/$(g)) -type d \( -name 'package' -or -name 'group' \) \
-	  -exec mkdir -p debian/bde-core-bdemeta/bb/bdemeta/{} \; \
-	  -exec sh -c "cp "{}"/* debian/bde-core-bdemeta/bb/bdemeta/"{}"/" \;
+	  -exec mkdir -p debian/bde-core-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/{} \; \
+	  -exec sh -c "cp "{}"/* debian/bde-core-bdemeta/$(BLOOMBERG_BDEMETA_ROOT)/"{}"/" \;
 	dpkg-gencontrol -pbde-core-bdemeta \
 	     -Pdebian/bde-core-bdemeta
 	dpkg-deb -b debian/bde-core-bdemeta ../
-	touch debian/bde-core-bdemeta.stamp
+
 
 ##################################
 # build is the main build part.
@@ -137,10 +150,10 @@ build: build-arch build-indep
 
 build-indep:
 
-build-arch: $(foreach group,$(GROUPS),lib/$(UPLID)/$(group).stamp )
+build-arch: build-libs
 
 binary: binary-arch binary-indep
 
 binary-indep:
 
-binary-arch: $(ALL_DEV_PACKAGES) $(ALL_SO_PACKAGES) debian/bde-core-bdemeta.stamp
+binary-arch: libs-dev bde-core-bdemeta

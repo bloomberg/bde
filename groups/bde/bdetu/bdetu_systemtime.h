@@ -236,7 +236,7 @@ BDES_IDENT("$Id: $")
 //      return s_useCount;
 //  }
 //..
-// Note that the transition times into and out of daylight savings for New York
+// Note that the transition times into and out of daylight saving for New York
 // are given in UTC.  Also notice that we do not attempt to make the
 // 'loadLocalTimeOffset' method 'inline', since we must take its address to
 // install it as the callback.

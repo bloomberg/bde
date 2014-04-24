@@ -1222,9 +1222,7 @@ int main(int argc, char *argv[]) {
         //   and 'my_DoubleArray::streamIn' functions according to the
         //   following test plan.  Note that the 'bdex_TestInStream' and
         //   'bdex_TestOutStream' components are used to test the
-        //   'my_DoubleArray' functionality.  Also note that the macros
-        //   'BEGIN_BSLMA_EXCEPTION_TEST' and 'END_BSLMA_EXCEPTION_TEST' are
-        //   defined to be empty here for simplicity.
+        //   'my_DoubleArray' functionality.
         // --------------------------------------------------------------------
         // TESTING STREAMING FUNCTIONALITY:
         //   1. The bdex stream functions are implemented using the respective

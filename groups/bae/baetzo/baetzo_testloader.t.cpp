@@ -869,7 +869,7 @@ int main(int argc, char *argv[])
     baetzo_Zoneinfo newYorkTimeZone;
 //..
 // Next, we populate 'newYorkTimeZone' with the correct time-zone identifier
-// and two types of local time (standard time, and daylight-savings time):
+// and two types of local time (standard time, and daylight-saving time):
 //..
     const char *NEW_YORK_ID = "America/New_York";
     newYorkTimeZone.setIdentifier(NEW_YORK_ID);
@@ -879,7 +879,7 @@ int main(int argc, char *argv[])
 //..
 // Then, we create a series of transitions between these local time
 // descriptors for the years 2007-2011.  Note that the United States
-// transitions to daylight savings time on the second Sunday in March, at 2am
+// transitions to daylight saving time on the second Sunday in March, at 2am
 // local time (7am GMT), and transitions back to standard time on the first
 // Sunday in November at 2am local time (6am GMT).  Also note, that these rules
 // for generating transitions was different prior to 2007, and may be changed
@@ -907,7 +907,7 @@ int main(int argc, char *argv[])
         bsls::Types::Int64 estTransitionT =
                        bdetu_Epoch::convertToTimeT64(estTransition);
 //..
-// Now, having created values representing the daylight savings time
+// Now, having created values representing the daylight saving time
 // transitions (in UTC), we insert the transitions into the 'baetzo_Zoneinfo'
 // object 'newYorkTimeZone':
 //..

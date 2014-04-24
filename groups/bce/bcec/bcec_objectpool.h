@@ -10,10 +10,10 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-safe object pool.
 //
 //@CLASSES:
-//          bcec_ObjectPool: thread-enabled container of managed objects
+//  bcec_ObjectPool: thread-enabled container of managed objects
 //  bcec_ObjectPoolFunctors: namespace for resetter and creator implementations
 //
-//@SEE_ALSO:
+//@SEE_ALSO: bcec_sharedobjectpool
 //
 //@AUTHOR: Ujjwal Bhoota (ubhoota), David Schumann (dschumann1)
 //
@@ -43,11 +43,13 @@ BDES_IDENT("$Id: $")
 ///Integrating with 'bdema_ManagedPtr' and 'bcema_SharedPtr'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A 'bcec_ObjectPool' is designed to work with both managed and shared pointer
-// types.  Because 'bcec_ObjectPool' provides a 'deleteObject' method, it can
-// serve as a factory of both 'bdema_ManagedPtr' and 'bcema_SharedPtr' objects.
+// types.  Note however, that 'bcec_sharedobjectpool' is an object-pool
+// specifically designed for use with shared pointers.
 //
-// For example, to create a managed pointer from an object pool of
-// 'bsl::string' objects:
+// Because 'bcec_ObjectPool' provides a 'deleteObject' method, it can serve as
+// a factory of both 'bdema_ManagedPtr' and 'bcema_SharedPtr' objects. For
+// example, to create a managed pointer from an object pool of 'bsl::string'
+// objects:
 //..
 //  bcec_ObjectPool<bsl::string> pool;
 //  bdema_ManagedPtr<bsl::string> managedPtr(pool.getObject(), &pool);

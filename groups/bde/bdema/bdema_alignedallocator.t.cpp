@@ -4,6 +4,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
 #include <bsls_protocoltest.h>
+#include <bsls_bslexceptionutil.h>
 
 #include <bsl_cerrno.h>
 #include <bsl_cstddef.h>
@@ -206,17 +207,17 @@ struct AlignedAllocatorTestImp :
         errno = 0;
         ret = _aligned_malloc(size, alignment);
         if (0 != errno) {
-            bslma::Allocator::throwBadAlloc();
+            bsls::BslExceptionUtil::throwBadAlloc();
         }
     #elif defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_HPUX)
         ret = memalign(alignment, size);
         if (0 == ret) {
-            bslma::Allocator::throwBadAlloc();
+            bsls::BslExceptionUtil::throwBadAlloc();
         }
     #else
         int rc = ::posix_memalign(&ret, alignment, size);
         if (0 != rc) {
-            bslma::Allocator::throwBadAlloc();
+            bsls::BslExceptionUtil::throwBadAlloc();
         }
     #endif
 

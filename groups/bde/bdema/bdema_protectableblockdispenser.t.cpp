@@ -2,11 +2,11 @@
 
 #include <bdema_protectableblockdispenser.h>
 
-#include <bslma_allocator.h>                // for testing only
-#include <bslma_defaultallocatorguard.h>    // for testing only
-#include <bslma_testallocator.h>            // for testing only
-
+#include <bslma_allocator.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 #include <bsls_alignmentutil.h>
+#include <bsls_bslexceptionutil.h>
 
 #include <bsl_iostream.h>
 
@@ -484,7 +484,7 @@ int NoopProtectableBlockDispenser::minimumBlockSize() const
           }
           if (d_cursor + sizeWithHeader > d_buffer + d_size) {
               // Not enough free space in the buffer
-              bslma::Allocator::throwBadAlloc();
+              bsls::BslExceptionUtil::throwBadAlloc();
           }
 
           char *cursor = d_cursor;

@@ -11,6 +11,7 @@ BDES_IDENT_RCSID(btes_iovecutil_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_cstring.h>
 
 namespace BloombergLP {

@@ -13,6 +13,7 @@ BDES_IDENT_RCSID(bcemt_semaphoreimpl_darwin_cpp,"$Id$ $CSID$")
 #include <bsl_string.h>
 #include <bsl_sstream.h>
 #include <bsl_iomanip.h>
+#include <bsl_ios.h>
 #include <bsl_c_errno.h>
 #include <bsls_types.h>
 

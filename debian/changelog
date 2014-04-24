@@ -1,3 +1,49 @@
+bde-core (2.21.0.0.beta.1) unstable; urgency=low
+
+  * 7ab79a4 [APPROVAL] origin/review/bump-version-to-2.21 to master
+  * 8ffa20b Bump version to 2.21.0
+  * 4733b4e [APPROVAL] origin/review/waf-dpkg-drqs-49353577 to master
+  * 8664244 [APPROVAL] pending/master/mrahman1/d46623495-correct-bsl-includes to master
+  * c1fb86f [APPROVAL] pending/master/fix-linux-build-of-bslmf_assert to master
+  * 6d8d227 [APPROVAL] pending/master/fix-windows-test-builds to master
+  * a9eac3c [APPROVAL] pending/master/bdemf_removereference-fix-testcompilation to master
+  * 9ea50bf [APPROVAL] pending/master/onehour-documentation-drqs43904627 to master
+  * 1256da9 [APPROVAL] origin/review/throwBadAlloc-internal-only-drqs48039923 to master
+  * 58c5b64 [APPROVAL] origin/review/update-bce-library-documentation-drqs30647302 to master
+  * 406c83c [APPROVAL] origin/review/bdesu_FileDescriptorGuard-drqs-32451997 to master
+  * 703b2be [APPROVAL] origin/review/baem_metric-usage-typo-drqs-39417085 to master
+  * 6ce807d [APPROVAL] origin/review/bael_administration-usage-drqs45281611 to master
+  * ff4a35e [APPROVAL] origin/review/remove-unused-var-warning-drqs49184556 to master
+  * 5231e5a [APPROVAL] pending/master/deprecated-bslma-macros-drqs-42686603 to master
+  * d397563 [APPROVAL] pending/master/baea_CommandLineOptionInfo-doc-drqs-43522860 to master
+  * 47e7e9a [APPROVAL] pending/master/drqs-36890068-stream-NodeType to master
+  * dfa3fcb [APPROVAL] pending/master/encoders-automatically-flush-buffers-drqs-38629761 to master
+  * c9c54a4 [APPROVAL] origin/review/drqs-48698138-second-try-d_defaultThresholds-lock to master
+  * a8a737f [APPROVAL] origin/review/baexml_encoder-fix-usage-example-drqs-46866090 to master
+  * d853cac [APPROVAL] origin/review/drqs-47567658-baetzo_timezoneutil-banner to master
+  * c172d3d [APPROVAL] origin/dev/apaprock/unused-local-typedefs-drqs49348207 to master
+  * da8be90 [APPROVAL] origin/review/drqs-50205206-bdet_datetimetz-month-error to master
+  * 76c05a4 [APPROVAL] origin/review/drqs-50467905-baenet_httpmessageparser-missing-test-case to master
+  * 4bf335a [APPROVAL] pending/master/forward_std_names-drqs-46623495 to master
+  * b6ddfbf [APPROVAL] remotes/origin/review/saving-time-normalization-drqs48708896 to master
+  * 5e4f360 [APPROVAL] origin/review/btes5-Windows-crash-bde2.20-drqs50341674 to master
+  * 93d0c52 [APPROVAL] origin/review/bdeu-string-strrstr-drqs50095976 to master
+  * cb5a655 [APPROVAL] pending/master/gcc-4.8.1-core-cleanup-drqs-49479619 to master
+  * 74aac24 [APPROVAL] dev/druoso/use-prefix-from-build-base to master
+  * cd84282 [APPROVAL] bteso_ipv4address-isValid-fix-drqs50140302 to master
+  * c5ca356 [APPROVAL] origin/review/qualify-types-with-bsl-drqs48025901 to master
+  * 9179a90 [APPROVAL] origin/review/bteso_resolveutil-ipv6-windows-confusion-drqs-47568432 to master
+  * cc16a5b [APPROVAL] origin/dev/apaprock/baea-unused-member-drqs49432044 to master
+  * a672d0a [APPROVAL] pending/master/bael_localtimeoffset_redux-drqs-39620126 to master
+  * ea0b396 [APPROVAL] pending/master/parse_double_fix_rounding to master
+  * 1453417 [APPROVAL] pending/master/fileutil-cleanup-patch-drqs-45032518-and-45068181 to master
+  * 53710cd [APPROVAL] pending/master/windows_build_issues_for_2_20_drqs49083266 to master
+  * 4a9b4f9 [APPROVAL] pending/master/drqs-49477867-BDE_BUILD_TARGET_OPT to master
+  * 920d78e [APPROVAL] pending/master/remove-stropts-drqs46249510 to master
+  * f1033d8 [APPROVAL] pending/master/add-back-bdetu-transitive-include-drqs-48980359 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Apr 2014 08:54:20 -0400
+
 bde-core (2.20.0.0) unstable; urgency=low
 
   * Bump changelog

@@ -1,24 +1,24 @@
 // btes5_testserver.h                                                 -*-C++-*-
-#ifndef INCLUDED_BTEMT_TESTSOCKS5SERVER
-#define INCLUDED_BTEMT_TESTSOCKS5SERVER
+#ifndef INCLUDED_BTES5_TESTSERVER
+#define INCLUDED_BTES5_TESTSERVER
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a test SOCSK5 proxy server.
+//@PURPOSE: Provide a test SOCKS5 proxy server.
 //
 //@CLASSES:
-//  btes5::btes5_TestServer: a SOCKS5 proxy server
+//  btes5_TestServer: a SOCKS5 proxy server
 //  btes5_TestServerArgs: arguments to control a 'btes5_TestServer'
 //
-//@SEE ALSO: btes5_negotiator, btes5_connector
+//@SEE_ALSO: btes5_negotiator, btes5_networkconnector
 //
 //@DESCRIPTION: This component implements a simple SOCKS5 server suitable for
 // testing SOCKS5 clients.  Constructing a 'btes5_TestServer' creates a SOCKS5
 // server operating in a different thread.  The behavior of the server is
-// controlled by a 'btes5_testServerArgs' passed during construction; the
+// controlled by a 'btes5_TestServerArgs' passed during construction; the
 // server can validate the protocol messages it receives, and either work
 // normally (as a proxy) or simulate several failure conditions.
 //
@@ -29,37 +29,40 @@ BDES_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Connect Without Authentication
-///- - - - - -
-// We would like to connect to a server nyplat1:8194 using a SOCKS5 server
-// which requires no authentication. First, we construct a 'btes5_TestServer'
-// object, which will create a listening thread on the local server, and load
-// its adddress into 'proxy'. The port will be assigned by the operating
-// system.
+///- - - - - - - - - - - - - - - - - - - - -
+// We would like to connect to a SOCKS5 proxy which requires no
+// authentication.  In typical applications, we would then use this connection
+// to negotiate a connection to the destination server; in this example we only
+// show the construction of the server and the initial connection.
+//
+// First, we construct a 'btes5_TestServer' object, which will create a
+// listening thread on the local server, and load its address into 'proxy'.
+// The port will be assigned by the operating system.
 //..
 //  bteso_Endpoint proxy;
 //  btes5_TestServer Server(&proxy);
+//  bteso_IPv4Address proxyAddress("127.0.0.1", proxy.port());
 //..
+// Then, we can connect to the test server:
 //..
-// Next we define a callback function to process the connection result.
-// Normally, here we would start normal input/output to the destimation server
-// (assuming the connection was successful).
+//  bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+//  bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+//  assert(socket);
+//  int rc = socket->connect(proxyAddress);
 //..
-//  void connectCb(int status, bteso_StreamSocket<bteso_IPv4Address> *socket)
-//  {
-//      if (status) {
-//          cout << "Can't connect through proxy, status=" << status << endl;
-//      }
-//      cout << "Connection established" << endl;
-//  }
+// Now, the socket is connected to the test server.  A typical application
+// would negotiate, using the SOCKS5 protocol, to connect to the destination
+// server.
 //..
-// Now, we construct a 'Socks5Connector' specifying the proxy address.
+//  assert(!rc);
 //..
-//  ProxyGroup Servers;
-//  Servers.addProxy(proxy);
+// Finally, we can free the resources associated with this connection:
 //..
-// Finally, we can connect to our destination through the proxy.
-//..
-//  connect(connectCb, bteso_Endpoint("nyplat1", 8194);
+//  factory.deallocate(socket);
+
+#ifndef INCLUDED_BTESCM_VERSION
+#include <btescm_version.h>
+#endif
 
 #ifndef INCLUDED_BTES5_CREDENTIALS
 #include <btes5_credentials.h>
@@ -85,20 +88,16 @@ BDES_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
 #ifndef INCLUDED_BTESO_ENDPOINT
 #include <bteso_endpoint.h>
 #endif
 
-#ifndef INCLUDED_BTESO_INETSTREAMSOCKETFACTORY
-#include <bteso_inetstreamsocketfactory.h>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
 namespace BloombergLP {
@@ -131,8 +130,9 @@ struct btes5_TestServerArgs {
         e_TRACE   // trace: most verbose output
     };
 
+    // DATA
     Mode              d_mode;
-    int               d_reply;  // SOCSK5 reply field
+    int               d_reply;  // SOCKS5 reply field
     bdet_TimeInterval d_delay;  // if set, wait this much before every response
 
     bteso_Endpoint d_destination; // override the connection address if set
@@ -150,26 +150,27 @@ struct btes5_TestServerArgs {
     bteso_Endpoint       d_expectedDestination;
     btes5_Credentials    d_expectedCredentials;  // if set, prompt and test
 
-    // CONSTRUCTORS
-    btes5_TestServerArgs(bslma::Allocator *allocator = 0);
+    // CREATORS
+    explicit btes5_TestServerArgs(bslma::Allocator *basicAllocator = 0);
         // Create a 'btes5_TestServerArgs' object initialized as follows:
-        //: o 'd_mode = e_SUCCEED_AND_CLOSE'
-        //: o 'd_reply = 0'
-        //: o 'd_label' unset
-        //: o 'd_verbosity = e_DEBUG'
-        //: o 'd_logStream_p = &bsl::cout'
-        //: o 'd_expectedIp = 0'
-        //: o 'd_expectedPort = 0'
-        //: o 'd_expectedDestination' unset
-        //: o 'd_expectedCredentials' unset
-        // Optionally specify an 'allocator' used to supply memory. If
-        // 'allocator' is 0, the currently installed default allocator is used.
-
+        //: o 'd_mode               = e_SUCCEED_AND_CLOSE'
+        //: o 'd_reply              = 0'
+        //: o 'd_label'               ""
+        //: o 'd_verbosity          = e_DEBUG'
+        //: o 'd_logStream_p        = &bsl::cout'
+        //: o 'd_expectedIp'        = 0'
+        //: o 'd_expectedPort       = 0'
+        //: o 'd_expectedDestination' default
+        //: o 'd_expectedCredentials' default
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 };
 
                         // ======================
                         // class btes5_TestServer
                         // ======================
+
 class btes5_TestServer {
     // This class implements a test server that support a subset of the SOCKS5
     // protocol.
@@ -184,28 +185,31 @@ class btes5_TestServer {
     bcema_SharedPtr<SessionFactory>    d_sessionFactory;
     bslma::Allocator                  *d_allocator_p;  // not owned
 
+  private:
     // NOT IMPLEMENTED
-    btes5_TestServer(const btes5_TestServer&); // = delete
-    void operator=(const btes5_TestServer&);   // = delete
+    btes5_TestServer(const btes5_TestServer&);              // = delete
+    btes5_TestServer& operator=(const btes5_TestServer&);   // = delete
 
   public:
     // CREATORS
-    btes5_TestServer(bteso_Endpoint             *proxy,
-                     const btes5_TestServerArgs *args = 0,
-                     bslma::Allocator           *allocator = 0);
+    explicit btes5_TestServer(bteso_Endpoint             *proxy,
+                              bslma::Allocator           *basicAllocator = 0);
+    explicit btes5_TestServer(bteso_Endpoint             *proxy,
+                              const btes5_TestServerArgs *args,
+                              bslma::Allocator           *basicAllocator = 0);
         // Create a 'btes5_TestServer' object, loading its address into the
-        // specified 'proxy'. The server will run as a thread on 'localhost'
-        // with a system-assigned port. If the optionally specified 'args'
-        // is not 0 use it to control the SOCKS5 server behavior. Optionally
-        // specify an 'allocator' used to supply memory. If 'allocator' is 0,
-        // the currently installed default allocator is used. The behavior is
-        // undefined unless the lifetime of 'allocator' extends past the end of
-        // the server thread, which may exist longer than the lifetime of this
-        // object.
+        // specified 'proxy'.  The server will run as a thread on 'localhost'
+        // with a system-assigned port.  Optionally specify 'args' to control
+        // the SOCKS5 server behavior, otherwise use a default-constructed
+        // 'btes5_testServerArgs' value to control behavior.  Optionally
+        // specify an 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  The behavior is undefined unless the lifetime of
+        // 'basicAllocator' extends past the end of the server thread, which
+        // may exist longer than the lifetime of this object.
 
-    ~btes5_TestServer();
+    //! ~btes5_TestServer() = default;
         // Destroy this object.
-
 };
 
 }  // close enterprise namespace

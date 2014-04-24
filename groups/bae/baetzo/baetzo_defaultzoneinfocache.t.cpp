@@ -975,7 +975,9 @@ int main(int argc, char *argv[])
 
             // /bb/data/datetime/zoneinfo is Bloomberg-specific
             LOOP2_ASSERT( L_, RESULT,
-                        0 == strcmp(RESULT, "/bb/data/datetime/zoneinfo/")
+                        0 == strcmp(RESULT, "/opt/bb/share/zoneinfo/")
+                     || 0 == strcmp(RESULT, "/bb/data/datetime/zoneinfo/")
+                     || 0 == strcmp(RESULT, "/usr/share/zoneinfo/")
                      || 0 == strcmp(RESULT, "/usr/share/lib/zoneinfo/")
                      || 0 == strcmp(RESULT, "."));
 
@@ -1067,9 +1069,10 @@ int main(int argc, char *argv[])
         } VALUES[] = {
             // LINE   EXP_PATH
             // ----   --------
-
-            L_,       "/bb/data/datetime/zoneinfo/",  // Bloomberg-specific
-            L_,       "/usr/share/lib/zoneinfo/",
+            L_,       "/opt/bb/share/zoneinfo/",      // Bloomberg stnd loc.
+            L_,       "/bb/data/datetime/zoneinfo/",  // deprctd. BB stnd loc.
+            L_,       "/usr/share/zoneinfo/",         // Unix standard loc.
+            L_,       "/usr/share/lib/zoneinfo/",     // Solaris standard loc.
         };
         const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
 

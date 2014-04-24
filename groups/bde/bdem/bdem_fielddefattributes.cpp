@@ -15,6 +15,7 @@ BDES_IDENT_RCSID(bdem_fielddefattributes_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 #include <bsls_assert.h>
 
+#include <bsl_ios.h>
 #include <bsl_ostream.h>
 
 #include <bsl_climits.h>

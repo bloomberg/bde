@@ -1068,18 +1068,21 @@ const bael_Category *bael_LoggerManager::setCategory(
      && d_maxNumCategoriesMinusOne >=
                                    (unsigned int) d_categoryManager.length()) {
         int recordLevel, passLevel, triggerLevel, triggerAllLevel;
-        if (d_defaultThresholds) {
-            d_defaultThresholds(&recordLevel,
-                                &passLevel,
-                                &triggerLevel,
-                                &triggerAllLevel,
-                                localCategoryName);
-        }
-        else {
-            recordLevel     = d_defaultThresholdLevels.recordLevel();
-            passLevel       = d_defaultThresholdLevels.passLevel();
-            triggerLevel    = d_defaultThresholdLevels.triggerLevel();
-            triggerAllLevel = d_defaultThresholdLevels.triggerAllLevel();
+        {
+            bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_defaultThresholdsLock);
+            if (d_defaultThresholds) {
+                d_defaultThresholds(&recordLevel,
+                                    &passLevel,
+                                    &triggerLevel,
+                                    &triggerAllLevel,
+                                    localCategoryName);
+            }
+            else {
+                recordLevel     = d_defaultThresholdLevels.recordLevel();
+                passLevel       = d_defaultThresholdLevels.passLevel();
+                triggerLevel    = d_defaultThresholdLevels.triggerLevel();
+                triggerAllLevel = d_defaultThresholdLevels.triggerAllLevel();
+            }
         }
 
         category = d_categoryManager.addCategory(categoryHolder,
@@ -1203,6 +1206,7 @@ void bael_LoggerManager::setCategoryThresholdsToFactoryDefaults(
 void bael_LoggerManager::setDefaultThresholdLevelsCallback(
                                       DefaultThresholdLevelsCallback *callback)
 {
+    bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_defaultThresholdsLock);
     if (callback) {
         d_defaultThresholds = *callback;
     } else {

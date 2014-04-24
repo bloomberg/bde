@@ -1066,7 +1066,7 @@ int main(int argc, char *argv[])
 // indicating whether the provided input was a valid and unique clock time.
 // Note that invalid or ambiguous times are resolved using the optionally
 // provided 'baetzo_DstPolicy::Enum' (see the section
-// 'Daylight-Savings Time (DST) Policies and Disambiguation'):
+// 'Daylight-Saving Time (DST) Policies and Disambiguation'):
 //..
     baet_LocalDatetime             localTime;
     baetzo_LocalTimeValidity::Enum validity;
@@ -1090,13 +1090,13 @@ int main(int argc, char *argv[])
     ASSERT("America/New_York" == localTime.timeZoneId());
 //..
 // In addition, the time provided represents a unique and valid clock time in
-// New York (because it does not fall near a daylight-savings time
+// New York (because it does not fall near a daylight-saving time
 // transition):
 //..
     ASSERT(baetzo_LocalTimeValidity::BAETZO_VALID_UNIQUE == validity);
 //..
 // By contrast, if we call 'initLocalTime' for a time value that falls during a
-// during a daylight-savings time transition, the returned
+// during a daylight-saving time transition, the returned
 // 'baetzo_LocalTimeValidity::Enum' will indicate if the supplied time either
 // does not represent a valid clock time in the time zone (as may occur when
 // clocks are set forward), or does not represent a unique clock time (as may
@@ -1167,7 +1167,7 @@ int main(int argc, char *argv[])
     }
 //..
 // Now we examine the returned properties.  "Mar 14, 2010 03:30:00" is during
-// daylight-savings time, which is -4:00 GMT, and the type of local time is
+// daylight-saving time, which is -4:00 GMT, and the type of local time is
 // sometimes abbreviated "EDT" for "Eastern Daylight Time".  "Eastern
 // Daylight Time" is in effect from "Mar 14, 2010 7am UTC" to "Nov 7, 2010 6am
 // UTC".  Note that the abbreviation provided ("EDT") is not canonical or
@@ -3005,7 +3005,7 @@ int main(int argc, char *argv[])
 // |     (invalid)      |                |      [2]      |      [2]        |
 // |--------------------|--------------------------------------------------|
 // | Apr  1, 2010 01:30 | 01:30:00-4:00  | 01:30:00-4:00 | 02:30:00-4:00   |
-// | (daylight-savings) |                |               |      [1]        |
+// | (daylight-saving ) |                |               |      [1]        |
 // |--------------------|--------------------------------------------------|
 // | Nov  7, 2010 01:30 | 01:30:00-5:00  | 01:30:00-4:00 | 01:30:00-5:00   |
 // |    (ambiguous)     |                |               |                 |

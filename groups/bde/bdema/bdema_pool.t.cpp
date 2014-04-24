@@ -1336,7 +1336,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocator testAllocator(veryVeryVerbose);
             const bslma::TestAllocator& TA = testAllocator;
 
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 Obj mX(BLOCK_SIZE, STRATEGY, MAXBLOCKS, &testAllocator);
 
                 int numAllocations = 0;
@@ -1388,7 +1388,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(ri, TA.numAllocations()
                                                     == numAllocations + 1);
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 2: {
@@ -1422,7 +1422,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            BEGIN_BSLMA_EXCEPTION_TEST {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                 const int BLOCK_SIZE = DATA[di];
                 Obj mX(BLOCK_SIZE,
                        bsls::BlockGrowth::BSLS_CONSTANT,
@@ -1443,7 +1443,7 @@ int main(int argc, char *argv[])
                     }
                     lastP = p;
                 }
-            } END_BSLMA_EXCEPTION_TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 1: {
