@@ -1,3 +1,30 @@
+bsl-internal (2.20.2.0.beta.1) unstable; urgency=low
+
+  * 1e431dd [APPROVAL] OSS revert-version-to-2.20 to master
+  * 35579d2 [APPROVAL] revert-version-to-2.20 to master
+  * f39fe9c Revert version to 2.20.2
+  * 8b674e2 [APPROVAL] review/remove-string-transitive-includes-drqs49354375 to master
+  * 359f557 [APPROVAL] OSS review/update-initialize-doc-drqs50181175 to master
+  * e33a707 [APPROVAL] review/update-initialize-doc-drqs50181175 to master
+  * 4bc7366 [APPROVAL] OSS review/bslma_usesbslmaallocator-component-doc-drqs51541504 to master
+  * cee2a2d [APPROVAL] review/bslma_usesbslmaallocator-component-doc-drqs51541504 to master
+  * 77a470c [APPROVAL] OSS fixup-namespace-issue-from-buildtarget-drqs-40876203 to master
+  * 64f97aa [APPROVAL] fixup-namespace-issue-from-buildtarget-drqs-40876203 to master
+  * 15e3d6b [APPROVAL] OSS review/bsls_buildtarget-clean-up-drqs40876203 to master
+  * 8bf02e0 [APPROVAL] review/bsls_buildtarget-clean-up-drqs40876203 to master
+  * 8e99a1c [APPROVAL] OSS bslmf_functionpointertraits-bogus-macro-drqs-40784309 to master
+  * b66d658 [APPROVAL] bslmf_functionpointertraits-bogus-macro-drqs-40784309 to master
+  * ae4ef89 [APPROVAL] INTERNAL review/remove-bslalg-cycle-drqs-49185408 to master
+  * 042ed33 [APPROVAL] review/remove-bslalg-cycle-drqs-49185408 to master
+  * 7a14f1b [APPROVAL] INTERNAL review/remove-duplicate-BSL_VERSION-drqs-51433999 to master
+  * 8d49dc0 [APPROVAL] review/remove-duplicate-BSL_VERSION-drqs-51433999 to master
+  * 0bc55db [APPROVAL] INTERNAL pending/master/remove_allocator_shadow_warnings_drqs44156923 to master
+  * 71358cd [APPROVAL] pending/master/remove_allocator_shadow_warnings_drqs44156923 to master
+  * 48e517e [APPROVAL] OSS pending/master/dfp_bde_verify_warnings_fix_drqs_50920396 to master
+  * 6edc064 [APPROVAL] pending/master/dfp_bde_verify_warnings_fix_drqs_50920396 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Apr 2014 10:55:14 -0400
+
 bsl-internal (2.21.0.0.beta.1.1) unstable; urgency=low
 
   * 06095d0 [APPROVAL] correct-debian-control-for-bdl to master
