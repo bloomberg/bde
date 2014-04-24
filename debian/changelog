@@ -1,3 +1,20 @@
+bde-core (2.21.0.0.beta.2) unstable; urgency=low
+
+  * 8338e2e [APPROVAL] origin/review/bdede-utf16-stringrefs-drqs-47424702 to master
+  * 6bcd6d7 [APPROVAL] origin/review/add_pid_wildcard-drqs-47733178 to master
+  * 9ac8ea7 [APPROVAL] origin/review/bdeut_nullablevalue-enable-assert-drqs-48377126 to master
+  * 6c3ec4b [APPROVAL] origin/review/baejsn_parserutil-handle-full-unicode-range-drqs-39163797 to master
+  * 8bab024 [APPROVAL] origin/review/bsls_buildtarget-clean-up-drqs40876203 to master
+  * 2599d33 [APPROVAL] origin/review/bcema-to-bslma-conversion-drqs-51637885 to master
+  * 6078abd [APPROVAL] origin/review/bael_fileobserver-typo-drqs-47936277 to master
+  * 4290aba [APPROVAL] origin/review/bdet_calendarcache-TBDs-drqs-50950130 to master
+  * f894f66 [APPROVAL] origin/review/drqs-37598290-name-changes to master
+  * bffce7b [APPROVAL] origin/review/bdesu_file-util-systemutil-filenames-drqs-50296654 to master
+  * c85eec9 [APPROVAL] pending/master/add_default_zoneinfo_dir-drqs-4569951 to master
+  * efe613d bdede_charconvertutf16: utf8->utf16 conversions now try both overloads in TD.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Apr 2014 14:20:12 -0400
+
 bde-core (2.21.0.0.beta.1) unstable; urgency=low
 
   * 7ab79a4 [APPROVAL] origin/review/bump-version-to-2.21 to master
