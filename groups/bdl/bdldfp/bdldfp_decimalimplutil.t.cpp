@@ -1699,7 +1699,6 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                       LOOP_ASSERT(STRING_VAL, ACTUAL == EXPECTED);
                   }
               }
-/*
               if (verbose2) bsl::cout << "\nTesting NaN cases."
                                       << bsl::endl;
               {
@@ -1732,7 +1731,6 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                       LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
                   }
               }
-*/
           }
       } break;
       case 4: {
