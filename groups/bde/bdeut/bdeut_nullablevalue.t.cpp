@@ -7,6 +7,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
+#include <bsls_asserttest.h>
 
 #include <bdex_testinstream.h>
 #include <bdex_testoutstream.h>
@@ -106,7 +107,7 @@ void aSsErT(int c, const char *s, int i)
     }
 }
 
-}
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -167,6 +168,9 @@ void aSsErT(int c, const char *s, int i)
 #define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline
 
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+
 // ============================================================================
 //                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
@@ -206,9 +210,9 @@ class Recipient {
     {
     }
 
-    void operator=(const MessageType& msgType)
+    void operator=(const MessageType& rhs)
     {
-        d_msgType = msgType;
+        d_msgType = rhs;
     }
 
     MessageType getMsgType()
@@ -236,6 +240,7 @@ struct Swappable {
         return d_swap_called;
     }
 
+    explicit
     Swappable(int v)
         : d_value(v)
     {}
@@ -750,7 +755,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -782,6 +787,26 @@ int main(int argc, char *argv[])
     ASSERT(nullableInt.isNull());
 //..
 
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // NEGATIVE TESTING OF ASSERT ON INVALID USE OF NULL VALUE
+        // --------------------------------------------------------------------
+
+        typedef int                            ValueType;
+        typedef bdeut_NullableValue<ValueType> Obj;
+
+        Obj mX1;    const Obj& X1 = mX1;
+
+        bsls::AssertTestHandlerGuard guard;
+
+        ASSERT(X1.isNull());
+
+        ASSERT_SAFE_FAIL(0 == X1.value());
+
+        mX1 = 5;
+
+        ASSERT_SAFE_PASS(5 == X1.value());
       } break;
       case 17: {
         // --------------------------------------------------------------------
