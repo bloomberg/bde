@@ -583,17 +583,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::parse64(const char *input)
     // TBD TODO - scanf is locale dependent!!!
     int parsed = sscanf(input, "%Df", &out);
     (void) parsed;
-
-//    printf ("PARSE: ");
-//    printf (input);
-//    printf ("\n");
-
     BSLS_ASSERT(parsed == 1);
-
-//    void *ptr = decDoubleFromString(reinterpret_cast<decDouble*>(&out), input, getDecNumberContext());
-//    (void) ptr;
-//    BSLS_ASSERT(ptr != 0);
-
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     void *ptr = decDoubleFromString(&out, input, getDecNumberContext());
     (void) ptr;
