@@ -1707,41 +1707,16 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                   static const struct {
                       int         d_lineNum;
                       const char *d_stringVal;
-                      bool        d_expectedSignal;
                       // true for sNan, false for qNan.
                   } PARSE64_NAN_TEST_DATA[] = {
-                      { L_, "qnan", false},
-                      { L_, "qnaN", false},
-                      { L_, "qnAn", false},
-                      { L_, "qnAN", false},
-                      { L_, "qNan", false},
-                      { L_, "qNaN", false},
-                      { L_, "qNAn", false},
-                      { L_, "qNAN", false},
-                      { L_, "Qnan", false},
-                      { L_, "QnaN", false},
-                      { L_, "QnAn", false},
-                      { L_, "QnAN", false},
-                      { L_, "QNan", false},
-                      { L_, "QNaN", false},
-                      { L_, "QNAn", false},
-                      { L_, "QNAN", false},
-                      { L_, "snan",  true},
-                      { L_, "snaN",  true},
-                      { L_, "snAn",  true},
-                      { L_, "snAN",  true},
-                      { L_, "sNan",  true},
-                      { L_, "sNaN",  true},
-                      { L_, "sNAn",  true},
-                      { L_, "sNAN",  true},
-                      { L_, "Snan",  true},
-                      { L_, "SnaN",  true},
-                      { L_, "SnAn",  true},
-                      { L_, "SnAN",  true},
-                      { L_, "SNan",  true},
-                      { L_, "SNaN",  true},
-                      { L_, "SNAn",  true},
-                      { L_, "SNAN",  true},
+                      { L_, "nan" },
+                      { L_, "naN" },
+                      { L_, "nAn" },
+                      { L_, "nAN" },
+                      { L_, "Nan" },
+                      { L_, "NaN" },
+                      { L_, "NAn" },
+                      { L_, "NAN" },
                   };
 
                   const int NUM_PARSE64_NAN_TESTS =
@@ -1753,9 +1728,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                       const char *STRING_VAL =
                                          PARSE64_NAN_TEST_DATA[ti].d_stringVal;
                       Util::ValueType64 ACTUAL = Util::parse64(STRING_VAL);
-                      Util::ValueType64 EXPECTED =
-                          PARSE64_NAN_TEST_DATA[ti].d_expectedSignal ?
-                          DecConsts<64>::sNan() : DecConsts<64>::qNan();
+                      Util::ValueType64 EXPECTED = DecConsts<64>::qNan();
                       LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
                   }
               }
