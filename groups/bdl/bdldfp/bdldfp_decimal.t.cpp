@@ -362,130 +362,130 @@ int main(int argc, char* argv[])
         } DATA[] = {
             // L   DECIMAL NUMBER         WIDTH  JUSTIFICATION       CAPITAL
             // --- ---------------------- ------ --------------      -------
-            {  L_, BDEC::Decimal32(4.25), 0,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 0,     true, false, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 1,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 1,     true, false, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 2,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 2,     true, false, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 3,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 3,     true, false, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 4,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 4,     true, false, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 5,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 5,     true, false, false, false,
                                                                      "4.25 " },
-            {  L_, BDEC::Decimal32(4.25), 6,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 6,     true, false, false, false,
                                                                     "4.25  " },
-            {  L_, BDEC::Decimal32(4.25), 7,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 7,     true, false, false, false,
                                                                    "4.25   " },
-            {  L_, BDEC::Decimal32(4.25), 8,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 8,     true, false, false, false,
                                                                   "4.25    " },
-            {  L_, BDEC::Decimal32(4.25), 9,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 9,     true, false, false, false,
                                                                  "4.25     " },
 
-            {  L_, BDEC::Decimal32(4.25), 0,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 0,     false, true, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 1,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 1,     false, true, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 2,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 2,     false, true, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 3,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 3,     false, true, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 4,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 4,     false, true, false, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 5,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 5,     false, true, false, false,
                                                                      " 4.25" },
-            {  L_, BDEC::Decimal32(4.25), 6,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 6,     false, true, false, false,
                                                                     "  4.25" },
-            {  L_, BDEC::Decimal32(4.25), 7,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 7,     false, true, false, false,
                                                                    "   4.25" },
-            {  L_, BDEC::Decimal32(4.25), 8,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 8,     false, true, false, false,
                                                                   "    4.25" },
-            {  L_, BDEC::Decimal32(4.25), 9,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 9,     false, true, false, false,
                                                                  "     4.25" },
 
-            {  L_, BDEC::Decimal32(4.25), 0,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 0,     false, false, true, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 1,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 1,     false, false, true, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 2,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 2,     false, false, true, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 3,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 3,     false, false, true, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 4,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 4,     false, false, true, false,
                                                                       "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 5,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 5,     false, false, true, false,
                                                                      " 4.25" },
-            {  L_, BDEC::Decimal32(4.25), 6,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 6,     false, false, true, false,
                                                                     "  4.25" },
-            {  L_, BDEC::Decimal32(4.25), 7,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 7,     false, false, true, false,
                                                                    "   4.25" },
-            {  L_, BDEC::Decimal32(4.25), 8,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 8,     false, false, true, false,
                                                                   "    4.25" },
-            {  L_, BDEC::Decimal32(4.25), 9,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(4.25), 9,     false, false, true, false,
                                                                  "     4.25" },
 
-            {  L_, BDEC::Decimal32(-4.25), 0,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 0,     true, false, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 1,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 1,     true, false, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 2,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 2,     true, false, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 3,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 3,     true, false, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 4,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 4,     true, false, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 5,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 5,     true, false, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 6,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 6,     true, false, false, false,
                                                                     "-4.25 " },
-            {  L_, BDEC::Decimal32(-4.25), 7,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 7,     true, false, false, false,
                                                                    "-4.25  " },
-            {  L_, BDEC::Decimal32(-4.25), 8,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 8,     true, false, false, false,
                                                                   "-4.25   " },
-            {  L_, BDEC::Decimal32(-4.25), 9,     true, false, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 9,     true, false, false, false,
                                                                  "-4.25    " },
 
-            {  L_, BDEC::Decimal32(-4.25), 0,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 0,     false, true, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 1,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 1,     false, true, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 2,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 2,     false, true, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 3,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 3,     false, true, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 4,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 4,     false, true, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 5,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 5,     false, true, false, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 6,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 6,     false, true, false, false,
                                                                     "- 4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 7,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 7,     false, true, false, false,
                                                                    "-  4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 8,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 8,     false, true, false, false,
                                                                   "-   4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 9,     false, true, false, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 9,     false, true, false, false,
                                                                  "-    4.25" },
 
-            {  L_, BDEC::Decimal32(-4.25), 0,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 0,     false, false, true, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 1,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 1,     false, false, true, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 2,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 2,     false, false, true, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 3,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 3,     false, false, true, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 4,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 4,     false, false, true, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 5,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 5,     false, false, true, false,
                                                                      "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 6,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 6,     false, false, true, false,
                                                                     " -4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 7,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 7,     false, false, true, false,
                                                                    "  -4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 8,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 8,     false, false, true, false,
                                                                   "   -4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 9,     false, false, true, false,
+            {  L_, BDLDFP_DECIMAL_DF(-4.25), 9,     false, false, true, false,
                                                                  "    -4.25" },
 
             {  L_,
@@ -2736,63 +2736,49 @@ int main(int argc, char* argv[])
 
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(1.2);
+                out << BDLDFP_DECIMAL_DF(1.2);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "1.2" == s);
             }
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(1.23);
+                out << BDLDFP_DECIMAL_DF(1.23);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "1.23" == s);
             }
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(1.234);
+                out << BDLDFP_DECIMAL_DF(1.234);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "1.234" == s);
             }
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(1.2345);
+                out << BDLDFP_DECIMAL_DF(1.2345);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "1.2345" == s);
             }
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(1.23456);
+                out << BDLDFP_DECIMAL_DF(1.23456);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "1.23456" == s);
             }
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(1.234567);
+                out << BDLDFP_DECIMAL_DF(1.234567);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "1.234567" == s);
             }
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(10000000);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                LOOP_ASSERT(s, "1.000000e+7" == s);
-            }
-            {
-                bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(0.000000001);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                LOOP_ASSERT(s, "1e-9" == s);
-            }
-            {
-                bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(4.25);
+                out << BDLDFP_DECIMAL_DF(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "4.25" == s);
@@ -2800,14 +2786,14 @@ int main(int argc, char* argv[])
 
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(-4.25);
+                out << BDLDFP_DECIMAL_DF(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "-4.25" == s);
             }
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(5e50);
+                out << BDLDFP_DECIMAL_DF(5e50);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "5e+50" == s);
@@ -2815,7 +2801,7 @@ int main(int argc, char* argv[])
 
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(5e-50);
+                out << BDLDFP_DECIMAL_DF(5e-50);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "5e-50" == s);
@@ -2823,7 +2809,7 @@ int main(int argc, char* argv[])
 
             {
                 bsl::ostringstream out(pa);
-                out << bsl::uppercase << BDEC::Decimal32(5e50);
+                out << bsl::uppercase << BDLDFP_DECIMAL_DF(5e50);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "5E+50" == s);
@@ -2849,7 +2835,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(2);
-                out << BDEC::Decimal32(4.25);
+                out << BDLDFP_DECIMAL_DF(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "4.25" == s);
@@ -2858,7 +2844,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << BDEC::Decimal32(4.25);
+                out << BDLDFP_DECIMAL_DF(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "      4.25" == s);
@@ -2867,7 +2853,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::internal << BDEC::Decimal32(4.25);
+                out << bsl::internal << BDLDFP_DECIMAL_DF(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "      4.25" == s);
@@ -2876,7 +2862,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::left << BDEC::Decimal32(4.25);
+                out << bsl::left << BDLDFP_DECIMAL_DF(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "4.25      " == s);
@@ -2885,7 +2871,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::showpos << BDEC::Decimal32(4.25);
+                out << bsl::showpos << BDLDFP_DECIMAL_DF(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "     +4.25" == s);
@@ -2894,7 +2880,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::showpos << bsl::internal << BDEC::Decimal32(4.25);
+                out << bsl::showpos << bsl::internal << BDLDFP_DECIMAL_DF(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "+     4.25" == s);
@@ -2903,7 +2889,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::showpos << bsl::left << BDEC::Decimal32(4.25);
+                out << bsl::showpos << bsl::left << BDLDFP_DECIMAL_DF(4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "+4.25     " == s);
@@ -2912,7 +2898,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << BDEC::Decimal32(-4.25);
+                out << BDLDFP_DECIMAL_DF(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "     -4.25" == s);
@@ -2921,7 +2907,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::internal << BDEC::Decimal32(-4.25);
+                out << bsl::internal << BDLDFP_DECIMAL_DF(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "-     4.25" == s);
@@ -2930,7 +2916,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::left << BDEC::Decimal32(-4.25);
+                out << bsl::left << BDLDFP_DECIMAL_DF(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "-4.25     " == s);
@@ -2939,7 +2925,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::showpos << BDEC::Decimal32(-4.25);
+                out << bsl::showpos << BDLDFP_DECIMAL_DF(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "     -4.25" == s);
@@ -2948,7 +2934,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::showpos << bsl::internal << BDEC::Decimal32(-4.25);
+                out << bsl::showpos << bsl::internal << BDLDFP_DECIMAL_DF(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "-     4.25" == s);
@@ -2957,7 +2943,7 @@ int main(int argc, char* argv[])
             {
                 bsl::ostringstream out(pa);
                 out.width(10);
-                out << bsl::showpos << bsl::left << BDEC::Decimal32(-4.25);
+                out << bsl::showpos << bsl::left << BDLDFP_DECIMAL_DF(-4.25);
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "-4.25     " == s);
