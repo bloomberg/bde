@@ -74,11 +74,11 @@ int main(int argc, char *argv[]) {
 
 #ifdef BTESO_PLATFORM_WIN_SOCKETS
 
-        ASSERT(INVALID_SOCKET == bteso_SocketHandle::INVALID_SOCKET);
+        ASSERT(INVALID_SOCKET == bteso_SocketHandle::INVALID_SOCKET_HANDLE);
 
 #else
 
-        ASSERT(-1             == bteso_SocketHandle::INVALID_SOCKET);
+        ASSERT(-1             == bteso_SocketHandle::INVALID_SOCKET_HANDLE);
 
 #endif
 

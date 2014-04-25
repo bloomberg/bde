@@ -626,6 +626,7 @@ btemt_TcpTimerEventManager_ControlChannel::
 {
     const int rc = open();
     BSLS_ASSERT(0 == rc);
+    (void) rc;                                   // quash warning in opt builds
 }
 
 btemt_TcpTimerEventManager_ControlChannel::
@@ -633,6 +634,7 @@ btemt_TcpTimerEventManager_ControlChannel::
 {
     const int rc = close();
     BSLS_ASSERT(0 == rc);
+    (void) rc;                                   // quash warning in opt builds
 }
 
 // MANIPULATORS
@@ -777,7 +779,7 @@ void btemt_TcpTimerEventManager::initialize()
     d_executeQueue_p->reserve(4);
 }
 
-int btemt_TcpTimerEventManager::initiateRead()
+int btemt_TcpTimerEventManager::initiateControlChannelRead()
 {
     // Wait for the dispatcher thread to start and process
     // the request.
