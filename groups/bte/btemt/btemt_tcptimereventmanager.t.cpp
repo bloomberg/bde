@@ -785,19 +785,45 @@ int main(int argc, char *argv[])
 
       case 15: {
         // -----------------------------------------------------------------
-        // TESTING spinning does not happen on socket kill
+        // TEST closure of control channel sockets
         //
         // Concern:
+        //: 1 The closure of the control channel sockets does not cause an
+        //:   object to spin.
+        //:
+        //: 2 The closure of both the client and the server socket is handled
+        //:   gracefully.
+        //:
+        //: 3 Upto three socket closures should result in an attempt to
+        //:   recreate the control channel.
+        //:
+        //: 4 Any read or write operation that is underway should be
+        //:   unaffected by the socket closures and should complete
+        //:   successfully.
         //
         // Plan:
+        //: 1 Create a 'btemt_TcpTimerEventManager' object, mX, and create the
+        //:   control channel by calling 'enable'.
+        //:
+        //: 2 Create a large number of socket pairs.  For each socket pair,
+        //:   register their server socket for a read event with mX and the
+        //:   client socket for a write event.  This will result in the
+        //:   initiation of data transfer between the connections.
+        //:
+        //: 3 Close the server socket of the control channel three times and
+        //:   confirm that the control channel is recreated each time and that
+        //:   all of the outstanding data exchanges between the created
+        //:   connections completes succeessfully. 
+        //:
+        //: 4 Repeat the same steps by closing the client socket. 
         //
         // Testing:
+        //   DRQS 44989721
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING spinning does not happen" << endl
-                          << "================================" << endl;
-
+                          << "TEST closure of control channel sockets" << endl
+                          << "=======================================" << endl;
 
 #ifdef BTESO_PLATFORM_WIN_SOCKETS
         using namespace CASE15;
