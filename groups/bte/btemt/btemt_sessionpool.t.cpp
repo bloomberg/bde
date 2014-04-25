@@ -186,7 +186,7 @@ static bcemt_Mutex coutMutex;
 static
 bteso_IPv4Address getLocalAddress() {
     // On Cygwin, binding to bteso_IPv4Address() doesn't seem to work.
-    // Wants to bind to localhost/127.0.0.1.  
+    // Wants to bind to localhost/127.0.0.1.
 #ifdef BSLS_PLATFORM_OS_CYGWIN
     return bteso_IPv4Address("127.0.0.1", 0);
 #else
@@ -599,7 +599,7 @@ using namespace BTEMT_SESSION_POOL_GENERIC_TEST_NAMESPACE;
 
 int createConnection(
                 Obj                                          *sessionPool,
-                btemt_SessionPool::SessionStateCallback      *sessionStateCb, 
+                btemt_SessionPool::SessionStateCallback      *sessionStateCb,
                 btemt_SessionFactory                         *sessionFactory,
                 bteso_StreamSocket<bteso_IPv4Address>        *serverSocket,
                 SocketOptions                                *socketOptions,
@@ -728,7 +728,7 @@ void *connectFunction(void *args)
             socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
             return 0;                                                 // RETURN
         }
-        
+
         numRemaining -= rc;
 
         if (0 == socket->connectionStatus()) {
@@ -762,7 +762,7 @@ void *listenFunction(void *args)
     ListenData       data             = *(const ListenData *) args;
     const int        INDEX            = data.d_index;
     const int        NUM_BYTES        = data.d_numBytes;
-    bsls::AtomicInt *numUpConnections = data.d_numUpConnections_p;  
+    bsls::AtomicInt *numUpConnections = data.d_numUpConnections_p;
 
     bteso_StreamSocket<bteso_IPv4Address> *serverSocket = factory.allocate();
     serverSockets[INDEX] = serverSocket;
@@ -2159,11 +2159,11 @@ int main(int argc, char *argv[])
                 typedef bteso_StreamSocketFactoryDeleter Deleter;
 
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                    socket(socketFactory.allocate(), 
+                    socket(socketFactory.allocate(),
                            &socketFactory,
                            &Deleter::deleteObject<bteso_IPv4Address>);
 
-                SocketOptions opt;  opt.setKeepAlive(true); // always succeeds 
+                SocketOptions opt;  opt.setKeepAlive(true); // always succeeds
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
@@ -2179,13 +2179,13 @@ int main(int argc, char *argv[])
                 typedef bteso_StreamSocketFactoryDeleter Deleter;
 
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                    socket(socketFactory.allocate(), 
+                    socket(socketFactory.allocate(),
                            &socketFactory,
                            &Deleter::deleteObject<bteso_IPv4Address>);
                 ASSERT(socket);
 
                 SocketOptions opt;  opt.setSendTimeout(1); // fails on all
-                                                           // platforms 
+                                                           // platforms
                 const int rc = createConnection(&pool,
                                                 &sessionStateCb,
                                                 &sessionFactory,
@@ -2269,7 +2269,7 @@ int main(int argc, char *argv[])
                 typedef bteso_StreamSocketFactoryDeleter Deleter;
 
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                    socket(socketFactory.allocate(), 
+                    socket(socketFactory.allocate(),
                            &socketFactory,
                            &Deleter::deleteObject<bteso_IPv4Address>);
 
@@ -2293,7 +2293,7 @@ int main(int argc, char *argv[])
                 typedef bteso_StreamSocketFactoryDeleter Deleter;
 
                 bdema_ManagedPtr<bteso_StreamSocket<bteso_IPv4Address> >
-                    socket(socketFactory.allocate(), 
+                    socket(socketFactory.allocate(),
                            &socketFactory,
                            &Deleter::deleteObject<bteso_IPv4Address>);
 

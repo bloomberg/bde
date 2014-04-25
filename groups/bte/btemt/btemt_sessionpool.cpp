@@ -239,7 +239,7 @@ void btemt_SessionPool::channelStateCb(int   channelId,
           // callback,  'handleDeleter' is invoked and invokes sessionStateCb.
           // Note that in this case, we send 'CONNECT_ABORTED'.  We might want
           // to have a specific event for this.
- 
+
           bcema_SharedPtr<btemt_AsyncChannel> channel_sp(handle,
                                                          handle->d_channel_p);
           handle->d_sessionFactory_p->allocate(
