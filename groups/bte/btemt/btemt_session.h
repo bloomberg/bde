@@ -1,4 +1,4 @@
-// btemt_session.h   -*-C++-*-
+// btemt_session.h                                                    -*-C++-*-
 #ifndef INCLUDED_BTEMT_SESSION
 #define INCLUDED_BTEMT_SESSION
 
@@ -6,8 +6,6 @@
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
-
-
 
 //@PURPOSE: Provide a *pure* protocol class for creating sessions
 //
@@ -23,7 +21,6 @@ BDES_IDENT("$Id: $")
 // with 'btemt_SessionPool', which allocates/manages TCP sessions given a
 // session factory.  See the 'btemt_sessionpool' component for a more detailed
 // documentation.
-
 
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>
@@ -104,7 +101,6 @@ class btemt_SessionFactory {
 
     virtual void deallocate(btemt_Session *session) = 0;
        // Deallocate the specified 'session'.
-
 };
 
 } // close namespace BloombergLP

@@ -4,17 +4,27 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(btemt_session_cpp,"$Id$ $CSID$")
 
-#include <bcema_sharedptr.h>
-
 namespace BloombergLP {
 
-btemt_Session::~btemt_Session() {
+                            // -------------------
+                            // class btemt_Session
+                            // -------------------
+
+// CREATORS
+btemt_Session::~btemt_Session()
+{
 }
 
+                            // --------------------------
+                            // class btemt_SessionFactory
+                            // --------------------------
+
+// CREATORS
 btemt_SessionFactory::~btemt_SessionFactory()
 {
 }
 
+// MANIPULATORS
 void btemt_SessionFactory::allocate(
                            const bcema_SharedPtr<btemt_AsyncChannel>& channel,
                            const btemt_SessionFactory::Callback&      callback)

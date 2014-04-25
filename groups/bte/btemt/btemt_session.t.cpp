@@ -93,17 +93,21 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 class TestSession : public btemt_Session
+    // This 'class' provides a test implementation of the 'btemt_Session'
+    // protocol.
 {
+   // DATA
    int *d_funcCode_p;                  // code of the function, held
 
-  private:
+   // NOT IMPLEMENTED
    TestSession(const btemt_Session&);
    TestSession& operator=(const btemt_Session&);
 
   public:
+   // CREATORS
+   TestSession(int *funcCode)
+   : d_funcCode_p (funcCode) { ASSERT(d_funcCode_p); *d_funcCode_p = 0; };
 
-   TestSession(int *funcCode) : d_funcCode_p (funcCode)
-                       { ASSERT(d_funcCode_p); *d_funcCode_p = 0; };
    ~TestSession() { *d_funcCode_p = 1; };
 
    // MANIPULATORS
@@ -116,22 +120,28 @@ class TestSession : public btemt_Session
 };
 
 class TestSessionFactory : public btemt_SessionFactory
+    // This 'class' provides a test implementation of the
+    // 'btemt_SessionFactory' protocol.  This 'class' *does not* override the
+    // 'allocate' method that takes a 'btemt_AsyncChannel' by a
+    // 'bcema_SharedPtr'.
 {
-  private:
+   // DATA
    int *d_funcCode_p;                  // code of the function, held
+
+   // NOT IMPLEMENTED
    TestSessionFactory(const btemt_SessionFactory&);
    TestSessionFactory& operator=(const btemt_SessionFactory&);
 
   public:
-
-    TestSessionFactory (int *funcCode) : d_funcCode_p (funcCode)
-                                             { *d_funcCode_p = 0; }
+    // CREATORS
+    TestSessionFactory(int *funcCode)
+    : d_funcCode_p (funcCode) { *d_funcCode_p = 0; }
 
     ~TestSessionFactory() { *d_funcCode_p = 1; }
 
     // MANIPULATORS
-    void allocate(btemt_AsyncChannel *channel,
-                  btemt_SessionFactory::Callback const &callback)
+    void allocate(btemt_AsyncChannel                    *channel,
+                  const btemt_SessionFactory::Callback&  callback)
     {
        *d_funcCode_p = 2;
     }
@@ -142,7 +152,48 @@ class TestSessionFactory : public btemt_SessionFactory
     }
 };
 
-void* MyCallback(int session_id, btemt_Session* session){
+class TestSessionFactoryWithSharedAsyncChannel : public btemt_SessionFactory
+    // This 'class' provides a test implementation of the
+    // 'btemt_SessionFactory' protocol.  This 'class' overrides all the methods
+    // of the underlying protocol including the 'allocate' method that takes a
+    // 'btemt_AsyncChannel' by a 'bcema_SharedPtr'.
+{
+   // DATA
+   int *d_funcCode_p;  // code of the function, held
+
+   // NOT IMPLEMENTED
+   TestSessionFactoryWithSharedAsyncChannel(const btemt_SessionFactory&);
+   TestSessionFactoryWithSharedAsyncChannel& operator=(
+                                                  const btemt_SessionFactory&);
+
+  public:
+    // CREATORS
+    TestSessionFactoryWithSharedAsyncChannel(int *funcCode)
+    : d_funcCode_p (funcCode) { *d_funcCode_p = 0; }
+
+    ~TestSessionFactoryWithSharedAsyncChannel() { *d_funcCode_p = 1; }
+
+    // MANIPULATORS
+    void allocate(btemt_AsyncChannel                    *channel,
+                  const btemt_SessionFactory::Callback&  callback)
+    {
+       *d_funcCode_p = 2;
+    }
+
+    void allocate(const bcema_SharedPtr<btemt_AsyncChannel>& channel,
+                  const btemt_SessionFactory::Callback&      callback)
+    {
+       *d_funcCode_p = 4;
+    }
+
+    void deallocate(btemt_Session *session)
+    {
+       *d_funcCode_p = 3;
+    }
+};
+
+void* MyCallback(int session_id, btemt_Session* session)
+{
    return (void*)0;
 }
 
@@ -224,9 +275,10 @@ int main(int argc, char *argv[])
         }
 
         {
-           if (veryVerbose) bsl::cout
-            << "\tTesting 'btemt_SessionFactory': "
-                    "managed-pointer protocol."<< bsl::endl;
+            if (veryVerbose) bsl::cout << "\tTesting 'btemt_SessionFactory': "
+                                       << "Derived imp does not override "
+                                       << "shared async channel method."
+                                       << bsl::endl;
 
            int opCode = -1;
 
@@ -243,6 +295,31 @@ int main(int argc, char *argv[])
 
            factory.allocate(spChannel, &MyCallback);   ASSERT(2 == opCode);
            factory.deallocate(session);                ASSERT(3 == opCode);
+        }
+
+        {
+            if (veryVerbose) bsl::cout << "\tTesting 'btemt_SessionFactory': "
+                                       << "Derived imp overrides "
+                                       << "shared async channel method."
+                                       << bsl::endl;
+
+           int opCode = -1;
+
+           TestSessionFactoryWithSharedAsyncChannel mX1(&opCode);
+           ASSERT(0 == opCode);
+
+           btemt_SessionFactory& factory = mX1;
+
+           // must intialize these poiinters, as copying an uninitialized value
+           // as a function argument is undefined behaviour, even if it is not
+           // used within the function.  This is a real problem on Windows in
+           // debug builds.
+           bcema_SharedPtr<btemt_AsyncChannel> spChannel;
+           btemt_Session *session = 0;
+
+           factory.allocate(spChannel.ptr(), &MyCallback); ASSERT(2 == opCode);
+           factory.allocate(spChannel, &MyCallback);       ASSERT(4 == opCode);
+           factory.deallocate(session);                    ASSERT(3 == opCode);
         }
 
         {
