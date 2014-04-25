@@ -1728,7 +1728,10 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                          PARSE64_NAN_TEST_DATA[ti].d_stringVal;
                       Util::ValueType64 ACTUAL = Util::parse64(STRING_VAL);
                       Util::ValueType64 EXPECTED = DecConsts<64>::qNan();
-                      LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
+
+                      LOOP_ASSERT(LINE,
+                                  !memcmp(&ACTUAL, &EXPECTED,
+                                          sizeof(Util::ValueType64)));
                   }
               }
           }
