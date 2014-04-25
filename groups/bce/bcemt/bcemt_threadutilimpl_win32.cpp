@@ -11,6 +11,9 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bcemt_configuration.h>
 #include <bcemt_threadattributes.h>
 
+#include <bdetu_systemclocktype.h>
+#include <bdetu_systemtime.h>
+
 #include <bsls_assert.h>
 #include <bsls_types.h>
 

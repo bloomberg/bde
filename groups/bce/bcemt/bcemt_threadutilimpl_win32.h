@@ -71,10 +71,13 @@ BDES_IDENT("$Id: $")
 #include <bdet_timeinterval.h>
 #endif
 
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
-
 
 typedef unsigned long DWORD;
 typedef int BOOL;

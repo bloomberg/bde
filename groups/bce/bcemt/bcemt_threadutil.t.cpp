@@ -743,7 +743,8 @@ int main(int argc, char *argv[])
 
             bdet_TimeInterval expectedTime;
             bdet_TimeInterval actualTime;
-            { // realtime clock
+            { 
+                // realtime clock
                 expectedTime = bdetu_SystemTime::now();
                 expectedTime.addMilliseconds(i * 100);
                 Obj::sleepUntil(expectedTime);
@@ -753,13 +754,16 @@ int main(int argc, char *argv[])
                             (actualTime - expectedTime).totalMilliseconds()
                                                                          < 50);
             }
-            { // monotonic clock
+            { 
+                // monotonic clock
                 expectedTime = bdetu_SystemTime::nowMonotonicClock();
                 expectedTime.addMilliseconds(i * 100);
                 Obj::sleepUntil(expectedTime,
                                 bdetu_SystemClockType::e_MONOTONIC);
                 actualTime = bdetu_SystemTime::nowMonotonicClock();
-                ASSERT(actualTime >= expectedTime);
+
+                // MS clock resolution is 15.6ms, include a fudge factor
+                ASSERT(actualTime >= expectedTime - bdet_TimeInterval(.0156));
                 LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
                             (actualTime - expectedTime).totalMilliseconds()
                                                                          < 50);
