@@ -1092,10 +1092,10 @@ class TesterSession : public btemt_Session {
         ASSERT(spChannel->peerAddress() == referenceAddress);
     }
 
-    void readCb(int                  state,
-                int                 *numConsumed,
-                int                 *numNeeded,
-                const btemt_DataMsg& msg);
+    void readCb(int                   state,
+                int                  *numConsumed,
+                int                  *numNeeded,
+                const btemt_DataMsg&  msg);
         // Read callback for session pool.
 
   private:
@@ -1105,8 +1105,8 @@ class TesterSession : public btemt_Session {
 
   public:
     // CREATORS
-    TesterSession(const bcema_SharedPtr<btemt_AsyncChannel>& channel,
-                  bcemt_Barrier *barrier);
+    TesterSession(const bcema_SharedPtr<btemt_AsyncChannel>&  channel,
+                  bcemt_Barrier                              *barrier);
         // Create a new 'TesterSession' object for the specified 'channel'.
 
     ~TesterSession();
@@ -1170,8 +1170,8 @@ class TesterFactory : public btemt_SessionFactory {
         // specified 'channel', and invoke the specified 'callback' with
         // this session.
 
-    virtual void allocate(btemt_AsyncChannel                   *channel,
-                          const btemt_SessionFactory::Callback& callback);
+    virtual void allocate(btemt_AsyncChannel                    *channel,
+                          const btemt_SessionFactory::Callback&  callback);
         // Asynchronously allocate a 'btemt_Session' object for the
         // specified 'channel', and invoke the specified 'callback' with
         // this session.
@@ -1188,8 +1188,9 @@ class TesterFactory : public btemt_SessionFactory {
                             // -------------------
 
 // CREATORS
-TesterSession::TesterSession(const bcema_SharedPtr<btemt_AsyncChannel>& channel,
-                             bcemt_Barrier *barrier)
+TesterSession::TesterSession(
+                           const bcema_SharedPtr<btemt_AsyncChannel>&  channel,
+                           bcemt_Barrier                              *barrier)
 : d_channel_sp(channel)
 , d_barrier_p(barrier)
 {
@@ -1209,8 +1210,7 @@ void TesterSession::readCb(int                  state,
         MTCOUT << "Read callback called with: " << state << MTENDL;
     }
 
-    if (state)
-    {
+    if (state) {
         d_channel_sp->close();
         return;
     }
@@ -1271,8 +1271,8 @@ btemt_AsyncChannel *TesterSession::channel() const
                         // -------------------
 
 // CREATORS
-TesterFactory::TesterFactory(int mode,
-                             bcemt_Barrier *barrier,
+TesterFactory::TesterFactory(int               mode,
+                             bcemt_Barrier    *barrier,
                              bslma::Allocator *basicAllocator)
 : d_mode(mode)
 , d_session_p(0)
@@ -1283,7 +1283,6 @@ TesterFactory::TesterFactory(int mode,
 
 TesterFactory::~TesterFactory()
 {
-    
 }
 
 // MANIPULATORS
@@ -1935,13 +1934,13 @@ int main(int argc, char *argv[])
         //      pool has deallocated it.
         //
         // Plan:
-        //   1. For concern 1, invoke 'allocate' with a managed pointer to the
+        //   1. For concern 1, invoke 'allocate' with a shared pointer to the
         //      channel. Coordinate access to the underlying btemt_AsyncChannel
         //      at a later point in time than would have been possible prior to
         //      the addition of the introduction of channel sharing.
         //
         // Testing:
-        //   void SessionFactory::allocate with shared btemt_AsyncChannel
+        //   DRQS 44879376
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "TESTING 'allocate' with shared channel"
