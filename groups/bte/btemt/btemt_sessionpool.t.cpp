@@ -1164,8 +1164,8 @@ class TesterFactory : public btemt_SessionFactory {
         // Destroy this factory.
 
     // MANIPULATORS
-    virtual void allocate(bdema_ManagedPtr<btemt_AsyncChannel>& channel,
-                          const btemt_SessionFactory::Callback& callback);
+    virtual void allocate(const bcema_SharedPtr<btemt_AsyncChannel>& channel,
+                          const btemt_SessionFactory::Callback&      callback);
         // Asynchronously allocate a 'btemt_Session' object for the
         // specified 'channel', and invoke the specified 'callback' with
         // this session.
@@ -1287,8 +1287,9 @@ TesterFactory::~TesterFactory()
 }
 
 // MANIPULATORS
-void TesterFactory::allocate(bdema_ManagedPtr<btemt_AsyncChannel>& channel,
-                          const btemt_SessionFactory::Callback&    callback)
+void TesterFactory::allocate(
+                           const bcema_SharedPtr<btemt_AsyncChannel>& channel,
+                           const btemt_SessionFactory::Callback&      callback)
 {
     if (veryVerbose) {
         MTCOUT << "TesterFactory::allocate called: " << MTENDL;
@@ -1300,9 +1301,7 @@ void TesterFactory::allocate(bdema_ManagedPtr<btemt_AsyncChannel>& channel,
         }
     }
 
-    bcema_SharedPtr<btemt_AsyncChannel> spChannel(channel, d_allocator_p);
-
-    d_session_p = new (*d_allocator_p) TesterSession(spChannel, d_barrier_p);
+    d_session_p = new (*d_allocator_p) TesterSession(channel, d_barrier_p);
 
     callback(0, d_session_p);
 }

@@ -29,12 +29,12 @@ BDES_IDENT("$Id: $")
 #include <btescm_version.h>
 #endif
 
-#ifndef INCLUDED_BDEF_FUNCTION
-#include <bdef_function.h>
+#ifndef INCLUDED_BCEMA_SHAREDPTR
+#include <bcema_sharedptr.h>
 #endif
 
-#ifndef INCLUDED_BDEMA_MANAGEDPTR
-#include <bdema_managedptr.h>
+#ifndef INCLUDED_BDEF_FUNCTION
+#include <bdef_function.h>
 #endif
 
 namespace BloombergLP {
@@ -89,8 +89,8 @@ class btemt_SessionFactory {
        // Destroy this factory
 
     // MANIPULATORS
-    virtual void allocate(bdema_ManagedPtr<btemt_AsyncChannel>& channel,
-                          const btemt_SessionFactory::Callback& callback);
+    virtual void allocate(const bcema_SharedPtr<btemt_AsyncChannel>& channel,
+                          const btemt_SessionFactory::Callback&      callback);
        // Asynchronously allocate a 'btemt_Session' object for the specified
        // 'channel', and invoke the specified 'callback' with this session.
        //

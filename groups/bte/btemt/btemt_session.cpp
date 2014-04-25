@@ -4,6 +4,8 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(btemt_session_cpp,"$Id$ $CSID$")
 
+#include <bcema_sharedptr.h>
+
 namespace BloombergLP {
 
 btemt_Session::~btemt_Session() {
@@ -14,8 +16,8 @@ btemt_SessionFactory::~btemt_SessionFactory()
 }
 
 void btemt_SessionFactory::allocate(
-        bdema_ManagedPtr<btemt_AsyncChannel>& channel,
-        const btemt_SessionFactory::Callback& callback)
+                           const bcema_SharedPtr<btemt_AsyncChannel>& channel,
+                           const btemt_SessionFactory::Callback&      callback)
 {
     allocate(channel.ptr(), callback);
 }

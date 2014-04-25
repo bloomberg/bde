@@ -238,10 +238,10 @@ int main(int argc, char *argv[])
            // as a function argument is undefined behaviour, even if it is not
            // used within the function.  This is a real problem on Windows in
            // debug builds.
-           bdema_ManagedPtr<btemt_AsyncChannel> mpChannel;
+           bcema_SharedPtr<btemt_AsyncChannel> spChannel;
            btemt_Session *session = 0;
 
-           factory.allocate(mpChannel, &MyCallback);   ASSERT(2 == opCode);
+           factory.allocate(spChannel, &MyCallback);   ASSERT(2 == opCode);
            factory.deallocate(session);                ASSERT(3 == opCode);
         }
 
