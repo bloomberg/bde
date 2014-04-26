@@ -1,3 +1,9 @@
+bsl-internal (2.20.2.0.beta.2) unstable; urgency=low
+
+  * a517e40 [APPROVAL] revert-remove-string-transitive-includes-drqs-49354375 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Apr 2014 20:56:39 -0400
+
 bsl-internal (2.20.2.0.beta.1) unstable; urgency=low
 
   * 1e431dd [APPROVAL] OSS revert-version-to-2.20 to master
