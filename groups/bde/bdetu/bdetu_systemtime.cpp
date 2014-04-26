@@ -71,9 +71,9 @@ class MachClockGuard {
     explicit MachClockGuard(AtomicOpInt *clock)
         : d_clock_p(clock) {}
 
-    ~MachClockGuard()  
+    ~MachClockGuard()
     {
-        int clock = bsls::AtomicOperations::swapInt(d_clock_p, 
+        int clock = bsls::AtomicOperations::swapInt(d_clock_p,
                                                     k_UNINITIALIZED_CLOCK);
         if (clock != k_UNINITIALIZED_CLOCK) {
             mach_port_deallocate(mach_task_self(),
@@ -105,7 +105,7 @@ clock_serv_t getClockService(clock_id_t clockId, AtomicOpInt *atomicClockStore)
                                                   &clockServ);
         (void) rc; BSLS_ASSERT_OPT(KERN_SUCCESS == rc);
 
-        if (AtomicOp::testAndSwapInt(atomicClockStore, 
+        if (AtomicOp::testAndSwapInt(atomicClockStore,
                                      k_UNINITIALIZED_CLOCK,
                                      static_cast<int>(clockServ))
             != k_UNINITIALIZED_CLOCK)
@@ -118,7 +118,8 @@ clock_serv_t getClockService(clock_id_t clockId, AtomicOpInt *atomicClockStore)
         }
     }
 
-    return static_cast<clock_serv_t>(AtomicOp::getIntRelaxed(atomicClockStore));
+    return static_cast<clock_serv_t>(
+                                    AtomicOp::getIntRelaxed(atomicClockStore));
 }
 
 static inline
@@ -199,7 +200,7 @@ bdet_TimeInterval bdetu_SystemTime::nowMonotonicClock()
     bsls::Types::Int64 nanosec =
         (bsls::Types::Int64) (double(counter.QuadPart) /
                                                 freq * k_NanosecondsPerSecond);
-    return bdet_TimeInterval(nanosec / k_NanosecondsPerSecond, 
+    return bdet_TimeInterval(nanosec / k_NanosecondsPerSecond,
                              nanosec % k_NanosecondsPerSecond);
 }
 
@@ -291,7 +292,7 @@ void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          clock_gettime(CLOCK_REALTIME, &tp))) {
           result->setInterval(0, 0);
-          return;
+          return;                                                     // RETURN
     }
     result->setInterval(tp.tv_sec, tp.tv_nsec);
 #elif BSLS_PLATFORM_OS_AIX

@@ -171,9 +171,9 @@ class MachClockGuard {
     // CREATORS
     explicit MachClockGuard(clock_serv_t clock) : d_clock(clock) {}
 
-    ~MachClockGuard()  
-    { 
-        mach_port_deallocate(mach_task_self(), d_clock); 
+    ~MachClockGuard()
+    {
+        mach_port_deallocate(mach_task_self(), d_clock);
     }
 };
 
@@ -443,7 +443,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     mach_timespec_t clockTime;
     mach_timespec_t resultTime;
 
-    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, 
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime,
                                                      sleepUntilTime);
 
     status = clock_sleep(clock, TIME_ABSOLUTE, clockTime, &resultTime);

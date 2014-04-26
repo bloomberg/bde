@@ -44,8 +44,8 @@ BDES_IDENT("$Id: $")
 ///-------------
 // The functions provided by 'bdetu_SystemTime' are *thread-safe* (meaning they
 // may be called concurrently from multiple threads) *except* for those
-// functions that set and retrieve the callback functions.  The functions
-// that are *not* thread-safe are:
+// functions that set and retrieve the callback functions.  The functions that
+// are *not* thread-safe are:
 //: o 'setLoadLocalTimeOffsetCallback'
 //: o 'setSystemTimeCallback'
 //: o 'currentCallback'
@@ -112,8 +112,8 @@ BDES_IDENT("$Id: $")
 //    bdet_TimeInterval i3;
 //    assert(0 == i3);
 //..
-// Next call the utility function 'loadSystemTimeDefault' to load the
-// system time into 'i3'.
+// Next call the utility function 'loadSystemTimeDefault' to load the system
+// time into 'i3'.
 //..
 //    bdetu_SystemTime::loadSystemTimeDefault(&i3);
 //    assert(0 != i3);
@@ -412,8 +412,8 @@ struct bdetu_SystemTime {
                         // ** load methods **
 
     static void loadCurrentTime(bdet_TimeInterval *result);
-        // Load into the specified 'result', the current system time using
-        // the currently installed system-time callback mechanism.
+        // Load into the specified 'result', the current system time using the
+        // currently installed system-time callback mechanism.
 
     static void loadLocalTimeOffset(int                   *result,
                                     const bdet_Datetime&  utcDatetime);
@@ -523,10 +523,9 @@ bdet_TimeInterval bdetu_SystemTime::now(bdetu_SystemClockType::Enum clockType)
     switch (clockType) {
       case bdetu_SystemClockType::e_MONOTONIC: return nowMonotonicClock();
       case bdetu_SystemClockType::e_REALTIME:  return nowRealtimeClock();
-      default:
-        BSLS_ASSERT_OPT("Invalid clockType parameter value" && 0);
-        return bdet_TimeInterval();
     }
+    BSLS_ASSERT_OPT("Invalid clockType parameter value" && 0);
+    return bdet_TimeInterval();
 }
 
 inline
