@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide utilities to get the current UTC and local times.
+//@PURPOSE: Provide utilities to retrieve the system time.
 //
 //@CLASSES:
 //   bdetu_SystemTime: namespace for system-time procedures
@@ -17,10 +17,13 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Khalid Shafiq (kshafiq), Steven Breitstein (sbreitstein)
 //
 //@DESCRIPTION: This component provides static methods for retrieving system
-// time.  The system time is expressed as a time interval between the current
-// time and a pre-determined historical time, 00:00 UTC, January 1, 1970.  This
-// component operates using a dynamically replaceable callback mechanism.  For
-// applications that choose to define their own mechanism for determining
+// time.  This component provides access to a monotonic clock, a realtime
+// (wall) clock, and also a dynamically replaceable callback mechanism for
+// determining system time; note that the callback mechanism does not affect
+// the 'now(bdetu_SystemClockType::Enum clockType)', 'nowMonotonicClock', and
+// 'nowRealtimeClock' methods.
+//
+// For applications that choose to define their own mechanism for determining
 // system time, this component provides the ability to install a custom
 // callback function.  The behavior is undefined unless the callback provided
 // is epoch-based.  Note that if an application provides its own mechanism to
@@ -41,8 +44,8 @@ BDES_IDENT("$Id: $")
 ///-------------
 // The functions provided by 'bdetu_SystemTime' are *thread-safe* (meaning they
 // may be called concurrently from multiple threads) *except* for those
-// functions that set and retrieve the callback functions.  The functions
-// that are *not* thread-safe are:
+// functions that set and retrieve the callback functions.  The functions that
+// are *not* thread-safe are:
 //: o 'setLoadLocalTimeOffsetCallback'
 //: o 'setSystemTimeCallback'
 //: o 'currentCallback'
@@ -60,8 +63,9 @@ BDES_IDENT("$Id: $")
 ///Example 1: Getting Current Time
 ///- - - - - - - - - - - - - - - -
 // The following snippets of code illustrate how to use this utility component
-// to obtain the system time by calling 'now', 'nowAsDatetimeUtc', or
-// 'loadCurrentTime'.
+// to obtain the system time by calling 'now', 'nowAsDatetimeUtc',
+// 'loadCurrentTime', 'now(bdetu_SystemClockType::e_REALTIME)', or
+// 'nowRealtimeClock'.
 //..
 //    bdet_TimeInterval i0;
 //    assert(0 == i0);
@@ -88,6 +92,14 @@ BDES_IDENT("$Id: $")
 //    assert(dti.totalMilliseconds() <= i2.totalMilliseconds());
 //                                             //  Presumably, 0 < i0 < i1 < i2
 //..
+// Finally verify the 'now(bdetu_SystemClockType::e_REALTIME)' and
+// 'nowRealtimeClock' methods return values close to the one returned by 'now'.
+//..
+//    assert(bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME) - i0
+//                                                  < bdet_TimeInterval(1, 0));
+//    assert(bdetu_SystemTime::nowRealtimeClock() - i0
+//                                                  < bdet_TimeInterval(1, 0));
+//..
 //
 ///Example 2: Using 'loadSystemTimeDefault'
 /// - - - - - - - - - - - - - - - - - - - -
@@ -100,8 +112,8 @@ BDES_IDENT("$Id: $")
 //    bdet_TimeInterval i3;
 //    assert(0 == i3);
 //..
-// Next call the utility function 'loadSystemTimeDefault' to load the
-// system time into 'i3'.
+// Next call the utility function 'loadSystemTimeDefault' to load the system
+// time into 'i3'.
 //..
 //    bdetu_SystemTime::loadSystemTimeDefault(&i3);
 //    assert(0 != i3);
@@ -285,6 +297,10 @@ BDES_IDENT("$Id: $")
 //      == bdetu_SystemTime::currentLoadLocalTimeOffsetCallback());
 //..
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
 #endif
@@ -299,6 +315,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDETU_EPOCH
 #include <bdetu_epoch.h>
+#endif
+
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
 #endif
 
 #ifndef INCLUDED_BDET_DATETIME
@@ -320,13 +340,9 @@ namespace BloombergLP {
                             // ======================
 
 struct bdetu_SystemTime {
-    // This 'struct' provides a namespace for system time procedures.
-    //
-    // The functions provided are:
-    //: o *exception-neutral* (agnostic)
-    //:
-    //: o *thread-safe*, *except* for those functions that set or obtain the
-    //:   callback functions.  See {Thread Safety}.
+    // This 'struct' provides a namespace for system-time-retrieval procedures
+    // including a configurable global callback mechanism.  The use of a
+    // *subset* of these procedures is thread-safe (see 'Thread Safety').
 
     // TYPES
     typedef void (*LoadLocalTimeOffsetCallback)(
@@ -357,47 +373,47 @@ struct bdetu_SystemTime {
 
                         // ** now methods **
 
-    static bdet_TimeInterval now();
-        // Return a 'bdet_TimeInterval' value representing the current system
-        // time using the currently installed callback function.  Note that the
-        // return value is an absolute offset since the epoch, and has the same
-        // value in all time zones.
-
-    static bdet_Datetime nowAsDatetimeUtc();
-        // Return a 'bdet_Datetime' value representing the current system time
-        // using the currently installed callback function consistent with
-        // 'now'.  Note that the returned value is in Utc.
-
-    static bdet_Datetime nowAsDatetime();
-        // Return a 'bdet_Datetime' value representing the current system time
-        // using the currently installed callback function consistent with
-        // 'now'.  Note that the returned value is in Utc.
-        //
-        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
-
-    static bdet_Datetime nowAsDatetimeGMT();
-        // Return a 'bdet_Datetime' value representing the current system time
-        // using the currently installed callback function consistent with
-        // 'now'.  Note that the returned value is in Utc.
-        //
-        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
-
-    static bdet_Datetime nowAsDatetimeLocal();
-        // Return a 'bdet_Datetime' value representing the current system time
-        // in the local time zone using the currently installed system time and
-        // local time offset callbacks.
-
     static bdet_DatetimeInterval localTimeOffset();
         // Return a 'bdet_DatetimeInterval' value representing the difference
         // between the current local time and the current UTC time.  This
         // method uses the currently installed local-time-offset callback
         // mechanism.
 
+    static bdet_TimeInterval now();
+        // Return the 'bdet_TimeInterval' value representing the current system
+        // time using the currently installed callback function.  Note that the
+        // return value is an absolute offset since the epoch, and has the same
+        // value in all time zones.
+
+    static bdet_TimeInterval now(bdetu_SystemClockType::Enum clockType);
+        // Return the 'bdet_TimeInterval' value representing the current system
+        // time according to the specified 'clock'.
+
+    static bdet_Datetime nowAsDatetimeUtc();
+        // Return the 'bdet_Datetime' value representing the current system
+        // time using the currently installed callback function consistent with
+        // 'now'.  Note that the returned value is in Utc.
+
+    static bdet_Datetime nowAsDatetimeLocal();
+        // Return the 'bdet_Datetime' value representing the current system
+        // time in the local time zone using the currently installed system
+        // time and local time offset callbacks.
+
+    static bdet_TimeInterval nowMonotonicClock();
+        // Return the 'bdet_TimeInterval' value representing the current system
+        // time according to the monotonic clock.  Note that, depending on
+        // platform, this may be more efficient than 'now(e_MONOTONIC)'.
+
+    static bdet_TimeInterval nowRealtimeClock();
+        // Return the 'bdet_TimeInterval' value representing the current system
+        // time according to the realtime (wall) clock.  Note that, depending
+        // on platform, this may be more efficient than 'now(e_REALTIME)'.
+
                         // ** load methods **
 
     static void loadCurrentTime(bdet_TimeInterval *result);
-        // Load into the specified 'result', the current system time using
-        // the currently installed system-time callback mechanism.
+        // Load into the specified 'result', the current system time using the
+        // currently installed system-time callback mechanism.
 
     static void loadLocalTimeOffset(int                   *result,
                                     const bdet_Datetime&  utcDatetime);
@@ -409,10 +425,10 @@ struct bdetu_SystemTime {
 
     static void loadLocalTimeOffsetDefault(int                  *result,
                                            const bdet_Datetime&  utcDatetime);
-        // Load into the specified 'result' offset in seconds of the local time
-        // from UTC time for the specified 'utcDatetime'.  Note that the local
-        // time zone is determined by the 'TZ' environment variable in the same
-        // manner as the 'localtime' POSIX function.
+        // Load into the specified 'result' the offset in seconds of the local
+        // time from UTC time for the specified 'utcDatetime'.  Note that the
+        // local time zone is determined by the 'TZ' environment variable in
+        // the same manner as the 'localtime' POSIX function.
 
     static void loadSystemTimeDefault(bdet_TimeInterval *result);
         // Load into the specified 'result' the current system time.  This is
@@ -441,22 +457,39 @@ struct bdetu_SystemTime {
 
                         // ** get current callbacks **
 
-    static SystemTimeCallback currentCallback();
-        // Return the currently installed 'SystemTimeCallback' function.
-        //
-        // DEPRECATED: replaced by 'currentSystemTimeCallback'
-
     static LoadLocalTimeOffsetCallback currentLoadLocalTimeOffsetCallback();
         // Return the currently installed 'LoadLocalTimeOffsetCallback'
         // function.
 
     static SystemTimeCallback currentSystemTimeCallback();
         // Return the currently installed 'SystemTimeCallback' function.
+
+                        // ** deprecated methods **
+
+    static bdet_Datetime nowAsDatetime();
+        // Return the 'bdet_Datetime' value representing the current system
+        // time using the currently installed callback function consistent with
+        // 'now'.  Note that the returned value is in Utc.
+        //
+        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
+
+    static bdet_Datetime nowAsDatetimeGMT();
+        // Return the 'bdet_Datetime' value representing the current system
+        // time using the currently installed callback function consistent with
+        // 'now'.  Note that the returned value is in Utc.
+        //
+        // DEPRECATED: replaced by 'nowAsDatetimeUtc'
+
+    static SystemTimeCallback currentCallback();
+        // Return the currently installed 'SystemTimeCallback' function.
+        //
+        // DEPRECATED: replaced by 'currentSystemTimeCallback'
+
 };
 
-// ==========================================================================
+// ============================================================================
 //                       INLINE FUNCTION DEFINITIONS
-// ==========================================================================
+// ============================================================================
 
                             // ----------------------
                             // class bdetu_SystemTime
@@ -467,11 +500,32 @@ struct bdetu_SystemTime {
                         // ** now methods **
 
 inline
+bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
+{
+    BSLS_ASSERT_SAFE(s_loadLocalTimeOffsetCallback_p);
+
+    int offsetInSeconds;
+    (*s_loadLocalTimeOffsetCallback_p)(&offsetInSeconds, nowAsDatetimeUtc());
+    return bdet_DatetimeInterval(0, 0, 0, offsetInSeconds);
+}
+
+inline
 bdet_TimeInterval bdetu_SystemTime::now()
 {
     bdet_TimeInterval timeInterval;
     s_systime_callback_p(&timeInterval);
     return timeInterval;
+}
+
+inline
+bdet_TimeInterval bdetu_SystemTime::now(bdetu_SystemClockType::Enum clockType)
+{
+    switch (clockType) {
+      case bdetu_SystemClockType::e_MONOTONIC: return nowMonotonicClock();
+      case bdetu_SystemClockType::e_REALTIME:  return nowRealtimeClock();
+    }
+    BSLS_ASSERT_OPT("Invalid clockType parameter value" && 0);
+    return bdet_TimeInterval();
 }
 
 inline
@@ -481,28 +535,6 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeUtc()
     bdetu_DatetimeInterval::convertToDatetimeInterval(&datetimeInterval,
                                                       now());
     return bdetu_Epoch::epoch() + datetimeInterval;
-}
-
-inline
-bdet_Datetime bdetu_SystemTime::nowAsDatetime()
-{
-    return nowAsDatetimeGMT();
-}
-
-inline
-bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
-{
-    return nowAsDatetimeUtc();
-}
-
-inline
-bdet_DatetimeInterval bdetu_SystemTime::localTimeOffset()
-{
-    BSLS_ASSERT_SAFE(s_loadLocalTimeOffsetCallback_p);
-
-    int offsetInSeconds;
-    (*s_loadLocalTimeOffsetCallback_p)(&offsetInSeconds, nowAsDatetimeUtc());
-    return bdet_DatetimeInterval(0, 0, 0, offsetInSeconds);
 }
 
                         // ** load methods **
@@ -553,13 +585,6 @@ bdetu_SystemTime::setSystemTimeCallback(
                         // ** get current callbacks **
 
 inline
-bdetu_SystemTime::SystemTimeCallback
-bdetu_SystemTime::currentCallback()
-{
-    return s_systime_callback_p;
-}
-
-inline
 bdetu_SystemTime::LoadLocalTimeOffsetCallback
 bdetu_SystemTime::currentLoadLocalTimeOffsetCallback()
 {
@@ -573,6 +598,28 @@ bdetu_SystemTime::currentSystemTimeCallback()
     return s_systime_callback_p;
 }
 
+
+                        // ** deprecated methods **
+
+inline
+bdet_Datetime bdetu_SystemTime::nowAsDatetime()
+{
+    return nowAsDatetimeGMT();
+}
+
+inline
+bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
+{
+    return nowAsDatetimeUtc();
+}
+
+inline
+bdetu_SystemTime::SystemTimeCallback
+bdetu_SystemTime::currentCallback()
+{
+    return s_systime_callback_p;
+}
+
 }  // close namespace BloombergLP
 
 
@@ -580,7 +627,7 @@ bdetu_SystemTime::currentSystemTimeCallback()
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

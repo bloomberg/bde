@@ -1,4 +1,4 @@
-// bcemt_turnstile.cpp   -*-C++-*-
+// bcemt_turnstile.cpp                                                -*-C++-*-
 #include <bcemt_turnstile.h>
 
 #include <bcemt_barrier.h>        // testing only
@@ -31,6 +31,14 @@ bcemt_Turnstile::bcemt_Turnstile(double                   rate,
 }
 
 // MANIPULATORS
+void bcemt_Turnstile::reset(double                   rate,
+                            const bdet_TimeInterval& startTime)
+{
+    d_interval  = static_cast<Int64>(MICROSECS_PER_SECOND / rate);
+    d_timestamp = bdetu_SystemTime::nowMonotonicClock().totalMicroseconds();
+    d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
+}
+
 bsls::Types::Int64 bcemt_Turnstile::waitTurn()
 {
     enum { MIN_TIMER_RESOLUTION = 10 * 1000 };
@@ -43,13 +51,14 @@ bsls::Types::Int64 bcemt_Turnstile::waitTurn()
     Int64 waitTime  = 0;
 
     if (nextTurn > timestamp) {
-        Int64 nowUSec = bdetu_SystemTime::now().totalMicroseconds();
+        Int64 nowUSec =
+                     bdetu_SystemTime::nowMonotonicClock().totalMicroseconds();
         d_timestamp = nowUSec;
 
         waitTime = nextTurn - nowUSec;
 
         if (waitTime >= MIN_TIMER_RESOLUTION) {
-            int waitInt = (int) waitTime;
+          int waitInt = static_cast<int>(waitTime);
             if (waitInt == waitTime) {
                 // This is only good up to 'waitTime == ~35 minutes'
 
@@ -58,8 +67,10 @@ bsls::Types::Int64 bcemt_Turnstile::waitTurn()
             else {
                 // This will work so long as 'waitTime < ~68 years'
 
-                int waitSecs  = (int) (waitTime / MICROSECS_PER_SECOND);
-                int waitUSecs = (int) (waitTime % MICROSECS_PER_SECOND);
+                int waitSecs  = static_cast<int>((waitTime
+                                                  / MICROSECS_PER_SECOND));
+                int waitUSecs = static_cast<int>((waitTime
+                                                  % MICROSECS_PER_SECOND));
                 bcemt_ThreadUtil::microSleep(waitUSecs, waitSecs);
             }
         }
@@ -71,18 +82,10 @@ bsls::Types::Int64 bcemt_Turnstile::waitTurn()
     return waitTime;
 }
 
-void bcemt_Turnstile::reset(double                   rate,
-                            const bdet_TimeInterval& startTime)
-{
-    d_interval  = (Int64) (MICROSECS_PER_SECOND / rate);
-    d_timestamp = bdetu_SystemTime::now().totalMicroseconds();
-    d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
-}
-
 // ACCESSORS
 bsls::Types::Int64 bcemt_Turnstile::lagTime() const
 {
-    Int64 nowUSecs = bdetu_SystemTime::now().totalMicroseconds();
+    Int64 nowUSecs = bdetu_SystemTime::nowMonotonicClock().totalMicroseconds();
     d_timestamp = nowUSecs;
 
     Int64 delta = nowUSecs - d_nextTurn;

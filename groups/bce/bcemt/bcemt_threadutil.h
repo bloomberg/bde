@@ -92,6 +92,19 @@ BDES_IDENT("$Id: $")
 //           are ignored for all clients.
 //..
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
@@ -260,6 +273,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BCES_PLATFORM
 #include <bces_platform.h>
+#endif
+
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
 #endif
 
 #ifndef INCLUDED_BDEF_FUNCTION
@@ -472,14 +489,18 @@ struct bcemt_ThreadUtil {
         // suspended depends on many factors including system scheduling and
         // system timer resolution.
 
-    static void sleepUntil(const bdet_TimeInterval& absoluteTime);
+    static void sleepUntil(const bdet_TimeInterval&    absoluteTime,
+                           bdetu_SystemClockType::Enum clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
         // Suspend execution of the current thread until the specified
-        // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
-        // January 1, 1970).  The behavior is undefined unless 'absoluteTime'
-        // represents a time after January 1, 1970 and before the end of
-        // December 31, 9999 (i.e., a time interval greater than or equal to
-        // 0, and less than 253,402,300,800 seconds).  Note that the actual
-        // time suspended depends on many factors including system scheduling
+        // 'absoluteTime'.  Optionally specify 'clockType' which determines the
+        // epoch from which the interval 'absoluteTime' is measured (see
+        // {'Supported Clock-Types'} in the component documentation).  The
+        // behavior is undefined unless 'absoluteTime' represents a time after
+        // January 1, 1970 and before the end of December 31, 9999 (i.e., a
+        // time interval greater than or equal to 0, and less than
+        // 253,402,300,800 seconds).  Note that the actual time suspended
+        // depends on many factors including system scheduling
         // and system timer resolution.
 
     static void yield();
@@ -694,9 +715,10 @@ void bcemt_ThreadUtil::sleep(const bdet_TimeInterval& sleepTime)
 }
 
 inline
-void bcemt_ThreadUtil::sleepUntil(const bdet_TimeInterval& absoluteTime)
+void bcemt_ThreadUtil::sleepUntil(const bdet_TimeInterval&    absoluteTime,
+                                  bdetu_SystemClockType::Enum clockType)
 {
-    int status = Imp::sleepUntil(absoluteTime);
+    int status = Imp::sleepUntil(absoluteTime, clockType);
     (void) status;  // Suppress a unused variable error.
     BSLS_ASSERT(0 == status);
 }

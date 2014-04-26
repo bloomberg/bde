@@ -6,21 +6,27 @@ BDES_IDENT_RCSID(bdetu_systemtime_cpp,"$Id$ $CSID$")
 
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bslmf_assert.h>
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#else
 // Before we include the unix-specific header, '<sys/time.h>', we include the
 // standard header, '<time.h>', to ensure that things like 'time_t' end up in
 // both the 'std' namespace and the global namespace. (Critical for Sunpro.)
 #include <bsl_c_time.h>
-#include <bsl_c_sys_time.h>
-#ifdef BSLS_PLATFORM_OS_AIX
-#include <sys/systemcfg.h>
-#endif
-#endif
 
-#include <limits.h>  // for 'INT_MAX'
+#include <bsl_c_limits.h>
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+    #include <bsls_timeutil.h>
+    #include <windows.h>
+#else
+    #include <bsl_c_sys_time.h>
+    #if defined(BSLS_PLATFORM_OS_AIX)
+        #include <sys/systemcfg.h>
+    #elif defined(BSLS_PLATFORM_OS_DARWIN)
+        #include <mach/clock.h>
+        #include <mach/mach.h>
+    #endif
+#endif
 
 namespace BloombergLP {
                             // ----------------------
@@ -39,6 +45,191 @@ bdetu_SystemTime::s_loadLocalTimeOffsetCallback_p =
 // CLASS METHODS
 
                         // ** now methods **
+
+#if defined(BSLS_PLATFORM_OS_DARWIN)
+
+typedef bsls::AtomicOperations::AtomicTypes::Int AtomicOpInt;
+
+static const int k_UNINITIALIZED_CLOCK = 0;
+static AtomicOpInt g_calendarClock = { k_UNINITIALIZED_CLOCK };
+static AtomicOpInt g_realtimeClock = { k_UNINITIALIZED_CLOCK };
+
+class MachClockGuard {
+    // A guard that deallocates a Darwin (mach kernel) 'clock_serv_t' on its
+    // destruction.
+
+    // DATA
+    AtomicOpInt *d_clock_p;  // clock identifier
+
+  private:
+    // NOT IMPLEMENTED
+    MachClockGuard(const MachClockGuard&);
+    MachClockGuard operator=(const MachClockGuard&);
+  public:
+
+    // CREATORS
+    explicit MachClockGuard(AtomicOpInt *clock)
+        : d_clock_p(clock) {}
+
+    ~MachClockGuard()
+    {
+        int clock = bsls::AtomicOperations::swapInt(d_clock_p,
+                                                    k_UNINITIALIZED_CLOCK);
+        if (clock != k_UNINITIALIZED_CLOCK) {
+            mach_port_deallocate(mach_task_self(),
+                                 static_cast<clock_serv_t>(clock));
+        }
+    }
+};
+
+static
+clock_serv_t getClockService(clock_id_t clockId, AtomicOpInt *atomicClockStore)
+    // Return a MACH clock service handle for the specified 'clockId'.  Use the
+    // specified 'atomicClockStore' for single-time initialization of the
+    // clock service handle.
+{
+    BSLMF_ASSERT(sizeof(clock_serv_t) == sizeof(int));
+
+    // One-time initialization (note: the sucessfully initialized clock service
+    // is released at the task's destruction).
+
+    typedef bsls::AtomicOperations AtomicOp;
+
+    if (k_UNINITIALIZED_CLOCK == AtomicOp::getIntAcquire(atomicClockStore)) {
+        static MachClockGuard s_calendarClockGuard(&g_calendarClock);
+        static MachClockGuard s_realtimeClockGuard(&g_realtimeClock);
+
+        clock_serv_t clockServ;
+        kern_return_t rc = host_get_clock_service(mach_host_self(),
+                                                  clockId,
+                                                  &clockServ);
+        (void) rc; BSLS_ASSERT_OPT(KERN_SUCCESS == rc);
+
+        if (AtomicOp::testAndSwapInt(atomicClockStore,
+                                     k_UNINITIALIZED_CLOCK,
+                                     static_cast<int>(clockServ))
+            != k_UNINITIALIZED_CLOCK)
+        {
+            // atomicClockStore was already initialized by another thread,
+            // release clockServ.
+
+            rc = mach_port_deallocate(mach_task_self(), clockServ);
+            (void) rc; BSLS_ASSERT_OPT(KERN_SUCCESS == rc);
+        }
+    }
+
+    return static_cast<clock_serv_t>(
+                                    AtomicOp::getIntRelaxed(atomicClockStore));
+}
+
+static inline
+bdet_TimeInterval getNowTime(clock_id_t   clockId,
+                             AtomicOpInt *atomicClockStore)
+    // Return the current time for the specified 'clockId' using the specified
+    // 'atomicClockStore' as a storage for an appropriate MACH clock service
+    // handle.
+{
+    mach_timespec_t mts;
+    clock_serv_t clockServ = getClockService(clockId, atomicClockStore);
+    clock_get_time(clockServ, &mts);
+    return bdet_TimeInterval(mts.tv_sec, mts.tv_nsec);
+}
+
+bdet_TimeInterval bdetu_SystemTime::nowRealtimeClock()
+    // Return the current time for the realtime clock.
+{
+    return getNowTime(CALENDAR_CLOCK, &g_calendarClock);
+}
+
+bdet_TimeInterval bdetu_SystemTime::nowMonotonicClock()
+    // Return the current time for the monotonic clock.
+{
+    return getNowTime(REALTIME_CLOCK, &g_realtimeClock);
+}
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+const unsigned int k_TicksPerSecond = 10000000;
+static const bsls::Types::Uint64 k_TicksToWindowsEpoch
+                                            = 11644473600LL * k_TicksPerSecond;
+                                        // Windows epoch starts from Jan 1 1601
+                                        // the offset is 11644473600 seconds
+const unsigned int k_NanosecondsPerTick = 100;
+const unsigned int k_NanosecondsPerSecond = 1000000000;
+
+static bsls::AtomicOperations::AtomicTypes::Int64 g_frequency = { 0 };
+
+static inline
+bsls::Types::Int64 getFrequency()
+    // Return the frequency of the Windows monotonic performance counter.
+{
+    // We can use relaxed atomic operations throughout, it only matters that
+    // g_frequency is updated atomically.
+
+    if (0 == bsls::AtomicOperations::getInt64Relaxed(&g_frequency)) {
+        LARGE_INTEGER freq;
+
+        BOOL rc = QueryPerformanceFrequency(&freq);
+        (void) rc; BSLS_ASSERT(rc);
+
+        bsls::AtomicOperations::setInt64Relaxed(&g_frequency, freq.QuadPart);
+    }
+
+    return bsls::AtomicOperations::getInt64Relaxed(&g_frequency);
+}
+
+bdet_TimeInterval bdetu_SystemTime::nowRealtimeClock()
+    // Return the current time for the realtime clock.
+{
+    ULARGE_INTEGER fileTime;
+    GetSystemTimeAsFileTime(reinterpret_cast<FILETIME *>(&fileTime));
+    bsls::Types::Uint64 ticksSinceEpoch
+                                   = fileTime.QuadPart - k_TicksToWindowsEpoch;
+    return bdet_TimeInterval(ticksSinceEpoch / k_TicksPerSecond,
+                             ticksSinceEpoch % k_TicksPerSecond
+                                                       * k_NanosecondsPerTick);
+}
+
+bdet_TimeInterval bdetu_SystemTime::nowMonotonicClock()
+    // Return the current time for the monotonic clock.
+{
+    LARGE_INTEGER counter;
+    QueryPerformanceCounter(&counter);
+    bsls::Types::Int64 freq = getFrequency();
+
+    bsls::Types::Int64 nanosec =
+        (bsls::Types::Int64) (double(counter.QuadPart) /
+                                                freq * k_NanosecondsPerSecond);
+    return bdet_TimeInterval(nanosec / k_NanosecondsPerSecond,
+                             nanosec % k_NanosecondsPerSecond);
+}
+
+#else
+
+static inline
+bdet_TimeInterval getNowTime(clockid_t clockId)
+    // Return the current time for the specified 'clockId'.
+{
+    timespec tp = {0};
+    int rc = clock_gettime(clockId, &tp);
+    (void) rc; BSLS_ASSERT(0 == rc);
+
+    return bdet_TimeInterval(tp.tv_sec, tp.tv_nsec);
+}
+
+bdet_TimeInterval bdetu_SystemTime::nowMonotonicClock()
+    // Return the current time for the monotonic clock.
+{
+    return getNowTime(CLOCK_MONOTONIC);
+}
+
+bdet_TimeInterval bdetu_SystemTime::nowRealtimeClock()
+    // Return the current time for the realtime clock.
+{
+    return getNowTime(CLOCK_REALTIME);
+}
+
+#endif
 
 bdet_Datetime bdetu_SystemTime::nowAsDatetimeLocal()
 {
@@ -93,14 +284,15 @@ void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     bsls::Types::Uint64 t;
     GetSystemTimeAsFileTime((FILETIME*)&t);
-    t -= 116444736000000000ll; // windows epoch -> unix epoch
-    result->setInterval(t / 10000000, (t % 10000000) * 100);
+    t -= k_TicksToWindowsEpoch; // windows epoch -> unix epoch
+    result->setInterval(t / k_TicksPerSecond,
+                        (t % k_TicksPerSecond) * k_NanosecondsPerTick);
 #elif BSLS_PLATFORM_OS_LINUX
     struct timespec tp;
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                          clock_gettime(CLOCK_REALTIME, &tp))) {
           result->setInterval(0, 0);
-          return;
+          return;                                                     // RETURN
     }
     result->setInterval(tp.tv_sec, tp.tv_nsec);
 #elif BSLS_PLATFORM_OS_AIX
@@ -123,7 +315,7 @@ void bdetu_SystemTime::loadSystemTimeDefault(bdet_TimeInterval *result)
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2003
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

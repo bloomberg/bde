@@ -1,4 +1,4 @@
-// bcemt_barrier.cpp               -*-C++-*-
+// bcemt_barrier.cpp                                                  -*-C++-*-
 #include <bcemt_barrier.h>
 
 #include <bdes_ident.h>
@@ -25,6 +25,29 @@ bcemt_Barrier::~bcemt_Barrier()
     BSLS_ASSERT( 0 == d_numWaiting );
 }
 
+int bcemt_Barrier::timedWait(const bdet_TimeInterval &timeout)
+{
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+    int prevSigCount = d_sigCount;
+    if (++d_numWaiting == d_numThreads) {
+        ++d_sigCount;
+        d_numPending += d_numThreads - 1;
+        d_numWaiting = 0;
+        d_cond.broadcast();
+    }
+    else {
+        while (d_sigCount == prevSigCount) {
+            if (d_cond.timedWait(&d_mutex, timeout) &&
+                d_sigCount == prevSigCount) {
+                --d_numWaiting;
+                return -1;                                            // RETURN
+            }
+        }
+        --d_numPending;
+    }
+    return 0;
+}
+
 void bcemt_Barrier::wait()
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
@@ -43,36 +66,13 @@ void bcemt_Barrier::wait()
     }
 }
 
-int bcemt_Barrier::timedWait(const bdet_TimeInterval &timeout)
-{
-    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
-    int prevSigCount = d_sigCount;
-    if (++d_numWaiting == d_numThreads) {
-        ++d_sigCount;
-        d_numPending += d_numThreads - 1;
-        d_numWaiting = 0;
-        d_cond.broadcast();
-    }
-    else {
-        while (d_sigCount == prevSigCount) {
-            if (d_cond.timedWait(&d_mutex, timeout) &&
-                d_sigCount == prevSigCount ) {
-                --d_numWaiting;
-                return -1;
-            }
-        }
-        --d_numPending;
-    }
-    return 0;
-}
-
 } // namespace BloombergLP
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

@@ -25,6 +25,19 @@ BDES_IDENT("$Id: $")
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bcemt_TimedSemaphore'.
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // This component is an implementation detail of 'bcemt' and is *not* intended
@@ -35,10 +48,6 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCES_ATOMICTYPES
-#include <bces_atomictypes.h>
-#endif
-
 #ifndef INCLUDED_BCES_PLATFORM
 #include <bces_platform.h>
 #endif
@@ -46,6 +55,14 @@ BDES_IDENT("$Id: $")
 #ifdef BCES_PLATFORM_POSIX_THREADS
 
 // Platform specific implementation starts here.
+
+#ifndef INCLUDED_BCES_ATOMICTYPES
+#include <bces_atomictypes.h>
+#endif
+
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
 
 #ifndef INCLUDED_PTHREAD
 #include <pthread.h>
@@ -74,18 +91,44 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore> {
     pthread_mutex_t d_lock;       // lock
     pthread_cond_t  d_condition;  // condition
 
+#ifdef BSLS_PLATFORM_OS_DARWIN
+    bdetu_SystemClockType::Enum d_clockType;
+#endif
+
     // NOT IMPLEMENTED
     bcemt_TimedSemaphoreImpl(const bcemt_TimedSemaphoreImpl&);
     bcemt_TimedSemaphoreImpl& operator=(const bcemt_TimedSemaphoreImpl&);
 
+    // PRIVATE MANIPULATORS
+    int timedWaitImp(const bdet_TimeInterval& timeout);
+        // Block until the count of this semaphore is potentially a positive
+        // value, or until the specified 'timeout' expires.  The 'timeout' is
+        // an absolute time represented as an interval from some epoch, which
+        // is detemined by the clock indicated at construction (see
+        // {'Supported Clock-Types'} in the component documentation).  Return 0
+        // if the 'timeout' did not expire, -1 if a timeout occurred, and -2 on
+        // error.
+
   public:
     // CREATORS
-    bcemt_TimedSemaphoreImpl();
-        // Create a new semaphore object with a count of 0.
+    explicit
+    bcemt_TimedSemaphoreImpl(bdetu_SystemClockType::Enum clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
+        // Create a timed semaphore initially having a count of 0.  Optionally
+        // specify a 'clockType' indicating the type of the system clock
+        // against which the 'bdet_TimeInterval' timeouts passed to the
+        // 'timedWait' method are to be interpreted.  If 'clockType' is not
+        // specified then the realtime system clock is used.
 
     explicit
-    bcemt_TimedSemaphoreImpl(int count);
-        // Create a new semaphore object having the specified 'count'.
+    bcemt_TimedSemaphoreImpl(int                         count,
+                             bdetu_SystemClockType::Enum clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
+        // Create a timed semaphore initially having the specified 'count'.
+        // Optionally specify a 'clockType' indicating the type of the system
+        // clock against which the 'bdet_TimeInterval' timeouts passed to the
+        // 'timedWait' method are to be interpreted.  If 'clockType' is not
+        // specified then the realtime system clock is used.
 
     ~bcemt_TimedSemaphoreImpl();
         // Destroy this semaphore object.
@@ -101,9 +144,13 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore> {
 
     int timedWait(const bdet_TimeInterval& timeout);
         // Block until the count of this semaphore is a positive value, or
-        // until the specified 'timeout' (expressed as the !ABSOLUTE! time from
-        // 00:00:00 UTC, January 1, 1970) expires.  Atomically decrement the
-        // count and return 0 on success, and a non-zero value otherwise.
+        // until the specified 'timeout' expires.  The 'timeout' is an absolute
+        // time represented as an interval from some epoch, which is detemined
+        // by the clock indicated at construction (see
+        // {'Supported Clock-Types'} in the component documentation).  If the
+        // 'timeout' did not expire before the count attained a positive value,
+        // atomically decrement the count and return 0; otherwise, return a
+        // non-zero value with no effect on the count.
 
     int tryWait();
         // Decrement the count of this semaphore if it is positive and return
@@ -114,34 +161,9 @@ class bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore> {
         // it.
 };
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
-
-           // =====================================================
-           // class bcemt_TimedSemaphoreImpl<PthreadTimedSemaphore>
-           // =====================================================
-
-// CREATORS
-inline
-bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
-                                            bcemt_TimedSemaphoreImpl()
-: d_resources(0)
-, d_waiters(0)
-{
-    pthread_mutex_init(&d_lock, 0);
-    pthread_cond_init(&d_condition, 0);
-}
-
-inline
-bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
-                                            bcemt_TimedSemaphoreImpl(int count)
-: d_resources(count)
-, d_waiters(0)
-{
-    pthread_mutex_init(&d_lock, 0);
-    pthread_cond_init(&d_condition, 0);
-}
+// ============================================================================
 
 }  // close namespace BloombergLP
 
@@ -149,11 +171,11 @@ bcemt_TimedSemaphoreImpl<bces_Platform::PthreadTimedSemaphore>::
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

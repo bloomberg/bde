@@ -8,6 +8,8 @@
 *			_	STL_LDFLAGS	=
 *			_	STL_DEFINES	=
 
+!! unix-SunOS-*-*-*  _ BDE_ENDLDFLAGS = $(BDE_DYNAMIC) -lrt
+
 # BDE_ROOT is defined by bde_build.pl; it is the source root where bde was
 # found, and is the same as ROOT_LOCN in a non-multirooting scenario
 

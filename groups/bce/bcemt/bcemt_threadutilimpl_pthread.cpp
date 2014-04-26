@@ -13,6 +13,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 #ifdef BCES_PLATFORM_POSIX_THREADS
 
 #include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -154,29 +155,6 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 #if defined(BSLS_PLATFORM_OS_DARWIN)
 namespace {
 
-class PthreadMutexGuard {
-    // A guard that unlocks a 'pthread_mutex_t' on its destruction.
-
-    // DATA
-    pthread_mutex_t *d_lock_p;  // guarded pthread mutex
-
-  private:
-    // NOT IMPLEMENTED
-    PthreadMutexGuard(const PthreadMutexGuard&);
-    PthreadMutexGuard operator=(const PthreadMutexGuard&);
-  public:
-
-    // CREATORS
-    explicit PthreadMutexGuard(pthread_mutex_t *lock) : d_lock_p(lock) {}
-
-    ~PthreadMutexGuard()
-    {
-        if (0 != pthread_mutex_unlock(d_lock_p)) {
-            BSLS_ASSERT_OPT(false);
-        }
-    }
-};
-
 class MachClockGuard {
    // A guard that deallocates a Darwin (mach kernel) 'clock_serv_t' on its
    // destruction.
@@ -193,72 +171,14 @@ class MachClockGuard {
     // CREATORS
     explicit MachClockGuard(clock_serv_t clock) : d_clock(clock) {}
 
-    ~MachClockGuard()  
-    { 
-        mach_port_deallocate(mach_task_self(), d_clock); 
+    ~MachClockGuard()
+    {
+        mach_port_deallocate(mach_task_self(), d_clock);
     }
 };
 
 }  // close unnamed namespace
 
-static bdet_TimeInterval getDarwinSystemBootTime()
-    // Return the system-start time as a time interval from the UNIX epoch
-    // time, January 1, 1970
-{
-    // TBD: We currently obtain the system start time (the time basis for the
-    // 'REALTIME_CLOCK' by computing the the difference between the
-    // 'REALTIME_CLOCK' and 'CALENDAR_CLOCK'.  This has the potential to be
-    // inaccurate, but after a day of investigation is the best alternative
-    // I've found.  The one other alternative I tested ('sysctl' to obtain the
-    // 'KERN_BOOTTIME'), was, significantly less accurate:
-    // http://stackoverflow.com/questions/11282897/
-
-    static bsls::AtomicOperations::AtomicTypes::Int64 bootSecs     = { 0 };
-    static bsls::AtomicOperations::AtomicTypes::Int   bootNanoSecs = { 0 };
-
-    if (!bsls::AtomicOperations::getInt64Acquire(&bootSecs)) {
-        static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-        if (0 != pthread_mutex_lock(&mutex)) {
-            BSLS_ASSERT_OPT(false);
-        }
-
-        PthreadMutexGuard guard(&mutex);
-        if (!bsls::AtomicOperations::getInt64Relaxed(&bootSecs)) {
-            clock_serv_t calendarClock, realtimeClock;
-
-            kern_return_t status1 = host_get_clock_service(mach_host_self(),
-                                                           REALTIME_CLOCK,
-                                                           &realtimeClock);
-            MachClockGuard realTimeClockGuard(realtimeClock);
-            kern_return_t status2 = host_get_clock_service(mach_host_self(),
-                                                           CALENDAR_CLOCK,
-                                                           &calendarClock);
-            MachClockGuard calendarClockGuard(calendarClock);
-
-            BSLS_ASSERT_OPT(0 == status1);
-            BSLS_ASSERT_OPT(0 == status2);
-
-            mach_timespec_t nowCalendar;
-            mach_timespec_t nowRealtime;
-
-            clock_get_time(realtimeClock, &nowRealtime);
-            clock_get_time(calendarClock, &nowCalendar);
-            bdet_TimeInterval adjustment =
-                bdet_TimeInterval(nowCalendar.tv_sec, nowCalendar.tv_nsec) -
-                bdet_TimeInterval(nowRealtime.tv_sec, nowRealtime.tv_nsec);
-
-            bsls::AtomicOperations::setIntRelease(&bootNanoSecs,
-                                                  adjustment.nanoseconds());
-            bsls::AtomicOperations::setInt64Release(&bootSecs,
-                                                    adjustment.seconds());
-        }
-    }
-
-    return bdet_TimeInterval(
-        bsls::AtomicOperations::getInt64Relaxed(&bootSecs),
-        bsls::AtomicOperations::getIntRelaxed(&bootNanoSecs));
-}
 #endif  // defined(BSLS_PLATFORM_OS_DARWIN)
 
             // -------------------------------------------------------
@@ -452,8 +372,9 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::microSleep(
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
-                               const bdet_TimeInterval& absoluteTime,
-                               bool                     retryOnSignalInterupt)
+                             const bdet_TimeInterval&    absoluteTime,
+                             bool                        retryOnSignalInterupt,
+                             bdetu_SystemClockType::Enum clockType)
 {
     // ASSERT that the interval is between January 1, 1970 00:00.000 and
     // the end of December 31, 9999 (i.e., less than January 1, 10000).
@@ -486,6 +407,20 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     //: o http://boredzo.org/blog/archives/2006-11-26/how-to-use-mach-clocks/
     //: o Mac OS X Interals: A Systems Approach (On Safari-Online)
 
+    // This implementation is very sensitive to the 'clockType'.  For
+    // safety, we will assert the value is one of the two currently expected
+    // values.
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME ==  clockType ||
+                bdetu_SystemClockType::e_MONOTONIC == clockType);
+
+    bdet_TimeInterval sleepUntilTime(absoluteTime);
+    if (clockType != bdetu_SystemClockType::e_MONOTONIC) {
+        // since we will be operating with the monotonic clock, adjust
+        // the timeout value to make it consistent with the monotonic clock
+        sleepUntilTime += bdetu_SystemTime::nowMonotonicClock()
+                                            - bdetu_SystemTime::now(clockType);
+    }
+
     clock_serv_t clock;
 
     // Unfortunately the 'CALENDAR_CLOCK', which is based on unix-epoch time
@@ -501,16 +436,15 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
         return status;                                                // RETURN
     }
 
-    bdet_TimeInterval systemTime = absoluteTime - getDarwinSystemBootTime();
-
-    if (systemTime <= bdet_TimeInterval()) {
+    if (sleepUntilTime <= bdet_TimeInterval()) {
         return 0;                                                     // RETURN
     }
 
     mach_timespec_t clockTime;
     mach_timespec_t resultTime;
 
-    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, systemTime);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime,
+                                                     sleepUntilTime);
 
     status = clock_sleep(clock, TIME_ABSOLUTE, clockTime, &resultTime);
 
@@ -520,10 +454,15 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     timespec clockTime;
     bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, absoluteTime);
 
+    int pthreadClockType = (clockType == bdetu_SystemClockType::e_MONOTONIC
+                            ? CLOCK_MONOTONIC
+                            : CLOCK_REALTIME);
     int result;
     do {
-        result = clock_nanosleep(CLOCK_REALTIME, TIMER_ABSTIME, &clockTime, 0);
-
+        result = clock_nanosleep(pthreadClockType,
+                                 TIMER_ABSTIME,
+                                 &clockTime,
+                                 0);
     } while (EINTR == result && retryOnSignalInterupt);
 
     // An signal interrupt is not considered an error.
@@ -537,11 +476,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
 
 #endif
 
-// ---------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
-// ----------------------------- END-OF-FILE ---------------------------------
+// ----------------------------- END-OF-FILE ----------------------------------

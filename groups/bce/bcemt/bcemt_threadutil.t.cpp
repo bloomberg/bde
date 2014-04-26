@@ -7,6 +7,7 @@
 #include <bces_platform.h>
 
 #include <bdef_bind.h>
+#include <bdetu_systemclocktype.h>
 #include <bdetu_systemtime.h>
 
 #include <bslma_default.h>
@@ -701,7 +702,9 @@ int main(int argc, char *argv[])
         //: 2 'sleepUntil' does not suspend the current thread (or suspends it
         //:    very briefly), for the current time, or times in the past.
         //:
-        //: 3  QoI: Asserted precondition violations are detected when enabled.
+        //: 3 'sleepUntil' works as expected with the monotonic system clock.
+        //:
+        //: 4  QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Call 'sleepUntil' for a series of values less than a second in
@@ -712,9 +715,12 @@ int main(int argc, char *argv[])
         //:   the function returns to the caller in a reasonably small amount
         //:   of time. (C-2)
         //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //: 3 Repeat these two tests for 'sleepUntil' with the monotonic
+        //:   system clock specified.
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid time-interval values. (using the
-        //:   'BSLS_ASSERTTEST_*' macros (C-3)
+        //:   'BSLS_ASSERTTEST_*' macros) (C-4)
         //
         // Testing:
         //   void sleepUntil(const bdet_TimeInterval& );        
@@ -735,33 +741,60 @@ int main(int argc, char *argv[])
                 cout << "sleepUntil for " << i * 100 << "ms" << endl;
             }
 
-            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
-            
-            expectedTime.addMilliseconds(i * 100);
-            
-            Obj::sleepUntil(expectedTime);
-            
-            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
-            
-            ASSERT(actualTime >= expectedTime);
-            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
-                        (actualTime - expectedTime).totalMilliseconds() < 50);
+            bdet_TimeInterval expectedTime;
+            bdet_TimeInterval actualTime;
+            { 
+                // realtime clock
+                expectedTime = bdetu_SystemTime::now();
+                expectedTime.addMilliseconds(i * 100);
+                Obj::sleepUntil(expectedTime);
+                actualTime = bdetu_SystemTime::now();
+                ASSERT(actualTime >= expectedTime);
+                LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                            (actualTime - expectedTime).totalMilliseconds()
+                                                                         < 50);
+            }
+            { 
+                // monotonic clock
+                expectedTime = bdetu_SystemTime::nowMonotonicClock();
+                expectedTime.addMilliseconds(i * 100);
+                Obj::sleepUntil(expectedTime,
+                                bdetu_SystemClockType::e_MONOTONIC);
+                actualTime = bdetu_SystemTime::nowMonotonicClock();
+
+                // MS clock resolution is 15.6ms, include a fudge factor
+                ASSERT(actualTime >= expectedTime - bdet_TimeInterval(.0156));
+                LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                            (actualTime - expectedTime).totalMilliseconds()
+                                                                         < 50);
+            }
         }
 
         if (veryVerbose) {
             cout << "sleepUntil for times in the past" << endl;
         }
         {
-            bdet_TimeInterval expectedTime = bdetu_SystemTime::now();
-                      
-            Obj::sleepUntil(expectedTime - bdet_TimeInterval(1));
-            
-            bdet_TimeInterval actualTime = bdetu_SystemTime::now();
-            
-            ASSERT(actualTime >= expectedTime);
-            LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
-                        (actualTime - expectedTime).totalMilliseconds() < 50);
-            
+            bdet_TimeInterval expectedTime;
+            bdet_TimeInterval actualTime;
+            { // realtime clock
+                expectedTime = bdetu_SystemTime::now();
+                Obj::sleepUntil(expectedTime - bdet_TimeInterval(1));
+                actualTime = bdetu_SystemTime::now();
+                ASSERT(actualTime >= expectedTime);
+                LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                            (actualTime - expectedTime).totalMilliseconds()
+                                                                         < 50);
+            }
+            { // monotonic clock
+                expectedTime = bdetu_SystemTime::nowMonotonicClock();
+                Obj::sleepUntil(expectedTime - bdet_TimeInterval(1),
+                                bdetu_SystemClockType::e_MONOTONIC);
+                actualTime = bdetu_SystemTime::nowMonotonicClock();
+                ASSERT(actualTime >= expectedTime);
+                LOOP_ASSERT((actualTime - expectedTime).totalMilliseconds(),
+                            (actualTime - expectedTime).totalMilliseconds()
+                                                                         < 50);
+            }
         }
         if (verbose) { 
             cout << "Negative Testing." << endl;

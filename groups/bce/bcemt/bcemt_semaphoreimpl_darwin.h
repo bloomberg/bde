@@ -1,4 +1,4 @@
-// bcemt_semaphoreimpl_darwin.h                                        -*-C++-*-
+// bcemt_semaphoreimpl_darwin.h                                       -*-C++-*-
 #ifndef INCLUDED_BCEMT_SEMAPHOREIMPL_DARWIN
 #define INCLUDED_BCEMT_SEMAPHOREIMPL_DARWIN
 

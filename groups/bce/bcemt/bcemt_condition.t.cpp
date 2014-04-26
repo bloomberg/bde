@@ -79,18 +79,51 @@ int main(int argc, char *argv[])
         // returns in roughly the right amount of time.
         // --------------------------------------------------------------------
       case 1: {
-          if (verbose) {
-              cout << "basic forwarding test" << endl;
-          }
-          Obj x;
-          bcemt_Mutex lock;
+          if (verbose) cout << "Basic forwarding test" << endl
+                            << "=====================" << endl;
 
-          lock.lock();
-          bsls::Stopwatch timer;
-          timer.start();
-          x.timedWait(&lock, bdetu_SystemTime::now() + 2);
-          ASSERT(bdeimp_Fuzzy::eq(timer.elapsedTime(), 2.0, -1, 0.1));
-          lock.unlock();
+          {
+              Obj x;
+              bcemt_Mutex lock;
+
+              lock.lock();
+              bsls::Stopwatch timer;
+              timer.start();
+              x.timedWait(&lock, bdetu_SystemTime::now() + 2);
+              ASSERT(bdeimp_Fuzzy::eq(timer.elapsedTime(), 2.0, -1, 0.1));
+              lock.unlock();
+          }
+
+          if (verbose) cout << "Test condition with realtime clock" << endl
+                            << "==================================" << endl;
+
+          {
+              Obj x(bdetu_SystemClockType::e_REALTIME);
+              bcemt_Mutex lock;
+
+              lock.lock();
+              bsls::Stopwatch timer;
+              timer.start();
+              x.timedWait(&lock, bdetu_SystemTime::nowRealtimeClock() + 2);
+              ASSERT(bdeimp_Fuzzy::eq(timer.elapsedTime(), 2.0, -1, 0.1));
+              lock.unlock();
+          }
+
+
+          if (verbose) cout << "Test condition with monotonic clock" << endl
+                            << "===================================" << endl;
+
+          {
+              Obj x(bdetu_SystemClockType::e_MONOTONIC);
+              bcemt_Mutex lock;
+
+              lock.lock();
+              bsls::Stopwatch timer;
+              timer.start();
+              x.timedWait(&lock, bdetu_SystemTime::nowMonotonicClock() + 2);
+              ASSERT(bdeimp_Fuzzy::eq(timer.elapsedTime(), 2.0, -1, 0.1));
+              lock.unlock();
+          }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -107,7 +140,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
+//      Copyright (C) Bloomberg L.P., 2014
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

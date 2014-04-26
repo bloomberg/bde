@@ -24,6 +24,19 @@ BDES_IDENT("$Id: $")
 // This template class should not be used (directly) by client code.  Clients
 // should instead use 'bcemt_ThreadUtil'.
 //
+///Supported Clock-Types
+///-------------------------
+// The component 'bdetu_SystemClockType' supplies the enumeration indicating
+// the system clock on which timeouts supplied to other methods should be
+// based.  If the clock type indicated at construction is
+// 'bdetu_SystemClockType::e_REALTIME', the timeout should be expressed as an
+// absolute offset since 00:00:00 UTC, January 1, 1970 (which matches the epoch
+// used in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_REALTIME)'.  If the
+// clock type indicated at construction is
+// 'bdetu_SystemClockType::e_MONOTONIC', the timeout should be expressed as an
+// absolute offset since the epoch of this clock (which matches the epoch used
+// in 'bdetu_SystemTime::now(bdetu_SystemClockType::e_MONOTONIC)'.
+//
 ///Usage
 ///-----
 // This component is an implementation detail of 'bcemt' and is *not* intended
@@ -58,10 +71,13 @@ BDES_IDENT("$Id: $")
 #include <bdet_timeinterval.h>
 #endif
 
+#ifndef INCLUDED_BDETU_SYSTEMCLOCKTYPE
+#include <bdetu_systemclocktype.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
-
 
 typedef unsigned long DWORD;
 typedef int BOOL;
@@ -223,16 +239,19 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // including system scheduling, and system timer resolution.  On the
         // win32 platform the sleep timer has a resolution of 1 millisecond.
 
-    static int sleepUntil(const bdet_TimeInterval& absoluteTime);
+    static int sleepUntil(const bdet_TimeInterval&    absoluteTime,
+                          bdetu_SystemClockType::Enum clockType
+                                          = bdetu_SystemClockType::e_REALTIME);
         // Suspend execution of the current thread until the specified
-        // 'absoluteTime' (expressed as the !ABSOLUTE! time from 00:00:00 UTC,
-        // January 1, 1970).  Return 0 on success, and a non-zero value
-        // otherwise.  The behavior is undefined unless 'absoluteTime'
-        // represents a time after January 1, 1970 and before the end of
-        // December 31, 9999 (i.e., a time interval greater than or equal to
-        // 0, and less than 253,402,300,800 seconds).  Note that the actual
-        // time suspended depends on many factors including system scheduling
-        // and system timer resolution.
+        // 'absoluteTime'.  Optionally specify 'clockType' which determines the
+        // epoch from which the interval 'absoluteTime' is measured (see
+        // {'Supported Clock-Types'} in the component documentation).  Return 0
+        // on success, and a non-zero value otherwise.  The behavior is
+        // undefined unless 'absoluteTime' represents a time after January 1,
+        // 1970 and before the end of December 31, 9999 (i.e., a time interval
+        // greater than or equal to 0, and less than 253,402,300,800 seconds).
+        // Note that the actual time suspended depends on many factors
+        // including system scheduling and system timer resolution.
 
     static void exit(void *status);
         // Exit the current thread and return the specified 'status'.  If

@@ -11,6 +11,9 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bcemt_configuration.h>
 #include <bcemt_threadattributes.h>
 
+#include <bdetu_systemclocktype.h>
+#include <bdetu_systemtime.h>
+
 #include <bsls_assert.h>
 #include <bsls_types.h>
 
@@ -530,7 +533,8 @@ bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
 }
 
 int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
-                                         const bdet_TimeInterval& absoluteTime)
+                                      const bdet_TimeInterval&    absoluteTime,
+                                      bdetu_SystemClockType::Enum clockType)
 {
     // ASSERT that the interval is between January 1, 1970 00:00.000 and
     // the end of December 31, 9999 (i.e., less than January 1, 10000).
@@ -538,38 +542,64 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::sleepUntil(
     BSLS_ASSERT(absoluteTime >= bdet_TimeInterval(0, 0));
     BSLS_ASSERT(absoluteTime <  bdet_TimeInterval(253402300800LL, 0));
 
-    HANDLE timer = CreateWaitableTimer(0, false, 0);
-    if (0 == timer) {
-        return GetLastError();                                        // RETURN
+    // This implementation is very sensitive to the 'clockType'.  For
+    // safety, we will assert the value is one of the two currently expected
+    // values.
+    BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME ==  clockType ||
+                bdetu_SystemClockType::e_MONOTONIC == clockType);
+
+    if (clockType == bdetu_SystemClockType::e_REALTIME) {
+
+        HANDLE timer = CreateWaitableTimer(0, false, 0);
+        if (0 == timer) {
+            return GetLastError();                                    // RETURN
+        }
+        HandleGuard guard(timer);
+
+        LARGE_INTEGER clockTime;
+
+        // As indicated in the documentation for 'SetWaitableTimer':
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
+        // A positive value represents an absolute time in increments of 100
+        // nanoseconds.  Critically though, Microsoft's epoch is different
+        // for epoch used by the C run-time (and BDE).  BDE uses January 1,
+        // 1970, Microsoft uses January 1, 1601, see:
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
+        // The following page on converting a 'time_t' to a 'FILETIME' shows
+        // the constant, 116444736000000000 in 100ns (or 11643609600 seconds)
+        // needed to convert between the two epochs:
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
+
+        enum { HUNDRED_NANOSECS_PER_SEC = 10 * 1000 * 1000 };  // 10 million
+        clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
+                           + absoluteTime.nanoseconds() / 100
+                           + 116444736000000000LL;
+
+        if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
+            return GetLastError();                                    // RETURN
+        }
+
+        if (WAIT_OBJECT_0 != WaitForSingleObject(timer, INFINITE)) {
+            return GetLastError();                                    // RETURN
+        }
     }
-    HandleGuard guard(timer);
+    else { // montonic clock
+        // The windows system function 'WaitForSingleObject' (which is used
+        // here to implement 'sleepUntil') is based on a real-time clock. If a
+        // client supplies a monotonic clock time, rather than convert that
+        // monotonic time to a time relative to the real-time clock (which
+        // would introduce errors), we instead determine a sleep interval
+        // relative to the monotonic clock and 'sleep' for that period (this
+        // may also introduce errors, but potentially fewer because the period
+        // over which a change in the system clock will impact the result will
+        // be smaller).
 
-    LARGE_INTEGER clockTime;
+        bdet_TimeInterval relativeTime =
+                          absoluteTime - bdetu_SystemTime::nowMonotonicClock();
+        if (relativeTime > bdet_TimeInterval(0, 0)) sleep(relativeTime);
 
-    // As indicated in the documentation for 'SetWaitableTimer':
-    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms686289
-    // A positive value represents an absolute time in increments of 100
-    // nanoseconds.  Critically though, Microsoft's epoch is different
-    // for epoch used by the C run-time (and BDE).  BDE uses January 1, 1970,
-    // Microsoft uses January 1, 1601, see:
-    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724186
-    // The following page on converting a 'time_t' to a 'FILETIME' shows the
-    // constant, 116444736000000000 in 100ns (or 11643609600 seconds) needed
-    // to convert between the two epochs:
-    // http://msdn.microsoft.com/en-us/library/windows/desktop/ms724228
-
-    enum { HUNDRED_NANOSECS_PER_SEC = 10 * 1000 * 1000 };  // 10 million
-    clockTime.QuadPart = absoluteTime.seconds() * HUNDRED_NANOSECS_PER_SEC
-                       + absoluteTime.nanoseconds() / 100
-                       + 116444736000000000LL;
-
-    if (!SetWaitableTimer(timer, &clockTime , 0, 0, 0, 0)) {
-        return GetLastError();                                        // RETURN
     }
 
-    if (WAIT_OBJECT_0 != WaitForSingleObject(timer, INFINITE)) {
-        return GetLastError();                                        // RETURN
-    }
     return 0;
 }
 

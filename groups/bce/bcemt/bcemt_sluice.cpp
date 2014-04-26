@@ -21,10 +21,11 @@ namespace BloombergLP {
                    // ----------------------------------------
 
 // CREATORS
-bcemt_Sluice::GenerationDescriptor::GenerationDescriptor()
+bcemt_Sluice::GenerationDescriptor::GenerationDescriptor(
+                                         bdetu_SystemClockType::Enum clockType)
 : d_numThreads(0)
 , d_numSignaled(0)
-, d_sema(0)
+, d_sema(0, clockType)
 , d_next(0)
 {
 }
@@ -38,6 +39,17 @@ bcemt_Sluice::bcemt_Sluice(bslma::Allocator *basicAllocator)
 : d_signaledGeneration(0)
 , d_pendingGeneration(0)
 , d_descriptorPool(0)
+, d_clockType(bdetu_SystemClockType::e_REALTIME)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+bcemt_Sluice::bcemt_Sluice(bdetu_SystemClockType::Enum  clockType,
+                           bslma::Allocator            *basicAllocator)
+: d_signaledGeneration(0)
+, d_pendingGeneration(0)
+, d_descriptorPool(0)
+, d_clockType(clockType)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
@@ -73,7 +85,7 @@ const void *bcemt_Sluice::enter()
         }
         else {
             // The pool is empty.  Allocate a new descriptor.
-            g = new (*d_allocator_p) GenerationDescriptor;
+            g = new (*d_allocator_p) GenerationDescriptor(d_clockType);
         }
 
         d_pendingGeneration = g;
@@ -161,32 +173,6 @@ int bcemt_Sluice::timedWait(const void               *token,
     }
 }
 
-void bcemt_Sluice::signalOne()
-{
-    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
-
-    GenerationDescriptor *g = d_signaledGeneration;
-    if (0 == g) {
-        g = d_pendingGeneration;
-        if (0 == g) {
-            // There are no threads to signal.  We are done.
-            return;
-        }
-        d_signaledGeneration = g;
-        d_pendingGeneration  = 0;
-    }
-
-    const int numThreads  = g->d_numThreads;
-    const int numSignaled = ++g->d_numSignaled;
-
-    if (numThreads == numSignaled) {
-        d_signaledGeneration = 0;
-    }
-
-    lock.release()->unlock();
-    g->d_sema.post();
-}
-
 void bcemt_Sluice::signalAll()
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
@@ -220,6 +206,32 @@ void bcemt_Sluice::signalAll()
     if (p) {
         p->d_sema.post(pcount);
     }
+}
+
+void bcemt_Sluice::signalOne()
+{
+    bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
+    GenerationDescriptor *g = d_signaledGeneration;
+    if (0 == g) {
+        g = d_pendingGeneration;
+        if (0 == g) {
+            // There are no threads to signal.  We are done.
+            return;
+        }
+        d_signaledGeneration = g;
+        d_pendingGeneration  = 0;
+    }
+
+    const int numThreads  = g->d_numThreads;
+    const int numSignaled = ++g->d_numSignaled;
+
+    if (numThreads == numSignaled) {
+        d_signaledGeneration = 0;
+    }
+
+    lock.release()->unlock();
+    g->d_sema.post();
 }
 
 }  // close namespace BloombergLP
