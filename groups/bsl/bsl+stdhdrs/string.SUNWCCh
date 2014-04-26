@@ -49,7 +49,19 @@ BSLS_IDENT("$Id: $")
 #   ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #   ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
         // Permit reliance on transitive includes within robo.
+
+    // This include causes cycles in C++11 mode with gcc.
+#   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
+#   include <cctype>
+#   endif
+
 #   include <limits>
+
+    // This include causes cycles in C++11 mode with gcc.
+#   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
+#   include <functional>
+#   endif
+
 #   endif
 #   endif // BDE_OMIT_INTERNAL_DEPRECATED
 
