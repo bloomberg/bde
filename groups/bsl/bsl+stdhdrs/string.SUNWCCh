@@ -51,14 +51,14 @@ BSLS_IDENT("$Id: $")
         // Permit reliance on transitive includes within robo.
 
     // This include causes cycles in C++11 mode with gcc.
-#   ifndef BDE_BUILD_TARGET_CPP11
+#   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
 #   include <cctype>
 #   endif
 
 #   include <limits>
 
     // This include causes cycles in C++11 mode with gcc.
-#   ifndef BDE_BUILD_TARGET_CPP11
+#   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
 #   include <functional>
 #   endif
 
