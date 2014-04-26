@@ -392,7 +392,7 @@ class IntQueue {
 
     public:
     // CREATORS
-    explicit IntQueue(bslma_Allocator *basicAllocator = 0);
+    explicit IntQueue(bslma::Allocator *basicAllocator = 0);
         // Create a new 'IntQueue' object.
 
     ~IntQueue();
@@ -406,7 +406,7 @@ class IntQueue {
         // Push the specified 'number' to the queue.
 };
 
-IntQueue::IntQueue(bslma_Allocator *basicAllocator)
+IntQueue::IntQueue(bslma::Allocator *basicAllocator)
 : d_queue(basicAllocator)
 , d_mutexSem(0)
 , d_resourceSem(0)
@@ -883,7 +883,7 @@ int main(int argc, char *argv[]) {
                                      (void*)(producerData+i));
         }
         for(int j=0; j<samples; j++) {
-            bsls::Types::Int64 timeStart = bsls_TimeUtil::getTimer();
+            bsls::Types::Int64 timeStart = bsls::TimeUtil::getTimer();
             bsls::Types::Int64 timeStartCPU = ::clock();
             int* consumerCount = new int[numConsumers];
             for(int i=0; i<numConsumers; i++) {
@@ -898,7 +898,7 @@ int main(int argc, char *argv[]) {
                     totalMessages += (consumerData[i].count-consumerCount[i]);
                 }
                 bsls::Types::Int64 elapsed_us =
-                                    (bsls_TimeUtil::getTimer()-timeStart)/1000;
+                                    (bsls::TimeUtil::getTimer()-timeStart)/1000;
                 bsls::Types::Int64 elapsed_usCPU = ::clock()-timeStartCPU;
                 throughput = (totalMessages*1000000/elapsed_us);
                 throughputCPU = (totalMessages*1000000/elapsed_usCPU);

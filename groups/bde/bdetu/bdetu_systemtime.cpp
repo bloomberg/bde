@@ -48,18 +48,18 @@ bdetu_SystemTime::s_loadLocalTimeOffsetCallback_p =
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
 
+typedef bsls::AtomicOperations::AtomicTypes::Int AtomicOpInt;
+
 static const int k_UNINITIALIZED_CLOCK = 0;
-static bsls::AtomicOperations::AtomicTypes::Int g_calendarClock =
-                                                     { k_UNINITIALIZED_CLOCK };
-static bsls::AtomicOperations::AtomicTypes::Int g_realtimeClock =
-                                                     { k_UNINITIALIZED_CLOCK };
+static AtomicOpInt g_calendarClock = { k_UNINITIALIZED_CLOCK };
+static AtomicOpInt g_realtimeClock = { k_UNINITIALIZED_CLOCK };
 
 class MachClockGuard {
     // A guard that deallocates a Darwin (mach kernel) 'clock_serv_t' on its
     // destruction.
 
     // DATA
-    bsls::AtomicOperations::AtomicTypes::Int *d_clock_p;  // clock identifier
+    AtomicOpInt *d_clock_p;  // clock identifier
 
   private:
     // NOT IMPLEMENTED
@@ -68,12 +68,13 @@ class MachClockGuard {
   public:
 
     // CREATORS
-    explicit MachClockGuard(bsls::AtomicOperations::AtomicTypes::Int *clock)
+    explicit MachClockGuard(AtomicOpInt *clock)
         : d_clock_p(clock) {}
 
     ~MachClockGuard()  
     {
-        int clock = d_clock_p->swap(k_UNINITIALIZED_CLOCK);
+        int clock = bsls::AtomicOperations::swapInt(d_clock_p, 
+                                                    k_UNINITIALIZED_CLOCK);
         if (clock != k_UNINITIALIZED_CLOCK) {
             mach_port_deallocate(mach_task_self(),
                                  static_cast<clock_serv_t>(clock));
@@ -82,8 +83,7 @@ class MachClockGuard {
 };
 
 static
-clock_serv_t getClockService(clock_id_t       clockId,
-                             bsls::AtomicInt& atomicClockStore)
+clock_serv_t getClockService(clock_id_t clockId, AtomicOpInt *atomicClockStore)
     // Return a MACH clock service handle for the specified 'clockId'.  Use the
     // specified 'atomicClockStore' for single-time initialization of the
     // clock service handle.
@@ -93,7 +93,9 @@ clock_serv_t getClockService(clock_id_t       clockId,
     // One-time initialization (note: the sucessfully initialized clock service
     // is released at the task's destruction).
 
-    if (k_UNINITIALIZED_CLOCK == atomicClockStore.loadAcquire()) {
+    typedef bsls::AtomicOperations AtomicOp;
+
+    if (k_UNINITIALIZED_CLOCK == AtomicOp::getIntAcquire(atomicClockStore)) {
         static MachClockGuard s_calendarClockGuard(&g_calendarClock);
         static MachClockGuard s_realtimeClockGuard(&g_realtimeClock);
 
@@ -103,8 +105,9 @@ clock_serv_t getClockService(clock_id_t       clockId,
                                                   &clockServ);
         (void) rc; BSLS_ASSERT_OPT(KERN_SUCCESS == rc);
 
-        if (atomicClockStore.testAndSwap(k_UNINITIALIZED_CLOCK,
-                                         static_cast<int>(clockServ))
+        if (AtomicOp::testAndSwapInt(atomicClockStore, 
+                                     k_UNINITIALIZED_CLOCK,
+                                     static_cast<int>(clockServ))
             != k_UNINITIALIZED_CLOCK)
         {
             // atomicClockStore was already initialized by another thread,
@@ -115,12 +118,12 @@ clock_serv_t getClockService(clock_id_t       clockId,
         }
     }
 
-    return static_cast<clock_serv_t>(atomicClockStore.loadRelaxed());
+    return static_cast<clock_serv_t>(AtomicOp::getIntRelaxed(atomicClockStore));
 }
 
 static inline
-bdet_TimeInterval getNowTime(clock_id_t       clockId,
-                             bsls::AtomicInt& atomicClockStore)
+bdet_TimeInterval getNowTime(clock_id_t   clockId,
+                             AtomicOpInt *atomicClockStore)
     // Return the current time for the specified 'clockId' using the specified
     // 'atomicClockStore' as a storage for an appropriate MACH clock service
     // handle.
@@ -134,13 +137,13 @@ bdet_TimeInterval getNowTime(clock_id_t       clockId,
 bdet_TimeInterval bdetu_SystemTime::nowRealtimeClock()
     // Return the current time for the realtime clock.
 {
-    return getNowTime(CALENDAR_CLOCK, g_calendarClock);
+    return getNowTime(CALENDAR_CLOCK, &g_calendarClock);
 }
 
 bdet_TimeInterval bdetu_SystemTime::nowMonotonicClock()
     // Return the current time for the monotonic clock.
 {
-    return getNowTime(REALTIME_CLOCK, g_realtimeClock);
+    return getNowTime(REALTIME_CLOCK, &g_realtimeClock);
 }
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)

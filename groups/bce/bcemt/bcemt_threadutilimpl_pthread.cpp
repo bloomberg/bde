@@ -13,6 +13,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 #ifdef BCES_PLATFORM_POSIX_THREADS
 
 #include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
@@ -412,10 +413,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
     BSLS_ASSERT(bdetu_SystemClockType::e_REALTIME ==  clockType ||
                 bdetu_SystemClockType::e_MONOTONIC == clockType);
 
+    bdet_TimeInterval sleepUntilTime(absoluteTime);
     if (clockType != bdetu_SystemClockType::e_MONOTONIC) {
         // since we will be operating with the monotonic clock, adjust
         // the timeout value to make it consistent with the monotonic clock
-        absoluteTime += bdetu_SystemTime::nowMonotonicClock()
+        sleepUntilTime += bdetu_SystemTime::nowMonotonicClock()
                                             - bdetu_SystemTime::now(clockType);
     }
 
@@ -434,14 +436,15 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::sleepUntil(
         return status;                                                // RETURN
     }
 
-    if (absoluteTime <= bdet_TimeInterval()) {
+    if (sleepUntilTime <= bdet_TimeInterval()) {
         return 0;                                                     // RETURN
     }
 
     mach_timespec_t clockTime;
     mach_timespec_t resultTime;
 
-    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, absoluteTime);
+    bcemt_SaturatedTimeConversionImpUtil::toTimeSpec(&clockTime, 
+                                                     sleepUntilTime);
 
     status = clock_sleep(clock, TIME_ABSOLUTE, clockTime, &resultTime);
 
