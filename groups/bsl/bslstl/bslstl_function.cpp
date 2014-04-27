@@ -120,6 +120,12 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
       case e_GET_TARGET:   return rep->d_allocator_p;
       case e_GET_TYPE_ID:  return &typeid(bslma::Allocator);
 
+      case e_IS_EQUAL: {
+        const bslma::Allocator *inputAlloc =
+            static_cast<const bslma::Allocator *>(input.asPtr());
+        return inputAlloc == rep->d_allocator_p;
+      } break;
+
       case e_INIT_REP: {
           bslma::Allocator *inputAlloc = static_cast<bslma::Allocator *>(
               const_cast<void *>(input.asPtr()));
@@ -205,6 +211,10 @@ bsl::Function_Rep::~Function_Rep()
 
 void bsl::Function_Rep::swap(Function_Rep& other) BSLS_NOTHROW_SPEC
 {
+    // Swap will fail if allocators are not compatible
+    BSLS_ASSERT(d_allocManager_p(e_IS_EQUAL, this,
+                                 other.d_allocator_p).asSize_t());
+
     bsls::ObjectBuffer<Function_Rep> temp;
     destructiveMove(&temp.object(), &other);
     destructiveMove(&other, this);

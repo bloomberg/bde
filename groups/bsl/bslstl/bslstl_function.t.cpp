@@ -407,6 +407,8 @@ class SmallFunctor
 
     int d_value;  // Arbitrary state to distinguish one instance from another
 
+    enum { k_MOVED_FROM_VAL = 0x100000 };
+
 public:
     // BITWISE MOVEABLE
     BSLMF_NESTED_TRAIT_DECLARATION(SmallFunctor, bslmf::IsBitwiseMoveable);
@@ -420,7 +422,7 @@ public:
     // Move-constructor deliberately modifies 'other'.
     // This move constructor is not called in nothrow settings.
     SmallFunctor(SmallFunctor&& other) : d_value(other.d_value)
-        { decrementMoveLimit(); other.d_value += 0x100000; }
+        { decrementMoveLimit(); other.d_value = k_MOVED_FROM_VAL; }
 #endif
 
     ~SmallFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
@@ -1623,8 +1625,6 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
 template <class SOURCE_ALLOC, class FUNC>
 void testMoveCtor(FUNC func, const char *sourceAllocName)
 {
-    typedef bsl::function<int(IntWrapper,int)> Obj;
-
     // Test normal move constructor.
     testMoveCtorWithSameAlloc<SOURCE_ALLOC>(func, false, sourceAllocName);
 
@@ -1767,6 +1767,14 @@ void testAssignment(const Obj& inA,
     ALLOC_B allocB1(&testAlloc1);
     ALLOC_B allocB2(&testAlloc2);
 
+    // Construct a 'function' object wrapping the same type as 'inB' in a
+    // moved-from state.
+    Obj movedFromB(bsl::allocator_arg, &testAlloc2, inB);
+    {
+        Obj movedToFunc(std::move(movedFromB));
+        ASSERT(areEqualB_p(movedToFunc, inB));
+    }
+
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
     bslma::TestAllocatorMonitor testAlloc1Monitor(&testAlloc1);
     bslma::TestAllocatorMonitor testAlloc2Monitor(&testAlloc2);
@@ -1775,11 +1783,10 @@ void testAssignment(const Obj& inA,
     {
         // Make copies of inA and inB.
         bsls::Types::Int64 preA1Bytes = testAlloc1.numBytesInUse();
-        Obj a( bsl::allocator_arg, allocA1, inA);
+        Obj a(bsl::allocator_arg, allocA1, inA);
         bsls::Types::Int64 aBytesBefore =
             testAlloc1.numBytesInUse() - preA1Bytes;
-        bsls::Types::Int64 preB2Bytes = testAlloc2.numBytesInUse();
-        Obj b( bsl::allocator_arg, allocB2, inB);
+        Obj b(bsl::allocator_arg, allocB2, inB);
 
         // 'exp' should look like 'a' after the assignment
         preA1Bytes = testAlloc1.numBytesInUse();
@@ -1787,7 +1794,7 @@ void testAssignment(const Obj& inA,
         bsls::Types::Int64 expBytes = testAlloc1.numBytesInUse() - preA1Bytes;
 
         preA1Bytes = testAlloc1.numBytesInUse();
-        preB2Bytes = testAlloc2.numBytesInUse();
+        bsls::Types::Int64 preB2Bytes = testAlloc2.numBytesInUse();
         bsls::Types::Int64 preB2Total = testAlloc2.numBytesTotal();
         a = b;  ///////// COPY ASSIGNMENT //////////
         bsls::Types::Int64 postA1Bytes = testAlloc1.numBytesInUse();
@@ -1830,7 +1837,6 @@ void testAssignment(const Obj& inA,
         Obj a( bsl::allocator_arg, allocA1, inA);
         bsls::Types::Int64 aBytesBefore =
             testAlloc1.numBytesInUse() - preA1Bytes;
-        bsls::Types::Int64 preB2Bytes = testAlloc2.numBytesInUse();
         Obj b( bsl::allocator_arg, allocB2, inB);
 
         // 'exp' should look like 'a' after the assignment
@@ -1839,14 +1845,16 @@ void testAssignment(const Obj& inA,
         bsls::Types::Int64 expBytes = testAlloc1.numBytesInUse() - preA1Bytes;
 
         preA1Bytes = testAlloc1.numBytesInUse();
-        preB2Bytes = testAlloc2.numBytesInUse();
+        bsls::Types::Int64 preB2Bytes = testAlloc2.numBytesInUse();
         bsls::Types::Int64 preB2Total = testAlloc2.numBytesTotal();
         a = std::move(b);  ///////// MOVE ASSIGNMENT //////////
         bsls::Types::Int64 postA1Bytes = testAlloc1.numBytesInUse();
         bsls::Types::Int64 postB2Bytes = testAlloc2.numBytesInUse();
         bsls::Types::Int64 postB2Total = testAlloc2.numBytesTotal();
         LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
-//        LOOP2_ASSERT(lineA, lineB, areEqualB_p(b, inB)); // b is unchanged
+        // 'b' should be either in the moved-from state or unchanged.
+        LOOP2_ASSERT(lineA, lineB, (areEqualB_p(b, movedFromB) ||
+                                    areEqualB_p(b, inB)));
         LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
                                                                a.allocator()));
         LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_B>::areEqualAlloc(allocB2,
@@ -1860,9 +1868,6 @@ void testAssignment(const Obj& inA,
         LOOP2_ASSERT(lineA, lineB, postB2Total == preB2Total);
         if (a) {
             LOOP2_ASSERT(lineA, lineB, a(1, 2) == exp(1, 2));
-        }
-        if (b) {
-            LOOP2_ASSERT(lineA, lineB, b(1, 2) == inB(1, 2));
         }
     }
     LOOP2_ASSERT(lineA, lineB, globalAllocMonitor.isInUseSame());
@@ -1879,40 +1884,36 @@ void testAssignment(const Obj& inA,
     if (areEqualAlloc(allocA1, allocB1))
     {
         // Make copies of inA and inB.
-        bsls::Types::Int64 preA1Bytes = testAlloc1.numBytesInUse();
         Obj a( bsl::allocator_arg, allocA1, inA);
-        bsls::Types::Int64 aBytesBefore =
-            testAlloc1.numBytesInUse() - preA1Bytes;
         Obj b( bsl::allocator_arg, allocB1, inB);
 
-        // 'exp' should look like 'a' after the assignment
-        Obj exp(bsl::allocator_arg, allocA1, inB);
+        // // 'exp' should look like 'a' after the assignment
+        // Obj exp(bsl::allocator_arg, allocA1, inB);
 
-        preA1Bytes = testAlloc1.numBytesInUse();
-        Obj emptyObj(bsl::allocator_arg, allocA1);
-        bsls::Types::Int64 emptyBytes =
-            testAlloc1.numBytesInUse() - preA1Bytes;
+        // preA1Bytes = testAlloc1.numBytesInUse();
+        // Obj emptyObj(bsl::allocator_arg, allocA1);
+        // bsls::Types::Int64 emptyBytes =
+        //     testAlloc1.numBytesInUse() - preA1Bytes;
 
-        preA1Bytes = testAlloc1.numBytesInUse();
+        // Move assigment with equal allocators is the same as swap
+        bsls::Types::Int64 preA1Bytes = testAlloc1.numBytesInUse();
         bsls::Types::Int64 preA1Total = testAlloc1.numBytesTotal();
         a = std::move(b);  ///////// move ASSIGNMENT //////////
         bsls::Types::Int64 postA1Bytes = testAlloc1.numBytesInUse();
         bsls::Types::Int64 postA1Total = testAlloc1.numBytesTotal();
         LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
-//        LOOP2_ASSERT(lineA, lineB, !b); // b is has become empty
         LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
                                                                a.allocator()));
         LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
                                                                b.allocator()));
-        // Verify that memory allocator change in the allocator is the same as
-        // destroying a.
-        LOOP2_ASSERT(lineA, lineB,
-                     postA1Bytes == preA1Bytes - aBytesBefore + emptyBytes);
-        if (!b) {
-            LOOP2_ASSERT(lineA, lineB, postA1Total == preA1Total);
-        }
+        // Verify that no memory was allocated or deallocated.
+        LOOP2_ASSERT(lineA, lineB, postA1Bytes == preA1Bytes);
+        LOOP2_ASSERT(lineA, lineB, postA1Total == preA1Total);
         if (a) {
-            LOOP2_ASSERT(lineA, lineB, a(1, 2) == exp(1, 2));
+            LOOP2_ASSERT(lineA, lineB, a(1, 2) == inB(1, 2));
+        }
+        if (b) {
+            LOOP2_ASSERT(lineA, lineB, b(1, 2) == inA(1, 2));
         }
     }
     LOOP2_ASSERT(lineA, lineB, globalAllocMonitor.isInUseSame());

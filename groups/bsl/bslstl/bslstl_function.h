@@ -300,8 +300,19 @@ class Function_Rep {
       , e_GET_TYPE_ID
             // Return a pointer to the 'type_info' for the object in 'rep'.
 
+      , e_IS_EQUAL
+            // (Allocator manager only) Return whether the allocator stored in
+            // '*rep' is equal to the allocator stored in 'input', where
+            // 'input' is the 'd_allocator_p' member of another 'FunctionRep'
+            // object.  For 'STL-style' allocators, the allocators will be
+            // considered equal only if 'rep->d_allocator_p' and 'input' both
+            // point to 'bslma::AllocatorAdaptor' objects of the same type
+            // wrapping allocators that compare equal.  For all other
+            // allocators types, the allocators are considered equal only if
+            // 'rep->d_allocator_p' is equal to the pointer stored in 'input'.
+
       , e_INIT_REP
-            // (Allocator manager only) initialize 'rep' using the 'input'
+            // (Allocator manager only) Initialize 'rep' using the 'input'
             // allocator.  Requires that 'input' point to an object of the
             // manager's 'ALLOC' type and that 'rep->d_funcManager_p' is
             // already set.
@@ -1045,6 +1056,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       case e_GET_TARGET:   return wrappedFunc_p;
       case e_GET_TYPE_ID:  return &typeid(FUNC);
 
+      case e_IS_EQUAL:
       case e_INIT_REP: {
           BSLS_ASSERT(0 && "Opcode not implemented for function manager");
       } break;
@@ -1110,6 +1122,16 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
 
       case e_GET_TARGET:  return rep->d_allocator_p;
       case e_GET_TYPE_ID: return &typeid(Adaptor);
+
+      case e_IS_EQUAL: {
+        const bslma::Allocator *inputAlloc =
+            static_cast<const bslma::Allocator *>(input.asPtr());
+        const Adaptor *inputAdaptor = dynamic_cast<const Adaptor*>(inputAlloc);
+        Adaptor *thisAdaptor = static_cast<Adaptor*>(rep->d_allocator_p);
+        return inputAdaptor ?
+            inputAdaptor->adaptedAllocator() == thisAdaptor->adaptedAllocator()
+            : false;
+      } break;
 
       case e_INIT_REP: {
         const bslma::Allocator *inputAlloc =
@@ -1297,8 +1319,6 @@ void bsl::Function_Rep::copyRep(const Function_Rep&                   other,
                                 const ALLOC&                          alloc,
                                 integral_constant<AllocCategory, ATP> atp)
 {
-    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
-
     // Compute function size.
     std::size_t sooFuncSize =
         other.d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t();
@@ -1656,6 +1676,7 @@ inline
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(function& rhs)
 {
+    // Delegate to the const version
     return operator=(const_cast<const function&>(rhs));
 }
 
@@ -1663,6 +1684,12 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(function&& rhs)
 {
+    if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
+        // Equal allocators.  Just swap.
+        rhs.swap(*this);
+        return *this;
+    }
+
     function temp;
 
     temp.d_funcManager_p = rhs.d_funcManager_p;
@@ -1671,7 +1698,7 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
     // Initialize temp using allocator from 'this'
     this->d_allocManager_p(e_INIT_REP, &temp, this->d_allocator_p);
 
-    // Copy function into initialized temp.
+    // Move function into initialized temp.
     if (temp.d_funcManager_p) {
         PtrOrSize_t source = rhs.d_funcManager_p(e_GET_TARGET,
                                                  const_cast<function*>(&rhs),
@@ -1679,7 +1706,7 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
         temp.d_funcManager_p(e_MOVE_CONSTRUCT, &temp, source);
     }
 
-    // If successful (no exceptions thrown) 'temp' swap into '*this'.
+    // If successful (no exceptions thrown) swap 'temp' into '*this'.
     temp.swap(*this);
 
     return *this;
