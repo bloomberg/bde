@@ -237,6 +237,11 @@ class baejsn_Tokenizer {
     ContextType                          d_context;              // context
                                                                  // type
 
+    bool                                 d_allowStandAloneValues;// option for
+                                                                 // allowing
+                                                                 // stand alone
+                                                                 // values
+
     // PRIVATE MANIPULATORS
     int extractStringValue();
         // Extract the string value starting at the current data cursor and
@@ -249,14 +254,14 @@ class baejsn_Tokenizer {
         // of the internal string buffer, 'd_stringBuffer', and then append
         // additional characters, from the internally-held 'streambuf'
         // ('d_streamBuf_p') to the end of that sequence up to a maximum
-        // sequence length of 'd_buffer.size()' characters.  Return 0 on
-        // success and a non-zero value otherwise.
+        // sequence length of 'd_buffer.size()' characters.  Return the number
+        // of bytes read from the 'streambuf'.
 
     int reloadStringBuffer();
         // Reload the string buffer with new data read from the underlying
         // 'streambuf' and overwriting the current buffer.  After reading
         // update the cursor to the new read location.  Return the number of
-        // bytes read from the 'streamBuf'.
+        // bytes read from the 'streambuf'.
 
     int expandBufferForLargeValue();
         // Increase the size of the string buffer, 'd_stringBuffer', and then
@@ -288,7 +293,8 @@ class baejsn_Tokenizer {
     void reset(bsl::streambuf *streamBuf);
         // Reset this tokenizer to read data from the specified 'streamBuf'.
         // Note that the reader will not be on a valid node until
-        // 'advanceToNextToken' is called.
+        // 'advanceToNextToken' is called.  Note that this function does not
+        // change the value of the 'allowStandAloneValues' option.
 
     int advanceToNextToken();
         // Move to the next token in the data steam.  Return 0 on success and a
@@ -304,9 +310,22 @@ class baejsn_Tokenizer {
         // read data from the 'streambuf' where this object stopped.  Return 0
         // on success, and a non-zero value otherwise.
 
+    void setAllowStandAloneValues(bool value);
+        // Set the 'allowStandAloneValues' option to the specified 'value'.  If
+        // the 'allowStandAloneValues' value is 'true' this tokenizer will
+        // successfully tokenize JSON values (strings and numbers).  If the
+        // option's value is 'false' then the tokenizer will only tokenize
+        // complete JSON documents (JSON objects and arrays) and return an
+        // error for stand alone JSON values.  By default, the value of the
+        // 'allowStandAloneValues' is 'true'.
+
     // ACCESSORS
     TokenType tokenType() const;
         // Return the token type of the current token.
+
+    bool allowStandAloneValues() const;
+        // Return the value of the 'allowStandAloneValues' option of this
+        // tokenizer.
 
     int value(bslstl::StringRef *data) const;
         // Load into the specified 'data' the value of the specified token if
@@ -331,6 +350,7 @@ baejsn_Tokenizer::baejsn_Tokenizer(bslma::Allocator *basicAllocator)
 , d_valueIter(0)
 , d_tokenType(BAEJSN_BEGIN)
 , d_context(BAEJSN_OBJECT_CONTEXT)
+, d_allowStandAloneValues(true)
 {
     d_stringBuffer.reserve(BAEJSN_MAX_STRING_SIZE);
 }
@@ -353,11 +373,23 @@ void baejsn_Tokenizer::reset(bsl::streambuf *streamBuf)
     d_tokenType   = BAEJSN_BEGIN;
 }
 
+inline
+void baejsn_Tokenizer::setAllowStandAloneValues(bool value)
+{
+    d_allowStandAloneValues = value;
+}
+
 // ACCESSORS
 inline
 baejsn_Tokenizer::TokenType baejsn_Tokenizer::tokenType() const
 {
     return d_tokenType;
+}
+
+inline
+bool baejsn_Tokenizer::allowStandAloneValues() const
+{
+    return d_allowStandAloneValues;
 }
 
 }  // close namespace BloombergLP

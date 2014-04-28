@@ -990,6 +990,7 @@ int baejsn_Decoder::decode(bsl::streambuf               *streamBuf,
     }
 
     d_tokenizer.reset(streamBuf);
+    d_tokenizer.setAllowStandAloneValues(false);
 
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 

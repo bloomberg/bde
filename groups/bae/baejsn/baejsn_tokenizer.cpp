@@ -55,9 +55,11 @@ BDES_IDENT_RCSID(baejsn_tokenizer_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace {
+
     const char *WHITESPACE = " \n\t\v\f\r";
     const char *TOKENS     = "{}[]:,";
-}
+
+}  // close unnamed namespace
 
                             // -----------------------
                             // struct baejsn_Tokenizer
@@ -95,14 +97,12 @@ int baejsn_Tokenizer::moveValueCharsToStartAndReloadBuffer()
                                          &d_stringBuffer[d_valueIter],
                                          BAEJSN_MAX_STRING_SIZE - d_valueIter);
 
-    if (0 == numRead) {
-        return -1;                                                    // RETURN
+    if (numRead > 0) {
+        d_stringBuffer.resize(d_valueIter + numRead);
+        d_valueBegin = 0;
     }
 
-    d_stringBuffer.resize(d_valueIter + numRead);
-    d_valueBegin = 0;
-
-    return 0;
+    return numRead;
 }
 
 int baejsn_Tokenizer::skipWhitespace()
@@ -152,10 +152,11 @@ int baejsn_Tokenizer::extractStringValue()
             // buffer to hold additional characters.
 
             if (firstTime) {
-                const int rc = moveValueCharsToStartAndReloadBuffer();
-                if (rc) {
-                    return rc;                                        // RETURN
+                const int numRead = moveValueCharsToStartAndReloadBuffer();
+                if (0 == numRead) {
+                    return -1;                                        // RETURN
                 }
+
                 firstTime = false;
             }
             else {
@@ -198,9 +199,11 @@ int baejsn_Tokenizer::skipNonWhitespaceOrTillToken()
             // buffer to hold additional characters.
 
             if (firstTime) {
-                const int rc = moveValueCharsToStartAndReloadBuffer();
-                if (rc) {
-                    return rc;                                        // RETURN
+                const int numRead = moveValueCharsToStartAndReloadBuffer();
+
+                if (0 == numRead) {
+                    d_valueEnd = d_valueIter;
+                    return 0;                                         // RETURN
                 }
                 firstTime = false;
             }
@@ -377,7 +380,8 @@ int baejsn_Tokenizer::advanceToNextToken()
                                                         && ':' == previousChar)
                   || (BAEJSN_ELEMENT_VALUE == d_tokenType
                    && ','                  == previousChar
-                   && BAEJSN_ARRAY_CONTEXT == d_context)) {
+                   && BAEJSN_ARRAY_CONTEXT == d_context)
+                 || (BAEJSN_BEGIN == d_tokenType && d_allowStandAloneValues)) {
                 d_tokenType  = BAEJSN_ELEMENT_VALUE;
                 d_valueBegin = d_cursor;
                 d_valueIter  = d_valueBegin + 1;
@@ -412,7 +416,8 @@ int baejsn_Tokenizer::advanceToNextToken()
              || (BAEJSN_ELEMENT_NAME  == d_tokenType && ':' == previousChar)
              || (BAEJSN_ELEMENT_VALUE == d_tokenType
               && ','                  == previousChar
-              && BAEJSN_ARRAY_CONTEXT == d_context)) {
+              && BAEJSN_ARRAY_CONTEXT == d_context)
+             || (BAEJSN_BEGIN == d_tokenType && d_allowStandAloneValues)) {
 
                 d_tokenType = BAEJSN_ELEMENT_VALUE;
 
