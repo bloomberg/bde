@@ -45,6 +45,16 @@ struct bteso_SocketHandle {
     // This is a namespace for a typedef for the socket handle
     // which has a platform specific type.
 
+    // TYPES
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+    typedef SOCKET Handle;
+#else
+    typedef int Handle;
+#endif
+
+    static const Handle INVALID_SOCKET_HANDLE;
+        // Provide a reference specifying an invalid socket.
+
     enum {
         // These codes represent a non platform specific error classifications.
         // More than one platform specific code may map onto a single error
@@ -78,13 +88,6 @@ struct bteso_SocketHandle {
       , ERROR_TIMEDOUT     = BTESO_ERROR_TIMEDOUT
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
-
-    // TYPES
-#ifdef BTESO_PLATFORM_WIN_SOCKETS
-    typedef SOCKET Handle;
-#else
-    typedef int Handle;
-#endif
 };
 
 } // close namespace BloombergLP

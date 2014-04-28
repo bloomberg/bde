@@ -218,7 +218,7 @@ extern "C" void * case100EntryPoint(void *arg)
 {
     int j = (int)(bsls::Types::IntPtr)arg;
     printf("Thread %d has started\n", j);
-
+    bdef_Function<void (*)()> mgrReinitFunctor;
     btemt_TcpTimerEventManager& em = *pEventManager;
     btemt_TcpTimerEventManager_ControlChannel chnl;
 
@@ -630,6 +630,77 @@ extern "C" void *executeTest(void *arg) {
     return arg;
 }
 
+namespace CASE15 {
+
+struct ReadDataType {
+    bteso_SocketHandle::Handle  d_handle;
+    int                         d_totalBytesToRead;
+    int                         d_numBytesRead;
+    bsls::AtomicInt            *d_numConnsDone_p;
+};
+
+struct WriteDataType {
+    bteso_SocketHandle::Handle d_handle;
+    int                        d_totalBytesToWrite;
+    int                        d_numBytesWritten;
+};
+
+void readData(ReadDataType *readDataArgs)
+{
+    const int SIZE = 1024;
+    char readBuffer[SIZE]  = { 'x' };
+    char expBuffer[SIZE]   = { 'z' };
+    int errorCode = 0;
+    int rc = bteso_SocketImpUtil::read(readBuffer,
+                                       readDataArgs->d_handle,
+                                       SIZE,
+                                       &errorCode);
+    if (rc <= 0) {
+        cout << "ReadData rc: " << rc << " errorCode: " << errorCode << endl;
+        return;
+    }
+
+    ASSERT(rc > 0);
+    readDataArgs->d_numBytesRead += rc;
+    // TBD: Uncomment
+//    ASSERT(0 == bsl::memcmp(readBuffer, expBuffer, rc));
+    //if (0 == (readDataArgs->d_numBytesRead % (1024 * 1024)))
+    //    cout << "Read Data: " << readDataArgs->d_numBytesRead << endl;
+    if (readDataArgs->d_numBytesRead >= readDataArgs->d_totalBytesToRead) {
+        ++(*readDataArgs->d_numConnsDone_p);
+        cout << "Conns Done: " << *readDataArgs->d_numConnsDone_p << endl;
+    }
+    bcemt_ThreadUtil::microSleep(800, 0);
+}
+
+void writeData(WriteDataType *writeDataArgs)
+{
+    if (writeDataArgs->d_numBytesWritten >=
+                                          writeDataArgs->d_totalBytesToWrite) {
+        return;
+    }
+
+    const int SIZE = 1024;
+    char writeBuffer[SIZE] = { 'z' };
+
+    int rc = bteso_SocketImpUtil::write(writeDataArgs->d_handle,
+                                        writeBuffer,
+                                        SIZE);
+
+    if (rc <= 0) {
+        cout << "WriteData rc: " << rc << endl;
+        return;
+    }
+
+    ASSERT(rc > 0);
+    writeDataArgs->d_numBytesWritten += rc;
+//    if (0 == (writeDataArgs->d_numBytesWritten % (1024 * 1024)))
+//        cout << "Written Data: " << writeDataArgs->d_numBytesWritten << endl;
+    bcemt_ThreadUtil::microSleep(800, 0);
+}
+
+}  // close namespace CASE15
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -660,7 +731,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
           // ----------------------------------------------------------------
           // TESTING USAGE EXAMPLE
           //   The usage example provided in the component header file must
@@ -710,6 +781,246 @@ int main(int argc, char *argv[])
                       << ": Consuming " << item << bsl::endl;
               }
           }
+      } break;
+
+      case 15: {
+        // -----------------------------------------------------------------
+        // TEST closure of control channel sockets
+        //
+        // Concern:
+        //: 1 The closure of the control channel sockets does not cause an
+        //:   object to spin.
+        //:
+        //: 2 The closure of both the client and the server socket is handled
+        //:   gracefully.
+        //:
+        //: 3 Upto three socket closures should result in an attempt to
+        //:   recreate the control channel.
+        //:
+        //: 4 Any read or write operation that is underway should be
+        //:   unaffected by the socket closures and should complete
+        //:   successfully.
+        //
+        // Plan:
+        //: 1 Create a 'btemt_TcpTimerEventManager' object, mX, and create the
+        //:   control channel by calling 'enable'.
+        //:
+        //: 2 Create a large number of socket pairs.  For each socket pair,
+        //:   register their server socket for a read event with mX and the
+        //:   client socket for a write event.  This will result in the
+        //:   initiation of data transfer between the connections.
+        //:
+        //: 3 Close the server socket of the control channel three times and
+        //:   confirm that the control channel is recreated each time and that
+        //:   all of the outstanding data exchanges between the created
+        //:   connections completes succeessfully.
+        //:
+        //: 4 Repeat the same steps by closing the client socket.
+        //
+        // Testing:
+        //   DRQS 44989721
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TEST closure of control channel sockets" << endl
+                          << "=======================================" << endl;
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+        using namespace CASE15;
+
+        for (int i = 0; i < 2; ++i) {
+            if (verbose) {
+                if (1 == i) {
+                    cout << "Killing the client handle" << endl;
+                }
+                else {
+                    cout << "Killing the server handle" << endl;
+                }
+            }
+
+            Obj mX;  const Obj& X = mX;
+            mX.enable();
+
+            const int NUM_CONNS = 10;
+            bsls::AtomicInt numConnsDone(0);
+
+            ReadDataType  readDataArgs[NUM_CONNS];
+            WriteDataType writeDataArgs[NUM_CONNS];
+
+            const int NUM_BYTES = 1024 * 1024 * 20;
+
+            for (int j = 0; j < NUM_CONNS/2; ++j) {
+                bteso_SocketHandle::Handle fds[2];
+                rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                                     fds,
+                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+
+                ASSERT(0 == rc);
+
+                readDataArgs[j].d_handle           = fds[0];
+                readDataArgs[j].d_totalBytesToRead = NUM_BYTES;
+                readDataArgs[j].d_numBytesRead     = 0;
+                readDataArgs[j].d_numConnsDone_p   = &numConnsDone;
+
+                writeDataArgs[j].d_handle            = fds[1];
+                writeDataArgs[j].d_totalBytesToWrite = NUM_BYTES;
+                writeDataArgs[j].d_numBytesWritten   = 0;
+
+                bdef_Function<void (*)()> readFunctor, writeFunctor;
+                readFunctor = bdef_BindUtil::bind(readData,
+                                                  &readDataArgs[j]);
+                do {
+                    rc = mX.registerSocketEvent(fds[0],
+                                                bteso_EventType::BTESO_READ,
+                                                readFunctor);
+                } while (0 != rc);
+
+                ASSERT(0 == rc);
+
+                writeFunctor = bdef_BindUtil::bind(writeData,
+                                                   &writeDataArgs[j]);
+                do {
+                    rc = mX.registerSocketEvent(fds[1],
+                                                bteso_EventType::BTESO_WRITE,
+                                                writeFunctor);
+                } while (0 != rc);
+
+                ASSERT(0 == rc);
+
+                bcemt_ThreadUtil::microSleep(1000, 0);
+            }
+
+            if (veryVerbose) {
+                cout << "Created first set of connections, numConnections: "
+                     << NUM_CONNS/2 << endl;
+            }
+
+            btemt_TcpTimerEventManager_ControlChannel *controlChannel =
+                const_cast<btemt_TcpTimerEventManager_ControlChannel *>(
+                    btemt_TcpTimerEventManager_TestUtil::getControlChannel(X));
+
+            int numKills = 0;
+            while (numKills < 1) {
+                int errorCode = 0;
+                bteso_SocketHandle::Handle handle;
+                if (1 == i) {
+                    handle = controlChannel->clientFd();
+                }
+                else {
+                    handle = controlChannel->serverFd();
+                }
+
+                rc = bteso_SocketImpUtil::close(handle, &errorCode);
+                if (rc < 0) {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    continue;
+                }
+                LOOP2_ASSERT(rc, errorCode, 0 == rc);
+
+                ++numKills;
+            }
+
+            if (veryVerbose) {
+                cout << "Completed first set of kills, numKills: "
+                     << numKills << endl;
+            }
+            //bcemt_ThreadUtil::microSleep(0, 3);
+
+            for (int j = NUM_CONNS/2; j < NUM_CONNS; ++j) {
+                bteso_SocketHandle::Handle fds[2];
+                do {
+                    rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                                     fds,
+                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+                } while (0 != rc);
+
+                LOOP2_ASSERT(j, rc, 0 == rc);
+
+                readDataArgs[j].d_handle           = fds[0];
+                readDataArgs[j].d_totalBytesToRead = NUM_BYTES;
+                readDataArgs[j].d_numBytesRead     = 0;
+                readDataArgs[j].d_numConnsDone_p   = &numConnsDone;
+
+                writeDataArgs[j].d_handle            = fds[1];
+                writeDataArgs[j].d_totalBytesToWrite = NUM_BYTES;
+                writeDataArgs[j].d_numBytesWritten   = 0;
+
+                bdef_Function<void (*)()> readFunctor, writeFunctor;
+                readFunctor = bdef_BindUtil::bind(readData,
+                                                  &readDataArgs[j]);
+                do {
+                    rc = mX.registerSocketEvent(fds[0],
+                                                bteso_EventType::BTESO_READ,
+                                                readFunctor);
+                } while (0 != rc);
+
+                ASSERT(0 == rc);
+
+                writeFunctor = bdef_BindUtil::bind(writeData,
+                                                   &writeDataArgs[j]);
+
+                do {
+                    rc = mX.registerSocketEvent(fds[1],
+                                                bteso_EventType::BTESO_WRITE,
+                                                writeFunctor);
+                } while (0 != rc);
+
+                ASSERT(0 == rc);
+
+                bcemt_ThreadUtil::microSleep(1000, 0);
+            }
+
+            if (veryVerbose) {
+                cout << "Created second set of connections, numConnections: "
+                     << NUM_CONNS << endl;
+            }
+
+            while (numKills < 3) {
+                int errorCode = 0;
+                bteso_SocketHandle::Handle handle;
+                if (1 == i) {
+                    handle = controlChannel->clientFd();
+                }
+                else {
+                    handle = controlChannel->serverFd();
+                }
+
+                rc = bteso_SocketImpUtil::close(handle, &errorCode);
+                if (rc < 0) {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    continue;
+                }
+                LOOP2_ASSERT(rc, errorCode, 0 == rc);
+
+                bcemt_ThreadUtil::microSleep(0, 3);
+                ++numKills;
+            }
+
+            if (veryVerbose) {
+                cout << "Completed second set of kills, numKills: "
+                     << numKills << endl;
+            }
+
+            while (numConnsDone < NUM_CONNS) {
+                if (veryVerbose) {
+                    cout << "Waiting for conns to be done: "
+                         << numConnsDone << endl;
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                }
+            }
+            ASSERT(0 == mX.disable());
+            //mX.deregisterAll();
+            //
+            //for (int j = 0; j < NUM_CONNS; ++j) {
+            // bteso_SocketHandle::Handle serverFd = readDataArgs[j].d_handle;
+            // bteso_SocketHandle::Handle clientFd = writeDataArgs[j].d_handle;
+
+            //    ASSERT(0 == bteso_SocketImpUtil::close(serverFd));
+            //    ASSERT(0 == bteso_SocketImpUtil::close(clientFd));
+            //}
+
+        }
+#endif
       } break;
 
       case 14: {

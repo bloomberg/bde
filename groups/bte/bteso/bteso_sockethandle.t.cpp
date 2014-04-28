@@ -48,16 +48,39 @@ int main(int argc, char *argv[]) {
 
     switch (test) { case 0:
       case 1: {
-        // --------------------------------------------------------
-        // USAGE TEST
-        // --------------------------------------------------------
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The invalid handle is appropriately initialized.
+        //
+        // Plan:
+        //: 1 Confirm that the invalid handle is correctly initialized.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Minimal Definition Test" <<
-                             endl << "-----------------------" << endl;
+        if (verbose) cout << endl << "BREATHING TEST" <<
+                             endl << "--------------" << endl;
 
         // Verify that the error codes are accessible.
+
         ASSERT(bteso_SocketHandle::BTESO_ERROR_EOF !=
                bteso_SocketHandle::BTESO_ERROR_UNCLASSIFIED);
+
+        // Verify that the invalid is correctly set.
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+
+        ASSERT(INVALID_SOCKET == bteso_SocketHandle::INVALID_SOCKET_HANDLE);
+
+#else
+
+        ASSERT(-1             == bteso_SocketHandle::INVALID_SOCKET_HANDLE);
+
+#endif
 
       } break;
       default: {

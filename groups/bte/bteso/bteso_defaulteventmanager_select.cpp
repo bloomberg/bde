@@ -418,6 +418,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::registerSocketEvent(
         d_maxFd = handle + 1;
     }
 #endif
+
     return 0;
 }
 

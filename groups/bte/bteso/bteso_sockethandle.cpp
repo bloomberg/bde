@@ -4,6 +4,24 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_sockethandle_cpp,"$Id$ $CSID$")
 
+namespace BloombergLP {
+
+// CLASS DATA
+
+#ifdef BTESO_PLATFORM_WIN_SOCKETS
+
+const bteso_SocketHandle::Handle bteso_SocketHandle::INVALID_SOCKET_HANDLE =
+                                                                INVALID_SOCKET;
+
+#else
+
+const bteso_SocketHandle::Handle bteso_SocketHandle::INVALID_SOCKET_HANDLE =
+                                                                            -1;
+
+#endif
+
+} // close namespace BloombergLP
+
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2007
