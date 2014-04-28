@@ -1,4 +1,4 @@
-// btemt_session.h   -*-C++-*-
+// btemt_session.h                                                    -*-C++-*-
 #ifndef INCLUDED_BTEMT_SESSION
 #define INCLUDED_BTEMT_SESSION
 
@@ -6,8 +6,6 @@
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
-
-
 
 //@PURPOSE: Provide a *pure* protocol class for creating sessions
 //
@@ -24,11 +22,13 @@ BDES_IDENT("$Id: $")
 // session factory.  See the 'btemt_sessionpool' component for a more detailed
 // documentation.
 
-
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>
 #endif
 
+#ifndef INCLUDED_BCEMA_SHAREDPTR
+#include <bcema_sharedptr.h>
+#endif
 
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
@@ -86,6 +86,14 @@ class btemt_SessionFactory {
        // Destroy this factory
 
     // MANIPULATORS
+    virtual void allocate(const bcema_SharedPtr<btemt_AsyncChannel>& channel,
+                          const btemt_SessionFactory::Callback&      callback);
+       // Asynchronously allocate a 'btemt_Session' object for the specified
+       // 'channel', and invoke the specified 'callback' with this session.
+       //
+       // Note that the default implementation of this (non-pure virtual)
+       // method is to call 'allocate' with the raw channel pointer.
+
     virtual void allocate(btemt_AsyncChannel                   *channel,
                           const btemt_SessionFactory::Callback& callback) = 0;
        // Asynchronously allocate a 'btemt_Session' object for the specified
@@ -93,7 +101,6 @@ class btemt_SessionFactory {
 
     virtual void deallocate(btemt_Session *session) = 0;
        // Deallocate the specified 'session'.
-
 };
 
 } // close namespace BloombergLP
