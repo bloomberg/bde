@@ -1,3 +1,12 @@
+bde-core (2.21.0.1) unstable; urgency=low
+
+  * 0e57ce9 [APPROVAL] origin/review/btemt_session-provide-managed-asyncchannel-with-sharedptr-drqs-44879376 to master
+  * 770bd18 [APPROVAL] origin/review/baejsn_tokenizer-allow-no-top-level-element-drqs-48572765 to master
+  * aadd827 [APPROVAL] origin/review/btemt_tcptimereventmanager-spinning-on-socket-kill-drqs-44989721 to master
+  * 05f8542 [APPROVAL] review/bcemt_turnstile-drqs-35126098 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 28 Apr 2014 16:48:01 -0400
+
 bde-core (2.21.0.0.beta.2) unstable; urgency=low
 
   * 8338e2e [APPROVAL] origin/review/bdede-utf16-stringrefs-drqs-47424702 to master
