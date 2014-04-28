@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
         ASSERT(bteso_SocketHandle::BTESO_ERROR_EOF !=
                bteso_SocketHandle::BTESO_ERROR_UNCLASSIFIED);
-        
+
         // Verify that the invalid is correctly set.
 
 #ifdef BTESO_PLATFORM_WIN_SOCKETS

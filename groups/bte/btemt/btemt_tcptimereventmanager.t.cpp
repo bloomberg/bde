@@ -813,9 +813,9 @@ int main(int argc, char *argv[])
         //: 3 Close the server socket of the control channel three times and
         //:   confirm that the control channel is recreated each time and that
         //:   all of the outstanding data exchanges between the created
-        //:   connections completes succeessfully. 
+        //:   connections completes succeessfully.
         //:
-        //: 4 Repeat the same steps by closing the client socket. 
+        //: 4 Repeat the same steps by closing the client socket.
         //
         // Testing:
         //   DRQS 44989721
