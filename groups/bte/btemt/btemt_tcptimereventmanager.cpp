@@ -1038,9 +1038,10 @@ int btemt_TcpTimerEventManager::reinitializeControlChannel()
     attributes.setDetachedState(bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED);
 
     bdef_Function<void (*)()> initiateReadFunctor = bdef_Function<void (*)()>(
-                bdef_BindUtil::bindA(d_allocator_p,
-                                     &btemt_TcpTimerEventManager::initiateRead,
-                                     this));
+      bdef_BindUtil::bindA(
+                       d_allocator_p,
+                       &btemt_TcpTimerEventManager::initiateControlChannelRead,
+                       this));
 
     rc = bcemt_ThreadUtil::create(&handle, attributes, initiateReadFunctor);
     BSLS_ASSERT_OPT(0 == rc);
@@ -1366,7 +1367,7 @@ int btemt_TcpTimerEventManager::enable(const bcemt_Attribute& attr)
         if (rc) {
             return rc;
         }
-        return initiateRead();
+        return initiateControlChannelRead();
     }
     return 0;
 }
