@@ -9,13 +9,14 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_algorithm.h>
+#include <bsl_cfloat.h>
+#include <bsl_climits.h>
+#include <bsl_cmath.h>
+#include <bsl_cstdlib.h>
+#include <bsl_limits.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-#include <bsl_cstdlib.h>
-#include <bsl_climits.h>
-#include <bsl_limits.h>
-#include <bsl_cmath.h>
-#include <bsl_cfloat.h>
 
 #include <typeinfo>
 
