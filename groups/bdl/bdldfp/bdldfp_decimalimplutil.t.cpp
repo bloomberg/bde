@@ -3471,8 +3471,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 0, 0, 0, 0, 1, 8, 4, 4, 6, 7,
                 4, 4, 0, 7, 3, 7, 0, 9, 5, 5,
                 1, 6, 1, 5};
-            const D128 EXPECTED128 =
-                                                D128(10, EXPECTED_MANTISSA, 1);
+            const D128 EXPECTED128 = D128(10, EXPECTED_MANTISSA, 1);
             LOOP2_ASSERT(ACTUAL128, EXPECTED128, ACTUAL128 == EXPECTED128);
         }
       } break;

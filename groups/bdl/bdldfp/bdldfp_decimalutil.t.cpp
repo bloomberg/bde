@@ -2497,7 +2497,7 @@ int main(int argc, char* argv[])
         bsl::string line;
         bsl::ifstream myfile(argv[2]);
         if (myfile.is_open()) {
-            while(getline(myfile, line)) {
+            while (getline(myfile, line)) {
                 bsl::vector<bsl::string> seglist;
                 split(seglist, line, '|');
 
@@ -2603,7 +2603,7 @@ int main(int argc, char* argv[])
         bsl::string line;
         bsl::ifstream myfile(argv[2]);
         if (myfile.is_open()) {
-            while(getline(myfile, line)) {
+            while (getline(myfile, line)) {
                 bsl::vector<bsl::string> seglist;
                 split(seglist, line, '|');
 
