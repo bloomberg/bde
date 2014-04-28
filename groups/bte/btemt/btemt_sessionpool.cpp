@@ -164,10 +164,10 @@ void btemt_SessionPool::channelStateCb(int   channelId,
 
                   lock.release()->unlock();
 
+                  handle->d_session_p->stop();
                   handle->d_sessionStateCB(SESSION_DOWN, handleId,
                                            handle->d_session_p,
                                            handle->d_userData_p);
-                  handle->d_session_p->stop();
               }
           }
 
@@ -343,11 +343,11 @@ void btemt_SessionPool::blobBasedReadCb(int        *numNeeded,
 void btemt_SessionPool::terminateSession(btemt_SessionPool_Handle *handle)
 {
     if (handle->d_session_p) {
+        handle->d_session_p->stop();
         handle->d_sessionStateCB(SESSION_DOWN,
                                  handle->d_handleId,
                                  handle->d_session_p,
                                  handle->d_userData_p);
-        handle->d_session_p->stop();
         handle->d_handleId = 0;
     }
 }
