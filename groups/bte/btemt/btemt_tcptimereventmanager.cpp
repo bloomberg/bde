@@ -52,7 +52,15 @@ namespace BloombergLP {
 // Confirm that we use the right size atomic variable for the socket handle in
 // the control channel.
 
+#if defined(BTESO_PLATFORM_WIN_SOCKETS) && defined(BSLS_PLATFORM_CPU_64_BIT)
+
+BSLMF_ASSERT(8 == sizeof(bteso_SocketHandle::Handle));
+
+#else
+
 BSLMF_ASSERT(4 == sizeof(bteso_SocketHandle::Handle));
+
+#endif
 
 enum {
    // This 'enum' specifies the constants used in this component.

@@ -273,12 +273,17 @@ class btemt_TcpTimerEventManager_ControlChannel {
     // Do not use.
 
     // DATA
-    bsls::AtomicInt d_fds[2];              // connected socket pair
-    const char      d_byte;                // signal byte
+#if defined(BTESO_PLATFORM_WIN_SOCKETS) && defined(BSLS_PLATFORM_CPU_64_BIT)
+    bsls::AtomicInt64 d_fds[2];              // connected socket pair
+#else
+    bsls::AtomicInt   d_fds[2];              // connected socket pair
+#endif
 
-    int             d_numServerReads;      // read operations
-    int             d_numServerBytesRead;  // total number of bytes read
-    bces_AtomicInt  d_numPendingRequests;  // number of pending requests
+    const char        d_byte;                // signal byte
+
+    int               d_numServerReads;      // read operations
+    int               d_numServerBytesRead;  // total number of bytes read
+    bces_AtomicInt    d_numPendingRequests;  // number of pending requests
 
     // NOT IMPLEMENTED
     btemt_TcpTimerEventManager_ControlChannel(
