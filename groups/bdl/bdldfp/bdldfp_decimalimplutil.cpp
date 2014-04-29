@@ -562,14 +562,15 @@ DecimalImplUtil::ValueType32 DecimalImplUtil::parse32(const char *input)
 
     ValueType32 out;
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    // TBD TODO - Do we want to use sscanf?
-    void *ptr = decSingleFromString(
-        reinterpret_cast<decSingle*>(&out), input, getDecNumberContext());
+    // TBD TODO - scanf is locale dependent!!!
+    int parsed = sscanf(input, "%Hf", &out);
+    (void) parsed;
+    BSLS_ASSERT(parsed == 1);
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     void *ptr = decSingleFromString(&out, input, getDecNumberContext());
-#endif
     (void) ptr;
     BSLS_ASSERT(ptr != 0);
+#endif
     return out;
 }
 
@@ -579,14 +580,15 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::parse64(const char *input)
 
     ValueType64 out;
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    // TBD TODO - Do we want to use sscanf?
-    void *ptr = decDoubleFromString(
-        reinterpret_cast<decDouble*>(&out), input, getDecNumberContext());
+    // TBD TODO - scanf is locale dependent!!!
+    int parsed = sscanf(input, "%Df", &out);
+    (void) parsed;
+    BSLS_ASSERT(parsed == 1);
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     void *ptr = decDoubleFromString(&out, input, getDecNumberContext());
-#endif
     (void) ptr;
     BSLS_ASSERT(ptr != 0);
+#endif
     return out;
 }
 
@@ -596,14 +598,15 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::parse128(const char *input)
 
     ValueType128 out;
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    // TBD TODO - Do we want to use sscanf?
-    void *ptr = decQuadFromString(
-        reinterpret_cast<decQuad*>(&out), input, getDecNumberContext());
+    // TBD TODO - scanf is locale dependent!!!
+    int parsed = sscanf(input, "%DDf", &out);
+    (void) parsed;
+    BSLS_ASSERT(parsed == 1);
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     void *ptr = decQuadFromString(&out, input, getDecNumberContext());
-#endif
     (void) ptr;
     BSLS_ASSERT(ptr != 0);
+#endif
     return out;
 }
 

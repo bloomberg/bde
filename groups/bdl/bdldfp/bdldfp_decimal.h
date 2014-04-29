@@ -888,7 +888,9 @@ operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal32& object);
     // an IEEE 32 bit decimal floating-point value as described in the IEEE-754
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
+    // providing modifiable access to 'stream'.  If the inputted object is
+    // 'Nan' it is unspecified if 'object' will receive a quiet or signaling
+    // 'Nan'.  If 'stream' is not valid on
     // entry 'stream.good() == false', this operation has no effect other than
     // setting 'stream.fail()' to 'true'.  If eof (end-of-file) is found before
     // any non-whitespace characters 'stream.fail()' is set to 'true' and
@@ -2037,7 +2039,9 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal64& object);
     // an IEEE 64 bit decimal floating-point value as described in the IEEE-754
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
+    // providing modifiable access to 'stream'.  If the inputted object is
+    // 'Nan' it is unspecified if 'object' will receive a quiet or signaling
+    // 'Nan'.  If 'stream' is not valid on
     // entry 'stream.good() == false', this operation has no effect other than
     // setting 'stream.fail()' to 'true'.  If eof (end-of-file) is found before
     // any non-whitespace characters 'stream.fail()' is set to 'true' and
@@ -3157,7 +3161,9 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal128& object);
     // an IEEE 128 bit decimal floating-point value as described in the
     // IEEE-754 2008 standard (5.12 Details of conversions between floating
     // point numbers and external character sequences) and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
+    // providing modifiable access to 'stream'.  If the inputted object is
+    // 'Nan' it is unspecified if 'object' will receive a quiet or signaling
+    // 'Nan'.  If 'stream' is not valid on
     // entry 'stream.good() == false', this operation has no effect other than
     // setting 'stream.fail()' to 'true'.  If eof (end-of-file) is found before
     // any non-whitespace characters 'stream.fail()' is set to 'true' and
