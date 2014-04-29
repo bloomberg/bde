@@ -49,7 +49,7 @@ etc/default.opts:
 	mkdir -p etc
 	cp $(BDE_OSS_TOOLS_ETC)/default.opts etc/
 	cp $(BDE_TOOLS_ETC)/default_internal.opts etc/
-	sed /BDE_REFROOT_VER/d etc/default_internal.opts > etc/default_internal.opts.1
+	sed /BDE_REFROOT/d etc/default_internal.opts > etc/default_internal.opts.1
 	mv etc/default_internal.opts.1 etc/default_internal.opts
 
 define flavor-template-static-32
