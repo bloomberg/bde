@@ -1,3 +1,9 @@
+bsl-internal (2.20.2.2) unstable; urgency=low
+
+  * 9a2dddd [APPROVAL] origin/review/fix-debian-sed-command to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 29 Apr 2014 16:19:48 -0400
+
 bsl-internal (2.20.2.1) unstable; urgency=low
 
   * e43c367 [APPROVAL] INTERNAL review/windows_fixes_bde2.20_drqs51901280 to review/repair-merge-drqs51901280
