@@ -1,3 +1,9 @@
+bde-core (2.21.0.2) unstable; urgency=low
+
+  * ee6f079 [APPROVAL] origin/dev/rbhindwa/btemt_tcptimereventmanager-spinning-on-socket-kill-drqs-44989721 to master
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 29 Apr 2014 16:03:12 -0400
+
 bde-core (2.21.0.1) unstable; urgency=low
 
   * 0e57ce9 [APPROVAL] origin/review/btemt_session-provide-managed-asyncchannel-with-sharedptr-drqs-44879376 to master
