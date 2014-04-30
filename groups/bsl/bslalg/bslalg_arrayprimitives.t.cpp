@@ -443,24 +443,24 @@ char getValue(const long double& f)
 
 void setValue(void **pvs, char ch)
 {
-    *pvs = (void *) (UintPtr) ch;
+    *pvs = reinterpret_cast<void *>(static_cast<UintPtr>(ch));
 }
 
 void setValue(const void **pvs, char ch)
 {
-    *pvs = (const void *) (UintPtr) ch;
+    *pvs = reinterpret_cast<const void *>(static_cast<UintPtr>(ch));
 }
 
 #if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(void * const& vs)
 {
-    return (char) ((UintPtr) vs & 0xff);
+    return static_cast<char>(reinterpret_cast<UintPtr>(vs) & 0xff);
 }
 #endif
 
 char getValue(const void * const& vs)
 {
-    return (char) ((UintPtr) vs & 0xff);
+    return static_cast<char>(reinterpret_cast<UintPtr>(vs) & 0xff);
 }
 
                                 // =======
@@ -469,24 +469,24 @@ char getValue(const void * const& vs)
 
 void setValue(int **pis, char ch)
 {
-    *pis = (int *) (UintPtr) ch;
+    *pis = reinterpret_cast<int *>(static_cast<UintPtr>(ch));
 }
 
 void setValue(const int **pis, char ch)
 {
-    *pis = (const int *) (UintPtr) ch;
+    *pis = reinterpret_cast<const int *>(static_cast<UintPtr>(ch));
 }
 
 #if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(int * const& is)
 {
-    return (char) ((UintPtr) is & 0xff);
+    return static_cast<char>(reinterpret_cast<UintPtr>(is) & 0xff);
 }
 #endif
 
 char getValue(const int * const& is)
 {
-    return (char) ((UintPtr) is & 0xff);
+    return static_cast<char>(reinterpret_cast<UintPtr>(is) & 0xff);
 }
 
                            // ======================
@@ -3190,7 +3190,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             ASSERT(u[i] == DATA[i]);
         }
-      }
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'rotate'
