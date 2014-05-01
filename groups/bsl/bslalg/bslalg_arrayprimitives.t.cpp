@@ -301,6 +301,13 @@ namespace {
 
 }  // close unnamed namespace
 
+namespace BloombergLP {
+namespace bslma {
+template <class TYPE>
+struct UsesBslmaAllocator<MyVector<TYPE> > : bsl::true_type {};
+} // close traits namespace
+} // close enterprise namespace
+
 #pragma bde_verify pop  // End of usage example relaxation
 
 //=============================================================================
