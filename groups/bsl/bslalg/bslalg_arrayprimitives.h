@@ -717,19 +717,19 @@ struct ArrayPrimitives {
                        size_type    numElements,
                        ALLOCATOR   *allocator);
         // Insert the specified 'numElements' from the range starting at the
-        // 'fromBegin' and ending immediately before the 'fromEnd' iterators of
-        // the parameterized 'FWD_ITER' type, into the array of elements of the
-        // parameterized 'TARGET_TYPE' starting at the 'toBegin' address and
-        // ending immediately before the 'toEnd' address, shifting the elements
-        // in the array by the specified 'numElements' positions towards larger
-        // addresses.  The behavior is undefined unless the destination array
-        // contains 'numElements' uninitialized elements after 'toEnd',
-        // 'numElements' is the distance between 'fromBegin' and 'fromEnd', and
-        // the input array and the destination array do not overlap.  If a copy
-        // constructor or assignment operator for 'TARGET_TYPE' throws an
-        // exception, then any elements created after 'toEnd' are destroyed and
-        // the elements in the range '[ toBegin, toEnd )' will have
-        // unspecified, but valid, values.
+        // specified 'fromBegin' and ending immediately before the specified
+        // 'fromEnd' iterators of the (template parameter) 'FWD_ITER' type,
+        // into the array of elements of the parameterized 'TARGET_TYPE'
+        // starting at the specified 'toBegin' address and ending immediately
+        // before the specified 'toEnd' address, shifting the elements in the
+        // array by 'numElements' positions towards larger addresses.  The
+        // behavior is undefined unless the destination array contains
+        // 'numElements' uninitialized elements after 'toEnd', 'numElements' is
+        // the distance between 'fromBegin' and 'fromEnd', and the input array
+        // and the destination array do not overlap.  If a copy constructor or
+        // assignment operator for 'TARGET_TYPE' throws an exception, then any
+        // elements created after 'toEnd' are destroyed and the elements in the
+        // range '[ toBegin, toEnd )' will have unspecified, but valid, values.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void moveInsert(TARGET_TYPE  *toBegin,
@@ -739,24 +739,25 @@ struct ArrayPrimitives {
                            TARGET_TYPE  *fromEnd,
                            size_type     numElements,
                            ALLOCATOR    *allocator);
-        // Move the elements of the parameterized 'TARGET_TYPE' in the array
-        // starting at the 'toBegin' address and ending immediately before the
-        // 'toEnd' address by the specified 'numElements' positions towards
-        // larger addresses, and fill the specified 'numElements' at the
-        // 'toBegin' address by moving the elements from the array starting at
-        // the 'fromBegin' and ending immediately before the 'fromEnd' address.
-        // Keep the iterator at the specified 'fromEndPtr' address pointing to
-        // the end of the range as the elements from '[ fromBegin, fromEnd )'
-        // are moved from source to destination.  The behavior is undefined
-        // unless the destination array contains 'numElements' uninitialized
-        // elements after 'toEnd', 'numElements' is the distance from
-        // 'fromBegin' to 'fromEnd', and the input and destination arrays do
-        // not overlap.  If a copy constructor or assignment operator for
-        // 'TARGET_TYPE' throws an exception, then any elements created after
-        // 'toEnd' are destroyed, the elements in the ranges
-        // '[ toBegin, toEnd)' and '[ fromBegin, *fromEndPtr )' will have
-        // unspecified, but valid, values, and the elements in
-        // '[ *fromEndPtr, fromEnd )' will be destroyed.
+        // Move the elements of the (template paramaeter) 'TARGET_TYPE' in the
+        // array starting at the specified 'toBegin' address and ending
+        // immediately before the specified 'toEnd' address by the specified
+        // 'numElements' positions towards larger addresses, and fill the
+        // 'numElements' at the 'toBegin' address by moving the elements from
+        // the array starting at the specified 'fromBegin' and ending
+        // immediately before the specified 'fromEnd' address.  Keep the
+        // iterator at the specified 'fromEndPtr' address pointing to the end
+        // of the range as the elements from '[ fromBegin, fromEnd )' are moved
+        // from source to destination.  The behavior is undefined unless the
+        // destination array contains 'numElements' uninitialized elements
+        // after 'toEnd', 'numElements' is the distance from 'fromBegin' to
+        // 'fromEnd', and the input and destination arrays do not overlap.  If
+        // a copy constructor or assignment operator for 'TARGET_TYPE' throws
+        // an exception, then any elements created after 'toEnd' are destroyed,
+        // the elements in the ranges '[ toBegin, toEnd)' and
+        // '[ fromBegin, *fromEndPtr )' will have unspecified, but valid,
+        // values, and the elements in '[ *fromEndPtr, fromEnd )' will be
+        // destroyed.
 
     template <class TARGET_TYPE>
     static void rotate(TARGET_TYPE *first,
@@ -1032,14 +1033,15 @@ struct ArrayPrimitives_Imp {
                               ALLOCATOR                  *allocator,
                               bslmf::MetaInt<NIL_TRAITS> *);
         // These functions follow the 'copyConstruct' contract.  If the
-        // parameterized 'ALLOCATOR' is based on 'bslma::Allocator' and the
-        // 'TARGET_TYPE' constructors take an allocator argument, then pass the
-        // specified 'allocator' to the copy constructor.  The behavior is
-        // undefined unless the output array has length at least the distance
-        // from 'fromBegin' to 'fromEnd'.  Note that if 'FWD_ITER' is the
-        // 'TARGET_TYPE *' pointer type and 'TARGET_TYPE' is bit-wise copyable,
-        // then this operation is simply 'memcpy'.  The last argument is for
-        // removing overload ambiguities and is not used.
+        // (template parameter) 'ALLOCATOR' type is based on 'bslma::Allocator'
+        // and the 'TARGET_TYPE' constructors take an allocator argument, then
+        // pass the specified 'allocator' to the copy constructor.  The
+        // behavior is undefined unless the output array has length at least
+        // the distance from the specified 'fromBegin' to the specified
+        // 'fromEnd'.  Note that if 'FWD_ITER' is the 'TARGET_TYPE *' pointer
+        // type and 'TARGET_TYPE' is bit-wise copyable, then this operation is
+        // simply 'memcpy'.  The last argument is for removing overload
+        // ambiguities and is not used.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void defaultConstruct(
@@ -1058,13 +1060,13 @@ struct ArrayPrimitives_Imp {
                                  size_type                   numElements,
                                  ALLOCATOR                  *allocator,
                                  bslmf::MetaInt<NIL_TRAITS> *);
-        // Use the default constructor of the parameterized 'TARGET_TYPE' (or
-        // 'memset' to 0 if 'TARGET_TYPE' has a trivial default constructor) on
-        // each element of the array starting at the 'begin' address and ending
-        // immediately before the 'end' address.  Pass the specified
-        // 'allocator' to the default constructor if appropriate.  The last
-        // argument is for traits overloading resolution only and its value is
-        // ignored.
+        // Use the default constructor of the (template parameter)
+        // 'TARGET_TYPE' (or 'memset' to 0 if 'TARGET_TYPE' has a trivial
+        // default constructor) on each element of the array starting at the
+        // specified 'begin' address and ending immediately before the 'end'
+        // address.  Pass the specified 'allocator' to the default constructor
+        // if appropriate.  The last argument is for traits overloading
+        // resolution only and its value is ignored.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(
@@ -1363,10 +1365,10 @@ struct ArrayPrimitives_Imp {
                       TARGET_TYPE                *last,
                       ALLOCATOR                  *allocator,
                       bslmf::MetaInt<NIL_TRAITS> *);
-        // These functions follow the 'erase' contract.  Note that if
-        // 'TARGET_TYPE' is bit-wise moveable, then this operation can be
-        // implemented by first bit-wise moving the elements in
-        // '[ middle, last)' towards first, and destroying
+        // These functions follow the 'erase' contract.  Note that if (template
+        // parameter) 'TARGET_TYPE' is bit-wise moveable, then this operation
+        // can be implemented by first bit-wise moving the elements in
+        // '[middle, last)' towards first, and destroying
         // '[ last - (middle - first), last)'; note that this cannot throw
         // exceptions.
 
@@ -1497,12 +1499,16 @@ struct ArrayPrimitives_Imp {
     static bool isInvalidRange(FORWARD_ITERATOR begin, FORWARD_ITERATOR end);
     template <class TARGET_TYPE>
     static bool isInvalidRange(TARGET_TYPE *begin, TARGET_TYPE *end);
-        // Return 'true' if '[begin, end)' provably do not form a valid range,
-        // and 'false' otherwise.  Note that 'begin == null == end' produces a
+        // Return 'true' if the specified 'begin' and the specified 'end'
+        // provably do not form a valid semi-open range, '[begin, end)', and
+        // 'false' otherwise.  Note that 'begin == null == end' produces a
         // valid range, and any other use of the null pointer value will return
-        // 'true'.  Also not that this function is intended to support testing,
-        // primarily through assertions, so will return 'true' unless it can
-        // *prove* that the passed range is invalid.
+        // 'true'.  Also note that this function is intended to support
+        // testing, primarily through assertions, so will return 'true' unless
+        // it can *prove* that the passed range is invalid.  Currently, this
+        // function can prove invalid ranges only for pointers, although should
+        // also encompass generic random access iterators in a future update,
+        // where iterator tag types are levelized below 'bslalg'.
 
     template <class TARGET_TYPE>
     static void rotate(TARGET_TYPE                             *begin,
