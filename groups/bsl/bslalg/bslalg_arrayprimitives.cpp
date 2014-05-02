@@ -161,13 +161,15 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     BSLMF_ASSERT(2 == sizeof(short));
 
-    const char *valueBuffer = (const char *) &value;
+    const char *valueBuffer = reinterpret_cast<const char *>(&value);
     if (valueBuffer[0] == valueBuffer[1]) {  // 0, but also -1, 257, etc.
         std::memset(begin, value, numElements * sizeof value);
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
@@ -183,7 +185,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
      if (0 == numElements) {
         return;                                                       // RETURN
     }
-    const char  *valueCharBuffer  = (const char *) &value;
+    const char  *valueCharBuffer  = reinterpret_cast<const char *>(&value);
     const short *valueShortBuffer = static_cast<const short *>(
                                    static_cast<const void *>(valueCharBuffer));
     if (valueCharBuffer[0]  == valueCharBuffer[1] &&
@@ -194,7 +196,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
@@ -210,7 +214,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     if (0 == numElements) {
         return;                                                       // RETURN
     }
-    const char  *valueCharBuffer  = (const char *) &value;
+    const char  *valueCharBuffer  = reinterpret_cast<const char *>(&value);
     const short *valueShortBuffer = static_cast<const short *>(
                                    static_cast<const void *>(valueCharBuffer));
     const int   *valueIntBuffer   = static_cast<const int *>(
@@ -227,7 +231,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
@@ -248,7 +254,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
@@ -269,7 +277,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
@@ -290,7 +300,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
@@ -311,7 +323,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
@@ -332,7 +346,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 

@@ -403,7 +403,7 @@ InitFuncPtrArray<112, 127> initFuncPtrArray112;
 
 char getValue(const FuncPtrType& fpt)
 {
-    return (char) (*fpt)();
+    return static_cast<char>((*fpt)());
 }
 
 void setValue(FuncPtrType *fpt, char ch)
@@ -457,7 +457,7 @@ InitMemberFuncPtrArray<112, 127> initMemberFuncPtrArray112;
 char getValue(const MemberFuncPtrType& mfpt)
 {
     Thing t;
-    return (char) (t.*mfpt)();
+    return static_cast<char>((t.*mfpt)());
 }
 
 void setValue(MemberFuncPtrType *mfpt, char ch)
@@ -514,12 +514,12 @@ void setValue(unsigned short *s, char ch)
 
 char getValue(const short& s)
 {
-    return (char) s;
+    return static_cast<char>(s);
 }
 
 char getValue(const unsigned short& s)
 {
-    return (char) s;
+    return static_cast<char>(s);
 }
 
                                 // =========
@@ -538,12 +538,12 @@ void setValue(unsigned int *pi, char ch)
 
 char getValue(const int& i)
 {
-    return (char) i;
+    return static_cast<char>(i);
 }
 
 char getValue(const unsigned int& i)
 {
-    return (char) i;
+    return static_cast<char>(i);
 }
 
                                 // ==========
@@ -562,12 +562,12 @@ void setValue(unsigned long *pl, char ch)
 
 char getValue(const long& ll)
 {
-    return (char) ll;
+    return static_cast<char>(ll);
 }
 
 char getValue(const unsigned long& ll)
 {
-    return (char) ll;
+    return static_cast<char>(ll);
 }
 
                             // =====================
@@ -586,12 +586,12 @@ void setValue(Uint64 *p64, char ch)
 
 char getValue(const Int64& i64)
 {
-    return (char) i64;
+    return static_cast<char>(i64);
 }
 
 char getValue(const Uint64& u64)
 {
-    return (char) u64;
+    return static_cast<char>(u64);
 }
 
                             // ====================
@@ -600,32 +600,32 @@ char getValue(const Uint64& u64)
 
 void setValue(float *pf, char ch)
 {
-    *pf = (int) ch;
+    *pf = static_cast<int>(ch);
 }
 
 void setValue(double *pf, char ch)
 {
-    *pf = (int) ch;
+    *pf = static_cast<int>(ch);
 }
 
 void setValue(long double *pf, char ch)
 {
-    *pf = (int) ch;
+    *pf = static_cast<int>(ch);
 }
 
 char getValue(const float& f)
 {
-    return (char) ((int) f & 0xff);
+    return static_cast<char>(static_cast<int>(f) & 0xff);
 }
 
 char getValue(const double& f)
 {
-    return (char) ((int) f & 0xff);
+    return static_cast<char>(static_cast<int>(f) & 0xff);
 }
 
 char getValue(const long double& f)
 {
-    return (char) ((int) f & 0xff);
+    return static_cast<char>(static_cast<int>(f) & 0xff);
 }
 
                                 // ========
@@ -704,12 +704,12 @@ struct ConstructEnabler {
 
     operator int *() const
     {
-        return (int *) (UintPtr) d_c;
+        return reinterpret_cast<int *>(static_cast<UintPtr>(d_c));
     }
 
     operator void *() const
     {
-        return (void *) (UintPtr) d_c;
+        return reinterpret_cast<void *>(static_cast<UintPtr>(d_c));
     }
 
     operator FuncPtrType() const
@@ -749,7 +749,7 @@ class TestType {
     , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        d_data_p  = static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
         *d_data_p = '?';
     }
 
@@ -758,7 +758,7 @@ class TestType {
     , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        d_data_p  = static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
         *d_data_p = cE.d_c;
     }
 
@@ -773,7 +773,8 @@ class TestType {
     {
         ++numCopyCtorCalls;
         if (&original != this) {
-            d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+            d_data_p =
+                    static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
             *d_data_p = *original.d_data_p;
         }
     }
@@ -790,7 +791,8 @@ class TestType {
     {
         ++numAssignmentCalls;
         if (&rhs != this) {
-            char *newData = (char *)d_allocator_p->allocate(sizeof(char));
+            char *newData =
+                    static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
             *d_data_p = '_';
             d_allocator_p->deallocate(d_data_p);
             d_data_p  = newData;
@@ -808,7 +810,7 @@ class TestType {
     {
         if (d_data_p) {
             ASSERT(isalpha(*d_data_p));
-            printf("%c (int: %d)\n", *d_data_p, (int)*d_data_p);
+            printf("%c (int: %d)\n", *d_data_p, static_cast<int>(*d_data_p));
         } else {
             printf("VOID\n");
         }
@@ -907,7 +909,7 @@ class TestTypeNoAlloc {
     void print() const
     {
         ASSERT(isalpha(d_u.d_char));
-        printf("%c (int: %d)\n", d_u.d_char, (int)d_u.d_char);
+        printf("%c (int: %d)\n", d_u.d_char, static_cast<int>(d_u.d_char));
     }
 };
 
@@ -1240,7 +1242,7 @@ void fillWithJunk(void *buf, int size)
     char *p = reinterpret_cast<char*>(buf);
 
     for (int i = 0; i < size; ++i) {
-        p[i] = (char)((i % MAX_VALUE) + 1);
+        p[i] = static_cast<char>((i % MAX_VALUE) + 1);
     }
 }
 
@@ -1424,7 +1426,7 @@ void testRotate(bool bitwiseMoveableFlag,
         char                                d_raw[MAX_SIZE * sizeof(TYPE)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     for (int ti = 0; ti < NUM_DATA_8; ++ti) {
         const int         LINE  = DATA_8[ti].d_lineNum;
@@ -1445,7 +1447,7 @@ void testRotate(bool bitwiseMoveableFlag,
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 gg(buf, SPEC);  verify(buf, SPEC);
 
-                TYPE *end = buf + (int)std::strlen(SPEC);
+                TYPE *end = buf + std::strlen(SPEC);
                 CleanupGuard<TYPE> guard(buf, SPEC, &end);
 
                 Obj::rotate(&buf[BEGIN], &buf[BEGIN + M], &buf[END]);
@@ -1535,7 +1537,7 @@ void testErase(bool,
         char                                d_raw[MAX_SIZE * sizeof(T)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     for (int ti = 0; ti < NUM_DATA_7; ++ti) {
         const int         LINE  = DATA_7[ti].d_lineNum;
@@ -1720,8 +1722,8 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
                        LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
             }
 
-            TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
-            TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
+            TYPE *srcBuf = static_cast<TYPE*>(static_cast<void*>(&u.d_raw[0]));
+            TYPE *dstBuf = static_cast<TYPE*>(static_cast<void*>(&v.d_raw[0]));
             TYPE *srcEnd = &srcBuf[END];
 
             if (exceptionSafetyFlag) {
@@ -1909,7 +1911,7 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
         inputCe[pc - INPUT] = *pc;
     }
 
-    TYPE *input = (TYPE*) (void*) &w.d_raw[MAX_SIZE];
+    TYPE *input = static_cast<TYPE *>(static_cast<void *>(&w.d_raw[MAX_SIZE]));
     gg(input, INPUT);  verify(input, INPUT);
 
     for (int ti = 0; ti < NUM_DATA_6R; ++ti) {
@@ -1930,8 +1932,8 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
                    LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
         }
 
-        TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
-        TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
+        TYPE *srcBuf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+        TYPE *dstBuf = static_cast<TYPE *>(static_cast<void *>(&v.d_raw[0]));
         TYPE *srcEnd = &srcBuf[END];
 
         if (veryVerbose) printf("\t\t...and arbitrary FWD_ITER\n");
@@ -2109,11 +2111,12 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
                    LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
         }
 
-        TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
-        TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
+        TYPE *srcBuf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+        TYPE *dstBuf = static_cast<TYPE *>(static_cast<void *>(&v.d_raw[0]));
         TYPE *srcEnd = &srcBuf[END];
 
-        TYPE *input = (TYPE*) (void *) &w.d_raw[MAX_SIZE];
+        TYPE *input =
+                  static_cast<TYPE *>(static_cast<void *>(&w.d_raw[MAX_SIZE]));
         TYPE *inputEnd = &input[NE];
 
         if (exceptionSafetyFlag) {
@@ -2275,7 +2278,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
                         LINE, SPEC, NE, DST, END, EXP);
             }
 
-            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+            TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -2388,7 +2391,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v;
 
-    TYPE *input = (TYPE*) (void*) &v.d_raw[MAX_SIZE];
+    TYPE *input = static_cast<TYPE *>(static_cast<void *>(&v.d_raw[MAX_SIZE]));
     gg(input, INPUT);  verify(input, INPUT);
 
     for (int ti = 0; ti < NUM_DATA_5R; ++ti) {
@@ -2408,7 +2411,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
         if (veryVerbose) printf("\t\t...and arbitrary FWD_ITER\n");
         {
-            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+            TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -2453,7 +2456,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
         if (veryVerbose) printf("\t\t...and FWD_ITER = TYPE*\n");
         {
-            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+            TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -2545,8 +2548,9 @@ void testMoveInsert(bool bitwiseMoveableFlag,
                     LINE, SPEC, NE, DST, END , EXP);
         }
 
-        TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
-        TYPE *input = (TYPE*) (void*) &v.d_raw[MAX_SIZE];
+        TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+        TYPE *input =
+                  static_cast<TYPE *>(static_cast<void *>(&v.d_raw[MAX_SIZE]));
         TYPE *inputEnd = &input[NE];
 
         if (exceptionSafetyFlag) {
@@ -2667,7 +2671,7 @@ void testDestructiveMove(bool bitwiseMoveableFlag,
         char                                d_raw[MAX_SIZE * sizeof(TYPE)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE *) (void *) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     for (int ti = 0; ti < NUM_DATA_4; ++ti) {
         const int         LINE = DATA_4[ti].d_lineNum;
@@ -2776,7 +2780,7 @@ void testCopyConstruct(bool, // bitwiseMoveableFlag
         char                                d_raw[MAX_SIZE * sizeof(TYPE)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE *) (void *) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     if (verbose) printf("\t\tfrom same type.\n");
 
@@ -2935,7 +2939,7 @@ void testUninitializedFillN(bool, // bitwiseMoveableFlag
         char                                d_raw[MAX_SIZE * sizeof(TYPE)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     {
         bsls::ObjectBuffer<TYPE> mV;
@@ -3003,8 +3007,8 @@ void testUninitializedFillNBCT(TYPE value)
 
     Buffer u;
     Buffer v;
-    TYPE *bufU = (TYPE*) (void*) (&u.d_raw[0]);
-    TYPE *bufV = (TYPE*) (void*) (&v.d_raw[0]);
+    TYPE *bufU = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+    TYPE *bufV = static_cast<TYPE *>(static_cast<void *>(&v.d_raw[0]));
 
     for (int arraySize = 0; arraySize < MAX_SIZE; ++arraySize) {
         for (int begin = 0; begin <= arraySize; ++begin) {
@@ -3534,7 +3538,8 @@ int main(int argc, char *argv[])
         const size_type rawBufferSize = (argc > 2) ? atoi(argv[2])
                                                    : BUFFER_SIZE;
         const int numIter = (argc > 3) ? atoi(argv[3]) : NUM_ITER;
-        char *rawBuffer = (char *)Z->allocate(rawBufferSize);  // max alignment
+        char *rawBuffer = static_cast<char *>(Z->allocate(rawBufferSize));
+                                                               // max alignment
 
         printf("\nUsage: %s [bufferSize] [numIter]"
                "\n\tbufferSize\tin bytes (default: 16777216)"
@@ -3564,7 +3569,7 @@ int main(int argc, char *argv[])
             printf("fill<char>(0) - memset      : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (char)numIter;
+            buffer[0] = static_cast<char>(numIter);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (size_type j = 0; j < bufferSize; ++j) {
@@ -3599,7 +3604,7 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with int\n");
         {
             const size_type bufferSize = rawBufferSize / sizeof(int);
-            int *buffer = (int *) (void *) rawBuffer;
+            int *buffer = static_cast<int *>(static_cast<void *>(rawBuffer));
 
             bsls::Stopwatch timer;
             timer.start();
@@ -3656,7 +3661,8 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with double\n");
         {
             const size_type bufferSize = rawBufferSize / sizeof(double);
-            double *buffer = (double *) (void *) rawBuffer;
+            double *buffer =
+                         static_cast<double *>(static_cast<void *>(rawBuffer));
 
             bsls::Stopwatch timer;
             timer.start();
@@ -3677,7 +3683,7 @@ int main(int argc, char *argv[])
             printf("fill<double>(0) - memset     : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (double)numIter;
+            buffer[0] = static_cast<double>(numIter);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (size_type j = 0; j < bufferSize; ++j) {
@@ -3688,7 +3694,7 @@ int main(int argc, char *argv[])
             printf("fill<double>(1) - single loop: %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (double)numIter;
+            buffer[0] = static_cast<double>(numIter);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 Obj::uninitializedFillN(buffer,
@@ -3700,7 +3706,7 @@ int main(int argc, char *argv[])
             printf("fill<double>(1) - memcpy 32  : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (double)numIter;
+            buffer[0] = static_cast<double>(numIter);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
@@ -3714,7 +3720,8 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with void *\n");
         {
             const size_type bufferSize = rawBufferSize / sizeof(void *);
-            void **buffer = (void **) (void *) rawBuffer;
+            void **buffer =
+                     reinterpret_cast<void **>(static_cast<void *>(rawBuffer));
 
             bsls::Stopwatch timer;
             timer.start();
@@ -3735,7 +3742,7 @@ int main(int argc, char *argv[])
             printf("fill<void *>(0) - memset     : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (void *)buffer;
+            buffer[0] = static_cast<void *>(buffer);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (size_type j = 0; j < bufferSize; ++j) {
@@ -3746,7 +3753,7 @@ int main(int argc, char *argv[])
             printf("fill<void *>(1) - single loop: %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (void *)buffer;
+            buffer[0] = static_cast<void *>(buffer);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 Obj::uninitializedFillN(buffer,
@@ -3758,7 +3765,7 @@ int main(int argc, char *argv[])
             printf("fill<void *>(1) - memcpy 32  : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (void *)buffer;
+            buffer[0] = static_cast<void *>(buffer);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,

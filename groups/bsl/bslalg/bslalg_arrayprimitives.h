@@ -1826,7 +1826,7 @@ void ArrayPrimitives::destructiveMoveAndMoveInsert(TARGET_TYPE  *toBegin,
     destructiveMove(toPositionBegin, first, last, allocator);
 
     *lastPtr = first;
-    guard.moveBegin(-(difference_type)numElements);
+    guard.moveBegin(-static_cast<difference_type>(numElements));
 
     //..
     //  Transformation: ABCD:____ ; ____[tuvwEFGH]
@@ -2339,7 +2339,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    std::memset((char *)begin, (char)value, numElements);
+    std::memset(reinterpret_cast<char *>(begin),      // odd, why not 'void *'?
+                static_cast<char>(value),
+                numElements);
 }
 
 inline
@@ -2409,9 +2411,11 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    uninitializedFillN(
-                      (short *)begin, (short)value, numElements,
-                      (void*)0, (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+    uninitializedFillN(reinterpret_cast<short *>(begin),
+                       static_cast<short>(value),
+                       numElements,
+                       (void *)0,
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)0);
 }
 
 inline
@@ -2425,9 +2429,11 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    uninitializedFillN(
-                      (int *)begin, (int)value, numElements,
-                      (void*)0, (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+    uninitializedFillN(reinterpret_cast<int *>(begin),
+                       static_cast<int>(value),
+                       numElements,
+                       (void *)0,
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)0);
 }
 
 inline
@@ -2442,15 +2448,15 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-    uninitializedFillN((bsls::Types::Int64 *)begin,
-                       (bsls::Types::Int64)value,
+    uninitializedFillN(reinterpret_cast<bsls::Types::Int64 *>(begin),
+                       static_cast<bsls::Types::Int64>(value),
                        numElements);
 #else
-    uninitializedFillN((int *)begin,
-                       (int)value,
+    uninitializedFillN(reinterpret_cast<int *>(begin),
+                       static_cast<int>(value),
                        numElements,
-                       (void*)0,
-                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+                       (void *)0,
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)0);
 #endif
 }
 
@@ -2466,15 +2472,17 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && !defined(BSLS_PLATFORM_OS_WINDOWS)
-    uninitializedFillN(
-                      (bsls::Types::Int64 *)begin,
-                      (bsls::Types::Int64)value,
-                      numElements,
-                      (void*)0, (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+    uninitializedFillN(reinterpret_cast<bsls::Types::Int64 *>(begin),
+                       static_cast<bsls::Types::Int64>(value),
+                       numElements,
+                       (void *)0,
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 #else
-    uninitializedFillN(
-                      (int *)begin, (int)value, numElements,
-                      (void*)0, (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+    uninitializedFillN(reinterpret_cast<int *>(begin),
+                       static_cast<int>(value),
+                       numElements,
+                       (void *)0,
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)0);
 #endif
 }
 
@@ -2489,11 +2497,11 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    uninitializedFillN((bsls::Types::Int64 *)begin,
-                       (bsls::Types::Uint64)value,
+    uninitializedFillN(reinterpret_cast<bsls::Types::Int64 *>(begin),
+                       value,
                        numElements,
-                       (void*)0,
-                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+                       (void *)0,
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)0);
 }
 
 template <class TARGET_TYPE>
@@ -2515,11 +2523,11 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     // correct, 'const void **' is not [C++ Standard, 4.4 Qualification
     // conversions]).
 
-    uninitializedFillN((void **)begin,
-                       (void *)value,
+    uninitializedFillN(reinterpret_cast<void **>(begin),
+                       static_cast<void *>(value),
                        numElements,
-                       (void*)0,
-                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+                       (void *)0,
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)0);
 }
 
 template <class TARGET_TYPE>
@@ -2537,11 +2545,11 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     // While it seems that this overload is subsumed by the previous template,
     // SunPro does not detect it.
 
-    uninitializedFillN((const void **)begin,
-                       (const void *)value,
+    uninitializedFillN(reinterpret_cast<const void **>(begin),
+                       static_cast<const void *>(value),
                        numElements,
-                       (void*)0,
-                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+                       (void *)0,
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -2565,7 +2573,8 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     // 'sizeof value' times, we can use 'memset.
 
     size_type index = 0;
-    const char *valueBuffer = (const char *) BSLS_UTIL_ADDRESSOF(value);
+    const char *valueBuffer =
+                    reinterpret_cast<const char *>(BSLS_UTIL_ADDRESSOF(value));
     while (++index < sizeof(TARGET_TYPE)) {
         if (valueBuffer[index] != valueBuffer[0]) {
             break;
@@ -2576,7 +2585,7 @@ void ArrayPrimitives_Imp::uninitializedFillN(
         std::memset(begin, valueBuffer[0], sizeof(TARGET_TYPE) * numElements);
     } else {
         std::memcpy(begin, valueBuffer, sizeof(TARGET_TYPE));
-        bitwiseFillN((char *)begin,
+        bitwiseFillN(reinterpret_cast<char *>(begin),
                      sizeof(TARGET_TYPE),
                      sizeof(TARGET_TYPE) * numElements);
     }
@@ -2631,17 +2640,18 @@ void ArrayPrimitives_Imp::copyConstruct(
 
 #if defined(BSLS_PLATFORM_CMP_IBM)  // xlC has problem removing pointer from
                                     // function pointer types
-    copyConstruct((void *       *) toBegin,
-                  (void * const *) fromBegin,
-                  (void * const *) fromEnd,
+    copyConstruct(reinterpret_cast<void *       *>(toBegin),
+                  reinterpret_cast<void * const *>(fromBegin),
+                  reinterpret_cast<void * const *>(fromEnd),
                   allocator,
                   (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
 #else
-    copyConstruct((void *       *) const_cast<NcPtrType **>(toBegin),
-                  (void * const *) const_cast<NcIter * const *>(fromBegin),
-                  (void * const *) const_cast<NcIter * const *>(fromEnd),
-                  allocator,
-                  (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+    copyConstruct(
+     reinterpret_cast<void *       *>(const_cast<NcPtrType **>(toBegin)),
+     reinterpret_cast<void * const *>(const_cast<NcIter * const *>(fromBegin)),
+     reinterpret_cast<void * const *>(const_cast<NcIter * const *>(fromEnd)),
+     allocator,
+     (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)0);
 #endif
 }
 
@@ -2658,7 +2668,8 @@ void ArrayPrimitives_Imp::copyConstruct(
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
 
-    const size_type numBytes = (const char*)fromEnd - (const char*)fromBegin;
+    const size_type numBytes = reinterpret_cast<const char*>(fromEnd)
+                             - reinterpret_cast<const char*>(fromBegin);
     std::memcpy(toBegin, fromBegin, numBytes);
 }
 
@@ -2699,7 +2710,9 @@ void ArrayPrimitives_Imp::defaultConstruct(
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
-    std::memset((void *)begin, 0, sizeof(TARGET_TYPE) * numElements);
+    std::memset(static_cast<void *>(begin),
+                0,
+                sizeof(TARGET_TYPE) * numElements);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -2714,7 +2727,7 @@ void ArrayPrimitives_Imp::defaultConstruct(
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     ScalarPrimitives::defaultConstruct(begin, allocator);
-    bitwiseFillN((char *)begin,
+    bitwiseFillN(reinterpret_cast<char *>(begin),
                  sizeof(TARGET_TYPE),
                  numElements * sizeof(TARGET_TYPE));
 }
@@ -2754,7 +2767,8 @@ void ArrayPrimitives_Imp::destructiveMove(
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
                                                           fromEnd));
 
-    const size_type numBytes = (const char*)fromEnd - (const char*)fromBegin;
+    const size_type numBytes = reinterpret_cast<const char*>(fromEnd)
+                             - reinterpret_cast<const char*>(fromBegin);
     std::memcpy(toBegin, fromBegin, numBytes);
 }
 
@@ -4149,10 +4163,8 @@ void ArrayPrimitives_Imp::erase(
                                ALLOCATOR                               *,
                                bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
-                                                          middle));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
-                                                          last));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, last));
 
     // Key to the transformation diagrams:
     //..
@@ -4169,7 +4181,8 @@ void ArrayPrimitives_Imp::erase(
     //..
     //  Transformation: ___ABCDEFG => ABCDEFG___  (might overlap, but no throw)
     //..
-    size_type numBytes = (const char *)last - (const char *)middle;
+    size_type numBytes = reinterpret_cast<const char *>(last)
+                       - reinterpret_cast<const char *>(middle);
     std::memmove(first, middle, numBytes);
 }
 
@@ -4180,10 +4193,8 @@ void ArrayPrimitives_Imp::erase(TARGET_TYPE                *first,
                                 ALLOCATOR                  *,
                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
-                                                          middle));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
-                                                          last));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, last));
 
     // Key to the transformation diagrams:
     //..
@@ -4219,8 +4230,7 @@ void ArrayPrimitives_Imp::insert(
                           ALLOCATOR                               *allocator,
                           bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
@@ -4247,7 +4257,8 @@ void ArrayPrimitives_Imp::insert(
     //  Transformation: ABCDE___ => ___ABCDE  (might overlap).
     //..
 
-    const size_type numBytes = (const char*)toEnd - (const char*)toBegin;
+    const size_type numBytes = reinterpret_cast<const char*>(toEnd)
+                             - reinterpret_cast<const char*>(toBegin);
     std::memmove(toBegin + numElements, toBegin, numBytes);
 
     //..
@@ -4266,7 +4277,9 @@ void ArrayPrimitives_Imp::insert(
     //  Transformation: v__ABCDE => vvvABCDE.
     //..
 
-    bitwiseFillN((char*)toBegin, sizeof value, numElements * sizeof value);
+    bitwiseFillN(reinterpret_cast<char *>(toBegin),
+                 sizeof value,
+                 numElements * sizeof value);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -4278,8 +4291,7 @@ void ArrayPrimitives_Imp::insert(
                           ALLOCATOR                               *allocator,
                           bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
@@ -4359,8 +4371,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
                                  ALLOCATOR                  *allocator,
                                  bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     // Key to the transformation diagrams:
@@ -4384,7 +4395,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
                       toEnd - numElements,  // source
                       toEnd,                // end source
                       allocator,
-                      (bslmf::MetaInt<NIL_TRAITS>*)0);
+                      (bslmf::MetaInt<NIL_TRAITS> *)0);
 
         AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
                                                toEnd + numElements);
@@ -4492,21 +4503,22 @@ void ArrayPrimitives_Imp::insert(
 
 #if defined(BSLS_PLATFORM_CMP_IBM)  // xlC has problem removing pointer from
                                     // function pointer types
-    insert((void *       *) toBegin,
-           (void *       *) toEnd,
-           (void * const *) fromBegin,
-           (void * const *) fromEnd,
+    insert(reinterpret_cast<void *       *>(toBegin),
+           reinterpret_cast<void *       *>(toEnd),
+           reinterpret_cast<void * const *>(fromBegin),
+           reinterpret_cast<void * const *>(fromEnd),
            numElements,
            allocator,
            (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
 #else
-    insert((void *       *) const_cast<NcPtrType **>(toBegin),
-           (void *       *) const_cast<NcPtrType **>(toEnd),
-           (void * const *) const_cast<NcIter * const *>(fromBegin),
-           (void * const *) const_cast<NcIter * const *>(fromEnd),
-           numElements,
-           allocator,
-           (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+    insert(
+     reinterpret_cast<void *       *>(const_cast<NcPtrType **>(toBegin)),
+     reinterpret_cast<void *       *>(const_cast<NcPtrType **>(toEnd)),
+     reinterpret_cast<void * const *>(const_cast<NcIter * const *>(fromBegin)),
+     reinterpret_cast<void * const *>(const_cast<NcIter * const *>(fromEnd)),
+     numElements,
+     allocator,
+     (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
 #endif
 }
 
@@ -4523,10 +4535,8 @@ void ArrayPrimitives_Imp::insert(
 {
     // 'FWD_ITER' has been converted to a 'const TARGET_TYPE *' and
     // 'TARGET_TYPE' is bit-wise copyable.
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
-                                                          fromEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin, fromEnd));
     BSLS_ASSERT_SAFE(fromBegin || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
@@ -4545,7 +4555,8 @@ void ArrayPrimitives_Imp::insert(
     //  Transformation: ABCDE_______ => _______ABCDE (might overlap).
     //..
 
-    const size_type numBytes = (const char*)toEnd - (const char*)toBegin;
+    const size_type numBytes = reinterpret_cast<const char*>(toEnd)
+                             - reinterpret_cast<const char*>(toBegin);
     std::memmove(toBegin + numElements, toBegin, numBytes);
 
     //..
@@ -4654,8 +4665,7 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
                                  ALLOCATOR                  *allocator,
                                  bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
 
     if (0 == numElements) {
@@ -4762,8 +4772,7 @@ void ArrayPrimitives_Imp::moveInsert(
                          ALLOCATOR                                *allocator,
                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>  *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
     BSLS_ASSERT_SAFE(first || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
@@ -4788,8 +4797,7 @@ void ArrayPrimitives_Imp::moveInsert(TARGET_TYPE                 *toBegin,
                                      ALLOCATOR                   *allocator,
                                      bslmf::MetaInt<NIL_TRAITS>  *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin, toEnd));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
     BSLS_ASSERT_SAFE(first || 0 == numElements);
     BSLMF_ASSERT((bsl::is_same<size_type, std::size_t>::value));
@@ -4815,11 +4823,12 @@ void ArrayPrimitives_Imp::rotate(
                                TARGET_TYPE                             *end,
                                bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(begin,
-                                                          middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(begin, middle));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, end));
 
-    bitwiseRotate((char *)begin, (char *)middle, (char *)end);
+    bitwiseRotate(reinterpret_cast<char *>(begin),
+                  reinterpret_cast<char *>(middle),
+                  reinterpret_cast<char *>(end));
 }
 
 template <class TARGET_TYPE>
@@ -4828,8 +4837,7 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
                                  TARGET_TYPE                *end,
                                  bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(begin,
-                                                          middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(begin, middle));
     BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, end));
 
     if (begin == middle || middle == end) {
