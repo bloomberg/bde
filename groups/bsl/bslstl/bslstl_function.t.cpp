@@ -150,6 +150,9 @@ inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
+// Size type used by test allocator.
+typedef bsls::Types::Int64 AllocSizeType;
+
 // Use this test allocator when another allocator is not specified.
 bslma::TestAllocator globalTestAllocator("globalTestAllocator");
 
@@ -1227,7 +1230,7 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
 
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
-    bsls::Types::Int64 numBlocksUsed, minBytesUsed, maxBytesUsed;
+    AllocSizeType numBlocksUsed, minBytesUsed, maxBytesUsed;
     
     switch (inplace) {
       case e_INPLACE_BOTH: {
@@ -1288,7 +1291,7 @@ void testCopyCtorWithAlloc(FUNC        func,
 
     bool copyAllocNone = (0 == std::strcmp(copyAllocName, "none"));
 
-    bsls::Types::Int64 numBlocksUsed, numBytesUsed;
+    AllocSizeType numBlocksUsed, numBytesUsed;
 
     bslma::TestAllocator copyTa;
     ALLOC copyAlloc(&copyTa);
@@ -1433,7 +1436,7 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
     // objects with the identical memory footprint of the post-move (possibly
     // empty) source and post-move destination and measure the total memory
     // usage.
-    bsls::Types::Int64 destNumBlocksUsed, destNumBytesUsed;
+    AllocSizeType destNumBlocksUsed, destNumBytesUsed;
     {
         Obj postMoveDest(bsl::allocator_arg, alloc, func);
         char *ctarget = reinterpret_cast<char*>(postMoveDest.target<FUNC>());
@@ -1563,8 +1566,8 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
 
     // Create a pair of objects identical to the post-move source and
     // post-move destination and measure the total memory usage.
-    bsls::Types::Int64 sourceNumBlocksUsed, sourceNumBytesUsed;
-    bsls::Types::Int64 destNumBlocksUsed, destNumBytesUsed;
+    AllocSizeType sourceNumBlocksUsed, sourceNumBytesUsed;
+    AllocSizeType destNumBlocksUsed, destNumBytesUsed;
     {
         // Since allocator is different, move operation is identical to copy.
         Obj postMoveSource(bsl::allocator_arg, sourceAlloc, func);
@@ -1782,24 +1785,24 @@ void testAssignment(const Obj& inA,
     // Test copy assignment
     {
         // Make copies of inA and inB.
-        bsls::Types::Int64 preA1Bytes = testAlloc1.numBytesInUse();
+        AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
         Obj a(bsl::allocator_arg, allocA1, inA);
-        bsls::Types::Int64 aBytesBefore =
+        AllocSizeType aBytesBefore =
             testAlloc1.numBytesInUse() - preA1Bytes;
         Obj b(bsl::allocator_arg, allocB2, inB);
 
         // 'exp' should look like 'a' after the assignment
         preA1Bytes = testAlloc1.numBytesInUse();
         Obj exp(bsl::allocator_arg, allocA1, inB);
-        bsls::Types::Int64 expBytes = testAlloc1.numBytesInUse() - preA1Bytes;
+        AllocSizeType expBytes = testAlloc1.numBytesInUse() - preA1Bytes;
 
         preA1Bytes = testAlloc1.numBytesInUse();
-        bsls::Types::Int64 preB2Bytes = testAlloc2.numBytesInUse();
-        bsls::Types::Int64 preB2Total = testAlloc2.numBytesTotal();
+        AllocSizeType preB2Bytes = testAlloc2.numBytesInUse();
+        AllocSizeType preB2Total = testAlloc2.numBytesTotal();
         a = b;  ///////// COPY ASSIGNMENT //////////
-        bsls::Types::Int64 postA1Bytes = testAlloc1.numBytesInUse();
-        bsls::Types::Int64 postB2Bytes = testAlloc2.numBytesInUse();
-        bsls::Types::Int64 postB2Total = testAlloc2.numBytesTotal();
+        AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
+        AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
+        AllocSizeType postB2Total = testAlloc2.numBytesTotal();
         LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
         LOOP2_ASSERT(lineA, lineB, areEqualB_p(b, inB)); // b is unchanged
         LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
@@ -1833,24 +1836,24 @@ void testAssignment(const Obj& inA,
 
     {
         // Make copies of inA and inB.
-        bsls::Types::Int64 preA1Bytes = testAlloc1.numBytesInUse();
+        AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
         Obj a( bsl::allocator_arg, allocA1, inA);
-        bsls::Types::Int64 aBytesBefore =
+        AllocSizeType aBytesBefore =
             testAlloc1.numBytesInUse() - preA1Bytes;
         Obj b( bsl::allocator_arg, allocB2, inB);
 
         // 'exp' should look like 'a' after the assignment
         preA1Bytes = testAlloc1.numBytesInUse();
         Obj exp(bsl::allocator_arg, allocA1, inB);
-        bsls::Types::Int64 expBytes = testAlloc1.numBytesInUse() - preA1Bytes;
+        AllocSizeType expBytes = testAlloc1.numBytesInUse() - preA1Bytes;
 
         preA1Bytes = testAlloc1.numBytesInUse();
-        bsls::Types::Int64 preB2Bytes = testAlloc2.numBytesInUse();
-        bsls::Types::Int64 preB2Total = testAlloc2.numBytesTotal();
+        AllocSizeType preB2Bytes = testAlloc2.numBytesInUse();
+        AllocSizeType preB2Total = testAlloc2.numBytesTotal();
         a = std::move(b);  ///////// MOVE ASSIGNMENT //////////
-        bsls::Types::Int64 postA1Bytes = testAlloc1.numBytesInUse();
-        bsls::Types::Int64 postB2Bytes = testAlloc2.numBytesInUse();
-        bsls::Types::Int64 postB2Total = testAlloc2.numBytesTotal();
+        AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
+        AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
+        AllocSizeType postB2Total = testAlloc2.numBytesTotal();
         LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
         // 'b' should be either in the moved-from state or unchanged.
         LOOP2_ASSERT(lineA, lineB, (areEqualB_p(b, movedFromB) ||
@@ -1892,15 +1895,15 @@ void testAssignment(const Obj& inA,
 
         // preA1Bytes = testAlloc1.numBytesInUse();
         // Obj emptyObj(bsl::allocator_arg, allocA1);
-        // bsls::Types::Int64 emptyBytes =
+        // AllocSizeType emptyBytes =
         //     testAlloc1.numBytesInUse() - preA1Bytes;
 
         // Move assigment with equal allocators is the same as swap
-        bsls::Types::Int64 preA1Bytes = testAlloc1.numBytesInUse();
-        bsls::Types::Int64 preA1Total = testAlloc1.numBytesTotal();
+        AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
+        AllocSizeType preA1Total = testAlloc1.numBytesTotal();
         a = std::move(b);  ///////// move ASSIGNMENT //////////
-        bsls::Types::Int64 postA1Bytes = testAlloc1.numBytesInUse();
-        bsls::Types::Int64 postA1Total = testAlloc1.numBytesTotal();
+        AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
+        AllocSizeType postA1Total = testAlloc1.numBytesTotal();
         LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
         LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
                                                                a.allocator()));
@@ -1920,6 +1923,43 @@ void testAssignment(const Obj& inA,
     LOOP2_ASSERT(lineA, lineB, testAlloc1Monitor.isInUseSame());
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+}
+
+template <class ALLOC>
+void testAssignNullptr(const Obj& func, int line)
+{
+    bslma::TestAllocator testAlloc;
+    ALLOC alloc(&testAlloc);
+
+    // Measure the number of blocks allocated for an empty 'function' using
+    // the same allocator.
+    AllocSizeType expNumBlocks;
+    {
+        Obj emptyObj(bsl::allocator_arg, alloc);
+        expNumBlocks = testAlloc.numBlocksInUse();
+    }
+
+    ASSERT(0 == testAlloc.numBlocksInUse());
+
+    // Make copy of function with specified allocator
+    Obj funcCopy(bsl::allocator_arg, alloc, func); 
+
+    AllocSizeType expTotalBlocks = testAlloc.numBlocksTotal();
+
+    testAlloc.setAllocationLimit(0);    // Disable new allocations
+    moveLimit = 0;                      // Disable throwing-functor moves
+    funcCopy = nullptr_t(); ///////// Assignment from nullptr ////////
+    moveLimit = -1;
+    testAlloc.setAllocationLimit(-1);
+
+    LOOP_ASSERT(line, ! funcCopy);
+    LOOP_ASSERT(line, areEqualAlloc(alloc, funcCopy.allocator()));
+    // Test memory usage:
+    //  * No new memory was allocated (total did not increase)
+    //  * Memory blocks used matches expected use for empty function.
+    //    (Bytes used might be larger in some cases.)
+    LOOP_ASSERT(line, expTotalBlocks == testAlloc.numBlocksTotal());
+    LOOP_ASSERT(line, expNumBlocks   == testAlloc.numBlocksInUse());
 }
 
 //=============================================================================
@@ -1947,6 +1987,116 @@ int main(int argc, char *argv[])
             // TBD: A number of test cases need to be extended to test for
             // correct exception behavior.
 
+      case 13: {
+        // --------------------------------------------------------------------
+        // ASSIGNMENT FROM 'nullptr'
+        //
+        // Concerns:
+        //: 1 Assigning a 'function' object the value 'nullptr' results in an
+        //:   empty 'function'.
+        //: 2 The allocator of the assigned 'function' does not change.
+        //: 3 No memory is allocated by the assignment, though memory might be
+        //:   freed. The number of blocks used after the assignment should
+        //:   match the number of blocks used by an empty functor with the
+        //:   same allocator (though the number of bytes might increase).
+        //: 4 No potentially-throwing operations are invoked.
+        //: 5 The above concerns apply to 'funcition' objects constructed with
+        //:   every category of allocator and every category of wrapped
+        //:   functor.
+        //
+        // Plan:
+        //: 1 For concern 1, create a 'function', 'f', and assign 'f =
+        //:   nullptr'. Verify that 'f.empty()' is true after the assignment.
+        //: 2 For concern 2, verify that the allocator is the same before and
+        //:   after the assignment.
+        //: 3 For concern 3, test the blocks used from the allocator
+        //:   before and after the assignment.  Verify that the total used
+        //:   does not increase and that the number of blocks used after the
+        //:   assignment matches the number of blocks used for an empty
+        //:   function using the same allocator.
+        //: 4 For concern 4, construct the initial 'function' using a functor
+        //:   that throws on move or copy and set the allocator to throw on
+        //:   the first allocation request.  Verify that the assignment works
+        //:   without throwing.
+        //: 5 For concern 5, encapsulate the above steps into a function
+        //:   template, 'testAssignNullptr', parameterized on allocator type
+        //:   and taking a 'function' argument.  Create an array of 'function'
+        //:   objects, each of which is constructed with a functor from a
+        //:   different category (small, large, throwing, non-throwing, etc.).
+        //:   Invoke 'testAssignNullptr' with each category of allocator
+        //:   ('bslma::Allocator*', 'bsl::allocator', small STL-allocator,
+        //:   large STL-allocator, etc.) for each element of the array of
+        //:   'function'.
+        //
+        // Testing:
+        //      function<RET(ARGS...)>& operator=(nullptr_t);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nASSIGNMENT FROM 'nullptr'"
+                            "\n=========================\n");
+
+        typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
+        typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
+
+        // Null function pointers
+        static const SimpleFuncPtr_t    nullFuncPtr    = 0;
+        static const SimpleMemFuncPtr_t nullMemFuncPtr = 0;
+
+        struct TestData {
+            // Data for one dimension of test
+
+            int               d_line;           // Line number
+            Obj               d_function;       // function object to swap
+            const char       *d_funcName;       // function object name
+        };
+
+#define TEST_ITEM(F, V)                          \
+        { L_, Obj(F(V)), #F "(" #V ")" }
+
+        TestData data[] = {
+            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc        ),
+            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::add1 ),
+            TEST_ITEM(EmptyFunctor         , 0                 ),
+            TEST_ITEM(SmallFunctor         , 0x2000            ),
+            TEST_ITEM(MediumFunctor        , 0x4000            ),
+            TEST_ITEM(LargeFunctor         , 0x6000            ),
+            TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
+            TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
+            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+        };
+        
+#undef TEST_ITEM
+
+        int dataSize = sizeof(data) / sizeof(TestData);
+
+#define TEST(ALLOC) do {                                                    \
+            if (veryVeryVerbose) printf("\tAllocator type = %s\n", #ALLOC); \
+            testAssignNullptr<ALLOC>(func, line);                           \
+        } while (false)
+
+        for (int i = 0; i < dataSize; ++i) {
+            const int line             = data[i].d_line;
+            const Obj& func            = data[i].d_function;
+            const char* funcName       = data[i].d_funcName;
+
+            if (veryVerbose) printf("Assign %s = nullptr\n", funcName);
+
+            TEST(bslma::TestAllocator *  );
+            TEST(bsl::allocator<char>    );
+            TEST(EmptySTLAllocator<char> );
+            TEST(TinySTLAllocator<char>  );
+            TEST(SmallSTLAllocator<char> );
+            TEST(MediumSTLAllocator<char>);
+            TEST(LargeSTLAllocator<char> );
+
+        } // end for (each function in data array)
+
+#undef TEST
+
+      } break;
+
       case 12: {
         // --------------------------------------------------------------------
         // COPY AND MOVE ASSIGNMENT
@@ -1957,10 +2107,13 @@ int main(int argc, char *argv[])
         //: 2 The allocator of the lhs is not changed by the assignment.
         //: 3 The rhs of a copy assignment is not changed.
         //: 4 For move assignment, if the lhs and rhs allocators are same type
-        //:   and compare equal, no memory is allocated and the rhs is changed
+        //:   and compare equal, no memory is allocated and the rhs is swapped
+        //:   with the lhs.
         //:   to be an empty 'function'.
-        //: 5 If the lhs and rhs allocators do not compare equal, the behavior
-        //:   of move assignment is identical to that of copy assignment.
+        //: 5 If the lhs and rhs allocators do not compare equal, the memory
+        //:   allocation behavior of move assignment is identical to that of
+        //:   copy assignment and the rhs is either unchanged or is changed to
+        //:   the moved-from state.
         //: 6 For move assignment, if the lhs and rhs allocators compare
         //:   equal, then no exception is thrown, even if the wrapped functor
         //:   has a throwing move constructor.
@@ -1992,12 +2145,13 @@ int main(int argc, char *argv[])
         //: 4 For concern 4, check the allocators of 'a2' and 'b2' before the
         //:   assignment and, if they are equal, verify that no allocations
         //:   or deallocations are performed using either that allocator or
-        //:   the global allocator as a result of the move assignment.  Also
-        //:   verify that 'b2' is empty after the move assignment.
+        //:   the global allocator as a result of the move assignment.
         //: 5 For concern 5, check the allocators of 'a2' and 'b2' before the
         //:   assignment and, if they are not equal, verify that copying 'b2'
-        //:   to 'a2' by move assignment has the same behavior as copying 'b1'
-        //:   to 'a1' by copy assignment.
+        //:   to 'a2' by move assignment results in a memory footprint
+        //:   equivalent to destroying 'a1' and move-constructing 'b' using
+        //:   'a1's alloctor.  Verify that the function wrapped 'b1' is put
+        //:   into either in a moved-from state or left unchanged.
         //: 6 For concern 6, when 'a2' and 'b2' have the same allocator, turn
         //:   on instrumentation in the allocators and the functors that would
         //:   cause them to throw exceptions.  Verify that the move assignment
@@ -2082,6 +2236,13 @@ int main(int argc, char *argv[])
 
 #undef TEST_ITEM
 
+#define TEST(ALLOC1, ALLOC2) do {                                       \
+            if (veryVeryVerbose) printf("\tAllocator types = %s, %s\n", \
+                                        #ALLOC1, #ALLOC2);              \
+            testAssignment<ALLOC1, ALLOC2>(funcA, funcB, areEqualB,     \
+                                           lineA, lineB);               \
+        } while (false)
+
         int dataBSize = sizeof(dataB) / sizeof(TestData);
 
         for (int i = 0; i < dataASize; ++i) {
@@ -2097,13 +2258,6 @@ int main(int argc, char *argv[])
                 if (veryVerbose) printf("Assign %s = %s\n",
                                         funcAName, funcBName);
 
-#define TEST(ALLOC1, ALLOC2) do {                                             \
-         if (veryVeryVerbose) printf("\tAllocator types = %s, %s\n",          \
-                                     #ALLOC1, #ALLOC2);                       \
-         testAssignment<ALLOC1, ALLOC2>(funcA, funcB, areEqualB,              \
-                                        lineA, lineB);                        \
-     } while (false)
-
                 TEST(bslma::TestAllocator *  , bslma::TestAllocator *  );
                 TEST(bsl::allocator<char>    , EmptySTLAllocator<char> );
                 TEST(bslma::TestAllocator *  , SmallSTLAllocator<char> );
@@ -2113,10 +2267,10 @@ int main(int argc, char *argv[])
                 TEST(MediumSTLAllocator<char>, LargeSTLAllocator<char> );
                 TEST(LargeSTLAllocator<char> , LargeSTLAllocator<char> );
 
-#undef TEST
+            } // End for (each item in dataB)
+        } // End for (each item in dataA)
 
-            }
-        }
+#undef TEST
 
       } break;
 
@@ -2234,6 +2388,11 @@ int main(int argc, char *argv[])
 
 #undef TEST_ITEM
 
+#define TEST(ALLOC) do {                                                      \
+         if (veryVeryVerbose) printf("\tAllocator type = %s\n", #ALLOC);      \
+         testSwap<ALLOC>(funcA, funcB, areEqualA, areEqualB, lineA, lineB);   \
+     } while (false)
+
         int dataBSize = sizeof(dataB) / sizeof(TestData);
 
         for (int i = 0; i < dataASize; ++i) {
@@ -2249,11 +2408,6 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("swap(%s, %s)\n",funcAName,funcBName);
 
-#define TEST(ALLOC) do {                                                      \
-         if (veryVeryVerbose) printf("\tAllocator type = %s\n", #ALLOC);      \
-         testSwap<ALLOC>(funcA, funcB, areEqualA, areEqualB, lineA, lineB);   \
-     } while (false)
-
                 TEST(bslma::TestAllocator *  );
                 TEST(bsl::allocator<char>    );
                 TEST(EmptySTLAllocator<char> );
@@ -2262,10 +2416,10 @@ int main(int argc, char *argv[])
                 TEST(MediumSTLAllocator<char>);
                 TEST(LargeSTLAllocator<char> );
 
-#undef TEST
+            } // end for (each item in dataB)
+        } // end for (each item in dataA)
 
-            }
-        }
+#undef TEST
 
       } break;
 

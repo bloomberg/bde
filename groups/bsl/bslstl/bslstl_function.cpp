@@ -88,6 +88,68 @@ bool bsl::Function_Rep::moveInit(Function_Rep& other)
     return inplace;
 }
 
+void bsl::Function_Rep::makeEmpty()
+{
+    if (! d_funcManager_p) {
+        // Already empty.  Nothing to do.
+        return;
+    }
+
+    // Call destructor on wrapped functor.
+    std::size_t sooFuncSize = d_funcManager_p(e_DESTROY, this,
+                                              PtrOrSize_t()).asSize_t();
+    d_funcManager_p = NULL;
+
+    std::size_t allocSize = d_allocManager_p(e_GET_SIZE, this,
+                                             PtrOrSize_t()).asSize_t();
+    bslma::Allocator *fromAlloc = d_allocator_p;
+
+    if (sooFuncSize <= sizeof(InplaceBuffer)) {
+        // Was inplace functor.  Check if allocator can be deallocated.
+        if (allocSize <= sizeof(InplaceBuffer) &&
+            sooFuncSize + allocSize > sizeof(InplaceBuffer)) {
+            // Allocator was out-of-place, but now fits inplace.  Move
+            // out-of-place allocator to inplace and deallocate previous
+            // allocator.
+            d_allocator_p = reinterpret_cast<bslma::Allocator*>(&d_objbuf);
+            d_allocManager_p(e_DESTRUCTIVE_MOVE, this, fromAlloc);
+            d_allocator_p->deallocate(fromAlloc);
+        }
+        return;
+    }
+
+    // assert(functor is out-of-place)
+
+    if (d_allocManager_p == &unownedAllocManager) {
+        // Was out-of-place functor with unowned allocator.
+        // Deallocate functor. (Allocator is unaffected.)
+        d_allocator_p->deallocate(d_objbuf.d_object_p);
+        return;
+    }
+
+    // assert(functor and allocator are both out-of-place)
+
+    // Memory block where (destructed) functor and (valid) allocator live.
+    void *memoryBlock = d_objbuf.d_object_p;
+
+    if (allocSize <= sizeof(InplaceBuffer)) {
+        // Allocator now inplace now that functor is gone.
+        // Move out-of-place allocator to inplace.
+        d_allocator_p = reinterpret_cast<bslma::Allocator*>(&d_objbuf);
+        d_allocManager_p(e_DESTRUCTIVE_MOVE, this, fromAlloc);
+        // Deallocate memory block that contained functor and allocator.
+        d_allocator_p->deallocate(memoryBlock);
+    }
+    else {
+        // Allocator is at some offset into 'd_object_p' memory block.  Move
+        // allocator to front (offset 0) of memory block.  Do not try to
+        // allocate a new memory block (could throw) nor deallocate existing
+        // memory block (because it's still in use).
+        d_allocator_p = static_cast<bslma::Allocator*>(memoryBlock);
+        d_allocManager_p(e_DESTRUCTIVE_MOVE, this, fromAlloc);
+    }
+}
+
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
                                        Function_Rep  *rep,

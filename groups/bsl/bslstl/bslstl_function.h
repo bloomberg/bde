@@ -441,11 +441,22 @@ class Function_Rep {
     template <class ALLOC>
     friend struct Function_AllocTraits;
 
+    template <class ALLOC>
+    void copyInit(const ALLOC& alloc, const Function_Rep& other);
+        // Using the specified 'alloc', copy-initialize this rep from the
+        // specified 'other' rep.
+
     bool moveInit(Function_Rep& other);
         // Move-initialize this rep from the specified 'other' rep.  Returns
-        // 'true' if the move took was inplace (i.e., function was
+        // 'true' if the move was inplace (i.e., function was
         // move-constructed from one 'd_objbuf' to another) and false
         // otherwise.
+
+    void makeEmpty();
+        // Change this object to be an empty object without changing its
+        // allocator.  Note that value returned by 'allocator()' might change,
+        // but will point to an allocator with the same type managing the same
+        // memory resource.
 
     void *initRep(std::size_t sooFuncSize, bslma::Allocator* alloc,
                   integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>);
@@ -683,9 +694,6 @@ class function<RET(ARGS...)> :
     template <class FUNC>
     static RET outofplaceFunctorInvoker(const Function_Rep *rep, 
                                 typename bslmf::ForwardingType<ARGS>::Type...);
-
-    template <class ALLOC>
-    void copyInit(const ALLOC& alloc, const function& other);
 
 public:
     // PUBLIC TYPES
@@ -939,6 +947,26 @@ const std::size_t bsl::Function_Rep::SooFuncSize<TP>::FOOTPRINT;
 template <class TP>
 const std::size_t bsl::Function_Rep::SooFuncSize<TP>::VALUE;
 
+template <class ALLOC>
+void bsl::Function_Rep::copyInit(const ALLOC& alloc, const Function_Rep& other)
+{
+    d_funcManager_p = other.d_funcManager_p;
+
+    std::size_t sooFuncSize = d_funcManager_p ?
+        d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
+
+    typedef Function_AllocTraits<ALLOC> Traits;
+    initRep(sooFuncSize,
+            typename Traits::Type(alloc), typename Traits::Category());
+
+    if (d_funcManager_p) {
+        PtrOrSize_t source = d_funcManager_p(e_GET_TARGET,
+                                             const_cast<Function_Rep*>(&other),
+                                             PtrOrSize_t());
+        d_funcManager_p(e_COPY_CONSTRUCT, this, source);
+    }
+}
+
 template <class FUNC>
 bsl::Function_Rep::PtrOrSize_t
 bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
@@ -1106,12 +1134,35 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
 
       case e_DESTRUCTIVE_MOVE: {
         const Adaptor& other = *static_cast<const Adaptor*>(input.asPtr());
+
+        // Compute the distance (in bytes) between the start of the source and
+        // the start of the destination to see if they overlap.
+        std::ptrdiff_t dist =
+            abs(reinterpret_cast<const char*>(rep->d_allocator_p) -
+                reinterpret_cast<const char*>(&other));
+
+        if (dist >= sizeof(Adaptor)) {
+            // Input and output don't overlap.
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        ::new ((void*) rep->d_allocator_p) Adaptor(std::move(other));
+            ::new ((void*) rep->d_allocator_p) Adaptor(std::move(other));
 #else
-        ::new ((void*) rep->d_allocator_p) Adaptor(other);
+            ::new ((void*) rep->d_allocator_p) Adaptor(other);
 #endif
-        other.~Adaptor();  
+            other.~Adaptor();
+        }
+        else {
+            // Input and output overlap so we need to move through a temporary
+            // variable.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            Adaptor temp(std::move(other));
+            other.~Adaptor();
+            ::new ((void*) rep->d_allocator_p) Adaptor(std::move(temp));
+#else
+            Adaptor temp(other);
+            other.~Adaptor();
+            ::new ((void*) rep->d_allocator_p) Adaptor(temp);
+#endif
+        }
       } break;
 
       case e_GET_SIZE: {
@@ -1465,29 +1516,6 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
     return &outofplaceFunctorInvoker<FUNC>;
 }
 
-template <class RET, class... ARGS>
-template <class ALLOC>
-void bsl::function<RET(ARGS...)>::copyInit(const ALLOC&    alloc,
-                                           const function& other)
-{
-    d_funcManager_p = other.d_funcManager_p;
-    d_invoker_p     = other.d_invoker_p;
-
-    std::size_t sooFuncSize = d_funcManager_p ?
-        d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t()).asSize_t() : 0;
-
-    typedef Function_AllocTraits<ALLOC> Traits;
-    initRep(sooFuncSize,
-            typename Traits::Type(alloc), typename Traits::Category());
-
-    if (d_funcManager_p) {
-        PtrOrSize_t source = d_funcManager_p(e_GET_TARGET,
-                                             const_cast<function*>(&other),
-                                             PtrOrSize_t());
-        d_funcManager_p(e_COPY_CONSTRUCT, this, source);
-    }
-}
-
 // CREATORS
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
@@ -1513,6 +1541,7 @@ template <class RET, class... ARGS>
 inline
 bsl::function<RET(ARGS...)>::function(const function& other)
 {
+    d_invoker_p = other.d_invoker_p;
     copyInit(bslma::Default::defaultAllocator(), other);
 }
 
@@ -1572,6 +1601,7 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
                                       const ALLOC&    alloc,
                                       const function& other)
 {
+    d_invoker_p = other.d_invoker_p;
     copyInit(alloc, other);
 }
 
@@ -1610,6 +1640,7 @@ bsl::function<RET(ARGS...)>::function(function&& other)
 {
     d_invoker_p = other.d_invoker_p;
     if (! moveInit(other)) {
+        // Function was moved by pointer; 'other' is now empty.
         other.d_invoker_p = NULL;
     }
 }
@@ -1622,14 +1653,16 @@ bsl::function<RET(ARGS...)>::function(allocator_arg_t,
 {
     typedef Function_AllocTraits<ALLOC> AllocTraits;
 
+    d_invoker_p = other.d_invoker_p;
     if (other.equalAlloc(alloc, typename AllocTraits::Category())) {
-        d_invoker_p = other.d_invoker_p;
         if (! moveInit(other)) {
+            // Function was moved by pointer; 'other' is now empty.
             other.d_invoker_p = NULL;
         }
     }
-    else
+    else {
         copyInit(typename AllocTraits::Type(alloc), other);
+    }
 }
 
 #endif //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -1727,7 +1760,8 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(nullptr_t)
 {
-    // TBD
+    d_invoker_p = NULL;
+    makeEmpty();
     return *this;
 }
 
