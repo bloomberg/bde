@@ -249,15 +249,15 @@ class Function_Rep {
         // (below).
     private:
         std::size_t  d_asSize_t;
-        const void  *d_asPtr;
+        void        *d_asPtr;
 
     public:
         PtrOrSize_t(std::size_t s) : d_asSize_t(s) { }
-        PtrOrSize_t(const void *p) : d_asPtr(p) { }
+        PtrOrSize_t(void *p) : d_asPtr(p) { }
         PtrOrSize_t() : d_asPtr(0) { }
 
         std::size_t asSize_t() const { return d_asSize_t; }
-        const void *asPtr() const { return d_asPtr; }
+        void *asPtr() const { return d_asPtr; }
     };
 
     enum ManagerOpCode {
@@ -1003,8 +1003,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           // trivially moveable, then the move operation below will do it
           // trivially.  
 
-          FUNC &srcFunc =
-              *static_cast<FUNC*>(const_cast<void*>(input.asPtr()));
+          FUNC &srcFunc = *static_cast<FUNC*>(input.asPtr());
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
           ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
@@ -1054,7 +1053,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       } break;
 
       case e_DESTRUCTIVE_MOVE: {
-        void *input_p = const_cast<void*>(input.asPtr());
+        void *input_p = input.asPtr();
         char savedSrcByte = static_cast<char*>(input_p)[0];
         if (bslmf::IsBitwiseMoveable<FUNC>::value) {
             *static_cast<bsls::ObjectBuffer<FUNC>*>(wrappedFunc_p) =
@@ -1082,7 +1081,8 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
 
       case e_GET_SIZE:     return k_SOO_FUNC_SIZE;
       case e_GET_TARGET:   return wrappedFunc_p;
-      case e_GET_TYPE_ID:  return &typeid(FUNC);
+      case e_GET_TYPE_ID:
+          return const_cast<std::type_info*>(&typeid(FUNC));
 
       case e_IS_EQUAL:
       case e_INIT_REP: {
@@ -1172,7 +1172,8 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
       }
 
       case e_GET_TARGET:  return rep->d_allocator_p;
-      case e_GET_TYPE_ID: return &typeid(Adaptor);
+      case e_GET_TYPE_ID:
+          return const_cast<std::type_info*>(&typeid(Adaptor));
 
       case e_IS_EQUAL: {
         const bslma::Allocator *inputAlloc =
@@ -1393,7 +1394,7 @@ TP* bsl::Function_Rep::target() BSLS_NOTHROW_SPEC
     }
 
     PtrOrSize_t target = d_funcManager_p(e_GET_TARGET, this, PtrOrSize_t());
-    return static_cast<TP*>(const_cast<void*>(target.asPtr()));
+    return static_cast<TP*>(target.asPtr());
 }
 
 template<class TP>

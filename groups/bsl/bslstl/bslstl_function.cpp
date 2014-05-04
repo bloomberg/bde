@@ -175,12 +175,13 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
       case e_DESTRUCTIVE_MOVE: {
         // Move just the pointer for unowed allocator.
         rep->d_allocator_p =
-            static_cast<bslma::Allocator*>(const_cast<void*>(input.asPtr()));
+            static_cast<bslma::Allocator*>(input.asPtr());
       } break;
 
       case e_GET_SIZE:     return PtrOrSize_t();
       case e_GET_TARGET:   return rep->d_allocator_p;
-      case e_GET_TYPE_ID:  return &typeid(bslma::Allocator);
+      case e_GET_TYPE_ID:
+        return const_cast<std::type_info*>(&typeid(bslma::Allocator));
 
       case e_IS_EQUAL: {
         const bslma::Allocator *inputAlloc =
@@ -189,8 +190,8 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
       } break;
 
       case e_INIT_REP: {
-          bslma::Allocator *inputAlloc = static_cast<bslma::Allocator *>(
-              const_cast<void *>(input.asPtr()));
+          bslma::Allocator *inputAlloc =
+              static_cast<bslma::Allocator *>(input.asPtr());
 
           std::size_t sooFuncSize = rep->d_funcManager_p ?
               rep->d_funcManager_p(e_GET_SIZE, rep,
