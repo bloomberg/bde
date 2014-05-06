@@ -547,7 +547,7 @@ struct allocator_traits {
         // that take at least one additional constructor argument are
         // implemented in terms of 'bslalg::ScalarPrimitives::construct'
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=14
     template <class ELEMENT_TYPE, class CTOR_ARGS_0, class... CTOR_ARGS>
     static void construct(ALLOCATOR_TYPE&  basisAllocator,
                           ELEMENT_TYPE    *elementAddr,
@@ -566,64 +566,281 @@ struct allocator_traits {
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line:
-//  sim_cpp11_features.pl --var-args=5 bslstl_allocatortraits.h
+// Generator command line: sim_cpp11_features.pl --var-args=14 bslstl_allocatortraits.h
     template <class ELEMENT_TYPE, class CTOR_ARGS_0>
     static void construct(ALLOCATOR_TYPE&  basisAllocator,
                           ELEMENT_TYPE    *elementAddr,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0);
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0);
 
-    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1>
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01>
     static void construct(ALLOCATOR_TYPE&  basisAllocator,
                           ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1);
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01);
 
-    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
-                                                     class CTOR_ARGS_2>
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02>
     static void construct(ALLOCATOR_TYPE&  basisAllocator,
                           ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2);
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02);
 
-    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
-                                                     class CTOR_ARGS_2,
-                                                     class CTOR_ARGS_3>
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03>
     static void construct(ALLOCATOR_TYPE&  basisAllocator,
                           ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3);
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03);
 
-    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
-                                                     class CTOR_ARGS_2,
-                                                     class CTOR_ARGS_3,
-                                                     class CTOR_ARGS_4>
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04>
     static void construct(ALLOCATOR_TYPE&  basisAllocator,
                           ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_4) ctorArgs_4);
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04);
 
-    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
-                                                     class CTOR_ARGS_2,
-                                                     class CTOR_ARGS_3,
-                                                     class CTOR_ARGS_4,
-                                                     class CTOR_ARGS_5>
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05>
     static void construct(ALLOCATOR_TYPE&  basisAllocator,
                           ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_4) ctorArgs_4,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_5) ctorArgs_5);
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06,
+                                                     class CTOR_ARGS_07>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06,
+                                                     class CTOR_ARGS_07,
+                                                     class CTOR_ARGS_08>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06,
+                                                     class CTOR_ARGS_07,
+                                                     class CTOR_ARGS_08,
+                                                     class CTOR_ARGS_09>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06,
+                                                     class CTOR_ARGS_07,
+                                                     class CTOR_ARGS_08,
+                                                     class CTOR_ARGS_09,
+                                                     class CTOR_ARGS_10>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06,
+                                                     class CTOR_ARGS_07,
+                                                     class CTOR_ARGS_08,
+                                                     class CTOR_ARGS_09,
+                                                     class CTOR_ARGS_10,
+                                                     class CTOR_ARGS_11>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06,
+                                                     class CTOR_ARGS_07,
+                                                     class CTOR_ARGS_08,
+                                                     class CTOR_ARGS_09,
+                                                     class CTOR_ARGS_10,
+                                                     class CTOR_ARGS_11,
+                                                     class CTOR_ARGS_12>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_12) ctorArgs_12);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06,
+                                                     class CTOR_ARGS_07,
+                                                     class CTOR_ARGS_08,
+                                                     class CTOR_ARGS_09,
+                                                     class CTOR_ARGS_10,
+                                                     class CTOR_ARGS_11,
+                                                     class CTOR_ARGS_12,
+                                                     class CTOR_ARGS_13>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_12) ctorArgs_12,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_13) ctorArgs_13);
+
+    template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                     class CTOR_ARGS_02,
+                                                     class CTOR_ARGS_03,
+                                                     class CTOR_ARGS_04,
+                                                     class CTOR_ARGS_05,
+                                                     class CTOR_ARGS_06,
+                                                     class CTOR_ARGS_07,
+                                                     class CTOR_ARGS_08,
+                                                     class CTOR_ARGS_09,
+                                                     class CTOR_ARGS_10,
+                                                     class CTOR_ARGS_11,
+                                                     class CTOR_ARGS_12,
+                                                     class CTOR_ARGS_13,
+                                                     class CTOR_ARGS_14>
+    static void construct(ALLOCATOR_TYPE&  basisAllocator,
+                          ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_12) ctorArgs_12,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_13) ctorArgs_13,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_14) ctorArgs_14);
 
 #else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
     template <class ELEMENT_TYPE, class CTOR_ARGS_0, class... CTOR_ARGS>
     static void construct(ALLOCATOR_TYPE&  basisAllocator,
                           ELEMENT_TYPE    *elementAddr,
@@ -787,8 +1004,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
-// Generator command line:
-//  sim_cpp11_features.pl --var-args=5 bslstl_allocatortraits.h
+// Generator command line: sim_cpp11_features.pl --var-args=14 bslstl_allocatortraits.h
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class CTOR_ARGS_0>
 inline
@@ -805,136 +1021,624 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
 }
 
 template <class ALLOCATOR_TYPE>
-template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01>
 inline
 void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
                                             ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1)
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
                                   elementAddr,
                                   BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
                                   ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
-                                  ctorArgs_1),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
                                   mechanism(basisAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
-template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
-                                                 class CTOR_ARGS_2>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02>
 inline
 void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
                                             ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2)
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
                                   elementAddr,
                                   BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
                                   ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
-                                  ctorArgs_1),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_2,
-                                  ctorArgs_2),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
                                   mechanism(basisAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
-template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
-                                                 class CTOR_ARGS_2,
-                                                 class CTOR_ARGS_3>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03>
 inline
 void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
                                             ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3)
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
                                   elementAddr,
                                   BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
                                   ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
-                                  ctorArgs_1),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_2,
-                                  ctorArgs_2),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_3,
-                                  ctorArgs_3),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
                                   mechanism(basisAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
-template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
-                                                 class CTOR_ARGS_2,
-                                                 class CTOR_ARGS_3,
-                                                 class CTOR_ARGS_4>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04>
 inline
 void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
                                             ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_4) ctorArgs_4)
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
                                   elementAddr,
                                   BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
                                   ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
-                                  ctorArgs_1),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_2,
-                                  ctorArgs_2),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_3,
-                                  ctorArgs_3),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_4,
-                                  ctorArgs_4),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
                                   mechanism(basisAllocator, IsBslma()));
 }
 
 template <class ALLOCATOR_TYPE>
-template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_1,
-                                                 class CTOR_ARGS_2,
-                                                 class CTOR_ARGS_3,
-                                                 class CTOR_ARGS_4,
-                                                 class CTOR_ARGS_5>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05>
 inline
 void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
                                             ELEMENT_TYPE    *elementAddr,
                      BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_1) ctorArgs_1,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_2) ctorArgs_2,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_3) ctorArgs_3,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_4) ctorArgs_4,
-                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_5) ctorArgs_5)
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05)
 {
     BloombergLP::bslalg::ScalarPrimitives::construct(
                                   elementAddr,
                                   BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
                                   ctorArgs_0),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_1,
-                                  ctorArgs_1),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_2,
-                                  ctorArgs_2),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_3,
-                                  ctorArgs_3),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_4,
-                                  ctorArgs_4),
-                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_5,
-                                  ctorArgs_5),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06,
+                                                 class CTOR_ARGS_07>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
+                                  ctorArgs_07),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06,
+                                                 class CTOR_ARGS_07,
+                                                 class CTOR_ARGS_08>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
+                                  ctorArgs_07),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
+                                  ctorArgs_08),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06,
+                                                 class CTOR_ARGS_07,
+                                                 class CTOR_ARGS_08,
+                                                 class CTOR_ARGS_09>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
+                                  ctorArgs_07),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
+                                  ctorArgs_08),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
+                                  ctorArgs_09),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06,
+                                                 class CTOR_ARGS_07,
+                                                 class CTOR_ARGS_08,
+                                                 class CTOR_ARGS_09,
+                                                 class CTOR_ARGS_10>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
+                                  ctorArgs_07),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
+                                  ctorArgs_08),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
+                                  ctorArgs_09),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
+                                  ctorArgs_10),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06,
+                                                 class CTOR_ARGS_07,
+                                                 class CTOR_ARGS_08,
+                                                 class CTOR_ARGS_09,
+                                                 class CTOR_ARGS_10,
+                                                 class CTOR_ARGS_11>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
+                                  ctorArgs_07),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
+                                  ctorArgs_08),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
+                                  ctorArgs_09),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
+                                  ctorArgs_10),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,
+                                  ctorArgs_11),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06,
+                                                 class CTOR_ARGS_07,
+                                                 class CTOR_ARGS_08,
+                                                 class CTOR_ARGS_09,
+                                                 class CTOR_ARGS_10,
+                                                 class CTOR_ARGS_11,
+                                                 class CTOR_ARGS_12>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_12) ctorArgs_12)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
+                                  ctorArgs_07),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
+                                  ctorArgs_08),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
+                                  ctorArgs_09),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
+                                  ctorArgs_10),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,
+                                  ctorArgs_11),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,
+                                  ctorArgs_12),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06,
+                                                 class CTOR_ARGS_07,
+                                                 class CTOR_ARGS_08,
+                                                 class CTOR_ARGS_09,
+                                                 class CTOR_ARGS_10,
+                                                 class CTOR_ARGS_11,
+                                                 class CTOR_ARGS_12,
+                                                 class CTOR_ARGS_13>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_12) ctorArgs_12,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_13) ctorArgs_13)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
+                                  ctorArgs_07),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
+                                  ctorArgs_08),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
+                                  ctorArgs_09),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
+                                  ctorArgs_10),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,
+                                  ctorArgs_11),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,
+                                  ctorArgs_12),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_13,
+                                  ctorArgs_13),
+                                  mechanism(basisAllocator, IsBslma()));
+}
+
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class CTOR_ARGS_0, class CTOR_ARGS_01,
+                                                 class CTOR_ARGS_02,
+                                                 class CTOR_ARGS_03,
+                                                 class CTOR_ARGS_04,
+                                                 class CTOR_ARGS_05,
+                                                 class CTOR_ARGS_06,
+                                                 class CTOR_ARGS_07,
+                                                 class CTOR_ARGS_08,
+                                                 class CTOR_ARGS_09,
+                                                 class CTOR_ARGS_10,
+                                                 class CTOR_ARGS_11,
+                                                 class CTOR_ARGS_12,
+                                                 class CTOR_ARGS_13,
+                                                 class CTOR_ARGS_14>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  basisAllocator,
+                                            ELEMENT_TYPE    *elementAddr,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_0) ctorArgs_0,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_01) ctorArgs_01,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_02) ctorArgs_02,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_03) ctorArgs_03,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_04) ctorArgs_04,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_05) ctorArgs_05,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_06) ctorArgs_06,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_07) ctorArgs_07,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_08) ctorArgs_08,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_09) ctorArgs_09,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_10) ctorArgs_10,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_11) ctorArgs_11,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_12) ctorArgs_12,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_13) ctorArgs_13,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(CTOR_ARGS_14) ctorArgs_14)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                  elementAddr,
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_0,
+                                  ctorArgs_0),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_01,
+                                  ctorArgs_01),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_02,
+                                  ctorArgs_02),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_03,
+                                  ctorArgs_03),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_04,
+                                  ctorArgs_04),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_05,
+                                  ctorArgs_05),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_06,
+                                  ctorArgs_06),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_07,
+                                  ctorArgs_07),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_08,
+                                  ctorArgs_08),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_09,
+                                  ctorArgs_09),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_10,
+                                  ctorArgs_10),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_11,
+                                  ctorArgs_11),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_12,
+                                  ctorArgs_12),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_13,
+                                  ctorArgs_13),
+                                  BSLS_COMPILERFEATURES_FORWARD(CTOR_ARGS_14,
+                                  ctorArgs_14),
                                   mechanism(basisAllocator, IsBslma()));
 }
 
 #else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class CTOR_ARGS_0, class... CTOR_ARGS>
 inline
