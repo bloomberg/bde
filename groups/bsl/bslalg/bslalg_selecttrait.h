@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide facilities for selecting compile-time trait.
+//@PURPOSE: Provide a meta-function to select a suitable trait on a type.
 //
 //@CLASSES:
 //  bslalg::SelectTrait: trait detection mechanism
