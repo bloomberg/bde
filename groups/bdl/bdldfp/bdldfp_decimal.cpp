@@ -137,27 +137,22 @@ NotIsSpace<CHARTYPE>::operator()(CHARTYPE ch) const
 static
 char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-    return decSingleToString(reinterpret_cast<const decSingle*>(value),
-                                                                       buffer);
+    snprintf(buffer, n, "%#.7HG", *value);
+    return buffer;
 }
 
 static
 char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-    return decDoubleToString(reinterpret_cast<const decDouble*>(value),
-                                                                       buffer);
+    snprintf(buffer, n, "%#.16DG", *value);
+    return buffer;
 }
 
 static
 char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int n)
 { // TBD TODO - printf is locale dependent!!!
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-    return decQuadToString(reinterpret_cast<const decQuad*>(value), buffer);
+    snprintf(buffer, n, "%#.34DDG", *value);
+    return buffer;
 }
 
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
