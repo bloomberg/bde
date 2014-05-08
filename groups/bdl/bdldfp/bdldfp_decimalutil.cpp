@@ -708,22 +708,33 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
 
 Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
 {
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    __d64_quantize(*value.data(), *exponent.data(),
+                                                 DFP_ROUND_USING_CURRENT_MODE);
+    return value;
+#else
     Decimal64 result = value;
     decDoubleQuantize(convertImplType(result.data()),
                       convertImplType(value.data()),
                       convertImplType(exponent.data()),
                       getContext());
     return result;
+#endif
 }
 
 Decimal128 DecimalUtil::quantize(Decimal128 x, Decimal128 y)
 {
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    __d128_quantize(*x.data(), *y.data(), DFP_ROUND_USING_CURRENT_MODE);
+    return x;
+#else
     Decimal128 rv = x;
     decQuadQuantize(convertImplType(rv.data()),
                     convertImplType(x.data()),
                     convertImplType(y.data()),
                     getContext());
     return rv;
+#endif
 }
 
 int DecimalUtil::quantum(Decimal64 x)
@@ -744,14 +755,22 @@ int DecimalUtil::quantum(Decimal128 x)
 
 bool DecimalUtil::sameQuantum(Decimal64 x, Decimal64 y)
 {
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return __d64_same_quantum(*x.data(), *y.data());
+#else
     return decDoubleSameQuantum(convertImplType(x.data()),
                                 convertImplType(y.data())) == 1;
+#endif
 }
 
 bool DecimalUtil::sameQuantum(Decimal128 x, Decimal128 y)
 {
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return __d128_same_quantum(*x.data(), *y.data());
+#else
     return decQuadSameQuantum(convertImplType(x.data()),
                               convertImplType(y.data())) == 1;
+#endif
 }
 
 }  // close package namespace

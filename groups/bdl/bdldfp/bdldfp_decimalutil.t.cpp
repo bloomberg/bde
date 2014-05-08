@@ -572,6 +572,7 @@ int main(int argc, char* argv[])
             // Test all special cases with each other,
             // organized by LHS.
 
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
             // o sNaN
             // Concern: quantize with NaN in either parameter must return a
             // NaN.
@@ -652,6 +653,7 @@ int main(int argc, char* argv[])
                     ASSERT(Util::isNan(Util::quantize(value, nInf)));
                 }
             }
+#endif
 
             // Iterate through all possible pairings of mantissa and
             // exponent, and build Decimal64 values for each of them.
