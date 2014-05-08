@@ -1021,6 +1021,13 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args> void emplace_back(Args&&... args);
+        // Append the specified 'args' at the end of this vector. Perfect
+        // forwarding is used, so move semantics will be utilized for rvalued
+        // elements in 'args' that implement them. This means no unnecessary
+        // copying will occur. The elements in 'args' on which move semantics
+        // are used will have valid values but will be unspecified upon
+        // returning from this function. 
+
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
