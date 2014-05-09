@@ -1028,8 +1028,10 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // combination of constructing in place and "perfect forwarding" means
         // that when move semantics are availible, elements in 'args' will not
         // be copied at all. When move semantics are not availible, elements in
-        // 'args' will only be copied once. Note that this method offers a full
-        // guarantee of rollback in case an exception is thrown.
+        // 'args' will be copied only once. This method provides the strong
+        // exception safety guarentee, so the state of this object will not be
+        // changed if an exception is thrown (such as when allocating memory,
+        // or from operations of 'VALUE_TYPE').
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1081,10 +1083,12 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     void push_back(const VALUE_TYPE& value);
         // Append a copy of the specified 'value' at the end of this vector.
-        // Note that this method offers full guarantee of rollback in case an
-        // exception is thrown. This method requires that the (template
-        // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
-        // {Requirements on 'VALUE_TYPE'}).
+        // This method provides the strong exception safety guarentee, so the
+        // state of this object will not be changed if an exception is thrown
+        // (such as when allocating memory, or from operations of
+        // 'VALUE_TYPE'). This method requires that the (template parameter)
+        // type 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
+        // 'VALUE_TYPE'}).
 
     void pop_back();
         // Erase the last element from this vector.  The behavior is undefined
