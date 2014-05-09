@@ -181,8 +181,8 @@ namespace {
         {
         }
 
-        MyVector(const MyVector& original,
-                bslma::Allocator *basicAllocator = 0);
+        MyVector(const MyVector&   original,
+                 bslma::Allocator *basicAllocator = 0);
             // Create a 'MyVector' object having the same value as the
             // specified 'original' object.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
