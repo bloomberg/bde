@@ -741,8 +741,12 @@ int DecimalUtil::quantum(Decimal64 x)
 {
     BSLS_ASSERT(!isInf(x));
     BSLS_ASSERT(!isNan(x));
-
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    const int d64_bias = 398;
+    return __d64_biased_exponent(*x.data()) - d64_bias;
+#else
     return decDoubleGetExponent(convertImplType(x.data()));
+#endif
 }
 
 int DecimalUtil::quantum(Decimal128 x)
@@ -750,7 +754,12 @@ int DecimalUtil::quantum(Decimal128 x)
     BSLS_ASSERT(!isInf(x));
     BSLS_ASSERT(!isNan(x));
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    const int d128_bias = 6176;
+    return __d128_biased_exponent(*x.data()) - d128_bias;
+#else
     return decQuadGetExponent(convertImplType(x.data()));
+#endif
 }
 
 bool DecimalUtil::sameQuantum(Decimal64 x, Decimal64 y)
