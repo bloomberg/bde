@@ -687,10 +687,16 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
 {
     BSLS_ASSERT(-398     <= exponent);
     BSLS_ASSERT(exponent <= 369);
+
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    _Decimal64 value = mantissa;
+    return __d64_insert_biased_exponent(value, exponent + 398);
+#else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
 
     return valuetype64;
+#endif
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(int mantissa,
@@ -699,9 +705,15 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(int mantissa,
     BSLS_ASSERT(-398     <= exponent);
     BSLS_ASSERT(exponent <= 369);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    _Decimal64 value = mantissa;
+    return __d64_insert_biased_exponent(value, exponent + 398);
+#else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
+
     return valuetype64;
+#endif
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
@@ -712,11 +724,15 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
     BSLS_ASSERT(exponent <= 369);
     BSLS_ASSERT(mantissa <= 9999999999999999LL);\
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    _Decimal64 value = mantissa;
+    return __d64_insert_biased_exponent(value, exponent + 398);
+#else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
 
-
     return valuetype64;
+#endif
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
@@ -727,10 +743,15 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
     BSLS_ASSERT(exponent <= 369);
     BSLS_ASSERT(std::max(mantissa, -mantissa) <= 9999999999999999LL);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    _Decimal64 value = mantissa;
+    return __d64_insert_biased_exponent(value, exponent + 398);
+#else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
 
     return valuetype64;
+#endif
 }
 
 DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
@@ -740,9 +761,14 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    _Decimal128 value = mantissa;
+    return __d128_insert_biased_exponent(value, exponent + 6176);
+#else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
     return valuetype128;
+#endif
 }
 
 DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(int mantissa,
@@ -751,9 +777,14 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(int mantissa,
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    _Decimal128 value = mantissa;
+    return __d128_insert_biased_exponent(value, exponent + 6176);
+#else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
     return valuetype128;
+#endif
 }
 
 DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
@@ -763,9 +794,14 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    _Decimal128 value = mantissa;
+    return __d128_insert_biased_exponent(value, exponent + 6176);
+#else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
     return valuetype128;
+#endif
 }
 
 DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
@@ -775,9 +811,14 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    _Decimal128 value = mantissa;
+    return __d128_insert_biased_exponent(value, exponent + 6176);
+#else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
     return valuetype128;
+#endif
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(
