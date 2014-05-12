@@ -170,8 +170,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //      {
 //      }
 //
-//      MyVector(const MyVector& original,
-//              bslma::Allocator *basicAllocator = 0);
+//      MyVector(const MyVector&   original,
+//               bslma::Allocator *basicAllocator = 0);
 //          // Create a 'MyVector' object having the same value as the
 //          // specified 'original' object.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
@@ -180,9 +180,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //      // ...
 //
 //      // MANIPULATORS
-//      void reserve(int capacity);
-//          // Change the capacity of this vector to the specified 'capacity'
-//          // if it is greater than the vector's current capacity.
+//      void reserve(int minCapacity);
+//          // Change the capacity of this vector to at least the specified
+//          // 'minCapacity' if it is greater than the vector's current
+//          // capacity.
 //
 //      void insert(int dstIndex, int numElements, const TYPE& value);
 //          // Insert, into this vector, the specified 'numElements' of the
@@ -233,12 +234,12 @@ BSLS_IDENT("$Id$ $CSID$")
 // Now, we implement the 'reserve' method of 'MyVector':
 //..
 //  template <class TYPE>
-//  void MyVector<TYPE>::reserve(int capacity)
+//  void MyVector<TYPE>::reserve(int minCapacity)
 //  {
-//      if (d_capacity >= capacity) return;                           // RETURN
+//      if (d_capacity >= minCapacity) return;                        // RETURN
 //
 //      TYPE *newArrayPtr = static_cast<TYPE*>(d_allocator_p->allocate(
-//         BloombergLP::bslma::Allocator::size_type(capacity * sizeof(TYPE))));
+//      BloombergLP::bslma::Allocator::size_type(minCapacity * sizeof(TYPE))));
 //
 //      if (d_array_p) {
 //..
@@ -256,7 +257,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      }
 //
 //      d_array_p = newArrayPtr;
-//      d_capacity = capacity;
+//      d_capacity = minCapacity;
 //  }
 //..
 // Finally, we implement the 'insert' method of 'MyVector':

@@ -18,13 +18,14 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <cstdio>
-#include <cstdlib>     // atoi()
-#include <cstring>     // strlen()
 #include <ctype.h>     // isalpha()
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>    // atoi()
+#include <string.h>    // strlen()
+
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -191,9 +192,10 @@ namespace {
         // ...
 
         // MANIPULATORS
-        void reserve(int capacity);
-            // Change the capacity of this vector to the specified 'capacity'
-            // if it is greater than the vector's current capacity.
+        void reserve(int minCapacity);
+            // Change the capacity of this vector to at least the specified
+            // 'minCapacity' if it is greater than the vector's current
+            // capacity.
 
         void insert(int dstIndex, int numElements, const TYPE& value);
             // Insert, into this vector, the specified 'numElements' of the
@@ -244,12 +246,12 @@ namespace {
 // Now, we implement the 'reserve' method of 'MyVector':
 //..
     template <class TYPE>
-    void MyVector<TYPE>::reserve(int capacity)
+    void MyVector<TYPE>::reserve(int minCapacity)
     {
-        if (d_capacity >= capacity) return;                           // RETURN
+        if (d_capacity >= minCapacity) return;                        // RETURN
 
         TYPE *newArrayPtr = static_cast<TYPE*>(d_allocator_p->allocate(
-           BloombergLP::bslma::Allocator::size_type(capacity * sizeof(TYPE))));
+        BloombergLP::bslma::Allocator::size_type(minCapacity * sizeof(TYPE))));
 
         if (d_array_p) {
 //..
@@ -267,7 +269,7 @@ namespace {
         }
 
         d_array_p = newArrayPtr;
-        d_capacity = capacity;
+        d_capacity = minCapacity;
     }
 //..
 // Finally, we implement the 'insert' method of 'MyVector':
