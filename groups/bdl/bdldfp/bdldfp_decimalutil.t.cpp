@@ -558,6 +558,9 @@ int main(int argc, char* argv[])
             // Test for quantize, which depends upon the strict, narrow
             // contract for makeDecimalRaw.
 
+#if 0
+
+            // These cases are currently undefined behavior.
 
             // All special case values:
             // o signaling NaN     (sNaN)
@@ -572,7 +575,6 @@ int main(int argc, char* argv[])
             // Test all special cases with each other,
             // organized by LHS.
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
             // o sNaN
             // Concern: quantize with NaN in either parameter must return a
             // NaN.
@@ -621,7 +623,6 @@ int main(int argc, char* argv[])
             ASSERT(nInf ==     Util::quantize(nInf, pInf));
             ASSERT(nInf ==     Util::quantize(nInf, nInf));
 
-
             // Iterate through all possible pairings of mantissa and
             // exponent, and build Decimal64 values for each of them.
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
@@ -653,6 +654,7 @@ int main(int argc, char* argv[])
                     ASSERT(Util::isNan(Util::quantize(value, nInf)));
                 }
             }
+
 #endif
 
             // Iterate through all possible pairings of mantissa and

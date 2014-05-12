@@ -386,15 +386,14 @@ struct DecimalUtil {
         // sign to the specified 'x', and which has the exponent of the
         // specified 'y'.  If the exponent needs to be increased, round the
         // value according to the current decimal floating point rounding mode;
-        // and if the result of the rounding is not equal to the value of 'x',
-        // raise the 'inexact floating point exception'.  If the exponent needs
-        // to be decreased and the significant of the result has more digits
-        // than the type would allow, raise the 'invalid' floating-point
-        // exception and return NaN.  If both operands are NaN, return NaN.  If
-        // only one of the operands is infinity, raise the 'invalid'
-        // floating-point exception and return NaN.  If both operands are
-        // inifnity, return infinity with the same sign as 'x'.  This function
-        // does not signal underflow.
+        // and if the result of the rounding is not equal to the value of 'x'.
+        // If the exponent needs to be decreased and the significant of the
+        // result has more digits than the type would allow, return NaN.  The
+        // behavior is undefined if either operand is NaN or infinity of
+        // either sign.  Note that the 'invalid' and 'inexact' floating-point
+        // exception may be raised.  Also note that the AIX hardware function
+        // of '__d64_quantize' and '__d128_quantize', produces some results
+        // contrary to N1312 on operands of infinity and Nan.
 
     static int quantum(Decimal64  value);
     static int quantum(Decimal128 value);
