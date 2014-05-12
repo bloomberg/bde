@@ -121,6 +121,7 @@ using namespace std;
 // [17] operator+=(const string& rhs);
 // [17] operator+=(const C *s);
 // [17] operator+=(c);
+// [17] operator+=(const StringRefData& strRefData);
 // [16] iterator begin();
 // [16] iterator end();
 // [16] reverse_iterator rbegin();

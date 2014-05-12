@@ -1463,6 +1463,14 @@ class basic_string
         // Append the specified 'character' at the end of this string, and
         // return a reference providing modifiable access to this string.
 
+    basic_string& operator+=(
+        const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
+        // Append the specified 'strRef' at the end of this string. Return
+        // a reference providing modifiable access to this string. This
+        // operator was added to allow appends without requiring implicit
+        // conversion from 'bsls::StringRef' to 'bsl::string', meaning it
+        // avoids an unnecessary copy
+
     basic_string& append(const basic_string& suffix);
     basic_string& append(const basic_string& suffix,
                          size_type           position,
@@ -3574,6 +3582,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 {
     push_back(character);
     return *this;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
+    const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRefData)
+{
+    return append(strRefData.begin(),strRefData.end());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
