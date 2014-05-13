@@ -658,7 +658,7 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
     BSLS_ASSERT(               exponent <= 99999999);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    int biasedExponent = __d64_biased_exponent(*value.data());
+    const int biasedExponent = __d64_biased_exponent(*value.data());
     return __d64_insert_biased_exponent(
                                      *value.data(), biasedExponent + exponent);
 #else
@@ -679,8 +679,8 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     BSLS_ASSERT_SAFE(                  exponent <= makeDecimal64(99999999, 0));
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    int intExponent = __d64_to_long_long(*exponent.data());
-    int biasedExponent = __d64_biased_exponent(*value.data());
+    const int intExponent = __d64_to_long_long(*exponent.data());
+    const int biasedExponent = __d64_biased_exponent(*value.data());
     return __d64_insert_biased_exponent(
                                   *value.data(), biasedExponent + intExponent);
 #else
@@ -699,7 +699,7 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     BSLS_ASSERT(               exponent <= 99999999);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    int biasedExponent = __d128_biased_exponent(*value.data());
+    const int biasedExponent = __d128_biased_exponent(*value.data());
     return __d128_insert_biased_exponent(
                                      *value.data(), biasedExponent + exponent);
 #else
@@ -718,8 +718,8 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                                             Decimal128 exponent)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    int intExponent = __d128_to_long_long(*exponent.data());
-    int biasedExponent = __d128_biased_exponent(*value.data());
+    const int intExponent = __d128_to_long_long(*exponent.data());
+    const int biasedExponent = __d128_biased_exponent(*value.data());
     return __d128_insert_biased_exponent(
                                   *value.data(), biasedExponent + intExponent);
 #else
