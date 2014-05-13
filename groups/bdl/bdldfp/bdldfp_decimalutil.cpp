@@ -678,12 +678,19 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
       makeDecimal64(-1999999997, 0) <= exponent);
     BSLS_ASSERT_SAFE(                  exponent <= makeDecimal64(99999999, 0));
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    int intExponent = __d64_to_long_long(*exponent.data());
+    int biasedExponent = __d64_biased_exponent(*value.data());
+    return __d64_insert_biased_exponent(
+                                  *value.data(), biasedExponent + intExponent);
+#else
     Decimal64 result = value;
     decDoubleScaleB(convertImplType(result.data()),
                     convertImplType(value.data()),
                     convertImplType(exponent.data()),
                     getContext());
     return result;
+#endif
 }
 
 Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
@@ -710,12 +717,19 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
 Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                                             Decimal128 exponent)
 {
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    int intExponent = __d128_to_long_long(*exponent.data());
+    int biasedExponent = __d128_biased_exponent(*value.data());
+    return __d128_insert_biased_exponent(
+                                  *value.data(), biasedExponent + intExponent);
+#else
     Decimal128 result = value;
     decQuadScaleB(convertImplType(result.data()),
                   convertImplType(value.data()),
                   convertImplType(exponent.data()),
                   getContext());
     return result;
+#endif
 }
 
 Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
