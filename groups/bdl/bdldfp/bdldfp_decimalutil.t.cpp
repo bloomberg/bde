@@ -2314,10 +2314,15 @@ int main(int argc, char* argv[])
         {
             static const struct {
                 int       d_lineNum;
+
+                // The Decimal64 operand.
                 long long d_mantissa;
                 int       d_exponent;
+
+                // The exponent of 10 to multiply by.
                 int       d_pow;
 
+                // The Decimal64 expected value.
                 long long d_expectedMantissa;
                 int       d_expectedExponent;
             } TEST_DATA[] = {
