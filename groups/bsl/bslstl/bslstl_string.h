@@ -3587,7 +3587,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
-    const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRefData)
+               const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRefData)
 {
     return append(strRefData.begin(),strRefData.end());
 }

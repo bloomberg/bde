@@ -108,6 +108,8 @@ using namespace bsl;  // automatically added by script
 // [ 7] operator+(const StringRef& lhs, const native_std::string& rhs);
 // [ 7] operator+(const char *lhs, const StringRef& rhs);
 // [ 7] operator+(const StringRef& lhs, const char *rhs);
+// [ 7] bsl::basic_string bsl::basic_string::operator+=(
+//                                            const StringRefData& strRefData);
 // [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
 //--------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -2012,10 +2014,15 @@ int main(int argc, char *argv[])
         //   int operator+(const char *lhs, const StringRef& rhs);
         //   int operator+(const StringRef& lhs, const char *rhs);
         //   int operator+(const StringRef& lhs, const StringRef& rhs);
-        // --------------------------------------------------------------------
+        //   bsl::basic_string basic_string::operator+=(
+        //                                    const StringRefData& strRefData);
+        //   NOTE: The += operator is being tested here becuase the
+        //   bslstl_string test driver can not test using StringRef without
+        //   introducing cyclic dependencies
+        //   --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTesting Comparison Operators"
-                               << "\n============================"
+        if (verbose) std::cout << "\nTESTING ADDITION OPERATORS"
+                               << "\n=========================="
                                << std::endl;
 
         static const struct {
@@ -2111,6 +2118,13 @@ int main(int argc, char *argv[])
             // 'native_std::string' versus 'bsl::string'
             // This test is to ensure no overloading ambiguity was introduced.
             LOOP_ASSERT(LINE, RESULT == (S3  + S4));
+
+            // bsl::string with StringRef concatenated on. See comments at top
+            // of section for explanation
+            // Ensure += returns correctly
+            LOOP_ASSERT(LINE, RESULT == (s1 += X2));
+            // Ensure += left operand has proper value afterwards
+            LOOP_ASSERT(LINE, RESULT == (s1));
         }
       } break;
       case 6: {
