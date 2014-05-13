@@ -2247,8 +2247,14 @@ int main(int argc, char* argv[])
             ASSERT(!Util::sameQuantum(Util::multiplyByPowerOf10(anInt, 5),
                                       Util::multiplyByPowerOf10(anInt, 4)));
 
-            ASSERT(Util::quantum(Util::multiplyByPowerOf10(anInt, 5)) ==
-                   Util::quantum(anInt) + 5);
+            ASSERT(Util::sameQuantum(Util::multiplyByPowerOf10(anInt, -4),
+                                     Util::multiplyByPowerOf10(anInt, -4)));
+
+            ASSERT(!Util::sameQuantum(Util::multiplyByPowerOf10(anInt, -5),
+                                      Util::multiplyByPowerOf10(anInt, -4)));
+
+            ASSERT(Util::quantum(Util::multiplyByPowerOf10(anInt, -5)) ==
+                   Util::quantum(anInt) - 5);
 
 
 
