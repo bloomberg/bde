@@ -939,8 +939,13 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(long long mantissa,
 
             // Precision too high.
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+            // Use compiler-intrinsics to convert _Decimal128 to _Decimal64.
+            return makeDecimalRaw128(mantissa, exponent);             // RETURN
+#else
             return convertToDecimal64(
                              makeDecimalRaw128(mantissa, exponent));  // RETURN
+#endif
         }
     }
 
