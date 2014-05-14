@@ -676,6 +676,7 @@ DecimalImplUtil::ValueType32 DecimalImplUtil::makeDecimalRaw32(int mantissa,
     BSLS_ASSERT(exponent <= 90);
     BSLS_ASSERT(bsl::max(mantissa, -mantissa) <= 9999999);
 
+    // TODO: no '__d32_insert_biased_exponent' function.
     ValueType32 valuetype32;
     makeDecimalRaw<32>(&valuetype32, mantissa, exponent);
     return valuetype32;
