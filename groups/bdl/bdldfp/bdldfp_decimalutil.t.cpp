@@ -3066,6 +3066,64 @@ int main(int argc, char* argv[])
         bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
     } break;
 
+    case -9: {
+        // --------------------------------------------------------------------
+        // TESTING: Performance test of 'multiplyByPowerOf10'.
+        //
+        // Test the performance of 'makeDecimal64' by doing a configurable
+        // number of iterations of calls using a stopwatch to record the
+        // elapsed time and compute the number of operations 'makeDecimal64'
+        // performs per second.  An array of mantissas and exponents are used.
+        // --------------------------------------------------------------------
+
+        // Precompute some 'Decimal64's.
+        const int numDecimals = numMantissas * numExps;
+        BDEC::Decimal64 decimals[numDecimals];
+
+        for (int i = 0; i < numMantissas; ++i) {
+            for (int j = 0; j < numExps; ++j) {
+                decimals[i * numExps + j] =
+                                    Util::makeDecimal64(mantissas[i], exps[j]);
+            }
+        }
+
+        int numIterations = 1000;
+        int numOperations = numIterations * numDecimals * numExps;
+
+        // Accumulate the time elapsed in the test.
+        bsls::Stopwatch s;
+        s.start();
+
+        bool anyIsNan = false;
+
+        for (int iter = 0; iter < numIterations; ++iter) {
+            for (int di = 0; di < numDecimals; ++di) {
+                for (int ei = 0; ei < numExps; ++ei) {
+                    BDEC::Decimal64 result = Util::multiplyByPowerOf10(
+                        decimals[di], exps[ei]);
+                    anyIsNan |= Util::isNan(result);
+                }
+            }
+        }
+
+        if (anyIsNan) {
+            bsl::cout << "Some results are nan\n" << bsl::endl;
+        }
+        else {
+            bsl::cout << "No results are nan\n" << bsl::endl;
+        }
+
+        const double totalTime = s.accumulatedWallTime();
+
+        const double operationsPerSecond = numOperations / totalTime;
+
+        bsl::cout << "Performance test: " << operationsPerSecond
+                  << " multiplyByPowerOf10 operations per second."
+                  << bsl::endl;
+        bsl::cout << "Total time: " << totalTime << " seconds." << bsl::endl;
+
+    } break;
+
     default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
         testStatus = -1;
