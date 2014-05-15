@@ -676,10 +676,16 @@ DecimalImplUtil::ValueType32 DecimalImplUtil::makeDecimalRaw32(int mantissa,
     BSLS_ASSERT(exponent <= 90);
     BSLS_ASSERT(bsl::max(mantissa, -mantissa) <= 9999999);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    // Let compiler-intrinsics worry about converting down to 32-bits.  There
+    // is no analogous '__d32_insert_biased_exponent' function.
+    return makeDecimalRaw64(mantissa, exponent);
+#else
     // TODO: no '__d32_insert_biased_exponent' function.
     ValueType32 valuetype32;
     makeDecimalRaw<32>(&valuetype32, mantissa, exponent);
     return valuetype32;
+#endif
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
