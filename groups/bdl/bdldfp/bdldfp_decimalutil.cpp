@@ -26,6 +26,10 @@ extern "C" {
 
 #include <errno.h>
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+#include <bsl_cmath.h>
+#endif
+
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -658,7 +662,7 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
     BSLS_ASSERT(               exponent <= 99999999);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    const int biasedExponent = __d64_biased_exponent(*value.data());
+    const int biasedExponent    = __d64_biased_exponent(*value.data());
     const int newBiasedExponent = biasedExponent + exponent;
 
     if (newBiasedExponent >= 0 &&
@@ -694,8 +698,8 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     BSLS_ASSERT_SAFE(                  exponent <= makeDecimal64(99999999, 0));
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    const int intExponent = __d64_to_long_long(*exponent.data());
-    const int biasedExponent = __d64_biased_exponent(*value.data());
+    const int intExponent       = __d64_to_long_long(*exponent.data());
+    const int biasedExponent    = __d64_biased_exponent(*value.data());
     const int newBiasedExponent = biasedExponent + intExponent;
 
     if (newBiasedExponent >= 0 &&
@@ -726,7 +730,7 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     BSLS_ASSERT(               exponent <= 99999999);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    const int biasedExponent = __d128_biased_exponent(*value.data());
+    const int biasedExponent    = __d128_biased_exponent(*value.data());
     const int newBiasedExponent = biasedExponent + exponent;
 
     if (newBiasedExponent >= 0 &&
@@ -759,8 +763,8 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                                             Decimal128 exponent)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    const int intExponent = __d128_to_long_long(*exponent.data());
-    const int biasedExponent = __d128_biased_exponent(*value.data());
+    const int intExponent       = __d128_to_long_long(*exponent.data());
+    const int biasedExponent    = __d128_biased_exponent(*value.data());
     const int newBiasedExponent = biasedExponent + intExponent;
 
     if (newBiasedExponent >= 0 &&
@@ -788,9 +792,7 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
 Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    __d64_quantize(*value.data(), *exponent.data(),
-                                                 DFP_ROUND_USING_CURRENT_MODE);
-    return value;
+    return quantized64(*value.data(), *exponent.data());
 #else
     Decimal64 result = value;
     decDoubleQuantize(convertImplType(result.data()),
@@ -804,8 +806,7 @@ Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
 Decimal128 DecimalUtil::quantize(Decimal128 x, Decimal128 y)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    __d128_quantize(*x.data(), *y.data(), DFP_ROUND_USING_CURRENT_MODE);
-    return x;
+    return quantized128(*x.data(), *y.data());
 #else
     Decimal128 rv = x;
     decQuadQuantize(convertImplType(rv.data()),
@@ -844,7 +845,7 @@ int DecimalUtil::quantum(Decimal128 x)
 bool DecimalUtil::sameQuantum(Decimal64 x, Decimal64 y)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    return __d64_same_quantum(*x.data(), *y.data());
+    return samequantumd64(*x.data(), *y.data());
 #else
     return decDoubleSameQuantum(convertImplType(x.data()),
                                 convertImplType(y.data())) == 1;
@@ -854,7 +855,7 @@ bool DecimalUtil::sameQuantum(Decimal64 x, Decimal64 y)
 bool DecimalUtil::sameQuantum(Decimal128 x, Decimal128 y)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    return __d128_same_quantum(*x.data(), *y.data());
+    return samequantumd128(*x.data(), *y.data());
 #else
     return decQuadSameQuantum(convertImplType(x.data()),
                               convertImplType(y.data())) == 1;
