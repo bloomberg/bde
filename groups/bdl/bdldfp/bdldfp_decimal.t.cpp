@@ -685,7 +685,11 @@ BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
             const BDEC::Decimal128 cd128(42);
             ASSERT((const void*)d128.data() == (const void*)&d128);
 
-//            ASSERT(BDEC::Decimal128(cd128.value()) == BDEC::Decimal128(42));
+//            LOOP3_ASSERT(
+//                cd128.value(),
+//                BDEC::Decimal128(cd128.value()),
+//                BDEC::Decimal128(42),
+//BDEC::Decimal128(cd128.value()) == BDEC::Decimal128(42));
         }
 
         if (verbose2) bsl::cout << "Operator==" << bsl::endl;

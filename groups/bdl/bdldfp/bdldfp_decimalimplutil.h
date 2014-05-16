@@ -19,11 +19,11 @@ BSLS_IDENT("$Id$")
 //
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION:
-// This component is for internal use only by the 'bdldfp_decimal*' components.
-// Direct use of any names declared in this component by any other code invokes
-// undefined behavior.  In other words: this code may change, disappear, break,
-// move without notice, and no support whatsoever will ever be provided for it.
+//@DESCRIPTION: This component is for internal use only by the
+// 'bdldfp_decimal*' components.  Direct use of any names declared in this
+// component by any other code invokes undefined behavior.  In other words:
+// this code may change, disappear, break, move without notice, and no support
+// whatsoever will ever be provided for it.
 //
 // This component contains:
 //
@@ -50,9 +50,9 @@ BSLS_IDENT("$Id$")
 // decimal representation is known and we wish to avoid rounding errors that
 // are introduced when the number is represented in binary.  It is sometimes of
 // interest to create a decimal floating point value from its string
-// representation.  The functions of this component allow us to work with
-// types for which we may create representations for 32-, 64-, and 128-bit
-// decimal floating point values.
+// representation.  The functions of this component allow us to work with types
+// for which we may create representations for 32-, 64-, and 128-bit decimal
+// floating point values.
 //
 // As an example, one mile is equal to '1.6093' kilometers exactly.  First, we
 // create the 64-bit pattern for the 64-bit decimal floating point value of
@@ -66,8 +66,8 @@ BSLS_IDENT("$Id$")
 // interest with the functions of ''makeDecimalRawXX.  For example, the 32-bit
 // decimal floating point type can store 7 mantissa digits and has an exponent
 // range of '-101' to '90' inclusive.  It therefore may fit a mantissa of
-// '16093' and an exponent of '-4', representing the value of '1.6093'
-// ('16093' times ten to the power of '-4').  We create this value using
+// '16093' and an exponent of '-4', representing the value of '1.6093' ('16093'
+// times ten to the power of '-4').  We create this value using
 // 'makeDecimalRaw32'.
 //..
 // BloombergLP::bdldfp::DecimalImplUtil::ValueType32
@@ -97,8 +97,8 @@ BSLS_IDENT("$Id$")
 //     BloombergLP::bdldfp::DecimalImplUtil::makeDecimal64(
 //         176500236194967979ull, -2);
 //..
-// Notice that '176500236194967979' contains 18 significant figures, more
-// than can be represented by a 64-bit decimal floating point type.
+// Notice that '176500236194967979' contains 18 significant figures, more than
+// can be represented by a 64-bit decimal floating point type.
 //
 // Now, the number can also be parsed as a string.
 //..
@@ -232,12 +232,12 @@ struct DecimalImplUtil {
         // point value and return the result.  The parsing is as specified for
         // the 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C
         // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.
-        // The behavior is undefined unless 'input' represents a valid 32 bit
+        // unspecified whether the NaNs returned are quiet or signaling.  The
+        // behavior is undefined unless 'input' represents a valid 32 bit
         // decimal floating-point number in scientific or fixed notation, and
         // no unrelated characters precede (not even whitespace) that textual
         // representation and a terminating nul character immediately follows
-        // it. Note that this method does not guarantee the behavior of
+        // it.  Note that this method does not guarantee the behavior of
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
         // intrinsics is incorrectly returning a signaling NaN.
 
@@ -246,12 +246,12 @@ struct DecimalImplUtil {
         // point value and return the result.  The parsing is as specified for
         // the 'strtod64' function in section 9.6 of the ISO/EIC TR 24732 C
         // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.
-        // The behavior is undefined unless 'input' represents a valid 64 bit
+        // unspecified whether the NaNs returned are quiet or signaling.  The
+        // behavior is undefined unless 'input' represents a valid 64 bit
         // decimal floating-point number in scientific or fixed notation, and
         // no unrelated characters precede (not even whitespace) that textual
         // representation and a terminating nul character immediately follows
-        // it. Note that this method does not guarantee the behavior of
+        // it.  Note that this method does not guarantee the behavior of
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
         // intrinsics is incorrectly returning a signaling NaN.
 
@@ -260,12 +260,12 @@ struct DecimalImplUtil {
         // point value and return the result.  The parsing is as specified for
         // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
         // Decimal Floating-Point Technical Report, except that it is
-        // unspecified whether the NaNs returned are quiet or signaling.
-        // The behavior is undefined unless 'input' represents a valid 128 bit
+        // unspecified whether the NaNs returned are quiet or signaling.  The
+        // behavior is undefined unless 'input' represents a valid 128 bit
         // decimal floating-point number in scientific or fixed notation, and
         // no unrelated characters precede (not even whitespace) that textual
         // representation and a terminating nul character immediately follows
-        // it. Note that this method does not guarantee the behavior of
+        // it.  Note that this method does not guarantee the behavior of
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
         // intrinsics is incorrectly returning a signaling NaN.
 
@@ -312,9 +312,9 @@ struct DecimalImplUtil {
                                           int                exponent);
     static ValueType128 makeDecimalRaw128(int                mantissa,
                                           int                exponent);
-        // Create a 'ValueType128' object representing a decimal floating
-        // point number consisting of the specified 'mantissa' and 'exponent',
-        // with the sign given by the specified 'mantissa'.  The behavior is
+        // Create a 'ValueType128' object representing a decimal floating point
+        // number consisting of the specified 'mantissa' and 'exponent', with
+        // the sign given by the specified 'mantissa'.  The behavior is
         // undefined unless '-6176 <= exponent <= 6111'.
 
     static ValueType64  makeDecimal64(unsigned long long mantissa,
