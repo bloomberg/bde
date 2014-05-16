@@ -256,8 +256,6 @@ struct NulBuf : bsl::streambuf {
 
 //-----------------------------------------------------------------------------
 
-//#if BDLDFP_DECIMALPLATFORM_DECNUMBER
-
                                 // ===
                                 // D32
                                 // ===
