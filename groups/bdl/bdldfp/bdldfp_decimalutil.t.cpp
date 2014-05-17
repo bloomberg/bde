@@ -306,7 +306,7 @@ const int exps[] = {
                   129,
                   321,
 };
-const int numExps = sizeof(exps) / sizeof(*mantissas);
+const int numExps = sizeof(exps) / sizeof(*exps);
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
