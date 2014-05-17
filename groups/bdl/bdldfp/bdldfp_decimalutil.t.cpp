@@ -2867,13 +2867,13 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        BDEC::Decimal64 total = BDEC::Decimal64(0.0);
+        bool anyIsNan = false;
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int mi = 0; mi < numMantissas; ++mi) {
                 for (int ei = 0; ei < numExps; ++ei) {
                     BDEC::Decimal64 num =
                                   Util::makeDecimal64(mantissas[mi], exps[ei]);
-                    total += num;
+                    anyIsNan |= Util::isNan(num);
                 }
             }
         }
@@ -2881,13 +2881,11 @@ int main(int argc, char* argv[])
         const double totalTime = s.accumulatedWallTime();
 
         // This prevents the compiler from optimizing away the test.
-        if (verbose2) {
-            if (total >= BDEC::Decimal64(0.0)) {
-                bsl::cout << "Total is non-negative" << bsl::endl;
-            }
-            else {
-                bsl::cout << "Total is negative" << bsl::endl;
-            }
+        if (anyIsNan) {
+            bsl::cout << "Some results are nan\n" << bsl::endl;
+        }
+        else {
+            bsl::cout << "No results are nan\n" << bsl::endl;
         }
 
         const double operationsPerSecond = numOperations / totalTime;
@@ -2914,7 +2912,7 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        BDEC::Decimal128 total = BDEC::Decimal128(0.0);
+        bool anyIsNan = false;
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int mi = 0; mi < numMantissas; ++mi) {
 
@@ -2926,7 +2924,7 @@ int main(int argc, char* argv[])
 
                     BDEC::Decimal128 num =
                               Util::makeDecimalRaw128(mantissas[mi], exps[ei]);
-                    total += num;
+                    anyIsNan |= Util::isNan(num);
                 }
             }
         }
@@ -2934,13 +2932,11 @@ int main(int argc, char* argv[])
         const double totalTime = s.accumulatedWallTime();
 
         // This prevents the compiler from optimizing away the test.
-        if (verbose2) {
-            if (total >= BDEC::Decimal64(0.0)) {
-                bsl::cout << "Total is non-negative" << bsl::endl;
-            }
-            else {
-                bsl::cout << "Total is negative" << bsl::endl;
-            }
+        if (anyIsNan) {
+            bsl::cout << "Some results are nan\n" << bsl::endl;
+        }
+        else {
+            bsl::cout << "No results are nan\n" << bsl::endl;
         }
 
         const double operationsPerSecond = numOperations / totalTime;
@@ -2967,7 +2963,7 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        BDEC::Decimal64 total = BDEC::Decimal64(0.0);
+        bool anyIsNan = false;
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int mi = 0; mi < numMantissas; ++mi) {
 
@@ -2984,7 +2980,7 @@ int main(int argc, char* argv[])
 
                     BDEC::Decimal64 num =
                                Util::makeDecimalRaw64(mantissas[mi], exps[ei]);
-                    total += num;
+                    anyIsNan |= Util::isNan(num);
                 }
             }
         }
@@ -2992,13 +2988,11 @@ int main(int argc, char* argv[])
         const double totalTime = s.accumulatedWallTime();
 
         // This prevents the compiler from optimizing away the test.
-        if (verbose2) {
-            if (total >= BDEC::Decimal64(0.0)) {
-                bsl::cout << "Total is non-negative" << bsl::endl;
-            }
-            else {
-                bsl::cout << "Total is negative" << bsl::endl;
-            }
+        if (anyIsNan) {
+            bsl::cout << "Some results are nan\n" << bsl::endl;
+        }
+        else {
+            bsl::cout << "No results are nan\n" << bsl::endl;
         }
 
         const double operationsPerSecond = numOperations / totalTime;
@@ -3025,7 +3019,7 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        BDEC::Decimal64 total = BDEC::Decimal64(0.0);
+        bool anyIsNan = false;
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int mi = 0; mi < numMantissas; ++mi) {
 
@@ -3042,7 +3036,7 @@ int main(int argc, char* argv[])
                     BDEC::Decimal32 num =
                                Util::makeDecimalRaw32(
                                     static_cast<int>(mantissas[mi]), exps[ei]);
-                    total += BDEC::Decimal64(num);
+                    anyIsNan |= Util::isNan(num);
                 }
             }
         }
@@ -3050,13 +3044,11 @@ int main(int argc, char* argv[])
         const double totalTime = s.accumulatedWallTime();
 
         // This prevents the compiler from optimizing away the test.
-        if (verbose2) {
-            if (total >= BDEC::Decimal64(0.0)) {
-                bsl::cout << "Total is non-negative" << bsl::endl;
-            }
-            else {
-                bsl::cout << "Total is negative" << bsl::endl;
-            }
+        if (anyIsNan) {
+            bsl::cout << "Some results are nan\n" << bsl::endl;
+        }
+        else {
+            bsl::cout << "No results are nan\n" << bsl::endl;
         }
 
         const double operationsPerSecond = numOperations / totalTime;
