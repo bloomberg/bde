@@ -1767,16 +1767,7 @@ void testAssignment(const Obj& inA,
     bslma::TestAllocator testAlloc1;
     bslma::TestAllocator testAlloc2;
     ALLOC_A allocA1(&testAlloc1);
-    ALLOC_B allocB1(&testAlloc1);
     ALLOC_B allocB2(&testAlloc2);
-
-    // Construct a 'function' object wrapping the same type as 'inB' in a
-    // moved-from state.
-    Obj movedFromB(bsl::allocator_arg, &testAlloc2, inB);
-    {
-        Obj movedToFunc(std::move(movedFromB));
-        ASSERT(areEqualB_p(movedToFunc, inB));
-    }
 
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
     bslma::TestAllocatorMonitor testAlloc1Monitor(&testAlloc1);
@@ -1828,6 +1819,14 @@ void testAssignment(const Obj& inA,
     LOOP2_ASSERT(lineA, lineB, testAlloc2Monitor.isInUseSame());
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+    // Construct a 'function' object wrapping the same type as 'inB' in a
+    // moved-from state.
+    Obj movedFromB(bsl::allocator_arg, &testAlloc2, inB);
+    {
+        Obj movedToFunc(std::move(movedFromB));
+        ASSERT(areEqualB_p(movedToFunc, inB));
+    }
 
     // Test move assignment with unequal allocators
     globalAllocMonitor.reset(&globalTestAllocator);
@@ -1881,9 +1880,12 @@ void testAssignment(const Obj& inA,
     globalAllocMonitor.reset(&globalTestAllocator);
     testAlloc1Monitor.reset(&testAlloc1);
 
-    // Test that allocA1 and allocB2 are not only constructed from the same
-    // test allocator, but are of compatible types.  If not, then skip
-    // testing of move assignment with equal allocators.
+    // Construct another allocator, 'allocB1' from the same source as
+    // 'allocA1' but with type 'ALLOC_B'.  In order to test move assignment
+    // with equal allocators, 'ALLOC_A' and 'ALLOC_B' need not be the same
+    // type, but they must be compatible, and hence comparable.  If they are
+    // not comparable, then skip this part of the test.
+    ALLOC_B allocB1(&testAlloc1);
     if (areEqualAlloc(allocA1, allocB1))
     {
         // Make copies of inA and inB.
@@ -1962,6 +1964,150 @@ void testAssignNullptr(const Obj& func, int line)
     LOOP_ASSERT(line, expNumBlocks   == testAlloc.numBlocksInUse());
 }
 
+template <class ALLOC, class FUNC>
+void testAssignFromFunctor(const Obj&   lhsIn,
+                           FUNC         rhsIn,
+                           const char  *allocName,
+                           const char  *lhsFuncName,
+                           const char  *rhsFuncName)
+{
+    if (veryVeryVerbose) {
+        printf("\tObj lhs(allocator_arg, %s, %s); rhs = %s;\n",
+               allocName, lhsFuncName, rhsFuncName);
+    }
+
+    bslma::TestAllocator testAlloc;
+    ALLOC alloc(&testAlloc);
+
+    bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
+    bslma::TestAllocatorMonitor testAllocMonitor(&testAlloc);
+
+    // Test copy-assignment from functor
+    {
+        // Make copy of lhsIn using desired allocator.  Measure memory usage.
+        AllocSizeType preBytes = testAlloc.numBytesInUse();
+        Obj lhs(bsl::allocator_arg, alloc, lhsIn);
+        AllocSizeType lhsBytesBefore = testAlloc.numBytesInUse() - preBytes;
+
+        // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
+        // value should be unchanged by the assignment.
+        FUNC rhs(rhsIn);
+
+        // 'exp' is what 'lsh' should look like after the assignment
+        preBytes = testAlloc.numBytesInUse();
+        Obj exp(bsl::allocator_arg, alloc, rhsIn);
+        AllocSizeType expBytes = testAlloc.numBytesInUse() - preBytes;
+
+        preBytes = testAlloc.numBytesInUse();
+        lhs = rhs;  ///////// COPY-ASSIGNMENT FROM FUNC //////////
+        AllocSizeType lhsBytesAfter = (lhsBytesBefore +
+                                       testAlloc.numBytesInUse() -
+                                       preBytes);
+        if (exp) {
+            // Non-empty expected result
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, lhs);
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         lhs.target_type() == typeid(FUNC));
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         *lhs.target<FUNC>() == rhsIn);
+        }
+        else {
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs);
+        }
+        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                     CheckAlloc<ALLOC>::areEqualAlloc(alloc, lhs.allocator()));
+        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                     lhsBytesAfter == expBytes);
+
+        // verify that rhs is unchanged
+        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
+
+        if (lhs && exp) {
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         lhs(1, 2) == exp(1, 2));
+        }
+
+        // Prove that assignment can be called with const rhs.
+        const FUNC& RHS = rhsIn;
+        Obj exp2(rhsIn);
+        lhs = bsl::nullptr_t();  // Empty lhs
+        lhs = RHS;  // Assignment from const rhs
+
+        // Basic test that assignment worked.
+        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs == ! exp2);
+        if (lhs && exp2) {
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         lhs(1, 2) == exp2(1, 2));
+        }
+    }
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 globalAllocMonitor.isInUseSame());
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 testAllocMonitor.isInUseSame());
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+    // Construct a 'FUNC' object duplicating 'rhsIn' in a moved-from state.
+    FUNC movedFromRhs(rhsIn);
+    {
+        FUNC movedToFunc(std::move(movedFromRhs));
+        (void) movedToFunc;
+    }
+
+    // Test move-assignment from functor
+    {
+        // Make copy of lhsIn using desired allocator.  Measure memory usage.
+        AllocSizeType preBytes = testAlloc.numBytesInUse();
+        Obj lhs(bsl::allocator_arg, alloc, lhsIn);
+        AllocSizeType lhsBytesBefore = testAlloc.numBytesInUse() - preBytes;
+
+        // Copy 'rhsIn' so as to not change 'rhsIn'
+        FUNC rhs(rhsIn);
+
+        // 'exp' is what 'lsh' should look like after the assignment
+        preBytes = testAlloc.numBytesInUse();
+        Obj exp(bsl::allocator_arg, alloc, rhsIn);
+        AllocSizeType expBytes = testAlloc.numBytesInUse() - preBytes;
+
+        preBytes = testAlloc.numBytesInUse();
+        lhs = std::move(rhs);  ///////// MOVE-ASSIGNMENT FROM FUNC //////////
+        AllocSizeType lhsBytesAfter = (lhsBytesBefore +
+                                       testAlloc.numBytesInUse() -
+                                       preBytes);
+        if (exp) {
+            // Non-empty expected result
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, lhs);
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         lhs.target_type() == typeid(FUNC));
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         *lhs.target<FUNC>() == rhsIn);
+        }
+        else {
+            // Empty expected result
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs);
+        }
+        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                     CheckAlloc<ALLOC>::areEqualAlloc(alloc, lhs.allocator()));
+        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                     lhsBytesAfter == expBytes);
+
+        // verify that rhs is in moved-from state
+        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == movedFromRhs);
+
+        if (lhs && exp) {
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         lhs(1, 2) == exp(1, 2));
+        }
+    }
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 globalAllocMonitor.isInUseSame());
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 testAllocMonitor.isInUseSame());
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+}
+
 //=============================================================================
 //                  USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -1986,6 +2132,272 @@ int main(int argc, char *argv[])
 
             // TBD: A number of test cases need to be extended to test for
             // correct exception behavior.
+
+      case 15: {
+        // --------------------------------------------------------------------
+        // COMPARISON TO NULLPTR
+        //
+        // Concerns:
+        //: 1 If 'function' f is empty, then 'f == nullptr' is true,
+        //:   'nullptr == f' is true, 'f != nullptr' is false and
+        //:   'nullptr != f' is false.
+        //: 2 If 'function' f is not empty, then 'f == nullptr' is false,
+        //:   'nullptr == f' is false, 'f != nullptr' is true and
+        //:   'nullptr != f' is true.
+        //
+        // Plan:
+        //: 1 Construct an empty 'function' object 'e' and a non-empty
+        //:   function object 'f'.
+        //: 2 For concern 1, verify that  'e == nullptr' is true,
+        //:   'nullptr == e' is true, 'e != nullptr' is false and
+        //:   'nullptr != e' is false.
+        //: 3 For concern 2, verify that 'f == nullptr' is false,
+        //:   'nullptr == f' is false, 'f != nullptr' is true and
+        //:   'nullptr != f' is true.
+        //
+        // Testing:
+        //      bool operator==(const function& f, nullptr_t);
+        //      bool operator==(nullptr_t, const function& f);
+        //      bool operator!=(const function& f, nullptr_t);
+        //      bool operator!=(nullptr_t, const function& f);
+        // --------------------------------------------------------------------
+ 
+        if (verbose) printf("\nCOMPARISON TO NULLPTR"
+                            "\n=====================\n");
+
+        Obj e;
+        Obj f(&simpleFunc);
+
+        ASSERT(  e == bsl::nullptr_t() );
+        ASSERT(  bsl::nullptr_t() == e );
+        ASSERT(!(e != bsl::nullptr_t()));
+        ASSERT(!(bsl::nullptr_t() != e));
+
+        ASSERT(!(f == bsl::nullptr_t()));
+        ASSERT(!(bsl::nullptr_t() == f));
+        ASSERT(  f != bsl::nullptr_t() );
+        ASSERT(  bsl::nullptr_t() != f );
+
+        // Just for grins, let's make sure that everything becomes reversed
+        // if we swap 'e' and 'f'.
+        e.swap(f);
+
+        ASSERT(!(e == bsl::nullptr_t()));
+        ASSERT(!(bsl::nullptr_t() == e));
+        ASSERT(  e != bsl::nullptr_t() );
+        ASSERT(  bsl::nullptr_t() != e );
+
+        ASSERT(  f == bsl::nullptr_t() );
+        ASSERT(  bsl::nullptr_t() == f );
+        ASSERT(!(f != bsl::nullptr_t()));
+        ASSERT(!(bsl::nullptr_t() != f));
+
+      } break;
+
+      case 14: {
+        // --------------------------------------------------------------------
+        // ASSIGNMENT FROM FUNCTOR
+        //
+        // Concerns:
+        //: 1 Assigning a 'function' object the value of a functor,
+        //:   pointer-to-function, or pointer-to-member function results in
+        //:   the lhs having the same value as if it were constructed with
+        //:   that functor, pointer-to-functor or pointer-to-member.
+        //: 2 The functor previously wrapped by the lhs is destroyed.
+        //: 3 If the rhs is an rvalue, the assignment will put it into a
+        //:   moved-from state.
+        //: 4 After the assignment, the allocator of the lhs is unchanged.
+        //: 5 The change in memory allocation is the same as if the lhs were
+        //:   destroyed then re-constructed with its original allocator and
+        //:   with the specified functor.
+        //: 6 The above concerns apply to the entire range of functor types
+        //:   and allocator types for the lhs and functor types for the rhs.
+        //
+        // Plan:
+        //: 1 For concern 1, assign from functor to a 'function' object and
+        //:   verify that the 'target_type' and 'target' of the 'function'
+        //:   matches the functor.
+        //: 2 For concern 2, use an original functor type that tracks number
+        //:   instances in existance.  Verify that the assignment from a
+        //:   different functor type reducers the number of such functors in
+        //:   existance.
+        //: 3 For concern 3, test the assignment using both lvalue and rvalues
+        //:   for the rhs.  In the case of rvalues, verify that the state of
+        //:   the rhs after the assignment is matches the moved-from state for
+        //:   that type.
+        //: 4 For concern 4, check the allocator of the lhs after assignment
+        //:   and verify that it is equivalent to the allocator before the
+        //:   assignment.
+        //: 5 For concern 5, measure the memory use for constructing the lhs
+        //:   and the memory use for constructing a 'function' from the rhs.
+        //:   After assigning from the rhs to the lhs, verify that the memory
+        //:   change is the difference between these memory values.
+        //: 6 For concern 6, construct an array of 'function' objects created
+        //:   with different functor types.  Package the steps above into a
+        //:   template function 'testAssignFromFunctor', which is
+        //:   parameterized by allocator type and functor type.  The test
+        //:   function will make a copy of the input 'function' using the
+        //:   desired allocator and use that as the lhs for the steps above.
+        //:   Instantiate 'testAssignFromFunctor' with each combination of our
+        //:   test allocator and test functor types.  Call each instantiation
+        //:   with each functor in the data array.
+        //
+        // Testing:
+        //      function& operator=(FUNC&& f);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nASSIGNMENT FROM FUNCTOR"
+                            "\n=======================\n");
+
+        typedef int (*SimpleFuncPtr_t)(const IntWrapper&, int);
+        typedef int (IntWrapper::*SimpleMemFuncPtr_t)(int) const;
+
+        // Null function pointers
+        static const SimpleFuncPtr_t    nullFuncPtr    = 0;
+        static const SimpleMemFuncPtr_t nullMemFuncPtr = 0;
+
+        struct TestData {
+            // Data for one dimension of test
+
+            int               d_line;           // Line number
+            Obj               d_function;       // function object to swap
+            const char       *d_funcName;       // function object name
+        };
+
+#define TEST_ITEM(F, V)                          \
+        { L_, Obj(F(V)), #F "(" #V ")" }
+
+        TestData data[] = {
+            TEST_ITEM(SimpleFuncPtr_t      , nullFuncPtr       ),
+            TEST_ITEM(SimpleMemFuncPtr_t   , nullMemFuncPtr    ),
+            TEST_ITEM(SimpleFuncPtr_t      , simpleFunc        ),
+            TEST_ITEM(SimpleMemFuncPtr_t   , &IntWrapper::add1 ),
+            TEST_ITEM(EmptyFunctor         , 0                 ),
+            TEST_ITEM(SmallFunctor         , 0x2000            ),
+            TEST_ITEM(MediumFunctor        , 0x4000            ),
+            TEST_ITEM(LargeFunctor         , 0x6000            ),
+            TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
+            TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
+            TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+        };
+
+        const int dataSize = sizeof(data) / sizeof(data[0]);
+        
+#undef TEST_ITEM
+
+#define TEST(A, f) testAssignFromFunctor<A>(lhs, f, #A, funcName, #f)
+
+        for (int i = 0; i < dataSize; ++i) {
+            // const int line          = data[i].d_line;
+            const Obj& lhs             = data[i].d_function;
+            const char* funcName       = data[i].d_funcName;
+
+            if (veryVerbose) printf("Assign %s = nullFuncPtr\n", funcName);
+            TEST(bslma::TestAllocator *,   nullFuncPtr          );
+            TEST(bsl::allocator<char>,     nullFuncPtr          );
+            TEST(EmptySTLAllocator<char>,  nullFuncPtr          );
+            TEST(TinySTLAllocator<char>,   nullFuncPtr          );
+            TEST(SmallSTLAllocator<char>,  nullFuncPtr          );
+            TEST(MediumSTLAllocator<char>, nullFuncPtr          );
+            TEST(LargeSTLAllocator<char>,  nullFuncPtr          );
+
+            if (veryVerbose) printf("Assign %s = nullMemFuncPtr\n", funcName);
+            TEST(bslma::TestAllocator *,   nullMemFuncPtr       );
+            TEST(bsl::allocator<char>,     nullMemFuncPtr       );
+            TEST(EmptySTLAllocator<char>,  nullMemFuncPtr       );
+            TEST(TinySTLAllocator<char>,   nullMemFuncPtr       );
+            TEST(SmallSTLAllocator<char>,  nullMemFuncPtr       );
+            TEST(MediumSTLAllocator<char>, nullMemFuncPtr       );
+            TEST(LargeSTLAllocator<char>,  nullMemFuncPtr       );
+
+            if (veryVerbose) printf("Assign %s = simpleFunc\n", funcName);
+            TEST(bslma::TestAllocator *,   simpleFunc           );
+            TEST(bsl::allocator<char>,     simpleFunc           );
+            TEST(EmptySTLAllocator<char>,  simpleFunc           );
+            TEST(TinySTLAllocator<char>,   simpleFunc           );
+            TEST(SmallSTLAllocator<char>,  simpleFunc           );
+            TEST(MediumSTLAllocator<char>, simpleFunc           );
+            TEST(LargeSTLAllocator<char>,  simpleFunc           );
+
+            if (veryVerbose) printf("Assign %s = &IntWrapper::add1\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *,   &IntWrapper::add1    );
+            TEST(bsl::allocator<char>,     &IntWrapper::add1    );
+            TEST(EmptySTLAllocator<char>,  &IntWrapper::add1    );
+            TEST(TinySTLAllocator<char>,   &IntWrapper::add1    );
+            TEST(SmallSTLAllocator<char>,  &IntWrapper::add1    );
+            TEST(MediumSTLAllocator<char>, &IntWrapper::add1    );
+            TEST(LargeSTLAllocator<char>,  &IntWrapper::add1    );
+
+            if (veryVerbose) printf("Assign %s = EmptyFunctor()\n", funcName);
+            TEST(bslma::TestAllocator *,   EmptyFunctor()       );
+            TEST(bsl::allocator<char>,     EmptyFunctor()       );
+            TEST(EmptySTLAllocator<char>,  EmptyFunctor()       );
+            TEST(TinySTLAllocator<char>,   EmptyFunctor()       );
+            TEST(SmallSTLAllocator<char>,  EmptyFunctor()       );
+            TEST(MediumSTLAllocator<char>, EmptyFunctor()       );
+            TEST(LargeSTLAllocator<char>,  EmptyFunctor()       );
+
+            if (veryVerbose) printf("Assign %s = SmallFunctor(0x2000)\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *,   SmallFunctor(0x2000) );
+            TEST(bsl::allocator<char>,     SmallFunctor(0x2000) );
+            TEST(EmptySTLAllocator<char>,  SmallFunctor(0x2000) );
+            TEST(TinySTLAllocator<char>,   SmallFunctor(0x2000) );
+            TEST(SmallSTLAllocator<char>,  SmallFunctor(0x2000) );
+            TEST(MediumSTLAllocator<char>, SmallFunctor(0x2000) );
+            TEST(LargeSTLAllocator<char>,  SmallFunctor(0x2000) );
+
+            if (veryVerbose) printf("Assign %s = MediumFunctor(0x4000)\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *,   MediumFunctor(0x4000));
+            TEST(bsl::allocator<char>,     MediumFunctor(0x4000));
+            TEST(EmptySTLAllocator<char>,  MediumFunctor(0x4000));
+            TEST(TinySTLAllocator<char>,   MediumFunctor(0x4000));
+            TEST(SmallSTLAllocator<char>,  MediumFunctor(0x4000));
+            TEST(MediumSTLAllocator<char>, MediumFunctor(0x4000));
+            TEST(LargeSTLAllocator<char>,  MediumFunctor(0x4000));
+
+            if (veryVerbose) printf("Assign %s = LargeFunctor(0x6000)\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *,   LargeFunctor(0x6000) );
+            TEST(bsl::allocator<char>,     LargeFunctor(0x6000) );
+            TEST(EmptySTLAllocator<char>,  LargeFunctor(0x6000) );
+            TEST(TinySTLAllocator<char>,   LargeFunctor(0x6000) );
+            TEST(SmallSTLAllocator<char>,  LargeFunctor(0x6000) );
+            TEST(MediumSTLAllocator<char>, LargeFunctor(0x6000) );
+            TEST(LargeSTLAllocator<char>,  LargeFunctor(0x6000) );
+
+            if (veryVerbose) printf("Assign %s = NothrowSmallFunctor(0x3000)\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *  , NothrowSmallFunctor(0x3000));
+            TEST(bsl::allocator<char>    , NothrowSmallFunctor(0x3000));
+            TEST(EmptySTLAllocator<char> , NothrowSmallFunctor(0x3000));
+            TEST(TinySTLAllocator<char>  , NothrowSmallFunctor(0x3000));
+            TEST(SmallSTLAllocator<char> , NothrowSmallFunctor(0x3000));
+            TEST(MediumSTLAllocator<char>, NothrowSmallFunctor(0x3000));
+            TEST(LargeSTLAllocator<char> , NothrowSmallFunctor(0x3000));
+
+            if (veryVerbose) printf("Assign %s = ThrowingSmallFunctor(0x7000)"
+                                    "\n", funcName);
+            TEST(bslma::TestAllocator *  , ThrowingSmallFunctor(0x7000));
+            TEST(bsl::allocator<char>    , ThrowingSmallFunctor(0x7000));
+            TEST(EmptySTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+            TEST(TinySTLAllocator<char>  , ThrowingSmallFunctor(0x7000));
+            TEST(SmallSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+            TEST(MediumSTLAllocator<char>, ThrowingSmallFunctor(0x7000));
+            TEST(LargeSTLAllocator<char> , ThrowingSmallFunctor(0x7000));
+
+            if (veryVerbose) printf("Assign %s = ThrowingEmptyFunctor()\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
+            TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
+
+        } // end for (each array item)
+
+#undef TEST
+
+      } break;
 
       case 13: {
         // --------------------------------------------------------------------

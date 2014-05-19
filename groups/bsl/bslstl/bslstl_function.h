@@ -106,6 +106,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_selecttrait.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECONST
+#include <bslmf_removeconst.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
 #endif
@@ -740,7 +744,12 @@ public:
     // function& operator=(reference_wrapper<FUNC>) BSLS_NOTHROW_SPEC;
 
     void swap(function& other) BSLS_NOTHROW_SPEC;
-    template<class FUNC, class ALLOC> void assign(FUNC&&, const ALLOC&);
+
+    // template<class FUNC, class ALLOC> void assign(FUNC&&, const ALLOC&);
+    //     // We have filed an issue report and have elected not to support
+    //     // this function because the arguments and definition in the
+    //     // standard make no sense.  Replacing the allocator of an existing
+    //     // object is inconsistent with the rest of the standard.
 
     RET operator()(ARGS...) const;
 
@@ -1749,9 +1758,45 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
 template <class RET, class... ARGS>
 template<class FUNC>
 bsl::function<RET(ARGS...)>&
-bsl::function<RET(ARGS...)>::operator=(FUNC&&)
+bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
 {
-    // TBD
+    function temp;
+
+    // Remove reference and const from 'FUNC' to get underlying functor type.
+    typedef typename bsl::remove_const<
+            typename bsl::remove_reference<FUNC>::type
+        >::type FuncType;
+
+    // Select the invoker and manager for 'temp'
+    typedef typename bslmf::SelectTrait<FuncType,
+                                        bslmf::IsFunctionPointer,
+                                        bslmf::IsMemberFunctionPointer,
+                                        InplaceFunc>::Type FuncSelection;
+
+    temp.d_invoker_p = getInvoker(func, FuncSelection());
+    temp.d_funcManager_p = temp.d_invoker_p ? &functionManager<FuncType> :NULL;
+
+    // Initialize temp using allocator from 'this'
+    this->d_allocManager_p(e_INIT_REP, &temp, this->d_allocator_p);
+
+    // Move 'func' into initialized 'temp'
+    if (temp.d_funcManager_p) {
+        // Get non-const pointer to 'func'
+        FuncType *funcAddr = const_cast<FuncType*>(&func);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        if (std::is_rvalue_reference<FUNC&&>::value) {
+            temp.d_funcManager_p(e_MOVE_CONSTRUCT, &temp, funcAddr);
+        }
+        else
+#endif
+        {
+            temp.d_funcManager_p(e_COPY_CONSTRUCT, &temp, funcAddr);
+        }
+    }
+
+    // If successful (no exceptions thrown) swap 'temp' into '*this'.
+    temp.swap(*this);
+
     return *this;
 }
 
@@ -1784,13 +1829,6 @@ void bsl::function<RET(ARGS...)>::swap(function& other) BSLS_NOTHROW_SPEC
 }
 
 template <class RET, class... ARGS>
-template<class FUNC, class ALLOC>
-void bsl::function<RET(ARGS...)>::assign(FUNC&&, const ALLOC&)
-{
-    // TBD
-}
-
-template <class RET, class... ARGS>
 RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 {
     if (d_invoker_p) {
@@ -1815,20 +1853,36 @@ bsl::function<RET(ARGS...)>::operator bool() const BSLS_NOTHROW_SPEC
 
 // FREE FUNCTIONS
 template <class RET, class... ARGS>
-bool bsl::operator==(const bsl::function<RET(ARGS...)>&,
-                     bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+inline
+bool bsl::operator==(const bsl::function<RET(ARGS...)>& f,
+                     bsl::nullptr_t) BSLS_NOTHROW_SPEC
+{
+    return !f;
+}
 
 template <class RET, class... ARGS>
+inline
 bool bsl::operator==(bsl::nullptr_t,
-                     const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
+                     const bsl::function<RET(ARGS...)>& f) BSLS_NOTHROW_SPEC
+{
+    return !f;
+}
 
 template <class RET, class... ARGS>
-bool bsl::operator!=(const bsl::function<RET(ARGS...)>&,
-                     bsl::nullptr_t) BSLS_NOTHROW_SPEC;
+inline
+bool bsl::operator!=(const bsl::function<RET(ARGS...)>& f,
+                     bsl::nullptr_t) BSLS_NOTHROW_SPEC
+{
+    return static_cast<bool>(f);
+}
 
 template <class RET, class... ARGS>
+inline
 bool bsl::operator!=(bsl::nullptr_t,
-                     const bsl::function<RET(ARGS...)>&) BSLS_NOTHROW_SPEC;
+                     const bsl::function<RET(ARGS...)>& f) BSLS_NOTHROW_SPEC
+{
+    return static_cast<bool>(f);
+}
 
 template <class RET, class... ARGS>
 inline
