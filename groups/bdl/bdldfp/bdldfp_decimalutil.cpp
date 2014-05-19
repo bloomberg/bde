@@ -662,24 +662,7 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
     BSLS_ASSERT(               exponent <= 99999999);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    const int biasedExponent    = __d64_biased_exponent(*value.data());
-    const int newBiasedExponent = biasedExponent + exponent;
-
-    if (newBiasedExponent >= 0 &&
-        newBiasedExponent <= 767) {
-        // Exponent in range.
-        return __d64_insert_biased_exponent(*value.data(), newBiasedExponent);
-    }
-    else {
-        // Exponent not in range.
-        long long longLongExponent = exponent;
-        Decimal64 result = value;
-        decDoubleScaleB(convertImplType(result.data()),
-                        convertImplType(value.data()),
-                        convertImplType(makeDecimal64(longLongExponent, 0).data()),
-                        getContext());
-        return result;
-    }
+    return scalblnd64(*value.data(), exponent);
 #else
     long long longLongExponent = exponent;
     Decimal64 result = value;
@@ -698,22 +681,8 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     BSLS_ASSERT_SAFE(                  exponent <= makeDecimal64(99999999, 0));
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    const int intExponent       = __d64_to_long_long(*exponent.data());
-    const int biasedExponent    = __d64_biased_exponent(*value.data());
-    const int newBiasedExponent = biasedExponent + intExponent;
-
-    if (newBiasedExponent >= 0 &&
-        newBiasedExponent <= 767) {
-        return __d64_insert_biased_exponent(*value.data(), newBiasedExponent);
-    }
-    else {
-        Decimal64 result = value;
-        decDoubleScaleB(convertImplType(result.data()),
-                        convertImplType(value.data()),
-                        convertImplType(exponent.data()),
-                        getContext());
-        return result;
-    }
+    const int intExponent = __d64_to_long_long(*exponent.data());
+    return scalblnd64(*value.data(), intExponent);
 #else
     Decimal64 result = value;
     decDoubleScaleB(convertImplType(result.data()),
@@ -730,23 +699,7 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     BSLS_ASSERT(               exponent <= 99999999);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    const int biasedExponent    = __d128_biased_exponent(*value.data());
-    const int newBiasedExponent = biasedExponent + exponent;
-
-    if (newBiasedExponent >= 0 &&
-        newBiasedExponent <= 12287) {
-        return __d128_insert_biased_exponent(*value.data(), newBiasedExponent);
-    }
-    else {
-        Decimal128 result = value;
-        DecimalImplUtil::ValueType128 scale =
-                               DecimalImplUtil::makeDecimalRaw128(exponent, 0);
-        decQuadScaleB(convertImplType(result.data()),
-                      convertImplType(value.data()),
-                      convertImplType(&scale),
-                      getContext());
-        return result;
-    }
+    return scalblnd128(*value.data(), exponent);
 #else
     Decimal128 result = value;
     DecimalImplUtil::ValueType128 scale =
@@ -763,22 +716,8 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
                                             Decimal128 exponent)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    const int intExponent       = __d128_to_long_long(*exponent.data());
-    const int biasedExponent    = __d128_biased_exponent(*value.data());
-    const int newBiasedExponent = biasedExponent + intExponent;
-
-    if (newBiasedExponent >= 0 &&
-        newBiasedExponent <= 12287) {
-        return __d128_insert_biased_exponent(*value.data(), newBiasedExponent);
-    }
-    else {
-        Decimal128 result = value;
-        decQuadScaleB(convertImplType(result.data()),
-                      convertImplType(value.data()),
-                      convertImplType(exponent.data()),
-                      getContext());
-        return result;
-    }
+    const int intExponent = __d128_to_long_long(*exponent.data());
+    return scalblnd128(*value.data(), intExponent);
 #else
     Decimal128 result = value;
     decQuadScaleB(convertImplType(result.data()),
