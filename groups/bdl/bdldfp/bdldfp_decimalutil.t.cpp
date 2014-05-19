@@ -451,16 +451,36 @@ int main(int argc, char* argv[])
                         const int EXP      = exps[ei];
                         const int POW      = exps[ei2];
 
-                        const BDEC::Decimal64 VALUE = Util::makeDecimal64(
-                            MANTISSA, EXP);
-                        const BDEC::Decimal64 ACTUAL_RESULT =
-                            Util::multiplyByPowerOf10(VALUE, POW);
-                        const BDEC::Decimal64 EXPECTED_RESULT =
-                            Util::makeDecimal64(MANTISSA, EXP + POW);
+                        if (verbose1) bsl::cout << "multiplyByPowerOf10 "
+                            "tests on 'int' powers..." << bsl::endl;
+                        {
+                            const BDEC::Decimal64 VALUE = Util::makeDecimal64(
+                                MANTISSA, EXP);
+                            const BDEC::Decimal64 ACTUAL_RESULT =
+                                Util::multiplyByPowerOf10(VALUE, POW);
+                            const BDEC::Decimal64 EXPECTED_RESULT =
+                                Util::makeDecimal64(MANTISSA, EXP + POW);
 
-                        LOOP5_ASSERT(MANTISSA, EXP, POW,
-                                     ACTUAL_RESULT, EXPECTED_RESULT,
-                                     ACTUAL_RESULT == EXPECTED_RESULT);
+                            LOOP5_ASSERT(MANTISSA, EXP, POW,
+                                         ACTUAL_RESULT, EXPECTED_RESULT,
+                                         ACTUAL_RESULT == EXPECTED_RESULT);
+                        }
+
+                        if (verbose1) bsl::cout << "multiplyByPowerOf10 "
+                            "tests on 'Decimal64' powers..." << bsl::endl;
+                        {
+                            const BDEC::Decimal64 VALUE = Util::makeDecimal64(
+                                MANTISSA, EXP);
+                            const BDEC::Decimal64 ACTUAL_RESULT =
+                                Util::multiplyByPowerOf10(VALUE,
+                                                         BDEC::Decimal64(POW));
+                            const BDEC::Decimal64 EXPECTED_RESULT =
+                                Util::makeDecimal64(MANTISSA, EXP + POW);
+
+                            LOOP5_ASSERT(MANTISSA, EXP, POW,
+                                         ACTUAL_RESULT, EXPECTED_RESULT,
+                                         ACTUAL_RESULT == EXPECTED_RESULT);
+                        }
                     }
                 }
             }
