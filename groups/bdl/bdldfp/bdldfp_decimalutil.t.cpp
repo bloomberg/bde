@@ -431,6 +431,41 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
+    case 10: {
+        // --------------------------------------------------------------------
+        // TESTING multiplyByPowerOf10
+        // Concerns: Forwarding to the right routines
+        // Plan: Try with several variations and combinations of
+        //       decimal floats (different mantissas and exponents, both
+        //       positive and negative.), and different powers of 10 to
+        //       multiply by (both positive and negative.)
+        // Testing: multiplyByPowerOf10
+        // --------------------------------------------------------------------
+        if (verbose1) bsl::cout << "multiplyByPowerOf10 tests..." << bsl::endl;
+        {
+            for (int mi = 0; mi < numMantissas; ++mi) {
+                for (int ei = 0; ei < numExps; ++ei) {
+                    for (int ei2 = 0; ei2 < numExps; ++ei2) {
+
+                        const int MANTISSA = mantissas[mi];
+                        const int EXP      = exps[ei];
+                        const int POW      = exps[ei2];
+
+                        const BDEC::Decimal64 VALUE = Util::makeDecimal64(
+                            MANTISSA, EXP);
+                        const BDEC::Decimal64 ACTUAL_RESULT =
+                            Util::multiplyByPowerOf10(VALUE, POW);
+                        const BDEC::Decimal64 EXPECTED_RESULT =
+                            Util::makeDecimal64(MANTISSA, EXP + POW);
+
+                        LOOP5_ASSERT(MANTISSA, EXP, POW,
+                                     ACTUAL_RESULT, EXPECTED_RESULT,
+                                     ACTUAL_RESULT == EXPECTED_RESULT);
+                    }
+                }
+            }
+        }
+    }
     case 9: {
         // --------------------------------------------------------------------
         // TESTING fabs
@@ -2308,150 +2343,6 @@ int main(int argc, char* argv[])
 
 
 
-        }
-
-        if (verbose1) bsl::cout << "multiplyByPowerOf10 tests..." << bsl::endl;
-        {
-            static const struct {
-                int       d_lineNum;
-
-                // The Decimal64 operand.
-                long long d_mantissa;
-                int       d_exponent;
-
-                // The exponent of 10 to multiply by.
-                int       d_pow;
-
-                // The Decimal64 expected value.
-                long long d_expectedMantissa;
-                int       d_expectedExponent;
-            } TEST_DATA[] = {
-            // LINE                    VALUE   POW                    RESULT
-            // ---- ------------------------ ----- -------------------------
-              { L_,                0ll,    0,    0,                0ll,    0 },
-              { L_,                0ll,    1,    0,                0ll,    1 },
-              { L_,                0ll,   -1,    0,                0ll,   -1 },
-              { L_,                0ll,    0,    1,                0ll,    1 },
-              { L_,                0ll,    1,    1,                0ll,    2 },
-              { L_,                0ll,   -1,    1,                0ll,    0 },
-              { L_,                0ll,    0,   -1,                0ll,   -1 },
-              { L_,                0ll,    1,   -1,                0ll,    0 },
-              { L_,                0ll,   -1,   -1,                0ll,   -2 },
-
-              { L_,                1ll,    0,    0,                1ll,    0 },
-              { L_,                1ll,    1,    0,                1ll,    1 },
-              { L_,                1ll,   -1,    0,                1ll,   -1 },
-              { L_,                1ll,    0,    1,                1ll,    1 },
-              { L_,                1ll,    1,    1,                1ll,    2 },
-              { L_,                1ll,   -1,    1,                1ll,    0 },
-              { L_,                1ll,    0,   -1,                1ll,   -1 },
-              { L_,                1ll,    1,   -1,                1ll,    0 },
-              { L_,                1ll,   -1,   -1,                1ll,   -2 },
-
-              { L_,               -1ll,    0,    0,               -1ll,    0 },
-              { L_,               -1ll,    1,    0,               -1ll,    1 },
-              { L_,               -1ll,   -1,    0,               -1ll,   -1 },
-              { L_,               -1ll,    0,    1,               -1ll,    1 },
-              { L_,               -1ll,    1,    1,               -1ll,    2 },
-              { L_,               -1ll,   -1,    1,               -1ll,    0 },
-              { L_,               -1ll,    0,   -1,               -1ll,   -1 },
-              { L_,               -1ll,    1,   -1,               -1ll,    0 },
-              { L_,               -1ll,   -1,   -1,               -1ll,   -2 },
-
-              { L_,                1ll,    0,  369,                1ll,  369 },
-              { L_,                1ll,    0,  370,               10ll,  369 },
-              { L_,                1ll,    0,  371,              100ll,  369 },
-              { L_,                1ll,    0,  372,             1000ll,  369 },
-              { L_,                1ll,    0,  373,            10000ll,  369 },
-              { L_,                1ll,    0,  374,           100000ll,  369 },
-              { L_,                1ll,    0,  375,          1000000ll,  369 },
-              { L_,                1ll,    0,  376,         10000000ll,  369 },
-              { L_,                1ll,    0,  377,        100000000ll,  369 },
-              { L_,                1ll,    0,  378,       1000000000ll,  369 },
-              { L_,                1ll,    0,  379,      10000000000ll,  369 },
-              { L_,                1ll,    0,  380,     100000000000ll,  369 },
-              { L_,                1ll,    0,  381,    1000000000000ll,  369 },
-              { L_,                1ll,    0,  382,   10000000000000ll,  369 },
-              { L_,                1ll,    0,  383,  100000000000000ll,  369 },
-              { L_,                1ll,    0,  384, 1000000000000000ll,  369 },
-
-              { L_,                0ll,    0,  370,                0ll,  369 },
-              { L_,                0ll,    0, -399,                0ll, -398 },
-
-              { L_, 4444444444444444ll,    0, -398, 4444444444444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -399,  444444444444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -400,   44444444444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -401,    4444444444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -402,     444444444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -403,      44444444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -404,       4444444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -405,        444444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -406,         44444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -407,          4444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -408,           444444ll, -398 },
-              { L_, 4444444444444444ll,    0, -409,            44444ll, -398 },
-              { L_, 4444444444444444ll,    0, -410,             4444ll, -398 },
-              { L_, 4444444444444444ll,    0, -411,              444ll, -398 },
-              { L_, 4444444444444444ll,    0, -412,               44ll, -398 },
-              { L_, 4444444444444444ll,    0, -413,                4ll, -398 },
-              { L_, 4444444444444444ll,    0, -414,                0ll, -398 },
-              { L_, 4444444444444444ll,    0, -415,                0ll, -398 },
-
-              { L_, 5555555555555555ll,    0, -398, 5555555555555555ll, -398 },
-              { L_, 5555555555555555ll,    0, -399,  555555555555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -400,   55555555555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -401,    5555555555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -402,     555555555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -403,      55555555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -404,       5555555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -405,        555555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -406,         55555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -407,          5555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -408,           555556ll, -398 },
-              { L_, 5555555555555555ll,    0, -409,            55556ll, -398 },
-              { L_, 5555555555555555ll,    0, -410,             5556ll, -398 },
-              { L_, 5555555555555555ll,    0, -411,              556ll, -398 },
-              { L_, 5555555555555555ll,    0, -412,               56ll, -398 },
-              { L_, 5555555555555555ll,    0, -413,                6ll, -398 },
-              { L_, 5555555555555555ll,    0, -414,                1ll, -398 },
-              { L_, 5555555555555555ll,    0, -415,                0ll, -398 },
-
-            };
-
-            const int NUM_TEST_DATA = sizeof TEST_DATA / sizeof *TEST_DATA;
-
-            for (int ti = 0; ti < NUM_TEST_DATA; ++ti) {
-                const int LINE = TEST_DATA[ti].d_lineNum;
-                const BDEC::Decimal64 VALUE = Util::makeDecimalRaw64(
-                    TEST_DATA[ti].d_mantissa, TEST_DATA[ti].d_exponent);
-
-                {
-                    // Test the call on 'int' exponents.
-                    const int EXPONENT = TEST_DATA[ti].d_pow;
-                    const BDEC::Decimal64 ACTUAL_RESULT =
-                        Util::multiplyByPowerOf10(VALUE, EXPONENT);
-                    const BDEC::Decimal64 EXPECTED_RESULT =
-                        Util::makeDecimalRaw64(
-                            TEST_DATA[ti].d_expectedMantissa,
-                            TEST_DATA[ti].d_expectedExponent);
-                    LOOP3_ASSERT(ACTUAL_RESULT, EXPECTED_RESULT, LINE,
-                                 ACTUAL_RESULT == EXPECTED_RESULT);
-                }
-
-                {
-                    // Test the call on 'Decimal64' exponents.
-                    const BDEC::Decimal64 EXPONENT =
-                        BDEC::Decimal64(TEST_DATA[ti].d_pow);
-                    const BDEC::Decimal64 ACTUAL_RESULT =
-                        Util::multiplyByPowerOf10(VALUE, EXPONENT);
-                    const BDEC::Decimal64 EXPECTED_RESULT =
-                        Util::makeDecimalRaw64(
-                            TEST_DATA[ti].d_expectedMantissa,
-                            TEST_DATA[ti].d_expectedExponent);
-                    LOOP3_ASSERT(ACTUAL_RESULT, EXPECTED_RESULT, LINE,
-                                 ACTUAL_RESULT == EXPECTED_RESULT);
-                }
-            }
         }
     } break;
 
