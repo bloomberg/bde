@@ -2436,13 +2436,6 @@ int main(int argc, char* argv[])
                             TEST_DATA[ti].d_expectedExponent);
                     LOOP3_ASSERT(ACTUAL_RESULT, EXPECTED_RESULT, LINE,
                                  ACTUAL_RESULT == EXPECTED_RESULT);
-
-                    // Must give result of correct quantum.
-                    LOOP3_ASSERT(LINE,
-                                 Util::quantum(ACTUAL_RESULT),
-                                 TEST_DATA[ti].d_expectedExponent,
-                                 Util::quantum(ACTUAL_RESULT) ==
-                                 TEST_DATA[ti].d_expectedExponent);
                 }
 
                 {
@@ -2457,13 +2450,6 @@ int main(int argc, char* argv[])
                             TEST_DATA[ti].d_expectedExponent);
                     LOOP3_ASSERT(ACTUAL_RESULT, EXPECTED_RESULT, LINE,
                                  ACTUAL_RESULT == EXPECTED_RESULT);
-
-                    // Must give result of correct quantum.
-                    LOOP3_ASSERT(LINE,
-                                 Util::quantum(ACTUAL_RESULT),
-                                 TEST_DATA[ti].d_expectedExponent,
-                                 Util::quantum(ACTUAL_RESULT) ==
-                                 TEST_DATA[ti].d_expectedExponent);
                 }
             }
         }
