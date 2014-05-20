@@ -79,15 +79,17 @@ using namespace BloombergLP;
 // tests will ensure that attempts to construct invalid managed pointers are
 // caught early by the compiler, ideally with a helpful error diagnostic.
 //-----------------------------------------------------------------------------
-// [ 4] ManagedPtr();
-// [ 4] ManagedPtr(bsl::nullptr_t);
 // [ 4] ManagedPtr(bsl::nullptr_t, bsl::nullptr_t);
-// [ 8] ManagedPtr(TYPE *ptr);
+// [ 8] ManagedPtr(OTHER *ptr);
 // [ 9] ManagedPtr(ManagedPtr& original);
-// [ 9] ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref);
+// [ 9] ManagedPtr(ManagedPtr_Ref<TYPE> ref);
 // [ 6] ManagedPtr(ManagedPtr<OTHER>& alias, TYPE *ptr);
-// [ 8] ManagedPtr(TYPE *ptr, FACTORY *factory);
-// [ 8] ManagedPtr(TYPE *ptr, void *factory, void(*deleter)(TYPE*, void*))
+// [ 8] ManagedPtr(OTHER *ptr, FACTORY *factory);
+// [  ] ManagedPtr(bsl::nullptr_t, FACTORY *factory);
+// [ 8] ManagedPtr(TYPE *ptr, void *cookie, DeleterFunc deleter);
+// [ 8] ManagedPtr(OTHER *ptr, void *cookie, DeleterFunc deleter);
+// [  ] ManagedPtr(OTHER *, void *, void (*)(OTHER_BASE*, void*));
+// [ 8] ManagedPtr(OTHER *, COOKIE *, void (*)(OTHER_BASE*, COOKIE_BASE*))
 // [ 5] ~ManagedPtr();
 // [ 9] operator ManagedPtr_Ref<OTHER_TYPE>();
 // [ 5] void load(bsl::nullptr_t=0, bsl::nullptr_t=0);
@@ -109,6 +111,11 @@ using namespace BloombergLP;
 // [ 7] TYPE *ptr() const;
 // [ 7] const ManagedPtrDeleter& deleter() const;
 //-----------------------------------------------------------------------------
+// [ 4] ManagedPtr();
+// [ 4] ManagedPtr(bsl::nullptr_t);
+// [ 8] ManagedPtr(TYPE *ptr, void *cookie, void(*deleter)(TYPE*, void*));
+// [ 8] ManagedPtr(OTHER *, bsl::nullptr_t, void(*)(BASE *, void *));
+//
 //
 //                       bslma::ManagedPtrUtil
 //                       ---------------------
@@ -120,8 +127,8 @@ using namespace BloombergLP;
 //                 ---------------------------------
 //-----------------------------------------------------------------------------
 // [15] void deleter(void *, void *);
-//
 //-----------------------------------------------------------------------------
+//
 //                       bslma::ManagedPtr_Ref
 //                       ---------------------
 //-----------------------------------------------------------------------------
@@ -414,16 +421,16 @@ namespace USAGE_EXAMPLES {
         bslma::Allocator *alloc = bslma::Default::defaultAllocator();
         bslma::ManagedPtr<Shape> result;
         switch (kind) {
-            case Shapes::SHAPE_CIRCLE : {
-                Circle *circ = new(*alloc)Circle(dimension);
-                result.load(circ);
-                break;
-            }
-            case Shapes::SHAPE_SQUARE : {
-                Square *sqr = new(*alloc)Square(dimension);
-                result.load(sqr);
-                break;
-            }
+          case Shapes::SHAPE_CIRCLE : {
+            Circle *circ = new(*alloc)Circle(dimension);
+            result.load(circ);
+            break;
+          }
+          case Shapes::SHAPE_SQUARE : {
+            Square *sqr = new(*alloc)Square(dimension);
+            result.load(sqr);
+            break;
+          }
         };
         return result;
     }
@@ -454,22 +461,22 @@ namespace USAGE_EXAMPLES {
 // allocator to the 'bslma::ManagedPtr' object as the "factory".
 //..
     bslma::ManagedPtr<Shape> makeShape(Shapes::VALUES    kind,
-                                      double            dimension,
-                                      bslma::Allocator *allocator)
+                                       double            dimension,
+                                       bslma::Allocator *allocator)
     {
         bslma::Allocator *alloc = bslma::Default::allocator(allocator);
         bslma::ManagedPtr<Shape> result;
         switch (kind) {
-        case Shapes::SHAPE_CIRCLE : {
-                Circle *circ = new(*alloc)Circle(dimension);
-                result.load(circ, alloc);
-                break;
-            }
-        case Shapes::SHAPE_SQUARE : {
-                Square *sqr = new(*alloc)Square(dimension);
-                result.load(sqr, alloc);
-                break;
-            }
+          case Shapes::SHAPE_CIRCLE : {
+            Circle *circ = new(*alloc)Circle(dimension);
+            result.load(circ, alloc);
+            break;
+          }
+          case Shapes::SHAPE_SQUARE : {
+            Square *sqr = new(*alloc)Square(dimension);
+            result.load(sqr, alloc);
+            break;
+          }
         };
         return result;
     }
@@ -758,8 +765,8 @@ namespace USAGE_EXAMPLES {
 //-----------------------------------------------------------------------------
 namespace TYPE_CASTING_TEST_NAMESPACE {
 
-    typedef MyTestObject A;
-    typedef MyDerivedObject B;
+typedef MyTestObject A;
+typedef MyDerivedObject B;
 
 ///Example 4: Type Casting
 ///- - - - - - - - - - - -
@@ -880,8 +887,8 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 // pointer will be reset to an unset state, and the source will not be
 // modified.  Consider for example the following snippet of code:
 //..
-    void processPolymorphicObject(bslma::ManagedPtr<A> aPtr,
-                                  bool *castSucceeded)
+    void processPolymorphicObject(bslma::ManagedPtr<A>  aPtr,
+                                  bool                 *castSucceeded)
     {
         bslma::ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
         if (bPtr) {
@@ -1389,10 +1396,10 @@ void validateManagedState(unsigned int                     LINE,
     ASSERT(dam.isMaxSame());
 }
 
-void validateManagedState(unsigned int                   LINE,
-                          const bslma::ManagedPtr<void>&  obj,
-                          void                          *ptr,
-                          const bslma::ManagedPtrDeleter& del)
+void validateManagedState(unsigned int                     LINE,
+                          const bslma::ManagedPtr<void>&   obj,
+                          void                            *ptr,
+                          const bslma::ManagedPtrDeleter&  del)
 {
     // Testing the following properties of the specified 'obj'
     //   operator BoolType() const;
@@ -1448,10 +1455,10 @@ void validateManagedState(unsigned int                   LINE,
     ASSERT(dam.isMaxSame());
 }
 
-void validateManagedState(unsigned int                        LINE,
-                          const bslma::ManagedPtr<const void>& obj,
-                          const void                         *ptr,
-                          const bslma::ManagedPtrDeleter&      del)
+void validateManagedState(unsigned int                          LINE,
+                          const bslma::ManagedPtr<const void>&  obj,
+                          const void                           *ptr,
+                          const bslma::ManagedPtrDeleter&       del)
 {
     // Testing the following properties of the specified 'obj'
     //   operator BoolType() const;
@@ -1773,8 +1780,8 @@ struct TestLoadArgs {
 };
 
 template <class POINTER_TYPE>
-void validateTestLoadArgs(int callLine,
-                          int testLine,
+void validateTestLoadArgs(int                               callLine,
+                          int                               testLine,
                           const TestLoadArgs<POINTER_TYPE> *args)
 {
     // Assert pre-conditions that are appropriate for every call using 'args'.
@@ -2211,8 +2218,7 @@ void *TestUtil::stripPointerType(TARGET_TYPE *ptr)
 // No policies needed for 'load' of empty managed pointers
 
 template <class POINTER_TYPE>
-void doConstruct(int callLine, int testLine, int index,
-            TestCtorArgs *args)
+void doConstruct(int callLine, int testLine, int index, TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
@@ -2223,8 +2229,8 @@ void doConstruct(int callLine, int testLine, int index,
 }
 
 template <class POINTER_TYPE>
-void doConstructOnull(int callLine, int testLine, int index,
-                 TestCtorArgs *args)
+void
+doConstructOnull(int callLine, int testLine, int index, TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
@@ -2235,8 +2241,10 @@ void doConstructOnull(int callLine, int testLine, int index,
 }
 
 template <class POINTER_TYPE>
-void doConstructOnullFnull(int callLine, int testLine, int index,
-                      TestCtorArgs *args)
+void doConstructOnullFnull(int           callLine,
+                           int           testLine,
+                           int           index,
+                           TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
@@ -2247,8 +2255,10 @@ void doConstructOnullFnull(int callLine, int testLine, int index,
 }
 
 template <class POINTER_TYPE>
-void doConstructOnullFnullDnull(int callLine, int testLine, int index,
-                           TestCtorArgs *args)
+void doConstructOnullFnullDnull(int           callLine,
+                                int           testLine,
+                                int           index,
+                                TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
@@ -2262,8 +2272,8 @@ void doConstructOnullFnullDnull(int callLine, int testLine, int index,
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A simple object policy governs loading a single argument
 template<class POINTER_TYPE, class OBJECT_POLICY>
-void doConstructObject(int callLine, int testLine, int index,
-                       TestCtorArgs *args)
+void
+doConstructObject(int callLine, int testLine, int index, TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 2 > args->d_config);
 
@@ -2307,8 +2317,8 @@ void doConstructObject(int callLine, int testLine, int index,
 // We now require separate policies for Object and Factory types
 
 template<class POINTER_TYPE, class FACTORY_POLICY>
-void doConstructOnullFactory(int callLine, int testLine, int /*index*/,
-                             TestCtorArgs *args)
+void
+doConstructOnullFactory(int callLine, int testLine, int, TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
@@ -2328,8 +2338,8 @@ void doConstructOnullFactory(int callLine, int testLine, int /*index*/,
 }
 
 template<class POINTER_TYPE, class OBJECT_POLICY, class FACTORY_POLICY>
-void doConstructObjectFactory(int callLine, int testLine, int,
-                              TestCtorArgs *args)
+void
+doConstructObjectFactory(int callLine, int testLine, int, TestCtorArgs *args)
 {
     BSLMF_ASSERT(FACTORY_POLICY::DELETER_USES_FACTORY);
 
@@ -2414,8 +2424,10 @@ void doConstructObjectFactory(int callLine, int testLine, int,
 // desired function-pointer type.
 
 template<class POINTER_TYPE, class OBJECT_POLICY, class FACTORY_POLICY>
-void doConstructObjectFactoryDzero(int callLine, int testLine, int,
-                              TestCtorArgs *args)
+void doConstructObjectFactoryDzero(int           callLine,
+                                   int           testLine,
+                                   int,
+                                   TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
 
@@ -2493,8 +2505,10 @@ void doConstructObjectFactoryDzero(int callLine, int testLine, int,
 
 template<class POINTER_TYPE,
          class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
-void doConstructObjectFactoryDeleter(int callLine, int testLine, int index,
-                                TestCtorArgs *args)
+void doConstructObjectFactoryDeleter(int           callLine,
+                                     int           testLine,
+                                     int           index,
+                                     TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
 
@@ -2565,7 +2579,9 @@ void doConstructObjectFactoryDeleter(int callLine, int testLine, int index,
 
 template<class POINTER_TYPE,
          class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
-void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
+void doConstructObjectFactoryDeleter2(int           callLine,
+                                      int           testLine,
+                                      int           index,
                                       TestCtorArgs *args)
 {
     LOOP3_ASSERT(callLine, testLine, args->d_config, 8 > args->d_config);
@@ -2621,8 +2637,8 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
         bslma::ManagedPtr<POINTER_TYPE> testObject(pO, pF, deleter);
 
         const bslma::ManagedPtrDeleter del(TestUtil::stripPointerType(pO),
-                                          pF,
-                                          deleter);
+                                           pF,
+                                           deleter);
 
         POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
         validateManagedState(L_, testObject, pTarget, del);
@@ -2633,8 +2649,8 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
                                                    deleter);
 
         const bslma::ManagedPtrDeleter del(TestUtil::stripPointerType(pO),
-                                          pF,
-                                          deleter);
+                                           pF,
+                                           deleter);
 
         POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
         validateManagedState(L_, testObject, pTarget, del);
@@ -2649,8 +2665,10 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
 // null pointer literal as the factory.  This requires a deleter that will not
 // use the factory pointer.
 template<class POINTER_TYPE, class OBJECT_POLICY, class DELETER_POLICY>
-void doConstructObjectFnullDeleter(int callLine, int testLine, int index,
-                              TestCtorArgs *args)
+void doConstructObjectFnullDeleter(int           callLine,
+                                   int           testLine,
+                                   int           index,
+                                   TestCtorArgs *args)
 {
     BSLMF_ASSERT(!DELETER_POLICY::DELETER_USES_FACTORY);
 
@@ -2693,7 +2711,9 @@ void doConstructObjectFnullDeleter(int callLine, int testLine, int index,
 // No policies needed for 'load' of empty managed pointers
 
 template <class POINTER_TYPE>
-void doLoad(int callLine, int testLine, int index,
+void doLoad(int                         callLine,
+            int                         testLine,
+            int                         index,
             TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -2713,7 +2733,9 @@ void doLoad(int callLine, int testLine, int index,
 }
 
 template <class POINTER_TYPE>
-void doLoadOnull(int callLine, int testLine, int index,
+void doLoadOnull(int                         callLine,
+                 int                         testLine,
+                 int                         index,
                  TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -2733,7 +2755,9 @@ void doLoadOnull(int callLine, int testLine, int index,
 }
 
 template <class POINTER_TYPE>
-void doLoadOnullFnull(int callLine, int testLine, int index,
+void doLoadOnullFnull(int                         callLine,
+                      int                         testLine,
+                      int                         index,
                       TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -2753,7 +2777,9 @@ void doLoadOnullFnull(int callLine, int testLine, int index,
 }
 
 template <class POINTER_TYPE>
-void doLoadOnullFnullDnull(int callLine, int testLine, int index,
+void doLoadOnullFnullDnull(int                         callLine,
+                           int                         testLine,
+                           int                         index,
                            TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -2776,7 +2802,9 @@ void doLoadOnullFnullDnull(int callLine, int testLine, int index,
 // A simple object policy governs loading a single argument
 
 template<class POINTER_TYPE, class OBJECT_POLICY>
-void doLoadObject(int callLine, int testLine, int index,
+void doLoadObject(int                         callLine,
+                  int                         testLine,
+                  int                         index,
                   TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -2816,7 +2844,9 @@ void doLoadObject(int callLine, int testLine, int index,
 // We now require separate policies for Object and Factory types
 
 template<class POINTER_TYPE, class FACTORY_POLICY>
-void doLoadOnullFactory(int callLine, int testLine, int index,
+void doLoadOnullFactory(int                         callLine,
+                        int                         testLine,
+                        int                         index,
                         TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -2848,7 +2878,9 @@ void doLoadOnullFactory(int callLine, int testLine, int index,
 }
 
 template<class POINTER_TYPE, class OBJECT_POLICY, class FACTORY_POLICY>
-void doLoadObjectFactory(int callLine, int testLine, int index,
+void doLoadObjectFactory(int                         callLine,
+                         int                         testLine,
+                         int                         index,
                          TestLoadArgs<POINTER_TYPE> *args)
 {
     BSLMF_ASSERT(FACTORY_POLICY::DELETER_USES_FACTORY);
@@ -2947,7 +2979,9 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
 // desired function-pointer type.
 
 template<class POINTER_TYPE, class OBJECT_POLICY, class FACTORY_POLICY>
-void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
+void doLoadObjectFactoryDzero(int                         callLine,
+                              int                         testLine,
+                              int                         index,
                               TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -3037,7 +3071,9 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
 
 template<class POINTER_TYPE,
          class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
-void doLoadObjectFactoryDeleter(int callLine, int testLine, int index,
+void doLoadObjectFactoryDeleter(int                         callLine,
+                                int                         testLine,
+                                int                         index,
                                 TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -3098,7 +3134,9 @@ void doLoadObjectFactoryDeleter(int callLine, int testLine, int index,
 
 template<class POINTER_TYPE,
          class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
-void doLoadObjectFactoryDeleter2(int callLine, int testLine, int index,
+void doLoadObjectFactoryDeleter2(int                         callLine,
+                                 int                         testLine,
+                                 int                         index,
                                  TestLoadArgs<POINTER_TYPE> *args)
 {
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
@@ -3163,7 +3201,9 @@ void doLoadObjectFactoryDeleter2(int callLine, int testLine, int index,
 // null pointer literal as the factory.  This requires a deleter that will not
 // use the factory pointer.
 template<class POINTER_TYPE, class OBJECT_POLICY, class DELETER_POLICY>
-void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
+void doLoadObjectFnullDeleter(int                         callLine,
+                              int                         testLine,
+                              int                         index,
                               TestLoadArgs<POINTER_TYPE> *args)
 {
     BSLMF_ASSERT(!DELETER_POLICY::DELETER_USES_FACTORY);
@@ -3352,10 +3392,14 @@ template<class TARGET>
 template<class OBJECT_POLICY, class FACTORY_POLICY, class DELETER_POLICY>
 inline
 TestPolicy<TARGET>::TestPolicy(OBJECT_POLICY, FACTORY_POLICY, DELETER_POLICY)
-: d_testLoad(&doLoadObjectFactoryDeleter
-                          <TARGET, OBJECT_POLICY, FACTORY_POLICY, DELETER_POLICY>)
-, d_testCtor(&doConstructObjectFactoryDeleter
-                          <TARGET, OBJECT_POLICY, FACTORY_POLICY, DELETER_POLICY>)
+: d_testLoad(&doLoadObjectFactoryDeleter<TARGET,
+                                         OBJECT_POLICY,
+                                         FACTORY_POLICY,
+                                         DELETER_POLICY>)
+, d_testCtor(&doConstructObjectFactoryDeleter<TARGET,
+                                              OBJECT_POLICY,
+                                              FACTORY_POLICY,
+                                              DELETER_POLICY>)
 , d_configs(4)
 {
 }
@@ -3366,20 +3410,21 @@ template<class OBJECT_POLICY,
          class DELETER_OBJECT_POLICY,
          class DELETER_FACTORY_POLICY>
 inline
-TestPolicy<TARGET>::TestPolicy(OBJECT_POLICY,
-           FACTORY_POLICY,
-           DVoidVoid<DELETER_OBJECT_POLICY, DELETER_FACTORY_POLICY>)
+TestPolicy<TARGET>::TestPolicy(
+                      OBJECT_POLICY,
+                      FACTORY_POLICY,
+                      DVoidVoid<DELETER_OBJECT_POLICY, DELETER_FACTORY_POLICY>)
 : d_testLoad(&doLoadObjectFactoryDeleter2<TARGET,
                                           OBJECT_POLICY,
                                           FACTORY_POLICY,
                                           DVoidVoid<DELETER_OBJECT_POLICY,
                                                     DELETER_FACTORY_POLICY> >)
 , d_testCtor(&doConstructObjectFactoryDeleter2<
-                                             TARGET,
-                                             OBJECT_POLICY,
-                                             FACTORY_POLICY,
-                                             DVoidVoid<DELETER_OBJECT_POLICY,
-                                                       DELETER_FACTORY_POLICY> >)
+                                           TARGET,
+                                           OBJECT_POLICY,
+                                           FACTORY_POLICY,
+                                           DVoidVoid<DELETER_OBJECT_POLICY,
+                                                     DELETER_FACTORY_POLICY> >)
 , d_configs(8)
 {
 }
@@ -3389,8 +3434,8 @@ template<class OBJECT_POLICY, class DELETER_POLICY>
 inline
 TestPolicy<TARGET>::TestPolicy(OBJECT_POLICY, NullPolicy, DELETER_POLICY)
 : d_testLoad(&doLoadObjectFnullDeleter<TARGET, OBJECT_POLICY, DELETER_POLICY>)
-, d_testCtor(&doConstructObjectFnullDeleter
-                                         <TARGET, OBJECT_POLICY, DELETER_POLICY>)
+, d_testCtor(
+         &doConstructObjectFnullDeleter<TARGET, OBJECT_POLICY, DELETER_POLICY>)
 , d_configs(2)
 {
 }
@@ -3400,17 +3445,19 @@ template<class OBJECT_POLICY,
          class DELETER_OBJECT_POLICY,
          class DELETER_FACTORY_POLICY>
 inline
-TestPolicy<TARGET>::TestPolicy(OBJECT_POLICY,
-           NullPolicy,
-           DVoidVoid<DELETER_OBJECT_POLICY, DELETER_FACTORY_POLICY>)
+TestPolicy<TARGET>::TestPolicy(
+                      OBJECT_POLICY,
+                      NullPolicy,
+                      DVoidVoid<DELETER_OBJECT_POLICY, DELETER_FACTORY_POLICY>)
 : d_testLoad(&doLoadObjectFnullDeleter<TARGET,
                                        OBJECT_POLICY,
                                        DVoidVoid<DELETER_OBJECT_POLICY,
                                                  DELETER_FACTORY_POLICY> >)
-, d_testCtor(&doConstructObjectFnullDeleter<TARGET,
-                                            OBJECT_POLICY,
-                                            DVoidVoid<DELETER_OBJECT_POLICY,
-                                                      DELETER_FACTORY_POLICY> >)
+, d_testCtor(
+            &doConstructObjectFnullDeleter<TARGET,
+                                           OBJECT_POLICY,
+                                           DVoidVoid<DELETER_OBJECT_POLICY,
+                                                     DELETER_FACTORY_POLICY> >)
 , d_configs(2)
 {
 }
@@ -3420,8 +3467,8 @@ template<class OBJECT_POLICY, class FACTORY_POLICY>
 inline
 TestPolicy<TARGET>::TestPolicy(OBJECT_POLICY, FACTORY_POLICY, NullPolicy)
 : d_testLoad(&doLoadObjectFactoryDzero<TARGET, OBJECT_POLICY, FACTORY_POLICY>)
-, d_testCtor(&doConstructObjectFactoryDzero
-                                         <TARGET, OBJECT_POLICY, FACTORY_POLICY>)
+, d_testCtor(
+         &doConstructObjectFactoryDzero<TARGET, OBJECT_POLICY, FACTORY_POLICY>)
 , d_configs(4)
 {
 }
@@ -3454,8 +3501,9 @@ void TestPolicy<TARGET>::testLoad(int                   LINE_1,
 
 
 template<class TEST_TARGET, size_t TEST_ARRAY_SIZE>
-void testConstructors(int callLine,
-                  const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
+void testConstructors(
+                   int                            callLine,
+                   const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function iterates all viable variations of test functions composed
     // of the policies above, to verify that all 'bslma::ManagedPtr::load'
@@ -3509,7 +3557,7 @@ void testConstructors(int callLine,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 template<class TEST_TARGET, size_t TEST_ARRAY_SIZE>
-void testLoadOps(int callLine,
+void testLoadOps(int                             callLine,
                  const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function iterates all viable variations of test functions composed
@@ -3680,7 +3728,8 @@ template <class TYPE>
 struct AliasTestType2<const TYPE> : AliasTestType2<TYPE> {};
 
 template<class TEST_TARGET, size_t TEST_ARRAY_SIZE>
-void testLoadAliasOps1(int callLine,
+void testLoadAliasOps1(
+                  int                             callLine,
                   const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function validates the simple scenario of calling 'loadAlias' to
@@ -3792,8 +3841,9 @@ void testLoadAliasOps1(int callLine,
 }
 
 template<class TEST_TARGET, size_t TEST_ARRAY_SIZE>
-void testLoadAliasOps2(int callLine,
-                  const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
+void testLoadAliasOps2(
+                   int                            callLine,
+                   const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This scenario tests the correct state change for following a 'loadAlias'
     // call with another 'loadAlias' call.  It will also test derived* -> base*
@@ -3936,7 +3986,8 @@ void testLoadAliasOps2(int callLine,
 
 
 template<class TEST_TARGET, size_t TEST_ARRAY_SIZE>
-void testLoadAliasOps3(int callLine,
+void testLoadAliasOps3(
+                   int                            callLine,
                    const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function tests the correct interaction of 'load' and 'loadAlias'.
@@ -4109,7 +4160,7 @@ void testConstructors(int callLine,
 template<class TEST_TARGET,
          class TEST_FUNCTION_TYPE,
          size_t TEST_ARRAY_SIZE>
-void testLoadAliasOps1(int callLine,
+void testLoadAliasOps1(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function validates the simple scenario of calling 'loadAlias' to
@@ -4217,7 +4268,7 @@ void testLoadAliasOps1(int callLine,
 template<class TEST_TARGET,
          class TEST_FUNCTION_TYPE,
          size_t TEST_ARRAY_SIZE>
-void testLoadAliasOps2(int callLine,
+void testLoadAliasOps2(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This scenario tests the correct state change for following a 'loadAlias'
@@ -4357,7 +4408,7 @@ void testLoadAliasOps2(int callLine,
 template<class TEST_TARGET,
          class TEST_FUNCTION_TYPE,
          size_t TEST_ARRAY_SIZE>
-void testLoadAliasOps3(int callLine,
+void testLoadAliasOps3(int                        callLine,
                        const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
 {
     // This function tests the correct interaction of 'load' and 'loadAlias'.
@@ -6620,7 +6671,7 @@ void testDeleter(int *expectedCookieValue, void *cookie)
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
@@ -6713,7 +6764,7 @@ int main(int argc, char *argv[])
             bslma::TestAllocatorMonitor tam(&ta);
 
             processPolymorphicObject(returnManagedPtr(&numdels, &ta),
-                                    &castSucceeded);
+                                     &castSucceeded);
             ASSERT(!castSucceeded);
             processPolymorphicObject(
                          bslma::ManagedPtr<A>(returnDerivedPtr(&numdels, &ta)),
@@ -6910,8 +6961,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   void clear();
         //   bsl::pair<TYPE*, ManagedPtrDeleter> release();
-        //
-        // ADD NEGATIVE TESTING FOR operator*()
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'clear' AND 'release'"
@@ -7241,7 +7290,7 @@ int main(int argc, char *argv[])
             }
 #endif
       } break;
-       case 11: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING SWAP
         //
@@ -7480,7 +7529,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedPtr(ManagedPtr& original);
-        //   ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref);
+        //   ManagedPtr(ManagedPtr_Ref<TYPE> ref);
         //   operator ManagedPtr_Ref<OTHER_TYPE>();
         // --------------------------------------------------------------------
 
@@ -7545,8 +7594,8 @@ int main(int argc, char *argv[])
                 // implementation detail of that move-constructor that would be
                 // invoked.
                 struct Local {
-                    static void test(void * px,
-                                     bslma::ManagedPtr_Ref<TObj> r)
+                    static void test(void                        *px,
+                                     bslma::ManagedPtr_Ref<TObj>  r)
                     {
                         LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
 
@@ -7805,11 +7854,13 @@ int main(int argc, char *argv[])
         //   contract).
         //
         // Testing:
-        //   ManagedPtr(TYPE *ptr);
-        //   ManagedPtr(TYPE *ptr, FACTORY *factory);
-        //   ManagedPtr(TYPE *, void *, DeleterFunc);
-        //   ManagedPtr(TYPE *, bsl::nullptr_t, void(*)(BASE *, void *));
-        //   ManagedPtr(TYPE *, FACTORY *, void(*)(TARGET_BASE *, FACTORY_BASE *))
+        //   ManagedPtr(OTHER *ptr);
+        //   ManagedPtr(OTHER *ptr, FACTORY *factory);
+        //   ManagedPtr(TYPE *ptr, void *cookie, DeleterFunc deleter);
+        //   ManagedPtr(TYPE *ptr, void *cookie, void(*deleter)(TYPE*, void*));
+        //   ManagedPtr(OTHER *ptr, void *cookie, DeleterFunc deleter);
+        //   ManagedPtr(OTHER *, bsl::nullptr_t, void(*)(BASE *, void *));
+        //   ManagedPtr(OTHER *, COOKIE *, void (*)(OTHER_BASE*, COOKIE_BASE*))
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CREATORS WITH FACTORY OR DELETER"
@@ -9308,12 +9359,12 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(destructorCount, 0 == destructorCount);
             }
             LOOP_ASSERT(destructorCount, 10000 == destructorCount);
-       }
-       ASSERT(20000 == destructorCount);
+        }
+        ASSERT(20000 == destructorCount);
 
-       if (verbose) printf("\tTest pointer conversions\n");
+        if (verbose) printf("\tTest pointer conversions\n");
 
-       struct Local {
+        struct Local {
             static bool matchBase(MyTestObject *) { return true; }
             static bool matchBase(...) { return false; }
 
@@ -9720,8 +9771,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == OverloadTest::invoke(pD));
 #endif
         }
-     } break;
-     case -1: {
+      } break;
+      case -1: {
         // --------------------------------------------------------------------
         // VERIFYING FAILURES TO COMPILE
         //

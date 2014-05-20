@@ -15,7 +15,6 @@
 #include <stdio.h>
 
 using namespace BloombergLP;
-using std::swap;
 
 // ============================================================================
 //                                  TEST PLAN
@@ -51,43 +50,43 @@ using std::swap;
 //:   certain methods require the testing of this property:
 //:   o copy-assignment
 // ----------------------------------------------------------------------------
-// CLASS METHODS
-// [10] static int maxSupportedBdexVersion();
-//
 // CREATORS
-// [ 2] bslma::ManagedPtrDeleter()
-// [ 3] bslma::ManagedPtrDeleter(void *object, void *factory, Deleter deleter)
-// [ 7] bslma::ManagedPtrDeleter(const bslma::ManagedPtrDeleter& original)
-// [ 2] ~bslma::ManagedPtrDeleter()
+// [ 2] ManagedPtrDeleter();
+// [ 3] ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
+// [ 7] ManagedPtrDeleter(const ManagedPtrDeleter& original);
+// [ 2] ~ManagedPtrDeleter();
 //
 // MANIPULATORS
-// [ 2] set(void *object, void *factory, Deleter deleter)
-// [11] clear()
+// [ 9] ManagedPtrDeleter& operator=(const ManagedPtrDeleter& rhs);
+// [ 2] void set(void *object, void *factory, Deleter deleter);
+// [11] void clear();
 //
 // ACCESSORS
-// [12] void deleteManagedObject() const
-// [ 4] void (*)(void *, void *) deleter() const
-// [ 4] void *factory() const
-// [ 4] void *object() const
+// [12] void deleteManagedObject() const;
+// [ 4] Deleter deleter() const;
+// [ 4] void *factory() const;
+// [ 4] void *object() const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const bslma::ManagedPtrDeleter& lhs, rhs)
-// [ 6] bool operator!=(const bslma::ManagedPtrDeleter& lhs, rhs)
+// [ 6] bool operator==(const ManagedPtrDeleter& lhs, rhs);
+// [ 6] bool operator!=(const ManagedPtrDeleter& lhs, rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
+// [ 8] void swap(ManagedPtrDeleter&, ManagedPtrDeleter&);    // ADL
 // [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
 // [ 4] CONCERN: All accessor methods are declared 'const'.
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -95,7 +94,6 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
 }  // close unnamed namespace
@@ -355,12 +353,12 @@ int main(int argc, char *argv[])
         //:   default state.
         //
         // Testing:
-        //   deleteManagedObject()
+        //   void deleteManagedObject() const;
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nMANIPULATOR 'reset'"
-                  "\n===================\n");
+            printf("\nACCESSOR 'deleteManagedObject'"
+                   "\n==============================\n");
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
 
@@ -428,11 +426,11 @@ int main(int argc, char *argv[])
         //:   default state.
         //
         // Testing:
-        //   clear()
+        //   void clear();
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nMANIPULATOR 'reset'"
+            printf("\nMANIPULATOR 'clear'"
                    "\n===================\n");
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
@@ -466,11 +464,11 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING
+        // BSLX STREAMING (NOT IMPLEMENTED)
         //   bslx streaming is not implemented for this type.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBSLX STREAMING (not implemented)"
+        if (verbose) printf("\nBSLX STREAMING (NOT IMPLEMENTED)"
                             "\n================================\n");
       } break;
       case 9: {
@@ -546,7 +544,7 @@ int main(int argc, char *argv[])
         //:     target object, 'mX', still has the same value as that of 'ZZ'.
         //
         // Testing:
-        //   operator=(const ManagedPtrDeleter& rhs);
+        //   ManagedPtrDeleter& operator=(const ManagedPtrDeleter& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
@@ -632,11 +630,13 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //   void swap(ManagedPtrDeleter&, ManagedPtrDeleter&);
+        //   void swap(ManagedPtrDeleter&, ManagedPtrDeleter&);    // ADL
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
                             "\n==============================\n");
+
+        using std::swap;
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
 
@@ -733,7 +733,7 @@ int main(int argc, char *argv[])
         //:     2 'Z' still has the same value as that of 'ZZ'.  (C-3)
         //
         // Testing:
-        //   bslma::ManagedPtrDeleter(const ManagedPtrDeleter& o);
+        //   ManagedPtrDeleter(const ManagedPtrDeleter& original);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY CONSTRUCTOR"
@@ -1077,7 +1077,7 @@ int main(int argc, char *argv[])
         //:   (C-3)
         //
         // Testing:
-        //   ManagedPtrDeleter(int o, bool f);
+        //   ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nVALUE CTOR"
@@ -1192,7 +1192,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   ManagedPtrDeleter();
         //   ~ManagedPtrDeleter();
-        //   set(int value);
+        //   void set(void *object, void *factory, Deleter deleter);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
