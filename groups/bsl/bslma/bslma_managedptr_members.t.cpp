@@ -445,15 +445,15 @@ int main(int argc, char *argv[])
             ASSERT(0 == members.pointer());
 
 #ifdef BDE_BUILD_TARGET_EXC
-                if (verbose) printf("\t\tNegative testing\n");
+            if (verbose) printf("\t\tNegative testing\n");
 
-                {
-                    bsls::AssertTestHandlerGuard guard;
-                    ASSERT_SAFE_FAIL(members.deleter());
-                }
+            {
+                bsls::AssertTestHandlerGuard guard;
+                ASSERT_SAFE_FAIL(members.deleter());
+            }
 #else
-                if (verbose) printf("\tNegative testing disabled due to lack"
-                                     " of exception support\n");
+            if (verbose) printf("\tNegative testing disabled due to lack of"
+                                 " exception support\n");
 #endif
 
             {
@@ -923,12 +923,12 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(destructorCount, 0 == destructorCount);
             }
             LOOP_ASSERT(destructorCount, 10000 == destructorCount);
-       }
-       ASSERT(20000 == destructorCount);
+        }
+        ASSERT(20000 == destructorCount);
 
-       if (verbose) printf("\tTest pointer conversions\n");
+        if (verbose) printf("\tTest pointer conversions\n");
 
-       struct Local {
+        struct Local {
             static bool matchBase(MyTestObject *) { return true; }
             static bool matchBase(...) { return false; }
 

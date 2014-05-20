@@ -926,11 +926,11 @@ class ManagedPtr {
         // to call the correct destructor for the managed object, even if the
         // destructor for 'TARGET_TYPE' is not declared as 'virtual'.
 
-    ManagedPtr(ManagedPtr& other);
+    ManagedPtr(ManagedPtr& original);
         // Create a managed pointer having the same target object as the
-        // specified 'other', and transfer the ownership of the object managed
-        // by 'other' (if any) to this managed pointer, then reset 'other' as
-        // empty.
+        // specified 'original', and transfer the ownership of the object
+        // managed by 'other' (if any) to this managed pointer, then reset
+        // 'original' as empty.
 
     ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref);                    // IMPLICIT
         // Create a managed pointer having the same target object as the
@@ -1488,8 +1488,8 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref)
 
 template <class TARGET_TYPE>
 inline
-ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr& other)
-: d_members(other.d_members)
+ManagedPtr<TARGET_TYPE>::ManagedPtr(ManagedPtr& original)
+: d_members(original.d_members)
 {
 }
 
@@ -1525,8 +1525,8 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
 template <class TARGET_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>::ManagedPtr(TARGET_TYPE *ptr,
-                                                void        *cookie,
-                                                DeleterFunc  deleter)
+                                    void        *cookie,
+                                    DeleterFunc  deleter)
 : d_members(stripBasePointerType(ptr), cookie, deleter)
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
@@ -1552,9 +1552,10 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr,
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE, class MANAGED_BASE>
 inline
-ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr,
-                                    void         *cookie,
-                                    void (*deleter)(MANAGED_BASE*, void*))
+ManagedPtr<TARGET_TYPE>::ManagedPtr(
+                                  MANAGED_TYPE *ptr,
+                                  void         *cookie,
+                                  void        (*deleter)(MANAGED_BASE*, void*))
 : d_members(stripCompletePointerType(ptr),
             cookie,
             reinterpret_cast<DeleterFunc>(deleter),
@@ -1605,6 +1606,7 @@ ManagedPtr<TARGET_TYPE>::~ManagedPtr()
     d_members.runDeleter();
 }
 
+// PRIVATE MANIPULATORS
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
@@ -1618,6 +1620,15 @@ void ManagedPtr<TARGET_TYPE>::loadImp(MANAGED_TYPE *ptr,
     d_members.runDeleter();
     d_members.set(stripCompletePointerType(ptr), cookie, deleter);
     d_members.setAliasPtr(stripBasePointerType(ptr));
+}
+
+// MANIPULATORS
+template <class TARGET_TYPE>
+inline
+void ManagedPtr<TARGET_TYPE>::clear()
+{
+    d_members.runDeleter();
+    d_members.clear();
 }
 
 template <class TARGET_TYPE>
@@ -1704,9 +1715,10 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE, class MANAGED_BASE>
 inline
-void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
-                                   void         *cookie,
-                                   void (*deleter)(MANAGED_BASE *, void*))
+void ManagedPtr<TARGET_TYPE>::load(
+                                 MANAGED_TYPE *ptr,
+                                 void         *cookie,
+                                 void        (*deleter)(MANAGED_BASE *, void*))
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLMF_ASSERT((!bsl::is_void<MANAGED_BASE>::value));
@@ -1722,9 +1734,10 @@ template <class MANAGED_TYPE,
           class COOKIE_TYPE,
           class COOKIE_BASE>
 inline
-void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
-                                   COOKIE_TYPE  *cookie,
-                                 void (*deleter)(MANAGED_BASE*, COOKIE_BASE *))
+void ManagedPtr<TARGET_TYPE>::load(
+                          MANAGED_TYPE *ptr,
+                          COOKIE_TYPE  *cookie,
+                          void        (*deleter)(MANAGED_BASE*, COOKIE_BASE *))
 {
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLMF_ASSERT((bsl::is_convertible<MANAGED_TYPE *, MANAGED_BASE *>::VALUE));
@@ -1740,7 +1753,7 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
 template <class TARGET_TYPE>
 template <class ALIASED_TYPE>
 void ManagedPtr<TARGET_TYPE>::loadAlias(ManagedPtr<ALIASED_TYPE>&  alias,
-                                         TARGET_TYPE               *ptr)
+                                        TARGET_TYPE               *ptr)
 {
     BSLS_ASSERT_SAFE((0 == ptr && 0 == alias.ptr())
                    ||(0 != ptr && 0 != alias.ptr()));
@@ -1756,14 +1769,6 @@ void ManagedPtr<TARGET_TYPE>::loadAlias(ManagedPtr<ALIASED_TYPE>&  alias,
 }
 
 template <class TARGET_TYPE>
-inline
-void ManagedPtr<TARGET_TYPE>::clear()
-{
-    d_members.runDeleter();
-    d_members.clear();
-}
-
-template <typename TARGET_TYPE>
 ManagedPtr_PairProxy<TARGET_TYPE, ManagedPtrDeleter>
 ManagedPtr<TARGET_TYPE>::release()
 {
@@ -1780,7 +1785,7 @@ ManagedPtr<TARGET_TYPE>::release()
     return result;
 }
 
-template <typename TARGET_TYPE>
+template <class TARGET_TYPE>
 TARGET_TYPE *ManagedPtr<TARGET_TYPE>::release(ManagedPtrDeleter *deleter)
 {
     BSLS_ASSERT_SAFE(deleter);

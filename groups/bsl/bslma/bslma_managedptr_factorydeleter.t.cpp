@@ -99,12 +99,17 @@ class MyTestObject {
         // Create a 'MyTestObject' using the specified 'counter' to record when
         // this object's destructor is run.
 
-    // Use compiler-generated copy constructor and assignment operator
-    // MyTestObject(const MyTestObject& orig) = default;
-    // MyTestObject operator=(const MyTestObject& orig) = default;
+    //! MyTestObject(const MyTestObject& original);
+        // Create a 'MyTestObject' object having the same value as the
+        // specified 'original' object.
 
     virtual ~MyTestObject();
         // Destroy this object.
+
+    // MANIPULATORS
+    //! MyTestObject& operator=(const MyTestObject& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
     // ACCESSORS
     volatile int *deleteCounter() const;
@@ -212,7 +217,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING bslma::ManagedPtr_FactoryDeleter
+        // TESTING 'bslma::ManagedPtr_FactoryDeleter'
         //
         // Concerns:
         //: 1 'bslma::ManagedPtr_FactoryDeleter<T,U>::deleter(obj, factory)'
@@ -234,8 +239,8 @@ int main(int argc, char *argv[])
         //    void deleter(obj, factory)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING bslma::ManagedPtr_FactoryDeleter"
-                            "\n----------------------------------------\n");
+        if (verbose) printf("\nTESTING 'bslma::ManagedPtr_FactoryDeleter'"
+                            "\n==========================================\n");
 
         typedef bslma::ManagedPtr_FactoryDeleter<MyTestObject,
                                              CountedStackDeleter > TestFactory;
