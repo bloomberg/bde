@@ -2764,27 +2764,16 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        bool anyIsNan = false;
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int mi = 0; mi < numMantissas; ++mi) {
                 for (int ei = 0; ei < numExps; ++ei) {
                     BDEC::Decimal64 num =
                                   Util::makeDecimal64(mantissas[mi], exps[ei]);
-                    anyIsNan |= Util::isNan(num);
                 }
             }
         }
 
         const double totalTime = s.accumulatedWallTime();
-
-        // This prevents the compiler from optimizing away the test.
-        if (anyIsNan) {
-            bsl::cout << "Some results are nan\n" << bsl::endl;
-        }
-        else {
-            bsl::cout << "No results are nan\n" << bsl::endl;
-        }
-
         const double operationsPerSecond = numOperations / totalTime;
 
         bsl::cout << "Performance test: " << operationsPerSecond
@@ -2809,7 +2798,6 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        bool anyIsNan = false;
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int mi = 0; mi < numMantissas; ++mi) {
 
@@ -2821,21 +2809,11 @@ int main(int argc, char* argv[])
 
                     BDEC::Decimal128 num =
                               Util::makeDecimalRaw128(mantissas[mi], exps[ei]);
-                    anyIsNan |= Util::isNan(num);
                 }
             }
         }
 
         const double totalTime = s.accumulatedWallTime();
-
-        // This prevents the compiler from optimizing away the test.
-        if (anyIsNan) {
-            bsl::cout << "Some results are nan\n" << bsl::endl;
-        }
-        else {
-            bsl::cout << "No results are nan\n" << bsl::endl;
-        }
-
         const double operationsPerSecond = numOperations / totalTime;
 
         bsl::cout << "Performance test: " << operationsPerSecond
@@ -2860,7 +2838,6 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        bool anyIsNan = false;
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int mi = 0; mi < numMantissas; ++mi) {
 
@@ -2877,21 +2854,11 @@ int main(int argc, char* argv[])
 
                     BDEC::Decimal64 num =
                                Util::makeDecimalRaw64(mantissas[mi], exps[ei]);
-                    anyIsNan |= Util::isNan(num);
                 }
             }
         }
 
         const double totalTime = s.accumulatedWallTime();
-
-        // This prevents the compiler from optimizing away the test.
-        if (anyIsNan) {
-            bsl::cout << "Some results are nan\n" << bsl::endl;
-        }
-        else {
-            bsl::cout << "No results are nan\n" << bsl::endl;
-        }
-
         const double operationsPerSecond = numOperations / totalTime;
 
         bsl::cout << "Performance test: " << operationsPerSecond
@@ -2916,7 +2883,6 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        bool anyIsNan = false;
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int mi = 0; mi < numMantissas; ++mi) {
 
@@ -2933,21 +2899,11 @@ int main(int argc, char* argv[])
                     BDEC::Decimal32 num =
                                Util::makeDecimalRaw32(
                                     static_cast<int>(mantissas[mi]), exps[ei]);
-                    anyIsNan |= Util::isNan(num);
                 }
             }
         }
 
         const double totalTime = s.accumulatedWallTime();
-
-        // This prevents the compiler from optimizing away the test.
-        if (anyIsNan) {
-            bsl::cout << "Some results are nan\n" << bsl::endl;
-        }
-        else {
-            bsl::cout << "No results are nan\n" << bsl::endl;
-        }
-
         const double operationsPerSecond = numOperations / totalTime;
 
         bsl::cout << "Performance test: " << operationsPerSecond
@@ -2983,27 +2939,16 @@ int main(int argc, char* argv[])
         bsls::Stopwatch s;
         s.start();
 
-        bool anyIsNan = false;
-
         for (int iter = 0; iter < numIterations; ++iter) {
             for (int di = 0; di < numDecimals; ++di) {
                 for (int ei = 0; ei < numExps; ++ei) {
                     BDEC::Decimal64 result = Util::multiplyByPowerOf10(
                         decimals[di], exps[ei]);
-                    anyIsNan |= Util::isNan(result);
                 }
             }
         }
 
-        if (anyIsNan) {
-            bsl::cout << "Some results are nan\n" << bsl::endl;
-        }
-        else {
-            bsl::cout << "No results are nan\n" << bsl::endl;
-        }
-
         const double totalTime = s.accumulatedWallTime();
-
         const double operationsPerSecond = numOperations / totalTime;
 
         bsl::cout << "Performance test: " << operationsPerSecond
