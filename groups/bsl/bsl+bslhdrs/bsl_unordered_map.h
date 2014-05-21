@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSL_OVERRIDES_STD
 // BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
-// #include is guarnateed to succeed
+// #include is guaranteed to succeed.
 # include <unordered_map>
 #else
 // The unordered containers are a feature of the C++11 library, rather than
