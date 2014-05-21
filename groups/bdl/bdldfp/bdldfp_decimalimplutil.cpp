@@ -885,10 +885,11 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(long long mantissa,
                                                             int       exponent)
 {
-    if (((-Properties<64>::bias) <= exponent) &&
-        (exponent <= Properties<64>::maxExponent) &&
-        ((-Properties<64>::mediumLimit) < mantissa) &&
-        (mantissa < Properties<64>::mediumLimit)) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+            (-Properties<64>::bias <= exponent) &&
+            (exponent <= Properties<64>::maxExponent) &&
+            (-Properties<64>::mediumLimit < mantissa) &&
+            (mantissa < Properties<64>::mediumLimit))) {
 
         // 'mantissa' and 'exponent' are in range of 64-bit decimal floating
         // point.
@@ -896,6 +897,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(long long mantissa,
         return makeDecimalRaw64(mantissa, exponent);                  // RETURN
     }
     else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
 
             // 'exponent' too high.
