@@ -140,63 +140,7 @@ static decContext* getContext()
 
                              // Creator functions
 
-Decimal32 DecimalUtil::makeDecimalRaw32(int coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw32(coeff, exponent);
-}
-Decimal64 DecimalUtil::makeDecimalRaw64(int coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw64(coeff, exponent);
-}
-Decimal64 DecimalUtil::makeDecimalRaw64(unsigned int coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw64(coeff, exponent);
-}
-Decimal64 DecimalUtil::makeDecimalRaw64(long long coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw64(coeff, exponent);
-}
-Decimal64 DecimalUtil::makeDecimalRaw64(unsigned long long coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw64(coeff, exponent);
-}
-Decimal128 DecimalUtil::makeDecimalRaw128(int coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw128(coeff, exponent);
-}
-Decimal128 DecimalUtil::makeDecimalRaw128(unsigned int coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw128(coeff, exponent);
-}
-Decimal128 DecimalUtil::makeDecimalRaw128(long long coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw128(coeff, exponent);
-}
-Decimal128 DecimalUtil::makeDecimalRaw128(
-                                        unsigned long long coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimalRaw128(coeff, exponent);
-}
-
-
-Decimal64 DecimalUtil::makeDecimal64(int coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimal64(coeff, exponent);
-}
-Decimal64 DecimalUtil::makeDecimal64(unsigned int coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimal64(coeff, exponent);
-}
-Decimal64 DecimalUtil::makeDecimal64(long long coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimal64(coeff, exponent);
-}
-Decimal64 DecimalUtil::makeDecimal64(unsigned long long coeff, int exponent)
-{
-    return DecimalImplUtil::makeDecimal64(coeff, exponent);
-}
-
-
+//inline
 int DecimalUtil::parseDecimal32(Decimal32 *out, const char *str)
 {
  // TODO TBD - check validity
