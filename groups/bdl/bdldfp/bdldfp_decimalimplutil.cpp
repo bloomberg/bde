@@ -697,8 +697,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
     BSLS_ASSERT(mantissa <= 9999999999999999LL);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    _Decimal64 value = mantissa;
-    return __d64_insert_biased_exponent(value, exponent + 398);
+    return ldexpd64(mantissa, exponent);
 #else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
@@ -716,8 +715,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
     BSLS_ASSERT(std::max(mantissa, -mantissa) <= 9999999999999999LL);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    _Decimal64 value = mantissa;
-    return __d64_insert_biased_exponent(value, exponent + 398);
+    return ldexpd64(mantissa, exponent);
 #else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
@@ -734,8 +732,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
     BSLS_ASSERT(exponent <= 369);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    _Decimal64 value = mantissa;
-    return __d64_insert_biased_exponent(value, exponent + 398);
+    return ldexpd64(mantissa, exponent);
 #else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
@@ -751,8 +748,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(int mantissa,
     BSLS_ASSERT(exponent <= 369);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    _Decimal64 value = mantissa;
-    return __d64_insert_biased_exponent(value, exponent + 398);
+    return ldexpd64(mantissa, exponent);
 #else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
@@ -769,8 +765,7 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
     BSLS_ASSERT(exponent <= 6111);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    _Decimal128 value = mantissa;
-    return __d128_insert_biased_exponent(value, exponent + 6176);
+    return ldexpd128(mantissa, exponent);
 #else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
@@ -786,8 +781,7 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
     BSLS_ASSERT(exponent <= 6111);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    _Decimal128 value = mantissa;
-    return __d128_insert_biased_exponent(value, exponent + 6176);
+    return ldexpd128(mantissa, exponent);
 #else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
@@ -803,8 +797,7 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
     BSLS_ASSERT(exponent <= 6111);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    _Decimal128 value = mantissa;
-    return __d128_insert_biased_exponent(value, exponent + 6176);
+    return ldexpd128(mantissa, exponent);
 #else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
@@ -819,8 +812,7 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(int mantissa,
     BSLS_ASSERT(exponent <= 6111);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    _Decimal128 value = mantissa;
-    return __d128_insert_biased_exponent(value, exponent + 6176);
+    return ldexpd128(mantissa, exponent);
 #else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
