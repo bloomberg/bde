@@ -2988,8 +2988,23 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             unsigned char d_expectedBCD[34];
             int           d_expectedSign;
         } MAKE_DECIMAL_RAW_TESTS[] = {
-/*
-  // TODO test 0 cases, where the 0 returned is unspecified.
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+            { L_,                    0ll,     0, 0,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0}, 1},
+            { L_,                    0ll,    10, 0,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0}, 1},
+            { L_,                    0ll,   -10, 0,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0}, 1},
+#else
             { L_,                    0ll,     0, 0,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -3005,7 +3020,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0}, 1},
-*/
+#endif
             { L_,                  100ll,    -2, -2,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
