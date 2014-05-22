@@ -40,7 +40,8 @@ using namespace BloombergLP;
 // [ 3] bslma::SharedPtrOutofplaceRep(TYPE *pt...BCEMA_FUNCTOR_WITHOUT_ALLOC>);
 // [ 2] bslma::SharedPtrOutofplaceRep<TYPE, DELETER> * makeOutofplaceRep(...);
 // [ 2] void disposeRep();
-// [ 3] void disposeObject();
+// [ 2] void disposeObject();
+// [  ] void *getDeleter(const std::type_info& type);
 // [ 2] void *originalPtr() const;
 // [ 2] TYPE *ptr() const;
 //
@@ -206,7 +207,7 @@ class MyAllocTestDeleter {
   public:
     // CREATORS
     explicit MyAllocTestDeleter(bslma::Allocator *deleter,
-                       bslma::Allocator *basicAllocator = 0);
+                                bslma::Allocator *basicAllocator = 0);
 
     MyAllocTestDeleter(const MyAllocTestDeleter&  original,
                        bslma::Allocator          *basicAllocator = 0);
@@ -404,7 +405,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
-    case 5: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -437,9 +438,9 @@ int main(int argc, char *argv[])
         ASSERT(2 == ta.numDeallocations());
       } break;
 #endif
-    case 4: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING CONSTRUCTORS ACCESSOR
+        // TESTING CREATORS
         //
         // Concerns:
         //   Object is properly initialized, and can be properly destructed
@@ -476,8 +477,8 @@ int main(int argc, char *argv[])
         //                                const DELETER&    deleter,
         //                                bslma::Allocator *basicAllocator=0);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting Constructors and Destructor"
-                            "\n===================================\n");
+        if (verbose) printf("\nTESTING CREATORS"
+                            "\n================\n");
 
         if (verbose) printf("\nTesting bslma::AllocatorDeleter"
                             "\n-------------------------------\n");

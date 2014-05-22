@@ -344,6 +344,40 @@ class SharedPtrRep {
         // Create a 'SharedPtrRep' object having one shared reference and no
         // weak references.
 
+    // PURE VIRTUAL FUNCTIONS
+    virtual void disposeObject() = 0;
+        // Dispose of the shared object referred to by this representation.
+        // This method is automatically invoked by 'releaseRef' when the number
+        // of shared references reaches zero and should not be explicitly
+        // invoked otherwise.  Note that this virtual 'disposeObject' method
+        // effectively serves as the shared object's destructor.  Also note
+        // that derived classes must override this method to perform the
+        // appropriate action such as deleting the shared object.
+
+    virtual void disposeRep() = 0;
+        // Dispose of this representation object.  This method is automatically
+        // invoked by 'releaseRef' and 'releaseWeakRef' when the number of weak
+        // references and the number of shared references both reach zero and
+        // should not be explicitly invoked otherwise.  The behavior is
+        // undefined unless 'disposeObject' has already been called for this
+        // representation.  Note that this virtual 'disposeRep' method
+        // effectively serves as the representation object's destructor.  Also
+        // note that derived classes must override this method to perform
+        // appropriate action such as deleting this representation, or
+        // returning it to an object pool.
+
+    virtual void *getDeleter(const std::type_info& type) = 0;
+        // Return a pointer to the deleter stored by the derived representation
+        // (if any) if the deleter has the same type as that described by the
+        // specified 'type', and a null pointer otherwise.  Note that while
+        // this methods appears to be a simple accessor, it is declared as non-
+        // 'const' qualified to support representations storing the deleter
+        // directly as a data member.
+
+    virtual void *originalPtr() const = 0;
+        // Return the (untyped) address of the modifiable shared object
+        // referred to by this representation.
+
     // MANIPULATORS
     void acquireRef();
         // Atomically acquire a shared reference to the shared object referred
@@ -396,35 +430,6 @@ class SharedPtrRep {
         // acquire succeeds, and 'false' otherwise.  The behavior is undefined
         // unless '0 < numWeakReferences() || 0 < numReferences()'.
 
-    virtual void disposeObject() = 0;
-        // Dispose of the shared object referred to by this representation.
-        // This method is automatically invoked by 'releaseRef' when the number
-        // of shared references reaches zero and should not be explicitly
-        // invoked otherwise.  Note that this virtual 'disposeObject' method
-        // effectively serves as the shared object's destructor.  Also note
-        // that derived classes must override this method to perform the
-        // appropriate action such as deleting the shared object.
-
-    virtual void disposeRep() = 0;
-        // Dispose of this representation object.  This method is automatically
-        // invoked by 'releaseRef' and 'releaseWeakRef' when the number of weak
-        // references and the number of shared references both reach zero and
-        // should not be explicitly invoked otherwise.  The behavior is
-        // undefined unless 'disposeObject' has already been called for this
-        // representation.  Note that this virtual 'disposeRep' method
-        // effectively serves as the representation object's destructor.  Also
-        // note that derived classes must override this method to perform
-        // appropriate action such as deleting this representation, or
-        // returning it to an object pool.
-
-    virtual void *getDeleter(const std::type_info& type) = 0;
-        // Return a pointer to the deleter stored by the derived representation
-        // (if any) if the deleter has the same type as that described by the
-        // specified 'type', and a null pointer otherwise.  Note that while
-        // this methods appears to be a simple accessor, it is declared as non-
-        // 'const' qualified to support representations storing the deleter
-        // directly as a data member.
-
     // ACCESSORS
     bool hasUniqueOwner() const;
         // Return 'true' if there is only one shared reference and no weak
@@ -438,10 +443,6 @@ class SharedPtrRep {
     int numWeakReferences() const;
         // Return a "snapshot" of the current number of weak references to the
         // shared object referred to by this representation object.
-
-    virtual void *originalPtr() const = 0;
-        // Return the (untyped) address of the modifiable shared object
-        // referred to by this representation.
 
 };
 

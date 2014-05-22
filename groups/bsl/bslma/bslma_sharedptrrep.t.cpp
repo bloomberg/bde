@@ -200,7 +200,7 @@ bool MyTestImplementation::getNumRepDisposed()
 
 void *MyTestImplementation::originalPtr() const
 {
-   return NULL;
+    return NULL;
 }
 
 #if 0  // TBD Need an appropriately levelized usage example
@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
-    case 10: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -456,7 +456,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == ta.numDeallocations());
       } break;
 #endif
-    case 9: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'managedPtrDeleter'
         //

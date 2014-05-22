@@ -263,144 +263,144 @@ class SharedPtrInplaceRep : public SharedPtrRep {
     SharedPtrInplaceRep(Allocator *basicAllocator, const A1& a1);
     template <class A1, class A2>
     SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2);
+                        const A1&  a1,
+                        const A2&  a2);
     template <class A1, class A2, class A3>
     SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3);
+                        const A1&  a1,
+                        const A2&  a2,
+                        const A3&  a3);
     template <class A1, class A2, class A3, class A4>
     SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4);
+                        const A1&  a1,
+                        const A2&  a2,
+                        const A3&  a3,
+                        const A4&  a4);
     template <class A1, class A2, class A3, class A4, class A5>
     SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5);
+                        const A1&  a1,
+                        const A2&  a2,
+                        const A3&  a3,
+                        const A4&  a4,
+                        const A5&  a5);
     template <class A1, class A2, class A3, class A4, class A5, class A6>
     SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6);
+                        const A1&  a1,
+                        const A2&  a2,
+                        const A3&  a3,
+                        const A4&  a4,
+                        const A5&  a5,
+                        const A6&  a6);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
-             class A7>
+              class A7>
     SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7);
+                        const A1&  a1,
+                        const A2&  a2,
+                        const A3&  a3,
+                        const A4&  a4,
+                        const A5&  a5,
+                        const A6&  a6,
+                        const A7&  a7);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8>
     SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8);
+                        const A1&  a1,
+                        const A2&  a2,
+                        const A3&  a3,
+                        const A4&  a4,
+                        const A5&  a5,
+                        const A6&  a6,
+                        const A7&  a7,
+                        const A8&  a8);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9>
     SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9);
+                        const A1&  a1,
+                        const A2&  a2,
+                        const A3&  a3,
+                        const A4&  a4,
+                        const A5&  a5,
+                        const A6&  a6,
+                        const A7&  a7,
+                        const A8&  a8,
+                        const A9&  a9);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10);
+    SharedPtrInplaceRep(Allocator  *basicAllocator,
+                        const A1&   a1,
+                        const A2&   a2,
+                        const A3&   a3,
+                        const A4&   a4,
+                        const A5&   a5,
+                        const A6&   a6,
+                        const A7&   a7,
+                        const A8&   a8,
+                        const A9&   a9,
+                        const A10&  a10);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10,
-                        const A11&        a11);
+    SharedPtrInplaceRep(Allocator  *basicAllocator,
+                        const A1&   a1,
+                        const A2&   a2,
+                        const A3&   a3,
+                        const A4&   a4,
+                        const A5&   a5,
+                        const A6&   a6,
+                        const A7&   a7,
+                        const A8&   a8,
+                        const A9&   a9,
+                        const A10&  a10,
+                        const A11&  a11);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10,
-                        const A11&        a11,
-                        const A12&        a12);
+    SharedPtrInplaceRep(Allocator  *basicAllocator,
+                        const A1&   a1,
+                        const A2&   a2,
+                        const A3&   a3,
+                        const A4&   a4,
+                        const A5&   a5,
+                        const A6&   a6,
+                        const A7&   a7,
+                        const A8&   a8,
+                        const A9&   a9,
+                        const A10&  a10,
+                        const A11&  a11,
+                        const A12&  a12);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10,
-                        const A11&        a11,
-                        const A12&        a12,
-                        const A13&        a13);
+    SharedPtrInplaceRep(Allocator  *basicAllocator,
+                        const A1&   a1,
+                        const A2&   a2,
+                        const A3&   a3,
+                        const A4&   a4,
+                        const A5&   a5,
+                        const A6&   a6,
+                        const A7&   a7,
+                        const A8&   a8,
+                        const A9&   a9,
+                        const A10&  a10,
+                        const A11&  a11,
+                        const A12&  a12,
+                        const A13&  a13);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13, class A14>
-    SharedPtrInplaceRep(Allocator *basicAllocator,
-                        const A1&         a1,
-                        const A2&         a2,
-                        const A3&         a3,
-                        const A4&         a4,
-                        const A5&         a5,
-                        const A6&         a6,
-                        const A7&         a7,
-                        const A8&         a8,
-                        const A9&         a9,
-                        const A10&        a10,
-                        const A11&        a11,
-                        const A12&        a12,
-                        const A13&        a13,
-                        const A14&        a14);
+    SharedPtrInplaceRep(Allocator  *basicAllocator,
+                        const A1&   a1,
+                        const A2&   a2,
+                        const A3&   a3,
+                        const A4&   a4,
+                        const A5&   a5,
+                        const A6&   a6,
+                        const A7&   a7,
+                        const A8&   a8,
+                        const A9&   a9,
+                        const A10&  a10,
+                        const A11&  a11,
+                        const A12&  a12,
+                        const A13&  a13,
+                        const A14&  a14);
         // Create a 'SharedPtrInplaceRep' object having an "in-place" instance
         // of the parameterized 'TYPE' using the 'TYPE' constructor that takes
         // the specified arguments, 'a1' up to 'aN', where 'N' (at most 14) is
@@ -755,7 +755,7 @@ void *SharedPtrInplaceRep<TYPE>::originalPtr() const
 //                              TYPE TRAITS
 // ============================================================================
 
-template <typename ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 struct UsesBslmaAllocator<SharedPtrInplaceRep<ELEMENT_TYPE> >
     : bsl::false_type {
     // The class template 'SharedPtrInplaceRep' appears to use allocators, but

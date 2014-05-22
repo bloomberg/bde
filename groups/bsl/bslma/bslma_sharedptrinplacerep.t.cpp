@@ -50,6 +50,7 @@ using namespace BloombergLP;
 // [ 2] TYPE *ptr();
 // [ 2] void disposeRep();
 // [ 4] void disposeObject();
+// [  ] void *getDeleter(const std::type_info& type);
 // [ 2] void *originalPtr() const;
 // [ 5] void releaseRef();
 // [ 5] void releaseWeakRef();
@@ -270,45 +271,110 @@ class MyInplaceTestObject {
     // CREATORS
     MyInplaceTestObject();
     explicit MyInplaceTestObject(MyTestArg1 a1);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
                         MyTestArg4  a4);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6,
                         MyTestArg7  a7);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6,
+                        MyTestArg7  a7,
+                        MyTestArg8  a8);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6,
+                        MyTestArg7  a7,
+                        MyTestArg8  a8,
+                        MyTestArg9  a9);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6,
+                        MyTestArg7  a7,
+                        MyTestArg8  a8,
+                        MyTestArg9  a9,
                         MyTestArg10 a10);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10, MyTestArg11 a11);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6,
+                        MyTestArg7  a7,
+                        MyTestArg8  a8,
+                        MyTestArg9  a9,
+                        MyTestArg10 a10,
+                        MyTestArg11 a11);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6,
+                        MyTestArg7  a7,
+                        MyTestArg8  a8,
+                        MyTestArg9  a9,
+                        MyTestArg10 a10,
+                        MyTestArg11 a11,
+                        MyTestArg12 a12);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6,
+                        MyTestArg7  a7,
+                        MyTestArg8  a8,
+                        MyTestArg9  a9,
+                        MyTestArg10 a10,
+                        MyTestArg11 a11,
+                        MyTestArg12 a12,
                         MyTestArg13 a13);
-    MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,  MyTestArg3  a3,
-                        MyTestArg4  a4,  MyTestArg5  a5,  MyTestArg6  a6,
-                        MyTestArg7  a7,  MyTestArg8  a8,  MyTestArg9  a9,
-                        MyTestArg10 a10, MyTestArg11 a11, MyTestArg12 a12,
-                        MyTestArg13 a13, MyTestArg14 a14);
+    MyInplaceTestObject(MyTestArg1  a1,
+                        MyTestArg2  a2,
+                        MyTestArg3  a3,
+                        MyTestArg4  a4,
+                        MyTestArg5  a5,
+                        MyTestArg6  a6,
+                        MyTestArg7  a7,
+                        MyTestArg8  a8,
+                        MyTestArg9  a9,
+                        MyTestArg10 a10,
+                        MyTestArg11 a11,
+                        MyTestArg12 a12,
+                        MyTestArg13 a13,
+                        MyTestArg14 a14);
         // Create a 'MyInplaceTestObject' by intializing the data members
         // 'd_a1'..'d_a14' with the specified 'a1'..'a14', and unitializing any
         // remaining data members with their default value (-1).
@@ -351,7 +417,8 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2)
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1,
+                                         MyTestArg2 a2,
                                          MyTestArg3 a3)
 : d_a1(a1)
 , d_a2(a2)
@@ -359,8 +426,10 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4)
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1,
+                                         MyTestArg2 a2,
+                                         MyTestArg3 a3,
+                                         MyTestArg4 a4)
 : d_a1(a1)
 , d_a2(a2)
 , d_a3(a3)
@@ -368,8 +437,10 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1,
+                                         MyTestArg2 a2,
+                                         MyTestArg3 a3,
+                                         MyTestArg4 a4,
                                          MyTestArg5 a5)
 : d_a1(a1)
 , d_a2(a2)
@@ -379,9 +450,12 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6)
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1,
+                                         MyTestArg2 a2,
+                                         MyTestArg3 a3,
+                                         MyTestArg4 a4,
+                                         MyTestArg5 a5,
+                                         MyTestArg6 a6)
 : d_a1(a1)
 , d_a2(a2)
 , d_a3(a3)
@@ -391,9 +465,12 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6,
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1,
+                                         MyTestArg2 a2,
+                                         MyTestArg3 a3,
+                                         MyTestArg4 a4,
+                                         MyTestArg5 a5,
+                                         MyTestArg6 a6,
                                          MyTestArg7 a7)
 : d_a1(a1)
 , d_a2(a2)
@@ -405,10 +482,14 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6,
-                                         MyTestArg7 a7, MyTestArg8 a8)
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1,
+                                         MyTestArg2 a2,
+                                         MyTestArg3 a3,
+                                         MyTestArg4 a4,
+                                         MyTestArg5 a5,
+                                         MyTestArg6 a6,
+                                         MyTestArg7 a7,
+                                         MyTestArg8 a8)
 : d_a1(a1)
 , d_a2(a2)
 , d_a3(a3)
@@ -420,10 +501,14 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6,
-                                         MyTestArg7 a7, MyTestArg8 a8,
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1,
+                                         MyTestArg2 a2,
+                                         MyTestArg3 a3,
+                                         MyTestArg4 a4,
+                                         MyTestArg5 a5,
+                                         MyTestArg6 a6,
+                                         MyTestArg7 a7,
+                                         MyTestArg8 a8,
                                          MyTestArg9 a9)
 : d_a1(a1)
 , d_a2(a2)
@@ -437,11 +522,16 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
-                                         MyTestArg3 a3, MyTestArg4 a4,
-                                         MyTestArg5 a5, MyTestArg6 a6,
-                                         MyTestArg7 a7, MyTestArg8 a8,
-                                         MyTestArg9 a9, MyTestArg10 a10)
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,
+                                         MyTestArg2  a2,
+                                         MyTestArg3  a3,
+                                         MyTestArg4  a4,
+                                         MyTestArg5  a5,
+                                         MyTestArg6  a6,
+                                         MyTestArg7  a7,
+                                         MyTestArg8  a8,
+                                         MyTestArg9  a9,
+                                         MyTestArg10 a10)
 : d_a1(a1)
 , d_a2(a2)
 , d_a3(a3)
@@ -455,11 +545,16 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1 a1, MyTestArg2 a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1, MyTestArg2  a2,
-                                         MyTestArg3  a3, MyTestArg4  a4,
-                                         MyTestArg5  a5, MyTestArg6  a6,
-                                         MyTestArg7  a7, MyTestArg8  a8,
-                                         MyTestArg9  a9, MyTestArg10 a10,
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,
+                                         MyTestArg2  a2,
+                                         MyTestArg3  a3,
+                                         MyTestArg4  a4,
+                                         MyTestArg5  a5,
+                                         MyTestArg6  a6,
+                                         MyTestArg7  a7,
+                                         MyTestArg8  a8,
+                                         MyTestArg9  a9,
+                                         MyTestArg10 a10,
                                          MyTestArg11 a11)
 : d_a1(a1)
 , d_a2(a2)
@@ -475,12 +570,18 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1, MyTestArg2  a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                                         MyTestArg3  a3,  MyTestArg4  a4,
-                                         MyTestArg5  a5,  MyTestArg6  a6,
-                                         MyTestArg7  a7,  MyTestArg8  a8,
-                                         MyTestArg9  a9,  MyTestArg10 a10,
-                                         MyTestArg11 a11, MyTestArg12 a12)
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,
+                                         MyTestArg2  a2,
+                                         MyTestArg3  a3,
+                                         MyTestArg4  a4,
+                                         MyTestArg5  a5,
+                                         MyTestArg6  a6,
+                                         MyTestArg7  a7,
+                                         MyTestArg8  a8,
+                                         MyTestArg9  a9,
+                                         MyTestArg10 a10,
+                                         MyTestArg11 a11,
+                                         MyTestArg12 a12)
 : d_a1(a1)
 , d_a2(a2)
 , d_a3(a3)
@@ -496,12 +597,18 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                                         MyTestArg3  a3,  MyTestArg4  a4,
-                                         MyTestArg5  a5,  MyTestArg6  a6,
-                                         MyTestArg7  a7,  MyTestArg8  a8,
-                                         MyTestArg9  a9,  MyTestArg10 a10,
-                                         MyTestArg11 a11, MyTestArg12 a12,
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,
+                                         MyTestArg2  a2,
+                                         MyTestArg3  a3,
+                                         MyTestArg4  a4,
+                                         MyTestArg5  a5,
+                                         MyTestArg6  a6,
+                                         MyTestArg7  a7,
+                                         MyTestArg8  a8,
+                                         MyTestArg9  a9,
+                                         MyTestArg10 a10,
+                                         MyTestArg11 a11,
+                                         MyTestArg12 a12,
                                          MyTestArg13 a13)
 : d_a1(a1)
 , d_a2(a2)
@@ -519,13 +626,20 @@ MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
 {
 }
 
-MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,  MyTestArg2  a2,
-                                         MyTestArg3  a3,  MyTestArg4  a4,
-                                         MyTestArg5  a5,  MyTestArg6  a6,
-                                         MyTestArg7  a7,  MyTestArg8  a8,
-                                         MyTestArg9  a9,  MyTestArg10 a10,
-                                         MyTestArg11 a11, MyTestArg12 a12,
-                                         MyTestArg13 a13, MyTestArg14 a14)
+MyInplaceTestObject::MyInplaceTestObject(MyTestArg1  a1,
+                                         MyTestArg2  a2,
+                                         MyTestArg3  a3,
+                                         MyTestArg4  a4,
+                                         MyTestArg5  a5,
+                                         MyTestArg6  a6,
+                                         MyTestArg7  a7,
+                                         MyTestArg8  a8,
+                                         MyTestArg9  a9,
+                                         MyTestArg10 a10,
+                                         MyTestArg11 a11,
+                                         MyTestArg12 a12,
+                                         MyTestArg13 a13,
+                                         MyTestArg14 a14)
 : d_a1(a1)
 , d_a2(a2)
 , d_a3(a3)
@@ -726,7 +840,7 @@ int main(int argc, char *argv[])
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
-   case 6: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -764,7 +878,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == ta.numDeallocations());
       } break;
 #endif
-   case 5: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING 'releaseRef' and 'releaseWeakRef'
         //
