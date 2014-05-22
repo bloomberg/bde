@@ -796,11 +796,14 @@ int main(int argc, char* argv[])
             // exponent, and build Decimal64 values for each of them.
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
-                    const TYPE value =
+                    // Quanta is unspecified if 'mantissa == 0'.
+                    if (mantissas[tiM]) {
+                        const TYPE value =
                             makeNumber(mantissas[tiM], exps[tiE]);
 
-                    // Test the value of what quantum returns:
-                    ASSERT(Util::quantum(value) == exps[tiE]);
+                        // Test the value of what quantum returns:
+                        ASSERT(Util::quantum(value) == exps[tiE]);
+                    }
                 }
             }
 
@@ -846,11 +849,14 @@ int main(int argc, char* argv[])
             // exponent, and build Decimal64 values for each of them.
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
-                    const TYPE value =
+                    // Quanta is unspecified if 'mantissa == 0'.
+                    if (mantissas[tiM]) {
+                        const TYPE value =
                             makeNumber(mantissas[tiM], exps[tiE]);
 
-                    // Test the value of what quantum returns:
-                    ASSERT(Util::quantum(value) == exps[tiE]);
+                        // Test the value of what quantum returns:
+                        ASSERT(Util::quantum(value) == exps[tiE]);
+                    }
                 }
             }
         }
@@ -955,9 +961,12 @@ int main(int argc, char* argv[])
                             const TYPE rhs =
                                makeNumber(mantissas[tjM], exps[tjE]);
 
-                            LOOP4_ASSERT(mantissas[tiM], exps[tiE],
-                                         mantissas[tjM], exps[tjE],
-                                (tiE == tjE) == Util::sameQuantum(lhs, rhs));
+                            // Quanta is unspecified if 'mantissa == 0'.
+                            if (mantissas[tiM] && mantissas[tjM]) {
+                                LOOP4_ASSERT(mantissas[tiM], exps[tiE],
+                                             mantissas[tjM], exps[tjE],
+                                  (tiE == tjE) == Util::sameQuantum(lhs, rhs));
+                            }
                         }
                     }
                 }
@@ -1054,9 +1063,12 @@ int main(int argc, char* argv[])
                             const TYPE rhs =
                                makeNumber(mantissas[tjM], exps[tjE]);
 
-                            LOOP4_ASSERT(mantissas[tiM], exps[tiE],
-                                         mantissas[tjM], exps[tjE],
-                                (tiE == tjE) == Util::sameQuantum(lhs, rhs));
+                            // Quanta is unspecified if 'mantissa == 0'.
+                            if (mantissas[tiM] && mantissas[tjM]) {
+                                LOOP4_ASSERT(mantissas[tiM], exps[tiE],
+                                             mantissas[tjM], exps[tjE],
+                                  (tiE == tjE) == Util::sameQuantum(lhs, rhs));
+                            }
                         }
                     }
                 }
