@@ -953,7 +953,7 @@ int main(int argc, char* argv[])
             }
         }
     } break;
-    case 6: {
+    case 7: {
         // --------------------------------------------------------------------
         // TESTING sameQuantum
         // Concerns: Forwarding to the right routines
