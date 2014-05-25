@@ -526,7 +526,7 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
-    case 10: {
+    case 11: {
         // --------------------------------------------------------------------
         // TESTING multiplyByPowerOf10
         // Concerns: Forwarding to the right routines
@@ -581,7 +581,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-    case 9: {
+    case 10: {
         // --------------------------------------------------------------------
         // TESTING fabs
         // Concerns: Forwarding to the right routines
@@ -689,7 +689,7 @@ int main(int argc, char* argv[])
             }
         }
     } break;
-    case 8: {
+    case 9: {
         // --------------------------------------------------------------------
         // TESTING quantize
         // Concerns: Forwarding to the right routines
@@ -841,7 +841,7 @@ int main(int argc, char* argv[])
 
         // TODO: Make the Decimal128 variant.
     } break;
-    case 7: {
+    case 8: {
         // --------------------------------------------------------------------
         // TESTING quantum
         // Concerns: Forwarding to the right routines
@@ -1159,18 +1159,16 @@ int main(int argc, char* argv[])
                                makeNumber(mantissas[tjM], exps[tjE]);
 
                             // Quanta is unspecified if 'mantissa == 0'.
-                            if (mantissas[tiM] && mantissas[tjM]) {
-                                LOOP4_ASSERT(mantissas[tiM], exps[tiE],
-                                             mantissas[tjM], exps[tjE],
+                            LOOP4_ASSERT(mantissas[tiM], exps[tiE],
+                                         mantissas[tjM], exps[tjE],
                                   (tiE == tjE) == Util::sameQuantum(lhs, rhs));
-                            }
                         }
                     }
                 }
             }
         }
     } break;
-    case 5: {
+    case 6: {
         // --------------------------------------------------------------------
         // TESTING isFinite
         // Concerns: Forwarding to the right routines
@@ -1275,7 +1273,7 @@ int main(int argc, char* argv[])
             }
         }
     } break;
-    case 4: {
+    case 5: {
         // --------------------------------------------------------------------
         // TESTING isInf
         // Concerns: Forwarding to the right routines
@@ -1380,7 +1378,7 @@ int main(int argc, char* argv[])
             }
         }
     } break;
-    case 3: {
+    case 4: {
         // --------------------------------------------------------------------
         // TESTING isUnordered
         // Concerns: Forwarding to the right routines
@@ -1544,7 +1542,7 @@ int main(int argc, char* argv[])
             }
         }
     } break;
-    case 2: {
+    case 3: {
         // --------------------------------------------------------------------
         // TESTING isNan
         // Concerns: Forwarding to the right routines
@@ -1649,6 +1647,128 @@ int main(int argc, char* argv[])
             }
         }
     } break;
+    case 2: {
+        // --------------------------------------------------------------------
+        // TESTING Test apparatus
+        // Concerns: Branching and forwarding to the right routines
+        // Plan: Try with zero and non-zero mantissas, comparing against
+        // preset bit-fields.
+        // Testing: makeDecimalRaw64Zero and makeDecimalRaw128Zero
+        // --------------------------------------------------------------------
+        if (verbose1) bsl::cout << "\nTest apparatus"
+                                << "\n==============" << bsl::endl;
+
+        if (verbose2) bsl::cout << "makeDecimalRawNNZero functions" << bsl::endl;
+
+        if (verbose3) bsl::cout << "makeDecimalRaw64Zero" << bsl::endl;
+        {
+            {
+                BDEC::Decimal64 ACTUAL   = makeDecimalRaw64Zero  (42, 5);
+                BDEC::Decimal64 EXPECTED = Util::makeDecimalRaw64(42, 5);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+            }
+            {
+                BDEC::Decimal64 ACTUAL   = makeDecimalRaw64Zero  (42u, 5);
+                BDEC::Decimal64 EXPECTED = Util::makeDecimalRaw64(42u, 5);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+            }
+            {
+                BDEC::Decimal64 ACTUAL   = makeDecimalRaw64Zero  (42ll, 5);
+                BDEC::Decimal64 EXPECTED = Util::makeDecimalRaw64(42ll, 5);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+            }
+            {
+                BDEC::Decimal64 ACTUAL   = makeDecimalRaw64Zero  (42ull, 5);
+                BDEC::Decimal64 EXPECTED = Util::makeDecimalRaw64(42ull, 5);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 8));
+            }
+
+            {
+                BDEC::Decimal64 d0e0 = makeDecimalRaw64Zero(0, 0);
+                unsigned long long x0e0 = 0x2238000000000000ull;
+                ASSERT(!memcmp(&d0e0, &x0e0, 8));
+            }
+            {
+                BDEC::Decimal64 d0e0 = makeDecimalRaw64Zero(0u, 0);
+                unsigned long long x0e0 = 0x2238000000000000ull;
+                ASSERT(!memcmp(&d0e0, &x0e0, 8));
+            }
+            {
+                BDEC::Decimal64 d0e0 = makeDecimalRaw64Zero(0ll, 0);
+                unsigned long long x0e0 = 0x2238000000000000ull;
+                ASSERT(!memcmp(&d0e0, &x0e0, 8));
+            }
+            {
+                BDEC::Decimal64 d0e0 = makeDecimalRaw64Zero(0ull, 0);
+                unsigned long long x0e0 = 0x2238000000000000ull;
+                ASSERT(!memcmp(&d0e0, &x0e0, 8));
+            }
+
+            {
+                BDEC::Decimal64 d0e5 = makeDecimalRaw64Zero(0, 5);
+                unsigned long long x0e5 = 0x224C000000000000ull;
+                ASSERT(!memcmp(&d0e5, &x0e5, 8));
+            }
+            {
+                BDEC::Decimal64 d0e5 = makeDecimalRaw64Zero(0u, 5);
+                unsigned long long x0e5 = 0x224C000000000000ull;
+                ASSERT(!memcmp(&d0e5, &x0e5, 8));
+            }
+            {
+                BDEC::Decimal64 d0e5 = makeDecimalRaw64Zero(0ll, 5);
+                unsigned long long x0e5 = 0x224C000000000000ull;
+                ASSERT(!memcmp(&d0e5, &x0e5, 8));
+            }
+            {
+                BDEC::Decimal64 d0e5 = makeDecimalRaw64Zero(0ull, 5);
+                unsigned long long x0e5 = 0x224C000000000000ull;
+                ASSERT(!memcmp(&d0e5, &x0e5, 8));
+            }
+
+            {
+                BDEC::Decimal64 d0em5 = makeDecimalRaw64Zero(0, -5);
+                unsigned long long x0em5 = 0x2224000000000000ull;
+                ASSERT(!memcmp(&d0em5, &x0em5, 8));
+            }
+            {
+                BDEC::Decimal64 d0em5 = makeDecimalRaw64Zero(0u, -5);
+                unsigned long long x0em5 = 0x2224000000000000ull;
+                ASSERT(!memcmp(&d0em5, &x0em5, 8));
+            }
+            {
+                BDEC::Decimal64 d0em5 = makeDecimalRaw64Zero(0ll, -5);
+                unsigned long long x0em5 = 0x2224000000000000ull;
+                ASSERT(!memcmp(&d0em5, &x0em5, 8));
+            }
+            {
+                BDEC::Decimal64 d0em5 = makeDecimalRaw64Zero(0ull, -5);
+                unsigned long long x0em5 = 0x2224000000000000ull;
+                ASSERT(!memcmp(&d0em5, &x0em5, 8));
+            }
+
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42, 5);
+                BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42, 5);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42u, 5);
+                BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42u, 5);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42ll, 5);
+                BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42ll, 5);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42ull, 5);
+                BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42ull, 5);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+
+        }
+    }
     case 1: {
         // --------------------------------------------------------------------
         // TESTING Breathing test
