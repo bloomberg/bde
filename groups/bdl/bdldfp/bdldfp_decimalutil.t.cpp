@@ -307,6 +307,101 @@ const int exps[] = {
                   321,
 };
 const int numExps = sizeof(exps) / sizeof(*exps);
+namespace {
+
+BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(
+                                                 unsigned long long mantissa,
+                                                 int                exponent) {
+    if (mantissa) {
+        return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
+    }
+    else {
+        return BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent) -
+               BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent);
+    }
+}
+
+BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
+                                                        int       exponent) {
+    if (mantissa) {
+        return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
+    }
+    else {
+        return BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent) -
+               BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent);
+    }
+}
+
+BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(
+                                                       unsigned int mantissa,
+                                                       int          exponent) {
+    if (mantissa) {
+        return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
+    }
+    else {
+        return BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent) -
+               BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent);
+    }
+}
+
+BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(int mantissa,
+                                                        int exponent) {
+    if (mantissa) {
+        return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
+    }
+    else {
+        return BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent) -
+               BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent);
+    }
+}
+
+BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(
+                                                 unsigned long long mantissa,
+                                                 int                exponent) {
+    if (mantissa) {
+        return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
+    }
+    else {
+        return BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent) -
+               BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent);
+    }
+}
+
+BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
+                                                          int       exponent) {
+    if (mantissa) {
+        return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
+    }
+    else {
+        return BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent) -
+               BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent);
+    }
+}
+
+BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(
+                                                       unsigned int mantissa,
+                                                       int          exponent) {
+    if (mantissa) {
+        return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
+    }
+    else {
+        return BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent) -
+               BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent);
+    }
+}
+
+BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(int mantissa,
+                                                          int exponent) {
+    if (mantissa) {
+        return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
+    }
+    else {
+        return BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent) -
+               BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent);
+    }
+}
+
+}  // closing unnamed namespace.
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING
@@ -359,7 +454,7 @@ struct NumberMaker<BDEC::Decimal64>
 {
     BDEC::Decimal64 operator()(long long mantissa, int exponent) const
     {
-        return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
+        return makeDecimalRaw64Zero(mantissa, exponent);
     }
 };
 
@@ -368,7 +463,7 @@ struct NumberMaker<BDEC::Decimal128>
 {
     BDEC::Decimal128 operator()(long long mantissa, int exponent) const
     {
-        return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
+        return makeDecimalRaw128Zero(mantissa, exponent);
     }
 };
 
