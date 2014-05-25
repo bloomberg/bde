@@ -629,17 +629,15 @@ int main(int argc, char* argv[])
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
                     const TYPE value =
-                            makeNumber(mantissas[tiM], exps[tiE]);
+                        makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test the value of what quantum returns:
                     ASSERT(Util::fabs(value) ==
                            makeNumber(
-                                     bsl::max(mantissas[tiM], -mantissas[tiM]),
-                                                                   exps[tiE]));
+                               bsl::max(mantissas[tiM], -mantissas[tiM]),
+                               exps[tiE]));
                 }
             }
-
-
         }
         if (verbose1) bsl::cout << "fabs Decimal128 tests..." << bsl::endl;
         {
@@ -815,23 +813,22 @@ int main(int argc, char* argv[])
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
                     const TYPE lhs =
-                               makeNumber(mantissas[tiM], exps[tiE]);
+                        makeNumber(mantissas[tiM], exps[tiE]);
 
                     for (long long tjM = 0; tjM < numMantissas; ++tjM) {
                         for (  int tjE = 0; tjE < numExps;      ++tjE) {
                             const TYPE rhs =
-                               makeNumber(mantissas[tjM], exps[tjE]);
+                                makeNumber(mantissas[tjM], exps[tjE]);
 
                             (void) rhs;
                             (void) lhs;
 
-                            //TODO: Find out why this test fails:
                             #if 0
                             LOOP4_ASSERT(mantissas[tiM], exps[tiE],
                                          mantissas[tjM], exps[tjE],
                                          Util::sameQuantum(
-                                                      Util::quantize(lhs, rhs),
-                                                      rhs));
+                                             Util::quantize(lhs, rhs),
+                                             rhs));
                             #endif
                         }
                     }
@@ -1023,7 +1020,7 @@ int main(int argc, char* argv[])
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
                     const TYPE value =
-                            makeNumber(mantissas[tiM], exps[tiE]);
+                        makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test all special cases on both sides:
                     // o sNaN
@@ -1049,12 +1046,12 @@ int main(int argc, char* argv[])
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
                     const TYPE lhs =
-                               makeNumber(mantissas[tiM], exps[tiE]);
+                        makeNumber(mantissas[tiM], exps[tiE]);
 
                     for (long long tjM = 0; tjM < numMantissas; ++tjM) {
                         for (  int tjE = 0; tjE < numExps;      ++tjE) {
                             const TYPE rhs =
-                               makeNumber(mantissas[tjM], exps[tjE]);
+                                makeNumber(mantissas[tjM], exps[tjE]);
 
                             // Quanta is unspecified if 'mantissa == 0'.
                             if (mantissas[tiM] && mantissas[tjM]) {
@@ -1125,7 +1122,7 @@ int main(int argc, char* argv[])
             for (long long tiM = 0; tiM < numMantissas; ++tiM) {
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
                     const TYPE value =
-                            makeNumber(mantissas[tiM], exps[tiE]);
+                        makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test all special cases on both sides:
                     // o sNaN
