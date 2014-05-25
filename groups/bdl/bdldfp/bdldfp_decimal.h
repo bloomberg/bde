@@ -1885,7 +1885,7 @@ bool operator<(Decimal64 lhs, Decimal64 rhs);
     //: o 'lhs' is not positive infinity, or
     //: o 'lhs' is negative infinity and 'rhs' is not, or
     //: o 'lhs' and 'rhs' both represent a real number and the real number of
-    //:   'lhs'is less than that of 'rhs'
+    //:   'lhs' is less than that of 'rhs'
     //
     // This operation raises the "invalid" floating-point exception if either
     // or both operands are NaN.
