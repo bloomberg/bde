@@ -685,6 +685,7 @@ BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
             const BDEC::Decimal128 cd128(42);
             ASSERT((const void*)d128.data() == (const void*)&d128);
 
+// TODO: IBM-compiler bug is making this test fail with Decimall28.
 //            LOOP3_ASSERT(
 //                cd128.value(),
 //                BDEC::Decimal128(cd128.value()),
