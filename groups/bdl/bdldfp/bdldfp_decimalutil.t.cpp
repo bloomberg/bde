@@ -1586,7 +1586,8 @@ int main(int argc, char* argv[])
         if (verbose1) bsl::cout << "\nTest apparatus"
                                 << "\n==============" << bsl::endl;
 
-        if (verbose2) bsl::cout << "makeDecimalRawNNZero functions" << bsl::endl;
+        if (verbose2) bsl::cout << "makeDecimalRawNNZero functions"
+                                << bsl::endl;
 
         if (verbose3) bsl::cout << "makeDecimalRaw64Zero" << bsl::endl;
         {
