@@ -2,6 +2,7 @@
 #include <bdldfp_decimalutil.h>
 
 #include <bdldfp_decimalconvertutil.h>
+#include <bdldfp_uint128.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -1696,6 +1697,80 @@ int main(int argc, char* argv[])
                 ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
             }
 
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0, 0);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2208000000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0u, 0);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2208000000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0ll, 0);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2208000000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0ull, 0);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2208000000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0, 5);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2209400000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0u, 5);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2209400000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0ll, 5);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2209400000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0ull, 5);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2209400000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0, -5);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2206C00000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0u, -5);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2206C00000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0ll, -5);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2206C00000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
+            {
+                BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero(0ull, -5);
+                BloombergLP::bdldfp::Uint128 EXPECTED(
+                                 0x2206C00000000000ull, 0x0000000000000000ull);
+                ASSERT(!memcmp(&ACTUAL, &EXPECTED, 16));
+            }
         }
     }
     case 1: {

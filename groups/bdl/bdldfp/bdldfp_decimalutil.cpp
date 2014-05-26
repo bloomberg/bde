@@ -3,6 +3,7 @@
 
 #include <bdldfp_decimalimplutil.h>
 #include <bdldfp_decimalconvertutil.h>
+#include <bdldfp_uint128.h>  // For testing purposes only.
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
