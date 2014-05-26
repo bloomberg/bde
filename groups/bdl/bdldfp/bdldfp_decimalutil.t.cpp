@@ -309,9 +309,16 @@ const int exps[] = {
 const int numExps = sizeof(exps) / sizeof(*exps);
 namespace {
 
+// Testing apparatus
+
 BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(
-                                                 unsigned long long mantissa,
-                                                 int                exponent) {
+                                                   unsigned long long mantissa,
+                                                   int                exponent)
+    // Return a 64-bit decimal floating point value with the specified
+    // 'mantissa' and 'exponent', including for cases in which
+    // 'exponent == 0'.  The behavior is undefined unless
+    // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
+{
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
     }
@@ -322,7 +329,12 @@ BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(
 }
 
 BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
-                                                        int       exponent) {
+                                                        int       exponent)
+    // Return a 64-bit decimal floating point value with the specified
+    // 'mantissa' and 'exponent', including for cases in which
+    // 'exponent == 0'.  The behavior is undefined unless
+    // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
+{
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
     }
@@ -332,9 +344,13 @@ BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
     }
 }
 
-BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(
-                                                       unsigned int mantissa,
-                                                       int          exponent) {
+BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(unsigned int mantissa,
+                                                        int          exponent)
+    // Return a 64-bit decimal floating point value with the specified
+    // 'mantissa' and 'exponent', including for cases in which
+    // 'exponent == 0'.  The behavior is undefined unless
+    // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
+{
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
     }
@@ -345,7 +361,12 @@ BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(
 }
 
 BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(int mantissa,
-                                                        int exponent) {
+                                                        int exponent)
+    // Return a 128-bit decimal floating point value with the specified
+    // 'mantissa' and 'exponent', including for cases in which
+    // 'exponent == 0'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.
+{
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
     }
@@ -356,8 +377,13 @@ BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(int mantissa,
 }
 
 BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(
-                                                 unsigned long long mantissa,
-                                                 int                exponent) {
+                                                   unsigned long long mantissa,
+                                                   int                exponent)
+    // Return a 128-bit decimal floating point value with the specified
+    // 'mantissa' and 'exponent', including for cases in which
+    // 'exponent == 0'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.
+{
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
     }
@@ -368,7 +394,12 @@ BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(
 }
 
 BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
-                                                          int       exponent) {
+                                                          int       exponent)
+    // Return a 128-bit decimal floating point value with the specified
+    // 'mantissa' and 'exponent', including for cases in which
+    // 'exponent == 0'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.
+{
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
     }
@@ -379,8 +410,13 @@ BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
 }
 
 BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(
-                                                       unsigned int mantissa,
-                                                       int          exponent) {
+                                                         unsigned int mantissa,
+                                                         int          exponent)
+    // Return a 128-bit decimal floating point value with the specified
+    // 'mantissa' and 'exponent', including for cases in which
+    // 'exponent == 0'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.
+{
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
     }
@@ -391,7 +427,12 @@ BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(
 }
 
 BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(int mantissa,
-                                                          int exponent) {
+                                                          int exponent)
+    // Return a 128-bit decimal floating point value with the specified
+    // 'mantissa' and 'exponent', including for cases in which
+    // 'exponent == 0'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.
+{
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
     }
