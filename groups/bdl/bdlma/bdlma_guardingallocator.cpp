@@ -27,6 +27,12 @@ BSLS_IDENT_RCSID(bdlma_guardingallocator_cpp,"$Id$ $CSID$")
 
 #endif
 
+#ifdef BSLS_PLATFORM_OS_DARWIN
+
+#include <sys/mman.h> // 'mmap', 'munmap'
+
+#endif
+
 namespace BloombergLP {
 
 namespace {
@@ -74,6 +80,15 @@ void *systemAlloc(bsl::size_t size)
 
     return VirtualAlloc(0, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+
+    return mmap(0,
+                size,
+                PROT_READ | PROT_WRITE,
+                MAP_ANON | MAP_PRIVATE,
+                0,
+                0);
+
 #else
 
     return valloc(size);
@@ -81,7 +96,7 @@ void *systemAlloc(bsl::size_t size)
 #endif
 }
 
-void systemFree(void *address)
+void systemFree(void *address, size_t size)
     // Return the memory block at the specified 'address' back to its
     // allocator.  The behavior is undefined unless 'address' was returned by
     // 'systemAlloc' and has not already been freed.
@@ -91,10 +106,16 @@ void systemFree(void *address)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     VirtualFree(address, 0, MEM_RELEASE);
+    (void) size;
+
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+
+    munmap(address, size);
 
 #else
 
     free(address);
+    (void) size;
 
 #endif
 }
@@ -215,8 +236,10 @@ void *GuardingAllocator::allocate(size_type size)
 
     // Protect the guard page from read/write access.
 
+    *(int *)(guardPage) = totalSize;
+
     if (0 != systemProtect(guardPage, pageSize)) {
-        systemFree(firstPage);
+        systemFree(firstPage, totalSize);
 #ifdef BDE_BUILD_TARGET_EXC
         BSLS_THROW(bsl::bad_alloc());
 #else
@@ -257,9 +280,11 @@ void GuardingAllocator::deallocate(void *address)
     const int rc = systemUnprotect(guardPage, pageSize);
     (void)rc;
 
+    size_t totalSize = *(int *)(guardPage);
+
     BSLS_ASSERT_OPT(0 == rc);
 
-    systemFree(firstPage);
+    systemFree(firstPage, totalSize);
 }
 
 }  // close package namespace
