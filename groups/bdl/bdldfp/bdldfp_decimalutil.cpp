@@ -224,19 +224,19 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
 }
 
 
-int DecimalUtil::parseDecimal32(Decimal32 *out, const std::string& str)
+int DecimalUtil::parseDecimal32(Decimal32 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
     return parseDecimal32(out, str.c_str());
 }
-int DecimalUtil::parseDecimal64(Decimal64 *out, const std::string& str)
+int DecimalUtil::parseDecimal64(Decimal64 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
     return parseDecimal64(out, str.c_str());
 }
-int DecimalUtil::parseDecimal128(Decimal128 *out, const std::string& str)
+int DecimalUtil::parseDecimal128(Decimal128 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
