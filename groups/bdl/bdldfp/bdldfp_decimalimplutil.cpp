@@ -756,7 +756,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
 {
     BSLS_ASSERT(-398     <= exponent);
     BSLS_ASSERT(exponent <= 369);
-    BSLS_ASSERT(std::max(mantissa, -mantissa) <= 9999999999999999LL);
+    BSLS_ASSERT(bsl::max(mantissa, -mantissa) <= 9999999999999999LL);
 
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
