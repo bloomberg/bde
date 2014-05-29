@@ -369,7 +369,7 @@ BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
             int              d_width;
             char             d_justification;
             bool             d_capital;
-            char            *d_expected;
+            const char      *d_expected;
         } DATA[] = {
             // L   NUMBER    WIDTH JUST    CAPITAL      EXPECTED
             // --- ------    ----- ----    -------      --------
@@ -1324,9 +1324,6 @@ BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
         if (veryVerbose) bsl::cout << "Create test objects" << bsl::endl;
 
         BDEC::Decimal32        d32  = BDEC::Decimal32();
-        const BDEC::Decimal32  c32  = BDEC::Decimal32();
-        BDEC::Decimal64        d64  = BDEC::Decimal64();
-        const BDEC::Decimal64  c64  = BDEC::Decimal64();
         BDEC::Decimal128       d128 = BDEC::Decimal128();
         const BDEC::Decimal128 c128 = BDEC::Decimal128();
 
@@ -2100,11 +2097,8 @@ BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
         if (veryVerbose) bsl::cout << "Create test objects" << bsl::endl;
 
         BDEC::Decimal32        d32  = BDEC::Decimal32();
-        const BDEC::Decimal32  c32  = BDEC::Decimal32();
         BDEC::Decimal64        d64  = BDEC::Decimal64();
         const BDEC::Decimal64  c64  = BDEC::Decimal64();
-        BDEC::Decimal128       d128 = BDEC::Decimal128();
-        const BDEC::Decimal128 c128 = BDEC::Decimal128();
 
         if (veryVerbose) bsl::cout << "Check return types" << bsl::endl;
 
@@ -2271,7 +2265,6 @@ BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
         {
             const BDEC::Decimal32  c32  = BDEC::Decimal32(32);
             const BDEC::Decimal64  c64  = BDEC::Decimal64(64);
-            const BDEC::Decimal128 c128 = BDEC::Decimal128(128);
 
             ASSERT(BDLDFP_DECIMAL_DF( 32.0) == BDEC::Decimal32(c32));
             ASSERT(BDLDFP_DECIMAL_DF( 64.0) == BDEC::Decimal32(c64));
@@ -2454,10 +2447,6 @@ BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
 
         BDEC::Decimal32        d32  = BDEC::Decimal32();
         const BDEC::Decimal32  c32  = BDEC::Decimal32();
-        BDEC::Decimal64        d64  = BDEC::Decimal64();
-        const BDEC::Decimal64  c64  = BDEC::Decimal64();
-        BDEC::Decimal128       d128 = BDEC::Decimal128();
-        const BDEC::Decimal128 c128 = BDEC::Decimal128();
 
         if (veryVerbose) bsl::cout << "Check return types" << bsl::endl;
 

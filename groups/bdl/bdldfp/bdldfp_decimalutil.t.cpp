@@ -501,9 +501,9 @@ int main(int argc, char* argv[])
                 for (int ei = 0; ei < numExps; ++ei) {
                     for (int ei2 = 0; ei2 < numExps; ++ei2) {
 
-                        const int MANTISSA = mantissas[mi];
-                        const int EXP      = exps[ei];
-                        const int POW      = exps[ei2];
+                        const long long MANTISSA = mantissas[mi];
+                        const int EXP            = exps[ei];
+                        const int POW            = exps[ei2];
 
                         if (veryVerbose) bsl::cout << "multiplyByPowerOf10 "
                             "tests on 'int' powers..." << bsl::endl;
@@ -1904,10 +1904,13 @@ int main(int argc, char* argv[])
 
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40700
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Woverflow"
+#pragma GCC diagnostic warning "-Woverflow"
 #endif
-
         // Test some zero-rounded values.
+
+        // Note that the following code does (and MUST) generate warnings on
+        // gcc.  Unfortunately, the pragma to disable that warning (above), is
+        // ignored.
 
         ASSERT(Util::makeDecimal64(-1234567890123456ll, -382-16+1) ==
                BDLDFP_DECIMAL_DD(-1.234567890123456e-382));
@@ -1989,6 +1992,10 @@ int main(int argc, char* argv[])
 #endif
 
         // Test using zero-rounded numbers
+
+        // Note that the following code does (and MUST) generate warnings on
+        // gcc.  Unfortunately, the pragma to disable that warning (above), is
+        // ignored.
 
         ASSERT(Util::fabs(BDLDFP_DECIMAL_DD(-1.234567890123456e-382))
                == BDLDFP_DECIMAL_DD(1.234567890123456e-382));
@@ -3086,6 +3093,7 @@ int main(int argc, char* argv[])
                 for (int ei = 0; ei < numExps; ++ei) {
                     BDEC::Decimal64 num =
                                   Util::makeDecimal64(mantissas[mi], exps[ei]);
+                    (void)num;
                 }
             }
         }
@@ -3126,6 +3134,7 @@ int main(int argc, char* argv[])
 
                     BDEC::Decimal128 num =
                               Util::makeDecimalRaw128(mantissas[mi], exps[ei]);
+                    (void)num;
                 }
             }
         }
@@ -3171,6 +3180,7 @@ int main(int argc, char* argv[])
 
                     BDEC::Decimal64 num =
                                Util::makeDecimalRaw64(mantissas[mi], exps[ei]);
+                    (void)num;
                 }
             }
         }
@@ -3216,6 +3226,7 @@ int main(int argc, char* argv[])
                     BDEC::Decimal32 num =
                                Util::makeDecimalRaw32(
                                     static_cast<int>(mantissas[mi]), exps[ei]);
+                    (void)num;
                 }
             }
         }
@@ -3261,6 +3272,7 @@ int main(int argc, char* argv[])
                 for (int ei = 0; ei < numExps; ++ei) {
                     BDEC::Decimal64 result = Util::multiplyByPowerOf10(
                         decimals[di], exps[ei]);
+                    (void)result;
                 }
             }
         }

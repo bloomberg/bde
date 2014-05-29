@@ -150,6 +150,7 @@ BSLS_IDENT("$Id$")
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
 
+
 #define BDLDFP_DECIMALIMPLUTIL_DF(lit)                                        \
     BloombergLP::bdldfp::DecimalImplUtil::parse32(                            \
         (BloombergLP::bdldfp::DecimalImplUtil::checkLiteral(lit), #lit))
@@ -288,10 +289,10 @@ struct DecimalImplUtil {
                                          int          exponent);
         // Create a 'ValueType32' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa'.  The behavior is
-        // undefined unless 'abs(mantissa) <= 9,999,999' and
-        // '-101 <= exponent <= 90'.  The quanta of the value is unspecified if
-        // 'mantissa == 0'.
+        // the sign given by the specified 'mantissa'.  If 'mantissa' is 0,
+        // the result is 0 but the quanta of the result is unspecified.  The
+        // behavior is undefined unless 'abs(mantissa) <= 9,999,999' and
+        // '-101 <= exponent <= 90'.
 
     static ValueType64  makeDecimalRaw64(unsigned long long mantissa,
                                          int                exponent);
@@ -303,10 +304,11 @@ struct DecimalImplUtil {
                                          int                exponent);
         // Create a 'ValueType64' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa'.  The behavior is
-        // undefined unless 'abs(mantissa) <= 9,999,999,999,999,999' and
-        // '-398 <= exponent <= 369'.  The quanta of the value is unspecified
-        // if 'mantissa == 0'.
+        // the sign given by the specified 'mantissa'.  If 'mantissa' is 0, the
+        // result is 0 but the quanta of the result is unspecified.  The
+        // behavior is undefined unless
+        // 'abs(mantissa) <= 9,999,999,999,999,999' and
+        // '-398 <= exponent <= 369'.
 
     static ValueType128 makeDecimalRaw128(unsigned long long mantissa,
                                           int                exponent);
@@ -318,9 +320,9 @@ struct DecimalImplUtil {
                                           int                exponent);
         // Create a 'ValueType128' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa'.  The behavior is
-        // undefined unless '-6176 <= exponent <= 6111'.  The quanta of the
-        // value is unspecified if 'mantissa == 0'.
+        // the sign given by the specified 'mantissa'.  If 'mantissa' is 0, the
+        // result is 0 but the quanta of the result is unspecified.  The
+        // behavior is undefined unless '-6176 <= exponent <= 6111'.
 
     static ValueType64  makeDecimal64(unsigned long long mantissa,
                                       int                exponent);

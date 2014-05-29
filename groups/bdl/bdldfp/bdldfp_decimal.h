@@ -914,11 +914,10 @@ operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal32& object);
     // represented by the character sequence but it cannot be stored exactly
     // into 'object' the "inexact" floating-point exception is raised, the
     // value is rounded according to the current rounding direction (of the
-    // environment) and then stored into 'object.' TODO TBD describe the
-    // effects of stream flags/setting when we support them.  And note that the
-    // current preliminary implementation does not do most of what we promise
-    // here, exactly as it is promised here.
-
+    // environment) and then stored into 'object.'
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
 operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
@@ -929,9 +928,8 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
     // operation has no effect.
     //
-    // TODO TBD describe the effects of stream flags/setting when we support
-    // them.  And note that the current preliminary implementation does not do
-    // most of what we promise here, exactly as it is promised here.
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
                            // ====================
                            // class Decimal_Type64
@@ -2065,10 +2063,10 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal64& object);
     // represented by the character sequence but it cannot be stored exactly
     // into 'object' the "inexact" floating-point exception is raised, the
     // value is rounded according to the current rounding direction (of the
-    // environment) and then stored into 'object.' TODO TBD describe the
-    // effects of stream flags/setting when we support them.  And note that the
-    // current preliminary implementation does not do most of what we promise
-    // here, exactly as it is promised here.
+    // environment) and then stored into 'object.'
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
@@ -2078,10 +2076,10 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal64 object);
     // standard (5.12 Details of conversions between floating point numbers and
     // external character sequences), and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
-    // operation has no effect.  TODO TBD describe the effects of stream
-    // flags/setting when we support them.  And note that the current
-    // preliminary implementation does not do most of what we promise here,
-    // exactly as it is promised here.
+    // operation has no effect.
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
                           // =====================
                           // class Decimal_Type128
@@ -3186,10 +3184,10 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal128& object);
     // represented by the character sequence but it cannot be stored exactly
     // into 'object' the "inexact" floating-point exception is raised, the
     // value is rounded according to the current rounding direction (of the
-    // environment) and then stored into 'object.' TODO TBD describe the
-    // effects of stream flags/setting when we support them.  And note that the
-    // current preliminary implementation does not do most of what we promise
-    // here, exactly as it is promised here.
+    // environment) and then stored into 'object.'
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
@@ -3199,10 +3197,10 @@ operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal128 object);
     // standard (5.12 Details of conversions between floating point numbers and
     // external character sequences), and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
-    // operation has no effect.  TODO TBD describe the effects of stream
-    // flags/setting when we support them.  And note that the current
-    // preliminary implementation does not do most of what we promise here,
-    // exactly as it is promised here.
+    // operation has no effect.
+    //
+    // NOTE: This method does not yet fully support iostream flags or the
+    // decimal floating point exception context.
 
 
                      // MISCELLANEOUS RELATED TYPES

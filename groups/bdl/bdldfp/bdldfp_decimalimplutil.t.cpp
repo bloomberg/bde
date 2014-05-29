@@ -618,21 +618,18 @@ int main(int argc, char *argv[])
     int                test = argc > 1 ? atoi(argv[1]) : 0;
     int             verbose = argc > 2;
     int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;  // always the last
 
     using bsls::AssertFailureHandlerGuard;
 
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::TestAllocator defaultAllocator("default");
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::TestAllocator globalAllocator("global");
     bslma::Default::setGlobalAllocator(&globalAllocator);
+
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma::TestAllocator  ta(veryVeryVeryVerbose);
-    bslma::TestAllocator *pa = &ta;
 
     cout.precision(35);
 
@@ -782,7 +779,7 @@ int main(int argc, char *argv[])
     const int NUM_TEST_NONZERO_MANTISSAS =
                 sizeof TEST_NONZERO_MANTISSAS / sizeof *TEST_NONZERO_MANTISSAS;
 
-    static const long long TEST_EXPONENTS[] = {
+    static const int TEST_EXPONENTS[] = {
         -4064,
         -399,
         -398,
@@ -1107,10 +1104,13 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                           }
 
                           if (fits32) {
+                              int mantissa = static_cast<int>(MANTISSA);
+                              ASSERT(mantissa == MANTISSA);
+
                               const Util::ValueType32 ACTUAL32 =
                                                     Util::parse32(TEST_STRING);
                               const Util::ValueType32 EXPECTED32 =
-                                    Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                                    Util::makeDecimalRaw32(mantissa, EXPONENT);
                               ASSERT(Util::equals(ACTUAL32, EXPECTED32));
                           }
 
@@ -1136,10 +1136,13 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                               }
 
                               if (fits32) {
+                                  int mantissa = static_cast<int>(MANTISSA);
+                                  ASSERT(mantissa == MANTISSA);
+
                                   const Util::ValueType32 ACTUAL32 =
                                                     Util::parse32(TEST_STRING);
                                   const Util::ValueType32 EXPECTED32 =
-                                    Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                                    Util::makeDecimalRaw32(mantissa, EXPONENT);
                                   ASSERT(Util::equals(ACTUAL32, EXPECTED32));
                               }
                           }
@@ -1178,10 +1181,13 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                               }
 
                               if (fits32) {
+                                  int mantissa = static_cast<int>(MANTISSA);
+                                  ASSERT(mantissa == MANTISSA);
+
                                   const Util::ValueType32 ACTUAL32 =
                                                     Util::parse32(TEST_STRING);
                                   const Util::ValueType32 EXPECTED32 =
-                                    Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                                    Util::makeDecimalRaw32(mantissa, EXPONENT);
                                   ASSERT(Util::equals(ACTUAL32, EXPECTED32));
                               }
                           }
@@ -1193,7 +1199,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                          << "Test cases involving combination "
                                          << "field" << bsl::endl;
               {
-                  for (int LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
+                  for (unsigned char LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
                        ++LEADING_DIGIT) {
                       for (int EXPONENT = -6176; EXPONENT <= 6111;
                                                                   ++EXPONENT) {
@@ -1201,22 +1207,14 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                           // followed by 33 zeros, followed by "e" and the
                           // exponent.
                           char STRING_VAL[50];
-                          STRING_VAL[0] = '0' + LEADING_DIGIT;
+                          sprintf(STRING_VAL, "%d", LEADING_DIGIT);
+
                           int i;
                           for (i = 1; i <= 33; ++i) {
                               STRING_VAL[i] = '0';
                           }
                           STRING_VAL[i++] = 'e';
-                          if (EXPONENT < 0) {
-                              STRING_VAL[i++] = '-';
-                          }
-
-                          int ABS_EXPONENT = bsl::max(EXPONENT, -EXPONENT);
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT / 1000) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /  100) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /   10) % 10;
-                          STRING_VAL[i++] = '0' +  ABS_EXPONENT         % 10;
-                          STRING_VAL[i++] = 0;
+                          sprintf(&STRING_VAL[i], "%d", EXPONENT);
 
                           Util::ValueType128 ACTUAL =
                                                     Util::parse128(STRING_VAL);
@@ -1226,35 +1224,23 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                                     0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                     0, 0};
                           const D128 EXPECTED = D128(EXPONENT, iBCD, 1);
-                          LOOP2_ASSERT(LEADING_DIGIT, EXPONENT,
-                                                           ACTUAL == EXPECTED);
+                          LOOP2_ASSERT(LEADING_DIGIT,
+                                       EXPONENT,
+                                       ACTUAL == EXPECTED);
                       }
                   }
 
-                  for (int LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
+                  for (unsigned char LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
                        ++LEADING_DIGIT) {
                       for (int EXPONENT = -6176; EXPONENT <= 6111;
                                                                   ++EXPONENT) {
-                          // Create the strong formed by the leading digit
+                          // Create the string formed by the leading digit
                           // followed by eleven occurrances of the 3-digit
                           // pattern "255", followed by "e" and the exponent.
-                          char STRING_VAL[50] = {
-                              '0' + LEADING_DIGIT, '2', '5', '5', '2', '5',
-                              '5', '2', '5', '5', '2', '5', '5', '2', '5', '5',
-                              '2', '5', '5', '2', '5', '5', '2', '5', '5', '2',
-                              '5', '5', '2', '5', '5', '2', '5', '5'};
-                          int i = 34;
-                          STRING_VAL[i++] = 'e';
-                          if (EXPONENT < 0) {
-                              STRING_VAL[i++] = '-';
-                          }
-
-                          int ABS_EXPONENT = bsl::max(EXPONENT, -EXPONENT);
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT / 1000) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /  100) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /   10) % 10;
-                          STRING_VAL[i++] = '0' +  ABS_EXPONENT         % 10;
-                          STRING_VAL[i++] = 0;
+                          char STRING_VAL[50];
+                          sprintf(STRING_VAL, 
+                                  "%d255255255255255255255255255255255e%d",
+                                  LEADING_DIGIT, EXPONENT);
 
                           Util::ValueType128 ACTUAL =
                                                     Util::parse128(STRING_VAL);
@@ -1264,35 +1250,24 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                                     5, 5, 2, 5, 5, 2, 5, 5, 2,
                                                     5, 5};
                           const D128 EXPECTED = D128(EXPONENT, iBCD, 1);
-                          LOOP2_ASSERT(LEADING_DIGIT, EXPONENT,
-                                                           ACTUAL == EXPECTED);
+                          LOOP2_ASSERT(LEADING_DIGIT,
+                                       EXPONENT,
+                                       ACTUAL == EXPECTED);
                       }
                   }
 
-                  for (int LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
+                  for (unsigned char LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
                        ++LEADING_DIGIT) {
                       for (int EXPONENT = -6176; EXPONENT <= 6111;
                                                                   ++EXPONENT) {
                           // Create the strong formed by the leading digit
                           // followed by eleven occurrances of the 3-digit
                           // pattern "582", followed by "e" and the exponent.
-                          char STRING_VAL[50] = {
-                              '0' + LEADING_DIGIT, '5', '8', '2', '5', '8',
-                              '2', '5', '8', '2', '5', '8', '2', '5', '8', '2',
-                              '5', '8', '2', '5', '8', '2', '5', '8', '2', '5',
-                              '8', '2', '5', '8', '2', '5', '8', '2'};
-                          int i = 34;
-                          STRING_VAL[i++] = 'e';
-                          if (EXPONENT < 0) {
-                              STRING_VAL[i++] = '-';
-                          }
 
-                          int ABS_EXPONENT = bsl::max(EXPONENT, -EXPONENT);
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT / 1000) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /  100) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /   10) % 10;
-                          STRING_VAL[i++] = '0' +  ABS_EXPONENT         % 10;
-                          STRING_VAL[i++] = 0;
+                          char STRING_VAL[50];
+                          sprintf(STRING_VAL, 
+                                  "%d582582582582582582582582582582582e%d",
+                                  LEADING_DIGIT, EXPONENT);
 
                           Util::ValueType128 ACTUAL =
                                                     Util::parse128(STRING_VAL);
@@ -1302,8 +1277,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                                     8, 2, 5, 8, 2, 5, 8, 2, 5,
                                                     8, 2};
                           const D128 EXPECTED = D128(EXPONENT, iBCD, 1);
-                          LOOP2_ASSERT(LEADING_DIGIT, EXPONENT,
-                                                           ACTUAL == EXPECTED);
+                          LOOP2_ASSERT(LEADING_DIGIT, 
+                                       EXPONENT,
+                                       ACTUAL == EXPECTED);
                       }
                   }
               }
@@ -1839,8 +1815,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
 
                                   }
                                   if (num2Fits32) {
+                                      int tMantissa2 = 
+                                                 static_cast<int>(mantissa2);
+                                      ASSERT(tMantissa2 == mantissa2);
+
                                       const Util::ValueType32 SECOND32 =
-                                          Util::makeDecimalRaw32(mantissa2,
+                                          Util::makeDecimalRaw32(tMantissa2,
                                                                     exponent2);
                                       LOOP2_ASSERT(FIRST64, SECOND32,
                                           Util::equals(FIRST64, SECOND32) ==
@@ -1850,8 +1830,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                               }
 
                               if (num1Fits32) {
+                                  int tMantissa1 = static_cast<int>(mantissa1);
+                                  ASSERT(tMantissa1 == mantissa1);
+
                                   const Util::ValueType32 FIRST32 =
-                                Util::makeDecimalRaw32(mantissa1, exponent1);
+                                Util::makeDecimalRaw32(tMantissa1, exponent1);
                                   LOOP2_ASSERT(FIRST32, SECOND128,
                                       Util::equals(FIRST32, SECOND128) ==
                                                                      EXPECTED);
@@ -1866,8 +1849,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
 
                                   }
                                   if (num2Fits32) {
+                                      int tMantissa2 = 
+                                                 static_cast<int>(mantissa2);
+                                      ASSERT(tMantissa2 == mantissa2);
+
                                       const Util::ValueType32 SECOND32 =
-                                          Util::makeDecimalRaw32(mantissa2,
+                                          Util::makeDecimalRaw32(tMantissa2,
                                                                     exponent2);
                                       LOOP2_ASSERT(FIRST32, SECOND32,
                                           Util::equals(FIRST32, SECOND32) ==
@@ -1960,8 +1947,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                       }
 
                       if (fits32) {
+                          int tMantissa = static_cast<int>(mantissa);
+                          ASSERT(tMantissa == mantissa);
+
                           const Util::ValueType32 TEST32 =
-                                    Util::makeDecimalRaw32(mantissa, exponent);
+                                   Util::makeDecimalRaw32(tMantissa, exponent);
 
                           LOOP_ASSERT(TEST32, !Util::equals(
                                               DecConsts<32>::pZero(), TEST32));
@@ -2599,7 +2589,15 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 const Util::ValueType32 ACTUAL =
                     Util::makeDecimalRaw32(NUM, 0);
                 const unsigned char iBCD[7] = {
-                    0, 0, 0, 0, NUM / 100, (NUM / 10) % 10, NUM % 10};
+                    0, 
+                    0, 
+                    0, 
+                    0, 
+                    static_cast<unsigned char>( NUM / 100), 
+                    static_cast<unsigned char>((NUM / 10) % 10),
+                    static_cast<unsigned char>( NUM % 10)
+                };
+
                 const D32 EXPECTED = D32(0, iBCD, 1);
                 LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
             }
@@ -2608,7 +2606,15 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 const Util::ValueType64 ACTUAL =
                     Util::makeDecimalRaw64(NUM, 0);
                 const unsigned char iBCD[7] = {
-                    0, 0, 0, 0, NUM / 100, (NUM / 10) % 10, NUM % 10};
+                    0, 
+                    0, 
+                    0, 
+                    0,
+                    static_cast<unsigned char>( NUM / 100), 
+                    static_cast<unsigned char>((NUM / 10) % 10),
+                    static_cast<unsigned char>( NUM % 10)
+                };
+
                 const D64 EXPECTED = D64(0, iBCD, 1);
                 LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
             }
@@ -2617,7 +2623,14 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 const Util::ValueType128 ACTUAL =
                     Util::makeDecimalRaw128(NUM, 0);
                 const unsigned char iBCD[7] = {
-                    0, 0, 0, 0, NUM / 100, (NUM / 10) % 10, NUM % 10};
+                    0, 
+                    0, 
+                    0, 
+                    0,
+                    static_cast<unsigned char>( NUM / 100), 
+                    static_cast<unsigned char>((NUM / 10) % 10),
+                    static_cast<unsigned char>( NUM % 10)
+                };
                 const D128 EXPECTED = D128(0, iBCD, 1);
                 LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
             }
@@ -2630,7 +2643,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             for (int thousands_pow = 1; thousands_pow <= 1; ++thousands_pow) {
                 for (int raw_num = 1; raw_num < 1000; ++raw_num) {
                     // NUM = raw_num * 1000^thousands_pow.
-                    unsigned long long NUM = raw_num;
+                    unsigned int NUM = raw_num;
                     for (int i = 0; i < thousands_pow; ++i) {
                         NUM *= 1000;
                     }
@@ -2639,9 +2652,14 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                         Util::makeDecimalRaw32(NUM, 0);
                     unsigned char iBCD[7] = {0, 0, 0, 0, 0, 0, 0};
 
-                    iBCD[6 - 3 * thousands_pow] = raw_num % 10;
-                    iBCD[5 - 3 * thousands_pow] = (raw_num / 10) % 10;
-                    iBCD[4 - 3 * thousands_pow] = (raw_num / 100);
+                    iBCD[6 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>( raw_num % 10);
+
+                    iBCD[5 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>((raw_num / 10) % 10);
+
+                    iBCD[4 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>( raw_num / 100);
 
                     const D32 EXPECTED = D32(0, iBCD, 1);
                     LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
@@ -2661,9 +2679,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                     unsigned char iBCD[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                                 0, 0, 0, 0, 0};
 
-                    iBCD[15 - 3 * thousands_pow] = raw_num % 10;
-                    iBCD[14 - 3 * thousands_pow] = (raw_num / 10) % 10;
-                    iBCD[13 - 3 * thousands_pow] = (raw_num / 100);
+                    iBCD[15 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>( raw_num % 10);
+                    iBCD[14 - 3 * thousands_pow] =
+                        static_cast<unsigned char>((raw_num / 10) % 10);
+                    iBCD[13 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num / 100);
 
                     const D64 EXPECTED = D64(0, iBCD, 1);
                     LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
@@ -2684,9 +2705,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-                    iBCD[33 - 3 * thousands_pow] = raw_num % 10;
-                    iBCD[32 - 3 * thousands_pow] = (raw_num / 10) % 10;
-                    iBCD[31 - 3 * thousands_pow] = (raw_num / 100) % 10;
+                    iBCD[33 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>( raw_num % 10);
+                    iBCD[32 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>((raw_num / 10) % 10);
+                    iBCD[31 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>( raw_num / 100);
 
                     const D128 EXPECTED = D128(0, iBCD, 1);
                     LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
@@ -2706,9 +2730,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-                    iBCD[33 - 3 * thousands_pow] = raw_num % 10;
-                    iBCD[32 - 3 * thousands_pow] = (raw_num / 10) % 10;
-                    iBCD[31 - 3 * thousands_pow] = (raw_num / 100) % 10;
+                    iBCD[33 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>( raw_num % 10);
+                    iBCD[32 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>((raw_num / 10) % 10);
+                    iBCD[31 - 3 * thousands_pow] = 
+                        static_cast<unsigned char>( raw_num / 100);
 
                     const D128 EXPECTED = D128(0, iBCD, 1);
                     LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
@@ -2731,9 +2758,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             ASSERT(!memcmp(&v582, &v582x, 8));
 
             for (int i = 0; i < 4; i++) {
-                unsigned long long NUM =
-                    (i & 1 ?    255ull :    582ull) +
-                    (i & 2 ? 255000ull : 582000ull);
+                int NUM =
+                    (i & 1 ?    255 :    582) +
+                    (i & 2 ? 255000 : 582000);
 
                 const Util::ValueType32 ACTUAL =
                     Util::makeDecimalRaw32(NUM, 0);
@@ -2922,10 +2949,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         {
             // Test each of the 9 possible leading digits with each exponent
             // value.
-            for (int leading_digit = 1; leading_digit <= 9; ++leading_digit) {
+            for (unsigned char leadingDigit = 1; leadingDigit <= 9; 
+                 ++leadingDigit) {
                 for (int EXPONENT = -101; EXPONENT <= 90; ++EXPONENT) {
-                    unsigned int MANTISSA = leading_digit * 1000000u + 255255u;
-                    unsigned char iBCD[7] = {leading_digit, 2, 5, 5, 2, 5, 5};
+                    unsigned int MANTISSA = leadingDigit * 1000000u + 255255u;
+                    unsigned char iBCD[7] = {leadingDigit, 2, 5, 5, 2, 5, 5};
 
                     const Util::ValueType32 ACTUAL =
                         Util::makeDecimalRaw32(MANTISSA, EXPONENT);
@@ -2934,10 +2962,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                     LOOP2_ASSERT(MANTISSA, EXPONENT, ACTUAL == EXPECTED);
                 }
             }
-            for (int leading_digit = 1; leading_digit <= 9; ++leading_digit) {
+            for (unsigned char leadingDigit = 1; leadingDigit <= 9; 
+                 ++leadingDigit) {
                 for (int EXPONENT = -101; EXPONENT <= 90; ++EXPONENT) {
-                    unsigned int MANTISSA = leading_digit * 1000000u + 582582u;
-                    unsigned char iBCD[7] = {leading_digit, 5, 8, 2, 5, 8, 2};
+                    unsigned int MANTISSA = leadingDigit * 1000000u + 582582u;
+                    unsigned char iBCD[7] = {leadingDigit, 5, 8, 2, 5, 8, 2};
 
                     const Util::ValueType32 ACTUAL =
                         Util::makeDecimalRaw32(MANTISSA, EXPONENT);
@@ -2947,11 +2976,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 }
             }
 
-            for (int leading_digit = 1; leading_digit <= 9; ++leading_digit) {
+            for (unsigned char leadingDigit = 1; leadingDigit <= 9; 
+                 ++leadingDigit) {
                 for (int EXPONENT = -398; EXPONENT <= 369; ++EXPONENT) {
                     unsigned long long MANTISSA =
-                      leading_digit * 1000000000000000ull + 255255255255255ull;
-                    unsigned char iBCD[16] = {leading_digit, 2, 5, 5, 2, 5, 5,
+                      leadingDigit * 1000000000000000ull + 255255255255255ull;
+                    unsigned char iBCD[16] = {leadingDigit, 2, 5, 5, 2, 5, 5,
                                               2, 5, 5, 2, 5, 5, 2, 5, 5};
 
                     const Util::ValueType64 ACTUAL =
@@ -2961,11 +2991,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                     LOOP2_ASSERT(MANTISSA, EXPONENT, ACTUAL == EXPECTED);
                 }
             }
-            for (int leading_digit = 1; leading_digit <= 9; ++leading_digit) {
+            for (unsigned char leadingDigit = 1; leadingDigit <= 9; 
+                 ++leadingDigit) {
                 for (int EXPONENT = -398; EXPONENT <= 369; ++EXPONENT) {
                     unsigned long long MANTISSA =
-                      leading_digit * 1000000000000000ull + 582582582582582ull;
-                    unsigned char iBCD[16] = {leading_digit, 5, 8, 2, 5, 8, 2,
+                      leadingDigit * 1000000000000000ull + 582582582582582ull;
+                    unsigned char iBCD[16] = {leadingDigit, 5, 8, 2, 5, 8, 2,
                                               5, 8, 2, 5, 8, 2, 5, 8, 2};
 
                     const Util::ValueType64 ACTUAL =
@@ -3435,17 +3466,22 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                         MAKE_DECIMAL_RAW_TESTS[ti].d_expectedBCD,
                         MAKE_DECIMAL_RAW_TESTS[ti].d_expectedSign);
 
+                const int tMantissa = static_cast<int>(MANTISSA);
+                ASSERT(tMantissa == MANTISSA);
+
                 const Util::ValueType32 ACTUAL32 =
-                    Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                    Util::makeDecimalRaw32(tMantissa, EXPONENT);
 
                 LOOP3_ASSERT(LINE, ACTUAL32, EXPECTED32,
                                                        ACTUAL32 == EXPECTED32);
 
                 if (inULL) {
                     // Try 'unsigned long long'.
-                    const unsigned long long MANTISSA =
-                        static_cast<unsigned long long>(
+                    const unsigned int MANTISSA =
+                        static_cast<unsigned int>(
                             MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
+                    ASSERT(MANTISSA == MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
+
                     const Util::ValueType32 ACTUAL32 =
                         Util::makeDecimalRaw32(MANTISSA, EXPONENT);
                     LOOP3_ASSERT(LINE, ACTUAL32, EXPECTED32,

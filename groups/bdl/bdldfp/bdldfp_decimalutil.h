@@ -133,14 +133,19 @@ struct DecimalUtil {
         // behavior is undefined unless '-9,999,999 <= mantissa <= 9,999,999'
         // and '-101 <= exponent <= 90'.
 
-    static Decimal64 makeDecimalRaw64 (int                coeff, int exponent);
-    static Decimal64 makeDecimalRaw64 (unsigned int       coeff, int exponent);
-    static Decimal64 makeDecimalRaw64 (long long          coeff, int exponent);
-    static Decimal64 makeDecimalRaw64 (unsigned long long coeff, int exponent);
+    static Decimal64 makeDecimalRaw64(int                mantissa,
+                                      int                exponent);
+    static Decimal64 makeDecimalRaw64(unsigned int       mantissa,
+                                      int                exponent);
+    static Decimal64 makeDecimalRaw64(long long          mantissa,
+                                      int                exponent);
+    static Decimal64 makeDecimalRaw64(unsigned long long mantissa,
+                                      int                exponent);
         // Create a 'Decimal64' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa' (if signed).  The
-        // behavior is undefined unless
+        // the sign given by the specified 'mantissa' (if signed).  If
+        // 'mantissa' is 0, the  result is 0 but the quanta of the result is
+        // unspecified.  The behavior is undefined unless
         // '-9,999,999,999,999,999 <= mantissa <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
@@ -154,8 +159,9 @@ struct DecimalUtil {
                                         int                exponent);
         // Create a 'Deciaml128' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the 'mantissa' (if signed).  The behavior is
-        // undefined unless '-6176 <= exponent <= 6111'.
+        // the sign given by the 'mantissa' (if signed).  If 'mantissa' is 0,
+        // the result is 0 but the quanta of the result is unspecified.  The
+        // behavior is undefined unless '-6176 <= exponent <= 6111'.
 
     static Decimal64 makeDecimal64(int                mantissa, int exponent);
     static Decimal64 makeDecimal64(unsigned int       mantissa, int exponent);
