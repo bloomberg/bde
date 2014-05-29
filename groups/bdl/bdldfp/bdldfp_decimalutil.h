@@ -185,7 +185,7 @@ struct DecimalUtil {
 
     //TODO TBD priority 2
     //static int parseDecimal32(const wchar_t      *str, Decimal32 *out);
-    //static int parseDecimal32(const std::wstring& str, Decimal32 *out);
+    //static int parseDecimal32(const bsl::wstring& str, Decimal32 *out);
 
                                   // math
 
