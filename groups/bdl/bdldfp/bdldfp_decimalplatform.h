@@ -62,8 +62,8 @@ BSLS_IDENT("$Id$")
 ///Encoding
 ///--------
 // There are two IEEE-754 sanctioned encodings for the significand: densely
-// packed decimal and binary integer significand.  We provide two
-// macros here to support implementation of encoding conversions.
+// packed decimal and binary integer significand.  We provide two macros here
+// to support implementation of encoding conversions.
 //
 // 'BDLDFP_DECIMALPLATFORM_DPD' - Densely Packed Decimal significand
 //

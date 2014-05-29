@@ -1,7 +1,6 @@
 // bslalg_containerbase.t.cpp                                         -*-C++-*-
-
 #include <bslalg_containerbase.h>
-#include <bslalg_typetraits.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>

@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::SelectTrait: trait detection mechanism
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a meta-function, 'bslalg::SelectTrait',
 // for selecting the most appropriate trait from a list of candidate traits for

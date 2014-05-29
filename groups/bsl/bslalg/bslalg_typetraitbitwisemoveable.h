@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseMoveable: bit-wise moveable trait
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a single traits class,
 // 'bslalg::TypeTraitBitwiseMoveable'.  An object of a 'TYPE' that has the

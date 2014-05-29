@@ -1,9 +1,7 @@
 // bdldfp_decimalutil.cpp                                             -*-C++-*-
 #include <bdldfp_decimalutil.h>
 
-#include <bdldfp_decimalimplutil.h>
 #include <bdldfp_decimalconvertutil.h>
-#include <bdldfp_uint128.h>  // For testing purposes only.
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -103,27 +101,28 @@ int parseDecimal(Decimal128 *o, const char *s)
 
 }  // close unnamed namespace
 
-template <class DecimalType, class CoEffT>
+template <class DECIMAL_TYPE, class COEFFICIENT_TYPE>
 inline
-DecimalType makeDecimal(CoEffT coeff, int exponent)
+DECIMAL_TYPE makeDecimal(COEFFICIENT_TYPE coeff, int exponent)
 {
-    if (exponent > bsl::numeric_limits<DecimalType>::max_exponent) {
+    if (exponent > bsl::numeric_limits<DECIMAL_TYPE>::max_exponent) {
         errno = ERANGE;
         if (coeff < 0) {
-            return bsl::numeric_limits<DecimalType>::infinity();      // RETURN
+            return bsl::numeric_limits<DECIMAL_TYPE>::infinity();     // RETURN
         }
         else {
-            return -bsl::numeric_limits<DecimalType>::infinity();     // RETURN
+            return -bsl::numeric_limits<DECIMAL_TYPE>::infinity();    // RETURN
         }
     }
 
-    //TODO: TBD we should not convert through strings - it should be possible to convert directly
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
     BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
     out << coeff << 'e' << exponent;
 
-    DecimalType rv;
+    DECIMAL_TYPE rv;
     int parseResult = parseDecimal(&rv, bb.str());
     BSLS_ASSERT(0 == parseResult);
     return rv;
@@ -257,15 +256,15 @@ static int deClass2FP_(enum decClass cl)
 {
     switch (cl) {
     case DEC_CLASS_SNAN:
-    case DEC_CLASS_QNAN:          return FP_NAN;
+    case DEC_CLASS_QNAN:          return FP_NAN;                      // RETURN
     case DEC_CLASS_NEG_INF:
-    case DEC_CLASS_POS_INF:       return FP_INFINITE;
+    case DEC_CLASS_POS_INF:       return FP_INFINITE;                 // RETURN
     case DEC_CLASS_NEG_ZERO:
-    case DEC_CLASS_POS_ZERO:      return FP_ZERO;
+    case DEC_CLASS_POS_ZERO:      return FP_ZERO;                     // RETURN
     case DEC_CLASS_NEG_NORMAL:
-    case DEC_CLASS_POS_NORMAL:    return FP_NORMAL;
+    case DEC_CLASS_POS_NORMAL:    return FP_NORMAL;                   // RETURN
     case DEC_CLASS_NEG_SUBNORMAL:
-    case DEC_CLASS_POS_SUBNORMAL: return FP_SUBNORMAL;
+    case DEC_CLASS_POS_SUBNORMAL: return FP_SUBNORMAL;                // RETURN
     }
     BSLS_ASSERT(!"Unknown decClass");
     return -1;

@@ -109,6 +109,9 @@ struct DecimalConvertUtil {
     // Convert to Binary Floating-Point from C++ Decimal TR
 
     // CLASS METHODS
+
+                        // decimalToLongDouble functions
+
     static long double decimal32ToLongDouble (Decimal32  decimal);
     static long double decimal64ToLongDouble (Decimal64  decimal);
     static long double decimal128ToLongDouble(Decimal128 decimal);
@@ -138,7 +141,7 @@ struct DecimalConvertUtil {
         //:   'decimal'.
         //:
         //: o Otherwise if 'decimal' has a value that has more significant
-        //:   decimal digits than 'std::numeric_limits<long double>::digits10',
+        //:   base-10 digits than 'std::numeric_limits<long double>::digits10',
         //:   raise the "inexact" floating-point exception, round that value
         //:   according to the *binary* rounding direction setting of the
         //:   floating-point environment, and return the result of that.
@@ -151,6 +154,8 @@ struct DecimalConvertUtil {
         //:
         //: o Otherwise use the exact value of the 'other' object for the
         //:   initialization if this object.
+
+                        // decimalToDouble functions
 
     static double decimal32ToDouble (Decimal32  decimal);
     static double decimal64ToDouble (Decimal64  decimal);
@@ -181,7 +186,7 @@ struct DecimalConvertUtil {
         //:   'decimal'.
         //:
         //: o Otherwise if 'decimal' has a value that has more significant
-        //:   decimal digits than 'std::numeric_limits<double>::digits10',
+        //:   base-10 digits than 'std::numeric_limits<double>::digits10',
         //:   raise the "inexact" floating-point exception, round that value
         //:   according to the *binary* rounding direction setting of the
         //:   floating-point environment, and return the result of that.
@@ -194,6 +199,8 @@ struct DecimalConvertUtil {
         //:
         //: o Otherwise use the exact value of the 'other' object for the
         //:   initialization if this object.
+
+                        // decimalToFloat functions
 
     static float decimal32ToFloat (Decimal32  decimal);
     static float decimal64ToFloat (Decimal64  decimal);
@@ -224,7 +231,7 @@ struct DecimalConvertUtil {
         //:   'decimal'.
         //:
         //: o Otherwise if 'decimal' has a value that has more significant
-        //:   decimal digits than 'std::numeric_limits<float>::digits10',
+        //:   base-10 digits than 'std::numeric_limits<float>::digits10',
         //:   raise the "inexact" floating-point exception, round that value
         //:   according to the *binary* rounding direction setting of the
         //:   floating-point environment, and return the result of that.
@@ -238,7 +245,7 @@ struct DecimalConvertUtil {
         //: o Otherwise use the exact value of the 'other' object for the
         //:   initialization if this object.
 
-                        // Restore a Decimal Floating-Point from a Binary
+                        // decimalFromLongDouble functions
 
     static Decimal32  decimal32FromLongDouble (long double binary);
     static Decimal64  decimal64FromLongDouble (long double binary);
@@ -271,9 +278,11 @@ struct DecimalConvertUtil {
         //:   'std::numeric_limits<long double>::min()'.
         //
         // Note that the purpose of this function is to restore a decimal value
-        // that has been stored earlier into a binary floating-point type and
-        // *not* to create a decimal from the exact binary value.  Use the
+        // that has been stored earlier into a base-2 floating-point type and
+        // *not* to create a decimal from the exact base-2 value.  Use the
         // conversion constructors when you are not restoring a decimal.
+
+                        // decimalFromDouble functions
 
     static Decimal32  decimal32FromDouble (double binary);
     static Decimal64  decimal64FromDouble (double binary);
@@ -304,9 +313,11 @@ struct DecimalConvertUtil {
         //:   'double' was larger than 'std::numeric_limits<double>::min()'.
         //
         // Note that the purpose of this function is to restore a decimal value
-        // that has been stored earlier into a binary floating-point type and
-        // *not* to create a decimal from the exact binary value.  Use the
+        // that has been stored earlier into a base-2 floating-point type and
+        // *not* to create a decimal from the exact base-2 value.  Use the
         // conversion constructors when you are not restoring a decimal.
+
+                        // decimalFromFloat functions
 
     static Decimal32  decimal32FromFloat (float binary);
     static Decimal64  decimal64FromFloat (float binary);
@@ -336,9 +347,11 @@ struct DecimalConvertUtil {
         //: o if the absolute value of the decimal originally stored into the
         //:   'float' was larger than 'std::numeric_limits<float>::min()'.
         // Note that the purpose of this function is to restore a decimal value
-        // that has been stored earlier into a binary floating-point type and
-        // *not* to create a decimal from the exact binary value.  Use the
+        // that has been stored earlier into a base-2 floating-point type and
+        // *not* to create a decimal from the exact base-2 value.  Use the
         // conversion constructors when you are not restoring a decimal.
+
+                        // decimalToNetwork functions
 
     static unsigned char *decimal32ToNetwork(unsigned char *buffer,
                                              Decimal32      decimal);
@@ -355,12 +368,14 @@ struct DecimalConvertUtil {
         // Store the specified 'decimal', in network format, into the specified
         // 'buffer' and return the address one past the last byte written into
         // the 'buffer'. The network format is defined as big endian byte order
-        // and densely packed decimal significand encoding.  This corresponds
+        // and densely packed base-10 significand encoding.  This corresponds
         // to the way IBM hardware represents these numbers in memory. The
         // behavior is undefined unless 'buffer' points to a memory area at
         // least 'sizeof(decimal)' in size.  Note that these functions always
         // return 'buffer + sizeof(decimal)' on the supported 8-bits-byte
         // architectures.
+
+                        // decimalFromNetwork functions
 
     static unsigned char *decimal32FromNetwork(Decimal32           *decimal,
                                                const unsigned char *buffer);
@@ -375,10 +390,10 @@ struct DecimalConvertUtil {
     static unsigned char *decimalFromNetwork(Decimal128          *decimal,
                                              const unsigned char *buffer);
         // Store into the specified 'decimal', the value of the same size
-        // decimal floating-point value stored in network format at the
+        // base-10 floating-point value stored in network format at the
         // specified 'buffer' address and return the address one past the last
         // byte read from 'buffer'.  The network format is defined as big
-        // endian byte order and densely packed decimal significand encoding.
+        // endian byte order and densely packed base-10 significand encoding.
         // This corresponds to the way IBM hardware represents these numbers in
         // memory.  The behavior is undefined unless 'buffer' points to a
         // memory area at least 'sizeof(decimal)' in size.  Note that these

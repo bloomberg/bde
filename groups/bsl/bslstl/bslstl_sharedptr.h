@@ -1523,10 +1523,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_hashutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -1610,6 +1606,7 @@ BSL_OVERRIDES_STD mode"
 #include <ostream>               // 'std::basic_ostream'
 #define INCLUDED_OSTREAM
 #endif
+
 
 //#define BCEMA_SUPPORT_NAKED_NEW_DRQS27411521
 //  THIS MACRO IS *ONLY* TO SUPPORT BDE DEVELOPMENT AND TESTING.
@@ -2618,9 +2615,8 @@ class weak_ptr {
         // class template, and is equivalent to 'element_type'.
 
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(
-                                weak_ptr,
-                                BloombergLP::bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(weak_ptr,
+                                   BloombergLP::bslmf::IsBitwiseMoveable);
 
     // CREATORS
     weak_ptr();

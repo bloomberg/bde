@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a single traits class.
 // 'bslalg::TypeTraitHasTrivialDefaultConstructor'.  An object of a 'TYPE' that
