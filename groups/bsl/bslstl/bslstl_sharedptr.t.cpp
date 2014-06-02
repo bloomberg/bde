@@ -560,12 +560,10 @@ namespace NAMESPACE_USAGE_EXAMPLE_1 {
 // Note that the shared pointer allocates both the reference count and the
 // 'MyUser' object in a single region of memory (which is the memory that will
 // eventually be deallocated), but refers to the 'MyUser' object only.
-//..
 }  // close namespace NAMESPACE_USAGE_EXAMPLE_1
 
 namespace NAMESPACE_USAGE_EXAMPLE_2 {
-    using NAMESPACE_USAGE_EXAMPLE_1::MyUser;
-//..
+using     NAMESPACE_USAGE_EXAMPLE_1::MyUser;
 //
 ///Using Custom Deleters
 ///- - - - - - - - - - -
@@ -631,8 +629,8 @@ namespace NAMESPACE_USAGE_EXAMPLE_2 {
 //..
     inline
     int MyTransactionManager::enqueueUserTransaction(
-                                    const MyTransactionInfo& transaction,
-                                    bsl::shared_ptr<MyUser>  user)
+                                          const MyTransactionInfo& transaction,
+                                          bsl::shared_ptr<MyUser>  user)
     {
         return enqueueTransaction(user, transaction);
     }
@@ -659,7 +657,6 @@ namespace NAMESPACE_USAGE_EXAMPLE_2 {
 #if 0  // Note that usage example 3, 4 and 5 rely on both mutex and condition
        // variable objects that have not yet been ported down to 'bsl'.
 namespace NAMESPACE_USAGE_EXAMPLE_3 {
-//..
 //
 ///Example 3 - Custom Deleters
 /// -  -  -  -  -  -  -  -  -
@@ -1168,6 +1165,7 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 
         // ...
     };
+//..
 
 // Usage example 3 - Caching example
 // - - - - - - - - - - - - - - - - -

@@ -1369,6 +1369,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //      // ...
 //  };
+//..
 //
 // Usage example 3 - Caching example
 // - - - - - - - - - - - - - - - - -
@@ -1747,9 +1748,9 @@ class shared_ptr {
 
     template <class COMPATIBLE_TYPE, class DELETER>
     static BloombergLP::bslma::SharedPtrRep *makeInternalRep(
-                                                   COMPATIBLE_TYPE *ptr,
-                                                   DELETER         *deleter,
-                                                   ...);
+                                                      COMPATIBLE_TYPE *ptr,
+                                                      DELETER         *deleter,
+                                                     ...);
         // Return an out of place representation for a shared pointer managing
         // the specified 'ptr', that will destroy the object pointed to by
         // 'ptr' using the specified 'deleter', using the currently installed
@@ -1992,10 +1993,12 @@ class shared_ptr {
         // 'basicAllocator' is ignored.
 
     template <class COMPATIBLE_TYPE>
-    explicit shared_ptr(native_std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
-                        BloombergLP::bslma::Allocator   *basicAllocator = 0);
-    explicit shared_ptr(native_std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
-                        BloombergLP::bslma::Allocator   *basicAllocator = 0);
+    explicit shared_ptr(
+                   native_std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
+                   BloombergLP::bslma::Allocator          *basicAllocator = 0);
+    explicit shared_ptr(
+                   native_std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
+                   BloombergLP::bslma::Allocator          *basicAllocator = 0);
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'autoPtr' or
         // 'autoRef' to the (template parameter) type 'COMPATIBLE_TYPE', and
@@ -2290,75 +2293,147 @@ class shared_ptr {
 #else
     template <class A1>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1);
+                       const A1&                      a1);
     template <class A1, class A2>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2);
+                       const A1&                      a1,
+                       const A2&                      a2);
     template <class A1, class A2, class A3>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3);
     template <class A1, class A2, class A3, class A4>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4);
     template <class A1, class A2, class A3, class A4, class A5>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5);
     template <class A1, class A2, class A3, class A4, class A5, class A6>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6,
+                       const A7&                      a7);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6,
+                       const A7&                      a7,
+                       const A8&                      a8);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                       const A9& a9);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6,
+                       const A7&                      a7,
+                       const A8&                      a8,
+                       const A9&                      a9);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                       const A9& a9, const A10& a10);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6,
+                       const A7&                      a7,
+                       const A8&                      a8,
+                       const A9&                      a9,
+                       const A10&                     a10);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                       const A9& a9, const A10& a10, const A11& a11);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6,
+                       const A7&                      a7,
+                       const A8&                      a8,
+                       const A9&                      a9,
+                       const A10&                     a10,
+                       const A11&                     a11);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                       const A9& a9, const A10& a10, const A11& a11,
-                       const A12& a12);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6,
+                       const A7&                      a7,
+                       const A8&                      a8,
+                       const A9&                      a9,
+                       const A10&                     a10,
+                       const A11&                     a11,
+                       const A12&                     a12);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                       const A9& a9, const A10& a10, const A11& a11,
-                       const A12& a12, const A13& a13);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6,
+                       const A7&                      a7,
+                       const A8&                      a8,
+                       const A9&                      a9,
+                       const A10&                     a10,
+                       const A11&                     a11,
+                       const A12&                     a12,
+                       const A13&                     a13);
     template <class A1, class A2, class A3, class A4, class A5, class A6,
               class A7, class A8, class A9, class A10, class A11, class A12,
               class A13, class A14>
     void createInplace(BloombergLP::bslma::Allocator *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                       const A9& a9, const A10& a10, const A11& a11,
-                       const A12& a12, const A13& a13, const A14& a14);
+                       const A1&                      a1,
+                       const A2&                      a2,
+                       const A3&                      a3,
+                       const A4&                      a4,
+                       const A5&                      a5,
+                       const A6&                      a6,
+                       const A7&                      a7,
+                       const A8&                      a8,
+                       const A9&                      a9,
+                       const A10&                     a10,
+                       const A11&                     a11,
+                       const A12&                     a12,
+                       const A13&                     a13,
+                       const A14&                     a14);
         // Create "in-place" in a large enough contiguous memory region, using
         // the specified 'basicAllocator' to supply memory, both an internal
         // representation for this shared pointer and an object of
@@ -2846,7 +2921,8 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a, const A1& a1);
+allocate_shared(ALLOC     a,
+                const A1& a1);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
 #if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
@@ -2855,7 +2931,9 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a, const A1& a1, const A2& a2);
+allocate_shared(ALLOC     a,
+                const A1& a1,
+                const A2& a2);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
 #if defined(BSLS_PLATFORM_CMP_IBM) // work-around for xlc partial ordering bug
@@ -2864,7 +2942,10 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a, const A1& a1, const A2& a2, const A3& a3);
+allocate_shared(ALLOC     a,
+                const A1& a1,
+                const A2& a2,
+                const A3& a3);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4>
@@ -2874,8 +2955,11 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4);
+allocate_shared(ALLOC     a,
+                const A1& a1,
+                const A2& a2,
+                const A3& a3,
+                const A4& a4);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5>
@@ -2885,8 +2969,11 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
+allocate_shared(ALLOC     a,
+                const A1& a1,
+                const A2& a2,
+                const A3& a3,
+                const A4& a4,
                 const A5& a5);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -2897,9 +2984,13 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6);
+allocate_shared(ALLOC     a,
+                const A1& a1,
+                const A2& a2,
+                const A3& a3,
+                const A4& a4,
+                const A5& a5,
+                const A6& a6);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7>
@@ -2909,9 +3000,14 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6, const A7& a7);
+allocate_shared(ALLOC     a,
+                const A1& a1,
+                const A2& a2,
+                const A3& a3,
+                const A4& a4,
+                const A5& a5,
+                const A6& a6,
+                const A7& a7);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8>
@@ -2921,9 +3017,15 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6, const A7& a7, const A8& a8);
+allocate_shared(ALLOC     a,
+                const A1& a1,
+                const A2& a2,
+                const A3& a3,
+                const A4& a4,
+                const A5& a5,
+                const A6& a6,
+                const A7& a7,
+                const A8& a8);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9>
@@ -2933,9 +3035,15 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6, const A7& a7, const A8& a8,
+allocate_shared(ALLOC     a,
+                const A1& a1,
+                const A2& a2,
+                const A3& a3,
+                const A4& a4,
+                const A5& a5,
+                const A6& a6,
+                const A7& a7,
+                const A8& a8,
                 const A9& a9);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -2947,10 +3055,17 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                const A9& a9, const A10& a10);
+allocate_shared(ALLOC      a,
+                const A1&  a1,
+                const A2&  a2,
+                const A3&  a3,
+                const A4&  a4,
+                const A5&  a5,
+                const A6&  a6,
+                const A7&  a7,
+                const A8&  a8,
+                const A9&  a9,
+                const A10& a10);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
@@ -2961,10 +3076,18 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                const A9& a9, const A10& a10, const A11& a11);
+allocate_shared(ALLOC      a,
+                const A1&  a1,
+                const A2&  a2,
+                const A3&  a3,
+                const A4&  a4,
+                const A5&  a5,
+                const A6&  a6,
+                const A7&  a7,
+                const A8&  a8,
+                const A9&  a9,
+                const A10& a10,
+                const A11& a11);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
@@ -2975,10 +3098,18 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                const A9& a9, const A10& a10, const A11& a11,
+allocate_shared(ALLOC      a,
+                const A1&  a1,
+                const A2&  a2,
+                const A3&  a3,
+                const A4&  a4,
+                const A5&  a5,
+                const A6&  a6,
+                const A7&  a7,
+                const A8&  a8,
+                const A9&  a9,
+                const A10& a10,
+                const A11& a11,
                 const A12& a12);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
@@ -2990,11 +3121,20 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                const A9& a9, const A10& a10, const A11& a11,
-                const A12& a12, const A13& a13);
+allocate_shared(ALLOC      a,
+                const A1&  a1,
+                const A2&  a2,
+                const A3&  a3,
+                const A4&  a4,
+                const A5&  a5,
+                const A6&  a6,
+                const A7&  a7,
+                const A8&  a8,
+                const A9&  a9,
+                const A10& a10,
+                const A11& a11,
+                const A12& a12,
+                const A13& a13);
 
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
@@ -3005,91 +3145,174 @@ typename bsl::enable_if<!bsl::is_pointer<ALLOC>::value,
 #else
 shared_ptr<ELEMENT_TYPE>
 #endif
-allocate_shared(ALLOC a,
-                const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                const A9& a9, const A10& a10, const A11& a11,
-                const A12& a12, const A13& a13, const A14& a14);
+allocate_shared(ALLOC      a,
+                const A1&  a1,
+                const A2&  a2,
+                const A3&  a3,
+                const A4&  a4,
+                const A5&  a5,
+                const A6&  a6,
+                const A7&  a7,
+                const A8&  a8,
+                const A9&  a9,
+                const A10& a10,
+                const A11& a11,
+                const A12& a12,
+                const A13& a13,
+                const A14& a14);
 
 
 template <class ELEMENT_TYPE, class ALLOC>
 shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator);
 template <class ELEMENT_TYPE, class ALLOC, class A1>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator, const A1& a1);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                                         const A1& a1, const A2& a2);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                                     const A1& a1, const A2& a2, const A3& a3);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5, const A6& a6);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5, const A6& a6, const A7& a7);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6,
+                                         const A7&  a7);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                       const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                       const A5& a5, const A6& a6, const A7& a7, const A8& a8);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6,
+                                         const A7&  a7,
+                                         const A8&  a8);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                        const A9& a9);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6,
+                                         const A7&  a7,
+                                         const A8&  a8,
+                                         const A9&  a9);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                        const A9& a9, const A10& a10);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6,
+                                         const A7&  a7,
+                                         const A8&  a8,
+                                         const A9&  a9,
+                                         const A10& a10);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                        const A9& a9, const A10& a10, const A11& a11);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6,
+                                         const A7&  a7,
+                                         const A8&  a8,
+                                         const A9&  a9,
+                                         const A10& a10,
+                                         const A11& a11);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                        const A9& a9, const A10& a10, const A11& a11,
-                        const A12& a12);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6,
+                                         const A7&  a7,
+                                         const A8&  a8,
+                                         const A9&  a9,
+                                         const A10& a10,
+                                         const A11& a11,
+                                         const A12& a12);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                        const A9& a9, const A10& a10, const A11& a11,
-                        const A12& a12, const A13& a13);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6,
+                                         const A7&  a7,
+                                         const A8&  a8,
+                                         const A9&  a9,
+                                         const A10& a10,
+                                         const A11& a11,
+                                         const A12& a12,
+                                         const A13& a13);
 template <class ELEMENT_TYPE, class ALLOC, class A1, class A2, class A3,
           class A4, class A5, class A6, class A7, class A8, class A9,
           class A10, class A11, class A12, class A13, class A14>
-shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC *basicAllocator,
-                        const A1& a1, const A2& a2, const A3& a3, const A4& a4,
-                        const A5& a5, const A6& a6, const A7& a7, const A8& a8,
-                        const A9& a9, const A10& a10, const A11& a11,
-                        const A12& a12, const A13& a13, const A14& a14);
+shared_ptr<ELEMENT_TYPE> allocate_shared(ALLOC     *basicAllocator,
+                                         const A1&  a1,
+                                         const A2&  a2,
+                                         const A3&  a3,
+                                         const A4&  a4,
+                                         const A5&  a5,
+                                         const A6&  a6,
+                                         const A7&  a7,
+                                         const A8&  a8,
+                                         const A9&  a9,
+                                         const A10& a10,
+                                         const A11& a11,
+                                         const A12& a12,
+                                         const A13& a13,
+                                         const A14& a14);
     // Create "in-place" in a large enough contiguous memory region, using the
     // specified 'basicAllocator' to supply memory, both an internal
     // representation for this shared pointer and an object of 'ELEMENT_TYPE'
@@ -3584,8 +3807,8 @@ template <class COMPATIBLE_TYPE, class ALLOCATOR>
 inline
 BloombergLP::bslma::SharedPtrRep *
 shared_ptr<ELEMENT_TYPE>::makeInternalRep(
-                                      COMPATIBLE_TYPE  *ptr,
-                                      ALLOCATOR        *,
+                                      COMPATIBLE_TYPE               *ptr,
+                                      ALLOCATOR                     *,
                                       BloombergLP::bslma::Allocator *allocator)
 {
     typedef BloombergLP::bslma::SharedPtrOutofplaceRep<
@@ -3657,7 +3880,7 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                                 COMPATIBLE_TYPE  *ptr,
+                                 COMPATIBLE_TYPE               *ptr,
                                  BloombergLP::bslma::Allocator *basicAllocator)
 : d_ptr_p(ptr)
 {
@@ -3671,9 +3894,8 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 
 template <class ELEMENT_TYPE>
 inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                                 ELEMENT_TYPE                     *ptr,
-                                 BloombergLP::bslma::SharedPtrRep *rep)
+shared_ptr<ELEMENT_TYPE>::shared_ptr(ELEMENT_TYPE                     *ptr,
+                                     BloombergLP::bslma::SharedPtrRep *rep)
 : d_ptr_p(ptr)
 , d_rep_p(rep)
 {
@@ -3756,9 +3978,9 @@ template <class ELEMENT_TYPE>
 template <class DELETER, class ALLOCATOR>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(nullptr_t,
-           DELETER   deleter,
-           ALLOCATOR basicAllocator,
-           typename ALLOCATOR::value_type *)
+                                     DELETER   deleter,
+                                     ALLOCATOR basicAllocator,
+                                     typename ALLOCATOR::value_type *)
 : d_ptr_p(0)
 , d_rep_p(0)
 {
@@ -3767,8 +3989,8 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(nullptr_t,
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-       BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
-       BloombergLP::bslma::Allocator                   *basicAllocator)
+               BloombergLP::bslma::ManagedPtr<COMPATIBLE_TYPE>  managedPtr,
+               BloombergLP::bslma::Allocator                   *basicAllocator)
 : d_ptr_p(managedPtr.ptr())
 , d_rep_p(0)
 {
@@ -3794,8 +4016,8 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                               native_std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
-                               BloombergLP::bslma::Allocator   *basicAllocator)
+                        native_std::auto_ptr<COMPATIBLE_TYPE>&  autoPtr,
+                        BloombergLP::bslma::Allocator          *basicAllocator)
 : d_ptr_p(autoPtr.get())
 , d_rep_p(0)
 {
@@ -3813,8 +4035,8 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
 
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(
-                               native_std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
-                               BloombergLP::bslma::Allocator   *basicAllocator)
+                        native_std::auto_ptr_ref<ELEMENT_TYPE>  autoRef,
+                        BloombergLP::bslma::Allocator          *basicAllocator)
 : d_ptr_p(0)
 , d_rep_p(0)
 {
@@ -4478,7 +4700,7 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
 void
-shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE  *ptr,
+shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE               *ptr,
                                BloombergLP::bslma::Allocator *basicAllocator)
 {
     SelfType(ptr, basicAllocator).swap(*this);
@@ -4488,8 +4710,8 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE, class DELETER>
 inline
 void
-shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE  *ptr,
-                               const DELETER&    deleter,
+shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE               *ptr,
+                               const DELETER&                 deleter,
                                BloombergLP::bslma::Allocator *basicAllocator)
 {
     SelfType(ptr, deleter, basicAllocator).swap(*this);
@@ -4676,7 +4898,7 @@ weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
-                                    const shared_ptr<COMPATIBLE_TYPE>& rhs)
+                                        const shared_ptr<COMPATIBLE_TYPE>& rhs)
 {
     weak_ptr<ELEMENT_TYPE> tmp(rhs);
     tmp.swap(*this);
@@ -4686,7 +4908,7 @@ weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
-                                      const weak_ptr<COMPATIBLE_TYPE>& rhs)
+                                          const weak_ptr<COMPATIBLE_TYPE>& rhs)
 {
     weak_ptr<ELEMENT_TYPE> tmp(rhs);
     tmp.swap(*this);
