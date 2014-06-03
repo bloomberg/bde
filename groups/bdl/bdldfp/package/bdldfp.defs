@@ -1,0 +1,6 @@
+*                  _    DEFS_FILE    = bdl.defs
+
+!! unix-AIX-powerpc-*-xlc-11.2 _  BDE_CXXFLAGS  = -qdfp -D__STDC_WANT_DEC_FP__
+!! unix-AIX-powerpc-*-xlc-11.2 _  BDE_LDFLAGS   = -qdfp
+
+#==============================================================================
