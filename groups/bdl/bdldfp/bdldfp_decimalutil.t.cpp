@@ -4,6 +4,8 @@
 #include <bdldfp_decimalconvertutil.h>
 #include <bdldfp_uint128.h>
 
+#include <bdls_testutil.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
@@ -321,9 +323,9 @@ BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
     // 'mantissa' and 'exponent', including for cases in which
     // 'exponent == 0'.  The behavior is undefined unless
     // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
-{
+{    
 #if defined(BDLDFP_DECIMALPLATFORM_C99_TR) && \
-    defined(BSLS_PLATFORM_CMP_XLC)         && \
+    defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
     
     if (mantissa) {
@@ -345,7 +347,7 @@ BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
     // '-6176 <= exponent <= 6111'.
 {
 #if defined(BDLDFP_DECIMALPLATFORM_C99_TR) && \
-    defined(BSLS_PLATFORM_CMP_XLC)         && \
+    defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
 
     if (mantissa) {
@@ -1029,7 +1031,8 @@ int main(int argc, char* argv[])
 
                             LOOP4_ASSERT(mantissas[tiM], exps[tiE],
                                          mantissas[tjM], exps[tjE],
-                                         (tiE == tjE) == Util::sameQuantum(lhs, rhs));
+                                         (tiE == tjE) == 
+                                         Util::sameQuantum(lhs, rhs));
                         }
                     }
                 }
