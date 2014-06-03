@@ -464,7 +464,7 @@ void testContainerHasData(const CONTAINER&                      x,
         bsl::pair<TestIterator, TestIterator> range =
                                 x.equal_range(keyForValue<CONTAINER>(data[i]));
         ASSERT(range.first == it);
-        for(SizeType iterations = nCopies; --iterations; ++it) {
+        for (SizeType iterations = nCopies; --iterations; ++it) {
             ASSERT(*it == data[i]);
         }
         // Need one extra increment to reach past-the-range iterator.
@@ -708,7 +708,7 @@ void testErase(CONTAINER& mX)
     while (cIter != next) {
         const_iterator cursor = cIter;
         const_iterator testCursor = cursor;
-        while(++testCursor != next) {
+        while (++testCursor != next) {
             cursor = testCursor;
         }
         if (cursor == cIter) {
@@ -734,7 +734,7 @@ void testErase(CONTAINER& mX)
     validateIteration(mX);
 
     // then erase the rest of the container, one item at a time, from the front
-    for(iterator it = mX.begin(); it != x.end(); it = mX.erase(it)) {}
+    for (iterator it = mX.begin(); it != x.end(); it = mX.erase(it)) {}
     testEmptyContainer(mX);
 }
 
@@ -796,7 +796,7 @@ size_t verifyContainer(const CONTAINER& container,
 {
     ASSERTV(expectedSize, container.size(), expectedSize == container.size());
 
-    if(expectedSize != container.size()) {
+    if (expectedSize != container.size()) {
         return static_cast<size_t>(-1);                               // RETURN
     }
 
@@ -1904,13 +1904,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
             const size_t COUNT = X.bucket_count();
             const float  LOAD  = X.load_factor();
 
-            ASSERTV(LOAD,
-                    static_cast<double>(X.size())
-                                       / static_cast<double>(X.bucket_count()),
-                    nearlyEqual<double>(
-                        LOAD,
-                        static_cast<double>(X.size())
-                                     / static_cast<double>(X.bucket_count())));
+            double actualLoad = static_cast<double>(X.size())
+                                       / static_cast<double>(X.bucket_count());
+
+            ASSERTV(LOAD, actualLoad, nearlyEqual<double>(LOAD, actualLoad));
             ASSERTV(1.0f == X.max_load_factor());
 
             int numPasses = 0;
@@ -1926,13 +1923,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
             ASSERTV(LOAD > X.load_factor());
 
             const float LOAD2 = X.load_factor();
-            ASSERTV(LOAD2,
-                    static_cast<double>(X.size())
-                                       / static_cast<double>(X.bucket_count()),
-                    nearlyEqual<double>(
-                        LOAD2,
-                        static_cast<double>(X.size())
-                                     / static_cast<double>(X.bucket_count())));
+            actualLoad = static_cast<double>(X.size())
+                                       / static_cast<double>(X.bucket_count());
+            ASSERTV(LOAD2, actualLoad, nearlyEqual<double>(LOAD2, actualLoad));
 
             ASSERTV(X == Y);
 
@@ -1961,7 +1954,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase25()
                 const size_t BC = X.bucket_count();
                 ASSERTV(X.load_factor() <= X.max_load_factor());
                 ASSERTV(0.9999 * static_cast<double>(LENGTH)
-                                       / static_cast<double>(X.bucket_count()) <
+                                      / static_cast<double>(X.bucket_count()) <
                         X.max_load_factor());
 
                 mX.insert(values.index(len2), values.end());
@@ -5272,7 +5265,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase4()
     //   allocator_type get_allocator() const;
     // ------------------------------------------------------------------------
 
-    static const struct { 
+    static const struct {
         int         d_line;                     // source line number
         const char *d_spec;                     // specification string
         const char *d_results;                  // expected results
@@ -5833,7 +5826,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
                     P(X);
                 }
 
-                if(veryVerbose) {
+                if (veryVerbose) {
                     printf("\t\t Testing allocator exceptions\n");
                 }
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -5916,7 +5909,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
 
                 // Verify behavior when element already exist in the object
 
-                if(veryVerbose) {
+                if (veryVerbose) {
                     printf("\t\t Verifying already inserted values\n");
                 }
                 for (size_t tj = 0; tj < LENGTH; ++tj) {
@@ -6894,7 +6887,7 @@ if (verbose) {
 
         const int MAX_SAMPLE = 10000;
         int *dataSamples = new int[MAX_SAMPLE];
-        for(int i = 0; i != MAX_SAMPLE; ++i) {
+        for (int i = 0; i != MAX_SAMPLE; ++i) {
             dataSamples[i] = i;
         }
 
