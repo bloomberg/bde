@@ -68,8 +68,8 @@ BSLS_IDENT("$Id$")
 //
 // 1 - these are already implemented so you should not see TBD/TODO for them
 // E - implement when the thread-local Environment/Context is implemented
-// 2 - implement as second priority (most probably after the 'E') N - Do not
-// implement unless explicitly requested
+// 2 - implement as second priority (most probably after the 'E')
+// N - Do not implement unless explicitly requested
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -77,6 +77,10 @@ BSLS_IDENT("$Id$")
 
 #ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
+#include <bdldfp_decimalplatform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -184,9 +188,9 @@ struct DecimalUtil {
         // successful and non-zero otherwise.  The value of 'out' is
         // unspecified if the function returns a non-zero value.
 
-    // TODO TBD priority 2 static int parseDecimal32(const wchar_t *str,
-    // Decimal32 *out); static int parseDecimal32(const std::wstring& str,
-    // Decimal32 *out);
+    // TODO TBD priority 2
+    // static int parseDecimal32(const wchar_t *str, Decimal32 *out); 
+    // static int parseDecimal32(const std::wstring& str, Decimal32 *out);
 
                                   // math
 
@@ -196,8 +200,8 @@ struct DecimalUtil {
         // expression 'x * y + z', rounded as one ternary operation according
         // to the current decimal floating point rounding mode.
 
-    // TODO TBD priority 2 static Decimal32 nextafter(Decimal32 x, Decimal32
-    // y);
+    // TODO TBD priority 2 
+    // static Decimal32 nextafter(Decimal32 x, Decimal32 y);
         // Return the next representable floating point value following the
         // specified 'x' in the direction of the specified 'y'.  If 'x' or 'y'
         // is NaN, NaN is returned.  If 'x' and 'y' are equal, 'y' is returned.
@@ -207,8 +211,8 @@ struct DecimalUtil {
         // would be subnormal, zero or underflow a 'range error' occurs and the
         // correct value - if representable -- or 0.0 is returned.
 
-    // TODO TBD priority N static Decimal32 remainder(Decimal32 x, Decimal32
-    // y);
+    // TODO TBD priority N 
+    // static Decimal32 remainder(Decimal32 x, Decimal32 y);
         // Return the next remainder of dividing of the specified 'x' with the
         // specified 'y' such as that the return value is 'x-n*y', where 'n' is
         // the nearest integer of the value of 'x/y'.  If the absolute value of
@@ -227,12 +231,14 @@ struct DecimalUtil {
         // absolute value of NaN is NaN.  The absolute values of negative zero
         // or infinity are positive zero and infinity respectively.
 
-    // TODO TBD priority 2 static Decimal32 fmax(Decimal32 x, Decimal32 y);
+    // TODO TBD priority 2
+    // static Decimal32 fmax(Decimal32 x, Decimal32 y);
         // Return the larger value of the specified 'x' and 'y'.  If one
         // argument is NaN, return the other argument.  If both arguments are
         // NaN, return NaN.
 
-    // TODO TBD priority 2 static Decimal32 fmin(Decimal32 x, Decimal32 y);
+    // TODO TBD priority 2
+    // static Decimal32 fmin(Decimal32 x, Decimal32 y);
         // Return the smaller value of the specified 'x' and 'y'.  If one
         // argument is NaN, return the other argument.  If both arguments are
         // NaN, return NaN.
@@ -299,10 +305,12 @@ struct DecimalUtil {
         // Return 'true' if either (or both) of the specified 'x' and 'y'
         // arguments is a NaN, or 'false' otherwise.
 
-    // TODO TBD priority E or 2 static bool isGreater(Decimal32 x, Decimal32
-    // y); static bool isGreaterEqual(Decimal32 x, Decimal32 y); static bool
-    // isLess(Decimal32 x, Decimal32 y); static bool isEqual(Decimal32 x,
-    // Decimal32 y); static bool isLessEqual(Decimal32 x, Decimal32 y);
+    // TODO TBD priority E or 2
+    // static bool isGreater(Decimal32 x, Decimal32 y);
+    // static bool isGreaterEqual(Decimal32 x, Decimal32 y); 
+    // static bool isLess(Decimal32 x, Decimal32 y); 
+    // static bool isEqual(Decimal32 x, Decimal32 y); 
+    // static bool isLessEqual(Decimal32 x, Decimal32 y);
         // Compare the specified 'x' and 'y' value without setting any floating
         // point exceptions.  Return false if either of the arguments is a NaN.
 
@@ -313,24 +321,24 @@ struct DecimalUtil {
     static Decimal128 ceil(Decimal128 x);
         // Return the smallest integral value that is not less than the
         // specified 'x'.  If 'x' is integral, plus zero, minus zero, NaN, or
-        // infinity 'x' return 'x' itself.  Examples: 'ceil(0.5)' ==> 1.0;
-        // 'ceil(-0.5)' ==> 0.0
+        // infinity 'x' return 'x' itself.  
+        // Examples: 'ceil(0.5)' ==> 1.0; 'ceil(-0.5)' ==> 0.0
 
     static Decimal32  floor(Decimal32  x);
     static Decimal64  floor(Decimal64  x);
     static Decimal128 floor(Decimal128 x);
         // Return the largest integral value that is not greater than the
         // specified 'x'.  If 'x' is integral, positive zero, negative zero,
-        // NaN, or infinity 'x' return 'x' itself.  Examples: 'floor(0.5)' ==>
-        // 0.0; 'floor(-0.5)' ==> -1.0
+        // NaN, or infinity 'x' return 'x' itself.
+        // Examples: 'floor(0.5)' ==> 0.0; 'floor(-0.5)' ==> -1.0
 
     static Decimal32  trunc(Decimal32  x);
     static Decimal64  trunc(Decimal64  x);
     static Decimal128 trunc(Decimal128 x);
         // Return the nearest integal value that is not greater in absolute
         // value than the specified 'x'.  If 'x' is integral, NaN, or infinity
-        // then return 'x' itself.  Examples: 'trunc(0.5)' ==> 0.0;
-        // 'trunc(-0.5)' ==> 0.0
+        // then return 'x' itself.
+        // Examples: 'trunc(0.5)' ==> 0.0; 'trunc(-0.5)' ==> 0.0
 
     static Decimal32  round(Decimal32  x);
     static Decimal64  round(Decimal64  x);
@@ -338,18 +346,20 @@ struct DecimalUtil {
         // Return the integal value nearest to the specified 'x'.  Round
         // halfway cases away from zero, regardless of the current decimal
         // floating point rounding mode.  If 'x' is integral, positive zero,
-        // negative zero, NaN, or infinity then return 'x' itself.  Examples:
-        // 'round(0.5)' ==> 1.0; 'round(-0.5)' ==> -1.0
+        // negative zero, NaN, or infinity then return 'x' itself.
+        // Examples: 'round(0.5)' ==> 1.0; 'round(-0.5)' ==> -1.0
 
-    // TODO TBD priority N static Decimal32 rint(Decimal32 x);
+    // TODO TBD priority N
+    // static Decimal32 rint(Decimal32 x);
         // Return the integal value nearest to the specified 'x'.  Round
         // halfway according to the current decimal floating point rounding
         // mode.  Raise the 'inexact exception' if the return value differs
         // from the argument 'x' in value.  If 'x' is integral, plus zero,
         // minus zero, NaN, or infinity then return 'x' itself.
 
-    // TODO TBD priority 2 static long int lround(Decimal32 x); static long
-    // long int llround(Decimal32 x);
+    // TODO TBD priority 2 
+    // static long int lround(Decimal32 x); 
+    // static long long int llround(Decimal32 x);
         // Return the integal value nearest to the specified 'x', rounding away
         // from zero regardless of the current decimal floating point rounding
         // mode.  If the specified 'x' is NaN, infinity, or too large a value
@@ -360,7 +370,6 @@ struct DecimalUtil {
 
                              // Quantum functions
 
-    // TODO TBD priority E TODO TBD priority E
     static Decimal64  multiplyByPowerOf10(Decimal64  value,
                                           int        exponent);
     static Decimal64  multiplyByPowerOf10(Decimal64  value,
@@ -375,7 +384,6 @@ struct DecimalUtil {
         // unspecified if 'value' is NaN or infinity.  The behavior is
         // undefined unless '-1999999997 <= y <= 99999999'.
 
-    // static Decimal32 quantize(Decimal32 x, Decimal32 y);
     static Decimal64  quantize(Decimal64  x, Decimal64  y);
     static Decimal128 quantize(Decimal128 x, Decimal128 y);
         // Return a number that is equal in value (except for any rounding) and
@@ -412,6 +420,10 @@ struct DecimalUtil {
         // operand is infinity, they do not have the same quantum exponents.
         // Also note that this function will raise no exceptions.
 };
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
 inline
 Decimal32 DecimalUtil::makeDecimalRaw32(int coeff, int exponent)

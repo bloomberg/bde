@@ -120,14 +120,13 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
-    // Generic decimal floating-point implementation for compilers that do not
-    // support the C _DecimalNN types follows; it uses the decNumber library.
-
-#ifndef INCLUDED_DECSINGLE
-   extern "C" {
-#   include <decSingle.h>
-   }
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+# ifndef INCLUDED_DECSINGLE
+ extern "C" {
+#  include <decSingle.h>
+}
 #  define INCLUDED_DECSINGLE
+# endif
 #endif
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -222,13 +221,9 @@ struct DecimalImplUtil {
         // (without the suffix) can be interpreted as a 'double' literal.
 #endif
 
-                      // Parsing and formatting
-
     // CLASS METHODS
-    static decContext *getDecNumberContext();
-        // Return a pointer providing modifiable access to the floating point
-        // environment of the 'decNumber' library.  This function exists on
-        // certain supported platforms only.
+
+                      // Parsing and formatting
 
     static ValueType32 parse32(const char *input);
         // Parse the specified 'input' string as a 32 bit decimal floating-
@@ -242,7 +237,7 @@ struct DecimalImplUtil {
         // representation and a terminating nul character immediately follows
         // it.  Note that this method does not guarantee the behavior of
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
-        // intrinsics is incorrectly returning a signaling NaN.
+        // intrinsics return a signaling NaN.
 
     static ValueType64 parse64(const char *input);
         // Parse the specified 'input' string as a 64 bit decimal floating-
@@ -256,7 +251,7 @@ struct DecimalImplUtil {
         // representation and a terminating nul character immediately follows
         // it.  Note that this method does not guarantee the behavior of
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
-        // intrinsics is incorrectly returning a signaling NaN.
+        // intrinsics return a signaling NaN.
 
     static ValueType128 parse128(const char *input);
         // Parse the specified 'input' string as a 128 bit decimal floating-
@@ -270,7 +265,7 @@ struct DecimalImplUtil {
         // representation and a terminating nul character immediately follows
         // it.  Note that this method does not guarantee the behavior of
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
-        // intrinsics is incorrectly returning a signaling NaN.
+        // intrinsics return a signaling NaN.
 
     static ValueType32  convertToDecimal32 (const ValueType64&  input);
     static ValueType64  convertToDecimal64 (const ValueType32&  input);
@@ -376,14 +371,27 @@ struct DecimalImplUtil {
         //
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
-};
+
+                        // Decimal Floating Point Environment Functions
 
 #if BDLDFP_DECIMALPLATFORM_DECNUMBER
+    static decContext *getDecNumberContext();
+        // Return a pointer providing modifiable access to the floating point
+        // environment of the 'decNumber' library.  This function exists on
+        // certain supported platforms only.
+#endif
+
+};
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
 
                           // ---------------------
                           // class DecimalImplUtil
                           // ---------------------
 
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
 template <class TYPE>
 inline
 void DecimalImplUtil::checkLiteral(const TYPE& t)
@@ -395,8 +403,8 @@ inline
 void DecimalImplUtil::checkLiteral(double)
 {
 }
-
 #endif
+
 
 }  // close package namespace
 }  // close enterprise namespace

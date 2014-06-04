@@ -10,7 +10,16 @@ BSLS_IDENT("$Id$")
 
 #include <bdldfp_decimalplatform.h>
 
+#include <bsl_cmath.h>
 #include <bsls_assert.h>
+
+#include <errno.h>
+
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+extern "C" {
+#include <decSingle.h>
+}
+#endif
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
 #  ifndef  __STDC_WANT_DEC_FP__
@@ -18,17 +27,6 @@ BSLS_IDENT("$Id$")
      char die[-42];     // if '#error' unsupported
 #  endif
 #endif
-
-extern "C" {
-#include <decSingle.h>  // Even in hardware modes, we need decNumber functions.
-}
-
-#include <errno.h>
-
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-#include <bsl_cmath.h>
-#endif
-
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -128,40 +126,32 @@ DECIMAL_TYPE makeDecimal(COEFFICIENT_TYPE coeff, int exponent)
     return rv;
 }
 
-     // Implementation based on the decNumber library (no C or C++ support)
-
-static decContext* getContext()
-    // Provides the decimal context required by the decNumber library functions
-{
-    return DecimalImplUtil::getDecNumberContext();
-}
-
 }  // close unnamed namespace
 
                              // Creator functions
 
-//inline
+
 int DecimalUtil::parseDecimal32(Decimal32 *out, const char *str)
 {
- // TODO TBD - check validity
     BSLS_ASSERT(out != 0);
     BSLS_ASSERT(str != 0);
 
     *out = DecimalImplUtil::parse32(str);
     return 0;
 }
+
 int DecimalUtil::parseDecimal64(Decimal64 *out, const char *str)
 {
-// TODO TBD - check validity
+
     BSLS_ASSERT(out != 0);
     BSLS_ASSERT(str != 0);
 
     *out = DecimalImplUtil::parse64(str);
     return 0;
 }
+
 int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
 {
-// TODO TBD - check validity
     BSLS_ASSERT(out != 0);
     BSLS_ASSERT(str != 0);
 
@@ -200,7 +190,11 @@ Decimal64 DecimalUtil::fma(Decimal64 x, Decimal64 y, Decimal64 z)
     return fmad64(x.value(), y.value(), z.value());
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     Decimal64 rv;
-    decDoubleFMA(rv.data(), x.data(), y.data(), z.data(), getContext());
+    decDoubleFMA(rv.data(), 
+                 x.data(), 
+                 y.data(), 
+                 z.data(), 
+                 DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
 }
@@ -211,7 +205,11 @@ Decimal128 DecimalUtil::fma(Decimal128 x, Decimal128 y, Decimal128 z)
     return fmad128(x.value(), y.value(), z.value());
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     Decimal128 rv;
-    decQuadFMA(rv.data(), x.data(), y.data(), z.data(), getContext());
+    decQuadFMA(rv.data(), 
+               x.data(), 
+               y.data(), 
+               z.data(), 
+               DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
 }
@@ -225,7 +223,9 @@ Decimal32 DecimalUtil::fabs(Decimal32 value)
     // TODO TBD Just flip the sign bit, but beware of endianness
     Decimal64 in(value);
     Decimal64 out;
-    decDoubleAbs(out.data(), in.data(), getContext());
+    decDoubleAbs(out.data(), 
+                 in.data(), 
+                 DecimalImplUtil::getDecNumberContext());
     return Decimal32(out);
 #endif
 }
@@ -235,7 +235,9 @@ Decimal64 DecimalUtil::fabs(Decimal64 value)
     return fabsd64(value.value());
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     Decimal64 rv;
-    decDoubleAbs(rv.data(), value.data(), getContext());
+    decDoubleAbs(rv.data(), 
+                 value.data(), 
+                 DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
 }
@@ -245,7 +247,9 @@ Decimal128 DecimalUtil::fabs(Decimal128 value)
     return fabsd128(value.value());
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     Decimal128 rv;
-    decQuadAbs(rv.data(), value.data(), getContext());
+    decQuadAbs(rv.data(), 
+               value.data(), 
+               DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
 }
@@ -379,7 +383,7 @@ Decimal32 DecimalUtil::ceil(Decimal32 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              xw.data(),
-                             getContext(),
+                             DecimalImplUtil::getDecNumberContext(),
                              DEC_ROUND_CEILING);
     return Decimal32(rv);
 #endif
@@ -393,7 +397,7 @@ Decimal64 DecimalUtil::ceil(Decimal64 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              x.data(),
-                             getContext(),
+                             DecimalImplUtil::getDecNumberContext(),
                              DEC_ROUND_CEILING);
     return rv;
 #endif
@@ -407,7 +411,7 @@ Decimal128 DecimalUtil::ceil(Decimal128 x)
     Decimal128 rv;
     decQuadToIntegralValue(rv.data(),
                            x.data(),
-                           getContext(),
+                           DecimalImplUtil::getDecNumberContext(),
                            DEC_ROUND_CEILING);
     return rv;
 #endif
@@ -422,7 +426,7 @@ Decimal32 DecimalUtil::floor(Decimal32 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              xw.data(),
-                             getContext(),
+                             DecimalImplUtil::getDecNumberContext(),
                              DEC_ROUND_FLOOR);
     return Decimal32(rv);
 #endif
@@ -436,7 +440,7 @@ Decimal64 DecimalUtil::floor(Decimal64 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              x.data(),
-                             getContext(),
+                             DecimalImplUtil::getDecNumberContext(),
                              DEC_ROUND_FLOOR);
     return rv;
 #endif
@@ -450,7 +454,7 @@ Decimal128 DecimalUtil::floor(Decimal128 x)
     Decimal128 rv;
     decQuadToIntegralValue(rv.data(),
                            x.data(),
-                           getContext(),
+                           DecimalImplUtil::getDecNumberContext(),
                            DEC_ROUND_FLOOR);
     return rv;
 #endif
@@ -465,7 +469,7 @@ Decimal32 DecimalUtil::trunc(Decimal32 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              xw.data(),
-                             getContext(),
+                             DecimalImplUtil::getDecNumberContext(),
                              DEC_ROUND_DOWN);
     return Decimal32(rv);
 #endif
@@ -479,7 +483,7 @@ Decimal64 DecimalUtil::trunc(Decimal64 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              x.data(),
-                             getContext(),
+                             DecimalImplUtil::getDecNumberContext(),
                              DEC_ROUND_DOWN);
     return rv;
 #endif
@@ -493,7 +497,7 @@ Decimal128 DecimalUtil::trunc(Decimal128 x)
     Decimal128 rv;
     decQuadToIntegralValue(rv.data(),
                            x.data(),
-                           getContext(),
+                           DecimalImplUtil::getDecNumberContext(),
                            DEC_ROUND_DOWN);
     return rv;
 #endif
@@ -508,7 +512,7 @@ Decimal32 DecimalUtil::round(Decimal32 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              xw.data(),
-                             getContext(),
+                             DecimalImplUtil::getDecNumberContext(),
                              DEC_ROUND_HALF_UP);
     return Decimal32(rv);
 #endif
@@ -522,7 +526,7 @@ Decimal64 DecimalUtil::round(Decimal64 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              x.data(),
-                             getContext(),
+                             DecimalImplUtil::getDecNumberContext(),
                              DEC_ROUND_HALF_UP);
     return rv;
 #endif
@@ -536,13 +540,15 @@ Decimal128 DecimalUtil::round(Decimal128 x)
     Decimal128 rv;
     decQuadToIntegralValue(rv.data(),
                            x.data(),
-                           getContext(),
+                           DecimalImplUtil::getDecNumberContext(),
                            DEC_ROUND_HALF_UP);
     return rv;
 #endif
 }
 
-inline static const decDouble *convertImplType(
+
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+inline static const decDouble *convertToDecNumImplType(
                                  const bdldfp::DecimalImplUtil::ValueType64 *x)
     // Convert the specified 'x', which depending on platform may be a const
     // pointer to a hardware-implemented 64-bit floating point value, into a
@@ -556,7 +562,7 @@ inline static const decDouble *convertImplType(
 #endif
 }
 
-inline static decDouble *convertImplType(
+inline static decDouble *convertToDecNumImplType(
                                        bdldfp::DecimalImplUtil::ValueType64 *x)
     // Convert the specified 'x', which depending on platform may be a pointer
     // to a hardware-implemented 64-bit floating point value, into a pointer
@@ -570,7 +576,7 @@ inline static decDouble *convertImplType(
 #endif
 }
 
-inline static const decQuad *convertImplType(
+inline static const decQuad *convertToDecNumImplType(
                                 const bdldfp::DecimalImplUtil::ValueType128 *x)
     // Convert the specified 'x', which depending on platform may be a const
     // pointer to a hardware-implemented 128-bit floating point value, into a
@@ -584,7 +590,7 @@ inline static const decQuad *convertImplType(
 #endif
 }
 
-inline static decQuad *convertImplType(
+inline static decQuad *convertToDecNumImplType(
                                       bdldfp::DecimalImplUtil::ValueType128 *x)
     // Convert the specified 'x', which depending on platform may be a pointer
     // to a hardware-implemented 128-bit floating point value, into a pointer
@@ -597,7 +603,7 @@ inline static decQuad *convertImplType(
     return x;
 #endif
 }
-
+#endif 
                              // Quantum functions
 
 Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
@@ -610,10 +616,10 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
 #else
     long long longLongExponent = exponent;
     Decimal64 result = value;
-    decDoubleScaleB(convertImplType(result.data()),
-                    convertImplType(value.data()),
-                    convertImplType(makeDecimal64(longLongExponent, 0).data()),
-                    getContext());
+    decDoubleScaleB(result.data(), 
+                    value.data(),
+                    makeDecimal64(longLongExponent, 0).data(),
+                    DecimalImplUtil::getDecNumberContext());
     return result;
 #endif
 }
@@ -629,10 +635,10 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     return scalblnd64(*value.data(), intExponent);
 #else
     Decimal64 result = value;
-    decDoubleScaleB(convertImplType(result.data()),
-                    convertImplType(value.data()),
-                    convertImplType(exponent.data()),
-                    getContext());
+    decDoubleScaleB(result.data(),
+                    value.data(),
+                    exponent.data(),
+                    DecimalImplUtil::getDecNumberContext());
     return result;
 #endif
 }
@@ -648,10 +654,10 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     Decimal128 result = value;
     DecimalImplUtil::ValueType128 scale =
                                DecimalImplUtil::makeDecimalRaw128(exponent, 0);
-    decQuadScaleB(convertImplType(result.data()),
-                  convertImplType(value.data()),
-                  convertImplType(&scale),
-                  getContext());
+    decQuadScaleB(result.data(),
+                  value.data(),
+                  &scale,
+                  DecimalImplUtil::getDecNumberContext());
     return result;
 #endif
 }
@@ -664,10 +670,10 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
     return scalblnd128(*value.data(), intExponent);
 #else
     Decimal128 result = value;
-    decQuadScaleB(convertImplType(result.data()),
-                  convertImplType(value.data()),
-                  convertImplType(exponent.data()),
-                  getContext());
+    decQuadScaleB(result.data(),
+                  value.data(),
+                  exponent.data(),
+                  DecimalImplUtil::getDecNumberContext());
     return result;
 #endif
 }
@@ -678,10 +684,10 @@ Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
     return quantized64(*value.data(), *exponent.data());
 #else
     Decimal64 result = value;
-    decDoubleQuantize(convertImplType(result.data()),
-                      convertImplType(value.data()),
-                      convertImplType(exponent.data()),
-                      getContext());
+    decDoubleQuantize(result.data(),
+                      value.data(),
+                      exponent.data(),
+                      DecimalImplUtil::getDecNumberContext());
     return result;
 #endif
 }
@@ -692,10 +698,10 @@ Decimal128 DecimalUtil::quantize(Decimal128 x, Decimal128 y)
     return quantized128(*x.data(), *y.data());
 #else
     Decimal128 rv = x;
-    decQuadQuantize(convertImplType(rv.data()),
-                    convertImplType(x.data()),
-                    convertImplType(y.data()),
-                    getContext());
+    decQuadQuantize(rv.data(),
+                    x.data(),
+                    y.data(),
+                    DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
 }
@@ -708,7 +714,7 @@ int DecimalUtil::quantum(Decimal64 x)
     const int d64_bias = 398;
     return __d64_biased_exponent(*x.data()) - d64_bias;
 #else
-    return decDoubleGetExponent(convertImplType(x.data()));
+    return decDoubleGetExponent(x.data());
 #endif
 }
 
@@ -721,7 +727,7 @@ int DecimalUtil::quantum(Decimal128 x)
     const int d128_bias = 6176;
     return __d128_biased_exponent(*x.data()) - d128_bias;
 #else
-    return decQuadGetExponent(convertImplType(x.data()));
+    return decQuadGetExponent(x.data());
 #endif
 }
 
@@ -730,8 +736,7 @@ bool DecimalUtil::sameQuantum(Decimal64 x, Decimal64 y)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return samequantumd64(*x.data(), *y.data());
 #else
-    return decDoubleSameQuantum(convertImplType(x.data()),
-                                convertImplType(y.data())) == 1;
+    return decDoubleSameQuantum(x.data(), y.data()) == 1;
 #endif
 }
 
@@ -740,8 +745,7 @@ bool DecimalUtil::sameQuantum(Decimal128 x, Decimal128 y)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return samequantumd128(*x.data(), *y.data());
 #else
-    return decQuadSameQuantum(convertImplType(x.data()),
-                              convertImplType(y.data())) == 1;
+    return decQuadSameQuantum(x.data(), y.data()) == 1;
 #endif
 }
 

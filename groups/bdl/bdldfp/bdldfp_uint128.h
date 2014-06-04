@@ -255,9 +255,6 @@ Uint128 operator>>(Uint128 lhs, int rhs);
     // the specified 'lhs' 128-bit integer shifted by the specified 'rhs'
     // value.  The behavior is undefined unless '0 <= rhs < 128'.
 
-
-
-
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================

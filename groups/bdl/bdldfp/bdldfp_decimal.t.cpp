@@ -357,11 +357,12 @@ int main(int argc, char* argv[])
                                << "\n==============" << bsl::endl;
 
 #define DFP(X) BDLDFP_DECIMAL_DF(X)
-BDEC::Decimal32 INF_P = BDEC::Decimal32(
+
+        BDEC::Decimal32 INF_P = BDEC::Decimal32(
                                       bsl::numeric_limits<double>::infinity());
-BDEC::Decimal32 INF_N = BDEC::Decimal32(
+        BDEC::Decimal32 INF_N = BDEC::Decimal32(
                                      -bsl::numeric_limits<double>::infinity());
-BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
+        BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
                                      bsl::numeric_limits<double>::quiet_NaN());
         static const struct {
             int              d_line;

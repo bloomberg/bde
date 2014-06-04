@@ -578,14 +578,6 @@ static inline DecimalImplUtil::ValueType64 plusInf64()
 
                  // Implementation based on the decNumber library.
 
-decContext *DecimalImplUtil::getDecNumberContext()
-    // Provides the decimal context required by the decNumber library functions
-{
-    static decContext context = { 0, 0, 0, DEC_ROUND_HALF_EVEN, 0, 0, 0 };
-    return &context;
-}
-
-
 DecimalImplUtil::ValueType32 DecimalImplUtil::parse32(const char *input)
 {
     BSLS_ASSERT(input != 0);
@@ -708,9 +700,7 @@ DecimalImplUtil::ValueType32 DecimalImplUtil::makeDecimalRaw32(int mantissa,
     BSLS_ASSERT(bsl::max(mantissa, -mantissa) <= 9999999);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
-    // Let compiler-intrinsics worry about converting down to 32-bits.  There
-    // is no analogous '__d32_insert_biased_exponent' function.
-    return makeDecimalRaw64(mantissa, exponent);
+    return ldexpd64(mantissa, exponent);
 #else
     // TODO: no '__d32_insert_biased_exponent' function.
     ValueType32 valuetype32;
@@ -1146,6 +1136,17 @@ bool DecimalImplUtil::equals(DecimalImplUtil::ValueType128 lhs,
     return decQuadIsZero(&result);
 #endif
 }
+
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+decContext *DecimalImplUtil::getDecNumberContext()
+    // Provides the decimal context required by the decNumber library functions
+{
+    static decContext context = { 0, 0, 0, DEC_ROUND_HALF_EVEN, 0, 0, 0 };
+    return &context;
+}
+#endif
+
+
 
 }  // close package namespace
 }  // close enterprise namespace

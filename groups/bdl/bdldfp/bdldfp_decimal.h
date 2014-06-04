@@ -150,8 +150,9 @@ BSLS_IDENT("$Id$")
 //:   expert in special circumstances, for example in graphics acceleration
 //:   hardware.)
 //
-// Notes: (*) IEEE Floating-point user is any person, hardware or software that
-// uses the IEEE floating-point implementation.
+// Notes: 
+//   (*) IEEE Floating-point user is any person, hardware or software that
+//       uses the IEEE floating-point implementation.
 //
 ///Floating-Point Environment
 /// - - - - - - - - - - - - -
@@ -892,7 +893,7 @@ operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal32& object);
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
     // providing modifiable access to 'stream'.  If 'stream' contains a NaN
-    // value it is unspecified if 'object' will receive a quiet or signaling
+    // value, it is unspecified if 'object' will receive a quiet or signaling
     // 'Nan'.  If 'stream' is not valid on entry 'stream.good() == false', this
     // operation has no effect other than setting 'stream.fail()' to 'true'.
     // If eof (end-of-file) is found before any non-whitespace characters
@@ -2041,7 +2042,7 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal64& object);
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
     // providing modifiable access to 'stream'.  If 'stream' contains a Nan
-    // value it is unspecified if 'object' will receive a quiet or signaling
+    // value, it is unspecified if 'object' will receive a quiet or signaling
     // 'Nan'.  If 'stream' is not valid on entry 'stream.good() == false', this
     // operation has no effect other than setting 'stream.fail()' to 'true'.
     // If eof (end-of-file) is found before any non-whitespace characters
@@ -3162,7 +3163,7 @@ operator>> (bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal128& object);
     // 2008 standard (5.12 Details of conversions between floating point
     // numbers and external character sequences) and return a reference
     // providing modifiable access to 'stream'.  If 'stream' contains a Nan
-    // value it is unspecified if 'object' will receive a quiet or signaling
+    // value, it is unspecified if 'object' will receive a quiet or signaling
     // 'Nan'.  If 'stream' is not valid on entry 'stream.good() == false', this
     // operation has no effect other than setting 'stream.fail()' to 'true'.
     // If eof (end-of-file) is found before any non-whitespace characters
@@ -3895,6 +3896,11 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
 };
 
 }  // close namespace std
+
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)
 #   define std bsl
 #   undef BDLDFP_DECIMAL_RESTORE_STD

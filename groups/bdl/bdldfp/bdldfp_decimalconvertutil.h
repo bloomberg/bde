@@ -402,6 +402,10 @@ struct DecimalConvertUtil {
 
 };
 
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
 }  // close package namespace
 }  // close enterprise namespace
 

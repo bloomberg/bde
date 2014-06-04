@@ -1907,7 +1907,7 @@ int main(int argc, char* argv[])
 
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR > 40700
 #pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Woverflow"
+#pragma GCC diagnostic ignored "-Woverflow"
 #endif
         // Test some zero-rounded values.
 
