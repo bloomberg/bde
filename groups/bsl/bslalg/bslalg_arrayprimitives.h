@@ -421,6 +421,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #define INCLUDED_UTILITY
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_IBM)
+# define BSLALG_ARRAYPRIMITIVES_CANNOT_REMOVE_POINTER_FROM_FUNCTION_POINTER
+    // xlC has problem removing pointer from function pointer types.
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -2653,11 +2658,11 @@ void ArrayPrimitives_Imp::copyConstruct(
             typename bsl::remove_pointer<
             typename bsl::remove_pointer<FWD_ITER>::type>::type>::type NcIter;
 
-#if defined(BSLS_PLATFORM_CMP_IBM)  // xlC has problem removing pointer from
-                                    // function pointer types
-    copyConstruct(reinterpret_cast<void *       *>(toBegin),
-                  reinterpret_cast<void * const *>(fromBegin),
-                  reinterpret_cast<void * const *>(fromEnd),
+#if defined(BSLALG_ARRAYPRIMITIVES_CANNOT_REMOVE_POINTER_FROM_FUNCTION_POINTER)
+    // fall back on traditional C-style casts.
+    copyConstruct((void *       *)toBegin,
+                  (void * const *)fromBegin,
+                  (void * const *)fromEnd,
                   allocator,
                   (bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *) 0);
 #else
@@ -4512,6 +4517,16 @@ void ArrayPrimitives_Imp::insert(
 
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
 
+#if defined(BSLALG_ARRAYPRIMITIVES_CANNOT_REMOVE_POINTER_FROM_FUNCTION_POINTER)
+    // fall back on traditional C-style casts.
+    insert((void *       *)toBegin,
+           (void *       *)toEnd,
+           (void * const *)fromBegin,
+           (void * const *)fromEnd,
+           numElements,
+           allocator,
+           (bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *) 0);
+#else
     typedef typename bsl::remove_const<
             typename bsl::remove_pointer<TARGET_TYPE>::type>::type NcPtrType;
 
@@ -4519,16 +4534,6 @@ void ArrayPrimitives_Imp::insert(
             typename bsl::remove_pointer<
             typename bsl::remove_pointer<FWD_ITER>::type>::type>::type NcIter;
 
-#if defined(BSLS_PLATFORM_CMP_IBM)  // xlC has problem removing pointer from
-                                    // function pointer types
-    insert(reinterpret_cast<void *       *>(toBegin),
-           reinterpret_cast<void *       *>(toEnd),
-           reinterpret_cast<void * const *>(fromBegin),
-           reinterpret_cast<void * const *>(fromEnd),
-           numElements,
-           allocator,
-           (bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *) 0);
-#else
     insert(
      reinterpret_cast<void *       *>(const_cast<NcPtrType **>(toBegin)),
      reinterpret_cast<void *       *>(const_cast<NcPtrType **>(toEnd)),
@@ -4989,6 +4994,10 @@ void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
 
 
 }  // close enterprise namespace
+
+#if defined(BSLALG_ARRAYPRIMITIVES_CANNOT_REMOVE_POINTER_FROM_FUNCTION_POINTER)
+# undef BSLALG_ARRAYPRIMITIVES_CANNOT_REMOVE_POINTER_FROM_FUNCTION_POINTER
+#endif
 
 #endif
 
