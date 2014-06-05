@@ -149,7 +149,8 @@ struct BitUtil {
         k_BITS_PER_INT64 = 64,  // bits used to represent an 'int64_t'
     };
 
-    // PRIVATE TYPE ALIASES (to support old toolchains)
+  public:
+    // PUBLIC TYPE ALIASES (to support old toolchains)
 #if defined(BDLB_BITUTIL_NO_STDINT)
     typedef unsigned int       uint32_t;
     typedef unsigned long long uint64_t;
@@ -158,6 +159,7 @@ struct BitUtil {
     typedef ::uint64_t uint64_t;
 #endif
 
+  private:
     // PRIVATE CLASS METHODS
     static int privateNumBitsSet(uint32_t value);
     static int privateNumBitsSet(uint64_t value);
@@ -373,7 +375,7 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
 }
 
 inline
-uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
+BitUtil::uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
 {
     BSLS_ASSERT_SAFE(1 == numBitsSet(boundary));
 
@@ -381,7 +383,7 @@ uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
 }
 
 inline
-uint64_t BitUtil::roundUp(uint64_t value, uint64_t boundary)
+BitUtil::uint64_t BitUtil::roundUp(uint64_t value, uint64_t boundary)
 {
     BSLS_ASSERT_SAFE(1 == numBitsSet(boundary));
 
@@ -389,7 +391,7 @@ uint64_t BitUtil::roundUp(uint64_t value, uint64_t boundary)
 }
 
 inline
-uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
+BitUtil::uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
 {
     const int index = numLeadingUnsetBits(value - 1);
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
@@ -398,7 +400,7 @@ uint32_t BitUtil::roundUpToBinaryPower(uint32_t value)
 }
 
 inline
-uint64_t BitUtil::roundUpToBinaryPower(uint64_t value)
+BitUtil::uint64_t BitUtil::roundUpToBinaryPower(uint64_t value)
 {
     const int index = numLeadingUnsetBits(value - 1);
     return BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 < index)
@@ -414,7 +416,7 @@ int BitUtil::sizeInBits(TYPE)
 }
 
 inline
-uint32_t BitUtil::withBitCleared(uint32_t value, int index)
+BitUtil::uint32_t BitUtil::withBitCleared(uint32_t value, int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT32);
@@ -423,7 +425,7 @@ uint32_t BitUtil::withBitCleared(uint32_t value, int index)
 }
 
 inline
-uint64_t BitUtil::withBitCleared(uint64_t value, int index)
+BitUtil::uint64_t BitUtil::withBitCleared(uint64_t value, int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
@@ -432,7 +434,7 @@ uint64_t BitUtil::withBitCleared(uint64_t value, int index)
 }
 
 inline
-uint32_t BitUtil::withBitSet(uint32_t value, int index)
+BitUtil::uint32_t BitUtil::withBitSet(uint32_t value, int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT32);
@@ -441,7 +443,7 @@ uint32_t BitUtil::withBitSet(uint32_t value, int index)
 }
 
 inline
-uint64_t BitUtil::withBitSet(uint64_t value, int index)
+BitUtil::uint64_t BitUtil::withBitSet(uint64_t value, int index)
 {
     BSLS_ASSERT_SAFE(    0 <= index);
     BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
@@ -453,7 +455,7 @@ uint64_t BitUtil::withBitSet(uint64_t value, int index)
 }  // close enterprise namespace
 
 #if defined(BDLB_BITUTIL_NO_STDINT)
-# undef #define BDLB_BITUTIL_NO_STDINT
+# undef BDLB_BITUTIL_NO_STDINT
 #endif
 
 #endif

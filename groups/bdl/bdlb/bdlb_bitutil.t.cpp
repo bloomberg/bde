@@ -13,10 +13,16 @@
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
-
 using namespace BloombergLP;
 using namespace bsl;
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
+// The Microsoft toolchains prior to VC2010 do not support the C99 <stdint.h>
+typedef int                     int32_t;
+typedef long long               int64_t;
+typedef bdlb::BitUtil::uint32_t uint32_t;
+typedef bdlb::BitUtil::uint64_t uint64_t;
+#endif
 
 //=============================================================================
 //                                TEST PLAN
