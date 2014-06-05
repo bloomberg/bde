@@ -150,7 +150,7 @@ BSLS_IDENT("$Id$")
 //:   expert in special circumstances, for example in graphics acceleration
 //:   hardware.)
 //
-// Notes: 
+// Notes:
 //   (*) IEEE Floating-point user is any person, hardware or software that
 //       uses the IEEE floating-point implementation.
 //

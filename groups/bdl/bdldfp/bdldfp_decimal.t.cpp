@@ -1,6 +1,8 @@
 // bdldfp_decimal.t.cpp                                               -*-C++-*-
 #include <bdldfp_decimal.h>
 
+#include <bdls_testutil.h>
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_cstdlib.h>
@@ -122,49 +124,27 @@ static void aSsErT(int c, const char *s, int i)
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-// ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+//=========================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -247,6 +227,7 @@ struct NulBuf : bsl::streambuf {
         return traits_type::not_eof(c);
     }
 };
+
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -548,10 +529,10 @@ int main(int argc, char* argv[])
 
             {  L_, NAN_Q,      0,     'i', true,          "NANQ" },
 
-// These tests are disabled because 
-//          {  L_, NAN_Q,      4,     'l', false,         "nanq" },
-//          {  L_, NAN_Q,      4,     'i', false,         "nanq" },
-//          {  L_, NAN_Q,      4,     'r', false,         "nanq" },
+// These tests are disabled because formatting is not yet supported
+//          {  L_, NAN_Q,      4,     'l', false,         "nanq " },
+//          {  L_, NAN_Q,      4,     'i', false,         " nanq" },
+//          {  L_, NAN_Q,      4,     'r', false,         " nanq" },
 
 #else
             {  L_, NAN_Q,      0,     'l', false,         "nan" },
@@ -689,18 +670,15 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) bsl::cout << "Propriatery accessors" << bsl::endl;
         {
+
             BDEC::Decimal128 d128(42);
             ASSERT((void*)d128.data() == (void*)&d128);
 
-            const BDEC::Decimal128 cd128(42);
-            ASSERT((const void*)d128.data() == (const void*)&d128);
-
-// TODO: IBM-compiler bug is making this test fail with Decimall28.
-//            LOOP3_ASSERT(
-//                cd128.value(),
-//                BDEC::Decimal128(cd128.value()),
-//                BDEC::Decimal128(42),
-//BDEC::Decimal128(cd128.value()) == BDEC::Decimal128(42));
+        // XLC versions prior to 12.0 incorrectly pass decimal128 values in
+        // some contexts (0x0c00 -> 12.00)
+#if defined(BSLS_PLATFORM_CMP_IBM) && (BSLS_PLATFORM_CMP_VERSION >= 0x0c00)
+            ASSERTV(BDEC::Decimal128(d128.value()) == BDEC::Decimal128(42));
+#endif
         }
 
         if (veryVerbose) bsl::cout << "Operator==" << bsl::endl;

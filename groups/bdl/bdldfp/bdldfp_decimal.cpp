@@ -138,7 +138,7 @@ NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 
 static
 char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int n)
-{ 
+{
     // TBD TODO - printf is locale dependent!!!
 
     BSLS_ASSERT(value);
@@ -150,7 +150,7 @@ char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int n)
 
 static
 char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int n)
-{ 
+{
     // TBD TODO - printf is locale dependent!!!
 
     BSLS_ASSERT(value);
@@ -179,7 +179,7 @@ char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int n)
               // Implementation specific helper functions
 
 static
-char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int) 
+char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int)
 {
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
@@ -188,7 +188,7 @@ char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int)
 }
 
 static
-char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int) 
+char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int)
 {
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
@@ -197,7 +197,7 @@ char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int)
 }
 
 static
-char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int) 
+char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int)
 {
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
@@ -273,7 +273,7 @@ ITER_TYPE fillN(ITER_TYPE iter, int numCharacters, CHAR_TYPE character)
 {
   while (numCharacters > 0) {
     *iter = character;
-    ++iter; 
+    ++iter;
     --numCharacters;
   }
   return iter;

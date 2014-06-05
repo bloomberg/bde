@@ -190,10 +190,10 @@ Decimal64 DecimalUtil::fma(Decimal64 x, Decimal64 y, Decimal64 z)
     return fmad64(x.value(), y.value(), z.value());
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     Decimal64 rv;
-    decDoubleFMA(rv.data(), 
-                 x.data(), 
-                 y.data(), 
-                 z.data(), 
+    decDoubleFMA(rv.data(),
+                 x.data(),
+                 y.data(),
+                 z.data(),
                  DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
@@ -205,10 +205,10 @@ Decimal128 DecimalUtil::fma(Decimal128 x, Decimal128 y, Decimal128 z)
     return fmad128(x.value(), y.value(), z.value());
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     Decimal128 rv;
-    decQuadFMA(rv.data(), 
-               x.data(), 
-               y.data(), 
-               z.data(), 
+    decQuadFMA(rv.data(),
+               x.data(),
+               y.data(),
+               z.data(),
                DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
@@ -223,8 +223,8 @@ Decimal32 DecimalUtil::fabs(Decimal32 value)
     // TODO TBD Just flip the sign bit, but beware of endianness
     Decimal64 in(value);
     Decimal64 out;
-    decDoubleAbs(out.data(), 
-                 in.data(), 
+    decDoubleAbs(out.data(),
+                 in.data(),
                  DecimalImplUtil::getDecNumberContext());
     return Decimal32(out);
 #endif
@@ -235,8 +235,8 @@ Decimal64 DecimalUtil::fabs(Decimal64 value)
     return fabsd64(value.value());
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     Decimal64 rv;
-    decDoubleAbs(rv.data(), 
-                 value.data(), 
+    decDoubleAbs(rv.data(),
+                 value.data(),
                  DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
@@ -247,8 +247,8 @@ Decimal128 DecimalUtil::fabs(Decimal128 value)
     return fabsd128(value.value());
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     Decimal128 rv;
-    decQuadAbs(rv.data(), 
-               value.data(), 
+    decQuadAbs(rv.data(),
+               value.data(),
                DecimalImplUtil::getDecNumberContext());
     return rv;
 #endif
@@ -546,64 +546,6 @@ Decimal128 DecimalUtil::round(Decimal128 x)
 #endif
 }
 
-
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
-inline static const decDouble *convertToDecNumImplType(
-                                 const bdldfp::DecimalImplUtil::ValueType64 *x)
-    // Convert the specified 'x', which depending on platform may be a const
-    // pointer to a hardware-implemented 64-bit floating point value, into a
-    // const pointer to a decDouble, using 'reinterpret_cast'.  Such a pointer
-    // is needed in cerain decNumber libraries.
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return reinterpret_cast<const decDouble*>(x);
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return x;
-#endif
-}
-
-inline static decDouble *convertToDecNumImplType(
-                                       bdldfp::DecimalImplUtil::ValueType64 *x)
-    // Convert the specified 'x', which depending on platform may be a pointer
-    // to a hardware-implemented 64-bit floating point value, into a pointer
-    // to a decDouble, using 'reinterpret_cast'.  Such a pointer is needed in
-    // cerain decNumber libraries.
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return reinterpret_cast<decDouble*>(x);
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return x;
-#endif
-}
-
-inline static const decQuad *convertToDecNumImplType(
-                                const bdldfp::DecimalImplUtil::ValueType128 *x)
-    // Convert the specified 'x', which depending on platform may be a const
-    // pointer to a hardware-implemented 128-bit floating point value, into a
-    // const pointer to a decQuad, using 'reinterpret_cast'.  Such a pointer
-    // is needed in cerain decNumber libraries.
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return reinterpret_cast<const decQuad*>(x);
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return x;
-#endif
-}
-
-inline static decQuad *convertToDecNumImplType(
-                                      bdldfp::DecimalImplUtil::ValueType128 *x)
-    // Convert the specified 'x', which depending on platform may be a pointer
-    // to a hardware-implemented 128-bit floating point value, into a pointer
-    // to a decQuad, using 'reinterpret_cast'.  Such a pointer is needed in
-    // cerain decNumber libraries.
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return reinterpret_cast<decQuad*>(x);
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return x;
-#endif
-}
-#endif 
                              // Quantum functions
 
 Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
@@ -616,7 +558,7 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
 #else
     long long longLongExponent = exponent;
     Decimal64 result = value;
-    decDoubleScaleB(result.data(), 
+    decDoubleScaleB(result.data(),
                     value.data(),
                     makeDecimal64(longLongExponent, 0).data(),
                     DecimalImplUtil::getDecNumberContext());

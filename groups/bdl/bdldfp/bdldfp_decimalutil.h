@@ -189,7 +189,7 @@ struct DecimalUtil {
         // unspecified if the function returns a non-zero value.
 
     // TODO TBD priority 2
-    // static int parseDecimal32(const wchar_t *str, Decimal32 *out); 
+    // static int parseDecimal32(const wchar_t *str, Decimal32 *out);
     // static int parseDecimal32(const std::wstring& str, Decimal32 *out);
 
                                   // math
@@ -200,7 +200,7 @@ struct DecimalUtil {
         // expression 'x * y + z', rounded as one ternary operation according
         // to the current decimal floating point rounding mode.
 
-    // TODO TBD priority 2 
+    // TODO TBD priority 2
     // static Decimal32 nextafter(Decimal32 x, Decimal32 y);
         // Return the next representable floating point value following the
         // specified 'x' in the direction of the specified 'y'.  If 'x' or 'y'
@@ -211,7 +211,7 @@ struct DecimalUtil {
         // would be subnormal, zero or underflow a 'range error' occurs and the
         // correct value - if representable -- or 0.0 is returned.
 
-    // TODO TBD priority N 
+    // TODO TBD priority N
     // static Decimal32 remainder(Decimal32 x, Decimal32 y);
         // Return the next remainder of dividing of the specified 'x' with the
         // specified 'y' such as that the return value is 'x-n*y', where 'n' is
@@ -307,9 +307,9 @@ struct DecimalUtil {
 
     // TODO TBD priority E or 2
     // static bool isGreater(Decimal32 x, Decimal32 y);
-    // static bool isGreaterEqual(Decimal32 x, Decimal32 y); 
-    // static bool isLess(Decimal32 x, Decimal32 y); 
-    // static bool isEqual(Decimal32 x, Decimal32 y); 
+    // static bool isGreaterEqual(Decimal32 x, Decimal32 y);
+    // static bool isLess(Decimal32 x, Decimal32 y);
+    // static bool isEqual(Decimal32 x, Decimal32 y);
     // static bool isLessEqual(Decimal32 x, Decimal32 y);
         // Compare the specified 'x' and 'y' value without setting any floating
         // point exceptions.  Return false if either of the arguments is a NaN.
@@ -321,7 +321,7 @@ struct DecimalUtil {
     static Decimal128 ceil(Decimal128 x);
         // Return the smallest integral value that is not less than the
         // specified 'x'.  If 'x' is integral, plus zero, minus zero, NaN, or
-        // infinity 'x' return 'x' itself.  
+        // infinity 'x' return 'x' itself.
         // Examples: 'ceil(0.5)' ==> 1.0; 'ceil(-0.5)' ==> 0.0
 
     static Decimal32  floor(Decimal32  x);
@@ -357,8 +357,8 @@ struct DecimalUtil {
         // from the argument 'x' in value.  If 'x' is integral, plus zero,
         // minus zero, NaN, or infinity then return 'x' itself.
 
-    // TODO TBD priority 2 
-    // static long int lround(Decimal32 x); 
+    // TODO TBD priority 2
+    // static long int lround(Decimal32 x);
     // static long long int llround(Decimal32 x);
         // Return the integal value nearest to the specified 'x', rounding away
         // from zero regardless of the current decimal floating point rounding

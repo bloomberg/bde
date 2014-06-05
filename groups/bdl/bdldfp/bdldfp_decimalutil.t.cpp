@@ -1,6 +1,7 @@
 // bdldfp_decimalutil.t.cpp                                           -*-C++-*-
 #include <bdldfp_decimalutil.h>
 
+#include <bdldfp_decimal.h>
 #include <bdldfp_decimalconvertutil.h>
 #include <bdldfp_uint128.h>
 
@@ -323,17 +324,18 @@ BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
     // 'mantissa' and 'exponent', including for cases in which
     // 'exponent == 0'.  The behavior is undefined unless
     // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
-{    
+{
 #if defined(BDLDFP_DECIMALPLATFORM_C99_TR) && \
     defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
-    
+
     if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
     }
-    return BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent) -
-           BDEC::DecimalImplUtil::makeDecimalRaw64(1, exponent);
-#else 
+
+    return BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent) -
+           BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent);
+#else
     return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
 #endif
 }
@@ -355,7 +357,7 @@ BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
     }
     return BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent) -
            BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent);
-#else 
+#else
     return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
 #endif
 
@@ -1031,7 +1033,7 @@ int main(int argc, char* argv[])
 
                             LOOP4_ASSERT(mantissas[tiM], exps[tiE],
                                          mantissas[tjM], exps[tjE],
-                                         (tiE == tjE) == 
+                                         (tiE == tjE) ==
                                          Util::sameQuantum(lhs, rhs));
                         }
                     }
@@ -1889,8 +1891,9 @@ int main(int argc, char* argv[])
 
         if (veryVeryVerbose) bsl::cout << "makeDecimalRaw128" << bsl::endl;
 
-#if 0
-        // TODO: endienness issues.
+        // XLC versions prior to 12.0 incorrectly pass decimal128 values in
+        // some contexts (0x0c00 -> 12.00)
+#if defined(BSLS_PLATFORM_CMP_IBM) && (BSLS_PLATFORM_CMP_VERSION >= 0x0c00)
         ASSERT(Util::makeDecimalRaw128(314159, -5) ==
                BDLDFP_DECIMAL_DL(3.14159));
         ASSERT(Util::makeDecimalRaw128(314159u, -5) ==
