@@ -361,6 +361,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
 #endif
@@ -418,7 +422,7 @@ namespace bsl {
                              // class allocator
                              // ===============
 
-template <class T>
+template <class TYPE>
 class allocator {
     // An STL-compatible allocator that forwards allocation calls to an
     // underlying mechanism object of a type derived from 'bslma::Allocator'.
@@ -444,21 +448,21 @@ class allocator {
     // PUBLIC TYPES
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;
-    typedef T              *pointer;
-    typedef const T        *const_pointer;
-    typedef T&              reference;
-    typedef const T&        const_reference;
-    typedef T               value_type;
+    typedef TYPE           *pointer;
+    typedef const TYPE     *const_pointer;
+    typedef TYPE&           reference;
+    typedef const TYPE&     const_reference;
+    typedef TYPE            value_type;
 
-    template <class U> struct rebind
-    {
-        // This nested 'struct' template, parameterized by some type 'U',
-        // provides a namespace for an 'other' type alias, which is an
-        // allocator type following the same template as this one but that
-        // allocates elements of type 'U'.  Note that this allocator type is
-        // convertible to and from 'other' for any type 'U' including 'void'.
+    template <class ANY_TYPE>
+    struct rebind {
+        // This nested 'struct' template, parameterized by 'ANY_TYPE', provides
+        // a namespace for an 'other' type alias, which is an allocator type
+        // following the same template as this one but that allocates elements
+        // of 'ANY_TYPE'.  Note that this allocator type is convertible to and
+        // from 'other' for any type, including 'void'.
 
-        typedef allocator<U> other;
+        typedef allocator<ANY_TYPE> other;
     };
 
     // CREATORS
@@ -471,7 +475,7 @@ class allocator {
         //..
 
     allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
-        // Convert a 'bslma::Allocator' pointer to a 'allocator' object which
+        // Convert a 'bslma::Allocator' pointer to an 'allocator' object which
         // forwards allocation calls to the object pointed to by the specified
         // 'mechanism'.  If 'mechanism' is 0, then the currently installed
         // default allocator is used instead.  Postcondition:
@@ -479,11 +483,10 @@ class allocator {
 
     allocator(const allocator& original);
         // Create a proxy object using the same mechanism as the specified
-        // 'original'.
-        // Postcondition: 'this->mechanism() == rhs.mechanism()'.
+        // 'original'.  Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
-    template <class U>
-    allocator(const allocator<U>& rhs);
+    template <class ANY_TYPE>
+    allocator(const allocator<ANY_TYPE>& rhs);
         // Construct a proxy object sharing the same mechanism object as the
         // specified 'rhs'.  The newly constructed allocator will compare equal
         // to 'rhs', even though they are instantiated on different types.
@@ -495,48 +498,56 @@ class allocator {
         // definition is compiler generated.
 
     //! allocator& operator=(const allocator& rhs);
-        // Assign this object the value of the specified 'rhs'.  Postcondition:
-        // 'this->mechanism() == rhs->mechanism()'.  Note that this does not
-        // delete the object pointed to by the previous value of 'mechanism()'.
-        // Also note that this method's definition is compiler generated.
+        // Assign to this object the value of the specified 'rhs'.
+        // Postcondition: 'this->mechanism() == rhs->mechanism()'.  Note that
+        // this does not delete the object pointed to by the previous value of
+        // 'mechanism()'.  Also note that this method's definition is compiler
+        // generated.
 
     // MANIPULATORS
     pointer allocate(size_type n, const void *hint = 0);
-        // Allocate enough (properly aligned) space for 'n' objects of type 'T'
-        // by calling 'allocate' on the mechanism object.  The 'hint' argument
-        // is ignored by this allocator type.  The behavior is undefined unless
+        // Allocate enough (properly aligned) space for the specified 'n'
+        // objects of (template parameter) 'TYPE' by calling 'allocate' on the
+        // mechanism object.  The optionally specified 'hint' argument is
+        // ignored by this allocator type.  The behavior is undefined unless
         // 'n <= max_size()'.
 
     void deallocate(pointer p, size_type n = 1);
         // Return memory previously allocated with 'allocate' to the underlying
         // mechanism object by calling 'deallocate' on the the mechanism
-        // object.  The 'n' argument is ignored by this allocator type.
+        // object with the specified 'p'.  The optionally specified 'n'
+        // argument is ignored by this allocator type.
 
-    void construct(pointer p, const T& val);
-        // Copy-construct a 'T' object at the memory address specified by 'p'.
-        // Do not directly allocate memory.  The behavior is undefined unless
-        // 'p' is not properly aligned for objects of type 'T'.
+    void construct(pointer p, const TYPE& val);
+        // Copy-construct an object of (template parameter) 'TYPE' from the
+        // specified 'val' at the memory address specified by 'p'.  Do not
+        // directly allocate memory.  The behavior is undefined unless 'p' is
+        // not properly aligned for objects of the given 'TYPE'.
 
     void destroy(pointer p);
-        // Call the 'T' destructor for the object pointed to by 'p'.  Do not
-        // directly deallocate any memory.
+        // Call the 'TYPE' destructor for the object pointed to by the
+        // specified 'p'.  Do not directly deallocate any memory.
 
     // ACCESSORS
+    pointer address(reference x) const;
+        // Return the address of the object referred to by the specified 'x',
+        // even if the (template parameter) 'TYPE' overloads the unary
+        // 'operator&'.
+
+    const_pointer address(const_reference x) const;
+        // Return the address of the object referred to by the specified 'x',
+        // even if the (template parameter) 'TYPE' overloads the unary
+        // 'operator&'.
+
+    size_type max_size() const;
+        // Return the maximum number of elements of (template parmeter) 'TYPE'
+        // that can be allocated using this allocator.  Note that there is no
+        // guarantee that attempts at allocating fewer elements than the value
+        // returned by 'max_size' will not throw.
+
     BloombergLP::bslma::Allocator *mechanism() const;
         // Return a pointer to the mechanism object to which this proxy
         // forwards allocation and deallocation calls.
-
-    pointer address(reference x) const;
-        // Return the address of 'x'.
-
-    const_pointer address(const_reference x) const;
-        // Return the address of 'x'.
-
-    size_type max_size() const;
-        // Return the maximum number of elements of type 'T' that can be
-        // allocated using this allocator.  Note that there is no guarantee
-        // that attempts at allocating less elements than the value returned by
-        // 'max_size' will not throw.
 };
 
                           // =====================
@@ -559,6 +570,7 @@ class allocator<void> {
     BSLMF_NESTED_TRAIT_DECLARATION(allocator,
                               BloombergLP::bslmf::IsBitwiseEqualityComparable);
         // Declare nested type traits for this class.
+
     // PUBLIC TYPES
     typedef std::size_t     size_type;
     typedef std::ptrdiff_t  difference_type;
@@ -566,9 +578,9 @@ class allocator<void> {
     typedef const void     *const_pointer;
     typedef void            value_type;
 
-    template <class U> struct rebind
-    {
-        typedef allocator<U> other;
+    template <class ANY_TYPE>
+    struct rebind {
+        typedef allocator<ANY_TYPE> other;
     };
 
     // CREATORS
@@ -577,7 +589,7 @@ class allocator<void> {
         // object pointed to by 'bslma::Default::defaultAllocator()'.
 
     allocator(BloombergLP::bslma::Allocator *mechanism);            // IMPLICIT
-        // Convert a 'bslma::Allocator' pointer to a 'allocator' object which
+        // Convert a 'bslma::Allocator' pointer to an 'allocator' object which
         // forwards allocation calls to the object pointed to by the specified
         // 'mechanism'.  If 'mechanism' is 0, then the current default
         // allocator is used instead.  Postcondition:
@@ -585,11 +597,10 @@ class allocator<void> {
 
     allocator(const allocator& original);
         // Create a proxy object using the same mechanism as the specified
-        // 'original'.
-        // Postcondition: 'this->mechanism() == rhs.mechanism()'.
+        // 'original'.  Postcondition: 'this->mechanism() == rhs.mechanism()'.
 
-    template <class U>
-    allocator(const allocator<U>& rhs);
+    template <class ANY_TYPE>
+    allocator(const allocator<ANY_TYPE>& rhs);
         // Construct a proxy object sharing the same mechanism object as the
         // specified 'rhs'.  The newly constructed allocator will compare equal
         // to 'rhs', even though they are instantiated on different types.
@@ -618,41 +629,53 @@ template <class T1, class T2>
 inline
 bool operator==(const allocator<T1>& lhs,
                 const allocator<T2>& rhs);
-    // Return true 'lhs' and 'rhs' are proxies for the same 'bslma::Allocator'
-    // object.  This is a practical implementation of the STL requirement that
-    // two allocators compare equal if and only if memory allocated from one
-    // can be deallocated from the other.  Note that the two allocators need
-    // not be instantiated on the same type in order to compare equal.
+    // Return 'true' if the specified 'lhs' and 'rhs' are proxies for the same
+    // 'bslma::Allocator' object.  This is a practical implementation of the
+    // STL requirement that two allocators compare equal if and only if memory
+    // allocated from one can be deallocated from the other.  Note that the two
+    // allocators need not be instantiated on the same type in order to compare
+    // equal.
 
 template <class T1, class T2>
 inline
 bool operator!=(const allocator<T1>& lhs,
                 const allocator<T2>& rhs);
-    // Return '!(lhs == rhs)'.
+    // Return 'true' unless the specified 'lhs' and 'rhs' are proxies for the
+    // same 'bslma::Allocator' object, in which case return 'false'.  This is a
+    // practical implementation of the STL requirement that two allocators
+    // compare equal if and only if memory allocated from one can be
+    // deallocated from the other.  Note that the two allocators need not be
+    // instantiated on the same type in order to compare equal.
 
-template <class T>
+
+template <class TYPE>
 inline
-bool operator==(const allocator<T>&                  lhs,
+bool operator==(const allocator<TYPE>&               lhs,
                 const BloombergLP::bslma::Allocator *rhs);
-    // Return true if 'lhs.mechanism() == rhs'.
+    // Return 'true' if the specified 'lhs' is a proxy for the specifed 'rhs',
+    // and 'false' otherwise.
 
-template <class T>
+template <class TYPE>
 inline
-bool operator!=(const allocator<T>&                  lhs,
+bool operator!=(const allocator<TYPE>&               lhs,
                 const BloombergLP::bslma::Allocator *rhs);
-    // Return '!(lhs == rhs)'.
+    // Return 'true' unless the specified 'lhs' is a proxy for the specifed
+    // 'rhs', in which case return 'false'.
 
-template <class T>
+
+template <class TYPE>
 inline
 bool operator==(const BloombergLP::bslma::Allocator *lhs,
-                const allocator<T>&                  rhs);
-    // Return true if 'lhs == rhs.mechanism()'.
+                const allocator<TYPE>&               rhs);
+    // Return 'true' if the specified 'rhs' is a proxy for the specifed 'lhs',
+    // and 'false' otherwise.
 
-template <class T>
+template <class TYPE>
 inline
 bool operator!=(const BloombergLP::bslma::Allocator *lhs,
-                const allocator<T>&                  rhs);
-    // Return '!(lhs == rhs)'.
+                const allocator<TYPE>&               rhs);
+    // Return 'true' unless the specified 'rhs' is a proxy for the specifed
+    // 'lhs', in which case return 'false'.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -663,89 +686,99 @@ bool operator!=(const BloombergLP::bslma::Allocator *lhs,
                              // ---------------
 
 // LOW-LEVEL ACCESSORS
-template <class T>
+template <class TYPE>
 inline
-BloombergLP::bslma::Allocator *allocator<T>::mechanism() const
+BloombergLP::bslma::Allocator *allocator<TYPE>::mechanism() const
 {
     return d_mechanism;
 }
 
 // CREATORS
-template <class T>
+template <class TYPE>
 inline
-allocator<T>::allocator()
+allocator<TYPE>::allocator()
 : d_mechanism(BloombergLP::bslma::Default::defaultAllocator())
 {
 }
 
-template <class T>
+template <class TYPE>
 inline
-allocator<T>::allocator(BloombergLP::bslma::Allocator *mechanism)
+allocator<TYPE>::allocator(BloombergLP::bslma::Allocator *mechanism)
 : d_mechanism(BloombergLP::bslma::Default::allocator(mechanism))
 {
 }
 
-template <class T>
+template <class TYPE>
 inline
-allocator<T>::allocator(const allocator& original)
+allocator<TYPE>::allocator(const allocator& original)
 : d_mechanism(original.mechanism())
 {
 }
 
-template <class T>
-template <class U>
+template <class TYPE>
+template <class ANY_TYPE>
 inline
-allocator<T>::allocator(const allocator<U>& rhs)
+allocator<TYPE>::allocator(const allocator<ANY_TYPE>& rhs)
 : d_mechanism(rhs.mechanism())
 {
 }
 
 // MANIPULATORS
-template <class T>
+template <class TYPE>
 inline
-typename allocator<T>::pointer
-allocator<T>::allocate(typename allocator::size_type  n,
-                       const void                    *hint)
+typename allocator<TYPE>::pointer
+allocator<TYPE>::allocate(typename allocator::size_type  n,
+                          const void                    *hint)
 {
     BSLS_ASSERT_SAFE(n <= this->max_size());
 
-    // Both 'bslma::Allocator::size_type' and 'allocator<T>::size_type' have
-    // the same width; however, the former is signed, but the latter is not.
-    // Hence the cast in the argument of 'allocate' below.
-
-    (void) hint;  // suppress warning
-    return static_cast<pointer>(d_mechanism->allocate(
-                     BloombergLP::bslma::Allocator::size_type(n * sizeof(T))));
+    (void) hint;  // suppress unused parameter warning
+    return static_cast<pointer>(d_mechanism->allocate(n * sizeof(TYPE)));
 }
 
-template <class T>
+template <class TYPE>
 inline
-void allocator<T>::deallocate(typename allocator::pointer   p,
-                              typename allocator::size_type n)
+void allocator<TYPE>::deallocate(typename allocator::pointer   p,
+                                 typename allocator::size_type n)
 {
-    (void) n;  // suppress warning
+    (void) n;  // suppress unsued parameter warning
     d_mechanism->deallocate(p);
 }
 
-template <class T>
+template <class TYPE>
 inline
-void allocator<T>::construct(typename allocator::pointer p,
-                             const T&                    val)
+void allocator<TYPE>::construct(typename allocator::pointer p,
+                                const TYPE&                 val)
 {
-    new(static_cast<void*>(p)) T(val);
+    new(static_cast<void*>(p)) TYPE(val);
 }
 
-template <class T>
+template <class TYPE>
 inline
-void allocator<T>::destroy(typename allocator::pointer p)
+void allocator<TYPE>::destroy(typename allocator::pointer p)
 {
-    p->~T();
+    p->~TYPE();
 }
 
 // ACCESSORS
-template <class T>
+template <class TYPE>
 inline
-typename allocator<T>::size_type allocator<T>::max_size() const
+typename allocator<TYPE>::const_pointer
+allocator<TYPE>::address(const_reference x) const
+{
+    return BSLS_UTIL_ADDRESSOF(x);
+}
+
+template <class TYPE>
+inline
+typename allocator<TYPE>::pointer allocator<TYPE>::address(reference x) const
+{
+    return BSLS_UTIL_ADDRESSOF(x);
+}
+
+template <class TYPE>
+inline
+typename allocator<TYPE>::size_type allocator<TYPE>::max_size() const
 {
     // Return the largest value, 'v', such that 'v * sizeof(T)' fits in a
     // 'size_type'.
@@ -758,25 +791,9 @@ typename allocator<T>::size_type allocator<T>::max_size() const
                                                          std::size_t>::value));
 
     static const std::size_t MAX_NUM_BYTES    = ~std::size_t(0);
-    static const std::size_t MAX_NUM_ELEMENTS =
-                              std::size_t(MAX_NUM_BYTES) / sizeof(T);
+    static const std::size_t MAX_NUM_ELEMENTS = MAX_NUM_BYTES / sizeof(TYPE);
 
     return MAX_NUM_ELEMENTS;
-}
-
-template <class T>
-inline
-typename allocator<T>::pointer allocator<T>::address(reference x) const
-{
-    return BSLS_UTIL_ADDRESSOF(x);
-}
-
-template <class T>
-inline
-typename allocator<T>::const_pointer allocator<T>::address(const_reference x)
-                                                                          const
-{
-    return BSLS_UTIL_ADDRESSOF(x);
 }
 
                           // ---------------------
@@ -813,9 +830,9 @@ allocator<void>::allocator(const allocator<void>& original)
 {
 }
 
-template <class U>
+template <class ANY_TYPE>
 inline
-allocator<void>::allocator(const allocator<U>& rhs)
+allocator<void>::allocator(const allocator<ANY_TYPE>& rhs)
 : d_mechanism(rhs.mechanism())
 {
 }
@@ -835,40 +852,52 @@ bool operator!=(const allocator<T1>& lhs, const allocator<T2>& rhs)
     return ! (lhs == rhs);
 }
 
-template <class T>
+template <class TYPE>
 inline
-bool operator==(const allocator<T>&                  lhs,
+bool operator==(const allocator<TYPE>&               lhs,
                 const BloombergLP::bslma::Allocator *rhs)
 {
     return lhs.mechanism() == rhs;
 }
 
-template <class T>
+template <class TYPE>
 inline
-bool operator!=(const allocator<T>&                  lhs,
+bool operator!=(const allocator<TYPE>&               lhs,
                 const BloombergLP::bslma::Allocator *rhs)
 {
     return ! (lhs == rhs);
 }
 
-template <class T>
+template <class TYPE>
 inline
 bool operator==(const BloombergLP::bslma::Allocator *lhs,
-                const allocator<T>&                  rhs)
+                const allocator<TYPE>&               rhs)
 {
     return lhs == rhs.mechanism();
 }
 
-template <class T>
+template <class TYPE>
 inline
 bool operator!=(const BloombergLP::bslma::Allocator *lhs,
-                const allocator<T>&                  rhs)
+                const allocator<TYPE>&               rhs)
 {
     return ! (lhs == rhs);
 }
 
 }  // close namespace bsl
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+namespace BloombergLP {
+namespace bslma {
+
+template <class TYPE>
+struct UsesBslmaAllocator< ::bsl::allocator<TYPE> > : bsl::false_type {};
+
+}  // close traits namespace
+}  // close enterprise namespace
 #endif
 
 // ----------------------------------------------------------------------------
