@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for classes with STL-like iterators.
+//@PURPOSE: Provide a trait to mark classes as having STL-like iterators.
 //
 //@CLASSES:
 //  bslalg::TypeTraitHasStlIterators: has STL-like iterators

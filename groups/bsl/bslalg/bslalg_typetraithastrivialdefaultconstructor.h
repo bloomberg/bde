@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for class with trivial default ctor.
+//@PURPOSE: Provide a trait to mark classes as having a trivial default ctor.
 //
 //@CLASSES:
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor

@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide facilities for identifying 'std::pair'-like classes.
+//@PURPOSE: Provide a trait to mark classes as similar to 'std::pair'.
 //
 //@DEPRECATED: Do not use.
 //
