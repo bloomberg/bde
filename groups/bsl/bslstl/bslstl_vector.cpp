@@ -20,8 +20,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // all templates in a non-templated utility class), the 'swap' methods is
 // implemented below since its definition does not care about the value type.
 
-#include <bslstl_iterator.h>   // for testing only
 #include <bsls_assert.h>
+
+#include <bslstl_forwarditerator.h>   // for testing only
+#include <bslstl_iterator.h>          // for testing only
+#include <bslstl_list.h>              // for testing only
 
 namespace bsl {
 

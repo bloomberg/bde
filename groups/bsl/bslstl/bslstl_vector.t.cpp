@@ -5,15 +5,16 @@
 #include <bslstl_allocator.h>
 #include <bslstl_forwarditerator.h>
 #include <bslstl_iterator.h>
+#include <bslstl_list.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>   // for testing only
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_newdeleteallocator.h>
-#include <bslma_testallocator.h>           // for testing only
-#include <bslma_testallocatorexception.h>  // for testing only
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
 
-#include <bslmf_issame.h>                  // for testing only
+#include <bslmf_issame.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -23,7 +24,7 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
-#include <bsls_stopwatch.h>                // for testing only
+#include <bsls_stopwatch.h>
 #include <bsls_util.h>
 
 #include <bsltf_nontypicaloverloadstesttype.h>
@@ -1417,6 +1418,40 @@ struct TestDriver {
                                // TEST APPARATUS
                                // --------------
 
+template<char N>
+char TestFunc()
+{
+    return N;
+}
+
+template <class TYPE>
+char lookupValue(char index)
+{
+    return index;
+}
+
+typedef char (*charFnPtr) ();
+
+charFnPtr lookupValue(char index)
+{
+    switch (index) {
+        case VA:
+            return TestFunc<'A'>;
+            break;
+        case VB:
+            return TestFunc<'B'>;
+            break;
+        case VC:
+            return TestFunc<'C'>;
+            break;
+        case VD:
+            return TestFunc<'D'>;
+            break;
+        default:
+            return TestFunc<'E'>;
+    }
+}
+
 template <class TYPE, class ALLOC>
 int TestDriver<TYPE,ALLOC>::getValues(const TYPE **valuesPtr)
 {
@@ -1424,11 +1459,11 @@ int TestDriver<TYPE,ALLOC>::getValues(const TYPE **valuesPtr)
                                       &bslma::NewDeleteAllocator::singleton());
 
     static TYPE values[5]; // avoid DEFAULT_VALUE and UNINITIALIZED_VALUE
-    values[0] = TYPE(VA);
-    values[1] = TYPE(VB);
-    values[2] = TYPE(VC);
-    values[3] = TYPE(VD);
-    values[4] = TYPE(VE);
+    values[0] = TYPE(lookupValue<TYPE>(VA));
+    values[1] = TYPE(lookupValue<TYPE>(VB));
+    values[2] = TYPE(lookupValue<TYPE>(VC));
+    values[3] = TYPE(lookupValue<TYPE>(VD));
+    values[4] = TYPE(lookupValue<TYPE>(VE));
 
     const int NUM_VALUES = 5;
 
@@ -9229,7 +9264,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -9272,6 +9307,46 @@ int main(int argc, char *argv[])
             ASSERT(3 == m1.theValue(1, 0));
             ASSERT(4 == m1.theValue(1, 1));
         }
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // VECTORS OF FUNCTION PTR BUG
+        //
+        // Concerns:
+        //   In DRQS 34693876, it was observed that function pointers cannot
+        //   be cast into 'void *' pointers. A 'reinterpret_cast' is required
+        //   in this case. This is handled in 'bslalg_arrayprimitives'.
+        //
+        // Diagnosis:
+        //   Vector is specialized for ptr types, and the specialization
+        //   assumes that any pointer type can be cast or copy c'ted into a
+        //   'void *', but for function ptrs on g++, this is not the case.
+        //   Had to fix bslalg_arrayprimitives to deal with this, this test
+        //   verifies that the fix worked.  DRQS 34693876.
+        // --------------------------------------------------------------------
+
+        const charFnPtr values[] = { TestFunc<VA>, TestFunc<VB>, TestFunc<VC>,
+                                     TestFunc<VD> };
+        const int NUM_VALUES = sizeof values / sizeof *values;
+
+        list<charFnPtr> l;
+
+        l.push_back(TestFunc<VA>);
+        l.push_back(TestFunc<VB>);
+        l.push_back(TestFunc<VC>);
+        l.push_back(TestFunc<VD>);
+
+        vector<charFnPtr> w(l.begin(), l.end());
+        ASSERT(4 == w.size());
+
+        // Check the elements of w.
+        vector<charFnPtr>::iterator wit = w.begin();
+        for (list<charFnPtr>::iterator it = l.begin(); it != l.end(); ++it) {
+            ASSERT(wit != w.end());
+            ASSERT(*it == *wit);
+            ++wit;
+        }
+        ASSERT(wit == w.end());
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -9468,6 +9543,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase17();
 
+        if (verbose) printf("\n... with pointer to function.\n");
+        TestDriver<void (*)()>::testCase17();
+
         if (verbose) printf("\nTesting Value Emplacement"
                             "\n=======================\n");
 
@@ -9597,6 +9675,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase15();
 
+        if (verbose) printf("\n... with pointer to function.\n");
+        TestDriver<void (*)()>::testCase15();
+
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing Element Access"
                             "\n===============================\n");
@@ -9654,6 +9735,9 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase13();
+
+        if (verbose) printf("\n... with pointer to function.\n");
+        TestDriver<void (*)()>::testCase13();
 
         if (verbose) printf("\nTesting Initial-Range Assignment"
                             "\n================================\n");
