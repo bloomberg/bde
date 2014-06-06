@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for bit-wise moveable classes.
+//@PURPOSE: Provide a trait to mark classes as bit-wise moveable.
 //
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseMoveable: bit-wise moveable trait
