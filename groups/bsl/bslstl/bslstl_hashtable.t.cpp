@@ -3344,7 +3344,7 @@ void ThrowingEqualityComparator<TYPE>::setThrowInterval(size_t value)
 template <class TYPE>
 inline
 bool ThrowingEqualityComparator<TYPE>::operator() (const TYPE& lhs,
-                                               const TYPE& rhs) const
+                                                   const TYPE& rhs) const
 {
     ++d_count;
 
@@ -3775,24 +3775,24 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objectAllocator);
-          *objPtr = new (*fa) Obj(objAlloc);
-          return objAlloc;                                            // RETURN
+        ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objectAllocator);
+        *objPtr = new (*fa) Obj(objAlloc);
+        return objAlloc;                                              // RETURN
       } break;
       case 'b': {
-          *objPtr = new (*fa) Obj();
-          return ALLOCATOR();                                         // RETURN
+        *objPtr = new (*fa) Obj();
+        return ALLOCATOR();                                           // RETURN
       } break;
       case 'c': {
-          ALLOCATOR result = ALLOCATOR();
-          *objPtr = new (*fa) Obj(result);
-          return result;                                              // RETURN
+        ALLOCATOR result = ALLOCATOR();
+        *objPtr = new (*fa) Obj(result);
+        return result;                                                // RETURN
       } break;
       case 'd': {
-          ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(
+        ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(
                                            bslma::Default::defaultAllocator());
-          *objPtr = new (*fa) Obj(objAlloc);
-          return objAlloc;                                            // RETURN
+        *objPtr = new (*fa) Obj(objAlloc);
+        return objAlloc;                                              // RETURN
       } break;
     }
 
@@ -3823,39 +3823,39 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objectAllocator);
-          *objPtr = new (*fa) Obj(hash,
-                                 compare,
-                                 initialBuckets,
-                                 initialMaxLoadFactor,
-                                 objAlloc);
-          return objAlloc;                                            // RETURN
+        ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(objectAllocator);
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                objAlloc);
+        return objAlloc;                                              // RETURN
       } break;
       case 'b': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor);
-          return ALLOCATOR();                                         // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor);
+        return ALLOCATOR();                                           // RETURN
       } break;
       case 'c': {
-          ALLOCATOR result = ALLOCATOR();
-          *objPtr = new (*fa) Obj(hash,
-                                 compare,
-                                 initialBuckets,
-                                 initialMaxLoadFactor,
-                                 result);
-          return result;                                              // RETURN
+        ALLOCATOR result = ALLOCATOR();
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                result);
+        return result;                                                // RETURN
       } break;
       case 'd': {
-          ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(
+        ALLOCATOR objAlloc = MakeAllocator<ALLOCATOR>::make(
                                            bslma::Default::defaultAllocator());
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor,
-                                  objAlloc);
-          return objAlloc;                                            // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                objAlloc);
+        return objAlloc;                                              // RETURN
       } break;
     }
 
@@ -3889,20 +3889,20 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          *objPtr = new (*fa) Obj(objectAllocator);
-          return objectAllocator;                                     // RETURN
+        *objPtr = new (*fa) Obj(objectAllocator);
+        return objectAllocator;                                       // RETURN
       } break;
       case 'b': {
-          *objPtr = new (*fa) Obj();
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj();
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
       case 'c': {
-          *objPtr = new (*fa) Obj(static_cast<bslma::Allocator *>(0));
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(static_cast<bslma::Allocator *>(0));
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
       case 'd': {
-          *objPtr = new (*fa) Obj(bslma::Default::defaultAllocator());
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(bslma::Default::defaultAllocator());
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
     }
 
@@ -3940,35 +3940,35 @@ makeObject(Obj                  **objPtr,
 {
     switch (config) {
       case 'a': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor,
-                                  objectAllocator);
-          return objectAllocator;                                     // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                objectAllocator);
+        return objectAllocator;                                       // RETURN
       } break;
       case 'b': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor);
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor);
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
       case 'c': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor,
-                                  static_cast<bslma::Allocator *>(0));
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                static_cast<bslma::Allocator *>(0));
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
       case 'd': {
-          *objPtr = new (*fa) Obj(hash,
-                                  compare,
-                                  initialBuckets,
-                                  initialMaxLoadFactor,
-                                  bslma::Default::defaultAllocator());
-          return AllocatorType(bslma::Default::allocator());          // RETURN
+        *objPtr = new (*fa) Obj(hash,
+                                compare,
+                                initialBuckets,
+                                initialMaxLoadFactor,
+                                bslma::Default::defaultAllocator());
+        return AllocatorType(bslma::Default::allocator());            // RETURN
       } break;
     }
 
@@ -4268,6 +4268,27 @@ bool expectPoolToAllocate(size_t n)
     return (((n - 1) & n) == 0);  // Allocate when 'n' is a power of 2
 }
 
+template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
+Link* insertElement(
+                  bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
+                  const typename KEY_CONFIG::ValueType&              value)
+    // Insert an element having the specified 'value' into the specified
+    // 'hashTable' and return the address of the new node, unless the insertion
+    // would cause the hash table to exceed its 'maxLoadFactor' and rehash, in
+    // which case return a null pointer value.  Return a null pointer value if
+    // the 'hashTable' address is a null pointer value.
+{
+    if (!hashTable) {
+        return 0;                                                     // RETURN
+    }
+
+    if (hashTable->size() == hashTable->rehashThreshold()) {
+        return 0;                                                     // RETURN
+    }
+
+    return hashTable->insert(value);
+}
+
 template <class SIZE_TYPE>
 SIZE_TYPE predictNumBuckets(SIZE_TYPE length, float maxLoadFactor)
     // Return the minimum number of buckets necessary to support the specified
@@ -4414,27 +4435,6 @@ int verifyListContents(Link                                 *containerList,
     }
 
     return SUCCESS;
-}
-
-template <class KEY_CONFIG, class HASH, class EQUAL, class ALLOC>
-Link* insertElement(
-                  bslstl::HashTable<KEY_CONFIG, HASH, EQUAL, ALLOC> *hashTable,
-                  const typename KEY_CONFIG::ValueType&              value)
-    // Insert an element having the specified 'value' into the specified
-    // 'hashTable' and return the address of the new node, unless the insertion
-    // would cause the hash table to exceed its 'maxLoadFactor' and rehash, in
-    // which case return a null pointer value.  Return a null pointer value if
-    // the 'hashTable' address is a null pointer value.
-{
-    if (!hashTable) {
-        return 0;                                                     // RETURN
-    }
-
-    if (hashTable->size() == hashTable->rehashThreshold()) {
-        return 0;                                                     // RETURN
-    }
-
-    return hashTable->insert(value);
 }
 
 }  // close unnamed namespace
@@ -5748,7 +5748,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase2()
 
     for (int lfi = 0; lfi < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++lfi) {
     for (SizeType ti = 0; ti < MAX_LENGTH; ++ti) {
-        const float    MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
+        const float  MAX_LF = DEFAULT_MAX_LOAD_FACTOR[lfi];
         const size_t LENGTH = ti;
 
         for (const char *cfg = ALLOC_SPEC; *cfg; ++cfg) {
