@@ -1021,6 +1021,18 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args> void emplace_back(Args&&... args);
+        // Append a new element to the end of this vector, constructed directly
+        // in place from the specified 'args'. The 'args' are passed to the
+        // constructor using "perfect forwarding", meaning move semantics will
+        // be utilized for rvalued elements that implement them. The
+        // combination of constructing in place and "perfect forwarding" means
+        // that when move semantics are availible, elements in 'args' will not
+        // be copied at all. When move semantics are not availible, elements in
+        // 'args' will be copied only once. This method provides the strong
+        // exception safety guarentee, so the state of this object will not be
+        // changed if an exception is thrown (such as when allocating memory,
+        // or from operations of 'VALUE_TYPE').
+
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
@@ -1071,12 +1083,11 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     void push_back(const VALUE_TYPE& value);
         // Append a copy of the specified 'value' at the end of this vector.
-        // If 'value' has move semantics, then its value is valid but
-        // unspecified upon returning from this function.  Note that this
-        // method offers full guarantee of rollback in case an exception is
-        // thrown other than by the 'VALUE_TYPE' copy constructor or assignment
-        // operator.  This method requires that the (template parameter) type
-        // 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
+        // This method provides the strong exception safety guarentee, so the
+        // state of this object will not be changed if an exception is thrown
+        // (such as when allocating memory, or from operations of
+        // 'VALUE_TYPE'). This method requires that the (template parameter)
+        // type 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
         // 'VALUE_TYPE'}).
 
     void pop_back();
