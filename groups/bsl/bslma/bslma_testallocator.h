@@ -809,7 +809,8 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
             if (veryVeryVerbose) {                                          \
                 std::printf("\t*** BSLMA_EXCEPTION: "                       \
                             "alloc limit = %d, last alloc size = %d ***\n", \
-                            bslmaExceptionCounter, (int)e.numBytes());      \
+                            bslmaExceptionCounter,                          \
+                            static_cast<int>(e.numBytes()));                \
             }                                                               \
             bslmaExceptionTestAllocator.setAllocationLimit(                 \
                                                  ++bslmaExceptionCounter);  \
