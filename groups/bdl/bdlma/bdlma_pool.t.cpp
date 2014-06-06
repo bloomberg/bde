@@ -52,11 +52,11 @@ using namespace bsl;
 // 'release' on one pool, and allow the other pool to go out of scope.  Verify
 // that both test allocators indicate that all memory is released.
 //-----------------------------------------------------------------------------
-// [ 4] bdlma::Pool(bs, basicAllocator);
-// [ 4] bdlma::Pool(bs, gs, basicAllocator);
-// [ 3] bdlma::Pool(bs, gs, mbpc, basicAllocator);
-// [ 6] ~bdlma::Pool();
-// [ 2] void *allocate();
+// [ 4] Pool(bs, basicAllocator = 0);
+// [ 4] Pool(bs, gs, basicAllocator = 0);
+// [ 3] Pool(bs, gs, mbpc, basicAllocator = 0);
+// [ 6] ~Pool();
+// [ 4] void *allocate();
 // [ 5] void deallocate(address);
 // [ 9] template <class TYPE> void deleteObject(const TYPE *object);
 // [10] template <class TYPE> void deleteObjectRaw(const TYPE *object);
@@ -68,7 +68,9 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [12] USAGE EXAMPLE
 // [ 2] 'allocate' returns memory of the correct block size.
-// [ 1] HELPER FUNCTIONS
+// [ 1] int blockSize(numBytes);
+// [ 1] int poolBlockSize(size);
+// [ 1] int growNumBlocks(numBlocks, maxNumBlocks);
 // [ *] CONCERN: Precondition violations are detected when enabled.
 
 //=============================================================================
@@ -111,9 +113,9 @@ void aSsErT(int c, const char *s, int i)
 #define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BDLS_TESTUTIL_L_  // current Line number
 
-// ============================================================================
+//=============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
 #define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
@@ -148,9 +150,9 @@ enum {
     MAX_CHUNK_SIZE     = 32   // from 'bdlma_pool.cpp'
 };
 
-//=============================================================================
+// ============================================================================
 //                      FILE-STATIC FUNCTIONS FOR TESTING
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 static
 int blockSize(int numBytes)
@@ -193,10 +195,10 @@ int poolBlockSize(int size)
     // 'size'.  The behavior is undefined unless '1 <= size'.
 {
     if (size <= static_cast<int>(sizeof(void *))) {
-        return sizeof(void *);
+        return sizeof(void *);                                        // RETURN
     }
     else {
-        return roundUp(size, bsls::AlignmentFromType<void *>::VALUE);
+        return roundUp(size, bsls::AlignmentFromType<void *>::VALUE); // RETURN
     }
 }
 
@@ -255,7 +257,7 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
 
       public:
         // CREATORS
-        my_PooledArray(bslma::Allocator *basicAllocator = 0);
+        explicit my_PooledArray(bslma::Allocator *basicAllocator = 0);
             // Create a pooled array that stores the 'TYPE' element values
             // "out-of-place".  Optionally specify a 'basicAllocator' used to
             // supply memory.  If 'basicAllocator' is 0, the currently
@@ -358,8 +360,8 @@ int growNumBlocks(int numBlocks, int maxNumBlocks)
 //           Additional Functionality Needed to Complete Usage Test Case
 //-----------------------------------------------------------------------------
 
-template <class T>
-ostream& operator<<(ostream& stream, const my_PooledArray<T>& array)
+template <class TYPE>
+ostream& operator<<(ostream& stream, const my_PooledArray<TYPE>& array)
 {
     stream << "[ ";
     for (int i = 0; i < array.length(); ++i) {
@@ -404,7 +406,7 @@ void deleteMyType(bdlma::Pool *pool, my_Type *p)
 }
 
 //-----------------------------------------------------------------------------
-// HELPER CLASS FOR TESTING EXCEPTION SAFETY OF OVERLOADED OPERATOR NEW
+//  HELPER CLASS FOR TESTING EXCEPTION SAFETY OF OVERLOADED OPERATOR NEW
 //-----------------------------------------------------------------------------
 
 class my_ClassThatMayThrowFromConstructor {
@@ -973,8 +975,8 @@ int main(int argc, char *argv[])
                 // By observing that the number of allocations remains at one,
                 // we confirm that the memory obtained from the pool by
                 // operator 'new' has been returned to the pool on exception.
-                // Had it not been returned, the call to 'allocate' would
-                // have required another allocation from the test allocator.
+                // Had it not been returned, the call to 'allocate' would have
+                // required another allocation from the test allocator.
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1064,7 +1066,7 @@ int main(int argc, char *argv[])
         //   pools.
         //
         // Testing:
-        //   ~bdlma::Pool();
+        //   ~Pool();
         //   void release();
         // --------------------------------------------------------------------
 
@@ -1252,8 +1254,8 @@ int main(int argc, char *argv[])
         //   the allocator for the reference pool.
         //
         // Testing:
-        //   bdlma::Pool(bs, basicAllocator = 0);
-        //   bdlma::Pool(bs, gs, basicAllocator = 0);
+        //   Pool(bs, basicAllocator = 0);
+        //   Pool(bs, gs, basicAllocator = 0);
         //   void *allocate();
         // --------------------------------------------------------------------
 
@@ -1397,7 +1399,7 @@ int main(int argc, char *argv[])
         //   expected size.
         //
         // Testing:
-        //   bdlma::Pool(bs, gs, mbps, basicAllocator);
+        //   Pool(bs, gs, mbps, basicAllocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "'growthStrategy' TEST" << endl
@@ -1478,56 +1480,56 @@ int main(int argc, char *argv[])
             const bslma::TestAllocator& TA = testAllocator;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              Obj mX(BLOCK_SIZE, STRATEGY, MAXBLOCKS, &testAllocator);
+                Obj mX(BLOCK_SIZE, STRATEGY, MAXBLOCKS, &testAllocator);
 
-              int numAllocations = 0;
+                int numAllocations = 0;
 
-              // If geometric, grow till constant size first.
-              if (GEO == STRATEGY) {
-                  int ri = INITIAL_CHUNK_SIZE;
+                // If geometric, grow till constant size first.
+                if (GEO == STRATEGY) {
+                    int ri = INITIAL_CHUNK_SIZE;
 
-                  while (ri < MAXBLOCKS) {
-                      numAllocations = TA.numAllocations();
+                    while (ri < MAXBLOCKS) {
+                        numAllocations = TA.numAllocations();
 
-                      // Use all memory blocks from current chunk.
-                      char *lastAddr = 0;
-                      for (int j = 0; j < ri; ++j) {
-                          char *addr = (char *)mX.allocate();
-                          if (j) {
-                              int EXP  = poolBlockSize(BLOCK_SIZE);
-                              int size = addr - lastAddr;
-                              LOOP2_ASSERT(EXP, size, EXP == size);
-                          }
-                          lastAddr = addr;
-                      }
+                        // Use all memory blocks from current chunk.
+                        char *lastAddr = 0;
+                        for (int j = 0; j < ri; ++j) {
+                            char *addr = (char *)mX.allocate();
+                            if (j) {
+                                int EXP  = poolBlockSize(BLOCK_SIZE);
+                                int size = addr - lastAddr;
+                                LOOP2_ASSERT(EXP, size, EXP == size);
+                            }
+                            lastAddr = addr;
+                        }
 
-                      LOOP_ASSERT(ri, TA.numAllocations()
+                        LOOP_ASSERT(ri, TA.numAllocations()
                                                         == numAllocations + 1);
-                      ri <<= 1;
-                  }
-              }
+                        ri <<= 1;
+                    }
+                }
 
-              // Test for constant growth.
+                // Test for constant growth.
 
-              const int NUM_REPLENISH = 3;
-              for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
-                  numAllocations = TA.numAllocations();
+                const int NUM_REPLENISH = 3;
+                for (int ri = 0; ri < NUM_REPLENISH; ++ri) {
+                    numAllocations = TA.numAllocations();
 
-                  // Use all memory blocks from current chunk.
-                  char *lastAddr = 0;
-                  for (int j = 0; j < MAXBLOCKS; ++j) {
-                      char *addr = (char *)mX.allocate();
-                      if (j) {
-                          int EXP  = poolBlockSize(BLOCK_SIZE);
-                          int size = addr - lastAddr;
-                          LOOP2_ASSERT(EXP, size, EXP == size);
-                      }
-                      lastAddr = addr;
-                  }
+                    // Use all memory blocks from current chunk.
+                    char *lastAddr = 0;
+                    for (int j = 0; j < MAXBLOCKS; ++j) {
+                        char *addr = (char *)mX.allocate();
+                        if (j) {
+                            int EXP  = poolBlockSize(BLOCK_SIZE);
+                            int size = addr - lastAddr;
+                            LOOP2_ASSERT(EXP, size, EXP == size);
+                        }
+                        lastAddr = addr;
+                    }
 
-                  LOOP_ASSERT(ri, TA.numAllocations() == numAllocations + 1);
-              }
-          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    LOOP_ASSERT(ri, TA.numAllocations() == numAllocations + 1);
+                }
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
 
         if (verbose) cout << "\nNegative Testing." << endl;
@@ -1563,8 +1565,8 @@ int main(int argc, char *argv[])
         //   block size (taking alignment considerations into account).
         //
         // Testing:
-        //   void *allocate();
         //   int blockSize() const;
+        //   'allocate' returns memory of the correct block size.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "ALLOCATE TEST" << endl
@@ -1579,31 +1581,31 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator(veryVeryVerbose);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-          BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-            const int BLOCK_SIZE = DATA[ti];
-            Obj mX(BLOCK_SIZE,
-                   bsls::BlockGrowth::BSLS_CONSTANT,
-                   NUM_BLOCKS,
-                   &testAllocator);
-            const Obj& X = mX;
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+                const int BLOCK_SIZE = DATA[ti];
+                Obj mX(BLOCK_SIZE,
+                       bsls::BlockGrowth::BSLS_CONSTANT,
+                       NUM_BLOCKS,
+                       &testAllocator);
+                const Obj& X = mX;
 
-            ASSERT(BLOCK_SIZE == X.blockSize());
+                ASSERT(BLOCK_SIZE == X.blockSize());
 
-            char *lastP = 0;
-            for (int oi = 0; oi < NUM_BLOCKS; ++oi) {
-                char *p = (char *) mX.allocate();
-                if (oi) {
-                    ASSERT(lastP);
+                char *lastP = 0;
+                for (int oi = 0; oi < NUM_BLOCKS; ++oi) {
+                    char *p = (char *) mX.allocate();
+                    if (oi) {
+                        ASSERT(lastP);
 
-                    int       size = p - lastP;
-                    const int EXP  = poolBlockSize(BLOCK_SIZE);
+                        int       size = p - lastP;
+                        const int EXP  = poolBlockSize(BLOCK_SIZE);
 
-                    if (veryVerbose) { T_ P_(size) T_ P(EXP) }
-                    LOOP2_ASSERT(ti, oi, EXP == size);
+                        if (veryVerbose) { T_ P_(size) T_ P(EXP) }
+                        LOOP2_ASSERT(ti, oi, EXP == size);
+                    }
+                    lastP = p;
                 }
-                lastP = p;
-            }
-          } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
       } break;
       case 1: {

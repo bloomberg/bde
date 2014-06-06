@@ -9,6 +9,11 @@ BSLS_IDENT_RCSID(bdlma_pool_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 
+namespace BloombergLP {
+namespace bdlma {
+
+namespace {
+
 // TYPES
 struct Link {
     // This 'struct' implements a link data structure that stores the address
@@ -29,18 +34,7 @@ enum {
     MAX_CHUNK_SIZE     = 32   // maximum number of blocks per chunk
 };
 
-// STATIC METHODS
-static inline
-int roundUp(int x, int y)
-    // Round up the specified 'x' to the nearest whole integer multiple of the
-    // specified 'y'.  The behavior is undefined unless '0 <= x' and '1 <= y'.
-{
-    BSLS_ASSERT(0 <= x);
-    BSLS_ASSERT(1 <= y);
-
-    return (x + y - 1) / y * y;
-}
-
+// LOCAL FUNCTIONS
 static
 void *replenishImp(BloombergLP::bdlma::InfrequentDeleteBlockList *blockList,
                    int                                            blockSize,
@@ -70,8 +64,18 @@ void *replenishImp(BloombergLP::bdlma::InfrequentDeleteBlockList *blockList,
     return begin;
 }
 
-namespace BloombergLP {
-namespace bdlma {
+static inline
+int roundUp(int x, int y)
+    // Round up the specified 'x' to the nearest whole integer multiple of the
+    // specified 'y'.  The behavior is undefined unless '0 <= x' and '1 <= y'.
+{
+    BSLS_ASSERT(0 <= x);
+    BSLS_ASSERT(1 <= y);
+
+    return (x + y - 1) / y * y;
+}
+
+}  // close unnamed namepace
 
                         // ----------
                         // class Pool
