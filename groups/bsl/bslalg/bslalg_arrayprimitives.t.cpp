@@ -18,13 +18,14 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <cstdio>
-#include <cstdlib>     // atoi()
-#include <cstring>     // strlen()
 #include <ctype.h>     // isalpha()
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>    // atoi()
+#include <string.h>    // strlen()
+
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -120,6 +121,198 @@ void aSsErT(bool b, const char *s, int i)
 # define BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG
 #endif
 //=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+#pragma bde_verify push     // Relax formatting rules for clearer exposition
+#pragma bde_verify -FABC01  // Functions in descriptive order, not alphabetic
+
+namespace {
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Defining a Vector-Like Type
+/// - - - - - - - - - - - - - - - - - - -
+// Suppose we want to define a STL-vector-like type.  One requirement is that
+// an object of this vector should forward its allocator to its contained
+// elements when appropriate.  Another requirement is that the vector should
+// take advantage of the optimizations available for certain traits of the
+// contained element type.  For example, if the contained element type has the
+// 'bslalg::TypeTraitBitwiseMoveable' trait, moving an element in a vector can
+// be done using 'memcpy' instead of copy construction.
+//
+// We can utilize the class methods provided by 'bslalg::ArrayPrimitives' to
+// satisfy the above requirements.  Unlike 'bslalg::ScalarPrimitives', which
+// operates on a single element, 'bslalg::ArrayPrimitives' operates on arrays,
+// which will further help simplify our implementation.
+//
+// First, we create an elided definition of the class template 'MyVector':
+//..
+    template <class TYPE>
+    class MyVector {
+        // This class implements a vector of elements of the (template
+        // parameter) 'TYPE', which must be copy constructable.  Note that for
+        // the brevity of the usage example, this class does not provide any
+        // Exception-Safety guarantee.
+
+        // DATA
+        TYPE             *d_array_p;     // pointer to the allocated array
+        int               d_capacity;    // capacity of the allocated array
+        int               d_size;        // number of objects
+        bslma::Allocator *d_allocator_p; // allocator pointer (held, not owned)
+
+      public:
+        // TYPE TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(
+            MyVector,
+            BloombergLP::bslmf::IsBitwiseMoveable);
+
+        // CREATORS
+        explicit MyVector(bslma::Allocator *basicAllocator = 0)
+            // Construct a 'MyVector' object having a size of 0 and and a
+            // capacity of 0.  Optionally specify a 'basicAllocator' used to
+            // supply memory.  If 'basicAllocator' is 0, the currently
+            // installed default allocator is used.
+        : d_array_p(0)
+        , d_capacity(0)
+        , d_size(0)
+        , d_allocator_p(bslma::Default::allocator(basicAllocator))
+        {
+        }
+
+        MyVector(const MyVector&   original,
+                 bslma::Allocator *basicAllocator = 0);
+            // Create a 'MyVector' object having the same value as the
+            // specified 'original' object.  Optionally specify a
+            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+            // 0, the currently installed default allocator is used.
+
+        // ...
+
+        // MANIPULATORS
+        void reserve(int minCapacity);
+            // Change the capacity of this vector to at least the specified
+            // 'minCapacity' if it is greater than the vector's current
+            // capacity.
+
+        void insert(int dstIndex, int numElements, const TYPE& value);
+            // Insert, into this vector, the specified 'numElements' of the
+            // specified 'value' at the specified 'dstIndex'.  The behavior is
+            // undefined unless '0 <= dstIndex <= size()'.
+
+        // ACCESSORS
+        const TYPE& operator[](int position) const
+            // Return a reference providing non-modifiable access to the
+            // element at the specified 'position' in this vector.
+        {
+            return d_array_p[position];
+        }
+
+        int size() const
+            // Return the size of this vector.
+        {
+            return d_size;
+        }
+    };
+//..
+// Then, we implement the copy constructor of 'MyVector':
+//..
+    template <class TYPE>
+    MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
+                             bslma::Allocator      *basicAllocator)
+    : d_array_p(0)
+    , d_capacity(0)
+    , d_size(0)
+    , d_allocator_p(bslma::Default::allocator(basicAllocator))
+    {
+        reserve(original.d_size);
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::copyConstruct' class method to
+// copy each element from 'original.d_array_p' to 'd_array_p' (When
+// appropriate, this class method passes this vector's allocator to the copy
+// constructor of 'TYPE' or uses bit-wise copy.):
+//..
+        bslalg::ArrayPrimitives::copyConstruct(
+                                          d_array_p,
+                                          original.d_array_p,
+                                          original.d_array_p + original.d_size,
+                                          d_allocator_p);
+
+        d_size = original.d_size;
+    }
+//..
+// Now, we implement the 'reserve' method of 'MyVector':
+//..
+    template <class TYPE>
+    void MyVector<TYPE>::reserve(int minCapacity)
+    {
+        if (d_capacity >= minCapacity) return;                        // RETURN
+
+        TYPE *newArrayPtr = static_cast<TYPE*>(d_allocator_p->allocate(
+        BloombergLP::bslma::Allocator::size_type(minCapacity * sizeof(TYPE))));
+
+        if (d_array_p) {
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::destructiveMove' class method to
+// copy each original element from 'd_array_p' to 'newArrayPtr' and then
+// destroy all the original elements (When appropriate, this class method
+// passes this vector's allocator to the copy constructor of 'TYPE' or uses
+// bit-wise copy.):
+//..
+            bslalg::ArrayPrimitives::destructiveMove(newArrayPtr,
+                                                     d_array_p,
+                                                     d_array_p + d_size,
+                                                     d_allocator_p);
+            d_allocator_p->deallocate(d_array_p);
+        }
+
+        d_array_p = newArrayPtr;
+        d_capacity = minCapacity;
+    }
+//..
+// Finally, we implement the 'insert' method of 'MyVector':
+//..
+    template <class TYPE>
+    void
+    MyVector<TYPE>::insert(int dstIndex, int numElements, const TYPE& value)
+    {
+        int newSize = d_size + numElements;
+
+        if (newSize > d_capacity) {
+            int newCapacity = d_capacity == 0 ? 2 : d_capacity * 2;
+            reserve(newCapacity);
+        }
+//..
+// Here, we call the 'bslalg::ArrayPrimitives::insert' class method to first
+// move each element after 'dstIndex' by 'numElements' and then copy construct
+// 'numElements' of 'value' at 'dstIndex'.  (When appropriate, this class
+// method passes this vector's allocator to the copy constructor of 'TYPE' or
+// uses bit-wise copy.):
+//..
+        bslalg::ArrayPrimitives::insert(d_array_p + dstIndex,
+                                        d_array_p + d_size,
+                                        value,
+                                        numElements,
+                                        d_allocator_p);
+
+        d_size = newSize;
+    }
+//..
+
+}  // close unnamed namespace
+
+namespace BloombergLP {
+namespace bslma {
+template <class TYPE>
+struct UsesBslmaAllocator<MyVector<TYPE> > : bsl::true_type {};
+} // close traits namespace
+} // close enterprise namespace
+
+#pragma bde_verify pop  // End of usage example relaxation
+
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -212,7 +405,7 @@ InitFuncPtrArray<112, 127> initFuncPtrArray112;
 
 char getValue(const FuncPtrType& fpt)
 {
-    return (char) (*fpt)();
+    return static_cast<char>((*fpt)());
 }
 
 void setValue(FuncPtrType *fpt, char ch)
@@ -266,7 +459,7 @@ InitMemberFuncPtrArray<112, 127> initMemberFuncPtrArray112;
 char getValue(const MemberFuncPtrType& mfpt)
 {
     Thing t;
-    return (char) (t.*mfpt)();
+    return static_cast<char>((t.*mfpt)());
 }
 
 void setValue(MemberFuncPtrType *mfpt, char ch)
@@ -323,12 +516,12 @@ void setValue(unsigned short *s, char ch)
 
 char getValue(const short& s)
 {
-    return (char) s;
+    return static_cast<char>(s);
 }
 
 char getValue(const unsigned short& s)
 {
-    return (char) s;
+    return static_cast<char>(s);
 }
 
                                 // =========
@@ -347,12 +540,12 @@ void setValue(unsigned int *pi, char ch)
 
 char getValue(const int& i)
 {
-    return (char) i;
+    return static_cast<char>(i);
 }
 
 char getValue(const unsigned int& i)
 {
-    return (char) i;
+    return static_cast<char>(i);
 }
 
                                 // ==========
@@ -371,12 +564,12 @@ void setValue(unsigned long *pl, char ch)
 
 char getValue(const long& ll)
 {
-    return (char) ll;
+    return static_cast<char>(ll);
 }
 
 char getValue(const unsigned long& ll)
 {
-    return (char) ll;
+    return static_cast<char>(ll);
 }
 
                             // =====================
@@ -395,12 +588,12 @@ void setValue(Uint64 *p64, char ch)
 
 char getValue(const Int64& i64)
 {
-    return (char) i64;
+    return static_cast<char>(i64);
 }
 
 char getValue(const Uint64& u64)
 {
-    return (char) u64;
+    return static_cast<char>(u64);
 }
 
                             // ====================
@@ -409,32 +602,32 @@ char getValue(const Uint64& u64)
 
 void setValue(float *pf, char ch)
 {
-    *pf = (int) ch;
+    *pf = static_cast<int>(ch);
 }
 
 void setValue(double *pf, char ch)
 {
-    *pf = (int) ch;
+    *pf = static_cast<int>(ch);
 }
 
 void setValue(long double *pf, char ch)
 {
-    *pf = (int) ch;
+    *pf = static_cast<int>(ch);
 }
 
 char getValue(const float& f)
 {
-    return (char) ((int) f & 0xff);
+    return static_cast<char>(static_cast<int>(f) & 0xff);
 }
 
 char getValue(const double& f)
 {
-    return (char) ((int) f & 0xff);
+    return static_cast<char>(static_cast<int>(f) & 0xff);
 }
 
 char getValue(const long double& f)
 {
-    return (char) ((int) f & 0xff);
+    return static_cast<char>(static_cast<int>(f) & 0xff);
 }
 
                                 // ========
@@ -443,24 +636,24 @@ char getValue(const long double& f)
 
 void setValue(void **pvs, char ch)
 {
-    *pvs = (void *) (UintPtr) ch;
+    *pvs = reinterpret_cast<void *>(static_cast<UintPtr>(ch));
 }
 
 void setValue(const void **pvs, char ch)
 {
-    *pvs = (const void *) (UintPtr) ch;
+    *pvs = reinterpret_cast<const void *>(static_cast<UintPtr>(ch));
 }
 
 #if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(void * const& vs)
 {
-    return (char) ((UintPtr) vs & 0xff);
+    return static_cast<char>(reinterpret_cast<UintPtr>(vs) & 0xff);
 }
 #endif
 
 char getValue(const void * const& vs)
 {
-    return (char) ((UintPtr) vs & 0xff);
+    return static_cast<char>(reinterpret_cast<UintPtr>(vs) & 0xff);
 }
 
                                 // =======
@@ -469,24 +662,24 @@ char getValue(const void * const& vs)
 
 void setValue(int **pis, char ch)
 {
-    *pis = (int *) (UintPtr) ch;
+    *pis = reinterpret_cast<int *>(static_cast<UintPtr>(ch));
 }
 
 void setValue(const int **pis, char ch)
 {
-    *pis = (const int *) (UintPtr) ch;
+    *pis = reinterpret_cast<const int *>(static_cast<UintPtr>(ch));
 }
 
 #if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(int * const& is)
 {
-    return (char) ((UintPtr) is & 0xff);
+    return static_cast<char>(reinterpret_cast<UintPtr>(is) & 0xff);
 }
 #endif
 
 char getValue(const int * const& is)
 {
-    return (char) ((UintPtr) is & 0xff);
+    return static_cast<char>(reinterpret_cast<UintPtr>(is) & 0xff);
 }
 
                            // ======================
@@ -513,12 +706,12 @@ struct ConstructEnabler {
 
     operator int *() const
     {
-        return (int *) (UintPtr) d_c;
+        return reinterpret_cast<int *>(static_cast<UintPtr>(d_c));
     }
 
     operator void *() const
     {
-        return (void *) (UintPtr) d_c;
+        return reinterpret_cast<void *>(static_cast<UintPtr>(d_c));
     }
 
     operator FuncPtrType() const
@@ -558,7 +751,7 @@ class TestType {
     , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        d_data_p  = static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
         *d_data_p = '?';
     }
 
@@ -567,7 +760,7 @@ class TestType {
     , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+        d_data_p  = static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
         *d_data_p = cE.d_c;
     }
 
@@ -582,7 +775,8 @@ class TestType {
     {
         ++numCopyCtorCalls;
         if (&original != this) {
-            d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
+            d_data_p =
+                    static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
             *d_data_p = *original.d_data_p;
         }
     }
@@ -599,7 +793,8 @@ class TestType {
     {
         ++numAssignmentCalls;
         if (&rhs != this) {
-            char *newData = (char *)d_allocator_p->allocate(sizeof(char));
+            char *newData =
+                    static_cast<char *>(d_allocator_p->allocate(sizeof(char)));
             *d_data_p = '_';
             d_allocator_p->deallocate(d_data_p);
             d_data_p  = newData;
@@ -617,7 +812,7 @@ class TestType {
     {
         if (d_data_p) {
             ASSERT(isalpha(*d_data_p));
-            printf("%c (int: %d)\n", *d_data_p, (int)*d_data_p);
+            printf("%c (int: %d)\n", *d_data_p, static_cast<int>(*d_data_p));
         } else {
             printf("VOID\n");
         }
@@ -716,7 +911,7 @@ class TestTypeNoAlloc {
     void print() const
     {
         ASSERT(isalpha(d_u.d_char));
-        printf("%c (int: %d)\n", d_u.d_char, (int)d_u.d_char);
+        printf("%c (int: %d)\n", d_u.d_char, static_cast<int>(d_u.d_char));
     }
 };
 
@@ -1049,7 +1244,7 @@ void fillWithJunk(void *buf, int size)
     char *p = reinterpret_cast<char*>(buf);
 
     for (int i = 0; i < size; ++i) {
-        p[i] = (char)((i % MAX_VALUE) + 1);
+        p[i] = static_cast<char>((i % MAX_VALUE) + 1);
     }
 }
 
@@ -1233,7 +1428,7 @@ void testRotate(bool bitwiseMoveableFlag,
         char                                d_raw[MAX_SIZE * sizeof(TYPE)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     for (int ti = 0; ti < NUM_DATA_8; ++ti) {
         const int         LINE  = DATA_8[ti].d_lineNum;
@@ -1254,7 +1449,7 @@ void testRotate(bool bitwiseMoveableFlag,
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
                 gg(buf, SPEC);  verify(buf, SPEC);
 
-                TYPE *end = buf + (int)std::strlen(SPEC);
+                TYPE *end = buf + std::strlen(SPEC);
                 CleanupGuard<TYPE> guard(buf, SPEC, &end);
 
                 Obj::rotate(&buf[BEGIN], &buf[BEGIN + M], &buf[END]);
@@ -1344,7 +1539,7 @@ void testErase(bool,
         char                                d_raw[MAX_SIZE * sizeof(T)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     for (int ti = 0; ti < NUM_DATA_7; ++ti) {
         const int         LINE  = DATA_7[ti].d_lineNum;
@@ -1529,8 +1724,8 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
                        LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
             }
 
-            TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
-            TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
+            TYPE *srcBuf = static_cast<TYPE*>(static_cast<void*>(&u.d_raw[0]));
+            TYPE *dstBuf = static_cast<TYPE*>(static_cast<void*>(&v.d_raw[0]));
             TYPE *srcEnd = &srcBuf[END];
 
             if (exceptionSafetyFlag) {
@@ -1718,7 +1913,7 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
         inputCe[pc - INPUT] = *pc;
     }
 
-    TYPE *input = (TYPE*) (void*) &w.d_raw[MAX_SIZE];
+    TYPE *input = static_cast<TYPE *>(static_cast<void *>(&w.d_raw[MAX_SIZE]));
     gg(input, INPUT);  verify(input, INPUT);
 
     for (int ti = 0; ti < NUM_DATA_6R; ++ti) {
@@ -1739,8 +1934,8 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
                    LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
         }
 
-        TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
-        TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
+        TYPE *srcBuf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+        TYPE *dstBuf = static_cast<TYPE *>(static_cast<void *>(&v.d_raw[0]));
         TYPE *srcEnd = &srcBuf[END];
 
         if (veryVerbose) printf("\t\t...and arbitrary FWD_ITER\n");
@@ -1918,11 +2113,12 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
                    LINE, SRC_SPEC, NE, BEGIN, DST, END, SRC_EXP, DST_EXP);
         }
 
-        TYPE *srcBuf = (TYPE*) (void*) &u.d_raw[0];
-        TYPE *dstBuf = (TYPE*) (void*) &v.d_raw[0];
+        TYPE *srcBuf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+        TYPE *dstBuf = static_cast<TYPE *>(static_cast<void *>(&v.d_raw[0]));
         TYPE *srcEnd = &srcBuf[END];
 
-        TYPE *input = (TYPE*) (void *) &w.d_raw[MAX_SIZE];
+        TYPE *input =
+                  static_cast<TYPE *>(static_cast<void *>(&w.d_raw[MAX_SIZE]));
         TYPE *inputEnd = &input[NE];
 
         if (exceptionSafetyFlag) {
@@ -2084,7 +2280,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
                         LINE, SPEC, NE, DST, END, EXP);
             }
 
-            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+            TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -2197,7 +2393,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v;
 
-    TYPE *input = (TYPE*) (void*) &v.d_raw[MAX_SIZE];
+    TYPE *input = static_cast<TYPE *>(static_cast<void *>(&v.d_raw[MAX_SIZE]));
     gg(input, INPUT);  verify(input, INPUT);
 
     for (int ti = 0; ti < NUM_DATA_5R; ++ti) {
@@ -2217,7 +2413,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
         if (veryVerbose) printf("\t\t...and arbitrary FWD_ITER\n");
         {
-            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+            TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -2262,7 +2458,7 @@ void testInsertRange(bool bitwiseMoveableFlag,
 
         if (veryVerbose) printf("\t\t...and FWD_ITER = TYPE*\n");
         {
-            TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+            TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
             if (exceptionSafetyFlag) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
@@ -2354,8 +2550,9 @@ void testMoveInsert(bool bitwiseMoveableFlag,
                     LINE, SPEC, NE, DST, END , EXP);
         }
 
-        TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
-        TYPE *input = (TYPE*) (void*) &v.d_raw[MAX_SIZE];
+        TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+        TYPE *input =
+                  static_cast<TYPE *>(static_cast<void *>(&v.d_raw[MAX_SIZE]));
         TYPE *inputEnd = &input[NE];
 
         if (exceptionSafetyFlag) {
@@ -2476,7 +2673,7 @@ void testDestructiveMove(bool bitwiseMoveableFlag,
         char                                d_raw[MAX_SIZE * sizeof(TYPE)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE *) (void *) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     for (int ti = 0; ti < NUM_DATA_4; ++ti) {
         const int         LINE = DATA_4[ti].d_lineNum;
@@ -2585,7 +2782,7 @@ void testCopyConstruct(bool, // bitwiseMoveableFlag
         char                                d_raw[MAX_SIZE * sizeof(TYPE)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE *) (void *) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     if (verbose) printf("\t\tfrom same type.\n");
 
@@ -2744,7 +2941,7 @@ void testUninitializedFillN(bool, // bitwiseMoveableFlag
         char                                d_raw[MAX_SIZE * sizeof(TYPE)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
-    TYPE *buf = (TYPE*) (void*) &u.d_raw[0];
+    TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
 
     {
         bsls::ObjectBuffer<TYPE> mV;
@@ -2812,8 +3009,8 @@ void testUninitializedFillNBCT(TYPE value)
 
     Buffer u;
     Buffer v;
-    TYPE *bufU = (TYPE*) (void*) (&u.d_raw[0]);
-    TYPE *bufV = (TYPE*) (void*) (&v.d_raw[0]);
+    TYPE *bufU = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+    TYPE *bufV = static_cast<TYPE *>(static_cast<void *>(&v.d_raw[0]));
 
     for (int arraySize = 0; arraySize < MAX_SIZE; ++arraySize) {
         for (int begin = 0; begin <= arraySize; ++begin) {
@@ -2943,190 +3140,6 @@ void testUninitializedFillNBCT(TYPE value)
     } while (false)
 
 //=============================================================================
-//                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-#pragma bde_verify push     // Relax formatting rules for clearer exposition
-#pragma bde_verify -FABC01  // Functions in descriptive order, not alphabetic
-
-namespace {
-
-///Usage
-///-----
-// In this section we show intended use of this component.
-//
-///Example 1: Defining a Vector-Like Type
-/// - - - - - - - - - - - - - - - - - - -
-// Suppose we want to define a STL-vector-like type.  One requirement is that
-// an object of this vector should forward its allocator to its contained
-// elements when appropriate.  Another requirement is that the vector should
-// take advantage of the optimizations available for certain traits of the
-// contained element type.  For example, if the contained element type has the
-// 'bslalg::TypeTraitBitwiseMoveable' trait, moving an element in a vector can
-// be done using 'memcpy' instead of copy construction.
-//
-// We can utilize the class methods provided by 'bslalg::ArrayPrimitives' to
-// satisfy the above requirements.  Unlike 'bslalg::ScalarPrimitives', which
-// operates on a single element, 'bslalg::ArrayPrimitives' operates on arrays,
-// which will further help simplify our implementation.
-//
-// First, we create an elided definition of the class template 'MyVector':
-//..
-    template <class TYPE>
-    class MyVector {
-        // This class implements a vector of elements of the (template
-        // parameter) 'TYPE', which must be copy constructable.  Note that for
-        // the brevity of the usage example, this class does not provide any
-        // Exception-Safety guarantee.
-
-        // DATA
-        TYPE             *d_array_p;     // pointer to the allocated array
-        int               d_capacity;    // capacity of the allocated array
-        int               d_size;        // number of objects
-        bslma::Allocator *d_allocator_p; // allocator pointer (held, not owned)
-
-      public:
-        // TYPE TRAITS
-        BSLMF_NESTED_TRAIT_DECLARATION(
-            MyVector,
-            BloombergLP::bslmf::IsBitwiseMoveable);
-
-        // CREATORS
-        explicit MyVector(bslma::Allocator *basicAllocator = 0)
-            // Construct a 'MyVector' object having a size of 0 and and a
-            // capacity of 0.  Optionally specify a 'basicAllocator' used to
-            // supply memory.  If 'basicAllocator' is 0, the currently
-            // installed default allocator is used.
-        : d_array_p(0)
-        , d_capacity(0)
-        , d_size(0)
-        , d_allocator_p(bslma::Default::allocator(basicAllocator))
-        {
-        }
-
-        MyVector(const MyVector& original,
-                bslma::Allocator *basicAllocator = 0);
-            // Create a 'MyVector' object having the same value as the
-            // specified 'original' object.  Optionally specify a
-            // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-            // 0, the currently installed default allocator is used.
-
-        // ...
-
-        // MANIPULATORS
-        void reserve(int capacity);
-            // Change the capacity of this vector to the specified 'capacity'
-            // if it is greater than the vector's current capacity.
-
-        void insert(int dstIndex, int numElements, const TYPE& value);
-            // Insert, into this vector, the specified 'numElements' of the
-            // specified 'value' at the specified 'dstIndex'.  The behavior is
-            // undefined unless '0 <= dstIndex <= size()'.
-
-        // ACCESSORS
-        const TYPE& operator[](int position) const
-            // Return a reference providing non-modifiable access to the
-            // element at the specified 'position' in this vector.
-        {
-            return d_array_p[position];
-        }
-
-        int size() const
-            // Return the size of this vector.
-        {
-            return d_size;
-        }
-    };
-//..
-// Then, we implement the copy constructor of 'MyVector':
-//..
-    template <class TYPE>
-    MyVector<TYPE>::MyVector(const MyVector<TYPE>&  original,
-                             bslma::Allocator      *basicAllocator)
-    : d_array_p(0)
-    , d_capacity(0)
-    , d_size(0)
-    , d_allocator_p(bslma::Default::allocator(basicAllocator))
-    {
-        reserve(original.d_size);
-//..
-// Here, we call the 'bslalg::ArrayPrimitives::copyConstruct' class method to
-// copy each element from 'original.d_array_p' to 'd_array_p' (When
-// appropriate, this class method passes this vector's allocator to the copy
-// constructor of 'TYPE' or uses bit-wise copy.):
-//..
-        bslalg::ArrayPrimitives::copyConstruct(
-                                          d_array_p,
-                                          original.d_array_p,
-                                          original.d_array_p + original.d_size,
-                                          d_allocator_p);
-
-        d_size = original.d_size;
-    }
-//..
-// Now, we implement the 'reserve' method of 'MyVector':
-//..
-    template <class TYPE>
-    void MyVector<TYPE>::reserve(int capacity)
-    {
-        if (d_capacity >= capacity) return;                           // RETURN
-
-        TYPE *newArrayPtr = static_cast<TYPE*>(d_allocator_p->allocate(
-           BloombergLP::bslma::Allocator::size_type(capacity * sizeof(TYPE))));
-
-        if (d_array_p) {
-//..
-// Here, we call the 'bslalg::ArrayPrimitives::destructiveMove' class method to
-// copy each original element from 'd_array_p' to 'newArrayPtr' and then
-// destroy all the original elements (When appropriate, this class method
-// passes this vector's allocator to the copy constructor of 'TYPE' or uses
-// bit-wise copy.):
-//..
-            bslalg::ArrayPrimitives::destructiveMove(newArrayPtr,
-                                                     d_array_p,
-                                                     d_array_p + d_size,
-                                                     d_allocator_p);
-            d_allocator_p->deallocate(d_array_p);
-        }
-
-        d_array_p = newArrayPtr;
-        d_capacity = capacity;
-    }
-//..
-// Finally, we implement the 'insert' method of 'MyVector':
-//..
-    template <class TYPE>
-    void
-    MyVector<TYPE>::insert(int dstIndex, int numElements, const TYPE& value)
-    {
-        int newSize = d_size + numElements;
-
-        if (newSize > d_capacity) {
-            int newCapacity = d_capacity == 0 ? 2 : d_capacity * 2;
-            reserve(newCapacity);
-        }
-//..
-// Here, we call the 'bslalg::ArrayPrimitives::insert' class method to first
-// move each element after 'dstIndex' by 'numElements' and then copy construct
-// 'numElements' of 'value' at 'dstIndex'.  (When appropriate, this class
-// method passes this vector's allocator to the copy constructor of 'TYPE' or
-// uses bit-wise copy.):
-//..
-        bslalg::ArrayPrimitives::insert(d_array_p + dstIndex,
-                                        d_array_p + d_size,
-                                        value,
-                                        numElements,
-                                        d_allocator_p);
-
-        d_size = newSize;
-    }
-//..
-
-}  // close unnamed namespace
-
-#pragma bde_verify pop  // End of usage example relaxation
-
-//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -3190,7 +3203,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             ASSERT(u[i] == DATA[i]);
         }
-      }
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING 'rotate'
@@ -3527,7 +3540,8 @@ int main(int argc, char *argv[])
         const size_type rawBufferSize = (argc > 2) ? atoi(argv[2])
                                                    : BUFFER_SIZE;
         const int numIter = (argc > 3) ? atoi(argv[3]) : NUM_ITER;
-        char *rawBuffer = (char *)Z->allocate(rawBufferSize);  // max alignment
+        char *rawBuffer = static_cast<char *>(Z->allocate(rawBufferSize));
+                                                               // max alignment
 
         printf("\nUsage: %s [bufferSize] [numIter]"
                "\n\tbufferSize\tin bytes (default: 16777216)"
@@ -3557,7 +3571,7 @@ int main(int argc, char *argv[])
             printf("fill<char>(0) - memset      : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (char)numIter;
+            buffer[0] = static_cast<char>(numIter);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (size_type j = 0; j < bufferSize; ++j) {
@@ -3592,7 +3606,7 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with int\n");
         {
             const size_type bufferSize = rawBufferSize / sizeof(int);
-            int *buffer = (int *) (void *) rawBuffer;
+            int *buffer = static_cast<int *>(static_cast<void *>(rawBuffer));
 
             bsls::Stopwatch timer;
             timer.start();
@@ -3649,7 +3663,8 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with double\n");
         {
             const size_type bufferSize = rawBufferSize / sizeof(double);
-            double *buffer = (double *) (void *) rawBuffer;
+            double *buffer =
+                         static_cast<double *>(static_cast<void *>(rawBuffer));
 
             bsls::Stopwatch timer;
             timer.start();
@@ -3670,7 +3685,7 @@ int main(int argc, char *argv[])
             printf("fill<double>(0) - memset     : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (double)numIter;
+            buffer[0] = static_cast<double>(numIter);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (size_type j = 0; j < bufferSize; ++j) {
@@ -3681,7 +3696,7 @@ int main(int argc, char *argv[])
             printf("fill<double>(1) - single loop: %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (double)numIter;
+            buffer[0] = static_cast<double>(numIter);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 Obj::uninitializedFillN(buffer,
@@ -3693,7 +3708,7 @@ int main(int argc, char *argv[])
             printf("fill<double>(1) - memcpy 32  : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (double)numIter;
+            buffer[0] = static_cast<double>(numIter);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
@@ -3707,7 +3722,8 @@ int main(int argc, char *argv[])
         printf("\n\tuninitializedFillN with void *\n");
         {
             const size_type bufferSize = rawBufferSize / sizeof(void *);
-            void **buffer = (void **) (void *) rawBuffer;
+            void **buffer =
+                     reinterpret_cast<void **>(static_cast<void *>(rawBuffer));
 
             bsls::Stopwatch timer;
             timer.start();
@@ -3728,7 +3744,7 @@ int main(int argc, char *argv[])
             printf("fill<void *>(0) - memset     : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (void *)buffer;
+            buffer[0] = static_cast<void *>(buffer);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (size_type j = 0; j < bufferSize; ++j) {
@@ -3739,7 +3755,7 @@ int main(int argc, char *argv[])
             printf("fill<void *>(1) - single loop: %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (void *)buffer;
+            buffer[0] = static_cast<void *>(buffer);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 Obj::uninitializedFillN(buffer,
@@ -3751,7 +3767,7 @@ int main(int argc, char *argv[])
             printf("fill<void *>(1) - memcpy 32  : %f\n", timer.elapsedTime());
 
             timer.reset();
-            buffer[0] = (void *)buffer;
+            buffer[0] = static_cast<void *>(buffer);
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,

@@ -148,11 +148,11 @@ void ArrayPrimitives_Imp::bitwiseFillN(char      *begin,
 }
 
 void ArrayPrimitives_Imp::uninitializedFillN(
-                        short                                     *begin,
-                        short                                      value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+                      short                                       *begin,
+                      short                                        value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -161,29 +161,31 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     BSLMF_ASSERT(2 == sizeof(short));
 
-    const char *valueBuffer = (const char *) &value;
+    const char *valueBuffer = reinterpret_cast<const char *>(&value);
     if (valueBuffer[0] == valueBuffer[1]) {  // 0, but also -1, 257, etc.
         std::memset(begin, value, numElements * sizeof value);
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
 void ArrayPrimitives_Imp::uninitializedFillN(
-                        int                                       *begin,
-                        int                                        value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+                      int                                         *begin,
+                      int                                          value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
-     if (0 == numElements) {
+    if (0 == numElements) {
         return;                                                       // RETURN
     }
-    const char  *valueCharBuffer  = (const char *) &value;
+    const char  *valueCharBuffer  = reinterpret_cast<const char *>(&value);
     const short *valueShortBuffer = static_cast<const short *>(
                                    static_cast<const void *>(valueCharBuffer));
     if (valueCharBuffer[0]  == valueCharBuffer[1] &&
@@ -194,23 +196,25 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
 void ArrayPrimitives_Imp::uninitializedFillN(
-                        bsls::Types::Int64                        *begin,
-                        bsls::Types::Int64                         value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+                      bsls::Types::Int64                          *begin,
+                      bsls::Types::Int64                           value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
     if (0 == numElements) {
         return;                                                       // RETURN
     }
-    const char  *valueCharBuffer  = (const char *) &value;
+    const char  *valueCharBuffer  = reinterpret_cast<const char *>(&value);
     const short *valueShortBuffer = static_cast<const short *>(
                                    static_cast<const void *>(valueCharBuffer));
     const int   *valueIntBuffer   = static_cast<const int *>(
@@ -227,16 +231,18 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
 void ArrayPrimitives_Imp::uninitializedFillN(
-                        float                                     *begin,
-                        float                                      value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+                      float                                       *begin,
+                      float                                        value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -248,16 +254,18 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
 void ArrayPrimitives_Imp::uninitializedFillN(
-                        double                                    *begin,
-                        double                                     value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+                      double                                      *begin,
+                      double                                       value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -269,16 +277,18 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
 void ArrayPrimitives_Imp::uninitializedFillN(
-                        long double                               *begin,
-                        long double                                value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+                      long double                                 *begin,
+                      long double                                  value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -290,16 +300,18 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
 void ArrayPrimitives_Imp::uninitializedFillN(
-                       void                                      **begin,
-                       void                                       *value,
-                       size_type                                   numElements,
-                       void                                       *,
-                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
+                     void                                        **begin,
+                     void                                         *value,
+                     size_type                                     numElements,
+                     void                                         *,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -311,16 +323,18 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
 void ArrayPrimitives_Imp::uninitializedFillN(
-                       const void                                **begin,
-                       const void                                 *value,
-                       size_type                                   numElements,
-                       void                                       *,
-                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
+                     const void                                  **begin,
+                     const void                                   *value,
+                     size_type                                     numElements,
+                     void                                         *,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
 
@@ -332,7 +346,9 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
     else {
         *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
     }
 }
 
@@ -353,16 +369,17 @@ void ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
     (void) end;
 
     union {
-        char                                d_buffer[INPLACE_BUFFER_SIZE];
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } arena;
 
-    for (; INPLACE_BUFFER_SIZE <= numBytes; numBytes -= INPLACE_BUFFER_SIZE,
-                                            begin    += INPLACE_BUFFER_SIZE,
-                                            middle   += INPLACE_BUFFER_SIZE) {
-        std::memcpy(arena.d_buffer, middle, INPLACE_BUFFER_SIZE);
-        std::memmove(middle, begin, INPLACE_BUFFER_SIZE);
-        std::memcpy(begin, arena.d_buffer, INPLACE_BUFFER_SIZE);
+    for (; k_INPLACE_BUFFER_SIZE <= numBytes;
+                                           numBytes -= k_INPLACE_BUFFER_SIZE,
+                                           begin    += k_INPLACE_BUFFER_SIZE,
+                                           middle   += k_INPLACE_BUFFER_SIZE) {
+        std::memcpy(arena.d_buffer, middle, k_INPLACE_BUFFER_SIZE);
+        std::memmove(middle, begin, k_INPLACE_BUFFER_SIZE);
+        std::memcpy(begin, arena.d_buffer, k_INPLACE_BUFFER_SIZE);
     }
 
     if (0 < numBytes) {
@@ -383,15 +400,15 @@ void ArrayPrimitives_Imp::bitwiseRotateBackward(char *begin,
     BSLS_ASSERT_SAFE(begin  <= middle);
     BSLS_ASSERT_SAFE(middle <= end);
 
-     union {
-        char                                d_buffer[INPLACE_BUFFER_SIZE];
+    union {
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } arena;
 
     const std::size_t numBytes = middle - begin;
     const std::size_t remBytes = end - middle;
 
-    BSLS_ASSERT(numBytes <= INPLACE_BUFFER_SIZE);
+    BSLS_ASSERT(numBytes <= k_INPLACE_BUFFER_SIZE);
 
     std::memcpy(arena.d_buffer, begin, numBytes);
     std::memmove(begin, middle, remBytes);
@@ -410,14 +427,14 @@ void ArrayPrimitives_Imp::bitwiseRotateForward(char *begin,
     BSLS_ASSERT_SAFE(middle <= end);
 
     union {
-        char                                d_buffer[INPLACE_BUFFER_SIZE];
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } arena;
 
     const std::size_t numBytes = middle - begin;
     const std::size_t remBytes = end - middle;
 
-    BSLS_ASSERT(remBytes <= INPLACE_BUFFER_SIZE);
+    BSLS_ASSERT(remBytes <= k_INPLACE_BUFFER_SIZE);
 
     std::memcpy(arena.d_buffer, middle, remBytes);
     std::memmove(end - numBytes, begin, numBytes);
@@ -455,13 +472,13 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
 
     // These cases are only interesting for bitwise moveable types, and if we
     // assume a modest amount of memory on the stack (here assumed to be
-    // 'INPLACE_BUFFER_SIZE').
+    // 'k_INPLACE_BUFFER_SIZE').
 
-    if (numElements <= INPLACE_BUFFER_SIZE) {
+    if (numElements <= k_INPLACE_BUFFER_SIZE) {
         bitwiseRotateBackward(begin, middle, end);
         return;                                                       // RETURN
     }
-    if (remElements <= INPLACE_BUFFER_SIZE) {
+    if (remElements <= k_INPLACE_BUFFER_SIZE) {
         bitwiseRotateForward(begin, middle, end);
         return;                                                       // RETURN
     }
@@ -479,29 +496,29 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
     }
 
     // However, this version proceeds by executing the 'numCycles' in parallel
-    // (as much as possible) by moving 'min(numCycles, INPLACE_BUFFER_SIZE)'
+    // (as much as possible) by moving 'min(numCycles, k_INPLACE_BUFFER_SIZE)'
     // characters at the same time.
 
     union {
-        char                                d_buffer[INPLACE_BUFFER_SIZE];
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } arena;
 
-    for (std::size_t i = 0; i < numCycles; i += INPLACE_BUFFER_SIZE) {
+    for (std::size_t i = 0; i < numCycles; i += k_INPLACE_BUFFER_SIZE) {
         // Let the current cycle be initially 'A__B__C__D__' (note that its
         // stride is 'length / numCycles'), and let (*) denote the current
         // position of 'ptr'.  Within this loop, we will do:
         //..
-        //  numBytes = min(numCycles, INPLACE_BUFFER_SIZE)
+        //  numBytes = min(numCycles, k_INPLACE_BUFFER_SIZE)
         //..
         // rotations in parallel; it is most easy to think of it in terms of a
         // synthetic value type whose size is 'numBytes', which fits in the
         // 'arena.d_buffer'.  Thus in the diagrams, "A .. E" represent such a
         // value.
 
-        std::size_t numBytes = numCycles - i < INPLACE_BUFFER_SIZE
+        std::size_t numBytes = numCycles - i < k_INPLACE_BUFFER_SIZE
                              ? numCycles - i
-                             : static_cast<std::size_t>(INPLACE_BUFFER_SIZE);
+                             : static_cast<std::size_t>(k_INPLACE_BUFFER_SIZE);
 
         char *ptr = begin;
 
