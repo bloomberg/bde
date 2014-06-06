@@ -9,16 +9,18 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide implementation of byte-order manipulation functions.
 //
-//@CLASSES: bsls::ByteOrderUtil_Impl
+//@CLASSES:
+//   bsls::ByteOrderUtil_Impl
 //
-//@MACROS: BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT
+//@MACROS:
+//   BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT
 //
 //@SEE ALSO: bsls_byteorderutil, bsls_byteorder
 //
-//@DESCRIPTION: This 'struct' provides a namespace, 'bsls::ByteOrderUtil_Impl',
-// for a number of high performance platform-specific implementations for
-// functions and macros in the 'bsls_byteorder' and 'bsls_byteorderutil'
-// components.
+//@DESCRIPTION: This component provides a namespace 'struct',
+// 'bsls::ByteOrderUtil_Impl', for a number of high performance
+// platform-specific implementations for functions and macros in the
+// 'bsls_byteorder' and 'bsls_byteorderutil' components.
 //
 // This component is only intended to be used by 'bsls_byteorderutil'.  No
 // other component should call anything in it directly.
@@ -65,61 +67,49 @@ struct ByteOrderUtil_Impl {
     // This 'struct' is a namespace for the byte order swapping functions to
     // support 'bsls_byteorderutil' and 'bsls_byteorder'.
 
-    // We declare all the possible 'custom_*' funcitons, but only at most
-    // half of them (and possibly none of them) will actually be defined.  All
-    // the ones that will be defined will be defined inline later in this file.
-    // Never will a 'p' version (a function that takes 'x' as a ptr) and a
-    // 'non-p' (a function that takes 'x' by value') be defined for the same
-    // word width at the same time.  It was felt that to add the myriad and
-    // byzantine #ifdef's needed here to only declare the functions that will
-    // later be defined in this file would unacceptably obscure the readability
-    // of the declarations.
-
     // CLASS METHODS
 
-    // custom, platform-specific inline implmentations, not defined on all
+    // custom, platform-specific inline implementations, not defined on all
     // platforms
 
     static
-    unsigned short custom_swap_16(unsigned short x);
+    unsigned short customSwap16(       unsigned short   x);
         // Return the specified 'x' with byte order swapped.
 
     static
-    unsigned int custom_swap_32(unsigned int x);
+    unsigned int   customSwap32(       unsigned int     x);
         // Return the specified 'x' with byte order swapped.
 
     static
-    Types::Uint64 custom_swap_64(Types::Uint64 x);
+    Types::Uint64  customSwap64(       Types::Uint64    x);
         // Return the specified 'x' with byte order swapped.
 
     static
-    unsigned short custom_swap_p16(const unsigned short *x);
+    unsigned short customSwapP16( const unsigned short *x);
         // Return the specified '*x' with byte order swapped.
 
     static
-    unsigned int custom_swap_p32(const unsigned int *x);
+    unsigned int   customSwapP32( const unsigned int   *x);
         // Return the specified '*x' with byte order swapped.
 
     static
-    Types::Uint64 custom_swap_p64(const Types::Uint64 *x);
+    Types::Uint64  customSwapP64( const Types::Uint64  *x);
         // Return the specified '*x' with byte order swapped.
-
 
     // generic, non-platform-specific implementations, always defined on all
     // platforms
 
     static
-    unsigned short generic_swap_16(unsigned short x);
+    unsigned short genericSwap16(      unsigned short   x);
         // Return the specified '*x' with byte order swapped.
 
     static
-    unsigned int generic_swap_32(unsigned int x);
+    unsigned int   genericSwap32(      unsigned int     x);
         // Return the specified '*x' with byte order swapped.
 
     static
-    Types::Uint64 generic_swap_64(Types::Uint64 x);
+    Types::Uint64  genericSwap64(      Types::Uint64    x);
         // Return the specified '*x' with byte order swapped.
-
 };
 
 // We don't have access to 'BSLMF_ASSERT' here in bsls -- do a crude compile
@@ -141,8 +131,8 @@ struct ByteOrderUtil_Impl {
 // ----------------------------------------------------------------------------
 // Advanced GNU
 
-// Let the 16-bit gnu implementation default to 'generic_swap_16' or other
-// platform-specific gnu implmentations.
+// Let the 16-bit gnu implementation default to 'genericSwap16' or other
+// platform-specific gnu implementations.
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32 1
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64 1
@@ -151,7 +141,7 @@ struct ByteOrderUtil_Impl {
 
 inline
 unsigned int
-ByteOrderUtil_Impl::custom_swap_32(unsigned int x)
+ByteOrderUtil_Impl::customSwap32(unsigned int x)
 {
     // generic GNU impl
 
@@ -160,7 +150,7 @@ ByteOrderUtil_Impl::custom_swap_32(unsigned int x)
 
 inline
 Types::Uint64
-ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
+ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
 {
     // generic GNU impl
 
@@ -178,7 +168,7 @@ ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
 
 inline
 unsigned short
-ByteOrderUtil_Impl::custom_swap_16(unsigned short x)
+ByteOrderUtil_Impl::customSwap16(unsigned short x)
 {
     // msvc impl
 
@@ -187,7 +177,7 @@ ByteOrderUtil_Impl::custom_swap_16(unsigned short x)
 
 inline
 unsigned int
-ByteOrderUtil_Impl::custom_swap_32(unsigned int x)
+ByteOrderUtil_Impl::customSwap32(unsigned int x)
 {
     // msvc impl
 
@@ -199,7 +189,7 @@ ByteOrderUtil_Impl::custom_swap_32(unsigned int x)
 
 inline
 Types::Uint64
-ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
+ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
 {
     // msvc impl
 
@@ -217,7 +207,7 @@ ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
 
 inline
 unsigned short
-ByteOrderUtil_Impl::custom_swap_16(unsigned short x)
+ByteOrderUtil_Impl::customSwap16(unsigned short x)
 {
     // hpux impl
 
@@ -228,7 +218,7 @@ ByteOrderUtil_Impl::custom_swap_16(unsigned short x)
 
 inline
 unsigned int
-ByteOrderUtil_Impl::custom_swap_32(unsigned int x)
+ByteOrderUtil_Impl::customSwap32(unsigned int x)
 {
     // hpux impl
 
@@ -239,7 +229,7 @@ ByteOrderUtil_Impl::custom_swap_32(unsigned int x)
 
 inline
 Types::Uint64
-ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
+ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
 {
     // hpux impl
 
@@ -313,7 +303,7 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 #endif  // BSLS_PLATFORM_CPU_32_BIT else
 
 inline
-unsigned short ByteOrderUtil_Impl::custom_swap_p16(const unsigned short *x)
+unsigned short ByteOrderUtil_Impl::customSwapP16(const unsigned short *x)
 {
     // powerpc impl
 
@@ -321,7 +311,7 @@ unsigned short ByteOrderUtil_Impl::custom_swap_p16(const unsigned short *x)
 }
 
 inline
-unsigned int ByteOrderUtil_Impl::custom_swap_p32(const unsigned int *x)
+unsigned int ByteOrderUtil_Impl::customSwapP32(const unsigned int *x)
 {
     // powerpc impl
 
@@ -329,7 +319,7 @@ unsigned int ByteOrderUtil_Impl::custom_swap_p32(const unsigned int *x)
 }
 
 inline
-Types::Uint64 ByteOrderUtil_Impl::custom_swap_p64(const Types::Uint64 *x)
+Types::Uint64 ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
 {
     // powerpc impl
 
@@ -351,7 +341,7 @@ Types::Uint64 ByteOrderUtil_Impl::custom_swap_p64(const Types::Uint64 *x)
 
 inline
 unsigned short
-ByteOrderUtil_Impl::custom_swap_p16(const unsigned short *x)
+ByteOrderUtil_Impl::customSwapP16(const unsigned short *x)
 {
     // sparc gnu impl
 
@@ -377,7 +367,7 @@ ByteOrderUtil_Impl::custom_swap_p16(const unsigned short *x)
 
 inline
 unsigned int
-ByteOrderUtil_Impl::custom_swap_p32(const unsigned int *x)
+ByteOrderUtil_Impl::customSwapP32(const unsigned int *x)
 {
     // sparc gnu pre-4.03 impl
 
@@ -393,7 +383,7 @@ ByteOrderUtil_Impl::custom_swap_p32(const unsigned int *x)
 
 inline
 Types::Uint64
-ByteOrderUtil_Impl::custom_swap_p64(const Types::Uint64 *x)
+ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
 {
     // sparc gnu pre-4.03 impl
 
@@ -409,7 +399,7 @@ ByteOrderUtil_Impl::custom_swap_p64(const Types::Uint64 *x)
 
 inline
 Types::Uint64
-ByteOrderUtil_Impl::custom_swap_p64(const Types::Uint64 *x)
+ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
 {
     // sparc gnu pre-4.03 impl
 
@@ -436,7 +426,7 @@ ByteOrderUtil_Impl::custom_swap_p64(const Types::Uint64 *x)
 
 #else  // BSLS_PLATFORM_CMP_GNU else
 
-// Commented out assembly implementation since 'generic_swap_{16,32} is
+// Commented out assembly implementation since 'genericSwap{16,32} is
 // probably faster than the function call for 16 and 32 bits.
 
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 1
@@ -449,7 +439,7 @@ unsigned long long bsls_byteOrderUtil_Impl_sparc_CC_swap_p64(
 }
 
 inline
-Types::Uint64 ByteOrderUtil_Impl::custom_swap_p64(const Types::Uint64 *x)
+Types::Uint64 ByteOrderUtil_Impl::customSwapP64(const Types::Uint64 *x)
 {
     // sparc CC impl
 
@@ -470,7 +460,7 @@ Types::Uint64 ByteOrderUtil_Impl::custom_swap_p64(const Types::Uint64 *x)
 
 inline
 unsigned short
-ByteOrderUtil_Impl::custom_swap_16(unsigned short x)
+ByteOrderUtil_Impl::customSwap16(unsigned short x)
 {
     // x86 gnu impl
 
@@ -489,7 +479,7 @@ ByteOrderUtil_Impl::custom_swap_16(unsigned short x)
 
 inline
 unsigned int
-ByteOrderUtil_Impl::custom_swap_32(unsigned int x)
+ByteOrderUtil_Impl::customSwap32(unsigned int x)
 {
     // x86 gnu pre-4.03 impl
 
@@ -502,7 +492,7 @@ ByteOrderUtil_Impl::custom_swap_32(unsigned int x)
 
 inline
 Types::Uint64
-ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
+ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
 {
     // x86 gnu pre-4.03 impl
 
@@ -520,7 +510,7 @@ ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
 
 inline
 Types::Uint64
-ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
+ByteOrderUtil_Impl::customSwap64(Types::Uint64 x)
 {
     // x86 gnu pre-4.03 impl
 
@@ -535,14 +525,14 @@ ByteOrderUtil_Impl::custom_swap_64(Types::Uint64 x)
 
 inline
 unsigned short
-ByteOrderUtil_Impl::generic_swap_16(unsigned short x)
+ByteOrderUtil_Impl::genericSwap16(unsigned short x)
 {
     return static_cast<unsigned short>((x >> 8) | (x << 8));
 }
 
 inline
 unsigned int
-ByteOrderUtil_Impl::generic_swap_32(unsigned int x)
+ByteOrderUtil_Impl::genericSwap32(unsigned int x)
 {
     return ( x               << 24)
          | ((x & 0x0000ff00) <<  8)
@@ -552,7 +542,7 @@ ByteOrderUtil_Impl::generic_swap_32(unsigned int x)
 
 inline
 Types::Uint64
-ByteOrderUtil_Impl::generic_swap_64(Types::Uint64 x)
+ByteOrderUtil_Impl::genericSwap64(Types::Uint64 x)
 {
     return ( x                         << 56)
          | ((x & 0x000000000000ff00LL) << 40)

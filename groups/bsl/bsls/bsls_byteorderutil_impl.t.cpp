@@ -14,11 +14,11 @@
 //                                  --------
 // [3] TESTING CONSISTENCY OF COMPILE-TIME FLAGS
 // [2] TESTING 'mySwapBytes*'
-// [1] TESTING 'generic_swap_*' & SOUNDNESS OF TABLE
+// [1] TESTING 'genericSwap*' & SOUNDNESS OF TABLE
 //-----------------------------------------------------------------------------
 // [3] 'BSLS_BYTEORDERUTIL_IMPL_CUSTOM_*'
 // [2] 'mySwapBytes[16,32,64}'
-// [1] 'generic_swap_{16,32,64}'
+// [1] 'genericSwap{16,32,64}'
 //-----------------------------------------------------------------------------
 
 using namespace BloombergLP;
@@ -117,11 +117,11 @@ mySwapBytes16(unsigned short x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
 #if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
-    return Impl::custom_swap_16(x);
+    return Impl::customSwap16(x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
-    return Impl::custom_swap_p16(&x);
+    return Impl::customSwapP16(&x);
 #else
-    return Impl::generic_swap_16(x);
+    return Impl::genericSwap16(x);
 #endif
 }
 
@@ -131,11 +131,11 @@ mySwapBytes32(unsigned int x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
 #if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
-    return Impl::custom_swap_32(x);
+    return Impl::customSwap32(x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
-    return Impl::custom_swap_p32(&x);
+    return Impl::customSwapP32(&x);
 #else
-    return Impl::generic_swap_32(x);
+    return Impl::genericSwap32(x);
 #endif
 }
 
@@ -145,11 +145,11 @@ mySwapBytes64(bsls::Types::Uint64 x)
     // Return the value of the specified 'x' with the byte order reversed.
 {
 #if defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
-    return Impl::custom_swap_64(x);
+    return Impl::customSwap64(x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
-    return Impl::custom_swap_p64(&x);
+    return Impl::customSwapP64(&x);
 #else
-    return Impl::generic_swap_64(x);
+    return Impl::genericSwap64(x);
 #endif
 }
 
@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: o Test that 'mySwapBytes', which, when run on all platforms, will
-        //:   use all incarnations of 'custom_swap_{16,32,64}', properly
+        //:   use all incarnations of 'customSwap{16,32,64}', properly
         //:   reverses byte order.
         //
         // Plan:
@@ -497,26 +497,26 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'generic_swap_*' & SOUNDNESS OF TABLE
+        // TESTING 'genericSwap*' & SOUNDNESS OF TABLE
         //
         // Concerns:
-        //: o Test the 'generic_swap_*' functions, and that the table values of
+        //: o Test the 'genericSwap*' functions, and that the table values of
         //:   'd_swapped' are accurate.
         //
         // Plan:
         //: 1 Use the 'swapBytesInPlace' oracle (defined in this file) to
         //:   verify that the 'd_swapped' values are appropriate for the
         //:   'd_value' values.
-        //: 2 Verify that the return values of 'generic_swap_*' deliver the
+        //: 2 Verify that the return values of 'genericSwap*' deliver the
         //:   values matching 'd_swapped' (and therefore also the values from
         //:   the oracle).
         //
         // Testing:
-        //   'generic_swap_{16,32,64}'
+        //   'genericSwap{16,32,64}'
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                          "\nTESTING 'generic_swap_*' & SOUNDNESS OF TABLE\n"
+                          "\nTESTING 'genericSwap*' & SOUNDNESS OF TABLE\n"
                             "=============================================\n");
 
         if (verbose) printf("Testing 16 Bit\n");
@@ -534,9 +534,9 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::generic_swap_16(uValue));
+                LOOP_ASSERT(line, uSwapped == Impl::genericSwap16(uValue));
                 LOOP_ASSERT(line, static_cast<unsigned short>(iSwapped) ==
-                                              Impl::generic_swap_16(iValue));
+                                              Impl::genericSwap16(iValue));
             }
         }
 
@@ -555,9 +555,9 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::generic_swap_32(uValue));
+                LOOP_ASSERT(line, uSwapped == Impl::genericSwap32(uValue));
                 LOOP_ASSERT(line, iSwapped ==
-                                          (int) Impl::generic_swap_32(iValue));
+                                          (int) Impl::genericSwap32(iValue));
             }
         }
 
@@ -576,9 +576,9 @@ int main(int argc, char *argv[])
                 swapBytesInPlace(&uVerify);
                 ASSERT(uSwapped == uVerify);
 
-                LOOP_ASSERT(line, uSwapped == Impl::generic_swap_64(uValue));
+                LOOP_ASSERT(line, uSwapped == Impl::genericSwap64(uValue));
                 LOOP_ASSERT(line, iSwapped ==
-                                        (Int64) Impl::generic_swap_64(iValue));
+                                        (Int64) Impl::genericSwap64(iValue));
             }
         }
       } break;

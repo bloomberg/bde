@@ -7,40 +7,42 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide byte-order manipulation macros.
+//@PURPOSE: Provide byte-order swapping functions.
 //
-//@CLASSES: bsls::ByteOrderUtil
+//@CLASSES:
+//   bsls::ByteOrderUtil
 //
-//@SEE ALSO: bsls_byteorder, bsls_byteorderutil_impl
+//@SEE ALSO:
+//   bsls_byteorder
 //
-//@DESCRIPTION: This component provides a namespace, 'class'
+//@DESCRIPTION: This component provides a namespace 'class'
 // 'bsls::ByteOrderUtil', that contains a suite of static functions for
 // reversing the byte order of integral types.  The functions
-// 'swapByteOrder{16,32,64}' reverse the byte order of words of specifiedd
-// widths (in bits), while the overloaded function 'swapBytes' will swap the
-// bytes of any integral type passed to it, returning the same type it is
-// passed.
+// 'swapByteOrder{16,32,64}' reverse the byte order of words having the
+// indicated widths (in bits), while the overloaded function 'swapBytes' will
+// swap the bytes of any integral type passed to it, returning the same type it
+// is passed.
 //
 ///Usage
 ///-----
 // In this example we demonstrate the use of different overloads of the
 // 'swapBytes' function.
 //
-// First we typedef a shorthand to the namespace class:
+// First we typedef a shorthand to the namespace 'class':
 //..
 //  typedef bsls::ByteOrderUtil Util;
 //..
-// Then, we demonstrate reversing the bytes of an unsigned short:
+// Then, we demonstrate reversing the bytes of an 'unsigned short':
 //..
 //  unsigned short us = 0x1234;
 //  assert(0x3412 == Util::swapBytes(us));
 //..
-// Next, we do a signed short:
+// Next, we do a signed 'short:
 //..
 //  short ss = 0x4321;
 //  assert(0x2143 == Util::swapBytes(ss));
 //..
-// Then, we reverse an unsigned int:
+// Then, we reverse an 'unsigned int':
 //..
 //  unsigned int ui = 0x01020304;
 //  assert(0x04030201 == Util::swapBytes(ui));
@@ -105,26 +107,13 @@ namespace bsls {
 
 class ByteOrderUtil {
     // This 'class' provides a namespace for functions used for reversing the
-    // byte order of integral types.
+    // byte order of values having integral type.
 
     // PRIVATE TYPES
     typedef ByteOrderUtil_Impl Impl;
 
   public:
-    // PUBLIC CLASS METHODS
-
-    // LEVEL 0 METHODS
-
-    static unsigned short swapBytes16(unsigned short x);
-        // Return the specified 'x' with byte order swapped.
-
-    static unsigned int   swapBytes32(unsigned int   x);
-        // Return the specified 'x' with byte order swapped.
-
-    static Types::Uint64  swapBytes64(Types::Uint64  x);
-        // Return the specified 'x' with byte order swapped.
-
-    // LEVEL 1 METHODS
+    // CLASS METHODS
 
     static bool           swapBytes(bool           x);
     static char           swapBytes(char           x);
@@ -139,9 +128,21 @@ class ByteOrderUtil {
     static unsigned long  swapBytes(unsigned long  x);
     static Types::Uint64  swapBytes(Types::Uint64  x);
     static Types::Int64   swapBytes(Types::Int64   x);
-        // If the specified 'x' is a multiple byte entity, return its value
-        // with the byte order reversed, otherwise, return its value without
+        // If the specified 'x' is a multi-byte entity, return its value with
+        // the byte order reversed; otherwise, return its value without
         // modification.
+
+    // The above functions are all implemented by calling the word-width
+    // specific functions that follow.
+
+    static unsigned short swapBytes16(unsigned short x);
+        // Return the specified 'x' with byte order swapped.
+
+    static unsigned int   swapBytes32(unsigned int   x);
+        // Return the specified 'x' with byte order swapped.
+
+    static Types::Uint64  swapBytes64(Types::Uint64  x);
+        // Return the specified 'x' with byte order swapped.
 };
 
 //=============================================================================
@@ -155,11 +156,11 @@ unsigned short
 ByteOrderUtil::swapBytes16(unsigned short x)
 {
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
-    return Impl::custom_swap_16(x);
+    return Impl::customSwap16(x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
-    return Impl::custom_swap_p16(&x);
+    return Impl::customSwapP16(&x);
 #else
-    return Impl::generic_swap_16(x);
+    return Impl::genericSwap16(x);
 #endif
 }
 
@@ -168,11 +169,11 @@ unsigned int
 ByteOrderUtil::swapBytes32(unsigned int x)
 {
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
-    return Impl::custom_swap_32(x);
+    return Impl::customSwap32(x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
-    return Impl::custom_swap_p32(&x);
+    return Impl::customSwapP32(&x);
 #else
-    return Impl::generic_swap_32(x);
+    return Impl::genericSwap32(x);
 #endif
 }
 
@@ -181,11 +182,11 @@ bsls::Types::Uint64
 ByteOrderUtil::swapBytes64(bsls::Types::Uint64 x)
 {
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
-    return Impl::custom_swap_64(x);
+    return Impl::customSwap64(x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
-    return Impl::custom_swap_p64(&x);
+    return Impl::customSwapP64(&x);
 #else
-    return Impl::generic_swap_64(x);
+    return Impl::genericSwap64(x);
 #endif
 }
 

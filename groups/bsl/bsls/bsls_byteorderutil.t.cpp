@@ -13,19 +13,49 @@
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// [5] TESTING USAGE EXAMPLE
+// The component under test is a namespace component containing a collection
+// of single-argument, passed by value, static functions that return their
+// results.  There are two classes of functions:
+//
+//: o 'TYPE swapBytes(TYPE)' where 'TYPE' is any integral type
+//: o 'TYPE swapBytes{16,32,64}(TYPE) where 'TYPE' is an unsigned integral type
+//:   whose word width in bits is indicated by the number at the end of the
+//:   function name.
+//
+// The 'swapBytes(TYPE)' methods themselves fall into two categories
+//: o functions that take a single-byte argument, which is returned without
+//:   modification
+//: o functions that take a multi-byte argument, which is return with the byte
+//:   order reversed.
+//
+// Tables are created in this component with 2, 4, and 8-byte integral values,
+// along with the same value with byte order reversed.  For every integral
+// type, the type is loaded with the unswapped value, then this is fed into
+// function under test, and the result compared to the swapped value.
+//
+// Some types vary in size across different platforms, and accomodation is
+// made for this, plus tests to make sure that all types are in fact tested.
+//
+// Single byte values are tested for all possible value in the 'singleByteTest'
+// template function.
+//
+// [5] USAGE EXAMPLE
 // [4] TESTING SINGLE BYTE OBJECTS
 // [3] TESTING TYPE MATCHING
 // [2] TESTING 'swapBytes', 'swapBytes{16,32,64}'
 // [1] BREATHING TEST
 //-----------------------------------------------------------------------------
-// [5] USAGE
-// [4] 'swapBytes'
-// [3] 'swapBytes'
-// [2] 'swapBytes'
-// [2] 'swapBytes{16,32,64}'
-// [1] 'swapBytes'
-// [1] 'swapBytes{16,32,64}'
+// [ 5] USAGE
+// [ 4] static TYPE swapBytes(TYPE) for all single-byte 'TYPE'
+// [ 3] static TYPE swapBytes(TYPE) for all integral 'TYPE'
+// [ 2] static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'
+// [ 2] static unsigned short swapBytes16(unsigned short)
+// [ 2] static unsigned int swapBytes32(unsigned int)
+// [ 2] static bsls::Uint64 swapBytes32(bsls::Uint64)
+// [ 1] static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'
+// [ 1] static unsigned short swapBytes16(unsigned short)
+// [ 1] static unsigned int swapBytes32(unsigned int)
+// [ 1] static bsls::Uint64 swapBytes32(bsls::Uint64)
 //-----------------------------------------------------------------------------
 
 using namespace BloombergLP;
@@ -114,7 +144,7 @@ bool isSameType(const LHS_TYPE&, const RHS_TYPE&)
 
 template <class TYPE>
 bool isSameType(const TYPE&, const TYPE&)
-    // Return 'true' because both of the arguemnts are of the same type.
+    // Return 'true' because both of the arguments are of the same type.
 {
     return true;
 }
@@ -122,7 +152,7 @@ bool isSameType(const TYPE&, const TYPE&)
 template <class TYPE>
 void singleByteTest()
     // Verify that 'Util::swapBytes' returns the value passed without
-    // modfication for all possible values passed to it when taking an arg of
+    // modification for all possible values passed to it when taking an arg of
     // single byte type 'TYPE'.
 {
     int counter = 0;
@@ -295,39 +325,43 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
-        //: o Verify that the usage example compiles and works.
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
-        //: o Implement and run the usage example.
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
-        //   USAGE
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING USAGE EXAMPLE\n"
-                              "=====================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE\n"
+                              "=============\n");
 
 // In this example we demonstrate the use of different overloads of the
 // 'swapBytes' function.
 //
-// First we typedef a shorthand to the namespace class:
+// First we typedef a shorthand to the namespace 'class':
 //..
     typedef bsls::ByteOrderUtil Util;
 //..
-// Then, we demonstrate reversing the bytes of an unsigned short:
+// Then, we demonstrate reversing the bytes of an 'unsigned short':
 //..
     unsigned short us = 0x1234;
     ASSERT(0x3412 == Util::swapBytes(us));
 //..
-// Next, we do a signed short:
+// Next, we do a signed 'short:
 //..
     short ss = 0x4321;
     ASSERT(0x2143 == Util::swapBytes(ss));
 //..
-// Then, we reverse an unsigned int:
+// Then, we reverse an 'unsigned int':
 //..
     unsigned int ui = 0x01020304;
     ASSERT(0x04030201 == Util::swapBytes(ui));
@@ -353,17 +387,18 @@ int main(int argc, char *argv[])
         // TESTING SINGLE BYTE OBJECTS
         //
         // Concerns:
-        //: o Verify that 'swapBytes', when called on single byte objects,
-        //:   returns the value passed without modification.
+        //: 1 That 'swapBytes', when called on single byte objects, returns the
+        //:   value passed without modification.
         //
         // Plan:
-        //: 1 For bool, just test both possible values by hand.
-        //: 2 For char types, use the 'singleByteTest' template function
+        //: 1 For 'bool', just test both possible values by hand.
+        //:
+        //: 2 For 'char' types, use the 'singleByteTest' template function
         //:   (defined in this file) to test that 'swapBytes' is the identify
         //:   function for all possible values of the char type.
         //
         // Testing:
-        //   'swapBytes'.
+        //   static TYPE swapBytes(TYPE) for all single-byte 'TYPE'
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING SINGLE BYTE OBJECTS\n"
@@ -381,17 +416,17 @@ int main(int argc, char *argv[])
         // TESTING TYPE MATCHING
         //
         // Concerns:
-        //: o That the set of types supported by 'swapBytes' are
+        //: 1 That the set of types supported by 'swapBytes' are
         //:   distinguishable when passed by value, and that none of them
-        //:   evaluate to the same type (ie 'char' and 'signed char').
+        //:   evaluate to the same type (i.e. 'char' and 'signed char').
         //
         // Plan:
-        //: o Use the template function 'isSameType' (defined in this file)
+        //: 1 Use the template function 'isSameType' (defined in this file)
         //:   to compare types passed to it, and to compare the return value
         //:   type of calls to 'swapBytes'.
         //
         // Testing:
-        //  'swapBytes'.
+        //   static TYPE swapBytes(TYPE) for all integral 'TYPE'
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TYPE MATCHING\n"
@@ -544,7 +579,7 @@ int main(int argc, char *argv[])
         // TESTING 'swapBytes', 'swapBytes{16,32,64}'
         //
         // Concerns:
-        //: o That 'swapBytes' and 'swapBytes{16,32,64}' return the proper
+        //: 1 That 'swapBytes' and 'swapBytes{16,32,64}' return the proper
         //:   values.
         //
         // Plan:
@@ -553,14 +588,16 @@ int main(int argc, char *argv[])
         //:     verify that the 'd_swapped' field of the entry is reversed
         //:     version of the 'd_value' entry.
         //:   2 Call 'isSameType' to compare the types of different variables
-        //:     and calls to 'swapBytes' and 'seapBytesNN', verifying that
+        //:     and calls to 'swapBytes' and 'swapBytesNN', verifying that
         //:     the types match or do not as expected.
         //:   3 Call 'swapBytesNN' and 'swapBytes' on the table values and
         //:     verify the results are as expected.
         //
         // Testing:
-        //   'swapBytes'
-        //   'swapBytes{16,32,64}'
+        //   static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'
+        //   static unsigned short swapBytes16(unsigned short)
+        //   static unsigned int swapBytes32(unsigned int)
+        //   static bsls::Uint64 swapBytes32(bsls::Uint64)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'swapBytes', 'swapBytes{16,32,64}'\n"
@@ -763,16 +800,18 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: o Perform random tests on 'swapBytes' and 'swapBytesNN'.
+        //: 1 Perform random tests on 'swapBytes' and 'swapBytesNN'.
         //
         // Plan:
-        //: o Perform random tests on 'swapBytes' and 'swapBytesNN'.  All
+        //: 1 Perform random tests on 'swapBytes' and 'swapBytesNN'.  All
         //:   aspects of this testing are repeated more systematically in test
         //:   case 2.
         //
         // Testing:
-        //   'swapBytes'
-        //   'swapBytes{16,32,64}'
+        //   static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'
+        //   static unsigned short swapBytes16(unsigned short)
+        //   static unsigned int swapBytes32(unsigned int)
+        //   static bsls::Uint64 swapBytes32(bsls::Uint64)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST\n"
