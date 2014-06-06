@@ -68,8 +68,8 @@ BSLS_IDENT("$Id: $")
 //..
 // A default-constructed pool has an initial chunk size of 1 (i.e., the number
 // of memory blocks of a given size allocated at once to replenish a pool's
-// memory), and the pool's chunk size grows geometrically until it reaches
-// an implementation-defined maximum, at which it is capped.  Finally, unless
+// memory), and the pool's chunk size grows geometrically until it reaches an
+// implementation-defined maximum, at which it is capped.  Finally, unless
 // otherwise specified, all memory comes from the allocator that was the
 // currently installed default allocator at the time the 'bdlma::Pool' was
 // created.
@@ -449,11 +449,11 @@ class Pool {
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand, there is no syntax in C++ to invoke an
 // overloaded 'operator delete'; on the other hand, the pointer returned by
-// 'operator new' cannot be passed to the 'deallocate' method directly
-// because the pointer is different from the one returned by the 'allocate'
-// method.  The compiler offsets the value of this pointer by a header, which
-// is used to maintain the number of objects in the array (so that
-// 'operator delete' can destroy the right number of objects).
+// 'operator new' cannot be passed to the 'deallocate' method directly because
+// the pointer is different from the one returned by the 'allocate' method.
+// The compiler offsets the value of this pointer by a header, which is used to
+// maintain the number of objects in the array (so that 'operator delete' can
+// destroy the right number of objects).
 
 // FREE OPERATORS
 void *operator new(bsl::size_t size, BloombergLP::bdlma::Pool& pool);
