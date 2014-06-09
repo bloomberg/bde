@@ -3212,7 +3212,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Select size of range to rotate and all possible positions.
-        //   Due to the use of gcd in the implementation, try all sizes <= 6,
+        //   Due to the use of 'gcd' in the implementation, try all sizes <= 6,
         //   and in addition, for a small set of larger prime and non-prime
         //   sizes, try different positions in the range (relatively prime and
         //   non prime).
@@ -3516,10 +3516,10 @@ int main(int argc, char *argv[])
         //   It is unclear which of the implementations is the best for the
         //   'uninitializedFillN' algorithms.
         //
-        // Plan:  Time all three implementations (exponential memcpy, memcpy
-        //   by blocks of 32 bytes, or single loop) for various fundamental
-        //   types and taking care to separate the care where 'memset' can be
-        //   used (also time this fourth implementation).
+        // Plan:  Time all three implementations (exponential 'memcpy',
+        //   'memcpy' by blocks of 32 bytes, or single loop) for various
+        //   fundamental types and taking care to separate the care where
+        //   'memset' can be used (also time this fourth implementation).
         //
         // Testing:
         //   uninitializedFillN(char *,...);

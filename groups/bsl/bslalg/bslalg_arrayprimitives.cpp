@@ -6,8 +6,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 // IMPLEMENTATION NOTE: cases where 'value == 0' are common enough that it is
 // worth avoiding the overhead of the generic bit-wise copyable implementation
-// (exponential memcopy, see 'bitwiseFillN' below).  Same note applies for
-// other fundamental types below, except that cases in which using memset is
+// (exponential 'memcpy', see 'bitwiseFillN' below).  Same note applies for
+// other fundamental types below, except that cases in which using 'memset' is
 // possible are limited (mostly 0 for fundamental types, -1 for integral
 // types).
 //
@@ -124,29 +124,6 @@ namespace BloombergLP {
 namespace bslalg {
 
 // CLASS METHODS
-void ArrayPrimitives_Imp::bitwiseFillN(char      *begin,
-                                       size_type  numBytesInitialized,
-                                       size_type  numBytes)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numBytes);
-    BSLS_ASSERT(numBytesInitialized <= numBytes);
-
-    // Copy the destination onto itself, doubling size at every iteration.
-
-    char *end = begin + numBytesInitialized;
-    numBytes -= numBytesInitialized;            // bytes remaining to be copied
-
-    while (numBytesInitialized <= numBytes) {
-        std::memcpy(end, begin, numBytesInitialized);
-        end += numBytesInitialized;
-        numBytes -= numBytesInitialized;
-        numBytesInitialized *= 2;
-    }
-    if (0 < numBytes) {
-        std::memcpy(end, begin, numBytes);   // finish copying end of the range
-    }
-}
-
 void ArrayPrimitives_Imp::uninitializedFillN(
                       short                                       *begin,
                       short                                        value,
@@ -352,93 +329,29 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
 }
 
-                         // *** bitwiseSwapRanges: ***
+// 'bitwise' METHODS
 
-void ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
-                                            char *middle,
-                                            char *end)
+void ArrayPrimitives_Imp::bitwiseFillN(char      *begin,
+                                       size_type  numBytesInitialized,
+                                       size_type  numBytes)
 {
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
+    BSLS_ASSERT_SAFE(begin || 0 == numBytes);
+    BSLS_ASSERT(numBytesInitialized <= numBytes);
 
-    std::ptrdiff_t numBytes = static_cast<int>(middle - begin);
-    BSLS_ASSERT(numBytes == end - middle);
+    // Copy the destination onto itself, doubling size at every iteration.
 
-    (void) end;
+    char *end = begin + numBytesInitialized;
+    numBytes -= numBytesInitialized;            // bytes remaining to be copied
 
-    union {
-        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
-        bsls::AlignmentUtil::MaxAlignedType d_align;
-    } arena;
-
-    for (; k_INPLACE_BUFFER_SIZE <= numBytes;
-                                           numBytes -= k_INPLACE_BUFFER_SIZE,
-                                           begin    += k_INPLACE_BUFFER_SIZE,
-                                           middle   += k_INPLACE_BUFFER_SIZE) {
-        std::memcpy(arena.d_buffer, middle, k_INPLACE_BUFFER_SIZE);
-        std::memmove(middle, begin, k_INPLACE_BUFFER_SIZE);
-        std::memcpy(begin, arena.d_buffer, k_INPLACE_BUFFER_SIZE);
+    while (numBytesInitialized <= numBytes) {
+        std::memcpy(end, begin, numBytesInitialized);
+        end += numBytesInitialized;
+        numBytes -= numBytesInitialized;
+        numBytesInitialized *= 2;
     }
-
     if (0 < numBytes) {
-        std::memcpy(arena.d_buffer, middle, numBytes);
-        std::memmove(middle, begin, numBytes);
-        std::memcpy(begin, arena.d_buffer, numBytes);
+        std::memcpy(end, begin, numBytes);   // finish copying end of the range
     }
-}
-
-                       // *** bitwiseRotateBackward: ***
-
-void ArrayPrimitives_Imp::bitwiseRotateBackward(char *begin,
-                                                char *middle,
-                                                char *end)
-{
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
-
-    union {
-        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
-        bsls::AlignmentUtil::MaxAlignedType d_align;
-    } arena;
-
-    const std::size_t numBytes = middle - begin;
-    const std::size_t remBytes = end - middle;
-
-    BSLS_ASSERT(numBytes <= k_INPLACE_BUFFER_SIZE);
-
-    std::memcpy(arena.d_buffer, begin, numBytes);
-    std::memmove(begin, middle, remBytes);
-    std::memcpy(end - numBytes, arena.d_buffer, numBytes);
-}
-
-                       // *** bitwiseRotateForward: ***
-
-void ArrayPrimitives_Imp::bitwiseRotateForward(char *begin,
-                                               char *middle,
-                                               char *end)
-{
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
-
-    union {
-        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
-        bsls::AlignmentUtil::MaxAlignedType d_align;
-    } arena;
-
-    const std::size_t numBytes = middle - begin;
-    const std::size_t remBytes = end - middle;
-
-    BSLS_ASSERT(remBytes <= k_INPLACE_BUFFER_SIZE);
-
-    std::memcpy(arena.d_buffer, middle, remBytes);
-    std::memmove(end - numBytes, begin, numBytes);
-    std::memcpy(begin, arena.d_buffer, remBytes);
 }
 
                            // *** bitwiseRotate: ***
@@ -606,6 +519,95 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
 
         begin += numBytes;
             // And move on to the next cycle: => _W__X__Y__Z_
+    }
+}
+
+                       // *** bitwiseRotateBackward: ***
+
+void ArrayPrimitives_Imp::bitwiseRotateBackward(char *begin,
+                                                char *middle,
+                                                char *end)
+{
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
+    union {
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } arena;
+
+    const std::size_t numBytes = middle - begin;
+    const std::size_t remBytes = end - middle;
+
+    BSLS_ASSERT(numBytes <= k_INPLACE_BUFFER_SIZE);
+
+    std::memcpy(arena.d_buffer, begin, numBytes);
+    std::memmove(begin, middle, remBytes);
+    std::memcpy(end - numBytes, arena.d_buffer, numBytes);
+}
+
+                       // *** bitwiseRotateForward: ***
+
+void ArrayPrimitives_Imp::bitwiseRotateForward(char *begin,
+                                               char *middle,
+                                               char *end)
+{
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
+    union {
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } arena;
+
+    const std::size_t numBytes = middle - begin;
+    const std::size_t remBytes = end - middle;
+
+    BSLS_ASSERT(remBytes <= k_INPLACE_BUFFER_SIZE);
+
+    std::memcpy(arena.d_buffer, middle, remBytes);
+    std::memmove(end - numBytes, begin, numBytes);
+    std::memcpy(begin, arena.d_buffer, remBytes);
+}
+
+                         // *** bitwiseSwapRanges: ***
+
+void ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
+                                            char *middle,
+                                            char *end)
+{
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
+    std::ptrdiff_t numBytes = static_cast<int>(middle - begin);
+    BSLS_ASSERT(numBytes == end - middle);
+
+    (void) end;
+
+    union {
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } arena;
+
+    for (; k_INPLACE_BUFFER_SIZE <= numBytes;
+                                           numBytes -= k_INPLACE_BUFFER_SIZE,
+                                           begin    += k_INPLACE_BUFFER_SIZE,
+                                           middle   += k_INPLACE_BUFFER_SIZE) {
+        std::memcpy(arena.d_buffer, middle, k_INPLACE_BUFFER_SIZE);
+        std::memmove(middle, begin, k_INPLACE_BUFFER_SIZE);
+        std::memcpy(begin, arena.d_buffer, k_INPLACE_BUFFER_SIZE);
+    }
+
+    if (0 < numBytes) {
+        std::memcpy(arena.d_buffer, middle, numBytes);
+        std::memmove(middle, begin, numBytes);
+        std::memcpy(begin, arena.d_buffer, numBytes);
     }
 }
 
