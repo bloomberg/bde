@@ -1,10 +1,3 @@
 *                  _    OPTS_FILE    = bdl.opts
 
-# Uncomment the lines when {DRQS 39471014<GO>} is fixed and fully deployed:
-*-*-powerpc-*-xlc  _  DEF_CXXFLAGS   = -qdfp -D__STDC_WANT_DEC_FP__
-*-*-powerpc-5-xlc  _  DEF_LDFLAGS    = -ldecNumber
-
-# uncomment the next line when we no longer have to support pwr5 arch
-# *-*-powerpc-6-xlc  _  DEF_CXXFLAGS = -qarch=pwr6 -qtune=pwr6 -qdfp
-
 #==============================================================================

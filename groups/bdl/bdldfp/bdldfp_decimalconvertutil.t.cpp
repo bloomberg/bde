@@ -419,18 +419,15 @@ int main(int argc, char* argv[])
     int             verbose = argc > 2;
     int         veryVerbose = argc > 3;
     int     veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;  // always the last
 
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::TestAllocator defaultAllocator("default");
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::TestAllocator globalAllocator("global");
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma::TestAllocator  ta(veryVeryVeryVerbose);
-    bslma::TestAllocator *pa = &ta;
 
     typedef BDEC::DecimalConvertUtil Util;
 

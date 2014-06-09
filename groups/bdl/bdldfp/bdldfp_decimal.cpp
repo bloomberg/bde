@@ -138,28 +138,37 @@ NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 
 static
 char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int n)
-{ // TBD TODO - printf is locale dependent!!!
+{
+    // TBD TODO - printf is locale dependent!!!
+
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
+
     snprintf(buffer, n, "%#.7HG", *value);
     return buffer;
 }
 
 static
 char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int n)
-{ // TBD TODO - printf is locale dependent!!!
+{
+    // TBD TODO - printf is locale dependent!!!
+
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
-    snprintf(buffer, n, "%.16DG", *value);
+
+    snprintf(buffer, n, "%#.16DG", *value);
     return buffer;
 }
 
 static
 char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int n)
-{ // TBD TODO - printf is locale dependent!!!
+{
+    // TBD TODO - printf is locale dependent!!!
+
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
-    snprintf(buffer, n, "%.34DDG", *value);
+
+    snprintf(buffer, n, "%#.34DDG", *value);
     return buffer;
 }
 
@@ -170,23 +179,29 @@ char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int n)
               // Implementation specific helper functions
 
 static
-char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int) {
+char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int)
+{
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
+
     return decSingleToString(value, buffer);
 }
 
 static
-char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int) {
+char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int)
+{
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
+
     return decDoubleToString(value, buffer);
 }
 
 static
-char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int) {
+char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int)
+{
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
+
     return decQuadToString(value, buffer);
 }
 
@@ -258,7 +273,7 @@ ITER_TYPE fillN(ITER_TYPE iter, int numCharacters, CHAR_TYPE character)
 {
   while (numCharacters > 0) {
     *iter = character;
-    ++iter; 
+    ++iter;
     --numCharacters;
   }
   return iter;

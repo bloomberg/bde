@@ -2,6 +2,7 @@
 #include <bdldfp_decimalimplutil.h>
 
 #include <bdldfp_uint128.h>
+#include <bdls_testutil.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -19,6 +20,10 @@
 #include <bsl_sstream.h>
 
 #include <typeinfo>
+
+extern "C" {
+#include <decSingle.h>  // Even in hardware modes, we need decNumber functions.
+}
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -92,49 +97,27 @@ static void aSsErT(int c, const char *s, int i)
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-// ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+//=========================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -186,52 +169,6 @@ bsl::wstring& decLower(bsl::wstring& s)
 {
     for (size_t i = 0; i < s.length(); ++i) if (L'E' == s[i]) s[i] = L'e';
     return s;
-}
-
-// Parse a 'int' literal in the specified 's', returning the result in the
-// address of the specified 'result', using the specified 'pa' for temporary
-// memory allocation. Return true iff 's' is a valid 'int' literal.
-bool parseInt(const bsl::string& s, int *result, bslma::TestAllocator *pa)
-{
-    bsl::istringstream ss(s, pa);
-    return !(ss >> *result).fail();
-}
-
-// Parse an 'unsigned int' literal in the specified 's', returning the result
-// in the address of the specified 'result', using the specified 'pa' for
-// temporary memory allocation. Return true iff 's' is a valid 'unsigned int'
-// literal.
-bool parseUInt(const bsl::string& s, unsigned int *result,
-               bslma::TestAllocator *pa)
-{
-    if (s.empty()) return 0;                                          // RETURN
-    if (s[0] == '-') return 0;                                        // RETURN
-    bsl::istringstream ss(s, pa);
-    return !(ss >> *result).fail();
-}
-
-// Parse a 'long long' literal in the specified 's', returning the result in
-// the address of the specified 'result', using the specified 'pa' for
-// temporary memory allocation. Return true iff 's' is a valid 'long long'
-// literal.
-bool parseLL(const bsl::string& s, long long *result,
-             bslma::TestAllocator *pa)
-{
-    bsl::istringstream ss(s, pa);
-    return !(ss >> *result).fail();
-}
-
-// Parse an 'unsigned long long' literal in the specified 's', returning the
-// result in the address of the specified 'result', using the specified 'pa'
-// for temporary memory allocation. Return true iff 's' is a valid
-// 'unsigned long long' literal.
-bool parseULL(const bsl::string& s, unsigned long long *result,
-              bslma::TestAllocator *pa)
-{
-    if (s.empty()) return 0;                                          // RETURN
-    if (s[0] == '-') return 0;                                        // RETURN
-    bsl::istringstream ss(s, pa);
-    return !(ss >> *result).fail();
 }
 
 // Normalize the specified 'mantissa' by dividing by powers of 10 if
@@ -299,8 +236,6 @@ struct NulBuf : bsl::streambuf {
 
 //-----------------------------------------------------------------------------
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
-
                                 // ===
                                 // D32
                                 // ===
@@ -310,7 +245,9 @@ class D32 {
 
     void set(int exponent, const unsigned char *bcd, int sign)
     {
-        decSingleFromBCD(&d_data, exponent, bcd, sign);
+        decSingle d_data_s;
+        decSingleFromBCD(&d_data_s, exponent, bcd, sign);
+        memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
@@ -342,7 +279,13 @@ class D32 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-        return o << bsl::hex << *d_data.words;
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+        sprintf(buffer, "%#.7HG", &d_data);
+        return o << bsl::hex << buffer << bsl::dec;
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+        return o << bsl::hex << *d_data.words << bsl::dec;
+#endif
     }
 };
 
@@ -355,6 +298,11 @@ bsl::ostream &operator<<(bsl::ostream &o, const D32& d)
 {
     return d.printHex(o);
 }
+
+bsl::ostream &operator<<(bsl::ostream &o, const Util::ValueType32& d)
+{
+    return operator<<(o, D32(d));
+}
                                 // ===
                                 // D64
                                 // ===
@@ -364,7 +312,9 @@ class D64 {
 
     void set(int exponent, const unsigned char *bcd, int sign)
     {
-        decDoubleFromBCD(&d_data, exponent, bcd, sign);
+        decDouble d_data_s;
+        decDoubleFromBCD(&d_data_s, exponent, bcd, sign);
+        memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
@@ -396,7 +346,13 @@ class D64 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-        return o << bsl::hex << *d_data.words;
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+        sprintf(buffer, "%.16DG", &d_data);
+        return o << bsl::hex << buffer << bsl::dec;
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+        return o << bsl::hex << *d_data.words << bsl::dec;
+#endif
     }
 };
 
@@ -409,6 +365,12 @@ bsl::ostream &operator<<(bsl::ostream &o, const D64& d)
 {
     return d.printHex(o);
 }
+
+bsl::ostream &operator<<(bsl::ostream &o, const Util::ValueType64& d)
+{
+    return operator<<(o, D64(d));
+}
+
                                 // ====
                                 // D128
                                 // ====
@@ -418,7 +380,9 @@ class D128 {
 
     void set(int exponent, const unsigned char *bcd, int sign)
     {
-        decQuadFromBCD(&d_data, exponent, bcd, sign);
+        decQuad d_data_s;
+        decQuadFromBCD(&d_data_s, exponent, bcd, sign);
+        memcpy(&d_data, &d_data_s, sizeof(d_data));
     }
   public:
     template <unsigned S>
@@ -450,7 +414,13 @@ class D128 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-        return o << bsl::hex << *d_data.words;
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+        sprintf(buffer, "%.34DDG", &d_data);
+        return o << bsl::hex << buffer << bsl::dec;
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+        return o << bsl::hex << *d_data.words << bsl::dec;
+#endif
     }
 };
 
@@ -464,7 +434,10 @@ bsl::ostream &operator<<(bsl::ostream &o, const D128& d)
     return d.printHex(o);
 }
 
-#endif
+bsl::ostream &operator<<(bsl::ostream &o, const Util::ValueType128& d)
+{
+    return operator<<(o, D128(d));
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -624,21 +597,18 @@ int main(int argc, char *argv[])
     int                test = argc > 1 ? atoi(argv[1]) : 0;
     int             verbose = argc > 2;
     int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;  // always the last
 
     using bsls::AssertFailureHandlerGuard;
 
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::TestAllocator defaultAllocator("default");
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::TestAllocator globalAllocator("global");
     bslma::Default::setGlobalAllocator(&globalAllocator);
+
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma::TestAllocator  ta(veryVeryVeryVerbose);
-    bslma::TestAllocator *pa = &ta;
 
     cout.precision(35);
 
@@ -788,7 +758,7 @@ int main(int argc, char *argv[])
     const int NUM_TEST_NONZERO_MANTISSAS =
                 sizeof TEST_NONZERO_MANTISSAS / sizeof *TEST_NONZERO_MANTISSAS;
 
-    static const long long TEST_EXPONENTS[] = {
+    static const int TEST_EXPONENTS[] = {
         -4064,
         -399,
         -398,
@@ -1113,10 +1083,13 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                           }
 
                           if (fits32) {
+                              int mantissa = static_cast<int>(MANTISSA);
+                              ASSERT(mantissa == MANTISSA);
+
                               const Util::ValueType32 ACTUAL32 =
                                                     Util::parse32(TEST_STRING);
                               const Util::ValueType32 EXPECTED32 =
-                                    Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                                    Util::makeDecimalRaw32(mantissa, EXPONENT);
                               ASSERT(Util::equals(ACTUAL32, EXPECTED32));
                           }
 
@@ -1142,10 +1115,13 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                               }
 
                               if (fits32) {
+                                  int mantissa = static_cast<int>(MANTISSA);
+                                  ASSERT(mantissa == MANTISSA);
+
                                   const Util::ValueType32 ACTUAL32 =
                                                     Util::parse32(TEST_STRING);
                                   const Util::ValueType32 EXPECTED32 =
-                                    Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                                    Util::makeDecimalRaw32(mantissa, EXPONENT);
                                   ASSERT(Util::equals(ACTUAL32, EXPECTED32));
                               }
                           }
@@ -1184,10 +1160,13 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                               }
 
                               if (fits32) {
+                                  int mantissa = static_cast<int>(MANTISSA);
+                                  ASSERT(mantissa == MANTISSA);
+
                                   const Util::ValueType32 ACTUAL32 =
                                                     Util::parse32(TEST_STRING);
                                   const Util::ValueType32 EXPECTED32 =
-                                    Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                                    Util::makeDecimalRaw32(mantissa, EXPONENT);
                                   ASSERT(Util::equals(ACTUAL32, EXPECTED32));
                               }
                           }
@@ -1199,7 +1178,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                          << "Test cases involving combination "
                                          << "field" << bsl::endl;
               {
-                  for (int LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
+                  for (unsigned char LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
                        ++LEADING_DIGIT) {
                       for (int EXPONENT = -6176; EXPONENT <= 6111;
                                                                   ++EXPONENT) {
@@ -1207,22 +1186,14 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                           // followed by 33 zeros, followed by "e" and the
                           // exponent.
                           char STRING_VAL[50];
-                          STRING_VAL[0] = '0' + LEADING_DIGIT;
+                          sprintf(STRING_VAL, "%d", LEADING_DIGIT);
+
                           int i;
                           for (i = 1; i <= 33; ++i) {
                               STRING_VAL[i] = '0';
                           }
                           STRING_VAL[i++] = 'e';
-                          if (EXPONENT < 0) {
-                              STRING_VAL[i++] = '-';
-                          }
-
-                          int ABS_EXPONENT = bsl::max(EXPONENT, -EXPONENT);
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT / 1000) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /  100) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /   10) % 10;
-                          STRING_VAL[i++] = '0' +  ABS_EXPONENT         % 10;
-                          STRING_VAL[i++] = 0;
+                          sprintf(&STRING_VAL[i], "%d", EXPONENT);
 
                           Util::ValueType128 ACTUAL =
                                                     Util::parse128(STRING_VAL);
@@ -1232,35 +1203,23 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                                     0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                     0, 0};
                           const D128 EXPECTED = D128(EXPONENT, iBCD, 1);
-                          LOOP2_ASSERT(LEADING_DIGIT, EXPONENT,
-                                                           ACTUAL == EXPECTED);
+                          LOOP2_ASSERT(LEADING_DIGIT,
+                                       EXPONENT,
+                                       ACTUAL == EXPECTED);
                       }
                   }
 
-                  for (int LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
+                  for (unsigned char LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
                        ++LEADING_DIGIT) {
                       for (int EXPONENT = -6176; EXPONENT <= 6111;
                                                                   ++EXPONENT) {
-                          // Create the strong formed by the leading digit
+                          // Create the string formed by the leading digit
                           // followed by eleven occurrances of the 3-digit
                           // pattern "255", followed by "e" and the exponent.
-                          char STRING_VAL[50] = {
-                              '0' + LEADING_DIGIT, '2', '5', '5', '2', '5',
-                              '5', '2', '5', '5', '2', '5', '5', '2', '5', '5',
-                              '2', '5', '5', '2', '5', '5', '2', '5', '5', '2',
-                              '5', '5', '2', '5', '5', '2', '5', '5'};
-                          int i = 34;
-                          STRING_VAL[i++] = 'e';
-                          if (EXPONENT < 0) {
-                              STRING_VAL[i++] = '-';
-                          }
-
-                          int ABS_EXPONENT = bsl::max(EXPONENT, -EXPONENT);
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT / 1000) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /  100) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /   10) % 10;
-                          STRING_VAL[i++] = '0' +  ABS_EXPONENT         % 10;
-                          STRING_VAL[i++] = 0;
+                          char STRING_VAL[50];
+                          sprintf(STRING_VAL,
+                                  "%d255255255255255255255255255255255e%d",
+                                  LEADING_DIGIT, EXPONENT);
 
                           Util::ValueType128 ACTUAL =
                                                     Util::parse128(STRING_VAL);
@@ -1270,35 +1229,24 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                                     5, 5, 2, 5, 5, 2, 5, 5, 2,
                                                     5, 5};
                           const D128 EXPECTED = D128(EXPONENT, iBCD, 1);
-                          LOOP2_ASSERT(LEADING_DIGIT, EXPONENT,
-                                                           ACTUAL == EXPECTED);
+                          LOOP2_ASSERT(LEADING_DIGIT,
+                                       EXPONENT,
+                                       ACTUAL == EXPECTED);
                       }
                   }
 
-                  for (int LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
+                  for (unsigned char LEADING_DIGIT = 1; LEADING_DIGIT <= 9;
                        ++LEADING_DIGIT) {
                       for (int EXPONENT = -6176; EXPONENT <= 6111;
                                                                   ++EXPONENT) {
                           // Create the strong formed by the leading digit
                           // followed by eleven occurrances of the 3-digit
                           // pattern "582", followed by "e" and the exponent.
-                          char STRING_VAL[50] = {
-                              '0' + LEADING_DIGIT, '5', '8', '2', '5', '8',
-                              '2', '5', '8', '2', '5', '8', '2', '5', '8', '2',
-                              '5', '8', '2', '5', '8', '2', '5', '8', '2', '5',
-                              '8', '2', '5', '8', '2', '5', '8', '2'};
-                          int i = 34;
-                          STRING_VAL[i++] = 'e';
-                          if (EXPONENT < 0) {
-                              STRING_VAL[i++] = '-';
-                          }
 
-                          int ABS_EXPONENT = bsl::max(EXPONENT, -EXPONENT);
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT / 1000) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /  100) % 10;
-                          STRING_VAL[i++] = '0' + (ABS_EXPONENT /   10) % 10;
-                          STRING_VAL[i++] = '0' +  ABS_EXPONENT         % 10;
-                          STRING_VAL[i++] = 0;
+                          char STRING_VAL[50];
+                          sprintf(STRING_VAL,
+                                  "%d582582582582582582582582582582582e%d",
+                                  LEADING_DIGIT, EXPONENT);
 
                           Util::ValueType128 ACTUAL =
                                                     Util::parse128(STRING_VAL);
@@ -1308,8 +1256,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                                     8, 2, 5, 8, 2, 5, 8, 2, 5,
                                                     8, 2};
                           const D128 EXPECTED = D128(EXPONENT, iBCD, 1);
-                          LOOP2_ASSERT(LEADING_DIGIT, EXPONENT,
-                                                           ACTUAL == EXPECTED);
+                          LOOP2_ASSERT(LEADING_DIGIT,
+                                       EXPONENT,
+                                       ACTUAL == EXPECTED);
                       }
                   }
               }
@@ -1714,41 +1663,16 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                   static const struct {
                       int         d_lineNum;
                       const char *d_stringVal;
-                      bool        d_expectedSignal;
                       // true for sNan, false for qNan.
                   } PARSE64_NAN_TEST_DATA[] = {
-                      { L_, "qnan", false},
-                      { L_, "qnaN", false},
-                      { L_, "qnAn", false},
-                      { L_, "qnAN", false},
-                      { L_, "qNan", false},
-                      { L_, "qNaN", false},
-                      { L_, "qNAn", false},
-                      { L_, "qNAN", false},
-                      { L_, "Qnan", false},
-                      { L_, "QnaN", false},
-                      { L_, "QnAn", false},
-                      { L_, "QnAN", false},
-                      { L_, "QNan", false},
-                      { L_, "QNaN", false},
-                      { L_, "QNAn", false},
-                      { L_, "QNAN", false},
-                      { L_, "snan",  true},
-                      { L_, "snaN",  true},
-                      { L_, "snAn",  true},
-                      { L_, "snAN",  true},
-                      { L_, "sNan",  true},
-                      { L_, "sNaN",  true},
-                      { L_, "sNAn",  true},
-                      { L_, "sNAN",  true},
-                      { L_, "Snan",  true},
-                      { L_, "SnaN",  true},
-                      { L_, "SnAn",  true},
-                      { L_, "SnAN",  true},
-                      { L_, "SNan",  true},
-                      { L_, "SNaN",  true},
-                      { L_, "SNAn",  true},
-                      { L_, "SNAN",  true},
+                      { L_, "nan" },
+                      { L_, "naN" },
+                      { L_, "nAn" },
+                      { L_, "nAN" },
+                      { L_, "Nan" },
+                      { L_, "NaN" },
+                      { L_, "NAn" },
+                      { L_, "NAN" },
                   };
 
                   const int NUM_PARSE64_NAN_TESTS =
@@ -1760,10 +1684,14 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                       const char *STRING_VAL =
                                          PARSE64_NAN_TEST_DATA[ti].d_stringVal;
                       Util::ValueType64 ACTUAL = Util::parse64(STRING_VAL);
-                      Util::ValueType64 EXPECTED =
-                          PARSE64_NAN_TEST_DATA[ti].d_expectedSignal ?
-                          DecConsts<64>::sNan() : DecConsts<64>::qNan();
-                      LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
+                      Util::ValueType64 EXPECTED_QNAN = DecConsts<64>::qNan();
+                      Util::ValueType64 EXPECTED_SNAN = DecConsts<64>::sNan();
+
+                      LOOP_ASSERT(LINE,
+                                  !memcmp(&ACTUAL, &EXPECTED_QNAN,
+                                          sizeof(Util::ValueType64)) ||
+                                  !memcmp(&ACTUAL, &EXPECTED_SNAN,
+                                          sizeof(Util::ValueType64)));
                   }
               }
           }
@@ -1800,11 +1728,14 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                  << "TESTING EQUALITY COMPARISON" << bsl::endl
                                  << "===========================" << bsl::endl;
 
+
               for (int m1i = 0; m1i < NUM_TEST_NONZERO_MANTISSAS; ++m1i) {
                   for (int e1i = 0; e1i < NUM_TEST_EXPONENTS; ++e1i) {
                       for (int m2i = 0; m2i < NUM_TEST_NONZERO_MANTISSAS;
                                                                        ++m2i) {
                           for (int e2i = 0; e2i < NUM_TEST_EXPONENTS; ++e2i) {
+
+
                               const long long mantissa1 =
                                                    TEST_NONZERO_MANTISSAS[m1i];
                               const int exponent1 = TEST_EXPONENTS[e1i];
@@ -1866,8 +1797,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
 
                                   }
                                   if (num2Fits32) {
+                                      int tMantissa2 =
+                                                 static_cast<int>(mantissa2);
+                                      ASSERT(tMantissa2 == mantissa2);
+
                                       const Util::ValueType32 SECOND32 =
-                                          Util::makeDecimalRaw32(mantissa2,
+                                          Util::makeDecimalRaw32(tMantissa2,
                                                                     exponent2);
                                       LOOP2_ASSERT(FIRST64, SECOND32,
                                           Util::equals(FIRST64, SECOND32) ==
@@ -1877,8 +1812,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                               }
 
                               if (num1Fits32) {
+                                  int tMantissa1 = static_cast<int>(mantissa1);
+                                  ASSERT(tMantissa1 == mantissa1);
+
                                   const Util::ValueType32 FIRST32 =
-                                Util::makeDecimalRaw32(mantissa1, exponent1);
+                                Util::makeDecimalRaw32(tMantissa1, exponent1);
                                   LOOP2_ASSERT(FIRST32, SECOND128,
                                       Util::equals(FIRST32, SECOND128) ==
                                                                      EXPECTED);
@@ -1893,8 +1831,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
 
                                   }
                                   if (num2Fits32) {
+                                      int tMantissa2 =
+                                                 static_cast<int>(mantissa2);
+                                      ASSERT(tMantissa2 == mantissa2);
+
                                       const Util::ValueType32 SECOND32 =
-                                          Util::makeDecimalRaw32(mantissa2,
+                                          Util::makeDecimalRaw32(tMantissa2,
                                                                     exponent2);
                                       LOOP2_ASSERT(FIRST32, SECOND32,
                                           Util::equals(FIRST32, SECOND32) ==
@@ -1906,6 +1848,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                       }
                   }
               }
+
 
               // None of the (mantissa, exponent) pairs should compare equal
               // to 0's, Inf's, or Nan's.
@@ -1987,8 +1930,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                       }
 
                       if (fits32) {
+                          int tMantissa = static_cast<int>(mantissa);
+                          ASSERT(tMantissa == mantissa);
+
                           const Util::ValueType32 TEST32 =
-                                    Util::makeDecimalRaw32(mantissa, exponent);
+                                   Util::makeDecimalRaw32(tMantissa, exponent);
 
                           LOOP_ASSERT(TEST32, !Util::equals(
                                               DecConsts<32>::pZero(), TEST32));
@@ -2262,378 +2208,20 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         //   Simple test apparatus
         //
         // Concerns:
-        //: 1 The parsing of string literals to the four integral types of
-        //:   int, unsigned int, long long, and unsigned long long, and the
-        //:   determination of the suitability of the string literal to each
-        //:   type of test. This assists in testing overloaded functions such
-        //:   as 'makeDecimal64'.
-        //:
-        //: 2 The normalization of mantissa, exponent pairs, such that the
+        //: 1 The normalization of mantissa, exponent pairs, such that the
         //:   value of 'mantissa * pow(10, exponent)' is preserved and 10 does
         //:   not divide the adjusted 'mantissa'.
         //
         // Plan:
-        //: 1 Test the parsing of integral numbers of each length in base 10.
-        //:
-        //: 2 Test the parsing of boundary condition numbers of each integral
-        //:   value.
-        //:
-        //: 3 Test the normalizing of numbers of each length in base 10 and
+        //: 1 Test the normalizing of numbers of each length in base 10 and
         //:   with powers of ten of each size.
         //
         // Testing:
-        //   parseInt (char *s, int *i,                Allocator *ma) 
-        //   parseUInt(char *s, unsigned int *i,       Allocator *ma)
-        //   parseLL  (char *s, long long *i,          Allocator *ma)
-        //   parseULL (char *s, unsigned long long *i, Allocator *ma)
         //   normalize(long long *mantissa,            int *exponent)
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << bsl::endl
                                << "TESTING SIMPLE TEST APPARATUS" << bsl::endl
                                << "=============================" << bsl::endl;
-
-        if (veryVerbose) bsl::cout << bsl::endl
-                                   << "Testing helper parsing function for "
-                                   << "parsing ints." << bsl::endl;
-        {
-            static const struct {
-                int         d_lineNum;
-                const char *d_intVal;
-                bool        d_valid;
-                int         d_parsedIntVal;
-            } PARSE_INT_TEST_DATA[] = {
-                //
-                { L_,                    "0", 1,           0 },
-                { L_,                    "1", 1,           1 },
-                { L_,                   "12", 1,          12 },
-                { L_,                  "123", 1,         123 },
-                { L_,                 "1234", 1,        1234 },
-                { L_,                "12345", 1,       12345 },
-                { L_,               "123456", 1,      123456 },
-                { L_,              "1234567", 1,     1234567 },
-                { L_,              "9999999", 1,     9999999 },
-                { L_,             "10000000", 1,    10000000 },
-                { L_,             "12345678", 1,    12345678 },
-                { L_,            "123456789", 1,   123456789 },
-                { L_,           "1234567890", 1,  1234567890 },
-                { L_,           "2147483647", 1,  2147483647 },
-                { L_,           "4294967295", 0,           0 },
-                { L_,          "12345678901", 0,           0 },
-                { L_,         "123456789012", 0,           0 },
-                { L_,        "1234567890123", 0,           0 },
-                { L_,       "12345678901234", 0,           0 },
-                { L_,      "123456789012345", 0,           0 },
-                { L_,     "1234567890123456", 0,           0 },
-                { L_,    "12345678901234567", 0,           0 },
-                { L_,   "123456789012345678", 0,           0 },
-                { L_,  "1234567890123456789", 0,           0 },
-                { L_,  "9223372036854775807", 0,           0 },
-                { L_, "18446744073709551615", 0,           0 },
-                { L_,                   "-1", 1,          -1 },
-                { L_,                  "-12", 1,         -12 },
-                { L_,                 "-123", 1,        -123 },
-                { L_,                "-1234", 1,       -1234 },
-                { L_,               "-12345", 1,      -12345 },
-                { L_,              "-123456", 1,     -123456 },
-                { L_,             "-1234567", 1,    -1234567 },
-                { L_,             "-9999999", 1,    -9999999 },
-                { L_,            "-10000000", 1,   -10000000 },
-                { L_,            "-12345678", 1,   -12345678 },
-                { L_,           "-123456789", 1,  -123456789 },
-                { L_,          "-1234567890", 1, -1234567890 },
-                { L_,          "-2147483647", 1, -2147483647 },
-                { L_,          "-2147483648", 1,
-                             bsl::numeric_limits<int>::min() },
-                { L_,         "-12345678901", 0,           0 },
-                { L_,        "-123456789012", 0,           0 },
-                { L_,       "-1234567890123", 0,           0 },
-                { L_,      "-12345678901234", 0,           0 },
-                { L_,     "-123456789012345", 0,           0 },
-                { L_,    "-1234567890123456", 0,           0 },
-                { L_,   "-12345678901234567", 0,           0 },
-                { L_,  "-123456789012345678", 0,           0 },
-                { L_, "-1234567890123456789", 0,           0 },
-                { L_, "-9223372036854775807", 0,           0 },
-                { L_, "-9223372036854775808", 0,           0 },
-            };
-
-            const int NUM_PARSE_INT_TEST_DATA =
-                      sizeof PARSE_INT_TEST_DATA / sizeof *PARSE_INT_TEST_DATA;
-
-            for (int ti = 0; ti < NUM_PARSE_INT_TEST_DATA; ++ti) {
-                const int LINE = PARSE_INT_TEST_DATA[ti].d_lineNum;
-                const bsl::string INT_VAL(
-                                         PARSE_INT_TEST_DATA[ti].d_intVal, pa);
-                const int VALID = PARSE_INT_TEST_DATA[ti].d_valid;
-                const int EXPECTED = PARSE_INT_TEST_DATA[ti].d_parsedIntVal;
-
-                int ACTUAL;
-                int ACTUAL_VALID = parseInt(INT_VAL, &ACTUAL, pa);
-
-                std::cerr << "ACTUAL_VALID = " << ACTUAL_VALID << std::endl
-                          << "ACTUAL       = " << ACTUAL       << std::endl;
-                LOOP3_ASSERT(LINE, ACTUAL, ACTUAL_VALID,
-                             ACTUAL_VALID == VALID);
-                if (VALID) {
-                    LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
-                }
-            }
-        }
-
-        if (veryVerbose) bsl::cout << "\nTesting helper parsing function for "
-                                   "parsing unsigned ints." << bsl::endl;
-        {
-            static const struct {
-                int          d_lineNum;
-                const char  *d_intVal;
-                bool         d_valid;
-                unsigned int d_parsedUIntVal;
-            } PARSE_UINT_TEST_DATA[] = {
-                //
-                { L_,                    "0", 1,           0U },
-                { L_,                    "1", 1,           1U },
-                { L_,                   "12", 1,          12U },
-                { L_,                  "123", 1,         123U },
-                { L_,                 "1234", 1,        1234U },
-                { L_,                "12345", 1,       12345U },
-                { L_,               "123456", 1,      123456U },
-                { L_,              "1234567", 1,     1234567U },
-                { L_,              "9999999", 1,     9999999U },
-                { L_,             "10000000", 1,    10000000U },
-                { L_,             "12345678", 1,    12345678U },
-                { L_,            "123456789", 1,   123456789U },
-                { L_,           "1234567890", 1,  1234567890U },
-                { L_,           "2147483647", 1,  2147483647U },
-                { L_,           "4294967295", 1,  4294967295U },
-                { L_,          "12345678901", 0,           0U },
-                { L_,         "123456789012", 0,           0U },
-                { L_,        "1234567890123", 0,           0U },
-                { L_,       "12345678901234", 0,           0U },
-                { L_,      "123456789012345", 0,           0U },
-                { L_,     "1234567890123456", 0,           0U },
-                { L_,    "12345678901234567", 0,           0U },
-                { L_,   "123456789012345678", 0,           0U },
-                { L_,  "1234567890123456789", 0,           0U },
-                { L_,  "9223372036854775807", 0,           0U },
-                { L_, "18446744073709551615", 0,           0U },
-                { L_,                   "-1", 0,           0U },
-                { L_,                  "-12", 0,           0U },
-                { L_,                 "-123", 0,           0U },
-                { L_,                "-1234", 0,           0U },
-                { L_,               "-12345", 0,           0U },
-                { L_,              "-123456", 0,           0U },
-                { L_,             "-1234567", 0,           0U },
-                { L_,             "-9999999", 0,           0U },
-                { L_,            "-10000000", 0,           0U },
-                { L_,            "-12345678", 0,           0U },
-                { L_,           "-123456789", 0,           0U },
-                { L_,          "-1234567890", 0,           0U },
-                { L_,          "-2147483647", 0,           0U },
-                { L_,          "-2147483648", 0,           0U },
-                { L_,         "-12345678901", 0,           0U },
-                { L_,        "-123456789012", 0,           0U },
-                { L_,       "-1234567890123", 0,           0U },
-                { L_,      "-12345678901234", 0,           0U },
-                { L_,     "-123456789012345", 0,           0U },
-                { L_,    "-1234567890123456", 0,           0U },
-                { L_,   "-12345678901234567", 0,           0U },
-                { L_,  "-123456789012345678", 0,           0U },
-                { L_, "-1234567890123456789", 0,           0U },
-                { L_, "-9223372036854775807", 0,           0U },
-                { L_, "-9223372036854775808", 0,           0U },
-            };
-
-            const int NUM_PARSE_UINT_TEST_DATA =
-                    sizeof PARSE_UINT_TEST_DATA / sizeof *PARSE_UINT_TEST_DATA;
-
-            for (int ti = 0; ti < NUM_PARSE_UINT_TEST_DATA; ++ti) {
-                const int LINE = PARSE_UINT_TEST_DATA[ti].d_lineNum;
-                const bsl::string INT_VAL(
-                                        PARSE_UINT_TEST_DATA[ti].d_intVal, pa);
-                const int VALID = PARSE_UINT_TEST_DATA[ti].d_valid;
-                const unsigned int EXPECTED =
-                                      PARSE_UINT_TEST_DATA[ti].d_parsedUIntVal;
-
-                unsigned int ACTUAL;
-                int ACTUAL_VALID;
-                ACTUAL_VALID = parseUInt(INT_VAL, &ACTUAL, pa);
-
-                LOOP_ASSERT(LINE, ACTUAL_VALID == VALID);
-                if (VALID) {
-                    LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
-                }
-            }
-        }
-
-        if (veryVerbose) bsl::cout << "\nTesting helper parsing function for "
-                                   "parsing long longs." << bsl::endl;
-        {
-            static const struct {
-                int         d_lineNum;
-                const char *d_intVal;
-                bool        d_valid;
-                long long   d_parsedLLVal;
-            } PARSE_LL_TEST_DATA[] = {
-                //
-                { L_,                    "0", 1,                    0LL },
-                { L_,                    "1", 1,                    1LL },
-                { L_,                   "12", 1,                   12LL },
-                { L_,                  "123", 1,                  123LL },
-                { L_,                 "1234", 1,                 1234LL },
-                { L_,                "12345", 1,                12345LL },
-                { L_,               "123456", 1,               123456LL },
-                { L_,              "1234567", 1,              1234567LL },
-                { L_,              "9999999", 1,              9999999LL },
-                { L_,             "10000000", 1,             10000000LL },
-                { L_,             "12345678", 1,             12345678LL },
-                { L_,            "123456789", 1,            123456789LL },
-                { L_,           "1234567890", 1,           1234567890LL },
-                { L_,           "2147483647", 1,           2147483647LL },
-                { L_,           "4294967295", 1,           4294967295LL },
-                { L_,          "12345678901", 1,          12345678901LL },
-                { L_,         "123456789012", 1,         123456789012LL },
-                { L_,        "1234567890123", 1,        1234567890123LL },
-                { L_,       "12345678901234", 1,       12345678901234LL },
-                { L_,      "123456789012345", 1,      123456789012345LL },
-                { L_,     "1234567890123456", 1,     1234567890123456LL },
-                { L_,    "12345678901234567", 1,    12345678901234567LL },
-                { L_,   "123456789012345678", 1,   123456789012345678LL },
-                { L_,  "1234567890123456789", 1,  1234567890123456789LL },
-                { L_,  "9223372036854775807", 1,  9223372036854775807LL },
-                { L_, "18446744073709551615", 0,                    0LL },
-                { L_,                   "-1", 1,                   -1LL },
-                { L_,                  "-12", 1,                  -12LL },
-                { L_,                 "-123", 1,                 -123LL },
-                { L_,                "-1234", 1,                -1234LL },
-                { L_,               "-12345", 1,               -12345LL },
-                { L_,              "-123456", 1,              -123456LL },
-                { L_,             "-1234567", 1,             -1234567LL },
-                { L_,             "-9999999", 1,             -9999999LL },
-                { L_,            "-10000000", 1,            -10000000LL },
-                { L_,            "-12345678", 1,            -12345678LL },
-                { L_,           "-123456789", 1,           -123456789LL },
-                { L_,          "-1234567890", 1,          -1234567890LL },
-                { L_,          "-2147483647", 1,          -2147483647LL },
-                { L_,          "-2147483648", 1,          -2147483648LL },
-                { L_,         "-12345678901", 1,         -12345678901LL },
-                { L_,        "-123456789012", 1,        -123456789012LL },
-                { L_,       "-1234567890123", 1,       -1234567890123LL },
-                { L_,      "-12345678901234", 1,      -12345678901234LL },
-                { L_,     "-123456789012345", 1,     -123456789012345LL },
-                { L_,    "-1234567890123456", 1,    -1234567890123456LL },
-                { L_,   "-12345678901234567", 1,   -12345678901234567LL },
-                { L_,  "-123456789012345678", 1,  -123456789012345678LL },
-                { L_, "-1234567890123456789", 1, -1234567890123456789LL },
-                { L_, "-9223372036854775807", 1, -9223372036854775807LL },
-                { L_, "-9223372036854775808", 1,
-                                  bsl::numeric_limits<long long>::min() },
-            };
-
-            const int NUM_PARSE_LL_TEST_DATA =
-                    sizeof PARSE_LL_TEST_DATA / sizeof *PARSE_LL_TEST_DATA;
-
-            for (int ti = 0; ti < NUM_PARSE_LL_TEST_DATA; ++ti) {
-                const int LINE = PARSE_LL_TEST_DATA[ti].d_lineNum;
-                const bsl::string INT_VAL(PARSE_LL_TEST_DATA[ti].d_intVal, pa);
-                const int VALID = PARSE_LL_TEST_DATA[ti].d_valid;
-                const long long EXPECTED
-                                        = PARSE_LL_TEST_DATA[ti].d_parsedLLVal;
-
-                long long ACTUAL;
-                int ACTUAL_VALID;
-                ACTUAL_VALID = parseLL(INT_VAL, &ACTUAL, pa);
-
-                LOOP_ASSERT(LINE, ACTUAL_VALID == VALID);
-                if (VALID) {
-                    LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
-                }
-            }
-        }
-
-        if (veryVerbose) bsl::cout << "\nTesting helper parsing function for "
-                                   "parsing unsigned long longs." << bsl::endl;
-        {
-            static const struct {
-                int                d_lineNum;
-                const char        *d_intVal;
-                bool               d_valid;
-                unsigned long long d_parsedULLVal;
-            } PARSE_ULL_TEST_DATA[] = {
-                //
-                { L_,                    "0", 1,                    0ULL },
-                { L_,                    "1", 1,                    1ULL },
-                { L_,                   "12", 1,                   12ULL },
-                { L_,                  "123", 1,                  123ULL },
-                { L_,                 "1234", 1,                 1234ULL },
-                { L_,                "12345", 1,                12345ULL },
-                { L_,               "123456", 1,               123456ULL },
-                { L_,              "1234567", 1,              1234567ULL },
-                { L_,              "9999999", 1,              9999999ULL },
-                { L_,             "10000000", 1,             10000000ULL },
-                { L_,             "12345678", 1,             12345678ULL },
-                { L_,            "123456789", 1,            123456789ULL },
-                { L_,           "1234567890", 1,           1234567890ULL },
-                { L_,           "2147483647", 1,           2147483647ULL },
-                { L_,           "4294967295", 1,           4294967295ULL },
-                { L_,          "12345678901", 1,          12345678901ULL },
-                { L_,         "123456789012", 1,         123456789012ULL },
-                { L_,        "1234567890123", 1,        1234567890123ULL },
-                { L_,       "12345678901234", 1,       12345678901234ULL },
-                { L_,      "123456789012345", 1,      123456789012345ULL },
-                { L_,     "1234567890123456", 1,     1234567890123456ULL },
-                { L_,    "12345678901234567", 1,    12345678901234567ULL },
-                { L_,   "123456789012345678", 1,   123456789012345678ULL },
-                { L_,  "1234567890123456789", 1,  1234567890123456789ULL },
-                { L_,  "9223372036854775807", 1,  9223372036854775807ULL },
-                { L_, "18446744073709551615", 1, 18446744073709551615ULL },
-                { L_,                   "-1", 0,                    0ULL },
-                { L_,                  "-12", 0,                    0ULL },
-                { L_,                 "-123", 0,                    0ULL },
-                { L_,                "-1234", 0,                    0ULL },
-                { L_,               "-12345", 0,                    0ULL },
-                { L_,              "-123456", 0,                    0ULL },
-                { L_,             "-1234567", 0,                    0ULL },
-                { L_,             "-9999999", 0,                    0ULL },
-                { L_,            "-10000000", 0,                    0ULL },
-                { L_,            "-12345678", 0,                    0ULL },
-                { L_,           "-123456789", 0,                    0ULL },
-                { L_,          "-1234567890", 0,                    0ULL },
-                { L_,          "-2147483647", 0,                    0ULL },
-                { L_,          "-2147483648", 0,                    0ULL },
-                { L_,         "-12345678901", 0,                    0ULL },
-                { L_,        "-123456789012", 0,                    0ULL },
-                { L_,       "-1234567890123", 0,                    0ULL },
-                { L_,      "-12345678901234", 0,                    0ULL },
-                { L_,     "-123456789012345", 0,                    0ULL },
-                { L_,    "-1234567890123456", 0,                    0ULL },
-                { L_,   "-12345678901234567", 0,                    0ULL },
-                { L_,  "-123456789012345678", 0,                    0ULL },
-                { L_, "-1234567890123456789", 0,                    0ULL },
-                { L_, "-9223372036854775807", 0,                    0ULL },
-                { L_, "-9223372036854775808", 0,                    0ULL },
-            };
-
-            const int NUM_PARSE_ULL_TEST_DATA =
-                    sizeof PARSE_ULL_TEST_DATA / sizeof *PARSE_ULL_TEST_DATA;
-
-            for (int ti = 0; ti < NUM_PARSE_ULL_TEST_DATA; ++ti) {
-                const int LINE = PARSE_ULL_TEST_DATA[ti].d_lineNum;
-                const bsl::string INT_VAL(
-                                         PARSE_ULL_TEST_DATA[ti].d_intVal, pa);
-                const int VALID = PARSE_ULL_TEST_DATA[ti].d_valid;
-                const unsigned long long
-                            EXPECTED = PARSE_ULL_TEST_DATA[ti].d_parsedULLVal;
-
-                unsigned long long ACTUAL;
-                int ACTUAL_VALID;
-                ACTUAL_VALID = parseULL(INT_VAL, &ACTUAL, pa);
-
-                LOOP_ASSERT(LINE, ACTUAL_VALID == VALID);
-                if (VALID) {
-                    LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
-                }
-            }
-        }
 
         if (veryVerbose) bsl::cout << "\nTesting helper parsing function for "
                                    "comparing mantissa/exponent pairs."
@@ -2984,7 +2572,15 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 const Util::ValueType32 ACTUAL =
                     Util::makeDecimalRaw32(NUM, 0);
                 const unsigned char iBCD[7] = {
-                    0, 0, 0, 0, NUM / 100, (NUM / 10) % 10, NUM % 10};
+                    0,
+                    0,
+                    0,
+                    0,
+                    static_cast<unsigned char>( NUM / 100),
+                    static_cast<unsigned char>((NUM / 10) % 10),
+                    static_cast<unsigned char>( NUM % 10)
+                };
+
                 const D32 EXPECTED = D32(0, iBCD, 1);
                 LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
             }
@@ -2993,7 +2589,15 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 const Util::ValueType64 ACTUAL =
                     Util::makeDecimalRaw64(NUM, 0);
                 const unsigned char iBCD[7] = {
-                    0, 0, 0, 0, NUM / 100, (NUM / 10) % 10, NUM % 10};
+                    0,
+                    0,
+                    0,
+                    0,
+                    static_cast<unsigned char>( NUM / 100),
+                    static_cast<unsigned char>((NUM / 10) % 10),
+                    static_cast<unsigned char>( NUM % 10)
+                };
+
                 const D64 EXPECTED = D64(0, iBCD, 1);
                 LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
             }
@@ -3002,7 +2606,14 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 const Util::ValueType128 ACTUAL =
                     Util::makeDecimalRaw128(NUM, 0);
                 const unsigned char iBCD[7] = {
-                    0, 0, 0, 0, NUM / 100, (NUM / 10) % 10, NUM % 10};
+                    0,
+                    0,
+                    0,
+                    0,
+                    static_cast<unsigned char>( NUM / 100),
+                    static_cast<unsigned char>((NUM / 10) % 10),
+                    static_cast<unsigned char>( NUM % 10)
+                };
                 const D128 EXPECTED = D128(0, iBCD, 1);
                 LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
             }
@@ -3015,7 +2626,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             for (int thousands_pow = 1; thousands_pow <= 1; ++thousands_pow) {
                 for (int raw_num = 1; raw_num < 1000; ++raw_num) {
                     // NUM = raw_num * 1000^thousands_pow.
-                    unsigned long long NUM = raw_num;
+                    unsigned int NUM = raw_num;
                     for (int i = 0; i < thousands_pow; ++i) {
                         NUM *= 1000;
                     }
@@ -3024,9 +2635,14 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                         Util::makeDecimalRaw32(NUM, 0);
                     unsigned char iBCD[7] = {0, 0, 0, 0, 0, 0, 0};
 
-                    iBCD[6 - 3 * thousands_pow] = raw_num % 10;
-                    iBCD[5 - 3 * thousands_pow] = (raw_num / 10) % 10;
-                    iBCD[4 - 3 * thousands_pow] = (raw_num / 100);
+                    iBCD[6 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num % 10);
+
+                    iBCD[5 - 3 * thousands_pow] =
+                        static_cast<unsigned char>((raw_num / 10) % 10);
+
+                    iBCD[4 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num / 100);
 
                     const D32 EXPECTED = D32(0, iBCD, 1);
                     LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
@@ -3046,9 +2662,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                     unsigned char iBCD[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                                 0, 0, 0, 0, 0};
 
-                    iBCD[15 - 3 * thousands_pow] = raw_num % 10;
-                    iBCD[14 - 3 * thousands_pow] = (raw_num / 10) % 10;
-                    iBCD[13 - 3 * thousands_pow] = (raw_num / 100);
+                    iBCD[15 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num % 10);
+                    iBCD[14 - 3 * thousands_pow] =
+                        static_cast<unsigned char>((raw_num / 10) % 10);
+                    iBCD[13 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num / 100);
 
                     const D64 EXPECTED = D64(0, iBCD, 1);
                     LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
@@ -3069,9 +2688,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-                    iBCD[33 - 3 * thousands_pow] = raw_num % 10;
-                    iBCD[32 - 3 * thousands_pow] = (raw_num / 10) % 10;
-                    iBCD[31 - 3 * thousands_pow] = (raw_num / 100) % 10;
+                    iBCD[33 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num % 10);
+                    iBCD[32 - 3 * thousands_pow] =
+                        static_cast<unsigned char>((raw_num / 10) % 10);
+                    iBCD[31 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num / 100);
 
                     const D128 EXPECTED = D128(0, iBCD, 1);
                     LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
@@ -3091,9 +2713,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-                    iBCD[33 - 3 * thousands_pow] = raw_num % 10;
-                    iBCD[32 - 3 * thousands_pow] = (raw_num / 10) % 10;
-                    iBCD[31 - 3 * thousands_pow] = (raw_num / 100) % 10;
+                    iBCD[33 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num % 10);
+                    iBCD[32 - 3 * thousands_pow] =
+                        static_cast<unsigned char>((raw_num / 10) % 10);
+                    iBCD[31 - 3 * thousands_pow] =
+                        static_cast<unsigned char>( raw_num / 100);
 
                     const D128 EXPECTED = D128(0, iBCD, 1);
                     LOOP_ASSERT(NUM, ACTUAL == EXPECTED);
@@ -3116,9 +2741,9 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             ASSERT(!memcmp(&v582, &v582x, 8));
 
             for (int i = 0; i < 4; i++) {
-                unsigned long long NUM =
-                    (i & 1 ?    255ull :    582ull) +
-                    (i & 2 ? 255000ull : 582000ull);
+                int NUM =
+                    (i & 1 ?    255 :    582) +
+                    (i & 2 ? 255000 : 582000);
 
                 const Util::ValueType32 ACTUAL =
                     Util::makeDecimalRaw32(NUM, 0);
@@ -3307,10 +2932,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         {
             // Test each of the 9 possible leading digits with each exponent
             // value.
-            for (int leading_digit = 1; leading_digit <= 9; ++leading_digit) {
+            for (unsigned char leadingDigit = 1; leadingDigit <= 9;
+                 ++leadingDigit) {
                 for (int EXPONENT = -101; EXPONENT <= 90; ++EXPONENT) {
-                    unsigned int MANTISSA = leading_digit * 1000000u + 255255u;
-                    unsigned char iBCD[7] = {leading_digit, 2, 5, 5, 2, 5, 5};
+                    unsigned int MANTISSA = leadingDigit * 1000000u + 255255u;
+                    unsigned char iBCD[7] = {leadingDigit, 2, 5, 5, 2, 5, 5};
 
                     const Util::ValueType32 ACTUAL =
                         Util::makeDecimalRaw32(MANTISSA, EXPONENT);
@@ -3319,10 +2945,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                     LOOP2_ASSERT(MANTISSA, EXPONENT, ACTUAL == EXPECTED);
                 }
             }
-            for (int leading_digit = 1; leading_digit <= 9; ++leading_digit) {
+            for (unsigned char leadingDigit = 1; leadingDigit <= 9;
+                 ++leadingDigit) {
                 for (int EXPONENT = -101; EXPONENT <= 90; ++EXPONENT) {
-                    unsigned int MANTISSA = leading_digit * 1000000u + 582582u;
-                    unsigned char iBCD[7] = {leading_digit, 5, 8, 2, 5, 8, 2};
+                    unsigned int MANTISSA = leadingDigit * 1000000u + 582582u;
+                    unsigned char iBCD[7] = {leadingDigit, 5, 8, 2, 5, 8, 2};
 
                     const Util::ValueType32 ACTUAL =
                         Util::makeDecimalRaw32(MANTISSA, EXPONENT);
@@ -3332,11 +2959,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                 }
             }
 
-            for (int leading_digit = 1; leading_digit <= 9; ++leading_digit) {
+            for (unsigned char leadingDigit = 1; leadingDigit <= 9;
+                 ++leadingDigit) {
                 for (int EXPONENT = -398; EXPONENT <= 369; ++EXPONENT) {
                     unsigned long long MANTISSA =
-                      leading_digit * 1000000000000000ull + 255255255255255ull;
-                    unsigned char iBCD[16] = {leading_digit, 2, 5, 5, 2, 5, 5,
+                      leadingDigit * 1000000000000000ull + 255255255255255ull;
+                    unsigned char iBCD[16] = {leadingDigit, 2, 5, 5, 2, 5, 5,
                                               2, 5, 5, 2, 5, 5, 2, 5, 5};
 
                     const Util::ValueType64 ACTUAL =
@@ -3346,11 +2974,12 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                     LOOP2_ASSERT(MANTISSA, EXPONENT, ACTUAL == EXPECTED);
                 }
             }
-            for (int leading_digit = 1; leading_digit <= 9; ++leading_digit) {
+            for (unsigned char leadingDigit = 1; leadingDigit <= 9;
+                 ++leadingDigit) {
                 for (int EXPONENT = -398; EXPONENT <= 369; ++EXPONENT) {
                     unsigned long long MANTISSA =
-                      leading_digit * 1000000000000000ull + 582582582582582ull;
-                    unsigned char iBCD[16] = {leading_digit, 5, 8, 2, 5, 8, 2,
+                      leadingDigit * 1000000000000000ull + 582582582582582ull;
+                    unsigned char iBCD[16] = {leadingDigit, 5, 8, 2, 5, 8, 2,
                                               5, 8, 2, 5, 8, 2, 5, 8, 2};
 
                     const Util::ValueType64 ACTUAL =
@@ -3367,326 +2996,340 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
                                    << bsl::endl;
         static const struct {
             int           d_lineNum;
-            const char   *d_mantissa;
+            long long     d_mantissa;
             int           d_exponent;
             int           d_expectedExponent;
             unsigned char d_expectedBCD[34];
             int           d_expectedSign;
         } MAKE_DECIMAL_RAW_TESTS[] = {
-            { L_,                    "0",     0, 0,
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+            { L_,                    0ll,     0, 0,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0}, 1},
-            { L_,                    "0",    10, 10,
+            { L_,                    0ll,    10, 0,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0}, 1},
-            { L_,                    "0",   -10, -10,
+            { L_,                    0ll,   -10, 0,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0}, 1},
-            { L_,                  "100",    -2, -2,
+#else
+            { L_,                    0ll,     0, 0,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0}, 1},
+            { L_,                    0ll,    10, 10,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0}, 1},
+            { L_,                    0ll,   -10, -10,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0}, 1},
+#endif
+            { L_,                  100ll,    -2, -2,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 1, 0, 0}, 1},
-            { L_,                    "1",     2, 2,
+            { L_,                    1ll,     2, 2,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, 1},
-            { L_,                    "1",    10, 10,
+            { L_,                    1ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, 1},
-            { L_,                   "12",    10, 10,
+            { L_,                   12ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 1, 2}, 1},
-            { L_,                  "123",    10, 10,
+            { L_,                  123ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 1, 2, 3}, 1},
-            { L_,                 "1234",    10, 10,
+            { L_,                 1234ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 1, 2, 3, 4}, 1},
-            { L_,                "12345",    10, 10,
+            { L_,                12345ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 1, 2, 3, 4, 5}, 1},
-            { L_,               "123456",    10, 10,
+            { L_,               123456ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 1, 2, 3, 4, 5, 6}, 1},
-            { L_,              "1234567",    10, 10,
+            { L_,              1234567ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                1, 2, 3, 4, 5, 6, 7}, 1},
-            { L_,             "12345678",    10, 10,
+            { L_,             12345678ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 1,
                2, 3, 4, 5, 6, 7, 8}, 1},
-            { L_,            "123456789",    10, 10,
+            { L_,            123456789ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 1, 2,
                3, 4, 5, 6, 7, 8, 9}, 1},
-            { L_,           "1234567890",    10, 10,
+            { L_,           1234567890ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1, 2, 3,
                4, 5, 6, 7, 8, 9, 0}, 1},
-            { L_,           "2147483647",    10, 10,
+            { L_,           2147483647ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 2, 1, 4,
                7, 4, 8, 3, 6, 4, 7}, 1},
-            { L_,           "4294967295",    10, 10,
+            { L_,           4294967295ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 4, 2, 9,
                4, 9, 6, 7, 2, 9, 5}, 1},
-            { L_,          "12345678901",    10, 10,
+            { L_,          12345678901ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 1, 2, 3, 4,
                5, 6, 7, 8, 9, 0, 1}, 1},
-            { L_,         "123456789012",    10, 10,
+            { L_,         123456789012ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 1, 2, 3, 4, 5,
                6, 7, 8, 9, 0, 1, 2}, 1},
-            { L_,        "1234567890123",    10, 10,
+            { L_,        1234567890123ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 1, 2, 3, 4, 5, 6,
                7, 8, 9, 0, 1, 2, 3}, 1},
-            { L_,       "12345678901234",    10, 10,
+            { L_,       12345678901234ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 1, 2, 3, 4, 5, 6, 7,
                8, 9, 0, 1, 2, 3, 4}, 1},
-            { L_,      "123456789012345",    10, 10,
+            { L_,      123456789012345ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 1, 2, 3, 4, 5, 6, 7, 8,
                9, 0, 1, 2, 3, 4, 5}, 1},
-            { L_,     "1234567890123456",    10, 10,
+            { L_,     1234567890123456ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                1, 2, 3, 4, 5, 6, 7, 8, 9,
                0, 1, 2, 3, 4, 5, 6}, 1},
-            { L_,    "12345678901234567",    10, 10,
+            { L_,    12345678901234567ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 1,
                2, 3, 4, 5, 6, 7, 8, 9, 0,
                1, 2, 3, 4, 5, 6, 7}, 1},
-            { L_,   "123456789012345678",    10, 10,
+            { L_,   123456789012345678ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 1, 2,
                3, 4, 5, 6, 7, 8, 9, 0, 1,
                2, 3, 4, 5, 6, 7, 8}, 1},
-            { L_,  "1234567890123456789",    10, 10,
+            { L_,  1234567890123456789ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1, 2, 3,
                4, 5, 6, 7, 8, 9, 0, 1, 2,
                3, 4, 5, 6, 7, 8, 9}, 1},
-            { L_,  "9223372036854775807",    10, 10,
+            { L_,  9223372036854775807ll,    10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 9, 2, 2, 3, 3,
                7, 2, 0, 3, 6, 8, 5, 4, 7, 7,
                5, 8, 0, 7}, 1},
-            { L_, "18446744073709551615",    10, 10,
-              {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 1, 8, 4, 4, 6, 7,
-               4, 4, 0, 7, 3, 7, 0, 9, 5, 5,
-               1, 6, 1, 5}},
-            { L_,                    "-1",   10, 10,
+            { L_,                    -1ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, -1},
-            { L_,                   "-12",   10, 10,
+            { L_,                   -12ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 1, 2}, -1},
-            { L_,                  "-123",   10, 10,
+            { L_,                  -123ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 1, 2, 3}, -1},
-            { L_,                 "-1234",   10, 10,
+            { L_,                 -1234ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 1, 2, 3, 4}, -1},
-            { L_,                "-12345",   10, 10,
+            { L_,                -12345ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 1, 2, 3, 4, 5}, -1},
-            { L_,               "-123456",   10, 10,
+            { L_,               -123456ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 1, 2, 3, 4, 5, 6}, -1},
-            { L_,              "-1234567",   10, 10,
+            { L_,              -1234567ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                1, 2, 3, 4, 5, 6, 7}, -1},
-            { L_,             "-12345678",   10, 10,
+            { L_,             -12345678ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 1,
                2, 3, 4, 5, 6, 7, 8}, -1},
-            { L_,            "-123456789",   10, 10,
+            { L_,            -123456789ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 1, 2,
                3, 4, 5, 6, 7, 8, 9}, -1},
-            { L_,           "-1234567890",   10, 10,
+            { L_,           -1234567890ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1, 2, 3,
                4, 5, 6, 7, 8, 9, 0}, -1},
-            { L_,           "-2147483647",   10, 10,
+            { L_,           -2147483647ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 2, 1, 4,
                7, 4, 8, 3, 6, 4, 7}, -1},
-            { L_,           "-2147483648",   10, 10,
+            { L_,           -2147483648ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 2, 1, 4,
                7, 4, 8, 3, 6, 4, 8}, -1},
-            { L_,          "-12345678901",   10, 10,
+            { L_,          -12345678901ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 1, 2, 3, 4,
                5, 6, 7, 8, 9, 0, 1}, -1},
-            { L_,         "-123456789012",   10, 10,
+            { L_,         -123456789012ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 1, 2, 3, 4, 5,
                6, 7, 8, 9, 0, 1, 2}, -1},
-            { L_,        "-1234567890123",   10, 10,
+            { L_,        -1234567890123ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 1, 2, 3, 4, 5, 6,
                7, 8, 9, 0, 1, 2, 3}, -1},
-            { L_,       "-12345678901234",   10, 10,
+            { L_,       -12345678901234ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 1, 2, 3, 4, 5, 6, 7,
                8, 9, 0, 1, 2, 3, 4}, -1},
-            { L_,      "-123456789012345",   10, 10,
+            { L_,      -123456789012345ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 1, 2, 3, 4, 5, 6, 7, 8,
                9, 0, 1, 2, 3, 4, 5}, -1},
-            { L_,     "-1234567890123456",   10, 10,
+            { L_,     -1234567890123456ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                1, 2, 3, 4, 5, 6, 7, 8, 9,
                0, 1, 2, 3, 4, 5, 6}, -1},
-            { L_,    "-12345678901234567",   10, 10,
+            { L_,    -12345678901234567ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 1,
                2, 3, 4, 5, 6, 7, 8, 9, 0,
                1, 2, 3, 4, 5, 6, 7}, -1},
-            { L_,   "-123456789012345678",   10, 10,
+            { L_,   -123456789012345678ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 1, 2,
                3, 4, 5, 6, 7, 8, 9, 0, 1,
                2, 3, 4, 5, 6, 7, 8}, -1},
-            { L_,  "-1234567890123456789",   10, 10,
+            { L_,  -1234567890123456789ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1, 2, 3,
                4, 5, 6, 7, 8, 9, 0, 1, 2,
                3, 4, 5, 6, 7, 8, 9}, -1},
-            { L_,  "-9223372036854775807",   10, 10,
+            { L_,  -9223372036854775807ll,   10, 10,
               {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 9, 2, 2, 3, 3,
                7, 2, 0, 3, 6, 8, 5, 4, 7, 7,
                5, 8, 0, 7}, -1},
-            { L_,  "-9223372036854775808",   10, 10,
+            { L_, bsl::numeric_limits<long long>::min(),
+                                             10, 10,
                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                  0, 0, 0, 0, 0, 9, 2, 2, 3, 3,
                  7, 2, 0, 3, 6, 8, 5, 4, 7, 7,
                  5, 8, 0, 8}, -1},
 
-            { L_,                    "1",  -101, -101,
+            { L_,                    1ll,  -101, -101,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, 1},
-            { L_,                    "1",    90, 90,
+            { L_,                    1ll,    90, 90,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, 1},
-            { L_,                   "-1",  -101, -101,
+            { L_,                   -1ll,  -101, -101,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, -1},
-            { L_,                   "-1",    90, 90,
-              {0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 1}, -1},
-
-            { L_,                    "1",  -398, -398,
-              {0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 1}, 1},
-            { L_,                    "1",   369, 369,
-              {0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 1}, 1},
-            { L_,                   "-1",  -398, -398,
-              {0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 0, 0, 0,
-               0, 0, 0, 0, 0, 0, 1}, -1},
-            { L_,                   "-1",   369, 369,
+            { L_,                   -1ll,    90, 90,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, -1},
 
-            { L_,                    "1", -6176, -6176,
+            { L_,                    1ll,  -398, -398,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, 1},
-            { L_,                    "1",  6111,  6111,
+            { L_,                    1ll,   369, 369,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, 1},
-            { L_,                   "-1", -6176, -6176,
+            { L_,                   -1ll,  -398, -398,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 1}, -1},
-            { L_,                   "-1",  6111,  6111,
+            { L_,                   -1ll,   369, 369,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 1}, -1},
+
+            { L_,                    1ll, -6176, -6176,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 1}, 1},
+            { L_,                    1ll,  6111,  6111,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 1}, 1},
+            { L_,                   -1ll, -6176, -6176,
+              {0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 0, 0, 0,
+               0, 0, 0, 0, 0, 0, 1}, -1},
+            { L_,                   -1ll,  6111,  6111,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -3699,99 +3342,173 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         for (int ti = 0; ti < NUM_MAKE_DECIMAL_RAW_TESTS; ++ti) {
             const int LINE = MAKE_DECIMAL_RAW_TESTS[ti].d_lineNum;
 
-            const bsl::string MANTISSA(
-                MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa, pa);
+            const long long MANTISSA =
+                MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa;
             const int EXPONENT = MAKE_DECIMAL_RAW_TESTS[ti].d_exponent;
+
+            bool inULL = (MANTISSA >= 0);
+            bool inUInt = (MANTISSA >= 0 &&
+                           MANTISSA <=
+                           bsl::numeric_limits<unsigned int>::max());
+            bool inInt = (MANTISSA >= bsl::numeric_limits<int>::min() &&
+                          MANTISSA <= bsl::numeric_limits<int>::max());
 
             const D128 EXPECTED =
                 D128(MAKE_DECIMAL_RAW_TESTS[ti].d_expectedExponent,
                      MAKE_DECIMAL_RAW_TESTS[ti].d_expectedBCD,
                      MAKE_DECIMAL_RAW_TESTS[ti].d_expectedSign);
 
-            int mantissa_in_int;
-            unsigned int mantissa_in_uint;
-            long long mantissa_in_ll;
-            unsigned long long mantissa_in_ull;
+            const Util::ValueType128 ACTUAL =
+                Util::makeDecimalRaw128(MANTISSA, EXPONENT);
+            LOOP3_ASSERT(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
 
-            if (parseInt(MANTISSA, &mantissa_in_int, pa)) {
+            if (inULL) {
+                // Try 'unsigned long long'.
+                const unsigned long long MANTISSA =
+                    static_cast<unsigned long long>(
+                        MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
                 const Util::ValueType128 ACTUAL =
-                    Util::makeDecimalRaw128(mantissa_in_int, EXPONENT);
+                    Util::makeDecimalRaw128(MANTISSA, EXPONENT);
                 LOOP3_ASSERT(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
             }
 
-            if (parseUInt(MANTISSA, &mantissa_in_uint, pa)) {
+            if (inUInt) {
+                // Try 'unsigned int'.
+                const unsigned int MANTISSA =
+                    static_cast<unsigned int>(
+                        MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
                 const Util::ValueType128 ACTUAL =
-                    Util::makeDecimalRaw128(mantissa_in_uint, EXPONENT);
+                    Util::makeDecimalRaw128(MANTISSA, EXPONENT);
                 LOOP3_ASSERT(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
             }
 
-            if (parseLL(MANTISSA, &mantissa_in_ll, pa)) {
+            if (inInt) {
+                // Try 'int'.
+                const int MANTISSA =
+                    static_cast<int>(
+                        MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
                 const Util::ValueType128 ACTUAL =
-                    Util::makeDecimalRaw128(mantissa_in_ll, EXPONENT);
-                LOOP3_ASSERT(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
-            }
-
-            if (parseULL(MANTISSA, &mantissa_in_ull, pa)) {
-                const Util::ValueType128 ACTUAL =
-                    Util::makeDecimalRaw128(mantissa_in_ull, EXPONENT);
+                    Util::makeDecimalRaw128(MANTISSA, EXPONENT);
                 LOOP3_ASSERT(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
             }
 
             // Check if within 64-bit decimal floating-point range.
-            if ((parseLL(MANTISSA, &mantissa_in_ll, pa)) &&
-                (-9999999999999999ll <= mantissa_in_ll) &&
-                (mantissa_in_ll <= 9999999999999999ll) &&
+            if ((-9999999999999999ll <= MANTISSA) &&
+                (MANTISSA <= 9999999999999999ll) &&
                 (-398 <= EXPONENT) && (EXPONENT <= 369)) {
                 const D64 EXPECTED64 =
                     D64(MAKE_DECIMAL_RAW_TESTS[ti].d_expectedExponent,
                         MAKE_DECIMAL_RAW_TESTS[ti].d_expectedBCD,
                         MAKE_DECIMAL_RAW_TESTS[ti].d_expectedSign);
 
-                if (parseInt(MANTISSA, &mantissa_in_int, pa)) {
+                const Util::ValueType64 ACTUAL64 =
+                    Util::makeDecimalRaw64(MANTISSA, EXPONENT);
+
+                LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
+                                                       ACTUAL64 == EXPECTED64);
+
+                if (inULL) {
+                    // Try 'unsigned long long'.
+                    const unsigned long long MANTISSA =
+                        static_cast<unsigned long long>(
+                            MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
                     const Util::ValueType64 ACTUAL64 =
-                        Util::makeDecimalRaw64(mantissa_in_int, EXPONENT);
+                        Util::makeDecimalRaw64(MANTISSA, EXPONENT);
                     LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
-                                 ACTUAL64 == EXPECTED64);
+                                                       ACTUAL64 == EXPECTED64);
                 }
 
-                if (parseUInt(MANTISSA, &mantissa_in_uint, pa)) {
+                if (inUInt) {
+                    // Try 'unsigned int'.
+                    const unsigned int MANTISSA =
+                        static_cast<unsigned int>(
+                            MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
                     const Util::ValueType64 ACTUAL64 =
-                        Util::makeDecimalRaw64(mantissa_in_uint, EXPONENT);
+                        Util::makeDecimalRaw64(MANTISSA, EXPONENT);
                     LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
-                                 ACTUAL64 == EXPECTED64);
+                                                       ACTUAL64 == EXPECTED64);
                 }
 
-                if (parseLL(MANTISSA, &mantissa_in_ll, pa)) {
+                if (inInt) {
+                    // Try 'int'.
+                    const int MANTISSA =
+                        static_cast<int>(
+                            MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
                     const Util::ValueType64 ACTUAL64 =
-                        Util::makeDecimalRaw64(mantissa_in_ll, EXPONENT);
+                        Util::makeDecimalRaw64(MANTISSA, EXPONENT);
                     LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
-                                 ACTUAL64 == EXPECTED64);
-                }
-
-                if (parseULL(MANTISSA, &mantissa_in_ull, pa)) {
-                    const Util::ValueType64 ACTUAL64 =
-                        Util::makeDecimalRaw64(mantissa_in_ull, EXPONENT);
-                    LOOP3_ASSERT(LINE, ACTUAL64, EXPECTED64,
-                                 ACTUAL64 == EXPECTED64);
+                                                       ACTUAL64 == EXPECTED64);
                 }
             }
 
             // Check if within 32-bit decimal floating-point range.
-            if ((parseInt(MANTISSA, &mantissa_in_int, pa)) &&
-                (-9999999 <= mantissa_in_int) &&
-                (mantissa_in_int <= 9999999) &&
+            if ((-9999999 <= MANTISSA) && (MANTISSA <= 9999999) &&
                 (-98 <= EXPONENT) && (EXPONENT <= 90)) {
                 const D32 EXPECTED32 =
                     D32(MAKE_DECIMAL_RAW_TESTS[ti].d_expectedExponent,
                         MAKE_DECIMAL_RAW_TESTS[ti].d_expectedBCD,
                         MAKE_DECIMAL_RAW_TESTS[ti].d_expectedSign);
 
-                if (parseInt(MANTISSA, &mantissa_in_int, pa)) {
+                const int tMantissa = static_cast<int>(MANTISSA);
+                ASSERT(tMantissa == MANTISSA);
+
+                const Util::ValueType32 ACTUAL32 =
+                    Util::makeDecimalRaw32(tMantissa, EXPONENT);
+
+                LOOP3_ASSERT(LINE, ACTUAL32, EXPECTED32,
+                                                       ACTUAL32 == EXPECTED32);
+
+                if (inULL) {
+                    // Try 'unsigned long long'.
+                    const unsigned int MANTISSA =
+                        static_cast<unsigned int>(
+                            MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
+                    ASSERT(MANTISSA == MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
+
                     const Util::ValueType32 ACTUAL32 =
-                        Util::makeDecimalRaw32(mantissa_in_int, EXPONENT);
-                    LOOP_ASSERT(LINE, ACTUAL32 == EXPECTED32);
+                        Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                    LOOP3_ASSERT(LINE, ACTUAL32, EXPECTED32,
+                                                       ACTUAL32 == EXPECTED32);
+                }
+
+                if (inUInt) {
+                    // Try 'unsigned int'.
+                    const unsigned int MANTISSA =
+                        static_cast<unsigned int>(
+                            MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
+                    const Util::ValueType32 ACTUAL32 =
+                        Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                    LOOP3_ASSERT(LINE, ACTUAL32, EXPECTED32,
+                                                       ACTUAL32 == EXPECTED32);
+                }
+
+                if (inInt) {
+                    // Try 'int'.
+                    const int MANTISSA =
+                        static_cast<int>(
+                            MAKE_DECIMAL_RAW_TESTS[ti].d_mantissa);
+                    const Util::ValueType32 ACTUAL32 =
+                        Util::makeDecimalRaw32(MANTISSA, EXPONENT);
+                    LOOP3_ASSERT(LINE, ACTUAL32, EXPECTED32,
+                                                       ACTUAL32 == EXPECTED32);
                 }
             }
+        }
+
+        {
+            // Test makeDecimalRaw128 on the case of
+            // 'mantissa == bsl::numeric_limits<unsigned long long>::max()'.
+
+            const Util::ValueType128 ACTUAL128 =
+                Util::makeDecimalRaw128(
+                           bsl::numeric_limits<unsigned long long>::max(), 10);
+            const unsigned char EXPECTED_MANTISSA[] = {
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 8, 4, 4, 6, 7,
+                4, 4, 0, 7, 3, 7, 0, 9, 5, 5,
+                1, 6, 1, 5};
+            const D128 EXPECTED128 = D128(10, EXPECTED_MANTISSA, 1);
+            LOOP2_ASSERT(ACTUAL128, EXPECTED128, ACTUAL128 == EXPECTED128);
         }
       } break;
       case 1: {

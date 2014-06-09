@@ -135,6 +135,10 @@ BSLS_IDENT("$Id$")
 #include <bsl_cstring.h>
 #include <bsl_string.h>
 
+extern "C" {
+#include <decSingle.h>  // Even in hardware modes, we need decNumber functions.
+}
+
 #if BDLDFP_DECIMALPLATFORM_C99_TR
 #  ifndef  __STDC_WANT_DEC_FP__
 #    error __STDC_WANT_DEC_FP__ must be defined on the command line!
@@ -572,19 +576,7 @@ static inline DecimalImplUtil::ValueType64 plusInf64()
 
 }  // close unnamed namespace
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
-
-     // Implementation based on the decNumber library (no C or C++ support)
-
-decContext *DecimalImplUtil::getDecNumberContext()
-    // Provides the decimal context required by the decNumber library functions
-{
-    static decContext context = { 0, 0, 0, DEC_ROUND_HALF_EVEN, 0, 0, 0 };
-    return &context;
-}
-
-#endif // elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-
+                 // Implementation based on the decNumber library.
 
 DecimalImplUtil::ValueType32 DecimalImplUtil::parse32(const char *input)
 {
@@ -629,7 +621,7 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::parse128(const char *input)
     ValueType128 out;
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     // TBD TODO - scanf is locale dependent!!!
-    int parsed = sscanf(input, "%DDf", &out) ;
+    int parsed = sscanf(input, "%DDf", &out);
     (void) parsed;
     BSLS_ASSERT(parsed == 1);
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
@@ -707,32 +699,14 @@ DecimalImplUtil::ValueType32 DecimalImplUtil::makeDecimalRaw32(int mantissa,
     BSLS_ASSERT(exponent <= 90);
     BSLS_ASSERT(bsl::max(mantissa, -mantissa) <= 9999999);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd64(mantissa, exponent);
+#else
+    // TODO: no '__d32_insert_biased_exponent' function.
     ValueType32 valuetype32;
     makeDecimalRaw<32>(&valuetype32, mantissa, exponent);
     return valuetype32;
-}
-
-DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
-                                                         unsigned int mantissa,
-                                                         int          exponent)
-{
-    BSLS_ASSERT(-398     <= exponent);
-    BSLS_ASSERT(exponent <= 369);
-    ValueType64 valuetype64;
-    makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
-
-    return valuetype64;
-}
-
-DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(int mantissa,
-                                                               int exponent)
-{
-    BSLS_ASSERT(-398     <= exponent);
-    BSLS_ASSERT(exponent <= 369);
-
-    ValueType64 valuetype64;
-    makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
-    return valuetype64;
+#endif
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
@@ -741,13 +715,16 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
 {
     BSLS_ASSERT(-398     <= exponent);
     BSLS_ASSERT(exponent <= 369);
-    BSLS_ASSERT(mantissa <= 9999999999999999LL);\
+    BSLS_ASSERT(mantissa <= 9999999999999999LL);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd64(mantissa, exponent);
+#else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
 
-
     return valuetype64;
+#endif
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
@@ -758,33 +735,47 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
     BSLS_ASSERT(exponent <= 369);
     BSLS_ASSERT(std::max(mantissa, -mantissa) <= 9999999999999999LL);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd64(mantissa, exponent);
+#else
     ValueType64 valuetype64;
     makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
 
     return valuetype64;
+#endif
 }
 
-DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
+DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
                                                          unsigned int mantissa,
                                                          int          exponent)
 {
-    BSLS_ASSERT(-6176    <= exponent);
-    BSLS_ASSERT(exponent <= 6111);
+    BSLS_ASSERT(-398     <= exponent);
+    BSLS_ASSERT(exponent <= 369);
 
-    ValueType128 valuetype128;
-    makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
-    return valuetype128;
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd64(mantissa, exponent);
+#else
+    ValueType64 valuetype64;
+    makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
+
+    return valuetype64;
+#endif
 }
 
-DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(int mantissa,
-                                                                 int exponent)
+DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(int mantissa,
+                                                               int exponent)
 {
-    BSLS_ASSERT(-6176    <= exponent);
-    BSLS_ASSERT(exponent <= 6111);
+    BSLS_ASSERT(-398     <= exponent);
+    BSLS_ASSERT(exponent <= 369);
 
-    ValueType128 valuetype128;
-    makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
-    return valuetype128;
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd64(mantissa, exponent);
+#else
+    ValueType64 valuetype64;
+    makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
+
+    return valuetype64;
+#endif
 }
 
 DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
@@ -794,9 +785,13 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd128(mantissa, exponent);
+#else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
     return valuetype128;
+#endif
 }
 
 DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
@@ -806,9 +801,44 @@ DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd128(mantissa, exponent);
+#else
     ValueType128 valuetype128;
     makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
     return valuetype128;
+#endif
+}
+
+DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(
+                                                         unsigned int mantissa,
+                                                         int          exponent)
+{
+    BSLS_ASSERT(-6176    <= exponent);
+    BSLS_ASSERT(exponent <= 6111);
+
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd128(mantissa, exponent);
+#else
+    ValueType128 valuetype128;
+    makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
+    return valuetype128;
+#endif
+}
+
+DecimalImplUtil::ValueType128 DecimalImplUtil::makeDecimalRaw128(int mantissa,
+                                                                 int exponent)
+{
+    BSLS_ASSERT(-6176    <= exponent);
+    BSLS_ASSERT(exponent <= 6111);
+
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return ldexpd128(mantissa, exponent);
+#else
+    ValueType128 valuetype128;
+    makeDecimalRaw<128>(&valuetype128, mantissa, exponent);
+    return valuetype128;
+#endif
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(
@@ -858,8 +888,13 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(
 
             // Precision too high.
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+            // Use compiler-intrinsics to convert _Decimal128 to _Decimal64.
+            return makeDecimalRaw128(mantissa, exponent);             // RETURN
+#else
             return convertToDecimal64(
                              makeDecimalRaw128(mantissa, exponent));  // RETURN
+#endif
         }
     }
 
@@ -871,10 +906,11 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(long long mantissa,
                                                             int       exponent)
 {
-    if (((-Properties<64>::bias) <= exponent) &&
-        (exponent <= Properties<64>::maxExponent) &&
-        ((-Properties<64>::mediumLimit) < mantissa) &&
-        (mantissa < Properties<64>::mediumLimit)) {
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+            (-Properties<64>::bias <= exponent) &&
+            (exponent <= Properties<64>::maxExponent) &&
+            (-Properties<64>::mediumLimit < mantissa) &&
+            (mantissa < Properties<64>::mediumLimit))) {
 
         // 'mantissa' and 'exponent' are in range of 64-bit decimal floating
         // point.
@@ -882,6 +918,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(long long mantissa,
         return makeDecimalRaw64(mantissa, exponent);                  // RETURN
     }
     else {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
 
             // 'exponent' too high.
@@ -923,8 +960,13 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(long long mantissa,
 
             // Precision too high.
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+            // Use compiler-intrinsics to convert _Decimal128 to _Decimal64.
+            return makeDecimalRaw128(mantissa, exponent);             // RETURN
+#else
             return convertToDecimal64(
                              makeDecimalRaw128(mantissa, exponent));  // RETURN
+#endif
         }
     }
 
@@ -1001,15 +1043,43 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(int mantissa,
 
                         // equality comparison functions
 
-bool DecimalImplUtil::equals(DecimalImplUtil::ValueType128 lhs,
+bool DecimalImplUtil::equals(DecimalImplUtil::ValueType32 lhs,
+                             DecimalImplUtil::ValueType32 rhs)
+{
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return lhs == rhs;
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+    return equals(convertToDecimal64(lhs), convertToDecimal64(rhs));
+#endif
+}
+
+bool DecimalImplUtil::equals(DecimalImplUtil::ValueType32 lhs,
+                             DecimalImplUtil::ValueType64 rhs)
+{
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return lhs == rhs;
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+    return equals(convertToDecimal64(lhs), rhs);
+#endif
+}
+
+bool DecimalImplUtil::equals(DecimalImplUtil::ValueType32  lhs,
                              DecimalImplUtil::ValueType128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs == rhs;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    decQuad result;
-    decQuadCompare(&result, &lhs, &rhs, getDecNumberContext());
-    return decQuadIsZero(&result);
+    return equals(convertToDecimal128(lhs), rhs);
+#endif
+}
+
+bool DecimalImplUtil::equals(DecimalImplUtil::ValueType64 lhs,
+                             DecimalImplUtil::ValueType32 rhs)
+{
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return lhs == rhs;
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+    return equals(lhs, convertToDecimal64(rhs));
 #endif
 }
 
@@ -1025,38 +1095,7 @@ bool DecimalImplUtil::equals(DecimalImplUtil::ValueType64 lhs,
 #endif
 }
 
-bool DecimalImplUtil::equals(DecimalImplUtil::ValueType32 lhs,
-                             DecimalImplUtil::ValueType32 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs == rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return equals(convertToDecimal64(lhs), convertToDecimal64(rhs));
-#endif
-}
-
-
-bool DecimalImplUtil::equals(DecimalImplUtil::ValueType32 lhs,
-                             DecimalImplUtil::ValueType64 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs == rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return equals(convertToDecimal64(lhs), rhs);
-#endif
-}
-
-bool DecimalImplUtil::equals(DecimalImplUtil::ValueType64 lhs,
-                             DecimalImplUtil::ValueType32 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs == rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return equals(lhs, convertToDecimal64(rhs));
-#endif
-}
-
-bool DecimalImplUtil::equals(DecimalImplUtil::ValueType32  lhs,
+bool DecimalImplUtil::equals(DecimalImplUtil::ValueType64  lhs,
                              DecimalImplUtil::ValueType128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -1076,16 +1115,6 @@ bool DecimalImplUtil::equals(DecimalImplUtil::ValueType128 lhs,
 #endif
 }
 
-bool DecimalImplUtil::equals(DecimalImplUtil::ValueType64  lhs,
-                             DecimalImplUtil::ValueType128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs == rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return equals(convertToDecimal128(lhs), rhs);
-#endif
-}
-
 bool DecimalImplUtil::equals(DecimalImplUtil::ValueType128 lhs,
                              DecimalImplUtil::ValueType64  rhs)
 {
@@ -1095,6 +1124,29 @@ bool DecimalImplUtil::equals(DecimalImplUtil::ValueType128 lhs,
     return equals(lhs, convertToDecimal128(rhs));
 #endif
 }
+
+bool DecimalImplUtil::equals(DecimalImplUtil::ValueType128 lhs,
+                             DecimalImplUtil::ValueType128 rhs)
+{
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+    return lhs == rhs;
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+    decQuad result;
+    decQuadCompare(&result, &lhs, &rhs, getDecNumberContext());
+    return decQuadIsZero(&result);
+#endif
+}
+
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+decContext *DecimalImplUtil::getDecNumberContext()
+    // Provides the decimal context required by the decNumber library functions
+{
+    static decContext context = { 0, 0, 0, DEC_ROUND_HALF_EVEN, 0, 0, 0 };
+    return &context;
+}
+#endif
+
+
 
 }  // close package namespace
 }  // close enterprise namespace
