@@ -361,6 +361,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISVOID
+#include <bslmf_isvoid.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
 #endif
@@ -1049,11 +1053,11 @@ struct ArrayPrimitives_Imp {
                           ALLOCATOR                                 *allocator,
                           bslmf::MetaInt<e_BITWISE_COPYABLE_TRAITS> *);
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-    static void copyConstruct(TARGET_TYPE                  *toBegin,
-                              FWD_ITER                      fromBegin,
-                              FWD_ITER                      fromEnd,
-                              ALLOCATOR                    *allocator,
-                              bslmf::MetaInt<e_NIL_TRAITS> *);
+    static void copyConstruct(TARGET_TYPE                           *toBegin,
+                              FWD_ITER                               fromBegin,
+                              FWD_ITER                               fromEnd,
+                              ALLOCATOR                             *allocator,
+                       bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *);
     template <class FWD_ITER, class ALLOCATOR>
     static void copyConstruct(void                                 **toBegin,
                               FWD_ITER                               fromBegin,
@@ -1061,11 +1065,11 @@ struct ArrayPrimitives_Imp {
                               ALLOCATOR                             *allocator,
                        bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *);
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-    static void copyConstruct(TARGET_TYPE                           *toBegin,
-                              FWD_ITER                               fromBegin,
-                              FWD_ITER                               fromEnd,
-                              ALLOCATOR                             *allocator,
-                       bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *);
+    static void copyConstruct(TARGET_TYPE                  *toBegin,
+                              FWD_ITER                      fromBegin,
+                              FWD_ITER                      fromEnd,
+                              ALLOCATOR                    *allocator,
+                              bslmf::MetaInt<e_NIL_TRAITS> *);
         // These functions follow the 'copyConstruct' contract.  If the
         // (template parameter) 'ALLOCATOR' type is based on 'bslma::Allocator'
         // and the 'TARGET_TYPE' constructors take an allocator argument, then
@@ -1422,14 +1426,6 @@ struct ArrayPrimitives_Imp {
                        size_type                                numElements,
                        ALLOCATOR                               *allocator,
                        bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *);
-    template <class FWD_ITER, class ALLOCATOR>
-    static void insert(void                                   **toBegin,
-                       void                                   **toEnd,
-                       FWD_ITER                                 fromBegin,
-                       FWD_ITER                                 fromEnd,
-                       size_type                                numElements,
-                       ALLOCATOR                               *allocator,
-                       bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *);
     template <class TARGET_TYPE, class ALLOCATOR>
     static void insert(TARGET_TYPE                  *toBegin,
                        TARGET_TYPE                  *toEnd,
@@ -1469,6 +1465,14 @@ struct ArrayPrimitives_Imp {
                        size_type                                numElements,
                        ALLOCATOR                               *allocator,
                        bslmf::MetaInt<e_BITWISE_MOVEABLE_TRAITS> *);
+    template <class FWD_ITER, class ALLOCATOR>
+    static void insert(void                                   **toBegin,
+                       void                                   **toEnd,
+                       FWD_ITER                                 fromBegin,
+                       FWD_ITER                                 fromEnd,
+                       size_type                                numElements,
+                       ALLOCATOR                               *allocator,
+                       bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *);
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
     static void insert(TARGET_TYPE                *toBegin,
                        TARGET_TYPE                *toEnd,
@@ -1637,10 +1641,8 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
                            && bslmf::IsConvertible<FWD_ITER,
                                                    const TARGET_TYPE *>::value,
         k_ARE_PTRS_TO_FNS = bslmf::IsFunctionPointer<FwdTarget>::value,
-
-        k_TARGET_IS_VOID_PTR =
-                     bslmf::IsConvertible<TARGET_TYPE *, const void **>::value,
-
+        k_TARGET_IS_VOID_PTR = bsl::is_pointer<TARGET_TYPE>::value &&
+          bsl::is_void<typename bsl::remove_pointer<TARGET_TYPE>::type>::value,
         k_VALUE = k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
               : k_ARE_PTRS_TO_FNS && k_TARGET_IS_VOID_PTR ?
                                       Imp::e_IS_ITERATOR_TO_POINTER_TO_FUNCTION
@@ -2293,8 +2295,8 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
     typedef typename FWD_ITER::value_type FwdTarget;
     enum {
         k_ARE_PTRS_TO_FNS = bslmf::IsFunctionPointer<FwdTarget>::value,
-        k_TARGET_IS_VOID_PTR =
-                     bslmf::IsConvertible<TARGET_TYPE *, const void **>::value,
+        k_TARGET_IS_VOID_PTR = bsl::is_pointer<TARGET_TYPE>::value &&
+          bsl::is_void<typename bsl::remove_pointer<TARGET_TYPE>::type>::value,
         k_IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value,
         k_IS_BITWISECOPYABLE = bslmf::IsConvertible<FWD_ITER,
                                                     const TARGET_TYPE *>::value
