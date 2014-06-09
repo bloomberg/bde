@@ -222,7 +222,6 @@ namespace {
             if (testStatus >= 0 && testStatus <= 100) ++testStatus;
         }
     }
-    #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //..
 // Next, we define the standard print and 'LOOP_ASSERT' macros, as aliases to
 // the macros defined by this component:
@@ -230,18 +229,23 @@ namespace {
     //=========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
     //-------------------------------------------------------------------------
+    #define ASSERT       BDLS_TESTUTIL_ASSERT
     #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+    #define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+    #define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
     #define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
     #define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
     #define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
     #define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
     #define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
-
+    #define ASSERTV      BDLS_TESTUTIL_ASSERTV
+    
     #define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
     #define P   BDLS_TESTUTIL_P   // Print identifier and value.
-    #define P_  BDLS_TESTUTIL_P_  // 'P(X)' without '\n'.
+    #define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
     #define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
     #define L_  BDLS_TESTUTIL_L_  // current Line number
+
 //..
 // Now, using the (standard) abbreviated macro names we have just defined, we
 // write a test function for the 'static' 'fortyTwo' method, to be called from
@@ -274,6 +278,7 @@ namespace {
 #undef LOOP4_ASSERT
 #undef LOOP5_ASSERT
 #undef LOOP6_ASSERT
+#undef ASSERTV
 
 #undef Q
 #undef P
@@ -1991,7 +1996,7 @@ int main(int argc, char *argv[])
         const char    c = 'c';
         const int     i = 123;
         const double  d = 123.56;
-        const float   f = 789.01;
+        const float   f = 789.01f;
         const char   *s = "hello";
 
         if (verbose) {
