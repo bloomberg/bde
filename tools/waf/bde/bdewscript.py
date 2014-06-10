@@ -2,6 +2,7 @@ import os
 import os.path
 import re
 import sys
+import platform
 
 from bdewafconfigure import BdeWafConfigure
 from bdewafbuild import BdeWafBuild
@@ -85,6 +86,15 @@ def build(ctx):
     bde_build.build()
 
 
+def _is_64bit_system(ctx):
+    # if the current Python interpreter can handle 64-bit integers, then we are done
+    if sys.maxsize > 2**32:
+        return True
+
+    # if not, the CPU may still be a 64-bit model, so try to determine that
+    return platform.machine().lower() in {'amd64', 'x86_64', 'sun4v', 'ppc64'}
+
+
 def _make_ufid_from_options(opts):
 
     env_ufid = os.getenv('BDE_WAF_UFID')
@@ -117,7 +127,7 @@ def _make_ufid_from_options(opts):
 
 
 def _make_uplid_from_context(ctx):
-    platform = Utils.unversioned_sys_platform()
+    waf_platform = Utils.unversioned_sys_platform()
 
     from bdeoptions import get_linux_osinfo, get_aix_osinfo, get_sunos_osinfo, get_darwin_osinfo, get_windows_osinfo
     osinfo_getters = {
@@ -136,11 +146,12 @@ def _make_uplid_from_context(ctx):
         'darwin': _get_darwin_comp
         }
 
-    if platform not in osinfo_getters:
-        ctx.fatal('Unsupported platform: %s' % platform)
+    if waf_platform not in osinfo_getters:
+        ctx.fatal('Unsupported platform: %s' % waf_platform)
 
-    (os_type, os_name, os_ver) = osinfo_getters[platform](ctx)
-    (cpu_type, cxx, cxx_version) = _sanitize_comp(ctx, comp_getters[platform](ctx))
+    (os_type, os_name, os_ver) = osinfo_getters[waf_platform](ctx)
+    cpu_type = platform.machine().lower()
+    (cxx, cxx_version) = _determine_compiler_family(ctx, comp_getters[waf_platform](ctx))
 
     uplid = Uplid(os_type,
                   os_name,
@@ -161,7 +172,7 @@ def _make_uplid_from_context(ctx):
     return uplid
 
 
-def _sanitize_comp(ctx, comp):
+def _determine_compiler_family(ctx, comp):
 
     # waf sets CXX to "gcc" for both clang and gcc. This function changes the cxx_name-cxx_version combination for clang
     # to match the existing naming scheme used by uplids, which is "gcc-clang".
@@ -169,7 +180,7 @@ def _sanitize_comp(ctx, comp):
     # TODO create and send in a patch to allow c_config.get_cc_version to set a variable to indicate that clang is in
     # use
 
-    (cpu_type, cxx, cxx_version) = comp
+    (cxx, cxx_version) = comp
 
     if cxx != 'gcc':
         return comp
@@ -192,38 +203,33 @@ def _sanitize_comp(ctx, comp):
     if out.find("__clang__ 1") < 0:
         return comp
 
-    return (cpu_type, 'gcc', 'clang')
+    return ('gcc', 'clang')
 
 
 def _get_linux_comp(ctx):
-    cpu_type = os.uname()[4]
-    return (cpu_type, ctx.env.CXX_NAME, '.'.join(ctx.env.CC_VERSION))
+    return (ctx.env.CXX_NAME, '.'.join(ctx.env.CC_VERSION))
 
 
 def _get_aix_comp(ctx):
-    cpu_type = ctx.cmd_and_log(['uname', '-p']).rstrip()
     cxx_name = ctx.env.CXX_NAME
     if cxx_name == 'xlc++':
         cxx_name = 'xlc'
 
-    return (cpu_type, cxx_name, '.'.join(ctx.env.CC_VERSION))
+    return (cxx_name, '.'.join(ctx.env.CC_VERSION))
 
 
 def _get_sunos_comp(ctx):
-    cpu_type = ctx.cmd_and_log(['uname', '-p']).rstrip()
     cxx_name = ctx.env.CXX_NAME
     if cxx_name == 'sun':
         cxx_name = 'cc'
 
-    return (cpu_type, cxx_name, '.'.join(ctx.env.CC_VERSION))
+    return (cxx_name, '.'.join(ctx.env.CC_VERSION))
 
 
 def _get_darwin_comp(ctx):
-    cpu_type = os.uname()[4]
-
     cxx_name = ctx.env.CXX_NAME
 
-    return (cpu_type, ctx.env.CXX_NAME, '.'.join(ctx.env.CC_VERSION))
+    return (ctx.env.CXX_NAME, '.'.join(ctx.env.CC_VERSION))
 
 
 def _get_windows_comp(ctx):
@@ -235,22 +241,20 @@ def _get_windows_comp(ctx):
     if m:
         compiler = 'cl'
         compilerversion = m.group(1)
-        model = m.group(2)
-        if model == '80x86':
-            cpu_type = 'x86'
-        elif model == 'x64':
-            cpu_type = 'amd64'
-        else:
-            cpu_type = model
 
-    return (cpu_type, compiler, compilerversion)
+    return (compiler, compilerversion)
 
 
 def _add_commandline_options(ctx):
+    if _is_64bit_system(ctx):
+        abi_default = '64'
+    else:
+        abi_default = '32'
+
     configure_opts = (
         (('a', 'abi-bits'),
          {'type': 'choice',
-          'default': '32',
+          'default': abi_default,
           'choices': ('32', '64'),
           'help': "32 or 64 [default: %default]"}),
         (('b', 'build-type'),
