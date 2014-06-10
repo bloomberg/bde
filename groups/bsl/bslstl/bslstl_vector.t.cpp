@@ -51,20 +51,20 @@ using namespace bsl;
 // dictated by the C++ standard.  In particular, the standard mandates "strong"
 // exception safety (with full guarantee of rollback) along with throwing
 // 'std::length_error' if about to request memory for more than 'max_size()'
-// elements.  (Note: 'max_size' depends on the parameterized 'VALUE_TYPE'.)
-// The general concerns are compliance, exception safety, and proper
-// dispatching (for member function templates such as assign and insert).  In
-// addition, it is a value-semantic type whose salient attributes are size and
-// value of each element in sequence.  This container is implemented in the
-// form of a class template, and thus its proper instantiation for several
-// types is a concern.  Regarding the allocator template argument, we use
-// mostly a 'bsl::allocator' together with a 'bslma::TestAllocator' mechanism,
-// but we also verify the C++ standard.
+// elements.  (Note: 'max_size' depends on the parameterized 'VALUE_TYPE'.) The
+// general concerns are compliance, exception safety, and proper dispatching
+// (for member function templates such as assign and insert).  In addition, it
+// is a value-semantic type whose salient attributes are size and value of each
+// element in sequence.  This container is implemented in the form of a class
+// template, and thus its proper instantiation for several types is a concern.
+// Regarding the allocator template argument, we use mostly a 'bsl::allocator'
+// together with a 'bslma::TestAllocator' mechanism, but we also verify the C++
+// standard.
 //
 // This test plan follows the standard approach for components implementing
 // value-semantic containers.  We have chosen as *primary* *manipulators* the
-// 'push_back' and 'clear' methods to be used by the generator functions
-// 'g' and 'gg'.  Additional helper functions are provided to facilitate
+// 'push_back' and 'clear' methods to be used by the generator functions 'g'
+// and 'gg'.  Additional helper functions are provided to facilitate
 // perturbation of internal state (e.g., capacity).  Note that some
 // manipulators must support aliasing, and those that perform memory allocation
 // must be tested for exception neutrality via the 'bslma_testallocator'
@@ -147,27 +147,27 @@ using namespace bsl;
 // FREE OPERATORS:
 // [ 6] bool operator==(const vector<T,A>&, const vector<T,A>&);
 // [ 6] bool operator!=(const vector<T,A>&, const vector<T,A>&);
-// [22] bool operator<(const vector<T,A>&, const vector<T,A>&);
-// [22] bool operator>(const vector<T,A>&, const vector<T,A>&);
-// [22] bool operator<=(const vector<T,A>&, const vector<T,A>&);
-// [22] bool operator>=(const vector<T,A>&, const vector<T,A>&);
-// [19] void swap(vector<T,A>&, vector<T,A>&);
-// [19] void swap(vector<T,A>&, vector<T,A>&&);
-// [19] void swap(vector<T,A>&&, vector<T,A>&);
+// [20] bool operator<(const vector<T,A>&, const vector<T,A>&);
+// [20] bool operator>(const vector<T,A>&, const vector<T,A>&);
+// [20] bool operator<=(const vector<T,A>&, const vector<T,A>&);
+// [20] bool operator>=(const vector<T,A>&, const vector<T,A>&);
+// [19] void swap(vector<T,A>& lhs, vector<T,A>& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
-// [18] USAGE EXAMPLE
+// [25] USAGE EXAMPLE
 // [21] CONCERN: 'std::length_error' is used properly
+// [23] DRQS 31711031
+// [24] DRQS 34693876
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(vector<T,A> *object, const char *spec, int vF = 1);
 // [ 3] vector<T,A>& gg(vector<T,A> *object, const char *spec);
 // [ 8] vector<T,A> g(const char *spec);
 
-//==========================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//--------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
 
@@ -175,8 +175,9 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i) {
-    if (c) {
+void aSsErT(bool b, const char *s, int i)
+{
+    if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
@@ -184,53 +185,38 @@ void aSsErT(int c, const char *s, int i) {
 
 }  // close unnamed namespace
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
-#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
-#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
-
-#define ASSERT_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_FAIL_RAW(expr)
-#define ASSERT_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_PASS_RAW(expr)
-#define ASSERT_SAFE_FAIL_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(expr)
-#define ASSERT_SAFE_PASS_RAW(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(expr)
-
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-// NOTE: This implementation of LOOP_ASSERT macros must use printf since
-//       cout uses new and must not be called during exception testing.
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP3_ASSERT(I,J,K,X) {                    \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
-#define LOOP4_ASSERT(I,J,K,L,X) {                  \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) {                \
-    if (!(X)) { printf("%s", #I ": "); dbg_print(I); printf("\t"); \
-                printf("%s", #J ": "); dbg_print(J); printf("\t"); \
-                printf("%s", #K ": "); dbg_print(K); printf("\t"); \
-                printf("%s", #L ": "); dbg_print(L); printf("\t"); \
-                printf("%s", #M ": "); dbg_print(M); printf("\n"); \
-                fflush(stdout); aSsErT(1, #X, __LINE__); } }
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -338,7 +324,7 @@ inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 
 
 // Vector-specific print function.
-template <typename TYPE, typename ALLOC>
+template <class TYPE, class ALLOC>
 void dbg_print(const Vector_Imp<TYPE,ALLOC>& v)
 {
     if (v.empty()) {
@@ -353,7 +339,7 @@ void dbg_print(const Vector_Imp<TYPE,ALLOC>& v)
 }
 
 // Generic debug print function (3-arguments).
-template <typename T>
+template <class T>
 void dbg_print(const char* s, const T& val, const char* nl)
 {
     printf("%s", s); dbg_print(val);
@@ -410,13 +396,13 @@ struct ExceptionGuard {
     }
 
     // MANIPULATORS
+    void release() {
+        d_object_p = 0;
+    }
+
     void resetValue(const VALUE_TYPE& value, int line) {
         d_lineNum = line;
         d_value = value;
-    }
-
-    void release() {
-        d_object_p = 0;
     }
 };
 
@@ -622,16 +608,12 @@ class TestType {
     }
 
     // ACCESSORS
-    char value() const {
-        return *d_data_p;
+    bslma::Allocator *allocator() const {
+        return d_allocator_p;
     }
 
     int numOfArgs() const {
         return d_numOfCtrArgs;
-    }
-
-    bslma::Allocator *allocator() const {
-        return d_allocator_p;
     }
 
     void print() const
@@ -642,6 +624,10 @@ class TestType {
         } else {
             printf("VOID\n");
         }
+    }
+
+    char value() const {
+        return *d_data_p;
     }
 };
 
@@ -783,11 +769,6 @@ class TestTypeNoAlloc {
     }
 
     // ACCESSORS
-    char value() const
-    {
-        return d_u.d_char;
-    }
-
     int numOfArgs() const {
         return d_u.d_numOfCtrArgs;
     }
@@ -796,6 +777,11 @@ class TestTypeNoAlloc {
     {
         ASSERT(isalpha(d_u.d_char));
         printf("%c (int: %d)\n", d_u.d_char, (int)d_u.d_char);
+    }
+
+    char value() const
+    {
+        return d_u.d_char;
     }
 };
 
@@ -1017,10 +1003,10 @@ void dbg_print(const BitwiseEqComparableTestType& rhs) {
 
 template <class TYPE>
 class CharList {
-    // This array class is a simple wrapper on a 'char' array offering an
-    // input iterator access via the 'begin' and 'end' accessors.  The
-    // iterator is specifically an *input* iterator and its value type
-    // is the parameterized 'TYPE'.
+    // This array class is a simple wrapper on a 'char' array offering an input
+    // iterator access via the 'begin' and 'end' accessors.  The iterator is
+    // specifically an *input* iterator and its value type is the parameterized
+    // 'TYPE'.
 
     // DATA
     Vector_Imp<TYPE> d_value;
@@ -1136,9 +1122,9 @@ class LimitAllocator : public ALLOC {
     typedef typename ALLOC::difference_type   difference_type;
 
     template <class OTHER_TYPE> struct rebind {
-        // It is better not to inherit the rebind template, or else
-        // rebind<X>::other would be ALLOC::rebind<OTHER_TYPE>::other
-        // instead of LimitAlloc<X>.
+        // It is better not to inherit the 'rebind' template, or else
+        // 'rebind<X>::other' would be 'ALLOC::rebind<OTHER_TYPE>::other'
+        // instead of 'LimitAlloc<X>'.
 
         typedef LimitAllocator<typename ALLOC::template
                                              rebind<OTHER_TYPE>::other > other;
@@ -1174,7 +1160,7 @@ class LimitAllocator : public ALLOC {
 namespace BloombergLP {
 namespace bslmf {
 
-template <typename ALLOCATOR>
+template <class ALLOCATOR>
 struct IsBitwiseMoveable<LimitAllocator<ALLOCATOR> >
     : IsBitwiseMoveable<ALLOCATOR>
 {};
@@ -1263,7 +1249,7 @@ struct TestDriver {
         // well as allow for verification of syntax error detection.
 
     static Obj& gg(Obj *object, const char *spec);
-        // Return, by reference, the specified object with its value adjusted
+        // Return, by reference, the specified 'object' with its value adjusted
         // according to the specified 'spec'.
 
     static Obj g(const char *spec);
@@ -1278,7 +1264,7 @@ struct TestDriver {
                         std::size_t  size,
                         const TYPE&  value = TYPE());
         // Using only primary manipulators, extend the length of the specified
-        // 'object' by the specified size by adding copies of the specified
+        // 'object' by the specified 'size' by adding copies of the specified
         // 'value'.  The resulting value is not specified.  The behavior is
         // undefined unless 0 <= size.
 
@@ -1286,8 +1272,8 @@ struct TestDriver {
                                  std::size_t  size,
                                  const TYPE&  value = TYPE());
         // Using only primary manipulators, extend the capacity of the
-        // specified 'object' to (at least) the specified size by adding copies
-        // of the optionally specified 'value'; then remove all elements
+        // specified 'object' to (at least) the specified 'size' by adding
+        // copies of the optionally specified 'value'; then remove all elements
         // leaving 'object' empty.  The behavior is undefined unless
         // '0 <= size'.
 
@@ -1436,19 +1422,19 @@ charFnPtr lookupValue(char index)
 {
     switch (index) {
         case VA:
-            return TestFunc<'A'>;
+            return TestFunc<'A'>;                                     // RETURN
             break;
         case VB:
-            return TestFunc<'B'>;
+            return TestFunc<'B'>;                                     // RETURN
             break;
         case VC:
-            return TestFunc<'C'>;
+            return TestFunc<'C'>;                                     // RETURN
             break;
         case VD:
-            return TestFunc<'D'>;
+            return TestFunc<'D'>;                                     // RETURN
             break;
         default:
-            return TestFunc<'E'>;
+            return TestFunc<'E'>;                                     // RETURN
     }
 }
 
@@ -1491,7 +1477,7 @@ int TestDriver<TYPE,ALLOC>::ggg(Obj *object,
                 printf("Error, bad character ('%c') "
                        "in spec \"%s\" at position %d.\n", spec[i], spec, i);
             }
-            return i;  // Discontinue processing this spec.
+            return i;  // Discontinue processing this spec.           // RETURN
         }
    }
    return SUCCESS;
@@ -2522,7 +2508,7 @@ void TestDriver<TYPE,ALLOC>::testCase21()
     if (EXP_MAX_SIZE >= (size_t)-1) {
         printf("\n\nERROR: Cannot continue this test case without attempting\n"
                "to allocate huge amounts of memory.  *** Aborting. ***\n\n");
-        return;
+        return;                                                       // RETURN
     }
 
     const std::size_t DATA[] = {
@@ -3911,8 +3897,8 @@ TestDriver<TYPE, ALLOC>::testEmplace(
             break;
         case 1:
         default:
-            // If number of arguments is not in range '[0,14]',
-            // pass in the default one 'char' argument.
+            // If number of arguments is not in range '[0,14]', pass in the
+            // default one 'char' argument.
 
             result = mX.emplace(X.begin() + POS,
                     VALUE.value());
@@ -3951,8 +3937,8 @@ TestDriver<TYPE, ALLOC>::testEmplaceBack(
             break;
         case 1:
         default:
-            // If number of arguments is not in range '[0,14]',
-            // pass in the default one 'char' argument.
+            // If number of arguments is not in range '[0,14]', pass in the
+            // default one 'char' argument.
 
             mX.emplace_back(VALUE.value());
             numOfArgs = 1;  // Reset the number of args.
@@ -5045,7 +5031,8 @@ void TestDriver<TYPE,ALLOC>::testCase15()
             if (verbose) { P_(LINE); P(SPEC); }
 
             if (LENGTH) {
-                LOOP_ASSERT(LINE, TYPE(SPEC[0]) == X.front());
+                const bsls::Types::IntPtr TEST_VALUE = SPEC[0];
+                LOOP_ASSERT(LINE, TYPE(TEST_VALUE) == X.front());
                 mX.front() = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X.front());
                 mX[0] = Y[0];
@@ -5063,14 +5050,15 @@ void TestDriver<TYPE,ALLOC>::testCase15()
             LOOP3_ASSERT(LINE, dataMptr, dataCptr, dataMptr == dataCptr);
 
             for (size_t j = 0; j < LENGTH; ++j) {
-                LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X[j]);
+                const bsls::Types::IntPtr TEST_VALUE = SPEC[j];
+                LOOP_ASSERT(LINE, TYPE(TEST_VALUE) == X[j]);
                 mX[j] = DEFAULT_VALUE;
                 LOOP_ASSERT(LINE, DEFAULT_VALUE == X[j]);
                 LOOP_ASSERT(LINE, BSLS_UTIL_ADDRESSOF(X[j]) == (dataCptr + j));
                 LOOP_ASSERT(LINE,
                             BSLS_UTIL_ADDRESSOF(mX[j]) == (dataMptr + j));
                 mX.at(j) = Y[j];
-                LOOP_ASSERT(LINE, TYPE(SPEC[j]) == X.at(j));
+                LOOP_ASSERT(LINE, TYPE(TEST_VALUE) == X.at(j));
                 LOOP_ASSERT(LINE,
                             BSLS_UTIL_ADDRESSOF(X.at(j)) == (dataCptr + j));
                 LOOP_ASSERT(LINE,
@@ -7418,11 +7406,11 @@ void TestDriver<TYPE,ALLOC>::testCase7()
                         const bsls::Types::Int64  D =
                                                 testAllocator.numBlocksInUse();
 
-                        // Blocks allocated should increase only when
-                        // trying to add more than capacity.  When adding
-                        // the first element numBlocksInUse will increase
-                        // by 1.  In all other conditions numBlocksInUse
-                        // should remain the same.
+                        // Blocks allocated should increase only when trying to
+                        // add more than 'capacity'.  When adding the first
+                        // element, 'numBlocksInUse' will increase by 1.  In
+                        // all other conditions 'numBlocksInUse' should remain
+                        // the same.
 
                         const bsls::Types::Int64 TYPE_ALLOC_MOVES =
                                         TYPE_ALLOC * (1 + oldSize * TYPE_MOVE);
@@ -8003,9 +7991,9 @@ void TestDriver<TYPE,ALLOC>::testCase4()
 
                   const int NUM_TRIALS = 2;
 
-                  // Check exception behavior for non-const version of at()
-                  // Checking the behavior for pos == size() and
-                  // pos > size().
+                  // Check exception behavior for non-const version of 'at()'.
+                  // Checking the behavior for 'pos == size()' and
+                  // 'pos > size()'.
 
                   for (exceptions = 0, trials = 0; trials < NUM_TRIALS
                                                  ; ++trials) {
@@ -8955,8 +8943,8 @@ namespace {
 //
 ///Example 1: Creating a Matrix Type
 ///- - - - - - - - - - - - - - - - -
-// Suppose we want to define a value semantic type representing a
-// dynamically resizable two-dimensional matrix.
+// Suppose we want to define a value semantic type representing a dynamically
+// resizable two-dimensional matrix.
 //
 // First, we define the public interface for the 'MyMatrix' class template:
 //..
@@ -9045,8 +9033,8 @@ class MyMatrix {
     TYPE& theModifiableValue(int rowIndex, int columnIndex);
         // Return a reference providing modifiable access to the element at the
         // specified 'rowIndex' and the specified 'columnIndex' in this matrix.
-        // The behavior is undefined unless '0 <= rowIndex < numRows()'
-        // and '0 <= columnIndex < numColumns()'.
+        // The behavior is undefined unless '0 <= rowIndex < numRows()' and
+        // '0 <= columnIndex < numColumns()'.
 
     // ACCESSORS
     int numRows() const;
@@ -9146,11 +9134,11 @@ void MyMatrix<TYPE>::insertRow(int rowIndex)
 }
 
 template <class TYPE>
-void MyMatrix<TYPE>::insertColumn(int colIndex) {
+void MyMatrix<TYPE>::insertColumn(int columnIndex) {
     for (typename MatrixType::iterator itr = d_matrix.begin();
          itr != d_matrix.end();
          ++itr) {
-        itr->insert(itr->begin() + colIndex, TYPE());
+        itr->insert(itr->begin() + columnIndex, TYPE());
     }
     ++d_numColumns;
 }
@@ -9238,8 +9226,8 @@ int main(int argc, char *argv[])
 
     (void) veryVeryVeryVerbose; // Suppressing the "unused variable" warning
 
-    // As part of our overall allocator testing strategy, we will create
-    // three test allocators.
+    // As part of our overall allocator testing strategy, we will create three
+    // test allocators.
 
     // Object Test Allocator.
     bslma::TestAllocator objectAllocator("Object Allocator",
@@ -9310,9 +9298,7 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // VECTORS OF FUNCTION PTR BUG
-        //
-        // Concerns:
+        // TESTING VECTORS OF FUNCTION POINTERS
         //   In DRQS 34693876, it was observed that function pointers cannot
         //   be cast into 'void *' pointers. A 'reinterpret_cast' is required
         //   in this case. This is handled in 'bslalg_arrayprimitives'.
@@ -9323,36 +9309,107 @@ int main(int argc, char *argv[])
         //   'void *', but for function ptrs on g++, this is not the case.
         //   Had to fix bslalg_arrayprimitives to deal with this, this test
         //   verifies that the fix worked.  DRQS 34693876.
+        //
+        // Concerns:
+        //: 1 A vector of function pointers can be constructed from a sequence
+        //:   of function pointers described by iterators that may be pointers
+        //:   or simpler input iterators.
+        //: 2 A vector of function pointers can insert a sequence of function
+        //:   pointers described by iterators that may be pointers or simpler
+        //:   input iterators.
+        //
+        // Testing:
+        //   DRQS 34693876
         // --------------------------------------------------------------------
 
-        const charFnPtr values[] = { TestFunc<VA>, TestFunc<VB>, TestFunc<VC>,
+        if (verbose) printf("\nTESTING VECTORS OF FUNCTION POINTERS"
+                            "\n====================================\n");
+
+        const charFnPtr VALUES[] = { TestFunc<VA>, TestFunc<VB>, TestFunc<VC>,
                                      TestFunc<VD> };
-        const int NUM_VALUES = sizeof values / sizeof *values;
+        const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
+
+        typedef list<charFnPtr>::iterator ListIterator;
 
         list<charFnPtr> l;
-
         l.push_back(TestFunc<VA>);
         l.push_back(TestFunc<VB>);
         l.push_back(TestFunc<VC>);
         l.push_back(TestFunc<VD>);
 
-        vector<charFnPtr> w(l.begin(), l.end());
-        ASSERT(4 == w.size());
+        {
+            // construct vector from a pair of iterators that are not pointers
+            vector<charFnPtr> w(l.begin(), l.end());
+            ASSERT(4 == w.size());
 
-        // Check the elements of w.
-        vector<charFnPtr>::iterator wit = w.begin();
-        for (list<charFnPtr>::iterator it = l.begin(); it != l.end(); ++it) {
-            ASSERT(wit != w.end());
-            ASSERT(*it == *wit);
-            ++wit;
+            // Check the elements of w.
+            vector<charFnPtr>::iterator wit = w.begin();
+
+            for (ListIterator it = l.begin(); it != l.end(); ++it) {
+                ASSERT(wit != w.end());
+                ASSERT(*it == *wit);
+                ++wit;
+            }
+            ASSERT(wit == w.end());
+
+            // insert a range from a pair of pointers indicating an array
+            w.insert(w.end(), &VALUES[0], &VALUES[0] + NUM_VALUES);
+
+            // Check the elements of w.
+            wit = w.begin();
+
+            for (ListIterator it = l.begin(); it != l.end(); ++it) {
+                ASSERT(wit != w.end());
+                ASSERT(*it == *wit);
+                ++wit;
+            }
+
+            for (int i = 0; i != NUM_VALUES; ++i) {
+                ASSERT(wit != w.end());
+                ASSERT(VALUES[i] == *wit);
+                ++wit;
+            }
+            ASSERT(wit == w.end());
         }
-        ASSERT(wit == w.end());
+
+        {
+            // construct vector from a pair of pointers indicating an array
+            vector<charFnPtr> w(&VALUES[0], &VALUES[0] + NUM_VALUES);
+            ASSERT(4 == w.size());
+
+            // Check the elements of w.
+            vector<charFnPtr>::iterator wit = w.begin();
+
+            for (ListIterator it = l.begin(); it != l.end(); ++it) {
+                ASSERT(wit != w.end());
+                ASSERT(*it == *wit);
+                ++wit;
+            }
+            ASSERT(wit == w.end());
+
+            // insert a range with iterators that are not pointers
+            w.insert(w.end(), l.begin(), l.end());
+
+            // Check the elements of w.
+            wit = w.begin();
+
+            for (int i = 0; i != NUM_VALUES; ++i) {
+                ASSERT(wit != w.end());
+                ASSERT(VALUES[i] == *wit);
+                ++wit;
+            }
+
+            for (ListIterator it = l.begin(); it != l.end(); ++it) {
+                ASSERT(wit != w.end());
+                ASSERT(*it == *wit);
+                ++wit;
+            }
+            ASSERT(wit == w.end());
+        }
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // RANGE INSERT FUNCTION PTR BUG
-        //
-        // Concerns:
+        // TESTING FUNCTION PTR RANGE-INSERT BUGFIX
         //   In DRQS 31711031, it was observed that a c'tor insert range from
         //   an array of function ptrs broke 'g++'.  Reproduce the bug.
         //
@@ -9362,10 +9419,18 @@ int main(int argc, char *argv[])
         //   'void *', but for function ptrs on g++, this is not the case.
         //   Had to fix bslalg_arrayprimitives to deal with this, this test
         //   verifies that the fix worked.  DRQS 31711031.
+        //
+        // Concerns:
+        //: 1 A vector of function pointers can insert a sequence of function
+        //:   pointers described by iterators that may be pointers or simpler
+        //:   input iterators.
+        //
+        // Testing:
+        //   DRQS 31711031
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nRange insert function ptr bug <<NOT FIXED>>\n"
-                              "===========================================\n");
+        if (verbose) printf("\nTESTING FUNCTION PTR RANGE-INSERT BUGFIX"
+                            "\n========================================\n");
 
         typedef int (*FuncPtr)();
         static FuncPtr funcPtrs[] = { &myFunc<0>, &myFunc<1>, &myFunc<2>,
@@ -9439,10 +9504,13 @@ int main(int argc, char *argv[])
         // TESTING COMPARISON FREE OPERATORS
         //
         // Testing:
-        //   bool operator<(const vector<T,A>& lhs, const vector<T,A>& rhs);
+        //   bool operator<(const vector<T,A>&, const vector<T,A>&);
+        //   bool operator>(const vector<T,A>&, const vector<T,A>&);
+        //   bool operator<=(const vector<T,A>&, const vector<T,A>&);
+        //   bool operator>=(const vector<T,A>&, const vector<T,A>&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting comparison free operators"
+        if (verbose) printf("\nTESTING COMPARISON FREE OPERATORS"
                             "\n=================================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
@@ -9454,16 +9522,14 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING SWAP
+        // TESTING 'swap'
         //
         // Testing:
         //   void swap(Vector_Imp&);
-        //   void swap(vector<T,A>&  lhs, vector<T,A>&  rhs);
-        //   void swap(vector<T,A>&& lhs, vector<T,A>&  rhs);
-        //   void swap(vector<T,A>&  lhs, vector<T,A>&& rhs);
+        //   void swap(vector<T,A>& lhs, vector<T,A>& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'swap'"
+        if (verbose) printf("\nTESTING 'swap'"
                             "\n==============\n");
 
         TestDriver<T>::testCase19();
@@ -9471,7 +9537,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING ERASE
+        // TESTING 'erase' AND 'pop_back'
         //
         // Testing:
         //   iterator erase(const_iterator position);
@@ -9479,7 +9545,7 @@ int main(int argc, char *argv[])
         //   void pop_back();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'erase' and 'pop_back'"
+        if (verbose) printf("\nTESTING 'erase' AND 'pop_back'"
                             "\n==============================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
@@ -9643,7 +9709,7 @@ int main(int argc, char *argv[])
         //   const_reverse_iterator rend() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Iterators"
+        if (verbose) printf("\nTESTING ITERATORS"
                             "\n=================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
@@ -9666,7 +9732,7 @@ int main(int argc, char *argv[])
         //   const T& back() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Element Access"
+        if (verbose) printf("\nTESTING ELEMENT ACCESS"
                             "\n======================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
@@ -9691,7 +9757,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING CAPACITY
+        // TESTING 'reserve' AND 'capacity'
         //
         // Testing:
         //   void reserve(size_type n);
@@ -9701,8 +9767,8 @@ int main(int argc, char *argv[])
         //   bool empty() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Reserve and Capacity"
-                            "\n============================\n");
+        if (verbose) printf("\nTESTING 'reserve' AND 'capacity'"
+                            "\n================================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase14();
@@ -9720,6 +9786,9 @@ int main(int argc, char *argv[])
         //   template<class InputIter>
         //     void assign(InputIter first, InputIter last);
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING ASSIGNMENT"
+                            "\n==================\n");
 
         if (verbose) printf("\nTesting Initial-Length Assignment"
                             "\n=================================\n");
@@ -9852,6 +9921,9 @@ int main(int argc, char *argv[])
         //   vector(vector<T,A>&& original);
         // --------------------------------------------------------------------
 
+        if (verbose) printf("\nTESTING CONSTRUCTORS"
+                            "\n====================\n");
+
         if (verbose) printf("\nTesting Initial-Length Constructor"
                             "\n==================================\n");
 
@@ -9924,7 +9996,7 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Allocator concerns"
+        if (verbose) printf("\nTESTING ALLOCATOR-RELATED CONCERNS"
                             "\n==================================\n");
 
         TestDriver<T>::testCase11();
@@ -9932,10 +10004,10 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING STREAMING FUNCTIONALITY:
+        // TESTING STREAMING FUNCTIONALITY
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Streaming Functionality"
+        if (verbose) printf("\nTESTING STREAMING FUNCTIONALITY"
                             "\n===============================\n");
 
         if (verbose)
@@ -9944,7 +10016,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR:
+        // TESTING ASSIGNMENT OPERATOR
         //   Now that we can generate many values for our test objects, and
         //   compare results of assignments, we can test the assignment
         //   operator.    This is achieved by the 'testCase9' class method of
@@ -9955,7 +10027,7 @@ int main(int argc, char *argv[])
         //   Obj& operator=(const Obj& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Assignment Operator"
+        if (verbose) printf("\nTESTING ASSIGNMENT OPERATOR"
                             "\n===========================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
@@ -9967,7 +10039,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING GENERATOR FUNCTION, g:
+        // TESTING GENERATOR FUNCTION, 'g'
         //   Since 'g' is implemented almost entirely using 'gg', we need to
         //   verify only that the arguments are properly forwarded, that 'g'
         //   does not affect the test allocator, and that 'g' returns an
@@ -9981,8 +10053,8 @@ int main(int argc, char *argv[])
         //   Obj g(const char *spec);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Generator Function g"
-                            "\n============================\n");
+        if (verbose) printf("\nTESTING GENERATOR FUNCTION, 'g'"
+                            "\n===============================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase8();
@@ -10002,7 +10074,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING COPY CONSTRUCTOR:
+        // TESTING COPY CONSTRUCTOR
         //   Having now full confidence in 'operator==', we can use it
         //   to test that copy constructors preserve the notion of
         //   value.  This is achieved by the 'testCase7' class method of the
@@ -10014,8 +10086,8 @@ int main(int argc, char *argv[])
         //   Vector_Imp(const Vector_Imp& original, alloc);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Copy Constructors"
-                            "\n=========================\n");
+        if (verbose) printf("\nTESTING COPY CONSTRUCTOR"
+                            "\n========================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase7();
@@ -10035,7 +10107,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY OPERATORS:
+        // TESTING EQUALITY COMPARISION OPERATORS
         //   Since 'operators==' is implemented in terms of basic accessors,
         //   it is sufficient to verify only that a difference in value of any
         //   one basic accessor for any two given objects implies inequality.
@@ -10052,8 +10124,8 @@ int main(int argc, char *argv[])
         //   operator==(const Obj&, const Obj&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Equality Operators"
-                            "\n==========================\n");
+        if (verbose) printf("\nTESTING EQUALITY COMPARISION OPERATORS"
+                            "\n======================================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase6();
@@ -10067,10 +10139,10 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING OUTPUT (<<) OPERATOR:
+        // TESTING OUTPUT (<<) OPERATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Output (<<) Operator"
+        if (verbose) printf("\nTESTING OUTPUT (<<) OPERATOR"
                             "\n============================\n");
 
         if (verbose)
@@ -10079,7 +10151,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING BASIC ACCESSORS:
+        // TESTING BASIC ACCESSORS
         //   Having implemented an effective generation mechanism, we now would
         //   like to test thoroughly the basic accessor functions
         //     - size() const
@@ -10095,7 +10167,7 @@ int main(int argc, char *argv[])
         //   const int& operator[](int index) const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Basic Accessors"
+        if (verbose) printf("\nTESTING BASIC ACCESSORS"
                             "\n=======================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
@@ -10126,7 +10198,7 @@ int main(int argc, char *argv[])
         //   Obj& gg(Obj *object, const char *spec, );
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Generator Functions"
+        if (verbose) printf("\nTESTING GENERATOR FUNCTIONS"
                             "\n===========================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
@@ -10147,7 +10219,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING PRIMARY MANIPULATORS (BOOTSTRAP):
+        // TESTING PRIMARY MANIPULATORS (BOOTSTRAP)
         //   We want to ensure that the primary manipulators
         //      - push_back             (black-box)
         //      - clear                 (white-box)
@@ -10161,8 +10233,8 @@ int main(int argc, char *argv[])
         //   void clear();
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Primary Manipulators"
-                            "\n============================\n");
+        if (verbose) printf("\nTESTING PRIMARY MANIPULATORS (BOOTSTRAP)"
+                            "\n========================================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase2();
@@ -10182,7 +10254,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // BREATHING TEST:
+        // BREATHING TEST
         //   We want to exercise basic value-semantic functionality.  This is
         //   achieved by the 'testCase1' class method of the test driver
         //   template, instantiated for a few basic test types.  See that

@@ -2783,7 +2783,7 @@ void ArrayPrimitives_Imp::copyConstruct(
                         void                                       **toBegin,
                         FWD_ITER                                     fromBegin,
                         FWD_ITER                                     fromEnd,
-                        ALLOCATOR                                   *allocator,
+                        ALLOCATOR                                   *,
                         bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *)
 {
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
@@ -4919,7 +4919,7 @@ void ArrayPrimitives_Imp::insert(
                         FWD_ITER                                   fromBegin,
                         FWD_ITER,
                         size_type                                  numElements,
-                        ALLOCATOR                                 *allocator,
+                        ALLOCATOR                                 *,
                         bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *)
 {
     // This very specific overload is required for the case that 'FWD_ITER' is

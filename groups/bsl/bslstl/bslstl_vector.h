@@ -1083,7 +1083,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
     void push_back(const VALUE_TYPE& value);
         // Append a copy of the specified 'value' at the end of this vector.
-        // This method provides the strong exception safety guarentee, so the
+        // This method provides the strong exception safety guarantee, so the
         // state of this object will not be changed if an exception is thrown
         // (such as when allocating memory, or from operations of
         // 'VALUE_TYPE'). This method requires that the (template parameter)
@@ -4166,8 +4166,8 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
 
 // Type traits for STL *sequence* containers:
 //: o A sequence container defines STL iterators.
-//: o A sequence container is bitwise moveable if the allocator is bitwise
-//:     moveable.
+//: o A sequence container is bitwise movable if the allocator is bitwise
+//:     movable.
 //: o A sequence container uses 'bslma' allocators if the parameterized
 //:     'ALLOCATOR' is convertible from 'bslma::Allocator*'.
 
