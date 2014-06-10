@@ -1465,11 +1465,8 @@ class basic_string
 
     basic_string& operator+=(
         const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
-        // Append the specified 'strRef' at the end of this string. Return
-        // a reference providing modifiable access to this string. This
-        // operator was added to allow appends without requiring implicit
-        // conversion from 'bsls::StringRef' to 'bsl::string', meaning it
-        // avoids an unnecessary copy
+        // Append the specified 'strRef' at the end of this string. Return a
+        // reference providing modifiable access to this string.
 
     basic_string& append(const basic_string& suffix);
     basic_string& append(const basic_string& suffix,

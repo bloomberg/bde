@@ -7728,7 +7728,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             mX.append(Y, 0, NUM_ELEMENTS);
                           } break;
                           case APPEND_STRINGREFDATA: {
-                            //operator+=(const StringRefData& strRefData);
+                        //operator+=(const StringRefData& strRefData);
                             mX += V;
                           } break;
                           default:
@@ -7845,7 +7845,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                     mY.append(Y.begin(), Y.end());
                   } break;
                   case APPEND_STRINGREFDATA: {
-                    //operator+=(const StringRefData& strRefData);
+                //operator+=(const StringRefData& strRefData);
                     mX += V;
                     mY += V;
                   } break;

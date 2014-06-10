@@ -108,8 +108,7 @@ using namespace bsl;  // automatically added by script
 // [ 7] operator+(const StringRef& lhs, const native_std::string& rhs);
 // [ 7] operator+(const char *lhs, const StringRef& rhs);
 // [ 7] operator+(const StringRef& lhs, const char *rhs);
-// [ 7] bsl::basic_string bsl::basic_string::operator+=(
-//                                            const StringRefData& strRefData);
+// [ 7] basic_string basic_string::operator+=(const StringRefData& strRf);
 // [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
 //--------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -2003,7 +2002,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Specify a set of strings and the assert addition operators
-        //   return the correct results.
+        //   return the correct results. The the basic_string operator+= is
+        //   being tested here becuase the bslstl_string test driver can not
+        //   test using StringRef without introducing cyclic dependencies
         //
         // Testing:
         //   int operator+(const StringRef& lhs, const StringRef& rhs);
@@ -2014,12 +2015,8 @@ int main(int argc, char *argv[])
         //   int operator+(const char *lhs, const StringRef& rhs);
         //   int operator+(const StringRef& lhs, const char *rhs);
         //   int operator+(const StringRef& lhs, const StringRef& rhs);
-        //   bsl::basic_string basic_string::operator+=(
-        //                                    const StringRefData& strRefData);
-        //   NOTE: The += operator is being tested here becuase the
-        //   bslstl_string test driver can not test using StringRef without
-        //   introducing cyclic dependencies
-        //   --------------------------------------------------------------------
+        //   basic_string basic_string::operator+=(const StringRefData& strRf); 
+        // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTESTING ADDITION OPERATORS"
                                << "\n=========================="
@@ -2124,7 +2121,7 @@ int main(int argc, char *argv[])
             // Ensure += returns correctly
             LOOP_ASSERT(LINE, RESULT == (s1 += X2));
             // Ensure += left operand has proper value afterwards
-            LOOP_ASSERT(LINE, RESULT == (s1));
+            LOOP_ASSERT(LINE, RESULT == s1);
         }
       } break;
       case 6: {
