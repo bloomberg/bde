@@ -15,13 +15,13 @@ Basic Build Instructions
 2. Download [BDE Tools](https://github.com/bloomberg/bde-tools/) and add the
    path `<bde_tools_repo_root>/bin` to the system `PATH` environment
    variable. Make sure the first `waf` command found in `PATH` is a script from that path.
-3. From the root of this source repository, run `python waf configure`
+3. From the root of this source repository, run `waf configure`
 4. To build the libraries, but not the test drivers, run:
-   `python waf build`
+   `waf build`
 5. To also build the test drivers, run:
-   `python waf build --test build`
+   `waf build --test build`
 6. To build and run the test drivers, run:
-   `python waf build --test run`
+   `waf build --test run`
 
 For more details on building the BDE repository, please see the
 [Quick Start Guide](http://github.com/bloomberg/bde/wiki/Getting-Started).
