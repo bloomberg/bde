@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
 // In this example we demonstrate the use of different overloads of the
 // 'swapBytes' function.
 //
-// First we typedef a shorthand to the namespace 'class':
+// First we 'typedef' a shorthand to the namespace 'class':
 //..
     typedef bsls::ByteOrderUtil Util;
 //..
@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That the set of types supported by 'swapBytes' are
         //:   distinguishable when passed by value, and that none of them
-        //:   evaluate to the same type (i.e. 'char' and 'signed char').
+        //:   evaluate to the same type (i.e., 'char' and 'signed char').
         //
         // Plan:
         //: 1 Use the template function 'isSameType' (defined in this file)

@@ -10,10 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide byte-order swapping functions.
 //
 //@CLASSES:
-//   bsls::ByteOrderUtil
+//   bsls::ByteOrderUtil: namespace class
 //
-//@SEE ALSO:
-//   bsls_byteorder
+//@SEE ALSO: bsls_byteorder
 //
 //@DESCRIPTION: This component provides a namespace 'class'
 // 'bsls::ByteOrderUtil', that contains a suite of static functions for
@@ -28,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // In this example we demonstrate the use of different overloads of the
 // 'swapBytes' function.
 //
-// First we typedef a shorthand to the namespace 'class':
+// First we 'typedef' a shorthand to the namespace 'class':
 //..
 //  typedef bsls::ByteOrderUtil Util;
 //..
@@ -75,29 +74,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#ifdef BSLS_PLATFORM_CMP_HP
-
-#ifndef INCLUDED_MACHINE_SYS_BUILTINS
-#include <machine/sys/builtins.h>  // '_Asm_xchg'
-#define INCLUDED_MACHINE_SYS_BUILTINS
-#endif
-
-#ifndef INCLUDED_MACHINE_SYS_INLINE
-#include <machine/sys/inline.h>    // '_SZ_H', '_SZ_W', '_SZ_D'
-#define INCLUDED_MACHINE_SYS_INLINE
-#endif
-
-#endif
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
-
-#ifndef INCLUDED_STDLIB
-#include <stdlib.h>        // '_byteswap_*'
-#define INCLUDED_STDLIB
-#endif
-
-#endif
-
 namespace BloombergLP {
 namespace bsls {
 
@@ -114,7 +90,6 @@ class ByteOrderUtil {
 
   public:
     // CLASS METHODS
-
     static bool           swapBytes(bool           x);
     static char           swapBytes(char           x);
     static unsigned char  swapBytes(unsigned char  x);
@@ -149,49 +124,11 @@ class ByteOrderUtil {
 //                          INLINE FUNCTION DEFINITIONS
 //=============================================================================
 
-// LEVEL 0 METHODS
+                              // --------------------
+                              // struct ByteOrderUtil
+                              // --------------------
 
-inline
-unsigned short
-ByteOrderUtil::swapBytes16(unsigned short x)
-{
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
-    return Impl::customSwap16(x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
-    return Impl::customSwapP16(&x);
-#else
-    return Impl::genericSwap16(x);
-#endif
-}
-
-inline
-unsigned int
-ByteOrderUtil::swapBytes32(unsigned int x)
-{
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
-    return Impl::customSwap32(x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
-    return Impl::customSwapP32(&x);
-#else
-    return Impl::genericSwap32(x);
-#endif
-}
-
-inline
-bsls::Types::Uint64
-ByteOrderUtil::swapBytes64(bsls::Types::Uint64 x)
-{
-#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
-    return Impl::customSwap64(x);
-#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
-    return Impl::customSwapP64(&x);
-#else
-    return Impl::genericSwap64(x);
-#endif
-}
-
-// LEVEL 1 METHODS
-
+// CLASS METHODS
 inline
 bool ByteOrderUtil::swapBytes(bool x)
 {
@@ -293,6 +230,45 @@ inline
 bsls::Types::Int64 ByteOrderUtil::swapBytes(bsls::Types::Int64 x)
 {
     return static_cast<Types::Int64>(swapBytes64(x));
+}
+
+inline
+unsigned short
+ByteOrderUtil::swapBytes16(unsigned short x)
+{
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16)
+    return Impl::customSwap16(x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16)
+    return Impl::customSwapP16(&x);
+#else
+    return Impl::genericSwap16(x);
+#endif
+}
+
+inline
+unsigned int
+ByteOrderUtil::swapBytes32(unsigned int x)
+{
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32)
+    return Impl::customSwap32(x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32)
+    return Impl::customSwapP32(&x);
+#else
+    return Impl::genericSwap32(x);
+#endif
+}
+
+inline
+bsls::Types::Uint64
+ByteOrderUtil::swapBytes64(bsls::Types::Uint64 x)
+{
+#if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64)
+    return Impl::customSwap64(x);
+#elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64)
+    return Impl::customSwapP64(&x);
+#else
+    return Impl::genericSwap64(x);
+#endif
 }
 
 }  // close package namespace
