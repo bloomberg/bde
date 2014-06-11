@@ -138,10 +138,10 @@ using namespace bsl;
 // [14] size_type max_size() const;
 // [14] size_type capacity() const;
 // [14] bool empty() const;
-// [16] const_iterator begin();
-// [16] const_iterator end();
-// [16] const_reverse_iterator rbegin();
-// [16] const_reverse_iterator rend();
+// [16] const_iterator begin() const;
+// [16] const_iterator end() const;
+// [16] const_reverse_iterator rbegin() const;
+// [16] const_reverse_iterator rend() const;
 //
 // FREE OPERATORS:
 // [ 6] bool operator==(const vector<T,A>&, const vector<T,A>&);
@@ -1403,7 +1403,7 @@ struct TestDriver {
                                // TEST APPARATUS
                                // --------------
 
-template<char N>
+template <char N>
 char TestFunc()
 {
     return N;
@@ -8980,7 +8980,7 @@ class MyMatrix {
     int        d_numColumns;  // number of columns
 
     // FRIENDS
-    template<class T>
+    template <class T>
     friend bool operator==(const MyMatrix<T>&, const MyMatrix<T>&);
 
   public:
@@ -9747,7 +9747,7 @@ int main(int argc, char *argv[])
             ASSERT(13 == vna.size());
             ASSERT(42 == vna.front());
         }
-} break;
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // TESTING ITERATORS
@@ -10076,6 +10076,7 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<BCT>::testCase12Range(CharArray<BCT>());
 
+
         if (verbose) printf("\nTesting Initial-Range vs. -Length Ambiguity"
                             "\n===========================================\n");
 
@@ -10104,16 +10105,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase11();
 
-#if 0
-        if (verbose) printf("\n... with 'int *'.\n");
-        TestDriver<int *>::testCase11();
-
-        if (verbose) printf("\n... with 'const char *'.\n");
-        TestDriver<const char *>::testCase11();
-
-        if (verbose) printf("\n... with function pointers.\n");
-        TestDriver<char (*)()>::testCase11();
-#endif
       } break;
       case 10: {
         // --------------------------------------------------------------------

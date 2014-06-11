@@ -234,7 +234,7 @@ BSLS_IDENT("$Id: $")
 //      int        d_numColumns;  // number of columns
 //
 //      // FRIENDS
-//      template<class T>
+//      template <class T>
 //      friend bool operator==(const MyMatrix<T>&, const MyMatrix<T>&);
 //
 //    public:
@@ -1179,14 +1179,14 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
                 size_type         numElements,
                 const VALUE_TYPE& value);
         // Insert at the specified 'position' in this vector a number equal to
-        // the 'numElements' of copies of the specified 'value'.  The behavior
-        // is undefined unless 'position' is an iterator in the range '[
-        // begin(), end() ]' (both endpoints included).  Note that this method
-        // offers full guarantee of rollback in case an exception is throw is
-        // thrown other than by the 'VALUE_TYPE' copy constructor or assignment
-        // operator.  This method requires that the (template parameter) type
-        // 'VALUE_TYPE' be "copy-constructible" (see {Requirements on
-        // 'VALUE_TYPE'}).
+        // the specified 'numElements' of copies of the specified 'value'.  The
+        // behavior is undefined unless 'position' is an iterator in the range
+        // '[ begin(), end() ]' (both endpoints included).  Note that this
+        // method offers full guarantee of rollback in case an exception is
+        // throw is thrown other than by the 'VALUE_TYPE' copy constructor or
+        // assignment operator.  This method requires that the (template
+        // parameter) type 'VALUE_TYPE' be "copy-constructible" (see
+        // {Requirements on 'VALUE_TYPE'}).
 
     template <class INPUT_ITER>
     void insert(const_iterator position, INPUT_ITER first, INPUT_ITER last);
@@ -1889,20 +1889,20 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
                           // class Vector_RangeCheck
                           // =======================
 
-template<class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
+template <class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
                    = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::value>
 struct Vector_DeduceIteratorCategory {
     typedef typename bsl::iterator_traits<BSLSTL_ITERATOR>::iterator_category
                                                                           type;
 };
 
-template<class BSLSTL_ITERATOR>
+template <class BSLSTL_ITERATOR>
 struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
     typedef BloombergLP::bslmf::Nil type;
 };
 
 
-template<class BSLSTL_ITERATOR>
+template <class BSLSTL_ITERATOR>
 struct Vector_IsRandomAccessIterator :
     bsl::is_same<
         typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
@@ -1920,7 +1920,7 @@ struct Vector_RangeCheck {
     // inline in the class definition due to a bug in the Microsoft C++
     // compiler (see 'bslmf_enableif').
 
-    template<class BSLSTL_ITERATOR>
+    template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
@@ -1931,7 +1931,7 @@ struct Vector_RangeCheck {
         return false;
     }
 
-    template<class BSLSTL_ITERATOR>
+    template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
            Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
