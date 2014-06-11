@@ -532,8 +532,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_default.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
@@ -566,6 +574,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -4087,8 +4099,19 @@ inline
 bool operator==(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator==(static_cast<const Base&>(lhs),
                       static_cast<const Base&>(rhs));
 }
@@ -4098,8 +4121,19 @@ inline
 bool operator!=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator!=(static_cast<const Base&>(lhs),
                       static_cast<const Base&>(rhs));
 }
@@ -4109,8 +4143,19 @@ inline
 bool operator<(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator<(static_cast<const Base&>(lhs),
                      static_cast<const Base&>(rhs));
 }
@@ -4120,8 +4165,19 @@ inline
 bool operator>(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator>(static_cast<const Base&>(lhs),
                      static_cast<const Base&>(rhs));
 }
@@ -4131,8 +4187,19 @@ inline
 bool operator<=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator<=(static_cast<const Base&>(lhs),
                       static_cast<const Base&>(rhs));
 }
@@ -4142,8 +4209,19 @@ inline
 bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
                 const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // MSVC treats function pointers as pointer-to-const types for the purpose
+    // of dispatching this function overload, but not when determining the
+    // partial specialization of 'vector'.
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
     typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
     typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
     return operator>=(static_cast<const Base&>(lhs),
                       static_cast<const Base&>(rhs));
 }
