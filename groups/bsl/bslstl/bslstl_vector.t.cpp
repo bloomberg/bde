@@ -32,14 +32,13 @@
 #include <iterator>   // 'iterator_traits'
 #include <stdexcept>  // 'length_error', 'out_of_range'
 
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <cstddef>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
 
 
 using namespace BloombergLP;
-using namespace std;
 using namespace bsl;
 
 //=============================================================================
@@ -9475,11 +9474,14 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING EXCEPTIONS
+        // TESTING NON-STANDARD TYPES
         //
         // Testing:
         //   CONCERN: Vector support types with overloaded new/delete
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING NON-STANDARD TYPES"
+                            "\n==========================\n");
 
         if (verbose) printf("\nTesting overloaded new/delete type"
                             "\n==================================\n");
@@ -9498,6 +9500,16 @@ int main(int argc, char *argv[])
                             "\n==================================\n");
 
         TestDriver<T>::testCase21();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase21();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase21();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase21();
+
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -9519,6 +9531,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase20();
 
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase20();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase20();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase20();
+
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -9533,6 +9554,15 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         TestDriver<T>::testCase19();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase19();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase19();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase19();
 
       } break;
       case 18: {
@@ -9563,6 +9593,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase18();
 
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase18();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase18();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase18();
+
         if (verbose) printf("\nNegative testing 'erase' and 'pop_back'"
                             "\n=======================================\n");
 
@@ -9580,6 +9619,15 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase18Negative();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase18Negative();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase18Negative();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase18Negative();
 
       } break;
       case 17: {
@@ -9609,8 +9657,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase17();
 
-        if (verbose) printf("\n... with pointer to function.\n");
-        TestDriver<void (*)()>::testCase17();
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase17();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase17();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase17();
 
         if (verbose) printf("\nTesting Value Emplacement"
                             "\n=======================\n");
@@ -9718,6 +9772,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase16();
 
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase16();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase16();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase16();
+
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -9741,8 +9804,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase15();
 
-        if (verbose) printf("\n... with pointer to function.\n");
-        TestDriver<void (*)()>::testCase15();
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase15();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase15();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase15();
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing Element Access"
@@ -9753,6 +9822,15 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase15Negative();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase15Negative();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase15Negative();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase15Negative();
 #endif
       } break;
       case 14: {
@@ -9775,6 +9853,15 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase14();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase14();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase14();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase14();
 
       } break;
       case 13: {
@@ -9805,8 +9892,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase13();
 
-        if (verbose) printf("\n... with pointer to function.\n");
-        TestDriver<void (*)()>::testCase13();
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase13();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase13();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase13();
 
         if (verbose) printf("\nTesting Initial-Range Assignment"
                             "\n================================\n");
@@ -9939,6 +10032,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase12();
 
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase12();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase12();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase12();
+
         if (verbose) printf("\nTesting Initial-Range Constructor"
                             "\n=================================\n");
 
@@ -9999,8 +10101,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING ALLOCATOR-RELATED CONCERNS"
                             "\n==================================\n");
 
+        if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase11();
 
+#if 0
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase11();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase11();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase11();
+#endif
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -10035,6 +10148,15 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'TestType'.\n");
         TestDriver<T>::testCase9();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase9();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase9();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase9();
 
       } break;
       case 8: {
@@ -10071,6 +10193,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase8();
 
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase8();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase8();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase8();
+
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -10104,6 +10235,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase7();
 
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase7();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase7();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase7();
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -10135,6 +10275,15 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseEqComparableTestType'.\n");
         TestDriver<BET>::testCase6();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase6();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase6();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase6();
 
       } break;
       case 5: {
@@ -10185,6 +10334,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase4();
 
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase4();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase4();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase4();
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -10215,6 +10373,15 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase3();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase3();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase3();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase3();
 
       } break;
       case 2: {
@@ -10250,6 +10417,15 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n... with 'BitwiseCopyableTestType'.\n");
         TestDriver<BCT>::testCase2();
+
+        if (verbose) printf("\n... with 'int *'.\n");
+        TestDriver<int *>::testCase2();
+
+        if (verbose) printf("\n... with 'const char *'.\n");
+        TestDriver<const char *>::testCase2();
+
+        if (verbose) printf("\n... with function pointers.\n");
+        TestDriver<char (*)()>::testCase2();
 
       } break;
       case 1: {
