@@ -134,6 +134,7 @@ BSLS_IDENT("$Id$")
 #include <bsl_bitset.h>
 #include <bsl_cstring.h>
 #include <bsl_string.h>
+#include <bsl_cstdlib.h>
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
 #  ifndef  __STDC_WANT_DEC_FP__
@@ -281,7 +282,7 @@ struct Properties<32>
 
     static inline void convert(ValueType *target, StorageType bits);
     static inline unsigned long long lowDigits(unsigned long long value);
-    static inline StorageType setSignBit(StorageType value);
+    static inline StorageType getSignBit();
     static inline unsigned int topDigit(unsigned long long value);
 };
 
@@ -297,10 +298,9 @@ inline unsigned long long Properties<32>::lowDigits(unsigned long long value)
     return value % smallLimit;
 }
 
-inline Properties<32>::StorageType Properties<32>::setSignBit(
-                                                             StorageType value)
+inline Properties<32>::StorageType Properties<32>::getSignBit()
 {
-    return value | signBit;
+    return signBit;
 }
 
 inline unsigned int Properties<32>::topDigit(unsigned long long value)
@@ -328,12 +328,13 @@ struct Properties<64>
     static const long long   smallLimit      = 1000000000000000ll;
     static const long long   mediumLimit     = 10000000000000000ll;
     static const StorageType signBit         = 0x8000000000000000ull;
+    static const StorageType infBits         = 0x7800000000000000ull;
     static const StorageType plusInfBits     = 0x7800000000000000ull;
     static const StorageType minusInfBits    = 0xF800000000000000ull;
 
     static inline void convert(ValueType *target, StorageType bits);
     static inline unsigned long long lowDigits(unsigned long long value);
-    static inline StorageType setSignBit(StorageType value);
+    static inline StorageType getSignBit();
     static inline unsigned int topDigit(unsigned long long value);
 };
 
@@ -349,10 +350,9 @@ inline unsigned long long Properties<64>::lowDigits(unsigned long long value)
     return value % smallLimit;
 }
 
-inline Properties<64>::StorageType Properties<64>::setSignBit(
-                                                             StorageType value)
+inline Properties<64>::StorageType Properties<64>::getSignBit()
 {
-    return value | signBit;
+    return signBit;
 }
 
 inline unsigned int Properties<64>::topDigit(unsigned long long value)
@@ -376,7 +376,7 @@ struct Properties<128>
 
     static inline void convert(ValueType *target, StorageType bits);
     static inline unsigned long long lowDigits(unsigned long long value);
-    static inline StorageType setSignBit(StorageType value);
+    static inline StorageType getSignBit();
     static inline unsigned int topDigit(unsigned long long);
 };
 
@@ -390,11 +390,10 @@ inline unsigned long long Properties<128>::lowDigits(unsigned long long value)
     return value;
 }
 
-inline Properties<128>::StorageType Properties<128>::setSignBit(
-                                                             StorageType value)
+inline Properties<128>::StorageType Properties<128>::getSignBit()
 {
     StorageType signBit(0x8000000000000000ull, 0ull);
-    return value | signBit;
+    return signBit;
 }
 
 inline unsigned int Properties<128>::topDigit(unsigned long long)
@@ -468,14 +467,11 @@ combineDecimalRaw(unsigned long long value,
     typedef typename Properties<Size>::StorageType StorageType;
     StorageType exponent(makeCombinationField<Size>(
                                       Properties<Size>::topDigit(value), exp));
-    if (!negative) {
-        return exponent |
+
+    StorageType sign = negative ? Properties<Size>::getSignBit() : 0;
+
+    return sign | exponent |
                getDeclets<Size>(Properties<Size>::lowDigits(value));  // RETURN
-    }
-    else {
-        return Properties<Size>::setSignBit(exponent |
-              getDeclets<Size>(Properties<Size>::lowDigits(value)));  // RETURN
-    }
 }
 
 template <int Size>
@@ -514,25 +510,17 @@ void makeDecimalRaw(typename Properties<Size>::ValueType *target,
                     signed long long                      value,
                     int                                   exponent)
 {
+    typename Properties<Size>::StorageType bits;
 
-    if (0 <= value) {
-        typename Properties<Size>::StorageType bits(toDecimalRaw<Size>(
-                                                      value, exponent, false));
-        Properties<Size>::convert(target, bits);
-    }
-    else if (value == std::numeric_limits<long long>::min()) {
-        typename Properties<Size>::StorageType bits(
-            toDecimalRaw<Size>(static_cast<unsigned long long>(
-                  std::numeric_limits<long long>::max()) + 1, exponent, true));
-        bits = Properties<Size>::setSignBit(bits);
-        Properties<Size>::convert(target, bits);
+    if (value == std::numeric_limits<long long>::min()) {
+        bits = toDecimalRaw<Size>(static_cast<unsigned long long>(
+                   std::numeric_limits<long long>::max()) + 1, exponent, true);
     }
     else {
-        typename Properties<Size>::StorageType bits(toDecimalRaw<Size>(
-                                                      -value, exponent, true));
-        bits = Properties<Size>::setSignBit(bits);
-        Properties<Size>::convert(target, bits);
+        bits = toDecimalRaw<Size>(bsl::abs(value), exponent, value < 0);
     }
+
+    Properties<Size>::convert(target, bits);
 }
 
 template<int Size>
@@ -566,6 +554,14 @@ static inline DecimalImplUtil::ValueType64 plusInf64()
 {
     DecimalImplUtil::ValueType64 value;
     Properties<64>::convert(&value, Properties<64>::plusInfBits);
+    return value;
+}
+
+static inline DecimalImplUtil::ValueType64 inf64(bool isNegative = false)
+{
+    typedef Properties<64> P;
+    DecimalImplUtil::ValueType64 value;
+    P::convert(&value, P::infBits | (isNegative ? P::getSignBit() : 0));
     return value;
 }
 
@@ -825,47 +821,35 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(
 
         return makeDecimalRaw64(mantissa, exponent);                  // RETURN
     }
-    else {
-        if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
+    if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
 
-            // 'exponent' too high.
+        // 'exponent' too high.
 
-            if (mantissa != 0) {
-                return plusInf64();                                   // RETURN
-            }
-            else {
-
-                // Make a '0' with the highest exponent possible.
-
-                return makeDecimalRaw64(
-                                    0, Properties<64>::maxExponent);  // RETURN
-            }
+        if (mantissa != 0) {
+            return inf64();                                           // RETURN
         }
 
-        // Note that static_cast<int> is needed to prevent the RHS of the <=
-        // comparison from promoting to a signed int. '3 * sizeof(long long)'
-        // is at least the number of digits in the longest representable
-        // 'long long'.
+        // Make a '0' with the highest exponent possible.
 
-        else if (exponent <= -Properties<64>::bias -
+        return makeDecimalRaw64(0, Properties<64>::maxExponent);      // RETURN
+    }
+
+    // Note that static_cast<int> is needed to prevent the RHS of the <=
+    // comparison from promoting to a signed int. '3 * sizeof(long long)'
+    // is at least the number of digits in the longest representable
+    // 'long long'.
+
+    if (exponent <= -Properties<64>::bias -
                                      3 * static_cast<int>(sizeof(long long))) {
 
-            // 'exponent' too low.
+        // 'exponent' too low.
 
-            return makeDecimalRaw64(0, -Properties<64>::bias);        // RETURN
-        }
-        else {
+        return makeDecimalRaw64(0, -Properties<64>::bias);            // RETURN
+    }
 
             // Precision too high.
 
-            return convertToDecimal64(
-                             makeDecimalRaw128(mantissa, exponent));  // RETURN
-        }
-    }
-
-    ValueType64 valuetype64;
-    makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
-    return valuetype64;
+    return convertToDecimal64(makeDecimalRaw128(mantissa, exponent)); // RETURN
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(long long mantissa,
@@ -881,56 +865,39 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(long long mantissa,
 
         return makeDecimalRaw64(mantissa, exponent);                  // RETURN
     }
-    else {
-        if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
+    if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
 
-            // 'exponent' too high.
+        // 'exponent' too high.
 
-            if (mantissa > 0) {
-                return plusInf64();                                   // RETURN
-            }
-            else if (mantissa < 0) {
-                return minusInf64();                                  // RETURN
-            }
-            else {
-
-                // Make a '0' with the highest exponent possible.
-
-                return makeDecimalRaw64(
-                                    0, Properties<64>::maxExponent);  // RETURN
-            }
+        if (mantissa != 0) {
+            return inf64(mantissa < 0);                               // RETURN
         }
-        else if (exponent <= -Properties<64>::bias -
+
+        // Make a '0' with the highest exponent possible.
+
+        return makeDecimalRaw64(0, Properties<64>::maxExponent);      // RETURN
+    }
+    if (exponent <= -Properties<64>::bias -
                                      3 * static_cast<int>(sizeof(long long))) {
 
-            // 'exponent' too low.
+        // 'exponent' too low.
 
-            if (mantissa >= 0) {
-                return makeDecimalRaw64(0, -Properties<64>::bias);    // RETURN
-            }
-            else {
-
-                // Create and return the decimal floating point value '-0'.
-
-                Properties<64>::StorageType returnBits =
-                         combineDecimalRaw<64>(0, -Properties<64>::bias, true);
-                ValueType64 returnValue;
-                Properties<64>::convert(&returnValue, returnBits);
-                return returnValue;                                   // RETURN
-            }
+        if (mantissa >= 0) {
+            return makeDecimalRaw64(0, -Properties<64>::bias);        // RETURN
         }
-        else {
 
-            // Precision too high.
+        // Create and return the decimal floating point value '-0'.
 
-            return convertToDecimal64(
-                             makeDecimalRaw128(mantissa, exponent));  // RETURN
-        }
+        Properties<64>::StorageType returnBits =
+                 combineDecimalRaw<64>(0, -Properties<64>::bias, true);
+        ValueType64 returnValue;
+        Properties<64>::convert(&returnValue, returnBits);
+        return returnValue;                                           // RETURN
     }
 
-    ValueType64 valuetype64;
-    makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
-    return valuetype64;
+    // Precision too high.
+
+    return convertToDecimal64(makeDecimalRaw128(mantissa, exponent)); // RETURN
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(
@@ -941,28 +908,16 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(
         (exponent <= Properties<64>::maxExponent)) {
         return makeDecimalRaw64(mantissa, exponent);                  // RETURN
     }
-    else {
-        if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
-            if (mantissa != 0) {
-                return plusInf64();                                   // RETURN
-            }
-            else {
-                return makeDecimalRaw64(
-                    0, Properties<64>::maxExponent);                  // RETURN
-            }
+    if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
+        if (mantissa != 0) {
+            return inf64();                                           // RETURN
         }
-        else if (exponent <= -Properties<64>::bias - Properties<64>::digits) {
-            return makeDecimalRaw64(0, -Properties<64>::bias);        // RETURN
-        }
-        else {
-            return convertToDecimal64(
-                             makeDecimalRaw128(mantissa, exponent));  // RETURN
-        }
+        return makeDecimalRaw64(0, Properties<64>::maxExponent);      // RETURN
     }
-
-    ValueType64 valuetype64;
-    makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
-    return valuetype64;
+    if (exponent <= -Properties<64>::bias - Properties<64>::digits) {
+        return makeDecimalRaw64(0, -Properties<64>::bias);            // RETURN
+    }
+    return convertToDecimal64(makeDecimalRaw128(mantissa, exponent)); // RETURN
 }
 
 DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(int mantissa,
@@ -972,31 +927,16 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimal64(int mantissa,
         (exponent <= Properties<64>::maxExponent)) {
         return makeDecimalRaw64(mantissa, exponent);                  // RETURN
     }
-    else {
-        if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
-            if (mantissa > 0) {
-                return plusInf64();                                   // RETURN
-            }
-            else if (mantissa < 0) {
-                return minusInf64();                                  // RETURN
-            }
-            else {
-                return makeDecimalRaw64(0,
-                                       Properties<64>::maxExponent);  // RETURN
-            }
+    if (exponent >= Properties<64>::maxExponent + Properties<64>::digits) {
+        if (mantissa != 0) {
+            return inf64(mantissa < 0);                               // RETURN
         }
-        else if (exponent <= -Properties<64>::bias - Properties<64>::digits) {
-            return makeDecimalRaw64(0, -Properties<64>::bias);        // RETURN
-        }
-        else {
-            return convertToDecimal64(
-                             makeDecimalRaw128(mantissa, exponent));  // RETURN
-        }
+        return makeDecimalRaw64(0, Properties<64>::maxExponent);      // RETURN
     }
-
-    ValueType64 valuetype64;
-    makeDecimalRaw<64>(&valuetype64, mantissa, exponent);
-    return valuetype64;
+    if (exponent <= -Properties<64>::bias - Properties<64>::digits) {
+        return makeDecimalRaw64(0, -Properties<64>::bias);            // RETURN
+    }
+    return convertToDecimal64(makeDecimalRaw128(mantissa, exponent)); // RETURN
 }
 
                         // equality comparison functions
