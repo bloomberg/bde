@@ -11,17 +11,42 @@ This repository contains the BDE libraries, currently BSL (BDE Standard Library)
 Basic Build Instructions
 ========================
 
+BDE uses a build system based on [waf](http://code.google.com/p/waf), which is
+located in the [BDE Tools](https://github.com/bloomberg/bde-tools/)
+repository. This build tool must be set up before being used:
+
 1. Make sure that python 2.6 - 2.7 are installed on the system.
 2. Download [BDE Tools](https://github.com/bloomberg/bde-tools/) and add the
    path `<bde_tools_repo_root>/bin` to the system `PATH` environment
    variable. Make sure the first `waf` command found in `PATH` is a script from that path.
-3. From the root of this source repository, run `waf configure`
-4. To build the libraries, but not the test drivers, run:
-   `waf build`
-5. To also build the test drivers, run:
-   `waf build --test build`
-6. To build and run the test drivers, run:
-   `waf build --test run`
+
+
+Once the waf based build system has been set up. The following commands can be
+used to configure and build the BDE repository:
+
+1. From the root of this source repository, run:
+
+   ```shell
+   python waf configure
+   ```
+
+2. To build the libraries, but not the test drivers, run:
+
+   ```shell
+   waf build
+   ```
+
+   To also build the test drivers, run:
+
+   ```shell
+   waf build --test build
+   ```
+
+   To build and run the test drivers, run:
+
+   ```shell
+   waf build --test run
+   ```
 
 For more details on building the BDE repository, please see the
 [Quick Start Guide](http://github.com/bloomberg/bde/wiki/Getting-Started).
