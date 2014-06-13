@@ -9413,7 +9413,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         // --------------------------------------------------------------------
-#if 0
         int d[4][4] = {
              0,  1,  2,  3,
              4,  5,  6,  7,
@@ -9448,7 +9447,6 @@ int main(int argc, char *argv[])
                 ASSERTV(i, bh[i] == *iter);
             }
         }
-#endif
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -9467,12 +9465,12 @@ int main(int argc, char *argv[])
             bsl::vector<B> bB(10);
             bsl::vector<A> bA(bB.begin(), bB.end());
             for (unsigned i = 0; i < bA.size(); ++i) {
-                ASSERTV(i, bA[i].x, bA[i].x != 'a');
+                ASSERTV(i, bA[i].x, bA[i].x == 'a');
             }
         
             bA.assign(bB.begin(), bB.end());
             for (unsigned i = 0; i < bA.size(); ++i) {
-                ASSERTV(i, bA[i].x, bA[i].x != 'a');
+                ASSERTV(i, bA[i].x, bA[i].x == 'a');
             }
         }
 
@@ -9481,7 +9479,7 @@ int main(int argc, char *argv[])
             bsl::vector<A> bA;
             bA.insert(bA.begin(), bB.begin(), bB.end());
             for (unsigned i = 0; i < bA.size(); ++i) {
-                ASSERTV(i, bA[i].x, bA[i].x != 'a');
+                ASSERTV(i, bA[i].x, bA[i].x == 'a');
             }
         }
       } break;

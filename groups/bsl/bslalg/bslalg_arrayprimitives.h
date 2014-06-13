@@ -333,6 +333,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_functionpointertraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
+#include <bslmf_integralconstant.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
@@ -1585,6 +1589,28 @@ struct ArrayPrimitives_Imp {
 // fundamental types are not templates nor inline, and thus can be found in the
 // '.cpp' file.
 
+                   // =====================================
+                   // struct ArrayPrimitives_CanBitwiseCopy
+                   // =====================================
+
+template <class FROM_TYPE, class TO_TYPE>
+struct ArrayPrimitives_CanBitwiseCopy {
+
+    typedef typename bsl::remove_const<FROM_TYPE>::type FromType;
+    typedef typename bsl::remove_const<TO_TYPE  >::type ToType;
+        // We do not worry about volatile qualifiers as volatile types should
+        // not be bitwise copyable.  We do allow 'TO_TYPE' to be 'const' to
+        // support cases like range construction.
+
+    enum {
+        k_VALUE = bsl::is_same<FromType, ToType>::value &&
+                  bsl::is_trivially_copyable<TO_TYPE>::value
+    };
+
+    static const bool value = k_VALUE;
+    typedef bsl::integral_constant<bool, k_VALUE> type;
+};
+
                        // ----------------------
                        // struct ArrayPrimitives
                        // ----------------------
@@ -1636,6 +1662,7 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
+    BSLMF_ASSERT(!bsl::is_pointer<FWD_ITER>::value);
     typedef typename FWD_ITER::value_type FwdTarget;
         // Overload resolution will handle the case where 'FWD_ITER' is a raw
         // pointer, so we need handle only user-defined iterators.  As 'bslalg'
@@ -1646,18 +1673,24 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
         // In practice, iterators always prefer to provide the member typedef
         // than specialize the traits as it is a much simpler implementation,
         // so this assumption is good enough.
+        //
+        // Also note that as we know that 'FWD_ITER' is not a pointer, then we
+        // cannot take advantage of bitwise copying as we do not have pointers
+        // to pass to the 'memcpy' describing the whole range.  It is not worth
+        // the effort to try to bitwise copy one element at a time.
 
     typedef typename bsl::remove_pointer<TARGET_TYPE>::type RemovePtrTarget;
+        // We want to detect the special case of copying function pointers to
+        // 'void *' or 'const void *' pointers.
+
     enum {
-        k_IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<TARGET_TYPE>::value
-                 && bslmf::IsConvertible<FWD_ITER, const TARGET_TYPE *>::value,
         k_ITER_TO_FUNC_PTRS   = bslmf::IsFunctionPointer<FwdTarget>::value,
         k_TARGET_IS_VOID_PTR  = bsl::is_pointer<TARGET_TYPE>::value &&
                                 bsl::is_void<RemovePtrTarget>::value,
-        k_FUNC_PTR_TO_VOID    = k_ITER_TO_FUNC_PTRS && k_TARGET_IS_VOID_PTR,
-        k_VALUE = k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
-                : k_FUNC_PTR_TO_VOID   ? Imp::e_IS_ITERATOR_TO_FUNCTION_POINTER
-                :                        Imp::e_NIL_TRAITS
+
+        k_VALUE = k_ITER_TO_FUNC_PTRS && k_TARGET_IS_VOID_PTR
+                ? Imp::e_IS_ITERATOR_TO_FUNCTION_POINTER
+                : Imp::e_NIL_TRAITS
     };
 
     ArrayPrimitives_Imp::copyConstruct(toBegin,
@@ -1679,10 +1712,8 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
     enum {
         k_ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::value &&
                              bslmf::IsPointer<SOURCE_TYPE>::value,
-        k_IS_BITWISECOPYABLE =
-                              bsl::is_trivially_copyable<TARGET_TYPE>::value &&
-                              bslmf::IsConvertible<SOURCE_TYPE *,
-                                                   const TARGET_TYPE *>::value,
+        k_IS_BITWISECOPYABLE  =
+               ArrayPrimitives_CanBitwiseCopy<SOURCE_TYPE, TARGET_TYPE>::value,
         k_VALUE = k_ARE_PTRS_TO_PTRS   ? Imp::e_IS_POINTER_TO_POINTER
                 : k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
                 :                        Imp::e_NIL_TRAITS
@@ -2303,6 +2334,7 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         return;                                                       // RETURN
     }
 
+    BSLMF_ASSERT(!bsl::is_pointer<FWD_ITER>::value);
     typedef typename FWD_ITER::value_type FwdTarget;
         // Overload resolution will handle the case where 'FWD_ITER' is a raw
         // pointer, so we need handle only user-defined iterators.  As 'bslalg'
@@ -2313,20 +2345,24 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         // In practice, iterators always prefer to provide the member typedef
         // than specialize the traits as it is a much simpler implementation,
         // so this assumption is good enough.
+        //
+        // Also note that as we know that 'FWD_ITER' is not a pointer, then we
+        // cannot take advantage of bitwise copying as we do not have pointers
+        // to pass to the 'memcpy' describing the whole range.  It is not worth
+        // the effort to try to bitwise copy one element at a time.
+
+    typedef typename bsl::remove_pointer<TARGET_TYPE>::type RemovePtrTarget;
+        // We want to detect the special case of copying function pointers to
+        // 'void *' or 'const void *' pointers.
 
     enum {
-        k_ARE_PTRS_TO_FNS = bslmf::IsFunctionPointer<FwdTarget>::value,
+        k_ITER_TO_FUNC_PTRS  = bslmf::IsFunctionPointer<FwdTarget>::value,
         k_TARGET_IS_VOID_PTR = bsl::is_pointer<TARGET_TYPE>::value &&
-          bsl::is_void<typename bsl::remove_pointer<TARGET_TYPE>::type>::value,
-        k_IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value,
-        k_IS_BITWISECOPYABLE = bslmf::IsConvertible<FWD_ITER,
-                                                    const TARGET_TYPE *>::value
-                            && bsl::is_trivially_copyable<TARGET_TYPE>::value,
-        k_VALUE = k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
-                : k_ARE_PTRS_TO_FNS && k_TARGET_IS_VOID_PTR ?
-                                         Imp::e_IS_ITERATOR_TO_FUNCTION_POINTER
-                : k_IS_BITWISEMOVEABLE ? Imp::e_BITWISE_MOVEABLE_TRAITS
-                :                        Imp::e_NIL_TRAITS
+                               bsl::is_void<RemovePtrTarget>::value,
+
+        k_VALUE = k_ITER_TO_FUNC_PTRS && k_TARGET_IS_VOID_PTR
+                ? Imp::e_IS_ITERATOR_TO_FUNCTION_POINTER
+                : Imp::e_NIL_TRAITS
     };
     ArrayPrimitives_Imp::insert(toBegin,
                                 toEnd,
@@ -2351,12 +2387,11 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
     }
 
     enum {
-        k_ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::value &&
-                             bslmf::IsPointer<SOURCE_TYPE>::value,
+        k_ARE_PTRS_TO_PTRS   = bslmf::IsPointer<TARGET_TYPE>::value &&
+                               bslmf::IsPointer<SOURCE_TYPE>::value,
         k_IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<TARGET_TYPE>::value,
-        k_IS_BITWISECOPYABLE = bslmf::IsConvertible<SOURCE_TYPE *,
-                                                    const TARGET_TYPE *>::value
-                            && bsl::is_trivially_copyable<TARGET_TYPE>::value,
+        k_IS_BITWISECOPYABLE =
+               ArrayPrimitives_CanBitwiseCopy<SOURCE_TYPE, TARGET_TYPE>::value,
         k_VALUE = k_ARE_PTRS_TO_PTRS   ? Imp::e_IS_POINTER_TO_POINTER
                 : k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : k_IS_BITWISEMOVEABLE ? Imp::e_BITWISE_MOVEABLE_TRAITS

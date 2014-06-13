@@ -70,7 +70,8 @@ using namespace BloombergLP;
 // [ 8] void rotate(T *first, T *middle, T *last);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE
+// [ 9] Hymans's first test case
+// [10] USAGE EXAMPLE
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -3740,71 +3741,81 @@ int main(int argc, char *argv[])
         // TESTING HYMAN'S TEST CASE 1
         //
         // Concerns
-        // 1: A range of derived objects is correctly sliced when inserted into
-        //    a vector of base objects.
+        //: 1 A range of derived objects is correctly sliced when copied into
+        //:   an array of base objects.
+        //: 2 A range of derived objects is correctly sliced when inserted into
+        //:   an array of base objects.
+        //: 3 It does not matter whether the source-range is described by a
+        //:   pair of pointers, or a pair of user-defined iterators.
         //
         // Plan:
         //
         // Testing:
+        //   Hyman's first test case
         // --------------------------------------------------------------------
-
+        BSLMF_ASSERT(!(bslalg::ArrayPrimitives_CanBitwiseCopy<Derived,
+                                                              Base>::value));
+                  
         Derived derivedArray[10] = {};
         Derived *begin = derivedArray;
         Derived *end = begin + 10;
 
         {
             bsls::ObjectBuffer<Base[10]> baseArray;
-            bslalg::ArrayPrimitives::copyConstruct(&baseArray.object()[0],
-                                                   begin,
-                                                   end,
-                                                   bslma::Default::allocator());
+            bslalg::ArrayPrimitives::copyConstruct(
+                                                 &baseArray.object()[0],
+                                                  begin,
+                                                  end,
+                                                  bslma::Default::allocator());
 
             for (unsigned i = 0; i < 10; ++i) {
                 ASSERTV(i, baseArray.object()[i].x,
-                        baseArray.object()[i].x != 'a');
+                        baseArray.object()[i].x == 'a');
             }
         }
 
         {
             bsls::ObjectBuffer<Base[10]> baseArray;
             bslalg::ArrayPrimitives::insert(&baseArray.object()[0],
-                                            &baseArray.object()[10],
-                                            begin,
-                                            end,
-                                            10,
-                                            bslma::Default::allocator());
+                                            &baseArray.object()[0],
+                                             begin,
+                                             end,
+                                             10,
+                                             bslma::Default::allocator());
 
             for (unsigned i = 0; i < 10; ++i) {
                 ASSERTV(i, baseArray.object()[i].x,
-                        baseArray.object()[i].x != 'a');
+                        baseArray.object()[i].x == 'a');
             }
         }
 
         {
             bsls::ObjectBuffer<Base[10]> baseArray;
-            bslalg::ArrayPrimitives::copyConstruct(&baseArray.object()[0],
-                                                   InputIterator<Base>(begin, end),
-                                                   InputIterator<Base>(end, end),
-                                                   bslma::Default::allocator());
+            bslalg::ArrayPrimitives::copyConstruct(
+                                           &baseArray.object()[0],
+                                            InputIterator<Derived>(begin, end),
+                                            InputIterator<Derived>(end, end),
+                                            bslma::Default::allocator());
 
             for (unsigned i = 0; i < 10; ++i) {
                 ASSERTV(i, baseArray.object()[i].x,
-                        baseArray.object()[i].x != 'a');
+                        baseArray.object()[i].x == 'a');
             }
         }
 
         {
             bsls::ObjectBuffer<Base[10]> baseArray;
-            bslalg::ArrayPrimitives::insert(&baseArray.object()[0],
-                                            &baseArray.object()[10],
-                                            InputIterator<Base>(begin, end),
-                                            InputIterator<Base>(end, end),
+            bslalg::ArrayPrimitives::insert(
+                                           &baseArray.object()[0],
+                                           &baseArray.object()[0],
+                                            InputIterator<Derived>(begin, end),
+                                            InputIterator<Derived>(end, end),
                                             10,
                                             bslma::Default::allocator());
 
             for (unsigned i = 0; i < 10; ++i) {
                 ASSERTV(i, baseArray.object()[i].x,
-                        baseArray.object()[i].x != 'a');
+                        baseArray.object()[i].x == 'a');
             }
         }
       } break;
