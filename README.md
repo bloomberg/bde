@@ -1,9 +1,3 @@
-Looking for BSL?
-===================
-
-BSL is now distributed as part of the larger set of BDE libraries in this repository. If you arrived at this page by following a link to https://github.com/bloomberg/bsl, you should update
-that link to https://github.com/bloomberg/bde.
-
 BDE Libraries
 =============
 
@@ -13,6 +7,52 @@ This repository contains the BDE libraries, currently BSL (BDE Standard Library)
 * [Quick-Start Guide](http://github.com/bloomberg/bde/wiki/Getting-Started)
 * [Online Library Documentation](http://bloomberg.github.com/bde)
 * [BDE Mission Statement](http://github.com/bloomberg/bde/wiki/Mission-Statement)
+
+Basic Build Instructions
+========================
+
+BDE uses a build system based on [waf](http://code.google.com/p/waf), which is
+located in the [BDE Tools](https://github.com/bloomberg/bde-tools/)
+repository. This build system must be set up before being used:
+
+1. Make sure that python 2.6 - 2.7 are installed on the system.
+2. Download [BDE Tools](https://github.com/bloomberg/bde-tools/) and add the
+   path `<bde_tools_repo_root>/bin` to the system `PATH` environment
+   variable. Make sure the first `waf` command found in `PATH` is a script from that path.
+
+Once the waf based build system has been set up. The following commands can be
+used to configure and build the BDE repository:
+
+1. From the root of this source repository, run:
+
+   ```shell
+   python waf configure
+   ```
+
+2. To build the libraries, but not the test drivers, run:
+
+   ```shell
+   waf build
+   ```
+
+   To also build the test drivers, run:
+
+   ```shell
+   waf build --test build
+   ```
+
+   To build and run the test drivers, run:
+
+   ```shell
+   waf build --test run
+   ```
+
+For more details on building the BDE repository, please see the
+[Quick Start Guide](http://github.com/bloomberg/bde/wiki/Getting-Started).
+
+For more details on the waf-based build system for building BDE-style
+repositories, please see
+[its wiki page](https://github.com/bloomberg/bde-tools/wiki/Waf-Build).
 
 License
 -------
