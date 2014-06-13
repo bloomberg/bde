@@ -14,6 +14,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_objectbuffer.h>
 
+#include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -3452,6 +3453,126 @@ void testUninitializedFillNBCT(TYPE value)
 }
 
 //=============================================================================
+//                         HYMAN'S TEST TYPES
+//-----------------------------------------------------------------------------
+struct Base {
+    int x;
+   
+    Base()
+    : x('a') {
+    }
+};
+
+struct Derived : Base {
+    int y;
+   
+    Derived()
+    : Base()
+    , y('b') {
+    }
+};
+
+#if 0
+template <class T, size_t N>
+struct HI : public bsl::iterator<bsl::random_access_iterator_tag, T>
+{
+    static const size_t SIDE = size_t(1) << N;
+    static const size_t SIZE = SIDE * SIDE;
+
+    T *p;
+    size_t d;
+
+    explicit HI(T *p = 0, size_t d = SIZE) : p(p), d(d) { }
+    HI(const HI& o) : p(o.p), d(o.d) { }
+
+    size_t htoi() const
+    {
+        size_t x = 0, y = 0, t = d;
+        for (size_t s = 1; s < SIDE; s *= 2) {
+            size_t rx = 1 & (t / 2);
+            size_t ry = 1 & (t ^ rx);
+            if (ry == 0) {
+                if (rx == 1) {
+                    x = s - 1 - x;
+                    y = s - 1 - y;
+                }
+                size_t z = x;
+                x = y;
+                y = z;
+            }
+            x += s * rx;
+            y += s * ry;
+            t /= 4;
+        }
+        return y * SIDE + x;
+    }
+
+    T &operator*()  const { return p[htoi()];  }
+    T *operator->() const { return p + htoi(); }
+
+    HI& operator++() { ++d; return *this; }
+    HI& operator--() { --d; return *this; }
+
+    HI  operator++(int) { HI t(p, d); ++d; return t; }
+    HI  operator--(int) { HI t(p, d); --d; return t; }
+
+    HI& operator+=(ptrdiff_t n) { d += n; return *this; }
+    HI& operator-=(ptrdiff_t n) { d -= n; return *this; }
+
+    HI  operator+ (ptrdiff_t n) const { return HI(p, d + n); }
+    HI  operator- (ptrdiff_t n) const { return HI(p, d - n); }
+
+    ptrdiff_t operator-(const HI& o) const { return d - o.d; }
+
+    T &operator[](ptrdiff_t n) const { return *(*this + n); }
+
+    operator T*()   const { return p + htoi(); }
+        // Conversion operator to confuse badly written traits code.
+};
+
+template <class T, size_t N>
+inline
+bool operator< (const HI<T, N>& l, const HI<T, N>& r)
+{
+    return (l.p < r.p) || (l.p == r.p && l.d < r.d);
+}
+
+template <class T, size_t N>
+inline
+bool operator>=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l <  r);
+}
+
+template <class T, size_t N>
+inline
+bool operator> (const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l <= r);
+}
+
+template <class T, size_t N>
+inline
+bool operator<=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l >  r);
+}
+
+template <class T, size_t N>
+inline
+bool operator==(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l < r) && !(r < l);
+}
+
+template <class T, size_t N>
+inline
+bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l == r);
+}
+#endif
+//=============================================================================
 //                          GAUNTLET MACRO
 // Passed 'func', which should be a template of a function whose single
 // template parameter is the type to be stored into the array, and which takes
@@ -3569,7 +3690,7 @@ int main(int argc, char *argv[])
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3612,6 +3733,79 @@ int main(int argc, char *argv[])
         ASSERT(u.size() == NUM_DATA);
         for (int i = 0; i < NUM_DATA; ++i) {
             ASSERT(u[i] == DATA[i]);
+        }
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING HYMAN'S TEST CASE 1
+        //
+        // Concerns
+        // 1: A range of derived objects is correctly sliced when inserted into
+        //    a vector of base objects.
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        Derived derivedArray[10] = {};
+        Derived *begin = derivedArray;
+        Derived *end = begin + 10;
+
+        {
+            bsls::ObjectBuffer<Base[10]> baseArray;
+            bslalg::ArrayPrimitives::copyConstruct(&baseArray.object()[0],
+                                                   begin,
+                                                   end,
+                                                   bslma::Default::allocator());
+
+            for (unsigned i = 0; i < 10; ++i) {
+                ASSERTV(i, baseArray.object()[i].x,
+                        baseArray.object()[i].x != 'a');
+            }
+        }
+
+        {
+            bsls::ObjectBuffer<Base[10]> baseArray;
+            bslalg::ArrayPrimitives::insert(&baseArray.object()[0],
+                                            &baseArray.object()[10],
+                                            begin,
+                                            end,
+                                            10,
+                                            bslma::Default::allocator());
+
+            for (unsigned i = 0; i < 10; ++i) {
+                ASSERTV(i, baseArray.object()[i].x,
+                        baseArray.object()[i].x != 'a');
+            }
+        }
+
+        {
+            bsls::ObjectBuffer<Base[10]> baseArray;
+            bslalg::ArrayPrimitives::copyConstruct(&baseArray.object()[0],
+                                                   InputIterator<Base>(begin, end),
+                                                   InputIterator<Base>(end, end),
+                                                   bslma::Default::allocator());
+
+            for (unsigned i = 0; i < 10; ++i) {
+                ASSERTV(i, baseArray.object()[i].x,
+                        baseArray.object()[i].x != 'a');
+            }
+        }
+
+        {
+            bsls::ObjectBuffer<Base[10]> baseArray;
+            bslalg::ArrayPrimitives::insert(&baseArray.object()[0],
+                                            &baseArray.object()[10],
+                                            InputIterator<Base>(begin, end),
+                                            InputIterator<Base>(end, end),
+                                            10,
+                                            bslma::Default::allocator());
+
+            for (unsigned i = 0; i < 10; ++i) {
+                ASSERTV(i, baseArray.object()[i].x,
+                        baseArray.object()[i].x != 'a');
+            }
         }
       } break;
       case 8: {

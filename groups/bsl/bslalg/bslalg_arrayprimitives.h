@@ -557,10 +557,10 @@ struct ArrayPrimitives {
         // 'fromEndPtr' to point to the first uninitialized element in
         // '[fromBegin, fromEnd)' as the elements are moved from source to
         // destination.  The behavior is undefined unless
-        // 'fromBegin <= position <= fromEnd' the destination array contains at
-        // least '(fromEnd - fromBegin) + numElements' uninitialized elements
-        // after 'toBegin', and 'numElements' is the distance from 'first' to
-        // 'last'.  If a copy constructor or assignment operator for
+        // 'fromBegin <= position <= fromEnd', the destination array contains
+        // at least '(fromEnd - fromBegin) + numElements' uninitialized
+        // elements after 'toBegin', and 'numElements' is the distance from
+        // 'first' to 'last'.  If a copy constructor or assignment operator for
         // 'TARGET_TYPE' throws an exception, then any elements created in the
         // output array are destroyed and the elements in the range
         // '[ fromBegin, *fromEndPtr )' will have unspecified but valid values.
@@ -868,13 +868,13 @@ struct ArrayPrimitives_Imp {
         // 'TARGET_TYPE' has the traits for which the enumerator equal to 'N'
         // is named.
 
-        e_IS_ITERATOR_TO_POINTER_TO_FUNCTION = 6,
-        e_IS_POINTER_TO_POINTER              = 5,
-        e_IS_FUNDAMENTAL_OR_POINTER          = 4,
-        e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS    = 3,
-        e_BITWISE_COPYABLE_TRAITS            = 2,
-        e_BITWISE_MOVEABLE_TRAITS            = 1,
-        e_NIL_TRAITS                         = 0
+        e_IS_ITERATOR_TO_FUNCTION_POINTER  = 6,
+        e_IS_POINTER_TO_POINTER            = 5,
+        e_IS_FUNDAMENTAL_OR_POINTER        = 4,
+        e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS  = 3,
+        e_BITWISE_COPYABLE_TRAITS          = 2,
+        e_BITWISE_MOVEABLE_TRAITS          = 1,
+        e_NIL_TRAITS                       = 0
     };
 
     enum {
@@ -1057,13 +1057,13 @@ struct ArrayPrimitives_Imp {
                               FWD_ITER                               fromBegin,
                               FWD_ITER                               fromEnd,
                               ALLOCATOR                             *allocator,
-                       bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *);
+                          bslmf::MetaInt<e_IS_ITERATOR_TO_FUNCTION_POINTER> *);
     template <class FWD_ITER, class ALLOCATOR>
     static void copyConstruct(void                                 **toBegin,
                               FWD_ITER                               fromBegin,
                               FWD_ITER                               fromEnd,
                               ALLOCATOR                             *allocator,
-                       bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *);
+                          bslmf::MetaInt<e_IS_ITERATOR_TO_FUNCTION_POINTER> *);
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
     static void copyConstruct(TARGET_TYPE                  *toBegin,
                               FWD_ITER                      fromBegin,
@@ -1472,7 +1472,7 @@ struct ArrayPrimitives_Imp {
                        FWD_ITER                                 fromEnd,
                        size_type                                numElements,
                        ALLOCATOR                               *allocator,
-                       bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *);
+                       bslmf::MetaInt<e_IS_ITERATOR_TO_FUNCTION_POINTER> *);
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
     static void insert(TARGET_TYPE                  *toBegin,
                        TARGET_TYPE                  *toEnd,
@@ -1637,17 +1637,27 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
     typedef typename FWD_ITER::value_type FwdTarget;
+        // Overload resolution will handle the case where 'FWD_ITER' is a raw
+        // pointer, so we need handle only user-defined iterators.  As 'bslalg'
+        // is levelized below 'bslstl' we cannot use 'iterator_traits', but
+        // rely on the same property as 'iterator_traits' that this typedef
+        // must be defined for any standard-conforming iterator, unless the
+        // iterator explicitly specialized the 'std::iterator_traits' template.
+        // In practice, iterators always prefer to provide the member typedef
+        // than specialize the traits as it is a much simpler implementation,
+        // so this assumption is good enough.
+
+    typedef typename bsl::remove_pointer<TARGET_TYPE>::type RemovePtrTarget;
     enum {
-        k_IS_BITWISECOPYABLE = bsl::is_trivially_copyable<TARGET_TYPE>::value
-                           && bslmf::IsConvertible<FWD_ITER,
-                                                   const TARGET_TYPE *>::value,
-        k_ARE_PTRS_TO_FNS = bslmf::IsFunctionPointer<FwdTarget>::value,
-        k_TARGET_IS_VOID_PTR = bsl::is_pointer<TARGET_TYPE>::value &&
-          bsl::is_void<typename bsl::remove_pointer<TARGET_TYPE>::type>::value,
+        k_IS_BITWISECOPYABLE  = bsl::is_trivially_copyable<TARGET_TYPE>::value
+                 && bslmf::IsConvertible<FWD_ITER, const TARGET_TYPE *>::value,
+        k_ITER_TO_FUNC_PTRS   = bslmf::IsFunctionPointer<FwdTarget>::value,
+        k_TARGET_IS_VOID_PTR  = bsl::is_pointer<TARGET_TYPE>::value &&
+                                bsl::is_void<RemovePtrTarget>::value,
+        k_FUNC_PTR_TO_VOID    = k_ITER_TO_FUNC_PTRS && k_TARGET_IS_VOID_PTR,
         k_VALUE = k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
-              : k_ARE_PTRS_TO_FNS && k_TARGET_IS_VOID_PTR ?
-                                      Imp::e_IS_ITERATOR_TO_POINTER_TO_FUNCTION
-              : Imp::e_NIL_TRAITS
+                : k_FUNC_PTR_TO_VOID   ? Imp::e_IS_ITERATOR_TO_FUNCTION_POINTER
+                :                        Imp::e_NIL_TRAITS
     };
 
     ArrayPrimitives_Imp::copyConstruct(toBegin,
@@ -2294,6 +2304,16 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
     }
 
     typedef typename FWD_ITER::value_type FwdTarget;
+        // Overload resolution will handle the case where 'FWD_ITER' is a raw
+        // pointer, so we need handle only user-defined iterators.  As 'bslalg'
+        // is levelized below 'bslstl' we cannot use 'iterator_traits', but
+        // rely on the same property as 'iterator_traits' that this typedef
+        // must be defined for any standard-conforming iterator, unless the
+        // iterator explicitly specialized the 'std::iterator_traits' template.
+        // In practice, iterators always prefer to provide the member typedef
+        // than specialize the traits as it is a much simpler implementation,
+        // so this assumption is good enough.
+
     enum {
         k_ARE_PTRS_TO_FNS = bslmf::IsFunctionPointer<FwdTarget>::value,
         k_TARGET_IS_VOID_PTR = bsl::is_pointer<TARGET_TYPE>::value &&
@@ -2304,7 +2324,7 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
                             && bsl::is_trivially_copyable<TARGET_TYPE>::value,
         k_VALUE = k_IS_BITWISECOPYABLE ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : k_ARE_PTRS_TO_FNS && k_TARGET_IS_VOID_PTR ?
-                                      Imp::e_IS_ITERATOR_TO_POINTER_TO_FUNCTION
+                                         Imp::e_IS_ITERATOR_TO_FUNCTION_POINTER
                 : k_IS_BITWISEMOVEABLE ? Imp::e_BITWISE_MOVEABLE_TRAITS
                 :                        Imp::e_NIL_TRAITS
     };
@@ -2780,11 +2800,11 @@ void ArrayPrimitives_Imp::copyConstruct(
 
 template <class FWD_ITER, class ALLOCATOR>
 void ArrayPrimitives_Imp::copyConstruct(
-                        void                                       **toBegin,
-                        FWD_ITER                                     fromBegin,
-                        FWD_ITER                                     fromEnd,
-                        ALLOCATOR                                   *,
-                        bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *)
+                           void                                    **toBegin,
+                           FWD_ITER                                  fromBegin,
+                           FWD_ITER                                  fromEnd,
+                           ALLOCATOR                                *,
+                           bslmf::MetaInt<e_IS_ITERATOR_TO_FUNCTION_POINTER> *)
 {
     BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
         // We will be casting a function pointer to a 'void *', so this won't
@@ -4914,13 +4934,13 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
 
 template <class FWD_ITER, class ALLOCATOR>
 void ArrayPrimitives_Imp::insert(
-                        void                                     **toBegin,
-                        void                                     **toEnd,
-                        FWD_ITER                                   fromBegin,
-                        FWD_ITER,
-                        size_type                                  numElements,
-                        ALLOCATOR                                 *,
-                        bslmf::MetaInt<e_IS_ITERATOR_TO_POINTER_TO_FUNCTION> *)
+                           void                                  **toBegin,
+                           void                                  **toEnd,
+                           FWD_ITER                                fromBegin,
+                           FWD_ITER,
+                           size_type                               numElements,
+                           ALLOCATOR                              *,
+                           bslmf::MetaInt<e_IS_ITERATOR_TO_FUNCTION_POINTER> *)
 {
     // This very specific overload is required for the case that 'FWD_ITER' is
     // an iterator that is not a pointer, iterating over a sequence of function

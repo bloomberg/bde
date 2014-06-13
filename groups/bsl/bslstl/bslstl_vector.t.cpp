@@ -9211,9 +9211,112 @@ MyMatrix<TYPE> operator!=(const MyMatrix<TYPE>& lhs,
 }  // close unnamed namespace
 
 //=============================================================================
+//                         HYMAN'S TEST TYPES
+//-----------------------------------------------------------------------------
+struct A     { int x; A() : x('a') { } };
+struct B : A { int y; B() : y('b') { } };
+
+template <class T, size_t N>
+struct HI : public bsl::iterator<bsl::random_access_iterator_tag, T>
+{
+    static const size_t SIDE = size_t(1) << N;
+    static const size_t SIZE = SIDE * SIDE;
+
+    T *p;
+    size_t d;
+
+    explicit HI(T *p = 0, size_t d = SIZE) : p(p), d(d) { }
+    HI(const HI& o) : p(o.p), d(o.d) { }
+
+    size_t htoi() const
+    {
+        size_t x = 0, y = 0, t = d;
+        for (size_t s = 1; s < SIDE; s *= 2) {
+            size_t rx = 1 & (t / 2);
+            size_t ry = 1 & (t ^ rx);
+            if (ry == 0) {
+                if (rx == 1) {
+                    x = s - 1 - x;
+                    y = s - 1 - y;
+                }
+                size_t z = x;
+                x = y;
+                y = z;
+            }
+            x += s * rx;
+            y += s * ry;
+            t /= 4;
+        }
+        return y * SIDE + x;
+    }
+
+    T &operator*()  const { return p[htoi()];  }
+    T *operator->() const { return p + htoi(); }
+
+    HI& operator++() { ++d; return *this; }
+    HI& operator--() { --d; return *this; }
+
+    HI  operator++(int) { HI t(p, d); ++d; return t; }
+    HI  operator--(int) { HI t(p, d); --d; return t; }
+
+    HI& operator+=(ptrdiff_t n) { d += n; return *this; }
+    HI& operator-=(ptrdiff_t n) { d -= n; return *this; }
+
+    HI  operator+ (ptrdiff_t n) const { return HI(p, d + n); }
+    HI  operator- (ptrdiff_t n) const { return HI(p, d - n); }
+
+    ptrdiff_t operator-(const HI& o) const { return d - o.d; }
+
+    T &operator[](ptrdiff_t n) const { return *(*this + n); }
+
+    operator T*()   const { return p + htoi(); }
+        // Conversion operator to confuse badly written traits code.
+};
+
+template <class T, size_t N>
+inline
+bool operator< (const HI<T, N>& l, const HI<T, N>& r)
+{
+    return (l.p < r.p) || (l.p == r.p && l.d < r.d);
+}
+
+template <class T, size_t N>
+inline
+bool operator>=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l <  r);
+}
+
+template <class T, size_t N>
+inline
+bool operator> (const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l <= r);
+}
+
+template <class T, size_t N>
+inline
+bool operator<=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l >  r);
+}
+
+template <class T, size_t N>
+inline
+bool operator==(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l < r) && !(r < l);
+}
+
+template <class T, size_t N>
+inline
+bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
+{
+    return !(l == r);
+}
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
-
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
@@ -9251,7 +9354,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 25: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -9293,6 +9396,93 @@ int main(int argc, char *argv[])
             ASSERT(2 == m1.theValue(0, 1));
             ASSERT(3 == m1.theValue(1, 0));
             ASSERT(4 == m1.theValue(1, 1));
+        }
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING HYMAN'S TEST CASE 2
+        //
+        // Concerns
+        //: 1 Can construct a vector from an iterator range where the iterator
+        //:    type has an unfortunate implicit conversion to 'ELEMENT_TYPE *'.
+        //: 2: Can insert into a vector from an iterator range where the
+        //:    iterator type has an unfortunate implicit conversion to
+        //:    'ELEMENT_TYPE *'.
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+#if 0
+        int d[4][4] = {
+             0,  1,  2,  3,
+             4,  5,  6,  7,
+             8,  9, 10, 11,
+            12, 13, 14, 15,
+        };
+
+        const HI<int, 2> b(&d[0][0], 0);
+        const HI<int, 2> e(&d[0][0]);
+        {
+            bsl::vector<int> bh(b, e);
+
+            HI<int, 2> iter = b;
+            for (size_t i = 0; i < bh.size(); ++i, ++iter) {
+                if (veryVerbose) printf("%u %u %u\n", i, bh[i], *iter);
+                ASSERTV(i, bh[i] == *iter);
+            }
+
+            bh.assign(b, e);
+            for (size_t i = 0; i < bh.size(); ++i, ++iter) {
+                if (veryVerbose) printf("%u %u %u\n", i, bh[i], *iter);
+                ASSERTV(i, bh[i] == *iter);
+            }
+        }
+
+        {
+            bsl::vector<int> bh;
+            bh.insert(bh.begin(), b, e);
+            HI<int, 2> iter = b;
+            for (size_t i = 0; i < bh.size(); ++i, ++iter) {
+                if (veryVerbose) printf("%u %u %u\n", i, bh[i], *iter);
+                ASSERTV(i, bh[i] == *iter);
+            }
+        }
+#endif
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING HYMAN'S TEST CASE 1
+        //
+        // Concerns
+        // 1: A range of derived objects is correctly sliced when inserted into
+        //    a vector of base objects.
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        {
+            bsl::vector<B> bB(10);
+            bsl::vector<A> bA(bB.begin(), bB.end());
+            for (unsigned i = 0; i < bA.size(); ++i) {
+                ASSERTV(i, bA[i].x, bA[i].x != 'a');
+            }
+        
+            bA.assign(bB.begin(), bB.end());
+            for (unsigned i = 0; i < bA.size(); ++i) {
+                ASSERTV(i, bA[i].x, bA[i].x != 'a');
+            }
+        }
+
+        {
+            bsl::vector<B> bB(10);
+            bsl::vector<A> bA;
+            bA.insert(bA.begin(), bB.begin(), bB.end());
+            for (unsigned i = 0; i < bA.size(); ++i) {
+                ASSERTV(i, bA[i].x, bA[i].x != 'a');
+            }
         }
       } break;
       case 24: {
