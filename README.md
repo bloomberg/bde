@@ -13,13 +13,12 @@ Basic Build Instructions
 
 BDE uses a build system based on [waf](http://code.google.com/p/waf), which is
 located in the [BDE Tools](https://github.com/bloomberg/bde-tools/)
-repository. This build tool must be set up before being used:
+repository. This build system must be set up before being used:
 
 1. Make sure that python 2.6 - 2.7 are installed on the system.
 2. Download [BDE Tools](https://github.com/bloomberg/bde-tools/) and add the
    path `<bde_tools_repo_root>/bin` to the system `PATH` environment
    variable. Make sure the first `waf` command found in `PATH` is a script from that path.
-
 
 Once the waf based build system has been set up. The following commands can be
 used to configure and build the BDE repository:
