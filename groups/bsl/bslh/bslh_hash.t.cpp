@@ -1,5 +1,6 @@
-// bslstl_universalhash.t.cpp                                         -*-C++-*-
-#include <bslstl_universalhash.h>
+// bslh_hash.t.cpp                                                              -*-C++-*-
+#include <bslh_hash.h>
+#include <bslh_defaulthashalgorithm.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -22,7 +23,7 @@
 #include <string.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using namespace bslh;
 
 
 //=============================================================================
@@ -842,15 +843,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        Hash<DefaultHashAlgorithm> hash;
         {
-            UniversalHash<DefaultHashAlg> hash;
             ASSERT(hash('A') == hash('A'));
             ASSERT(hash('a') == hash('a'));
             ASSERT(hash('Z') == hash('Z'));
         }
 
         {
-            hash<const int> func;
             ASSERT(hash(0) == hash(0));
             ASSERT(hash(1) == hash(1));
             ASSERT(hash(42) == hash(42));

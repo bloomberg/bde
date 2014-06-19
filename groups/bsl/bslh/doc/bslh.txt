@@ -1,0 +1,90 @@
+ bslh.txt
+
+@PURPOSE: Provide hashing algorithms that are easily swapable and usable.
+
+@MNEMONIC: Basic Standard Library Hashing (bslh)
+
+@DESCRIPTION: The 'bslh' package provides components for a more modular hashing
+ implemenation that is found in the standard. This implementation is based on
+ ISO C++ Proposal N3980. A BDE specific proposal for this is availible at
+ https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing. This package
+ provides hashing algorithms as well as a 'hash' struct that allows different
+ algorithms to be applied to the same type after writing only one 'hashAppend'
+ function.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bslh' package currently has 3 components having 3 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+
+  3. bslh_hash
+
+  2. bslh_defaulthashalgorithm
+
+  1. bslh_oneatatimehashalgorithm
+
+..
+
+/Component Synopsis
+/------------------
+: 'bslh_defaulthashalgorithm':
+:      Provide a typedef for a reasonable deafult hashing algorithm.
+:
+: 'bslh_hash':
+:      Provide a struct that can run any hashing algorithm on any type.
+:
+: 'bslh_oneatatimehashalgorithm':
+:      Provide a hashing algorithm with decent performance for all data.
+
+/Component Overview
+/------------------
+ This section summarizes the components that are available in 'bslh'.
+ Subsequent sections provide more detail on component selection, performance,
+ and usage.
+
+/'bslh_defaulthashalgorithm'
+/- - - - - - - - -
+ 'bslh::DefaultHashAlgorithm' provides a typedef for
+ 'bslh::OneAtATimeHashAlgorithm'. This is done as a way to make it easier for
+ users to find the appropriate hashing algorithm. It is unlikely for users to
+ know whether 'bslh::OneAtATimeHashAlgorithm' is a good defualt choice, so
+ 'bslh::DefaultHashAlgorithm' is supplied to make this more clear. This also
+ allows us to swap out this hash algorithm for a new algorithm is a better
+ defualt is found.
+
+/'bslh_hash'
+/- - - - - - - - - - - -
+ This component provides a templated struct, 'bslh::Hash', which provides
+ hashing functionality and is a drop in replacement for 'bsl::hash'.  It also
+ contains hashAppend definitions for fundamental types, which are required to
+ make the hashing algorithms in 'bslh' work. 'bslh::Hash' is a universal
+ hashing algorithm that will hash any type that implements 'hashAppend' and
+ will hash that type using the hashing algorithm provided as a template
+ parameter.
+
+/'bslh_oneatatimehashalgorithm'
+/ - - - - - - - - - - -
+ 'bslh::OneAtATimeHashAlg' implements the one-at-a-time hashing algorithm that
+ is known to quickly reach good avalance performance and is a good choice for
+ hashing for associative containers.
+
+/Why Use This Modular Hashing System?
+/------------------------------------
+The hashing system outlined in the standard requires type creators to
+implement hashing algorithms themsleves. There are two issues with this. First,
+this results in people who do not know how to write hashing algorithms writing
+potentially very poor hashing algorithms (see
+https://cms.prod.bloomberg.com/team/display/bde/Flat+Map for an example of the
+negative results of poorly implemented string hashing). Second, this results in
+a duplication of work when the multiple algorithms need to be applied to
+multiple types. This new modular system solves both problems by decoupling the
+implementaion of the hashing algorithms from the implementation of types. Now
+type creators can simply write a 'hashAppend' function that will identify their
+salient attributes, but differ the hashing to an algorithm chosen by the
+consumer of the type. A suite of algorithms for common use cases such as secure
+hashing will be provided in the 'bslh' package.
+
+

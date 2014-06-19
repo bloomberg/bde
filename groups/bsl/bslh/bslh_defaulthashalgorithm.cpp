@@ -1,5 +1,5 @@
-// bslstl_universalhash.cpp                                           -*-C++-*-
-#include <bslstl_universalhash.h>
+// bslh_defaulthashalgorithm.cpp                                      -*-C++-*-
+#include <bslh_defaulthashalgorithm.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
@@ -25,3 +25,4 @@ BSLS_IDENT("$Id$ $CSID$")
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------
+

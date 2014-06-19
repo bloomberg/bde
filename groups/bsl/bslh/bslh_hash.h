@@ -1,6 +1,6 @@
-// bslstl_universalhash.h                                             -*-C++-*-
-#ifndef INCLUDED_BSLSTL_UNIVERSALHASH
-#define INCLUDED_BSLSTL_UNIVERSALHASH
+// bslh_hash.h                                                        -*-C++-*-
+#ifndef INCLUDED_BSLH_HASH
+#define INCLUDED_BSLH_HASH
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,30 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a struct that can run any hashing algorithm on any type.
 //
 //@CLASSES:
-//  bsl::UniversalHash: hash function for fundamental types
+//  bslh::Hash: hash function for fundamental types
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: 'bsl::UniversalHash'
+//@DESCRIPTION: This component provides a templated struct, 'bslh::Hash', which
+// provides hashing functionality and is a drop in replacement for 'bsl::hash'.
+// It also contains hashAppend definitions for fundamental types, which are
+// required to make the hashing algorithms in 'bslh' work. 'bslh::Hash' is a
+// universal hashing algorithm that will hash any type that implements
+// 'hashAppend' and will hash that type using the hashing algorithm provided as
+// a template parameter.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASHUTIL
-#include <bslalg_hashutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
-#include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
-#include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ASSERT
-#include <bslmf_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
@@ -45,17 +35,22 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
+namespace BloombergLP {
 
-namespace bsl {
+namespace bslh { 
 
-                          // ===========================                        TODO: Break into 3 classes
-                          // class bslstl::UniversalHash
-                          // ===========================
+                          // ================
+                          // class bslh::Hash
+                          // ================
 
 template <class HASHALG>
-struct UniversalHash
+struct Hash
 {
+    // Wraps hashAttributes and the parameterized 'HASHALG' in an interface
+    // that is a drop in replacement for 'bsl::hash'
+
     typedef typename HASHALG::result_type result_type;
+        // Type of the hash that will be returned.
 
     template <class TYPE>
     result_type operator()(TYPE const& type) const;
@@ -66,122 +61,73 @@ struct UniversalHash
 
 template <class HASHALG>
 template <class TYPE>
-typename UniversalHash<HASHALG>::result_type
-UniversalHash<HASHALG>::operator()(TYPE const& t) const
+typename Hash<HASHALG>::result_type
+Hash<HASHALG>::operator()(TYPE const& key) const
 {
-    HASHALG h;
-    //using bsl::hash_append;                                                   TODO: This?
-    hash_append(h, t);
-    return static_cast<result_type>(h);
-}
-
-                          // ============================
-                          // class bslstl::DefaultHashAlg
-                          // ============================
-
-class DefaultHashAlg
-{
-  public:
-    typedef size_t result_type;
-
-  private:
-    size_t state;
-
-  public:
-    DefaultHashAlg();
-        // Initialize the internal state of the algorithm
-
-    void operator()(void const* key, size_t len);
-        // Incorporates the specified 'key' of 'len' bytes into the internal
-        // state of the hashing algorithm.
-
-
-    result_type getHash();
-        // Finalize the hash that has been accumulated and return it.
-
-};
-
-DefaultHashAlg::DefaultHashAlg() : state(0) { }
-
-void DefaultHashAlg::operator()(void const* key, size_t len)
-{
-    unsigned char const *p = static_cast<unsigned char const *>(key);
-
-    for (int i = 0; i < len; i++ ) {
-        state += p[i];
-        state += (state << 10 );
-        state ^= (state >> 6  );
-    }
-
-    state += (state << 3  );
-    state ^= (state >> 11 );
-    state += (state << 15 );
-}
-
-DefaultHashAlg::result_type DefaultHashAlg::getHash()
-{
-    return state;
+    HASHALG hashAlg;
+    hashAppend(hashAlg, key);
+    return hashAlg.getHash();
 }
 
 // ============================================================================
-//             HASH_APPEND IMPLEMENTATIONS FOR FUNDAMENTAL TYPES
+//             HASHAPPEND IMPLEMENTATIONS FOR FUNDAMENTAL TYPES
 // ============================================================================
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, bool const& input);
+void hashAppend(HASHALG& hashAlg, bool const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, char const& input);
+void hashAppend(HASHALG& hashAlg, char const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, signed char const& input);
+void hashAppend(HASHALG& hashAlg, signed char const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned char const& input);
+void hashAppend(HASHALG& hashAlg, unsigned char const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, wchar_t const& input);
+void hashAppend(HASHALG& hashAlg, wchar_t const input);
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, char16_t const& input);
+void hashAppend(HASHALG& hashAlg, char16_t const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, char32_t const& input);
+void hashAppend(HASHALG& hashAlg, char32_t const input);
 #endif
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, short const& input);
+void hashAppend(HASHALG& hashAlg, short const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned short const& input);
+void hashAppend(HASHALG& hashAlg, unsigned short const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, int const& input);
+void hashAppend(HASHALG& hashAlg, int const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned int const& input);
+void hashAppend(HASHALG& hashAlg, unsigned int const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, long const& input);
+void hashAppend(HASHALG& hashAlg, long const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned long const& input);
+void hashAppend(HASHALG& hashAlg, unsigned long const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, long long const& input);
+void hashAppend(HASHALG& hashAlg, long long const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned long long const& input);
+void hashAppend(HASHALG& hashAlg, unsigned long long const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, float const& input);
+void hashAppend(HASHALG& hashAlg, float const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, double const& input);
+void hashAppend(HASHALG& hashAlg, double const input);
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, long double const& input);
+void hashAppend(HASHALG& hashAlg, long double const input);
     // Applies the specified 'hashAlg' to the specified 'input'
 
 // ============================================================================
@@ -189,111 +135,111 @@ void hash_append(HASHALG& hashAlg, long double const& input);
 // ============================================================================
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, bool const& input)
+void hashAppend(HASHALG& hashAlg, bool const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, char const& input)
+void hashAppend(HASHALG& hashAlg, char const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, signed char const& input)
+void hashAppend(HASHALG& hashAlg, signed char const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned char const& input)
+void hashAppend(HASHALG& hashAlg, unsigned char const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, wchar_t const& input)
+void hashAppend(HASHALG& hashAlg, wchar_t const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, char16_t const& input)
+void hashAppend(HASHALG& hashAlg, char16_t const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, char32_t const& input)
+void hashAppend(HASHALG& hashAlg, char32_t const input)
 {
     hashAlg(&input, sizeof(input));
 }
 #endif
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, short const& input)
+void hashAppend(HASHALG& hashAlg, short const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned short const& input)
+void hashAppend(HASHALG& hashAlg, unsigned short const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, int const& input)
+void hashAppend(HASHALG& hashAlg, int const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned int const& input)
+void hashAppend(HASHALG& hashAlg, unsigned int const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, long const& input)
+void hashAppend(HASHALG& hashAlg, long const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned long const& input)
+void hashAppend(HASHALG& hashAlg, unsigned long const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, long long const& input)
+void hashAppend(HASHALG& hashAlg, long long const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, unsigned long long const& input)
+void hashAppend(HASHALG& hashAlg, unsigned long long const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, float const& input)
+void hashAppend(HASHALG& hashAlg, float const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, double const& input)
+void hashAppend(HASHALG& hashAlg, double const input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASHALG>
-void hash_append(HASHALG& hashAlg, long double const& input)
+void hashAppend(HASHALG& hashAlg, long double const input)
 {
     hashAlg(&input, sizeof(input));
 }
@@ -317,12 +263,14 @@ void hash_append(HASHALG& hashAlg, long double const& input)
 //: bsl::true_type
 //{};
 
-}  // close namespace bsl
+}  // close namespace bslh
+
+}  // close namespace BloombergLP
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
