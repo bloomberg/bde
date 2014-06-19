@@ -4,15 +4,17 @@
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 
 #include <bslmf_issame.h>
 
 using namespace BloombergLP;
-using bsl::cout;
-using bsl::cerr;
-using bsl::flush;
-using bsl::endl;
 using bsl::atoi;
+using bsl::cerr;
+using bsl::cout;
+using bsl::endl;
+using bsl::flush;
+using bsl::memcmp;
 
 // ============================================================================
 //                                 TEST PLAN
