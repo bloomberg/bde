@@ -13,10 +13,16 @@
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
-
 using namespace BloombergLP;
 using namespace bsl;
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
+// The Microsoft toolchains prior to VC2010 do not support the C99 <stdint.h>
+typedef int                     int32_t;
+typedef long long               int64_t;
+typedef bdlb::BitUtil::uint32_t uint32_t;
+typedef bdlb::BitUtil::uint64_t uint64_t;
+#endif
 
 //=============================================================================
 //                                TEST PLAN
@@ -61,9 +67,9 @@ namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
+    if (b) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
@@ -957,7 +963,7 @@ int main(int argc, char *argv[])
                         const bool EXP = index == i || index == j;
                         bool rv = Util::isBitSet(value32, index);
                         if (veryVerbose) {
-                          T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                            T_ P_(value32); T_ P_(index); T_ P_(rv); T_ P(EXP);
                         }
                         LOOP3_ASSERT(i, j, index, EXP == rv);
                     }
@@ -971,7 +977,7 @@ int main(int argc, char *argv[])
                         const bool EXP = index == i || index == j;
                         bool rv = Util::isBitSet(value64, index);
                         if (veryVerbose) {
-                          T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
+                            T_ P_(value64); T_ P_(index); T_ P_(rv); T_ P(EXP);
                         }
                         LOOP3_ASSERT(i, j, index, EXP == rv);
                     }

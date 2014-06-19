@@ -9,8 +9,8 @@ BSLS_IDENT_RCSID(bdlb_bitutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace bdlb {
 
-BSLMF_ASSERT(4 == sizeof(uint32_t));
-BSLMF_ASSERT(8 == sizeof(uint64_t));
+BSLMF_ASSERT(4 == sizeof(BitUtil::uint32_t));
+BSLMF_ASSERT(8 == sizeof(BitUtil::uint64_t));
 
                         // --------------
                         // struct BitUtil
