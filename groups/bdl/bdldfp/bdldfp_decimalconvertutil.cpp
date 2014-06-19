@@ -22,6 +22,7 @@ BSLS_IDENT("$Id$")
 #include <bsl_cstring.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>  // TODO TBD - remove this, it is just for debugging
 
 namespace BloombergLP {
