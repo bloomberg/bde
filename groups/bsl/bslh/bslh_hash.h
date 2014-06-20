@@ -22,12 +22,28 @@ BSLS_IDENT("$Id: $")
 // 'hashAppend' and will hash that type using the hashing algorithm provided as
 // a template parameter.
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
+#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
+#include <bslalg_typetraitbitwisecopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLH_DEFAULTHASHALGORITHM
+#include <bslh_defaulthashalgorithm.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -43,7 +59,7 @@ namespace bslh {
                           // class bslh::Hash
                           // ================
 
-template <class HASHALG>
+template <class HASHALG = bslh::DefaultHashAlgorithm>
 struct Hash
 {
     // Wraps hashAttributes and the parameterized 'HASHALG' in an interface
@@ -244,7 +260,10 @@ void hashAppend(HASHALG& hashAlg, long double const input)
     hashAlg(&input, sizeof(input));
 }
 
-// ============================================================================ TODO: These?
+}  // close namespace bslh
+
+
+// ============================================================================
 //                                TYPE TRAITS
 // ============================================================================
 
@@ -253,19 +272,28 @@ void hashAppend(HASHALG& hashAlg, long double const input)
 //: o 'bsl::hash<TYPE>' is trivially copyable.
 //: o 'bsl::hash<TYPE>' is bitwise movable.
 
-//template <class TYPE>
-//struct is_trivially_default_constructible<hash<TYPE> >
-//: bsl::true_type
-//{};
+namespace bslmf {
+template <class TYPE>
+struct IsBitwiseMoveable<bslh::Hash<TYPE> >
+    : bsl::true_type {};
+}  // close namespace bsl
 
-//template <class TYPE>
-//struct is_trivially_copyable<hash<TYPE> >
-//: bsl::true_type
-//{};
-
-}  // close namespace bslh
 
 }  // close namespace BloombergLP
+
+namespace bsl {
+template <class TYPE>
+struct is_trivially_default_constructible< ::BloombergLP::bslh::Hash<TYPE> >
+: bsl::true_type
+{};
+
+template <class TYPE>
+struct is_trivially_copyable< ::BloombergLP::bslh::Hash<TYPE> >
+: bsl::true_type
+{};
+}  // close namespace bsl
+
+
 
 #endif
 

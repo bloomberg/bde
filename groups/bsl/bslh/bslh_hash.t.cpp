@@ -102,7 +102,7 @@ void aSsErT(bool b, const char *s, int i)
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Creating and Using a Hash Cross Reference
+///Example: Creating and Using a Hash Cross Reference
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we already have an array of unique values of type 'TYPE', for which
 // 'operator==' is defined, and we want to be able to quickly look up whether
@@ -119,30 +119,31 @@ void aSsErT(bool b, const char *s, int i)
 // equivalence operation 'bool operator==' and that a hash function be
 // provided.
 //
-// We will need a hash function -- the hash function is a function that will
-// take as input an object of the type stored in our array, and yield a
-// 'size_t' value which will be very randomized.  Ideally, the slightest change
-// in the value of the 'TYPE' object will result in a large change in the value
-// returned by the hash function.  In a good hash function, typically half the
-// bits of the return value will change for a 1-bit change in the hashed value.
-// We then use the result of the hash function to index into our array of
-// 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
-// array of 'TYPE' objects.  We will resolve hash collisions in our array
-// through 'linear probing', where we will search consecutive buckets following
-// the bucket where the collision occurred, testing occupied buckets for
-// equality with the value we are searching on, and concluding that the value
-// is not in the table if we encounter an empty bucket before we encounter one
-// referring to an equal element.
+// We will need a hash functor -- an object that uses a hashing algorithm
+// that will take as input an object of the type stored in our array, and yield
+// a 'size_t' value which will be very randomized. The functor can pass the
+// salient attributes of the 'TYPE' into the hashing algorithm, and then return
+// the hash that is produced.  Ideally, the slightest change in the value of
+// the 'TYPE' object will result in a large change in the value returned by the
+// hash function.  In a good hash function, typically half the bits of the
+// return value will change for a 1-bit change in the hashed value.  We then
+// use the result of the hash function to index into our array of 'buckets'.
+// Each 'bucket' is simply a pointer to a value in our original array of 'TYPE'
+// objects.  We will resolve hash collisions in our array through 'linear
+// probing', where we will search consecutive buckets following the bucket
+// where the collision occurred, testing occupied buckets for equality with the
+// value we are searching on, and concluding that the value is not in the table
+// if we encounter an empty bucket before we encounter one referring to an
+// equal element.
 //
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
 //
 // First, we define our 'HashCrossReference' template class, with the two
-// type parameters 'TYPE" (the type being referenced' and 'HASHER', which
-// defaults to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int',
-// a specialization of 'bsl::hash' is already defined:
-/*
-template <class TYPE, class HASHER = bsl::hash<TYPE> >
+// type parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor
+// that produces the hash).
+
+template <class TYPE, class HASHER = bslh::Hash<> >
 class HashCrossReference {
     // This table leverages a hash table to provide a fast lookup of an
     // external, non-owned, array of values of configurable type.
@@ -154,11 +155,14 @@ class HashCrossReference {
     // The 'HASHER' template parameter type must be a functor with a function
     // of the following signature:
     //..
-    //  size_t operator()(const TYPE)  const; or
-    //  size_t operator()(const TYPE&) const; or
+    //  size_t operator()(const TYPE)  const;
+    //                   -OR-
+    //  size_t operator()(const TYPE&) const;
     //..
     // and 'HASHER' must have a publicly available default constructor and
-    // destructor.
+    // destructor. Here we use 'bslh::Hash' as our default value. This allows
+    // us to hash any types that implement a 'hashAppend' method (which we will
+    // do below).
 
     // DATA
     const TYPE       *d_values;             // Array of values table is to
@@ -258,96 +262,78 @@ class HashCrossReference {
     }
 };
 
-///Example 2: Using Our Hash Cross Reference For a Custom Class
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In Example 1, we demonstrated a hash cross reference for integers, a trivial
-// example.  In Example 2, we want to demonstrate specializing 'hash' for a
-// custom class.  We will re-use the 'HashCrossReference' template class
-// defined in Example 1.
+// Then, we define a 'Future' class, which holds a cstring 'name', char
+// 'callMonth', and short 'callYear'. 
 
-// First, we define a 'StringThing' class, which is basically a 'const char *'
-// except that 'operator==' will do the right thing on the strings and properly
-// compare them:
-
-class StringThing {
-    // This class holds a pointer to zero-terminated string.  It is implicitly
-    // convertible to and from a 'const char *'.  The difference between this
-    // type and a 'const char *' is that 'operator==' will properly compare two
-    // objects of this type for equality of strings rather than equality of
-    // pointers.
+class Future {
+    // This class identifies a future contract.  It tracks the name, call month
+    // and year of the contract it represents, and allows equality comparison.
 
     // DATA
-    const char *d_string;    // held, not owned
+    const char *d_name;    // held, not owned
+    const char  d_callMonth;
+    const short d_callYear;
 
   public:
-    // CREATOR
-    StringThing(const char *string)                                 // IMPLICIT
-    : d_string(string)
-        // Create a 'StringThing' object out of the specified 'string'.
+    // CREATORS
+    Future(const char *name, const char callMonth, const short callYear)
+    : d_name(name), d_callMonth(callMonth), d_callYear(callYear)
+        // Create a 'Future' object out of the specified 'name', 'callMonth',
+        // and 'callYear'.
     {}
 
-    // ACCESSOR
-    operator const char *() const
-        // Implicitly cast this 'StringThing' object to a 'const char *' that
-        // refers to the same buffer.
-    {
-        return d_string;
+    Future() : d_name(""), d_callMonth('\0'), d_callYear(0)
+        // Create a 'Future' with default values.
+    {}
+
+    // ACCESSORS
+    const char * getName() const {
+        return d_name;
+    }
+
+    const char * getMonth() const {
+        return &d_callMonth;
+    }
+
+    const short * getYear() const {
+        return &d_callYear;
+    }
+
+    bool operator==(const Future& other) const {
+        return (!strcmp(d_name, other.d_name))  &&
+           d_callMonth == other.d_callMonth &&
+           d_callYear  == other.d_callYear;
     }
 };
 
-inline
-bool operator==(const StringThing& lhs, const StringThing& rhs)
-{
-    return !strcmp(lhs, rhs);
-}
-
-inline
-bool operator!=(const StringThing& lhs, const StringThing& rhs)
-{
+bool operator!=(const Future& lhs, const Future& rhs) {
     return !(lhs == rhs);
 }
 
-// Then, we need a hash function for 'StringThing'.  We can specialize
-// 'bsl::hash' for our 'StringThing' type:
+// Then, we need to implement 'hashAppend' so that 'bslh::Hash' can pick up the
+// fact that this type is hashabel.  'hashAppend' allows us to identify our
+// salient attributes and pass them into a hash function, without having to
+// actually know anything about hashing. Note that this requires less
+// boilerplate than the equivilant functor that can be found in the
+// 'bslh::oneatatimehashalgorithm' test driver.
 
-namespace bsl {
+namespace BloombergLP {
+namespace bslh {
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlg, Future const future)
+{
+    hashAppend(hashAlg, future.getName());
+    hashAppend(hashAlg, future.getMonth());
+    hashAppend(hashAlg, future.getYear());
+}
+}  // close namespace bslh
+}  // close namespace BloombergLP
 
-template <>
-struct hash<StringThing> {
-    // We need to specialize 'hash' for our 'StringThing' type.  If we just
-    // called 'hash<const char *>', it would just hash the pointer, so that
-    // pointers to two different buffers containing the same sequence of chars
-    // would hash to different values, which would not be the desired behavior.
+//=============================================================================
+//                     GLOBAL TYPEDEFS FOR TESTING
+//-----------------------------------------------------------------------------
 
-    size_t operator()(const StringThing& st) const
-        // Return the hash of the zero-terminated sequence of bytes referred to
-        // by the specified 'st'.  Note that this is an ad-hoc hash function
-        // thrown together in a few minutes, it has not been exhaustively
-        // tested or mathematically analyzed.  Also note that even though most
-        // of the default specializations of 'hash' have functions that take
-        // their arguments by value, there is nothing preventing us from
-        // chosing to pass it by reference in this case.
-    {
-        enum { SHIFT_DOWN = sizeof(size_t) * 8 - 8 };
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        const size_t MULTIPLIER = 0x5555555555555555ULL; // 16 '5's
-#else
-        const size_t MULTIPLIER = 0x55555555;            //  8 '5's
-#endif
-
-        size_t ret = 0;
-        unsigned char c;
-        for (const char *pc = st; (c = *pc); ++pc) {
-            ret =  MULTIPLIER * (ret + c);
-            ret += ret >> SHIFT_DOWN;
-        }
-
-        return ret;
-    }
-};
-
-}  // close namespace bsl */
+typedef bslh::Hash<> Obj;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -357,7 +343,7 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-//  bool         veryVerbose = argc > 3;
+    bool         veryVerbose = argc > 3;
 //  bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
@@ -369,148 +355,58 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      /*case 9: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("USAGE EXAMPLE 2\n"
-                            "===============\n");
-
-// Next, now we want to use our cross reference on a more complex type, so
-// we'll use the 'StringThing' type we created.  We create an array of unique
-// 'StringThing's and take its length:
-
-        StringThing stringThings[] = { "woof",
-                                       "meow",
-                                       "bark",
-                                       "arf",
-                                       "bite",
-                                       "chomp",
-                                       "gnaw" };
-        enum { NUM_STRINGTHINGS =
-                              sizeof stringThings / sizeof *stringThings };
-
-// Then, we create our cross-reference 'hcrsts' and verify that it constructed
-// properly.  Note we don't pass a second parameter template argument and let
-// 'HASHER' will define to 'bsl::hash<StringThing>', which we have defined
-// above:
-
-        HashCrossReference<StringThing> hcrsts(stringThings,
-                                               NUM_STRINGTHINGS);
-        ASSERT(hcrsts.isValid());
-
-// Next, we verify that each element in our array registers with count:
-
-        ASSERT(1 == hcrsts.count("woof"));
-        ASSERT(1 == hcrsts.count("meow"));
-        ASSERT(1 == hcrsts.count("bark"));
-        ASSERT(1 == hcrsts.count("arf"));
-        ASSERT(1 == hcrsts.count("bite"));
-        ASSERT(1 == hcrsts.count("chomp"));
-        ASSERT(1 == hcrsts.count("gnaw"));
-
-// Now, we verify that strings not in our original array are correctly
-// identified as not being in the set:
-
-        ASSERT(0 == hcrsts.count("buy"));
-        ASSERT(0 == hcrsts.count("beg"));
-        ASSERT(0 == hcrsts.count("borrow"));
-        ASSERT(0 == hcrsts.count("or"));
-        ASSERT(0 == hcrsts.count("steal"));
-
-// Finally, to make sure that our lookup is independent of string location, we
-// copy some strings into a buffer and make sure that our results are as
-// expected.
-
-        char buffer[10];
-        strcpy(buffer, "woof");
-        ASSERT(1 == hcrsts.count(buffer));
-        strcpy(buffer, "chomp");
-        ASSERT(1 == hcrsts.count(buffer));
-        strcpy(buffer, "buy");
-        ASSERT(0 == hcrsts.count(buffer));
-        strcpy(buffer, "steal");
-        ASSERT(0 == hcrsts.count(buffer));
-      } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 1
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("USAGE EXAMPLE 1\n"
-                            "===============\n");
-
-// Then, In 'main', we will first use our cross-reference to cross-reference a
-// collection of integer values.  We define our array and take its length:
-
-        const int ints[] = { 23, 42, 47, 56, 57, 61, 62, 63, 70, 72, 79 };
-        enum { NUM_INTS = sizeof ints / sizeof *ints };
-
-// Now, we create our cross-reference 'hcri' and verify it constructed
-// properly.  Note that we don't specify the second template parameter 'HASHER'
-// and let it default to 'bsl::hash<int>', which is already defined by
-// bslstl_hash:
-
-        HashCrossReference<int> hcri(ints, NUM_INTS);
-        ASSERT(hcri.isValid());
-
-// Finally, we use 'hcri' to verify numbers that were and were not in the
-// collection:
-
-        ASSERT(1 == hcri.count(23));
-        ASSERT(1 == hcri.count(42));
-        ASSERT(1 == hcri.count(47));
-        ASSERT(1 == hcri.count(56));
-        ASSERT(0 == hcri.count( 3));
-        ASSERT(0 == hcri.count(31));
-        ASSERT(0 == hcri.count(37));
-        ASSERT(0 == hcri.count(58));
-      } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'StringThing'
+        // USAGE EXAMPLE
+        //   The hashing algorithm can be used to create more powerfull
+        //   components such as hash cross references and hash tables.
         //
-        // Concern:
-        //   That the 'StringThing' type use in the usage example functions
-        //   properly.
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        const char *a = "woof";
-        char b[5];
-        strcpy(b, a);
-        ASSERT(a != b);
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
 
-        ASSERT(StringThing(a) == StringThing(b));
-        b[0] = '*';
-        ASSERT(StringThing(a) != StringThing(b));
-        ASSERT(StringThing(a) != StringThing("meow"));
+// Next, we want to actually use our cross reference on 'Future' objects.  We
+// create an array of unique 'Future's and take its length:
+
+        Future futures[] = { Future("Swiss Franc", 'F', 2014),
+                             Future("US Dollar", 'G', 2015),
+                             Future("Canadian Dollar", 'Z', 2014),
+                             Future("British Pound", 'M', 2015),
+                             Future("Deutsche Mark", 'X', 2016),
+                             Future("Eurodollar", 'Q', 2017)};
+        enum { NUM_FUTURES =
+                              sizeof futures / sizeof *futures };
+
+// Then, we create our cross-reference 'hcr' and verify that it constructed
+// properly.  We pass we use the defualt functor which will pick up the
+// 'hashAppend' function we created:
+
+        HashCrossReference<Future> hashCrossRef(futures, NUM_FUTURES);
+        ASSERT(hashCrossRef.isValid());
+
+// Now, we verify that each element in our array registers with count:
+        for( int i = 0; i < 6; ++i) {
+            ASSERT(1 == hashCrossRef.count(futures[i]));
+        }
+
+// Finally, we verify that futures not in our original array are correctly
+// identified as not being in the set:
+
+        ASSERT(0 == hashCrossRef.count(Future("French Franc", 'N', 2019)));
+        ASSERT(0 == hashCrossRef.count(Future("Swiss Franc", 'X', 2014)));
+        ASSERT(0 == hashCrossRef.count(Future("US Dollar", 'F', 2014)));
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -520,7 +416,7 @@ int main(int argc, char *argv[])
         //   compilers that support it.
         //
         // Concerns:
-        //: 1 class 'hash' does not increase the size of an
+        //: 1 class 'Hash' does not increase the size of an
         //:   object when used as a base class.
         //
         // Plan:
@@ -546,20 +442,20 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING QoI: Is an empty type"
                             "\n=============================\n");
 
-        typedef int TYPE;
+        typedef DefaultHashAlgorithm TYPE;
 
         struct TwoInts {
             int a;
             int b;
         };
 
-        struct DerivedInts : hash<TYPE> {
+        struct DerivedInts : Hash<TYPE> {
             int a;
             int b;
         };
 
         struct IntsWithMember {
-            hash<TYPE> dummy;
+            Hash<TYPE> dummy;
             int              a;
             int              b;
         };
@@ -576,8 +472,8 @@ int main(int argc, char *argv[])
         //   type traits to reflect this.
         //
         // Concerns:
-        //: 1 The class is bitwise copyable.
-        //: 2 The class is bitwise moveable.
+        //: 1 The class is bitwise moveable.
+        //: 2 The class has the trivial copyable trait.
         //: 3 The class has the trivial default constructor trait.
         //
         // Plan:
@@ -593,67 +489,57 @@ int main(int argc, char *argv[])
 
         typedef int TYPE;
 
-        ASSERT(bslmf::IsBitwiseMoveable<hash<TYPE> >::value);
-        ASSERT(bsl::is_trivially_copyable<hash<TYPE> >::value);
-        ASSERT(bsl::is_trivially_default_constructible<hash<TYPE> >::value);
+        ASSERT(bslmf::IsBitwiseMoveable<Hash<> >::value);
+        ASSERT(bsl::is_trivially_copyable<Hash<> >::value);
+        ASSERT(bsl::is_trivially_default_constructible<Hash<> >::value);
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // STANDARD TYPEDEFS
-        //   Verify that the class offers the three typedefs required of a
-        //   standard adaptable binary function.
+        //   Verify that the struct properly forwards the typedefs of the
+        //   algorithm it is passed.
         //
         // Concerns:
-        //: 1 The typedef 'first_argument_type' is publicly accessible and an
-        //:   alias for 'const char '.
-        //:
-        //: 2 The typedef 'second_argument_type' is publicly accessible and an
-        //:   alias for 'const char '.
-        //:
-        //: 3 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bool'.
+        //: 1 The typedef 'result_type' is publicly accessible and an alias for
+        //:   the typedef of the current algorithm.
         //
         // Plan:
-        //: 1 ASSERT each of the typedefs has accessibly aliases the correct
-        //:   type using 'bslmf::IsSame'. (C-1..3)
+        //: 1 ASSERT the typedef accessibly aliases the correct type using
+        //:   'bslmf::IsSame'. (C-1)
         //
         // Testing:
-        //   typedef argument_type
-        //   typedef second_argument_type
+        //   typedef result_type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"
                             "\n=========================\n");
 
-        typedef int TYPE;
-
-        ASSERT((bslmf::IsSame<size_t, hash<TYPE>::result_type>::VALUE));
-        ASSERT((bslmf::IsSame<TYPE, hash<TYPE>::argument_type>::VALUE));
+        ASSERT((bslmf::IsSame<DefaultHashAlgorithm::result_type, 
+                              Hash<>::result_type>::VALUE));
+        ASSERT((bslmf::IsSame<OneAtATimeHashAlgorithm::result_type, 
+                              Hash<OneAtATimeHashAlgorithm>::result_type
+                             >::VALUE));
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
         // FUNCTION CALL OPERATOR
-        //   Verify that the class offers the three typedefs required of a
-        //   standard adaptable binary function, ().
+        //   Verify that the struct offers the ability to invike it with some
+        //   bytes and a length, and that it return a hash.
         //
         // Concerns:
-        //: 1 Objects of type 'hash' can be invokes as a binary
-        //:   predicate returning 'bool' and taking two 'const char *'
-        //:   arguments.
+        //: 1 The function call operator will return the expected vaulue
+        //:   regardless of type
         //:
         //: 2 The function call operator can be invoked on constant objects.
         //:
-        //: 3 The function call returns 'true' or 'false' indicating whether
-        //:   the two supplied string arguments have the same string value.
-        //:
-        //: 4 No memory is allocated from the default or global allocators.
+        //: 3 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1
-        //: 2
-        //: 3
+        //: 1 Cast test values to different types and test the hashes returned.
+        //:   (C-1,2)
+        //: 2 Use a test allocator to ensure no memory is used
         //
         // Testing:
         //   operator()(const T&) const
@@ -673,72 +559,86 @@ int main(int argc, char *argv[])
         static const struct {
             int        d_line;
             TYPE       d_value;
-            size_t     d_hashCode;
+            size_t     d_oneByteHash;
+            size_t     d_twoByteHash;
+            size_t     d_fourByteHash;
+            size_t     d_eightByteHash;
         } DATA[] = {
-            // LINE    VALUE   HASHCODE
-            {  L_,     0,       0 },
-            {  L_,     5,       5 },
-            {  L_,     13,     13 },
-            {  L_,     42,     42 },
-            {  L_,     127,   127 },
+            // LINE VALUE ONEBYTEHASH  TWOBYTEHASH FOURBYTEHASH EIGHTBYTEHASH
+         {  L_,  0,              0U,           0U,           0U,           0U},
+         {  L_,  5,     1534473963U,  3869591463U,  1718633450U,  2828949013U},
+         {  L_,  13,    3993033726U,  2148495725U,  3165706846U,  3063670407U},
+         {  L_,  42,    4281892453U,  1900720968U,  3861518388U,  1055756050U},
+         {  L_,  127,   3941848516U,  4156547249U,    24383023U,  2189952278U},
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i != NUM_DATA; ++i) {
-            const int         LINE      = DATA[i].d_line;
-            const signed char VALUE     = DATA[i].d_value;
-            const size_t      HASHCODE  = DATA[i].d_hashCode;
+            const int         LINE    = DATA[i].d_line;
+            const signed char VALUE   = DATA[i].d_value;
+            const size_t      HASH [] = { 0,                       // 0 bytes
+                                          DATA[i].d_oneByteHash,   // 1 byte
+                                          DATA[i].d_twoByteHash,   // 2 bytes
+                                          0,                       // 3 bytes
+                                          DATA[i].d_fourByteHash,  // 4 bytes
+                                          0,                       // 5 bytes
+                                          0,                       // 6 bytes
+                                          0,                       // 7 bytes
+                                          DATA[i].d_eightByteHash};// 8 bytes
+            if(veryVerbose) printf("Testing hashes of %i\n", VALUE);
 
-            LOOP_ASSERT(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<unsigned char>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed char>()(VALUE) == HASHCODE);
+            Obj hasher;
 
-            LOOP_ASSERT(LINE, bsl::hash<wchar_t>()(VALUE) == HASHCODE);
+            char charValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(charValue) == HASH[sizeof(char)]);
 
-            LOOP_ASSERT(LINE, bsl::hash<unsigned short>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed short>()(VALUE) == HASHCODE);
+            unsigned char unsignedcharValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(unsignedcharValue) == HASH[sizeof(unsigned char)]);
 
-            LOOP_ASSERT(LINE, bsl::hash<unsigned int>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed int>()(VALUE) == HASHCODE);
+            signed char signedcharValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(signedcharValue) == HASH[sizeof(signed char)]);
 
-            LOOP_ASSERT(LINE, bsl::hash<unsigned long>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed long>()(VALUE) == HASHCODE);
+            wchar_t wcharValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(wcharValue) == HASH[sizeof(wchar_t)]);
 
-            if (sizeof (unsigned long long) <= sizeof (std::size_t))
-            {
-                LOOP_ASSERT(LINE, bsl::hash<unsigned long long>()(VALUE)
-                        == (unsigned long long) HASHCODE);
-                LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
-                        == (signed long long) HASHCODE);
-            }
-            else
-            {
-                LOOP_ASSERT(LINE, bsl::hash<unsigned long long>()(VALUE)
-                        == ((std::size_t)
-                                    ((unsigned long long) HASHCODE) ^
-                                   (((unsigned long long) HASHCODE) >> 32)));
-                LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
-                        == ((std::size_t)
-                                    ((signed long long) HASHCODE) ^
-                                   (((signed long long) HASHCODE) >> 32)));
-            }
+            short shortValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(shortValue) == HASH[sizeof(short)]);
+
+            unsigned short unsignedshortValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(unsignedshortValue) == HASH[sizeof(unsigned short)]);
+
+            signed short signedshortValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(signedshortValue) == HASH[sizeof(signed short)]);
+
+            int intValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(intValue) == HASH[sizeof(int)]);
+
+            signed int signedintValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(signedintValue) == HASH[sizeof(signed int)]);
+
+            unsigned int unsignedintValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(unsignedintValue) == HASH[sizeof(unsigned int)]);
+
+            long longValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(longValue) == HASH[sizeof(long)]);
+
+            signed long signedlongValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(signedlongValue) == HASH[sizeof(signed long)]);
+
+            unsigned long unsignedlongValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(unsignedlongValue) == HASH[sizeof(unsigned long)]);
+
+            long long longlongValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(longlongValue) == HASH[sizeof(long long)]);
+
+            signed long long signedlonglongValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(signedlonglongValue) == HASH[sizeof(signed long long)]);
+
+            unsigned long long unsignedlonglongValue = VALUE;
+            LOOP_ASSERT(LINE, hasher(unsignedlonglongValue) == HASH[sizeof(unsigned long long)]);
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-
-        // special test for hash<const char *>
-        const char STRING_1[] = "Hello World";
-        const char STRING_2[] = "Hello World";
-
-        const char *C_STRING_1 = STRING_1;
-        const char *C_STRING_2 = STRING_2;
-        ASSERT(C_STRING_1 != C_STRING_2);
-
-
-        const ::bsl::hash<const char *> C_STRING_HASH =
-                                                   ::bsl::hash<const char *>();
-
-        ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
 
       } break;
       case 2: {
@@ -785,10 +685,10 @@ int main(int argc, char *argv[])
         //:    destroyed. (C-6)
         //
         // Testing:
-        //   hash()
-        //   hash(const hash)
-        //   ~hash()
-        //   hash& operator=(const hash&)
+        //   Hash()
+        //   Hash(const Hash)
+        //   ~Hash()
+        //   Hash& operator=(const Hash&)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nIMPLICITLY DEFINED OPERATIONS"
@@ -803,11 +703,11 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) printf("Value initialization\n");
-        const hash<TYPE> obj1 = hash<TYPE>();
+        const Obj obj1 = Obj();
 
 
         if (verbose) printf("Copy initialization\n");
-        hash<TYPE> obj2 = obj1;
+        Obj obj2 = obj1;
 
         if (verbose) printf("Copy assignment\n");
         obj2 = obj1;
@@ -815,7 +715,7 @@ int main(int argc, char *argv[])
 
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-      } break; */
+      } break; 
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

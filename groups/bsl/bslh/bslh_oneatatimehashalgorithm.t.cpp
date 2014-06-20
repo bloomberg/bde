@@ -462,25 +462,21 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // FUNCTION CALL OPERATOR
-        //   Verify that the class offers the three typedefs required of a
-        //   standard adaptable binary function, ().
+        //   Verify that the class offers the ability to invike it with some
+        //   bytes and a length, and that it return a hash.
         //
         // Concerns:
-        //: 1 Objects of type 'hash' can be invokes as a binary
-        //:   predicate returning 'bool' and taking two 'const char *'
-        //:   arguments.
+        //: 1 The function call operator will return the expected vaulue
+        //:   regardless of type
         //:
         //: 2 The function call operator can be invoked on constant objects.
         //:
-        //: 3 The function call returns 'true' or 'false' indicating whether
-        //:   the two supplied string arguments have the same string value.
-        //:
-        //: 4 No memory is allocated from the default or global allocators.
+        //: 3 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1
-        //: 2
-        //: 3
+        //: 1 Cast test values to different types and test the hashes returned.
+        //:   (C-1,2)
+        //: 2 Use a test allocator to ensure no memory is used
         //
         // Testing:
         //   operator()(const T&) const
@@ -685,10 +681,10 @@ int main(int argc, char *argv[])
         //:    destroyed. (C-6)
         //
         // Testing:
-        //   hash()
-        //   hash(const hash)
-        //   ~hash()
-        //   hash& operator=(const hash&)
+        //   OneAtATimeHash()
+        //   OneAtATimeHash(const OneAtATimeHash)
+        //   ~OneAtATimeHash()
+        //   OneAtATimeHash& operator=(const OneAtATimeHash&)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nC'TORS, D'TOR AND ASSIGNMENT OPERATOR"
