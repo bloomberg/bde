@@ -12,8 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@SEE_ALSO:
-// bslh::Hash
-// bslh::OneAtATimeHashAlgorithm
+// bslh::Hash, bslh::OneAtATimeHashAlgorithm
 //
 //@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a typedef for
 // 'bslh::OneAtATimeHashAlgorithm'. This is done as a way to make it easier for
@@ -23,13 +22,17 @@ BSLS_IDENT("$Id: $")
 // allows us to swap out this hash algorithm for a new algorithm is a better
 // defualt is found.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLH_ONEATATIMEHASHALGORITHM
 #include <bslh_oneatatimehashalgorithm.h>
 #endif
 
 namespace BloombergLP {
 
-namespace bslh { 
+namespace bslh {
 
 typedef OneAtATimeHashAlgorithm DefaultHashAlgorithm;
 

@@ -40,6 +40,7 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
+
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-            ASSERT((bslmf::IsSame<bslh::DefaultHashAlgorithm, 
+            ASSERT((bslmf::IsSame<bslh::DefaultHashAlgorithm,
                                   bslh::OneAtATimeHashAlgorithm>::VALUE));
       } break;
       default: {

@@ -1,4 +1,4 @@
-// bslh_hash.t.cpp                                                              -*-C++-*-
+// bslh_hash.t.cpp                                                    -*-C++-*-
 #include <bslh_hash.h>
 #include <bslh_defaulthashalgorithm.h>
 
@@ -119,9 +119,9 @@ void aSsErT(bool b, const char *s, int i)
 // equivalence operation 'bool operator==' and that a hash function be
 // provided.
 //
-// We will need a hash functor -- an object that uses a hashing algorithm
-// that will take as input an object of the type stored in our array, and yield
-// a 'size_t' value which will be very randomized. The functor can pass the
+// We will need a hash functor -- an object that uses a hashing algorithm that
+// will take as input an object of the type stored in our array, and yield a
+// 'size_t' value which will be very randomized. The functor can pass the
 // salient attributes of the 'TYPE' into the hashing algorithm, and then return
 // the hash that is produced.  Ideally, the slightest change in the value of
 // the 'TYPE' object will result in a large change in the value returned by the
@@ -139,9 +139,9 @@ void aSsErT(bool b, const char *s, int i)
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
 //
-// First, we define our 'HashCrossReference' template class, with the two
-// type parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor
-// that produces the hash).
+// First, we define our 'HashCrossReference' template class, with the two type
+// parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
+// produces the hash).
 
 template <class TYPE, class HASHER = bslh::Hash<> >
 class HashCrossReference {
@@ -181,9 +181,10 @@ class HashCrossReference {
                 const TYPE&  value,
                 size_t       hashValue) const
         // Look up the specified 'value', having hash value 'hashValue', and
-        // return its index in 'd_bucketArray'.  If not found, return the
-        // vacant entry in 'd_bucketArray' where it should be inserted.  Return
-        // 'true' if 'value is found and 'false' otherwise.
+        // return its index in 'd_bucketArray' stored in the specified 'idx.
+        // If not found, return the vacant entry in 'd_bucketArray' where it
+        // should be inserted.  Return 'true' if 'value is found and 'false'
+        // otherwise.
     {
         const TYPE *ptr;
         for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
@@ -215,8 +216,8 @@ class HashCrossReference {
             BSLS_ASSERT_OPT(bucketArrayLength);
         }
         d_bucketArrayMask = bucketArrayLength - 1;
-        d_bucketArray = (const TYPE **) d_allocator_p->allocate(
-                                          bucketArrayLength * sizeof(TYPE **));
+        d_bucketArray = static_cast<const TYPE **>(d_allocator_p->allocate(
+                                         bucketArrayLength * sizeof(TYPE **)));
         memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 
         for (unsigned i = 0; i < numValues; ++i) {
@@ -263,7 +264,7 @@ class HashCrossReference {
 };
 
 // Then, we define a 'Future' class, which holds a cstring 'name', char
-// 'callMonth', and short 'callYear'. 
+// 'callMonth', and short 'callYear'.
 
 class Future {
     // This class identifies a future contract.  It tracks the name, call month
@@ -287,12 +288,12 @@ class Future {
     {}
 
     // ACCESSORS
-    const char * getName() const {
-        return d_name;
-    }
-
     const char * getMonth() const {
         return &d_callMonth;
+    }
+
+    const char * getName() const {
+        return d_name;
     }
 
     const short * getYear() const {
@@ -515,9 +516,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"
                             "\n=========================\n");
 
-        ASSERT((bslmf::IsSame<DefaultHashAlgorithm::result_type, 
+        ASSERT((bslmf::IsSame<DefaultHashAlgorithm::result_type,
                               Hash<>::result_type>::VALUE));
-        ASSERT((bslmf::IsSame<OneAtATimeHashAlgorithm::result_type, 
+        ASSERT((bslmf::IsSame<OneAtATimeHashAlgorithm::result_type,
                               Hash<OneAtATimeHashAlgorithm>::result_type
                              >::VALUE));
 
@@ -715,7 +716,7 @@ int main(int argc, char *argv[])
 
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-      } break; 
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

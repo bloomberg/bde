@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 // bslh::Hash
 //
-//@DESCRIPTION: 'bslh::OneAtATimeHashAlg' implements the one-at-a-time hashing
-// algorithm that is known to quickly reach good avalance performance and is a
-// good choice for hashing for associative containers.
+//@DESCRIPTION: 'bslh::OneAtATimeHashAlgorithm' implements the one-at-a-time
+// hashing algorithm that is known to quickly reach good avalance performance
+// and is a good choice for hashing for associative containers.
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bslh { 
+namespace bslh {
 
 
                           // ===================================

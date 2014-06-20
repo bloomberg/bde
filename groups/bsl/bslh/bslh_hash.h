@@ -22,6 +22,10 @@ BSLS_IDENT("$Id: $")
 // 'hashAppend' and will hash that type using the hashing algorithm provided as
 // a template parameter.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
 #include <bslalg_typetraitbitwisecopyable.h>
 #endif
@@ -42,10 +46,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-namespace bslh { 
+namespace bslh {
 
                           // ================
                           // class bslh::Hash
