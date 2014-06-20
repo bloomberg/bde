@@ -541,22 +541,6 @@ void makeDecimalRaw(typename Properties<Size>::ValueType *target,
                        target, static_cast<signed long long>(value), exponent);
 }
 
-static inline DecimalImplUtil::ValueType64 minusInf64()
-    // Return the 64-bit decimal floating point value '-inf'.
-{
-    DecimalImplUtil::ValueType64 value;
-    Properties<64>::convert(&value, Properties<64>::minusInfBits);
-    return value;
-}
-
-static inline DecimalImplUtil::ValueType64 plusInf64()
-    // Return the 64-bit decimal floating point value '+inf'.
-{
-    DecimalImplUtil::ValueType64 value;
-    Properties<64>::convert(&value, Properties<64>::plusInfBits);
-    return value;
-}
-
 static inline DecimalImplUtil::ValueType64 inf64(bool isNegative = false)
 {
     typedef Properties<64> P;
