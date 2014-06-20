@@ -10,13 +10,18 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a hashing algorithm with decent performance for all data.
 //
 //@CLASSES:
-//  bslh::OneAtATimeHashAlg: Generic hashing algorithm functor
+// bslh::OneAtATimeHashAlgorithm: Generic hashing algorithm functor
 //
 //@SEE_ALSO:
+// bslh::Hash
 //
 //@DESCRIPTION: 'bslh::OneAtATimeHashAlg' implements the one-at-a-time hashing
 // algorithm that is known to quickly reach good avalance performance and is a
 // good choice for hashing for associative containers.
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
 
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
@@ -51,7 +56,7 @@ class OneAtATimeHashAlgorithm
         // state of the hashing algorithm.
 
 
-    result_type getHash();
+    result_type getHash() const;
         // Finalize the hash that has been accumulated and return it.
 
 };
@@ -62,7 +67,7 @@ void OneAtATimeHashAlgorithm::operator()(void const* key, size_t length)
 {
     unsigned char const *p = static_cast<unsigned char const *>(key);
 
-    for (int i = 0; i < length; i++ ) {
+    for (unsigned int i = 0; i < length; i++ ) {
         d_state += p[i];
         d_state += (d_state << 10 );
         d_state ^= (d_state >> 6  );
@@ -73,12 +78,25 @@ void OneAtATimeHashAlgorithm::operator()(void const* key, size_t length)
     d_state += (d_state << 15 );
 }
 
-OneAtATimeHashAlgorithm::result_type OneAtATimeHashAlgorithm::getHash()
+OneAtATimeHashAlgorithm::result_type OneAtATimeHashAlgorithm::getHash() const
 {
     return d_state;
 }
 
 }  // close namespace bslh
+
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for 'bslh::Hash'
+//: o 'bsl::hash<TYPE>' is bitwise movable.
+
+namespace bslmf {
+template <>
+struct IsBitwiseMoveable<bslh::OneAtATimeHashAlgorithm>
+    : bsl::true_type {};
+}  // close namespace bslmf
 
 }  // close namespace BloombergLP
 
@@ -104,4 +122,5 @@ OneAtATimeHashAlgorithm::result_type OneAtATimeHashAlgorithm::getHash()
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
+
 // ----------------------------- END-OF-FILE ----------------------------------

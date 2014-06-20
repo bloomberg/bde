@@ -12,6 +12,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@SEE_ALSO:
+// bslh::Hash
+// bslh::OneAtATimeHashAlgorithm
 //
 //@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a typedef for
 // 'bslh::OneAtATimeHashAlgorithm'. This is done as a way to make it easier for

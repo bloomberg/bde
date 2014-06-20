@@ -93,16 +93,11 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+//  bool         veryVerbose = argc > 3;
+//  bool     veryVeryVerbose = argc > 4;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
-
-    // CONCERN: In no case does memory come from the global allocator.
-
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 1: {
@@ -111,19 +106,10 @@ int main(int argc, char *argv[])
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        //: 1 The appropriate typedef exists
         //
         // Plan:
-        //: 1 Create an object 'hash' using 'bsl::DefaultHashAlg'.
-        //:
-        //: 2 Verify for a few char literals that different hashes are
-        //:   produced.
-        //:
-        //: 3 Verify for different char literals that different hashes are
-        //:   produced.
-        //:
-        //: 4 Repeat steps 1-4 with 'int' literals.
+        //: 1 Confirm that DefaultHashAlgorithm is a typedef for OneAtATimeHash
         //
         // Testing:
         //   BREATHING TEST
@@ -132,18 +118,14 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-
+            ASSERT((bslmf::IsSame<bslh::DefaultHashAlgorithm, 
+                                  bslh::OneAtATimeHashAlgorithm>::VALUE));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
-
-    // CONCERN: In no case does memory come from the global allocator.
-
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
