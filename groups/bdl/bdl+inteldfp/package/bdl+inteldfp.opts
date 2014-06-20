@@ -1,0 +1,9 @@
+*        _    OPTS_FILE    = bdl+inteldfp.opts
+
+*        _    DEF_CFLAGS   = -I$(BDL_INTELDFP_LOCN)/LIBRARY/src  -I$(BDL_INTELDFP_LOCN)/LIBRARY/float128 -DLINUX -Defi2 -Wno-cast-qual
+
+# Install the following header files.
+
+*        _    INSTALL_INC  = bid_functions.h bid_conf.h
+
+#==============================================================================

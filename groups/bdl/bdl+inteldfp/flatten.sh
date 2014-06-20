@@ -240,3 +240,7 @@ ln -s LIBRARY/float128/dpml_ux_ops_64.c    library_float128_dpml_ux_ops_64.c
 ln -s LIBRARY/float128/dpml_four_over_pi.c library_float128_dpml_four_over_pi.c
 ln -s LIBRARY/float128/dpml_exception.c    library_float128_dpml_exception.c
 ln -s LIBRARY/float128/sqrt_tab_t.c        library_float128_sqrt_tab_t.c
+
+echo "Linking headers..."
+ln -s LIBRARY/src/bid_functions.h bid_functions.h
+ln -s LIBRARY/src/bid_conf.h bid_conf.h
