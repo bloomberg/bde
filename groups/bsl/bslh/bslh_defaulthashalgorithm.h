@@ -34,9 +34,9 @@ namespace BloombergLP {
 
 namespace bslh {
 
-#pragma bde_verify -TR17        
+#pragma bde_verify -TR17
 typedef OneAtATimeHashAlgorithm DefaultHashAlgorithm;
-#pragma bde_verify +TR17   
+#pragma bde_verify +TR17
 
 }  // close namespace bslh
 

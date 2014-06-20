@@ -29,20 +29,23 @@ using namespace bslh;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-// [ 3] operator()(const VALUE_TYPE&) const
-// [ 2] hash()
-// [ 2] hash(const hash)
-// [ 2] ~hash()
-// [ 2] hash& operator=(const hash&)
+// [ 3] operator()(const T&) const
+// [ 2] OneAtATimeHashAlgorithm()
+// [ 2] OneAtATimeHashAlgorithm(const OneAtATimeHashAlgorithm)
+// [ 2] ~OneAtATimeHashAlgorithm()
+// [ 2] OneAtATimeHashAlgorithm& operator=(const OneAtATimeHashAlgorithm&)
+// [ 4] typedef result_type
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 5] IsBitwiseMoveable
 // [ 6] USAGE EXAMPLE
-// [ 4] Standard typedefs
-// [ 5] Bitwise-movable trait
+//-----------------------------------------------------------------------------
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
@@ -115,9 +118,9 @@ void aSsErT(bool b, const char *s, int i)
 // equivalence operation 'bool operator==' and that a hash function be
 // provided.
 //
-// We will need a hash functor -- an object that uses a hashing algorithm
-// that will take as input an object of the type stored in our array, and yield
-// a 'size_t' value which will be very randomized. The functor can pass the
+// We will need a hash functor -- an object that uses a hashing algorithm that
+// will take as input an object of the type stored in our array, and yield a
+// 'size_t' value which will be very randomized. The functor can pass the
 // salient attributes of the 'TYPE' into the hashing algorithm, and then return
 // the hash that is produced.  Ideally, the slightest change in the value of
 // the 'TYPE' object will result in a large change in the value returned by the
@@ -135,9 +138,9 @@ void aSsErT(bool b, const char *s, int i)
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
 //
-// First, we define our 'HashCrossReference' template class, with the two
-// type parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor
-// that produces the hash).
+// First, we define our 'HashCrossReference' template class, with the two type
+// parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
+// produces the hash).
 
 template <class TYPE, class HASHER>
 class HashCrossReference {
@@ -175,9 +178,10 @@ class HashCrossReference {
                 const TYPE&  value,
                 size_t       hashValue) const
         // Look up the specified 'value', having hash value 'hashValue', and
-        // return its index in 'd_bucketArray'.  If not found, return the
-        // vacant entry in 'd_bucketArray' where it should be inserted.  Return
-        // 'true' if 'value is found and 'false' otherwise.
+        // return its index in 'd_bucketArray' using the specified 'idx'.  If
+        // not found, return the vacant entry in 'd_bucketArray' where it
+        // should be inserted.  Return 'true' if 'value is found and 'false'
+        // otherwise.
     {
         const TYPE *ptr;
         for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
@@ -196,7 +200,9 @@ class HashCrossReference {
     HashCrossReference(const TYPE       *valuesArray,
                        size_t            numValues,
                        bslma::Allocator *allocator = 0)
-        // Create a hash cross reference referring to the array of value.
+        // Create a hash cross reference refering to the specified
+        // 'valuesArray' containing 'numValues'. Optionally specify 'allocator'
+        // or the default allocator will be used`.
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
@@ -209,8 +215,8 @@ class HashCrossReference {
             BSLS_ASSERT_OPT(bucketArrayLength);
         }
         d_bucketArrayMask = bucketArrayLength - 1;
-        d_bucketArray = (const TYPE **) d_allocator_p->allocate(
-                                          bucketArrayLength * sizeof(TYPE **));
+        d_bucketArray = static_cast<const TYPE **>(d_allocator_p->allocate(
+                                         bucketArrayLength * sizeof(TYPE **)));
         memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 
         for (unsigned i = 0; i < numValues; ++i) {
@@ -220,7 +226,8 @@ class HashCrossReference {
                 // Duplicate value.  Fail.
 
                 printf("Error: entries %u and %u have the same value\n",
-                                i, (unsigned) (d_bucketArray[idx] - d_values));
+                       i,
+                       static_cast<unsigned>((d_bucketArray[idx] - d_values)));
                 d_valid = false;
 
                 // don't return, continue reporting other redundant entries.
@@ -257,7 +264,7 @@ class HashCrossReference {
 };
 
 // Then, we define a 'Future' class, which holds a cstring 'name', char
-// 'callMonth', and short 'callYear'. 
+// 'callMonth', and short 'callYear'.
 
 class Future {
     // This class identifies a future contract.  It tracks the name, call month
@@ -281,26 +288,38 @@ class Future {
     {}
 
     // ACCESSORS
-    const char * getName() const {
-        return d_name;
-    }
-
-    const char * getMonth() const {
+    const char * getMonth() const
+        // Return the month that this future expires.
+    {
         return &d_callMonth;
     }
 
-    const short * getYear() const {
+    const char * getName() const
+        // Return the name of this future
+    {
+        return d_name;
+    }
+
+    const short * getYear() const
+        // Return the year that this future expires
+    {
         return &d_callYear;
     }
 
-    bool operator==(const Future& other) const {
+    bool operator==(const Future& other) const
+        // Compare this to the specified 'other' object and return true if they
+        // are equal
+    {
         return (!strcmp(d_name, other.d_name))  &&
            d_callMonth == other.d_callMonth &&
            d_callYear  == other.d_callYear;
     }
 };
 
-bool operator!=(const Future& lhs, const Future& rhs) {
+bool operator!=(const Future& lhs, const Future& rhs)
+    // Compare compare the specified 'lhs' and 'rhs' objects and return true if
+    // they are not equal
+{
     return !(lhs == rhs);
 }
 
@@ -393,7 +412,7 @@ int main(int argc, char *argv[])
 // Then, we create our cross-reference 'hcr' and verify that it constructed
 // properly.  We pass the functor that we defined above as the second argument:
 
-        HashCrossReference<Future, HashFuture> hashCrossRef(futures, 
+        HashCrossReference<Future, HashFuture> hashCrossRef(futures,
                                                             NUM_FUTURES);
         ASSERT(hashCrossRef.isValid());
 
@@ -412,7 +431,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // BDE TYPE TRAITS
+        // TESTING BDE TYPE TRAITS
         //   The functor contains only a single 'size_t' and so should be
         //   bitwise movable.
         //
@@ -424,11 +443,11 @@ int main(int argc, char *argv[])
         //:   metafunction. (C-1)
         //
         // Testing:
-        //   BDE Traits
+        //   IsBitwiseMoveable
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING BDE TRAITS"
-                            "\n==================\n");
+        if (verbose) printf("\nTESTING BDE TYPE TRAITS"
+                            "\n=======================\n");
 
         ASSERT(bslmf::IsBitwiseMoveable<OneAtATimeHashAlgorithm>::value);
 
@@ -436,7 +455,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // STANDARD TYPEDEFS
+        // TESTING STANDARD TYPEDEF
         //   Verify that the class offers the result_type typedef that needs to
         //   be exposed by all 'bslh' hashing algorithms
         //
@@ -455,13 +474,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STANDARD TYPEDEF"
                             "\n========================\n");
 
-        ASSERT((bslmf::IsSame<size_t, 
+        ASSERT((bslmf::IsSame<size_t,
                               OneAtATimeHashAlgorithm::result_type>::VALUE));
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // FUNCTION CALL OPERATOR
+        // TESTING FUNCTION CALL OPERATOR
         //   Verify that the class offers the ability to invike it with some
         //   bytes and a length, and that it return a hash.
         //
@@ -482,8 +501,8 @@ int main(int argc, char *argv[])
         //   operator()(const T&) const
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nFUNCTION CALL OPERATOR"
-                            "\n======================\n");
+        if (verbose) printf("\nTESTING FUNCTION CALL OPERATOR"
+                            "\n==============================\n");
 
         if (verbose) printf(
                  "\nCreate a test allocator and install it as the default.\n");
@@ -571,7 +590,8 @@ int main(int argc, char *argv[])
             Obj signedintHasher;
             signed int signedintValue = VALUE;
             signedintHasher(&signedintValue, sizeof(signed int));
-            LOOP_ASSERT(LINE, signedintHasher.getHash() == HASH[sizeof(signed int)]);
+            LOOP_ASSERT(LINE, signedintHasher.getHash() ==
+                                                     HASH[sizeof(signed int)]);
 
             Obj unsignedintHasher;
             unsigned int unsignedintValue = VALUE;
@@ -599,18 +619,19 @@ int main(int argc, char *argv[])
             Obj longlongHasher;
             long long longlongValue = VALUE;
             longlongHasher(&longlongValue, sizeof(long long));
-            LOOP_ASSERT(LINE, longlongHasher.getHash() == HASH[sizeof(long long)]);
+            LOOP_ASSERT(LINE, longlongHasher.getHash() ==
+                                                      HASH[sizeof(long long)]);
 
             Obj signedlonglongHasher;
             signed long long signedlonglongValue = VALUE;
-            signedlonglongHasher(&signedlonglongValue, 
+            signedlonglongHasher(&signedlonglongValue,
                                   sizeof(signed long long));
             LOOP_ASSERT(LINE, signedlonglongHasher.getHash() ==
                                                HASH[sizeof(signed long long)]);
 
             Obj unsignedlonglongHasher;
             unsigned long long unsignedlonglongValue = VALUE;
-            unsignedlonglongHasher(&unsignedlonglongValue, 
+            unsignedlonglongHasher(&unsignedlonglongValue,
                                     sizeof(unsigned long long));
             LOOP_ASSERT(LINE, unsignedlonglongHasher.getHash() ==
                                              HASH[sizeof(unsigned long long)]);
@@ -637,8 +658,8 @@ int main(int argc, char *argv[])
 
       } break;
       case 2: {
-        // -------------------------------------------------------------------- TODO how to state that getHash is a basic accessor?
-        // C'TORS, D'TOR AND ASSIGNMENT OPERATOR (IMPLICITLY DEFINED)
+        // --------------------------------------------------------------------
+        // TESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR
         //   Ensure that the three implicitly declared and defined special
         //   member functions and the one explicitly defined constructor are
         //   publicly callable and have no unexpected side effects such as
@@ -681,14 +702,15 @@ int main(int argc, char *argv[])
         //:    destroyed. (C-6)
         //
         // Testing:
-        //   OneAtATimeHash()
-        //   OneAtATimeHash(const OneAtATimeHash)
-        //   ~OneAtATimeHash()
-        //   OneAtATimeHash& operator=(const OneAtATimeHash&)
+        //   OneAtATimeHashAlgorithm()
+        //   OneAtATimeHashAlgorithm(const OneAtATimeHashAlgorithm)
+        //   ~OneAtATimeHashAlgorithm()
+        //   OneAtATimeHashAlgorithm& operator=(const OneAtATimeHashAlgorithm&)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nC'TORS, D'TOR AND ASSIGNMENT OPERATOR"
-                            "\n=====================================\n");
+        if (verbose)
+            printf("\nTESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR"
+                   "\n==============================================\n");
 
         typedef int TYPE;
 
