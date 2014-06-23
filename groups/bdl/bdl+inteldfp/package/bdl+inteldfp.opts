@@ -4,6 +4,6 @@
 
 # Install the following header files.
 
-*        _    INSTALL_INC  = bid_functions.h bid_conf.h
+*        _    INSTALL_INC  = bid_functions.h bid_conf.h bid_internal.h
 
 #==============================================================================

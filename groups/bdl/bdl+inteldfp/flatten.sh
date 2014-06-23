@@ -244,3 +244,4 @@ ln -s LIBRARY/float128/sqrt_tab_t.c        library_float128_sqrt_tab_t.c
 echo "Linking headers..."
 ln -s LIBRARY/src/bid_functions.h bid_functions.h
 ln -s LIBRARY/src/bid_conf.h bid_conf.h
+ln -s LIBRARY/src/bid_internal.h bid_internal.h
