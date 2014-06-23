@@ -144,7 +144,7 @@ void hashAppend(HASHALG& hashAlg, double const input);
 
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, long double const input);
-    // Applies the specified 'hashAlg' to the specified 'input'
+    // Passes the specified 'input' to the specified 'hashAlg'
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS

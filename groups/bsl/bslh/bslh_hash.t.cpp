@@ -30,23 +30,26 @@ using namespace bslh;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-// [ 3] operator()(const VALUE_TYPE&) const
-// [ 2] hash()
-// [ 2] hash(const hash)
-// [ 2] ~hash()
-// [ 2] hash& operator=(const hash&)
+// [ 3] operator()(const T&) const
+// [ 2] Hash()
+// [ 2] Hash(const Hash)
+// [ 2] ~Hash()
+// [ 2] Hash& operator=(const Hash&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] STRINGTHING
-// [ 8] USAGE EXAMPLE
-// [ 4] Standard typedefs
-// [ 5] Bitwise-movable trait
-// [ 5] IsPod trait
-// [ 6] QoI: Is an empty type
+// [ 7] USAGE EXAMPLE
+// [ 4] typedef result_type
+// [ 5] IsBitwiseMovable trait
+// [ 5] is_trivially_copyable trait
+// [ 5] is_trivially_default_constructible trait
+// [ 6] QoI: Support for empty base optimization
+//-----------------------------------------------------------------------------
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
@@ -203,7 +206,9 @@ class HashCrossReference {
     HashCrossReference(const TYPE       *valuesArray,
                        size_t            numValues,
                        bslma::Allocator *allocator = 0)
-        // Create a hash cross reference referring to the array of value.
+        // Create a hash cross reference refering to the specified
+        // 'valuesArray' containing 'numValues'. Optionally specify 'allocator'
+        // or the default allocator will be used`.
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
@@ -227,7 +232,8 @@ class HashCrossReference {
                 // Duplicate value.  Fail.
 
                 printf("Error: entries %u and %u have the same value\n",
-                                i, (unsigned) (d_bucketArray[idx] - d_values));
+                       i,
+                       static_cast<unsigned>((d_bucketArray[idx] - d_values)));
                 d_valid = false;
 
                 // don't return, continue reporting other redundant entries.
@@ -288,26 +294,38 @@ class Future {
     {}
 
     // ACCESSORS
-    const char * getMonth() const {
+    const char * getMonth() const
+        // Return the month that this future expires.
+    {
         return &d_callMonth;
     }
 
-    const char * getName() const {
+    const char * getName() const
+        // Return the name of this future
+    {
         return d_name;
     }
 
-    const short * getYear() const {
+    const short * getYear() const
+        // Return the year that this future expires
+    {
         return &d_callYear;
     }
 
-    bool operator==(const Future& other) const {
+    bool operator==(const Future& other) const
+        // Compare this to the specified 'other' object and return true if they
+        // are equal
+    {
         return (!strcmp(d_name, other.d_name))  &&
            d_callMonth == other.d_callMonth &&
            d_callYear  == other.d_callYear;
     }
 };
 
-bool operator!=(const Future& lhs, const Future& rhs) {
+bool operator!=(const Future& lhs, const Future& rhs)
+    // Compare compare the specified 'lhs' and 'rhs' objects and return true if
+    // they are not equal
+{
     return !(lhs == rhs);
 }
 
@@ -322,6 +340,8 @@ namespace BloombergLP {
 namespace bslh {
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, Future const future)
+    // Passes salient attributes from the specified 'future' to the specified
+    // 'hashAlg'
 {
     hashAppend(hashAlg, future.getName());
     hashAppend(hashAlg, future.getMonth());
@@ -411,7 +431,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // QoI: Is an empty type
+        // TESTING QOI: IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
@@ -440,7 +460,7 @@ int main(int argc, char *argv[])
         //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING QoI: Is an empty type"
+        if (verbose) printf("\nTESTING QOI: IS AN EMPTY TYPE"
                             "\n=============================\n");
 
         typedef DefaultHashAlgorithm TYPE;
@@ -468,7 +488,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // BDE TYPE TRAITS
+        // TESTING BDE TRAITS
         //   The functor is an empty POD, and should have the appropriate BDE
         //   type traits to reflect this.
         //
@@ -482,7 +502,9 @@ int main(int argc, char *argv[])
         //:   metafunction. (C-1..3)
         //
         // Testing:
-        //   BDE Traits
+        //   IsBitwiseMovable trait
+        //   is_trivially_copyable trait
+        //   is_trivially_default_constructible trait
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING BDE TRAITS"
@@ -497,7 +519,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // STANDARD TYPEDEFS
+        // TESTING STANDARD TYPEDEFS
         //   Verify that the struct properly forwards the typedefs of the
         //   algorithm it is passed.
         //
@@ -525,7 +547,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // FUNCTION CALL OPERATOR
+        // TESTING FUNCTION CALL OPERATOR
         //   Verify that the struct offers the ability to invike it with some
         //   bytes and a length, and that it return a hash.
         //
@@ -546,8 +568,8 @@ int main(int argc, char *argv[])
         //   operator()(const T&) const
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nFUNCTION CALL OPERATOR"
-                            "\n======================\n");
+        if (verbose) printf("\nTESTING FUNCTION CALL OPERATOR"
+                            "\n==============================\n");
 
         if (verbose) printf(
                  "\nCreate a test allocator and install it as the default.\n");
@@ -594,49 +616,60 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, hasher(charValue) == HASH[sizeof(char)]);
 
             unsigned char unsignedcharValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(unsignedcharValue) == HASH[sizeof(unsigned char)]);
+            LOOP_ASSERT(LINE, hasher(unsignedcharValue) ==
+                                     HASH[sizeof(unsigned char)]);
 
             signed char signedcharValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(signedcharValue) == HASH[sizeof(signed char)]);
+            LOOP_ASSERT(LINE, hasher(signedcharValue) ==
+                              HASH[sizeof(signed char)]);
 
             wchar_t wcharValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(wcharValue) == HASH[sizeof(wchar_t)]);
+            LOOP_ASSERT(LINE, hasher(wcharValue) ==HASH[sizeof(wchar_t)]);
 
             short shortValue = VALUE;
             LOOP_ASSERT(LINE, hasher(shortValue) == HASH[sizeof(short)]);
 
             unsigned short unsignedshortValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(unsignedshortValue) == HASH[sizeof(unsigned short)]);
+            LOOP_ASSERT(LINE, hasher(unsignedshortValue) ==
+                              HASH[sizeof(unsigned short)]);
 
             signed short signedshortValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(signedshortValue) == HASH[sizeof(signed short)]);
+            LOOP_ASSERT(LINE, hasher(signedshortValue) ==
+                              HASH[sizeof(signed short)]);
 
             int intValue = VALUE;
             LOOP_ASSERT(LINE, hasher(intValue) == HASH[sizeof(int)]);
 
             signed int signedintValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(signedintValue) == HASH[sizeof(signed int)]);
+            LOOP_ASSERT(LINE, hasher(signedintValue) ==
+                              HASH[sizeof(signed int)]);
 
             unsigned int unsignedintValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(unsignedintValue) == HASH[sizeof(unsigned int)]);
+            LOOP_ASSERT(LINE, hasher(unsignedintValue) ==
+                              HASH[sizeof(unsigned int)]);
 
             long longValue = VALUE;
             LOOP_ASSERT(LINE, hasher(longValue) == HASH[sizeof(long)]);
 
             signed long signedlongValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(signedlongValue) == HASH[sizeof(signed long)]);
+            LOOP_ASSERT(LINE, hasher(signedlongValue) ==
+                              HASH[sizeof(signed long)]);
 
             unsigned long unsignedlongValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(unsignedlongValue) == HASH[sizeof(unsigned long)]);
+            LOOP_ASSERT(LINE, hasher(unsignedlongValue) ==
+                              HASH[sizeof(unsigned long)]);
 
             long long longlongValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(longlongValue) == HASH[sizeof(long long)]);
+            LOOP_ASSERT(LINE, hasher(longlongValue) ==
+                              HASH[sizeof(long long)]);
 
             signed long long signedlonglongValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(signedlonglongValue) == HASH[sizeof(signed long long)]);
+            LOOP_ASSERT(LINE, hasher(signedlonglongValue) ==
+                              HASH[sizeof(signed long long)]);
 
             unsigned long long unsignedlonglongValue = VALUE;
-            LOOP_ASSERT(LINE, hasher(unsignedlonglongValue) == HASH[sizeof(unsigned long long)]);
+            LOOP_ASSERT(LINE, hasher(unsignedlonglongValue) ==
+                              HASH[sizeof(unsigned long long)]);
         }
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
@@ -644,7 +677,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // C'TORS, D'TOR AND ASSIGNMENT OPERATOR (IMPLICITLY DEFINED)
+        // TESTING IMPLICITLY DEFINED OPERATIONS
         //   Ensure that the four implicitly declared and defined special
         //   member functions are publicly callable and have no unexpected side
         //   effects such as allocating memory.  As there is no observable
@@ -692,8 +725,8 @@ int main(int argc, char *argv[])
         //   Hash& operator=(const Hash&)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nIMPLICITLY DEFINED OPERATIONS"
-                            "\n=============================\n");
+        if (verbose) printf("\nTESTING IMPLICITLY DEFINED OPERATIONS"
+                            "\n=====================================\n");
 
         typedef int TYPE;
 
