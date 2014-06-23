@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide facilities for checking compile-time trait.
+//@PURPOSE: Provide a meta function to identify if a type has a given trait.
 //
 //@CLASSES:
 //  bslalg::HasTrait: trait detection mechanism

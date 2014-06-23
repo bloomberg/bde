@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for bit-wise eq.-comparable classes.
+//@PURPOSE: Provide a trait to mark classes as bit-wise eq.-comparable.
 //
 //@CLASSES:
 //  bslalg::TypeTraitBitwiseEqualityComparable: bit-wise eq.-comparable trait

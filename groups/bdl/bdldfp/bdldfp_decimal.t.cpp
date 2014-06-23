@@ -1,6 +1,8 @@
 // bdldfp_decimal.t.cpp                                               -*-C++-*-
 #include <bdldfp_decimal.h>
 
+#include <bdls_testutil.h>
+
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_cstdlib.h>
@@ -122,49 +124,27 @@ static void aSsErT(int c, const char *s, int i)
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-// ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+//=========================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -247,6 +227,7 @@ struct NulBuf : bsl::streambuf {
         return traits_type::not_eof(c);
     }
 };
+
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -356,396 +337,224 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << "\nTesting do_put"
                                << "\n==============" << bsl::endl;
 
+#define DFP(X) BDLDFP_DECIMAL_DF(X)
+
+        BDEC::Decimal32 INF_P = BDEC::Decimal32(
+                                      bsl::numeric_limits<double>::infinity());
+        BDEC::Decimal32 INF_N = BDEC::Decimal32(
+                                     -bsl::numeric_limits<double>::infinity());
+        BDEC::Decimal32 NAN_Q = BDEC::Decimal32(
+                                     bsl::numeric_limits<double>::quiet_NaN());
         static const struct {
             int              d_line;
             BDEC::Decimal32  d_decimalValue;
             int              d_width;
-            bool             d_leftJustified;
-            bool             d_internalJustified;
-            bool             d_rightJustified;
+            char             d_justification;
             bool             d_capital;
-            char            *d_expected;
+            const char      *d_expected;
         } DATA[] = {
-            // L   DECIMAL NUMBER         WIDTH  JUSTIFICATION       CAPITAL
-            // --- ---------------------- ------ --------------      -------
-            {  L_, BDEC::Decimal32(4.25), 0,     true, false, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 1,     true, false, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 2,     true, false, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 3,     true, false, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 4,     true, false, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 5,     true, false, false, false,
-                                                                     "4.25 " },
-            {  L_, BDEC::Decimal32(4.25), 6,     true, false, false, false,
-                                                                    "4.25  " },
-            {  L_, BDEC::Decimal32(4.25), 7,     true, false, false, false,
-                                                                   "4.25   " },
-            {  L_, BDEC::Decimal32(4.25), 8,     true, false, false, false,
-                                                                  "4.25    " },
-            {  L_, BDEC::Decimal32(4.25), 9,     true, false, false, false,
-                                                                 "4.25     " },
+            // L   NUMBER    WIDTH JUST    CAPITAL      EXPECTED
+            // --- ------    ----- ----    -------      --------
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
 
-            {  L_, BDEC::Decimal32(4.25), 0,     false, true, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 1,     false, true, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 2,     false, true, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 3,     false, true, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 4,     false, true, false, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 5,     false, true, false, false,
-                                                                     " 4.25" },
-            {  L_, BDEC::Decimal32(4.25), 6,     false, true, false, false,
-                                                                    "  4.25" },
-            {  L_, BDEC::Decimal32(4.25), 7,     false, true, false, false,
-                                                                   "   4.25" },
-            {  L_, BDEC::Decimal32(4.25), 8,     false, true, false, false,
-                                                                  "    4.25" },
-            {  L_, BDEC::Decimal32(4.25), 9,     false, true, false, false,
-                                                                 "     4.25" },
+            {  L_, DFP(4.25),  0,     'l', false,         "4.25" },
+            {  L_, DFP(4.25),  1,     'l', false,         "4.25" },
+            {  L_, DFP(4.25),  2,     'l', false,         "4.25" },
+            {  L_, DFP(4.25),  3,     'l', false,         "4.25" },
+            {  L_, DFP(4.25),  4,     'l', false,         "4.25" },
+            {  L_, DFP(4.25),  5,     'l', false,        "4.25 " },
+            {  L_, DFP(4.25),  6,     'l', false,       "4.25  " },
+            {  L_, DFP(4.25),  7,     'l', false,      "4.25   " },
+            {  L_, DFP(4.25),  8,     'l', false,     "4.25    " },
+            {  L_, DFP(4.25),  9,     'l', false,    "4.25     " },
 
-            {  L_, BDEC::Decimal32(4.25), 0,     false, false, true, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 1,     false, false, true, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 2,     false, false, true, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 3,     false, false, true, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 4,     false, false, true, false,
-                                                                      "4.25" },
-            {  L_, BDEC::Decimal32(4.25), 5,     false, false, true, false,
-                                                                     " 4.25" },
-            {  L_, BDEC::Decimal32(4.25), 6,     false, false, true, false,
-                                                                    "  4.25" },
-            {  L_, BDEC::Decimal32(4.25), 7,     false, false, true, false,
-                                                                   "   4.25" },
-            {  L_, BDEC::Decimal32(4.25), 8,     false, false, true, false,
-                                                                  "    4.25" },
-            {  L_, BDEC::Decimal32(4.25), 9,     false, false, true, false,
-                                                                 "     4.25" },
+            {  L_, DFP(4.25),  0,     'i', false,         "4.25" },
+            {  L_, DFP(4.25),  1,     'i', false,         "4.25" },
+            {  L_, DFP(4.25),  2,     'i', false,         "4.25" },
+            {  L_, DFP(4.25),  3,     'i', false,         "4.25" },
+            {  L_, DFP(4.25),  4,     'i', false,         "4.25" },
+            {  L_, DFP(4.25),  5,     'i', false,        " 4.25" },
+            {  L_, DFP(4.25),  6,     'i', false,       "  4.25" },
+            {  L_, DFP(4.25),  7,     'i', false,      "   4.25" },
+            {  L_, DFP(4.25),  8,     'i', false,     "    4.25" },
+            {  L_, DFP(4.25),  9,     'i', false,    "     4.25" },
 
-            {  L_, BDEC::Decimal32(-4.25), 0,     true, false, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 1,     true, false, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 2,     true, false, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 3,     true, false, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 4,     true, false, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 5,     true, false, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 6,     true, false, false, false,
-                                                                    "-4.25 " },
-            {  L_, BDEC::Decimal32(-4.25), 7,     true, false, false, false,
-                                                                   "-4.25  " },
-            {  L_, BDEC::Decimal32(-4.25), 8,     true, false, false, false,
-                                                                  "-4.25   " },
-            {  L_, BDEC::Decimal32(-4.25), 9,     true, false, false, false,
-                                                                 "-4.25    " },
+            {  L_, DFP(4.25),  0,     'r', false,         "4.25" },
+            {  L_, DFP(4.25),  1,     'r', false,         "4.25" },
+            {  L_, DFP(4.25),  2,     'r', false,         "4.25" },
+            {  L_, DFP(4.25),  3,     'r', false,         "4.25" },
+            {  L_, DFP(4.25),  4,     'r', false,         "4.25" },
+            {  L_, DFP(4.25),  5,     'r', false,        " 4.25" },
+            {  L_, DFP(4.25),  6,     'r', false,       "  4.25" },
+            {  L_, DFP(4.25),  7,     'r', false,      "   4.25" },
+            {  L_, DFP(4.25),  8,     'r', false,     "    4.25" },
+            {  L_, DFP(4.25),  9,     'r', false,    "     4.25" },
 
-            {  L_, BDEC::Decimal32(-4.25), 0,     false, true, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 1,     false, true, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 2,     false, true, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 3,     false, true, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 4,     false, true, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 5,     false, true, false, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 6,     false, true, false, false,
-                                                                    "- 4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 7,     false, true, false, false,
-                                                                   "-  4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 8,     false, true, false, false,
-                                                                  "-   4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 9,     false, true, false, false,
-                                                                 "-    4.25" },
+            {  L_, DFP(-4.25), 0,     'l', false,        "-4.25" },
+            {  L_, DFP(-4.25), 1,     'l', false,        "-4.25" },
+            {  L_, DFP(-4.25), 2,     'l', false,        "-4.25" },
+            {  L_, DFP(-4.25), 3,     'l', false,        "-4.25" },
+            {  L_, DFP(-4.25), 4,     'l', false,        "-4.25" },
+            {  L_, DFP(-4.25), 5,     'l', false,        "-4.25" },
+            {  L_, DFP(-4.25), 6,     'l', false,       "-4.25 " },
+            {  L_, DFP(-4.25), 7,     'l', false,      "-4.25  " },
+            {  L_, DFP(-4.25), 8,     'l', false,     "-4.25   " },
+            {  L_, DFP(-4.25), 9,     'l', false,    "-4.25    " },
 
-            {  L_, BDEC::Decimal32(-4.25), 0,     false, false, true, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 1,     false, false, true, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 2,     false, false, true, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 3,     false, false, true, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 4,     false, false, true, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 5,     false, false, true, false,
-                                                                     "-4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 6,     false, false, true, false,
-                                                                    " -4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 7,     false, false, true, false,
-                                                                   "  -4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 8,     false, false, true, false,
-                                                                  "   -4.25" },
-            {  L_, BDEC::Decimal32(-4.25), 9,     false, false, true, false,
-                                                                 "    -4.25" },
+            {  L_, DFP(-4.25), 0,     'i', false,        "-4.25" },
+            {  L_, DFP(-4.25), 1,     'i', false,        "-4.25" },
+            {  L_, DFP(-4.25), 2,     'i', false,        "-4.25" },
+            {  L_, DFP(-4.25), 3,     'i', false,        "-4.25" },
+            {  L_, DFP(-4.25), 4,     'i', false,        "-4.25" },
+            {  L_, DFP(-4.25), 5,     'i', false,        "-4.25" },
+            {  L_, DFP(-4.25), 6,     'i', false,       "- 4.25" },
+            {  L_, DFP(-4.25), 7,     'i', false,      "-  4.25" },
+            {  L_, DFP(-4.25), 8,     'i', false,     "-   4.25" },
+            {  L_, DFP(-4.25), 9,     'i', false,    "-    4.25" },
 
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           0,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           1,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           2,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           3,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           4,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           5,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           6,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           7,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           8,     true, false, false, false,
-                                                                  "infinity" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           9,     true, false, false, false,
-                                                                 "infinity " },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                          10,     true, false, false, false,
-                                                                "infinity  " },
+            {  L_, DFP(-4.25), 0,     'r', false,        "-4.25" },
+            {  L_, DFP(-4.25), 1,     'r', false,        "-4.25" },
+            {  L_, DFP(-4.25), 2,     'r', false,        "-4.25" },
+            {  L_, DFP(-4.25), 3,     'r', false,        "-4.25" },
+            {  L_, DFP(-4.25), 4,     'r', false,        "-4.25" },
+            {  L_, DFP(-4.25), 5,     'r', false,        "-4.25" },
+            {  L_, DFP(-4.25), 6,     'r', false,       " -4.25" },
+            {  L_, DFP(-4.25), 7,     'r', false,      "  -4.25" },
+            {  L_, DFP(-4.25), 8,     'r', false,     "   -4.25" },
+            {  L_, DFP(-4.25), 9,     'r', false,    "    -4.25" },
+#endif
 
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::infinity()),
-                                           0,     true, false, false, true,
-                                                                  "INFINITY" },
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+            {  L_, INF_P,      0,     'l', false,          "inf" },
+            {  L_, INF_P,      1,     'l', false,          "inf" },
+            {  L_, INF_P,      2,     'l', false,          "inf" },
+            {  L_, INF_P,      3,     'l', false,          "inf" },
+            {  L_, INF_P,      4,     'l', false,         "inf " },
+            {  L_, INF_P,      5,     'l', false,        "inf  " },
 
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           0,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           1,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           2,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           3,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           4,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           5,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           6,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           7,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           8,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           9,    true, false, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                          10,    true, false, false, false,
-                                                                "-infinity " },
+            {  L_, INF_P,      0,     'l', true,           "INF" },
 
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           0,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           1,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           2,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           3,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           4,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           5,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           6,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           7,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           8,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           9,    false, true, false, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                          10,    false, true, false, false,
-                                                                "- infinity" },
+            {  L_, INF_N,      0,     'l', false,         "-inf" },
+            {  L_, INF_N,      1,     'l', false,         "-inf" },
+            {  L_, INF_N,      2,     'l', false,         "-inf" },
+            {  L_, INF_N,      3,     'l', false,         "-inf" },
+            {  L_, INF_N,      4,     'l', false,         "-inf" },
+            {  L_, INF_N,      5,     'l', false,        "-inf " },
+            {  L_, INF_N,      6,     'l', false,       "-inf  " },
 
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           0,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           1,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           2,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           3,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           4,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           5,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           6,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           7,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           8,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                           9,    false, false, true, false,
-                                                                 "-infinity" },
-            {  L_,
-                BDEC::Decimal32(-bsl::numeric_limits<double>::infinity()),
-                                          10,    false, false, true, false,
-                                                                " -infinity" },
+            {  L_, INF_N,      0,     'i', false,         "-inf" },
+            {  L_, INF_N,      1,     'i', false,         "-inf" },
+            {  L_, INF_N,      2,     'i', false,         "-inf" },
+            {  L_, INF_N,      3,     'i', false,         "-inf" },
+            {  L_, INF_N,      4,     'i', false,         "-inf" },
+            {  L_, INF_N,      5,     'i', false,        "- inf" },
+            {  L_, INF_N,      6,     'i', false,       "-  inf" },
 
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           0,     true, false, false, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           1,     true, false, false, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           2,     true, false, false, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           3,     true, false, false, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           4,     true, false, false, false,
-                                                                      "nan " },
+            {  L_, INF_N,      0,     'r', false,         "-inf" },
+            {  L_, INF_N,      1,     'r', false,         "-inf" },
+            {  L_, INF_N,      2,     'r', false,         "-inf" },
+            {  L_, INF_N,      3,     'r', false,         "-inf" },
+            {  L_, INF_N,      4,     'r', false,         "-inf" },
+            {  L_, INF_N,      5,     'r', false,        " -inf" },
+            {  L_, INF_N,      6,     'r', false,       "  -inf" },
+#else
+            {  L_, INF_P,      0,     'l', false,     "infinity" },
+            {  L_, INF_P,      1,     'l', false,     "infinity" },
+            {  L_, INF_P,      2,     'l', false,     "infinity" },
+            {  L_, INF_P,      3,     'l', false,     "infinity" },
+            {  L_, INF_P,      4,     'l', false,     "infinity" },
+            {  L_, INF_P,      5,     'l', false,     "infinity" },
+            {  L_, INF_P,      6,     'l', false,     "infinity" },
+            {  L_, INF_P,      7,     'l', false,     "infinity" },
+            {  L_, INF_P,      8,     'l', false,     "infinity" },
+            {  L_, INF_P,      9,     'l', false,    "infinity " },
+            {  L_, INF_P,     10,     'l', false,   "infinity  " },
+            {  L_, INF_P,      0,     'l', true,      "INFINITY" },
 
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           0,     false, true, false, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           1,     false, true, false, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           2,     false, true, false, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           3,     false, true, false, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           4,     false, true, false, false,
-                                                                      " nan" },
+            {  L_, INF_N,      0,     'l', false,    "-infinity" },
+            {  L_, INF_N,      1,     'l', false,    "-infinity" },
+            {  L_, INF_N,      2,     'l', false,    "-infinity" },
+            {  L_, INF_N,      3,     'l', false,    "-infinity" },
+            {  L_, INF_N,      4,     'l', false,    "-infinity" },
+            {  L_, INF_N,      5,     'l', false,    "-infinity" },
+            {  L_, INF_N,      6,     'l', false,    "-infinity" },
+            {  L_, INF_N,      7,     'l', false,    "-infinity" },
+            {  L_, INF_N,      8,     'l', false,    "-infinity" },
+            {  L_, INF_N,      9,     'l', false,    "-infinity" },
+            {  L_, INF_N,     10,     'l', false,   "-infinity " },
+            {  L_, INF_N,      0,     'l', true,     "-INFINITY" },
 
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           0,     false, false, true, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           1,     false, false, true, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           2,     false, false, true, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           3,     false, false, true, false,
-                                                                       "nan" },
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           4,     false, false, true, false,
-                                                                      " nan" },
 
-            {  L_,
-                BDEC::Decimal32(bsl::numeric_limits<double>::quiet_NaN()),
-                                           0,     false, true, false, true,
-                                                                       "NAN" },
+            {  L_, INF_N,      0,     'i', false,    "-infinity" },
+            {  L_, INF_N,      1,     'i', false,    "-infinity" },
+            {  L_, INF_N,      2,     'i', false,    "-infinity" },
+            {  L_, INF_N,      3,     'i', false,    "-infinity" },
+            {  L_, INF_N,      4,     'i', false,    "-infinity" },
+            {  L_, INF_N,      5,     'i', false,    "-infinity" },
+            {  L_, INF_N,      6,     'i', false,    "-infinity" },
+            {  L_, INF_N,      7,     'i', false,    "-infinity" },
+            {  L_, INF_N,      8,     'i', false,    "-infinity" },
+            {  L_, INF_N,      9,     'i', false,    "-infinity" },
+            {  L_, INF_N,     10,     'i', false,   "- infinity" },
+
+            {  L_, INF_N,      0,     'r', false,    "-infinity" },
+            {  L_, INF_N,      1,     'r', false,    "-infinity" },
+            {  L_, INF_N,      2,     'r', false,    "-infinity" },
+            {  L_, INF_N,      3,     'r', false,    "-infinity" },
+            {  L_, INF_N,      4,     'r', false,    "-infinity" },
+            {  L_, INF_N,      5,     'r', false,    "-infinity" },
+            {  L_, INF_N,      6,     'r', false,    "-infinity" },
+            {  L_, INF_N,      7,     'r', false,    "-infinity" },
+            {  L_, INF_N,      8,     'r', false,    "-infinity" },
+            {  L_, INF_N,      9,     'r', false,    "-infinity" },
+            {  L_, INF_N,     10,     'r', false,   " -infinity" },
+
+#endif
+
+#if BDLDFP_DECIMALPLATFORM_C99_TR
+            {  L_, NAN_Q,      0,     'l', false,         "nanq" },
+            {  L_, NAN_Q,      1,     'l', false,         "nanq" },
+            {  L_, NAN_Q,      2,     'l', false,         "nanq" },
+            {  L_, NAN_Q,      3,     'l', false,         "nanq" },
+
+            {  L_, NAN_Q,      0,     'i', false,         "nanq" },
+            {  L_, NAN_Q,      1,     'i', false,         "nanq" },
+            {  L_, NAN_Q,      2,     'i', false,         "nanq" },
+            {  L_, NAN_Q,      3,     'i', false,         "nanq" },
+
+            {  L_, NAN_Q,      0,     'r', false,         "nanq" },
+            {  L_, NAN_Q,      1,     'r', false,         "nanq" },
+            {  L_, NAN_Q,      2,     'r', false,         "nanq" },
+            {  L_, NAN_Q,      3,     'r', false,         "nanq" },
+
+            {  L_, NAN_Q,      0,     'i', true,          "NANQ" },
+
+// These tests are disabled because formatting is not yet supported
+//          {  L_, NAN_Q,      4,     'l', false,         "nanq " },
+//          {  L_, NAN_Q,      4,     'i', false,         " nanq" },
+//          {  L_, NAN_Q,      4,     'r', false,         " nanq" },
+
+#else
+            {  L_, NAN_Q,      0,     'l', false,         "nan" },
+            {  L_, NAN_Q,      1,     'l', false,         "nan" },
+            {  L_, NAN_Q,      2,     'l', false,         "nan" },
+            {  L_, NAN_Q,      3,     'l', false,         "nan" },
+            {  L_, NAN_Q,      4,     'l', false,         "nan " },
+
+            {  L_, NAN_Q,      0,     'i', false,         "nan" },
+            {  L_, NAN_Q,      1,     'i', false,         "nan" },
+            {  L_, NAN_Q,      2,     'i', false,         "nan" },
+            {  L_, NAN_Q,      3,     'i', false,         "nan" },
+            {  L_, NAN_Q,      4,     'i', false,         " nan" },
+
+            {  L_, NAN_Q,      0,     'r', false,         "nan" },
+            {  L_, NAN_Q,      1,     'r', false,         "nan" },
+            {  L_, NAN_Q,      2,     'r', false,         "nan" },
+            {  L_, NAN_Q,      3,     'r', false,         "nan" },
+            {  L_, NAN_Q,      4,     'r', false,         " nan" },
+
+            {  L_, NAN_Q,      0,     'i', true,          "NAN" },
+#endif
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -753,9 +562,9 @@ int main(int argc, char* argv[])
             const int             LINE     = DATA[ti].d_line;
             const BDEC::Decimal32 DECIMAL  = DATA[ti].d_decimalValue;
             const int             WIDTH    = DATA[ti].d_width;
-            const bool            LEFT     = DATA[ti].d_leftJustified;
-            const bool            INTERNAL = DATA[ti].d_internalJustified;
-            const bool            RIGHT    = DATA[ti].d_rightJustified;
+            const bool            LEFT     = (DATA[ti].d_justification == 'l');
+            const bool            INTERNAL = (DATA[ti].d_justification == 'i');
+            const bool            RIGHT    = (DATA[ti].d_justification == 'r');
             const bool            CAPITAL  = DATA[ti].d_capital;
             const char           *EXPECTED = DATA[ti].d_expected;
 
@@ -783,37 +592,11 @@ int main(int argc, char* argv[])
 
                 bsl::string ACTUAL = outdec.str();
 
-                LOOP_ASSERT(LINE, ACTUAL == EXPECTED);
+                LOOP3_ASSERT(LINE, ACTUAL, EXPECTED, ACTUAL == EXPECTED);
             }
-            /*
-            {
-                // Test with wchar_t strings.
-                bsl::wstringstream outdec;
-
-                outdec.width(WIDTH);
-                if (LEFT) {
-                    outdec << bsl::left;
-                }
-                if (INTERNAL) {
-                    outdec << bsl::internal;
-                }
-                if (RIGHT) {
-                    outdec << bsl::right;
-                }
-                if (CAPITAL) {
-                    outdec << bsl::uppercase;
-                }
-                else {
-                    outdec << bsl::nouppercase;
-                }
-                outdec << DECIMAL;
-
-                bsl::wstring ACTUAL = outdec.str();
-
-                LOOP_ASSERT(LINE, ACTUAL == EXPECTED_WIDE);
-            }
-            */
         }
+
+#undef DFP
 
     } break;
 
@@ -887,13 +670,15 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) bsl::cout << "Propriatery accessors" << bsl::endl;
         {
+
             BDEC::Decimal128 d128(42);
             ASSERT((void*)d128.data() == (void*)&d128);
 
-            const BDEC::Decimal128 cd128(42);
-            ASSERT((const void*)d128.data() == (const void*)&d128);
-
-            ASSERT(BDEC::Decimal128(cd128.value()) == BDEC::Decimal128(42));
+        // XLC versions prior to 12.0 incorrectly pass decimal128 values in
+        // some contexts (0x0c00 -> 12.00)
+#if defined(BSLS_PLATFORM_CMP_IBM) && (BSLS_PLATFORM_CMP_VERSION >= 0x0c00)
+            ASSERTV(BDEC::Decimal128(d128.value()) == BDEC::Decimal128(42));
+#endif
         }
 
         if (veryVerbose) bsl::cout << "Operator==" << bsl::endl;
@@ -1518,9 +1303,6 @@ int main(int argc, char* argv[])
         if (veryVerbose) bsl::cout << "Create test objects" << bsl::endl;
 
         BDEC::Decimal32        d32  = BDEC::Decimal32();
-        const BDEC::Decimal32  c32  = BDEC::Decimal32();
-        BDEC::Decimal64        d64  = BDEC::Decimal64();
-        const BDEC::Decimal64  c64  = BDEC::Decimal64();
         BDEC::Decimal128       d128 = BDEC::Decimal128();
         const BDEC::Decimal128 c128 = BDEC::Decimal128();
 
@@ -2294,11 +2076,8 @@ int main(int argc, char* argv[])
         if (veryVerbose) bsl::cout << "Create test objects" << bsl::endl;
 
         BDEC::Decimal32        d32  = BDEC::Decimal32();
-        const BDEC::Decimal32  c32  = BDEC::Decimal32();
         BDEC::Decimal64        d64  = BDEC::Decimal64();
         const BDEC::Decimal64  c64  = BDEC::Decimal64();
-        BDEC::Decimal128       d128 = BDEC::Decimal128();
-        const BDEC::Decimal128 c128 = BDEC::Decimal128();
 
         if (veryVerbose) bsl::cout << "Check return types" << bsl::endl;
 
@@ -2465,7 +2244,6 @@ int main(int argc, char* argv[])
         {
             const BDEC::Decimal32  c32  = BDEC::Decimal32(32);
             const BDEC::Decimal64  c64  = BDEC::Decimal64(64);
-            const BDEC::Decimal128 c128 = BDEC::Decimal128(128);
 
             ASSERT(BDLDFP_DECIMAL_DF( 32.0) == BDEC::Decimal32(c32));
             ASSERT(BDLDFP_DECIMAL_DF( 64.0) == BDEC::Decimal32(c64));
@@ -2648,10 +2426,6 @@ int main(int argc, char* argv[])
 
         BDEC::Decimal32        d32  = BDEC::Decimal32();
         const BDEC::Decimal32  c32  = BDEC::Decimal32();
-        BDEC::Decimal64        d64  = BDEC::Decimal64();
-        const BDEC::Decimal64  c64  = BDEC::Decimal64();
-        BDEC::Decimal128       d128 = BDEC::Decimal128();
-        const BDEC::Decimal128 c128 = BDEC::Decimal128();
 
         if (veryVerbose) bsl::cout << "Check return types" << bsl::endl;
 
@@ -2775,203 +2549,7 @@ int main(int argc, char* argv[])
             out << bsl::numeric_limits<unsigned long long>::max();
             ASSERT(out && strlen(bb.str()) < (24 - 1));
             out.clear(); bb.reset();
-
-            {
-                bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(-4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("-4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(5e50);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("5e+50" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(5e-50);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("5e-50" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out << bsl::uppercase << BDEC::Decimal32(5e50);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("5E+50" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(
-                                      bsl::numeric_limits<double>::infinity());
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("infinity" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out << bsl::uppercase << BDEC::Decimal32(
-                                      bsl::numeric_limits<double>::infinity());
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("INFINITY" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(2);
-                out << BDEC::Decimal32(4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << BDEC::Decimal32(4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("      4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::internal << BDEC::Decimal32(4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("      4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::left << BDEC::Decimal32(4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("4.25      " == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::showpos << BDEC::Decimal32(4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("     +4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::showpos << bsl::internal << BDEC::Decimal32(4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("+     4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::showpos << bsl::left << BDEC::Decimal32(4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("+4.25     " == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << BDEC::Decimal32(-4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("     -4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::internal << BDEC::Decimal32(-4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("-     4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::left << BDEC::Decimal32(-4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("-4.25     " == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::showpos << BDEC::Decimal32(-4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("     -4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::showpos << bsl::internal << BDEC::Decimal32(-4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("-     4.25" == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(10);
-                out << bsl::showpos << bsl::left << BDEC::Decimal32(-4.25);
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("-4.25     " == s);
-            }
-
-            {
-                bsl::ostringstream out(pa);
-                out.width(12);
-                out << bsl::uppercase << bsl::internal << BDEC::Decimal32(
-                                     -bsl::numeric_limits<double>::infinity());
-                bsl::string s(pa);
-                getStringFromStream(out, &s);
-                ASSERT("-   INFINITY" == s);
-            }
-
-            {
-                bsl::wostringstream out(pa);
-                out.width(12);
-                out << bsl::uppercase << bsl::internal << BDEC::Decimal32(
-                                     -bsl::numeric_limits<double>::infinity());
-                bsl::wstring s(pa);
-                getStringFromStream(out, &s);
-                ASSERT(L"-   INFINITY" == s);
-            }
         }
-
     } break;
 
     default: {

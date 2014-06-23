@@ -16,6 +16,12 @@
 windows                 _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 !! windows              shr     STL_DEFINES     = /D_STLP_USE_DYNAMIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 
+# Add the compiler flags needed for decimal floating point compiler support on 
+# AIX/Xlc
+
+++ unix-AIX-powerpc-*-xlc-11.2 _  BDE_CXXFLAGS  = -qdfp -D__STDC_WANT_DEC_FP__
+++ unix-AIX-powerpc-*-xlc-11.2 _  BDE_LDFLAGS   = -qdfp
+
 # this are redundant with definitions in bsl.defs
 # # enable/disable STLport debug
 # !! unix-*-*-*-* 	_       STL_DBGDEFS     =

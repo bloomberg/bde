@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide facilities for associating types with compile-time traits.
+//@PURPOSE: Provide compile-time traits that can be associated with types.
 //
 //@DEPRECATED: See 'bslmf_nestedtraitdeclaration'.
 //
