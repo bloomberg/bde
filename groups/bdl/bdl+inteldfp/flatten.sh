@@ -242,6 +242,6 @@ echo "Linking float128 contents..."
 ./wrap.sh LIBRARY/float128/sqrt_tab_t.c        library_float128_sqrt_tab_t.c
 
 echo "Linking headers..."
-cp LIBRARY/src/bid_functions.h bid_functions.h
-cp LIBRARY/src/bid_conf.h bid_conf.h
-cp LIBRARY/src/bid_internal.h bid_internal.h
+cp LIBRARY/src/bid_functions.h                 bid_functions.h
+cp LIBRARY/src/bid_conf.h                      bid_conf.h
+cp LIBRARY/src/bid_internal.h                  bid_internal.h
