@@ -1,6 +1,6 @@
 *        _    OPTS_FILE    = bdl+inteldfp.opts
 
-*        _    DEF_CFLAGS   = -I$(BDL_INTELDFP_LOCN)/LIBRARY/src  -I$(BDL_INTELDFP_LOCN)/LIBRARY/float128 -DLINUX -Defi2 -Wno-cast-qual
+*        _    DEF_CFLAGS   = -I$(BDL_INTELDFP_LOCN)/LIBRARY/src  -I$(BDL_INTELDFP_LOCN)/LIBRARY/float128 -DLINUX -Defi2 -Wno-cast-qual -DDECIMAL_CALL_BY_REFERENCE=0 -DDECIMAL_GLOBAL_ROUNDING=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 -DUNCHANGED_BINARY_STATUS_FLAGS=1
 
 # Install the following header files.
 
