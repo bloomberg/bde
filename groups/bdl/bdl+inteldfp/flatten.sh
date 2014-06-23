@@ -245,3 +245,5 @@ echo "Linking headers..."
 cp LIBRARY/src/bid_functions.h                 bid_functions.h
 cp LIBRARY/src/bid_conf.h                      bid_conf.h
 cp LIBRARY/src/bid_internal.h                  bid_internal.h
+cp LIBRARY/src/bid_wrap_names.h                bid_wrap_names.h
+cp LIBRARY/src/bid_gcc_intrinsics.h            bid_gcc_intrinsics.h
