@@ -521,7 +521,7 @@ void makeDecimalRaw(typename Properties<Size>::ValueType *target,
                    std::numeric_limits<long long>::max()) + 1, exponent, true);
     }
     else {
-        bits = toDecimalRaw<Size>(bsl::abs(value), exponent, value < 0);
+        bits = toDecimalRaw<Size>(bsl::max(-value, value), exponent, value < 0);
     }
 
     Properties<Size>::convert(target, bits);
