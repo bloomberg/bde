@@ -120,12 +120,8 @@ DECIMAL_TYPE makeDecimal(COEFFICIENT_TYPE coeff, int exponent)
 {
     if (exponent > bsl::numeric_limits<DECIMAL_TYPE>::max_exponent) {
         errno = ERANGE;
-        if (coeff < 0) {
-            return bsl::numeric_limits<DECIMAL_TYPE>::infinity();     // RETURN
-        }
-        else {
-            return -bsl::numeric_limits<DECIMAL_TYPE>::infinity();    // RETURN
-        }
+        DECIMAL_TYPE rv = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
+        return (coeff < 0) ? -rv : rv;                                // RETURN
     }
 
     // TODO: TBD we should not convert through strings - it should be possible
