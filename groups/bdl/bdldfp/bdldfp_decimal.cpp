@@ -2136,7 +2136,7 @@ bool operator!=(Decimal64 lhs, Decimal64 rhs)
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decDouble result;
     decDoubleCompare(&result, lhs.data(), rhs.data(), getContext());
-    return decDoubleIsZero(&result);
+    return !decDoubleIsZero(&result);
 #elif BDLDFP_DECIMALPLATFORM_INTELDFP
     return __bid64_quiet_not_equal(lhs.data()->d_raw, rhs.data()->d_raw);
 #else

@@ -266,6 +266,18 @@ class D32 {
     template <unsigned S>
     D32(int exponent, const unsigned char (&bcd)[S], int sign)
     {
+        if (S >= DECSINGLE_Pmax) {
+            unsigned char buff[DECSINGLE_Pmax];
+            memcpy(&buff, &bcd[S - DECSINGLE_Pmax], DECSINGLE_Pmax);
+            set(exponent, buff, sign<0?DECFLOAT_Sign:0);
+        } else {
+            unsigned char buff[DECSINGLE_Pmax];
+            memset(buff, 0, DECSINGLE_Pmax);
+            for (unsigned i = S, j = DECSINGLE_Pmax - 1; i > 0; --i, --j) {
+                buff[j] = bcd[i - 1];
+            }
+            set(exponent, buff, sign < 0 ? DECFLOAT_Sign : 0);
+        }
     }
 
     D32(Util::ValueType32 data) : d_data(data)
@@ -3571,14 +3583,16 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
             D32 expected(0, bcd42, 1);
 #endif
-            ASSERT(Util::parse32("42") == expected);
+            LOOP2_ASSERT(Util::parse32("42"), expected,
+                         Util::parse32("42") == expected);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
             expected = -42e1df;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
             expected = D32(1, bcd42, -1);
 #endif
-            ASSERT(Util::parse32("-42e1") == expected);
+            LOOP2_ASSERT(Util::parse32("-42e1"), expected,
+                         Util::parse32("-42e1") == expected);
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
             expected = -4.2df;
