@@ -802,6 +802,7 @@ DecimalImplUtil::ValueType64 DecimalImplUtil::makeDecimalRaw64(
 #   error Unsupported implementation
 #endif
 
+    return valuetype64;
 #endif
 }
 

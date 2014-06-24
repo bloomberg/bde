@@ -120,14 +120,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
-# ifndef INCLUDED_DECSINGLE
- extern "C" {
-#  include <decSingle.h>
-}
-#  define INCLUDED_DECSINGLE
-# endif
-#endif
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
 
@@ -138,6 +130,13 @@ BSLS_IDENT("$Id$")
 
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
 
+
+# ifndef INCLUDED_DECSINGLE
+ extern "C" {
+#  include <decSingle.h>
+}
+#  define INCLUDED_DECSINGLE
+# endif
 
             // End of decNumber-base implementation specific area
 
