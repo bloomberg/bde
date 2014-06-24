@@ -179,19 +179,23 @@ int main(int argc, char* argv[])
         //:   5 [Untestable at this time] Any NaN expressions evaluates to a
         //:     value with the intended semantics (i.e.: signalling vs.
         //:     quiet).
+        //:
+        //:   6 All implementation modes have correct and expected
+        //:     implementation detailed macros.
         //
         // Plan:
-        //: 1 Assert on unexpected combinations C1-2
+        //: 1 Assert on unexpected combinations. (C1-2, C6)
         //:
         //: 2 (Optionally compiled) Enumerate all pairings of optional NaN
         //:   expression variants for correct type and no identical bit
-        //:   patterns between different expressions. C3, C4.1-4.4
+        //:   patterns between different expressions. (C3, C4)
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << "\nTesting for Valid Configuration"
-                                << "\n==============================="
-                                << bsl::endl;
+                               << "\n==============================="
+                               << bsl::endl;
         ASSERT(BDLDFP_DECIMALPLATFORM_C99_TR +
-               BDLDFP_DECIMALPLATFORM_DECNUMBER == 1);
+               BDLDFP_DECIMALPLATFORM_DECNUMBER +
+               BDLDFP_DECIMALPLATFORM_INTELDFP == 1);
 
         ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE +
                BDLDFP_DECIMALPLATFORM_SOFTWARE == 1);
@@ -201,6 +205,20 @@ int main(int argc, char* argv[])
 
         ASSERT(BDLDFP_DECIMALPLATFORM_DPD +
                BDLDFP_DECIMALPLATFORM_BININT == 1);
+
+        if (BDLDFP_DECIMALPLATFORM_INTELDFP) {
+            ASSERT(BDLDFP_DECIMALPLATFORM_SOFTWARE);
+            ASSERT(BDLDFP_DECIMALPLATFORM_BININT);
+        }
+        else if (BDLDFP_DECIMALPLATFORM_DECNUMBER) {
+            ASSERT(BDLDFP_DECIMALPLATFORM_SOFTWARE);
+            ASSERT(BDLDFP_DECIMALPLATFORM_DPD);
+        }
+        else {
+            ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE);
+        }
+
+        ASSERT(BDLDFP_DECIMALPLATFORM_INTELDFP);
 
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
             ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
@@ -623,10 +641,14 @@ int main(int argc, char* argv[])
                                << "SANE CONFIGURATION" << bsl::endl
                                << "==================" << bsl::endl;
         ASSERT(BDLDFP_DECIMALPLATFORM_C99_TR +
-               BDLDFP_DECIMALPLATFORM_DECNUMBER == 1);
+               BDLDFP_DECIMALPLATFORM_DECNUMBER +
+               BDLDFP_DECIMALPLATFORM_INTELDFP == 1);
 
         ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE +
                BDLDFP_DECIMALPLATFORM_SOFTWARE == 1);
+
+        ASSERT(BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN +
+               BDLDFP_DECIMALPLATFORM_BIG_ENDIAN == 1);
 
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
             ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"

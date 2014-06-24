@@ -329,12 +329,7 @@ BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
     defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
 
-    if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
-    }
-
-    return BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent) -
-           BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent);
 #else
     return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
 #endif
@@ -352,11 +347,7 @@ BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
     defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
 
-    if (mantissa) {
         return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
-    }
-    return BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent) -
-           BDEC::DecimalImplUtil::makeDecimalRaw128(1, exponent);
 #else
     return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
 #endif
@@ -856,7 +847,7 @@ int main(int argc, char* argv[])
                         makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test the value of what quantum returns:
-                    ASSERT(Util::quantum(value) == exps[tiE]);
+                    LOOP6_ASSERT(tiM, tiE, value, mantissas[tiM], exps[tiE], Util::quantum(value), Util::quantum(value) == exps[tiE]);
                 }
             }
         }
@@ -1875,8 +1866,13 @@ int main(int argc, char* argv[])
 
         if (veryVeryVerbose) bsl::cout << "makeDecimalRaw32" << bsl::endl;
 
-        ASSERT(Util::makeDecimalRaw32(314159, -5) ==
-               BDLDFP_DECIMAL_DF(3.14159));
+        bdldfp::Decimal32 mdr = Util::makeDecimalRaw32(314159, -5);
+        bdldfp::Decimal32 lit = BDLDFP_DECIMAL_DF(3.14159);
+        LOOP3_ASSERT(mdr, lit, Util::makeDecimalRaw32(314159, -5), mdr == lit);
+
+        mdr = Util::makeDecimalRaw32(314159, 0);
+        lit = BDLDFP_DECIMAL_DF(314159.);
+        LOOP3_ASSERT(mdr, lit, Util::makeDecimalRaw32(314159, 0), mdr == lit);
 
         if (veryVeryVerbose) bsl::cout << "makeDecimalRaw64" << bsl::endl;
 
@@ -2638,8 +2634,12 @@ int main(int argc, char* argv[])
             ASSERT(!Util::sameQuantum(Util::multiplyByPowerOf10(anInt, -5),
                                       Util::multiplyByPowerOf10(anInt, -4)));
 
-            ASSERT(Util::quantum(Util::multiplyByPowerOf10(anInt, -5)) ==
-                   Util::quantum(anInt) - 5);
+            LOOP5_ASSERT(anInt, Util::multiplyByPowerOf10(anInt, 5),
+                         Util::quantum(Util::multiplyByPowerOf10(anInt, 5)),
+                         Util::quantum(anInt),
+                         Util::quantum(anInt) + 5,
+                         Util::quantum(Util::multiplyByPowerOf10(anInt, 5)) ==
+                         Util::quantum(anInt) + 5);
 
 
 

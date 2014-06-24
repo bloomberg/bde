@@ -657,7 +657,8 @@ int main(int argc, char* argv[])
 
         if (veryVeryVerbose) bsl::cout << "Decimal FP" << bsl::endl;
 
-        ASSERT(BDLDFP_DECIMAL_DL(-42.0) == BDLDFP_DECIMAL_DF(-42.0));
+        LOOP2_ASSERT(BDLDFP_DECIMAL_DL(-42.0), BDLDFP_DECIMAL_DF(-42.0),
+                     BDLDFP_DECIMAL_DL(-42.0) == BDLDFP_DECIMAL_DF(-42.0));
                                                                   // Decimal32
         ASSERT(BDLDFP_DECIMAL_DL(42.0) == BDLDFP_DECIMAL_DF(42.0));
         ASSERT(BDLDFP_DECIMAL_DL(4.2) == BDLDFP_DECIMAL_DF(4.2));
@@ -2351,7 +2352,7 @@ int main(int argc, char* argv[])
             out << d1;
             bsl::string s(pa);
             getStringFromStream(out, &s);
-            ASSERT(decLower(s) == "-8.327457e-24");
+            LOOP2_ASSERT(s, decLower(s), decLower(s) == "-8.327457e-24");
         }
 
         if (veryVerbose) bsl::cout << "Test stream in" << bsl::endl;
@@ -2549,7 +2550,203 @@ int main(int argc, char* argv[])
             out << bsl::numeric_limits<unsigned long long>::max();
             ASSERT(out && strlen(bb.str()) < (24 - 1));
             out.clear(); bb.reset();
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "-4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(5e50);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "5e+50" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(5e-50);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "5e-50" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << bsl::uppercase << BDEC::Decimal32(5e50);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "5E+50" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << BDEC::Decimal32(
+                                      bsl::numeric_limits<double>::infinity());
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "infinity" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out << bsl::uppercase << BDEC::Decimal32(
+                                      bsl::numeric_limits<double>::infinity());
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "INFINITY" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(2);
+                out << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "      4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::internal << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "      4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::left << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "4.25      " == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "     +4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << bsl::internal << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "+     4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << bsl::left << BDEC::Decimal32(4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "+4.25     " == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "     -4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::internal << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "-     4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::left << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "-4.25     " == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "     -4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << bsl::internal << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "-     4.25" == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(10);
+                out << bsl::showpos << bsl::left << BDEC::Decimal32(-4.25);
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "-4.25     " == s);
+            }
+
+            {
+                bsl::ostringstream out(pa);
+                out.width(12);
+                out << bsl::uppercase << bsl::internal << BDEC::Decimal32(
+                                     -bsl::numeric_limits<double>::infinity());
+                bsl::string s(pa);
+                getStringFromStream(out, &s);
+                LOOP_ASSERT(s, "-   INFINITY" == s);
+            }
+
+            {
+                bsl::wostringstream out(pa);
+                out.width(12);
+                out << bsl::uppercase << bsl::internal << BDEC::Decimal32(
+                                     -bsl::numeric_limits<double>::infinity());
+                bsl::wstring s(pa);
+                getStringFromStream(out, &s);
+                ASSERT(L"-   INFINITY" == s);
+            }
         }
+
     } break;
 
     default: {

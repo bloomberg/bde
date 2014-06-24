@@ -1,4 +1,10 @@
 // bdldfp_decimal.cpp                                                 -*-C++-*-
+
+// TODO: Remove this #define and the generated bits...
+
+#define BDLDFP_DISABLE_COMPILE \
+typedef char Unsupported_Platform[ -1 ];
+
 #ifndef BDLDFP_DECIMAL_SUN_WORKAROUND
 
 // For better ways of binary-decimal FP conversion see:
@@ -212,6 +218,49 @@ static decContext* getContext()
     return &context;
 }
 
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+
+    // Implementation based upon the Intel DFP library (no C or C++ support)
+
+              // Implementation specific helper functions
+
+static
+char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int);
+
+static
+char *format(const DecimalImplUtil::ValueType32 *value, char *buffer, int n) {
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
+    DecimalImplUtil::ValueType64 tmp;
+    tmp.d_raw = __bid32_to_bid64(value->d_raw);
+
+    return format(&tmp, buffer, n);
+}
+
+static
+char *format(const DecimalImplUtil::ValueType64 *value, char *buffer, int) {
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
+
+    __bid64_to_string(buffer, value->d_raw);
+
+    return buffer;
+}
+
+static
+char *format(const DecimalImplUtil::ValueType128 *value, char *buffer, int) {
+    BSLS_ASSERT(value);
+    BSLS_ASSERT(buffer);
+
+    __bid128_to_string(buffer, value->d_raw);
+
+    return buffer;
+}
+
+#else
+
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
+
 #endif // elif BDLDFP_DECIMALPLATFORM_DECNUMBER
 
                          // Print helper function
@@ -395,12 +444,16 @@ Decimal_Type32::Decimal_Type32()
     d_value = 0e0df;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decSingleZero(&this->d_value);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = 0x0; // Assuming a zero value int is a zero decimal floating point number.
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
 Decimal_Type32::Decimal_Type32(DecimalImplUtil::ValueType32 value)
 {
-    this->d_value = value;
+    d_value = value;
 }
 
 Decimal_Type32::Decimal_Type32(Decimal64 other)
@@ -421,6 +474,10 @@ Decimal_Type32::Decimal_Type32(float other)
     out.precision(7);
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __binary32_to_bid32(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -437,6 +494,10 @@ Decimal_Type32::Decimal_Type32(double other)
     out.precision(7);
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __binary64_to_bid32(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -453,6 +514,11 @@ Decimal_Type32::Decimal_Type32(long double other)
     out.precision(7);
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // FIXME TODO: We assume long double is 80 bits...
+    d_value.d_raw = __binary80_to_bid32(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -468,6 +534,13 @@ Decimal_Type32::Decimal_Type32(int other)
     out.imbue(bsl::locale::classic());
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO: We probably shouldn't convert through Decimal64 types...
+    DecimalImplUtil::ValueType64 tmp;
+    tmp.d_raw = __bid64_from_int32(other);
+    d_value = DecimalImplUtil::convertToDecimal32(tmp);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -483,6 +556,13 @@ Decimal_Type32::Decimal_Type32(unsigned int other)
     out.imbue(bsl::locale::classic());
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO: We probably shouldn't convert through Decimal64 types...
+    DecimalImplUtil::ValueType64 tmp;
+    tmp.d_raw = __bid64_from_uint32(other);
+    d_value = DecimalImplUtil::convertToDecimal32(tmp);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -498,6 +578,13 @@ Decimal_Type32::Decimal_Type32(long int other)
     out.imbue(bsl::locale::classic());
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO: We probably shouldn't convert through Decimal64 types...
+    DecimalImplUtil::ValueType64 tmp;
+    tmp.d_raw = __bid64_from_int64(other);
+    d_value = DecimalImplUtil::convertToDecimal32(tmp);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -513,6 +600,13 @@ Decimal_Type32::Decimal_Type32(unsigned long int other)
     out.imbue(bsl::locale::classic());
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO: We probably shouldn't convert through Decimal64 types...
+    DecimalImplUtil::ValueType64 tmp;
+    tmp.d_raw = __bid64_from_uint64(other);
+    d_value = DecimalImplUtil::convertToDecimal32(tmp);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -528,6 +622,13 @@ Decimal_Type32::Decimal_Type32(long long int other)
     out.imbue(bsl::locale::classic());
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO: We probably shouldn't convert through Decimal64 types...
+    DecimalImplUtil::ValueType64 tmp;
+    tmp.d_raw = __bid64_from_int64(other);
+    d_value = DecimalImplUtil::convertToDecimal32(tmp);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -543,6 +644,13 @@ Decimal_Type32::Decimal_Type32(unsigned long long int other)
     out.imbue(bsl::locale::classic());
     out << other;
     decSingleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO: We probably shouldn't convert through Decimal64 types...
+    DecimalImplUtil::ValueType64 tmp;
+    tmp.d_raw = __bid64_from_uint64(other);
+    d_value = DecimalImplUtil::convertToDecimal32(tmp);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -580,6 +688,12 @@ Decimal32 operator+(Decimal32 value)
         return rv;                                                    // RETURN
     }
     return value;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO FIXME: This ignores negative zero, which needs to be addressed
+    // This operation isn't even supposed to really be provided.
+    return value;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -591,6 +705,12 @@ Decimal32 operator-(Decimal32 value)
     Decimal32 rv;
     decSingleCopyNegate(rv.data(), value.data());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO FIXME: This promotion to 64 and demotion to 32 is not the cleanest.
+    // This operation isn't even supposed to really be provided.
+    return Decimal32(-Decimal64(*value.data()));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -603,8 +723,10 @@ bool operator!=(Decimal32 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return !(lhs == rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -612,8 +734,10 @@ bool operator<(Decimal32 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) < Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -621,8 +745,10 @@ bool operator>(Decimal32 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return rhs < lhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -630,8 +756,10 @@ bool operator<=(Decimal32 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return !(rhs < lhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -639,8 +767,10 @@ bool operator>=(Decimal32 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return !(lhs < rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
                            // --------------------
@@ -655,6 +785,10 @@ Decimal_Type64::Decimal_Type64()
     d_value = 0e0dd;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decDoubleZero(&this->d_value);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = 0x0; // Assuming a zero value int is a zero decimal floating point number.
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -686,6 +820,10 @@ Decimal_Type64::Decimal_Type64(float other)
     out.precision(16);
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __binary32_to_bid64(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal_Type64::Decimal_Type64(double other)
@@ -701,6 +839,10 @@ Decimal_Type64::Decimal_Type64(double other)
     out.precision(16);
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __binary64_to_bid64(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal_Type64::Decimal_Type64(long double other)
@@ -716,6 +858,11 @@ Decimal_Type64::Decimal_Type64(long double other)
     out.precision(16);
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // FIXME TODO: We assume long double is 80 bits...
+    d_value.d_raw = __binary80_to_bid64(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -731,6 +878,10 @@ Decimal_Type64::Decimal_Type64(int other)
     out.imbue(bsl::locale::classic());
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_from_int32(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal_Type64::Decimal_Type64(unsigned int other)
@@ -745,6 +896,10 @@ Decimal_Type64::Decimal_Type64(unsigned int other)
     out.imbue(bsl::locale::classic());
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_from_uint32(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal_Type64::Decimal_Type64(long other)
@@ -759,6 +914,10 @@ Decimal_Type64::Decimal_Type64(long other)
     out.imbue(bsl::locale::classic());
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_from_int64(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal_Type64::Decimal_Type64(unsigned long other)
@@ -773,6 +932,10 @@ Decimal_Type64::Decimal_Type64(unsigned long other)
     out.imbue(bsl::locale::classic());
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_from_uint64(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal_Type64::Decimal_Type64(long long other)
@@ -787,6 +950,10 @@ Decimal_Type64::Decimal_Type64(long long other)
     out.imbue(bsl::locale::classic());
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_from_int64(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal_Type64::Decimal_Type64(unsigned long long other)
@@ -801,6 +968,10 @@ Decimal_Type64::Decimal_Type64(unsigned long long other)
     out.imbue(bsl::locale::classic());
     out << other;
     decDoubleFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_from_uint64(other);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -818,6 +989,10 @@ Decimal64& Decimal64::operator+=(Decimal64 rhs)
     d_value += rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decDoubleAdd(&this->d_value, &this->d_value, rhs.data(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_add(d_value.d_raw, rhs.d_value.d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
     return *this;
 }
@@ -829,6 +1004,10 @@ Decimal64& Decimal64::operator-=(Decimal64 rhs)
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decDoubleSubtract(&this->d_value, &this->d_value, rhs.data(),
                       getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_sub(d_value.d_raw, rhs.d_value.d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
     return *this;
 }
@@ -840,6 +1019,10 @@ Decimal64& Decimal64::operator*=(Decimal64 rhs)
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decDoubleMultiply(&this->d_value, &this->d_value, rhs.data(),
                       getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_mul(d_value.d_raw, rhs.d_value.d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
     return *this;
 }
@@ -851,6 +1034,10 @@ Decimal64& Decimal64::operator/=(Decimal64 rhs)
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decDoubleDivide(&this->d_value, &this->d_value, rhs.data(),
                     getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid64_div(d_value.d_raw, rhs.d_value.d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
     return *this;
 }
@@ -860,8 +1047,10 @@ Decimal64& Decimal64::operator+=(Decimal32 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
      d_value += rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -870,9 +1059,11 @@ Decimal64& Decimal64::operator+=(Decimal128 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     Decimal128 me(*this);
     return *this = Decimal64(me+=rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -881,8 +1072,10 @@ Decimal64& Decimal64::operator+=(int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator+=(unsigned int rhs)
@@ -890,8 +1083,10 @@ Decimal64& Decimal64::operator+=(unsigned int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator+=(long rhs)
@@ -899,8 +1094,10 @@ Decimal64& Decimal64::operator+=(long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator+=(unsigned long rhs)
@@ -908,8 +1105,10 @@ Decimal64& Decimal64::operator+=(unsigned long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator+=(long long rhs)
@@ -917,8 +1116,10 @@ Decimal64& Decimal64::operator+=(long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator+=(unsigned long long rhs)
@@ -926,8 +1127,10 @@ Decimal64& Decimal64::operator+=(unsigned long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -936,8 +1139,10 @@ Decimal64& Decimal64::operator-=(Decimal32 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -946,9 +1151,11 @@ Decimal64& Decimal64::operator-=(Decimal128 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     Decimal128 me(*this);
     return *this = Decimal64(me-=rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -957,8 +1164,10 @@ Decimal64& Decimal64::operator-=(int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator-=(unsigned int rhs)
@@ -966,8 +1175,10 @@ Decimal64& Decimal64::operator-=(unsigned int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator-=(long rhs)
@@ -975,8 +1186,10 @@ Decimal64& Decimal64::operator-=(long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator-=(unsigned long rhs)
@@ -984,8 +1197,10 @@ Decimal64& Decimal64::operator-=(unsigned long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator-=(long long rhs)
@@ -993,8 +1208,10 @@ Decimal64& Decimal64::operator-=(long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator-=(unsigned long long rhs)
@@ -1002,8 +1219,10 @@ Decimal64& Decimal64::operator-=(unsigned long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1012,8 +1231,10 @@ Decimal64& Decimal64::operator*=(Decimal32 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1022,9 +1243,11 @@ Decimal64& Decimal64::operator*=(Decimal128 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     Decimal128 me(*this);
     return *this = Decimal64(me*=rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1033,8 +1256,10 @@ Decimal64& Decimal64::operator*=(int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator*=(unsigned int rhs)
@@ -1042,8 +1267,10 @@ Decimal64& Decimal64::operator*=(unsigned int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator*=(long rhs)
@@ -1051,8 +1278,10 @@ Decimal64& Decimal64::operator*=(long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator*=(unsigned long rhs)
@@ -1060,8 +1289,10 @@ Decimal64& Decimal64::operator*=(unsigned long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator*=(long long rhs)
@@ -1069,8 +1300,10 @@ Decimal64& Decimal64::operator*=(long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator*=(unsigned long long rhs)
@@ -1078,8 +1311,10 @@ Decimal64& Decimal64::operator*=(unsigned long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1088,8 +1323,10 @@ Decimal64& Decimal64::operator/=(Decimal32 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1098,9 +1335,11 @@ Decimal64& Decimal64::operator/=(Decimal128 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     Decimal128 me(*this);
     return *this = Decimal64(me/=rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1109,8 +1348,10 @@ Decimal64& Decimal64::operator/=(int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator/=(unsigned int rhs)
@@ -1118,8 +1359,10 @@ Decimal64& Decimal64::operator/=(unsigned int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator/=(long rhs)
@@ -1127,8 +1370,10 @@ Decimal64& Decimal64::operator/=(long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator/=(unsigned long rhs)
@@ -1136,8 +1381,10 @@ Decimal64& Decimal64::operator/=(unsigned long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator/=(long long rhs)
@@ -1145,8 +1392,10 @@ Decimal64& Decimal64::operator/=(long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64& Decimal64::operator/=(unsigned long long rhs)
@@ -1154,13 +1403,17 @@ Decimal64& Decimal64::operator/=(unsigned long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal64(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
 static Decimal64 one64(1);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 
 Decimal64& Decimal64::operator++()
@@ -1168,8 +1421,10 @@ Decimal64& Decimal64::operator++()
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     ++d_value;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(one64);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1178,8 +1433,10 @@ Decimal64& Decimal64::operator--()
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     --d_value;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(one64);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1210,6 +1467,11 @@ Decimal64 operator+(Decimal64 value)
         return rv;                                                    // RETURN
     }
     return value;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO FIXME: This ignores negative zero, which needs to be addressed
+    return value;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1221,6 +1483,12 @@ Decimal64 operator-(Decimal64 value)
     decDouble rv;
     decDoubleCopyNegate(&rv, value.data());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    DecimalImplUtil::ValueType64 result;
+    result.d_raw = __bid64_negate(value.data()->d_raw);
+    return result;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1246,120 +1514,150 @@ Decimal64 operator+(Decimal64 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(int lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(Decimal64 lhs, int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(unsigned int lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(Decimal64 lhs, unsigned int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(Decimal64 lhs, long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(unsigned long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(Decimal64 lhs, unsigned long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(long long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(Decimal64 lhs, long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(unsigned long long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator+(Decimal64 lhs, unsigned long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1369,120 +1667,150 @@ Decimal64 operator-(Decimal64 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(int lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(Decimal64 lhs, int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(unsigned int lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(Decimal64 lhs, unsigned int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(Decimal64 lhs, long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(unsigned long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(Decimal64 lhs, unsigned long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(long long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(Decimal64 lhs, long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(unsigned long long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator-(Decimal64 lhs, unsigned long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1492,120 +1820,150 @@ Decimal64 operator*(Decimal64 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(int lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(Decimal64 lhs, int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(unsigned int lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(Decimal64 lhs, unsigned int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(Decimal64 lhs, long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(unsigned long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(Decimal64 lhs, unsigned long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(long long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(Decimal64 lhs, long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(unsigned long long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator*(Decimal64 lhs, unsigned long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1615,120 +1973,150 @@ Decimal64 operator/(Decimal64 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(int lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(Decimal64 lhs, int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(unsigned int lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(Decimal64 lhs, unsigned int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(Decimal64 lhs, long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(unsigned long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(Decimal64 lhs, unsigned long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(long long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(Decimal64 lhs, long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(unsigned long long lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal64 operator/(Decimal64 lhs, unsigned long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1746,7 +2134,13 @@ bool operator!=(Decimal64 lhs, Decimal64 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() != rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return !(lhs == rhs);
+    decDouble result;
+    decDoubleCompare(&result, lhs.data(), rhs.data(), getContext());
+    return decDoubleIsZero(&result);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid64_quiet_not_equal(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1758,6 +2152,10 @@ bool operator<(Decimal64 lhs, Decimal64 rhs)
     decDouble result;
     decDoubleCompare(&result, lhs.data(), rhs.data(), getContext());
     return decDoubleIsNegative(&result);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid64_quiet_less(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1767,6 +2165,10 @@ bool operator>(Decimal64 lhs, Decimal64 rhs)
     return lhs.value() > rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     return rhs < lhs;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid64_quiet_greater(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1776,6 +2178,10 @@ bool operator<=(Decimal64 lhs, Decimal64 rhs)
     return lhs.value() <= rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     return !(rhs < lhs);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid64_quiet_less_equal(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1785,6 +2191,10 @@ bool operator>=(Decimal64 lhs, Decimal64 rhs)
     return lhs.value() >= rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     return !(lhs < rhs);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid64_quiet_greater_equal(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1806,16 +2216,20 @@ bool operator!=(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) != rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator!=(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs != Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1825,16 +2239,20 @@ bool operator<(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) < rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator<(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs < Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1844,16 +2262,20 @@ bool operator<=(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) <= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator<=(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs <= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1863,16 +2285,20 @@ bool operator>(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) > rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator>(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs > Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1882,16 +2308,20 @@ bool operator>=(Decimal32 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal64(lhs) >= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator>=(Decimal64 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs >= Decimal64(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
                           // ---------------------
@@ -1906,6 +2336,11 @@ Decimal_Type128::Decimal_Type128()
     d_value = 0e0dl;
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decQuadZero(&this->d_value);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    
+    std::fill_n(reinterpret_cast<unsigned char *>(&d_value.d_raw), sizeof(d_value.d_raw), 0);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1937,8 +2372,13 @@ Decimal_Type128::Decimal_Type128(float value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __binary32_to_bid128(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
+
 Decimal_Type128::Decimal_Type128(double value)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -1952,8 +2392,13 @@ Decimal_Type128::Decimal_Type128(double value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __binary64_to_bid128(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
+
 Decimal_Type128::Decimal_Type128(long double value)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -1967,6 +2412,11 @@ Decimal_Type128::Decimal_Type128(long double value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // FIXME TODO: We assume long double is 80 bits...
+    d_value.d_raw = __binary80_to_bid128(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -1983,8 +2433,13 @@ Decimal_Type128::Decimal_Type128(int value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_from_int32(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
+
 Decimal_Type128::Decimal_Type128(unsigned int value)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -1998,8 +2453,13 @@ Decimal_Type128::Decimal_Type128(unsigned int value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_from_uint32(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
+
 Decimal_Type128::Decimal_Type128(long value)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -2013,8 +2473,13 @@ Decimal_Type128::Decimal_Type128(long value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_from_int64(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
+
 Decimal_Type128::Decimal_Type128(unsigned long value)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -2028,8 +2493,13 @@ Decimal_Type128::Decimal_Type128(unsigned long value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_from_uint64(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
+
 Decimal_Type128::Decimal_Type128(long long value)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -2043,8 +2513,13 @@ Decimal_Type128::Decimal_Type128(long long value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_from_int64(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
+
 Decimal_Type128::Decimal_Type128(unsigned long long value)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -2058,6 +2533,10 @@ Decimal_Type128::Decimal_Type128(unsigned long long value)
     out.precision(34);
     out << value;
     decQuadFromString(&this->d_value, bb.str(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_from_uint64(value);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2076,6 +2555,11 @@ Decimal128 operator+(Decimal128 value)
         return rv;                                                    // RETURN
     }
     return value;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO FIXME: This ignores negative zero, which needs to be addressed
+    return value;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2087,11 +2571,20 @@ Decimal128 operator-(Decimal128 value)
     decQuad rv;
     decQuadCopyNegate(&rv, value.data());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    // TODO FIXME: This ignores negative zero, which needs to be addressed
+    Decimal128 result;
+    result.data()->d_raw = __bid128_negate(value.data()->d_raw);
+    return result;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
 static Decimal128 one128(1);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 
 Decimal128& Decimal128::operator++()
@@ -2099,8 +2592,10 @@ Decimal128& Decimal128::operator++()
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     ++d_value;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(one128);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2109,8 +2604,10 @@ Decimal128& Decimal128::operator--()
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     --d_value;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(one128);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2120,6 +2617,10 @@ Decimal128& Decimal128::operator+=(Decimal128 rhs)
     d_value += rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decQuadAdd(&this->d_value, &this->d_value, rhs.data(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_add(d_value.d_raw, rhs.d_value.d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
     return *this;
 }
@@ -2129,8 +2630,11 @@ Decimal128& Decimal128::operator-=(Decimal128 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    decQuadSubtract(&this->d_value, &this->d_value, rhs.data(),
-                    getContext());
+    decQuadSubtract(&this->d_value, &this->d_value, rhs.data(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_sub(d_value.d_raw, rhs.d_value.d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
     return *this;
 }
@@ -2140,8 +2644,11 @@ Decimal128& Decimal128::operator*=(Decimal128 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    decQuadMultiply(&this->d_value, &this->d_value, rhs.data(),
-                    getContext());
+    decQuadMultiply(&this->d_value, &this->d_value, rhs.data(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_mul(d_value.d_raw, rhs.d_value.d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
     return *this;
 }
@@ -2152,6 +2659,10 @@ Decimal128& Decimal128::operator/=(Decimal128 rhs)
     d_value /= rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     decQuadDivide(&this->d_value, &this->d_value, rhs.data(), getContext());
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    d_value.d_raw = __bid128_div(d_value.d_raw, rhs.d_value.d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
     return *this;
 }
@@ -2163,8 +2674,10 @@ Decimal128& Decimal128::operator+=(Decimal32 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator+=(Decimal64 rhs)
@@ -2172,8 +2685,10 @@ Decimal128& Decimal128::operator+=(Decimal64 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator+=(int rhs)
@@ -2181,8 +2696,10 @@ Decimal128& Decimal128::operator+=(int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator+=(unsigned int rhs)
@@ -2190,8 +2707,10 @@ Decimal128& Decimal128::operator+=(unsigned int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator+=(long rhs)
@@ -2199,8 +2718,10 @@ Decimal128& Decimal128::operator+=(long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator+=(unsigned long rhs)
@@ -2208,8 +2729,10 @@ Decimal128& Decimal128::operator+=(unsigned long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator+=(long long rhs)
@@ -2217,8 +2740,10 @@ Decimal128& Decimal128::operator+=(long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator+=(unsigned long long rhs)
@@ -2226,8 +2751,10 @@ Decimal128& Decimal128::operator+=(unsigned long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value += rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator+=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2238,8 +2765,10 @@ Decimal128& Decimal128::operator-=(Decimal32 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator-=(Decimal64 rhs)
@@ -2247,8 +2776,10 @@ Decimal128& Decimal128::operator-=(Decimal64 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator-=(int rhs)
@@ -2256,8 +2787,10 @@ Decimal128& Decimal128::operator-=(int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator-=(unsigned int rhs)
@@ -2265,8 +2798,10 @@ Decimal128& Decimal128::operator-=(unsigned int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator-=(long rhs)
@@ -2274,8 +2809,10 @@ Decimal128& Decimal128::operator-=(long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator-=(unsigned long rhs)
@@ -2283,8 +2820,10 @@ Decimal128& Decimal128::operator-=(unsigned long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator-=(long long rhs)
@@ -2292,8 +2831,10 @@ Decimal128& Decimal128::operator-=(long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator-=(unsigned long long rhs)
@@ -2301,8 +2842,10 @@ Decimal128& Decimal128::operator-=(unsigned long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value -= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator-=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2313,8 +2856,10 @@ Decimal128& Decimal128::operator*=(Decimal32 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator*=(Decimal64 rhs)
@@ -2322,8 +2867,10 @@ Decimal128& Decimal128::operator*=(Decimal64 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator*=(int rhs)
@@ -2331,8 +2878,10 @@ Decimal128& Decimal128::operator*=(int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator*=(unsigned int rhs)
@@ -2340,8 +2889,10 @@ Decimal128& Decimal128::operator*=(unsigned int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator*=(long rhs)
@@ -2349,8 +2900,10 @@ Decimal128& Decimal128::operator*=(long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator*=(unsigned long rhs)
@@ -2358,8 +2911,10 @@ Decimal128& Decimal128::operator*=(unsigned long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator*=(long long rhs)
@@ -2367,8 +2922,10 @@ Decimal128& Decimal128::operator*=(long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator*=(unsigned long long rhs)
@@ -2376,8 +2933,10 @@ Decimal128& Decimal128::operator*=(unsigned long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value *= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator*=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2388,8 +2947,10 @@ Decimal128& Decimal128::operator/=(Decimal32 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator/=(Decimal64 rhs)
@@ -2397,8 +2958,10 @@ Decimal128& Decimal128::operator/=(Decimal64 rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs.value();
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator/=(int rhs)
@@ -2406,8 +2969,10 @@ Decimal128& Decimal128::operator/=(int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator/=(unsigned int rhs)
@@ -2415,8 +2980,10 @@ Decimal128& Decimal128::operator/=(unsigned int rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator/=(long rhs)
@@ -2424,8 +2991,10 @@ Decimal128& Decimal128::operator/=(long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator/=(unsigned long rhs)
@@ -2433,8 +3002,10 @@ Decimal128& Decimal128::operator/=(unsigned long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator/=(long long rhs)
@@ -2442,8 +3013,10 @@ Decimal128& Decimal128::operator/=(long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128& Decimal128::operator/=(unsigned long long rhs)
@@ -2451,8 +3024,10 @@ Decimal128& Decimal128::operator/=(unsigned long long rhs)
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     d_value /= rhs;
     return *this;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return this->operator/=(Decimal128(rhs));
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2497,136 +3072,170 @@ Decimal128 operator+(Decimal128 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(int lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal128 lhs, int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(unsigned int lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal128 lhs, unsigned int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal128 lhs, long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(unsigned long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal128 lhs, unsigned long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(long long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal128 lhs, long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(unsigned long long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs + rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) += rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator+(Decimal128 lhs, unsigned long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() + rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs += Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2636,136 +3245,170 @@ Decimal128 operator-(Decimal128 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(int lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal128 lhs, int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(unsigned int lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal128 lhs, unsigned int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal128 lhs, long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(unsigned long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal128 lhs, unsigned long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(long long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal128 lhs, long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(unsigned long long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs - rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) -= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator-(Decimal128 lhs, unsigned long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() - rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs -= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2775,136 +3418,170 @@ Decimal128 operator*(Decimal128 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(int lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal128 lhs, int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(unsigned int lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal128 lhs, unsigned int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal128 lhs, long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(unsigned long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal128 lhs, unsigned long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(long long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal128 lhs, long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(unsigned long long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs * rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) *= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator*(Decimal128 lhs, unsigned long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() * rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs *= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -2914,136 +3591,170 @@ Decimal128 operator/(Decimal128 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(int lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal128 lhs, int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(unsigned int lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal128 lhs, unsigned int rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal128 lhs, long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(unsigned long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal128 lhs, unsigned long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(long long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal128 lhs, long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(unsigned long long lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs / rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) /= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 Decimal128 operator/(Decimal128 lhs, unsigned long long rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs /= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3060,6 +3771,10 @@ bool operator!=(Decimal128 lhs, Decimal128 rhs)
     return lhs.value() != rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     return !(lhs == rhs);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid128_quiet_not_equal(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3071,6 +3786,10 @@ bool operator<(Decimal128 lhs, Decimal128 rhs)
     decQuad result;
     decQuadCompare(&result, lhs.data(), rhs.data(), getContext());
     return decQuadIsNegative(&result);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid128_quiet_less(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3080,6 +3799,10 @@ bool operator>(Decimal128 lhs, Decimal128 rhs)
     return lhs.value() > rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     return rhs < lhs;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid128_quiet_greater(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3089,6 +3812,10 @@ bool operator<=(Decimal128 lhs, Decimal128 rhs)
     return lhs.value() <= rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     return !(rhs < lhs);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid128_quiet_less_equal(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3098,6 +3825,10 @@ bool operator>=(Decimal128 lhs, Decimal128 rhs)
     return lhs.value() >= rhs.value();
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     return !(lhs < rhs);
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return __bid128_quiet_greater_equal(lhs.data()->d_raw, rhs.data()->d_raw);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3126,32 +3857,40 @@ bool operator!=(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) != rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator!=(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs != Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator!=(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) != rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator!=(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs != Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3161,32 +3900,40 @@ bool operator<(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) < rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator<(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs < Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator<(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) < rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator<(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs < Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3196,32 +3943,40 @@ bool operator<=(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) <= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator<=(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs <= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator<=(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) <= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator<=(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs <= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3231,32 +3986,40 @@ bool operator>(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) > rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator>(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs > Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator>(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) > rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator>(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs > Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3266,32 +4029,40 @@ bool operator>=(Decimal32 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) >= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator>=(Decimal128 lhs, Decimal32 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs >= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator>=(Decimal64 lhs, Decimal128 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return Decimal128(lhs) >= rhs;
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 bool operator>=(Decimal128 lhs, Decimal64 rhs)
 {
 #if BDLDFP_DECIMALPLATFORM_C99_TR
     return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif BDLDFP_DECIMALPLATFORM_DECNUMBER || BDLDFP_DECIMALPLATFORM_INTELDFP
     return lhs >= Decimal128(rhs);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3872,6 +4643,10 @@ BloombergLP::bdldfp::Decimal32
     decSingle rv;
     decSingleFromString(&rv, "1e-95", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::makeDecimalRaw32(1, -95);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3886,6 +4661,10 @@ BloombergLP::bdldfp::Decimal32
     decSingle rv;
     decSingleFromString(&rv, "9.999999e96", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse32("9.999999e96");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3900,6 +4679,10 @@ BloombergLP::bdldfp::Decimal32
     decSingle rv;
     decSingleFromString(&rv, "1e-6", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::makeDecimalRaw32(1, -6);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3914,6 +4697,10 @@ BloombergLP::bdldfp::Decimal32
     decSingle rv;
     decSingleFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::makeDecimalRaw32(1, 0);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3928,6 +4715,10 @@ BloombergLP::bdldfp::Decimal32
     decSingle rv;
     decSingleFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse32("INF");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3942,6 +4733,10 @@ BloombergLP::bdldfp::Decimal32
     decSingle rv;
     decSingleFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse32("NaN");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3956,6 +4751,10 @@ BloombergLP::bdldfp::Decimal32
     decSingle rv;
     decSingleFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse32("sNaN");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3972,6 +4771,10 @@ BloombergLP::bdldfp::Decimal32
                         "0.000001E-95",
                         BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse32("0.000001E-95");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -3990,6 +4793,10 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv;
     decDoubleFromString(&rv, "1e-383", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::makeDecimalRaw64(1, -383);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4006,6 +4813,10 @@ BloombergLP::bdldfp::Decimal64
                         "9.999999999999999e384",
                         BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse64("9.999999999999999e384");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4020,6 +4831,10 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv;
     decDoubleFromString(&rv, "1e-15", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse64("1e-15");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4034,6 +4849,10 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv;
     decDoubleFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::makeDecimalRaw64(1, 0);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4048,6 +4867,10 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv;
     decDoubleFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse64("INF");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4062,6 +4885,10 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv;
     decDoubleFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse64("NaN");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4076,6 +4903,10 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv;
     decDoubleFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse64("sNaN");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4092,6 +4923,10 @@ BloombergLP::bdldfp::Decimal64
                         "0.000000000000001e-383",
                         BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse64("0.000000000000001e-383");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4110,6 +4945,10 @@ BloombergLP::bdldfp::Decimal128
     decQuad rv;
     decQuadFromString(&rv, "1e-6143", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::makeDecimalRaw128(1, -6143);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4126,6 +4965,10 @@ BloombergLP::bdldfp::Decimal128
                       "9.999999999999999999999999999999999e6144",
                       BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse128("9.999999999999999999999999999999999e6144");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4140,6 +4983,10 @@ BloombergLP::bdldfp::Decimal128
     decQuad rv;
     decQuadFromString(&rv, "1e-33", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::makeDecimalRaw128(1, -33);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4154,6 +5001,10 @@ BloombergLP::bdldfp::Decimal128
     decQuad rv;
     decQuadFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::makeDecimalRaw128(1, 0);
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4168,6 +5019,10 @@ BloombergLP::bdldfp::Decimal128
     decQuad rv;
     decQuadFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse128("INF");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4182,6 +5037,10 @@ BloombergLP::bdldfp::Decimal128
     decQuad rv;
     decQuadFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse128("NaN");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4196,6 +5055,10 @@ BloombergLP::bdldfp::Decimal128
     decQuad rv;
     decQuadFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse128("sNaN");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
@@ -4212,6 +5075,10 @@ BloombergLP::bdldfp::Decimal128
                       "0.000000000000000000000000000000001e-6143",
                       BloombergLP::bdldfp::getContext());
     return rv;
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+    return BloombergLP::bdldfp::DecimalImplUtil::parse128("0.000000000000000000000000000000001e-6143");
+#else
+BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 

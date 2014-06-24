@@ -136,16 +136,51 @@ BSLS_IDENT("$Id$")
 #define BDLDFP_DECIMALIMPLUTIL_JOIN_(a,b) a##b
     // Helper macro to create floating-point decimal literals
 
-               // Portable decimal floating-point literal support
-
-#define BDLDFP_DECIMALIMPLUTIL_DF(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,df)
-
-#define BDLDFP_DECIMALIMPLUTIL_DD(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,dd)
-
-#define BDLDFP_DECIMALIMPLUTIL_DL(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,dl)
-
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
 
+
+            // End of decNumber-base implementation specific area
+
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+
+
+#ifndef INCLUDED_BID_FUNCTIONS
+
+// Controlling macros for the intel library configuration
+
+#  define DECIMAL_CALL_BY_REFERENCE      0
+#  define DECIMAL_GLOBAL_ROUNDING        1
+#  define DECIMAL_GLOBAL_EXCEPTION_FLAGS 1
+
+// in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
+// about this.
+
+#  define _WCHAR_T_DEFINED
+
+   extern "C" {
+#   include <bid_conf.h>
+#   include <bid_functions.h>
+   }
+#  define INCLUDED_BID_FUNCTIONS
+#endif
+
+#else
+namespace BloombergLP {
+namespace bdldfp {
+
+struct DecimalImpl_Assert;
+    // This 'struct' is deliberately not defined, and is declared only to help
+    // force a compilation error below, for badly configured builds.
+
+#  error Unknown architecture, decimal floating-point not supported.
+char die[sizeof(DecimalImpl_Assert)];     // if '#error' unsupported
+
+}  // close package namespace
+}  // close enterpise namespace
+#endif
+
+
+#if BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
 
@@ -162,22 +197,18 @@ BSLS_IDENT("$Id$")
     BloombergLP::bdldfp::DecimalImplUtil::parse128(                           \
         (BloombergLP::bdldfp::DecimalImplUtil::checkLiteral(lit), #lit))
 
-            // End of decNumber-base implementation specific area
+#elif BDLDFP_DECIMALPLATFORM_C99_TR
 
-#else
-namespace BloombergLP {
-namespace bdldfp {
+               // Portable decimal floating-point literal support
 
-struct DecimalImpl_Assert;
-    // This 'struct' is deliberately not defined, and is declared only to help
-    // force a compilation error below, for badly configured builds.
+#define BDLDFP_DECIMALIMPLUTIL_DF(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,df)
 
-#  error Unknown architecture, decimal floating-point not upported.
-char die[sizeof(DecimalImpl_Assert)];     // if '#error' unsupported
+#define BDLDFP_DECIMALIMPLUTIL_DD(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,dd)
 
-}  // close package namespace
-}  // close enterpise namespace
+#define BDLDFP_DECIMALIMPLUTIL_DL(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,dl)
+
 #endif
+
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -199,13 +230,29 @@ struct DecimalImplUtil {
     typedef _Decimal64  ValueType64;
     typedef _Decimal128 ValueType128;
 
+#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+
+    struct ValueType32  { BID_UINT32  d_raw; };
+    struct ValueType64  { BID_UINT64  d_raw; };
+    struct ValueType128 { BID_UINT128 d_raw; };
+
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
 
     typedef decSingle ValueType32;
     typedef decDouble ValueType64;
     typedef decQuad   ValueType128;
 
+    static decContext *getDecNumberContext();
+        // Return a pointer providing modifiable access to the floating point
+        // environment of the 'decNumber' library.  This function exists on
+        // certain supported platforms only.
+
+#endif
+
+
     // CLASS METHODS
+#if BDLDFP_DECIMALPLATFORM_SOFTWARE
+
     struct This_is_not_a_floating_point_literal {};
         // This 'struct' is a helper type used togenerate error messages for
         // bad literals.
@@ -219,6 +266,13 @@ struct DecimalImplUtil {
     static void checkLiteral(double);
         // Overload to avoid an error when the decimal floating-point literal
         // (without the suffix) can be interpreted as a 'double' literal.
+
+#elif BDLDFP_DECIMALPLATFORM_HARDWARE
+
+#else
+
+#error Improperly configured decimal floating point platform settings
+
 #endif
 
     // CLASS METHODS
@@ -372,26 +426,17 @@ struct DecimalImplUtil {
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
 
-                        // Decimal Floating Point Environment Functions
-
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
-    static decContext *getDecNumberContext();
-        // Return a pointer providing modifiable access to the floating point
-        // environment of the 'decNumber' library.  This function exists on
-        // certain supported platforms only.
-#endif
-
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
+#if BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                           // ---------------------
                           // class DecimalImplUtil
                           // ---------------------
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
 template <class TYPE>
 inline
 void DecimalImplUtil::checkLiteral(const TYPE& t)
