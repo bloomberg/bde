@@ -37,7 +37,7 @@ using bsl::stringstream;
 
 // FIXME: For now, the test is disabled, on intel -- must fix
 
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+#if BDLDFP_DECIMALPLATFORM_INTELDFP
 
 int
 main()

@@ -218,8 +218,6 @@ int main(int argc, char* argv[])
             ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE);
         }
 
-        ASSERT(BDLDFP_DECIMALPLATFORM_INTELDFP);
-
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
             ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
                     " is not defined!");
