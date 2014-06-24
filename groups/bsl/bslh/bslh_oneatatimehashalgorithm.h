@@ -12,8 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bslh::OneAtATimeHashAlgorithm: Generic hashing algorithm functor
 //
-//@SEE_ALSO:
-// bslh::Hash
+//@SEE_ALSO: bslh_hash, bslh_defaulthashalgorithm
 //
 //@DESCRIPTION: 'bslh::OneAtATimeHashAlgorithm' implements the one-at-a-time
 // hashing algorithm that is known to quickly reach good avalance performance

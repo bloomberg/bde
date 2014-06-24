@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a typedef for a reasonable deafult hashing algorithm.
 //
 //@CLASSES:
+// bslh::DefaultHashAlgorithm: Typedef for a good default hashing algorithm
 //
-//@SEE_ALSO:
-// bslh::Hash, bslh::OneAtATimeHashAlgorithm
+//@SEE_ALSO: bslh_hash, bslh_oneatatimehashalgorithm
 //
 //@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a typedef for
 // 'bslh::OneAtATimeHashAlgorithm'. This is done as a way to make it easier for
