@@ -109,6 +109,7 @@ using namespace bsl;  // automatically added by script
 // [ 7] operator+(const char *lhs, const StringRef& rhs);
 // [ 7] operator+(const StringRef& lhs, const char *rhs);
 // [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
+// [ 8] bslh::Hash<>
 //--------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [10] USAGE
@@ -741,29 +742,38 @@ int main(int argc, char *argv[])
         // TESTING HASH FUNCTION
         //
         // Concerns:
-        //   The hash function in versions of this component prior to
-        //   /main/bb/dev/10 returned '0' for all input strings.  This test
-        //   will verify that the hash function returns acceptably distinct
-        //   values for a set of input strings, allowing for at most one
-        //   collision.
+        //: 1 The hash function in versions of this component prior to
+        //:   /main/bb/dev/10 returned '0' for all input strings.  This test
+        //:   will verify that the hash function returns acceptably distinct
+        //:   values for a set of input strings, allowing for at most one
+        //:   collision.
+        //: 2 The 'hashAppend' function should be picked up and used by
+        //;   bslh:Hash. The whole string should be used in this hash.
         //
         // Plan:
-        //   Hash a reasonably large number of strings, capturing the hash
-        //   values.  Make sure re-hashing the same strings in a different
-        //   order returns the same values.  Then make sure that each resulting
-        //   hash was not encountered more than twice (so we're allowing SOME
-        //   collisions, but not too many).
-        //
-        //   The strings to be hashed will include some "typical" short strings
-        //   including the names of current and past members of the BDE team
-        //   and the tickers for the members of the S&P 500 index.
-        //
-        //   While there are no guarantees that these data sets are
-        //   representative, this at least allows us to make sure that our hash
-        //   performs in a reasonable manner.
+        //: 1 Hash a reasonably large number of strings, capturing the hash
+        //:   values.  Make sure re-hashing the same strings in a different
+        //:   order returns the same values.  Then make sure that each
+        //:   resulting hash was not encountered more than twice (so we're
+        //:   allowing SOME collisions, but not too many).
+        //:
+        //:   The strings to be hashed will include some "typical" short strings
+        //:   including the names of current and past members of the BDE team
+        //:   and the tickers for the members of the S&P 500 index.
+        //:
+        //:   While there are no guarantees that these data sets are
+        //:   representative, this at least allows us to make sure that our hash
+        //:   performs in a reasonable manner.
+        //: 2 Test using both bslh::Hash<> and bsl::hash<StringRef> (both of
+        //:    which should now give the same result). Hash strings where only
+        //:    the final value differs to ensure that the full length of the
+        //:    string is being hashed. Also hash multiple copies of the same
+        //:    string and ensure they produce the same hash to make sure
+        //:    nothing beyond the end of the string is being hashed.
         //
         // Testing:
         //   bsl::hash<BloombergLP::bslstl::StringRef>
+        //   bslh::Hash<>
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Hash Function"
@@ -1936,7 +1946,16 @@ int main(int argc, char *argv[])
             { L_,  "YUM UN Equity"              },
             { L_,  "ZION UW Equity"             },
             { L_,  "ZMH UN Equity"              },
-
+            // Some data only differing by the final element to ensure the
+            // whole string is hashed
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAA"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAB"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAC"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAD"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAE"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAF"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAG"   },
+            { L_,  "AAAAAAAAAAAAAAAAAAAAAAAH"   },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1944,7 +1963,8 @@ int main(int argc, char *argv[])
         std::map<Obj, std::size_t> hash_results;
         std::map<std::size_t, int> hash_value_counts;
 
-        bsl::hash<Obj>        hash_function;
+        bsl::hash<Obj>        bsl_hash_function;
+        bslh::Hash<>          bslh_hash_function;
 
         // Capture all the hash values.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
@@ -1952,7 +1972,10 @@ int main(int argc, char *argv[])
             const char *STR          = DATA[ti].d_str;
             Obj o(STR);
 
-            std::size_t hash_value = hash_function(o);
+            std::size_t hash_value = bslh_hash_function(o);
+
+            // Ensure bslh::Hash and bsl::hash produce the same value
+            ASSERT(hash_value == bsl_hash_function(o));
 
             if (veryVerbose) {
                 printf("%4d: STR=%-20s, HASH=" ZU "\n",LINE, STR, hash_value);
@@ -1963,13 +1986,17 @@ int main(int argc, char *argv[])
         }
 
         // Repeat all hashes in reverse order, making sure we get the same
-        // values as last time.
+        // values as last time. Copy the data to ensure we are hashing the same
+        // data from different memory locations, ensuring that we get the same
+        // hash even when the data is stored elsewhere (will also spot if we
+        // are hashing beyond the end of the string).
         for (int ti = NUM_DATA - 1; ti >= 0; --ti) {
             const int   LINE         = DATA[ti].d_line;
             const char *STR          = DATA[ti].d_str;
-            Obj o(STR);
+            char        strCopy [40];
+            Obj o(strcpy(strCopy, STR));
 
-            std::size_t hash_value = hash_function(o);
+            std::size_t hash_value = bslh_hash_function(o);
             LOOP_ASSERT(LINE, hash_results[o] == hash_value);
         }
 

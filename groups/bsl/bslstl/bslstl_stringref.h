@@ -698,6 +698,11 @@ std::basic_ostream<CHAR_TYPE>&
     // specified output 'stream' and return a reference to the modifiable
     // 'stream'.
 
+// FREE FUNCTIONS
+template <typename CHAR_TYPE, typename HASHALG>
+void hashAppend(HASHALG& hashAlg, const StringRefImp<CHAR_TYPE>&  input);
+    // Pass the specified 'input' to the specified 'hashAlg'
+
 // ===========================================================================
 //                                  TYPEDEFS
 // ===========================================================================
@@ -1380,6 +1385,12 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     return stream;
 }
 
+template <typename CHAR_TYPE, typename HASHALG>
+void bslstl::hashAppend(HASHALG& hashAlg, 
+                        const StringRefImp<CHAR_TYPE>&  input)
+{
+    hashAlg(input.data(), sizeof(CHAR_TYPE)*input.length());
+}
 
 }  // close enterprise namespace
 
@@ -1409,29 +1420,7 @@ template <typename CHAR_TYPE>
 std::size_t hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> >::
 operator()(const BloombergLP::bslstl::StringRefImp<CHAR_TYPE>& stringRef) const
 {
-    const CHAR_TYPE *string = stringRef.begin();
-    const CHAR_TYPE *end    = stringRef.end();
-
-    const unsigned int ADDEND       = 1013904223U;
-    const unsigned int MULTIPLICAND =    1664525U;
-    const unsigned int MASK         = 4294967295U;
-
-    std::size_t r = 0;
-
-    if (4 == sizeof(int)) {
-        while (string != end) {
-            r ^= *string++;
-            r = r * MULTIPLICAND + ADDEND;
-        }
-    }
-    else {
-        while (string != end) {
-            r ^= *string++;
-            r = (r * MULTIPLICAND + ADDEND) & MASK;
-        }
-    }
-
-    return r;
+    return ::BloombergLP::bslh::Hash<>()(stringRef);
 }
 
 }  // close namespace bsl

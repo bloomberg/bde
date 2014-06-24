@@ -386,9 +386,7 @@ int main(int argc, char *argv[])
         //:   links, and runs as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 Incorporate usage example from header into test driver (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
