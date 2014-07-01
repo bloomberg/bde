@@ -114,7 +114,7 @@ namespace BDEC = BloombergLP::bdldfp;
 static bslma::Allocator *ia = bslma::Default::globalAllocator();
 
 #define PARSEDECIMAL(p, nn)                                                   \
-        BDEC::Decimal##nn(BDEC::DecimalImplUtil::parse##nn(p))
+        BDEC::Decimal##nn(BDEC::DecimalImpUtil::parse##nn(p))
 #define PARSEDEC32(p) PARSEDECIMAL((p), 32)
 #define PARSEDEC64(p) PARSEDECIMAL((p), 64)
 #define PARSEDEC128(p) PARSEDECIMAL((p), 128)
@@ -171,8 +171,8 @@ struct DecBinTestCase {
         // and '0' otherwise.
     {
         // workaround for IBM compiler bug
-        typedef BDEC::DecimalImplUtil::ValueType128 Vt128;
-        Vt128 x(BDEC::DecimalImplUtil::parse128(d_decimalLiteral));
+        typedef BDEC::DecimalImpUtil::ValueType128 Vt128;
+        Vt128 x(BDEC::DecimalImpUtil::parse128(d_decimalLiteral));
         return doD128()?BDEC::Decimal128(x):BDEC::Decimal128(0);      // RETURN
         // END - workaround for IBM compiler bug
 

@@ -318,7 +318,7 @@ namespace {
 
 // Testing apparatus
 
-BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
+BDEC::DecimalImpUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
                                                         int       exponent)
     // Return a 64-bit decimal floating point value with the specified
     // 'mantissa' and 'exponent', including for cases in which
@@ -329,14 +329,14 @@ BDEC::DecimalImplUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
     defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
 
-        return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
+        return BDEC::DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
 #else
-    return BDEC::DecimalImplUtil::makeDecimalRaw64(mantissa, exponent);
+    return BDEC::DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
 #endif
 }
 
 
-BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
+BDEC::DecimalImpUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
                                                           int       exponent)
     // Return a 128-bit decimal floating point value with the specified
     // 'mantissa' and 'exponent', including for cases in which
@@ -347,9 +347,9 @@ BDEC::DecimalImplUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
     defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
 
-        return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
+        return BDEC::DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 #else
-    return BDEC::DecimalImplUtil::makeDecimalRaw128(mantissa, exponent);
+    return BDEC::DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 #endif
 
 }

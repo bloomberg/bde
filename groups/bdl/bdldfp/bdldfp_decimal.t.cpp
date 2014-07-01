@@ -699,7 +699,10 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) bsl::cout << "Operator!=" << bsl::endl;
 
-        ASSERT(BDLDFP_DECIMAL_DL(4.0) != BDLDFP_DECIMAL_DL(5.0));
+        LOOP2_ASSERT(BDLDFP_DECIMAL_DL(4.0), BDLDFP_DECIMAL_DL(5.0),
+                     BDLDFP_DECIMAL_DL(4.0) != BDLDFP_DECIMAL_DL(5.0));
+        LOOP2_ASSERT(BDLDFP_DECIMAL_DL(7.0), BDLDFP_DECIMAL_DL(5.0),
+                     BDLDFP_DECIMAL_DL(7.0) != BDLDFP_DECIMAL_DL(5.0));
         ASSERT(! (BDLDFP_DECIMAL_DL(-9.345e27) !=
                   BDLDFP_DECIMAL_DL(-9.345e27)));
 
@@ -824,7 +827,10 @@ int main(int argc, char* argv[])
             out << d1;
             bsl::string s(pa);
             getStringFromStream(out, &s);
-            ASSERT(decLower(s) == "-1.234567890123456789012345678901234e-24");
+            LOOP2_ASSERT(
+                    decLower(s),
+                    "-1.234567890123456789012345678901234e-24",
+                    decLower(s) == "-1.234567890123456789012345678901234e-24");
         }
 
         if (veryVerbose) bsl::cout << "Test stream in" << bsl::endl;
