@@ -120,7 +120,7 @@ template <int INDEX, class LIST, class DEFAULTTYPE=Nil,
           int INRANGE=((INDEX > 0 && INDEX <= (int)LIST::LENGTH) ? 1 : 0)>
 struct TypeListTypeOf {
     // This template is specialized below to return the type the 'INDEX'th
-    // member of the typelist 'LIST'.  If '0 > INDEX <= LIST::LENGTH' then
+    // member of the typelist 'LIST'.  If '0 < INDEX <= LIST::LENGTH' then
     // 'Type' will be defined as the type of the member.  Note that INDEX is
     // relative to 1.
 
