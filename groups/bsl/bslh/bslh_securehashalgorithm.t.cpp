@@ -1,5 +1,5 @@
-// bslh_defaulthashalgorithm.t.cpp                                    -*-C++-*-
-#include <bslh_defaulthashalgorithm.h>
+// bslh_securehashalgorithm.t.cpp                                     -*-C++-*-
+#include <bslh_securehashalgorithm.h>
 
 #include <bslmf_issame.h>
 
@@ -106,8 +106,8 @@ int main(int argc, char *argv[])
         //: 1 The appropriate typedef exists
         //
         // Plan:
-        //: 1 Confirm that DefaultHashAlgorithm is a typedef for
-        //:   SpookyHashAlgorithm
+        //: 1 Confirm that SecureHashAlgorithm is a typedef for
+        //:   SipHashAlgorithm
         //
         // Testing:
         //   BREATHING TEST
@@ -116,8 +116,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-            ASSERT((bslmf::IsSame<bslh::DefaultHashAlgorithm,
-                                  bslh::SpookyHashAlgorithm>::VALUE));
+            ASSERT((bslmf::IsSame<bslh::SecureHashAlgorithm,
+                                  bslh::SipHashAlgorithm>::VALUE));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

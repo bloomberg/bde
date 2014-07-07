@@ -1,25 +1,34 @@
-// bslh_oneatatimehashalgorithm.h                                     -*-C++-*-
-#ifndef INCLUDED_BSLH_ONEATATIMEHASHALGORITHM
-#define INCLUDED_BSLH_ONEATATIMEHASHALGORITHM
+// bslh_spookyhashalgorithm.h                                         -*-C++-*-
+#ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHM
+#define INCLUDED_BSLH_SPOOKYHASHALGORITHM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a hashing algorithm with decent performance for all data.
+//@PURPOSE: Provide an implementation of the spooky hash algorithm.
 //
 //@CLASSES:
-// bslh::OneAtATimeHashAlgorithm: Generic hashing algorithm functor
+// bslh::SpookyHashAlgorithm: Spooky hash algorithm
 //
-//@SEE_ALSO: bslh_hash, bslh_defaulthashalgorithm
+//@SEE_ALSO: bslh_hash
 //
-//@DESCRIPTION: 'bslh::OneAtATimeHashAlgorithm' implements the one-at-a-time
-// hashing algorithm that is known to quickly reach good avalance performance
-// and is a good choice for hashing for associative containers.
+//@DESCRIPTION: 'bslh::SpookyHashAlgorithm' implements the spooky hashing
+//  algorithm that is known to quickly reach good avalance performance and is a
+//  good choice for hashing for associative containers. See:
+//  http://burtleburtle.net/bob/hash/spooky.html
+
+#ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHMIMP
+#include <bslh_spookyhashalgorithmimp.h>
+#endif
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -32,22 +41,22 @@ namespace BloombergLP {
 namespace bslh {
 
 
-                          // ===================================
-                          // class bslh::OneAtATimeHashAlgorithm
-                          // ===================================
+                          // ===============================
+                          // class bslh::SpookyHashAlgorithm
+                          // ===============================
 
-class OneAtATimeHashAlgorithm
+class SpookyHashAlgorithm
 {
-    // This class implements the "one-at-a-time" hash algorithm (see
-    // http://www.eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx)
+    // This class implements the "SpookyHash" hash algorithm (see
+    // http://burtleburtle.net/bob/hash/spooky.html)
   public:
-    typedef size_t result_type;
+    typedef bsls::Types::Uint64 result_type;
 
   private:
-    size_t d_state;
+    SpookyHashAlgorithmImp d_state;
 
   public:
-    OneAtATimeHashAlgorithm();
+    SpookyHashAlgorithm(size_t seed1 = 1, size_t seed2 = 2);
         // Initialize the internal state of the algorithm
 
     void operator()(void const* key, size_t length);
@@ -55,31 +64,26 @@ class OneAtATimeHashAlgorithm
         // state of the hashing algorithm.
 
 
-    result_type getHash() const;
+    result_type getHash();// const;
         // Finalize the hash that has been accumulated and return it.
-
 };
 
-OneAtATimeHashAlgorithm::OneAtATimeHashAlgorithm() : d_state(0) { }
-
-void OneAtATimeHashAlgorithm::operator()(void const* key, size_t length)
+SpookyHashAlgorithm::SpookyHashAlgorithm(size_t seed1, size_t seed2)
+: d_state()
 {
-    unsigned char const *p = static_cast<unsigned char const *>(key);
-
-    for (unsigned int i = 0; i < length; i++ ) {
-        d_state += p[i];
-        d_state += (d_state << 10 );
-        d_state ^= (d_state >> 6  );
-    }
+    d_state.Init(seed1, seed2);
 }
 
-OneAtATimeHashAlgorithm::result_type OneAtATimeHashAlgorithm::getHash() const
+void SpookyHashAlgorithm::operator()(void const* key, size_t length)
 {
-    result_type result = d_state;
-    result += (result << 3  );
-    result ^= (result >> 11 );
-    result += (result << 15 );
-    return result;
+    d_state.Update(key, length);
+}
+
+SpookyHashAlgorithm::result_type SpookyHashAlgorithm::getHash()// const         TODO const?
+{
+    bsls::Types::Uint64 h1, h2;
+    d_state.Final(&h1, &h2);
+    return h1;
 }
 
 }  // close namespace bslh
@@ -88,12 +92,9 @@ OneAtATimeHashAlgorithm::result_type OneAtATimeHashAlgorithm::getHash() const
 //                                TYPE TRAITS
 // ============================================================================
 
-// Type traits for 'bslh::Hash'
-//: o 'bsl::hash<TYPE>' is bitwise movable.
-
 namespace bslmf {
 template <>
-struct IsBitwiseMoveable<bslh::OneAtATimeHashAlgorithm>
+struct IsBitwiseMoveable<bslh::SpookyHashAlgorithm>
     : bsl::true_type {};
 }  // close namespace bslmf
 

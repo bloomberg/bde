@@ -1,48 +1,8 @@
-// bslh_defaulthashalgorithm.h                                        -*-C++-*-
-#ifndef INCLUDED_BSLH_DEFAULTHASHALGORITHM
-#define INCLUDED_BSLH_DEFAULTHASHALGORITHM
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
-
-//@PURPOSE: Provide a typedef for a reasonable deafult hashing algorithm.
-//
-//@CLASSES:
-// bslh::DefaultHashAlgorithm: Typedef for a good default hashing algorithm
-//
-//@SEE_ALSO: bslh_hash, bslh_oneatatimehashalgorithm
-//
-//@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a typedef for
-// 'bslh::SpookyHashAlgorithm'. This is done as a way to make it easier for
-// users to find the appropriate hashing algorithm. It is unlikely for users to
-// know whether 'bslh::SpookyHashAlgorithm' is a good defualt choice, so
-// 'bslh::DefaultHashAlgorithm' is supplied to make this more clear. This also
-// allows us to swap out this hash algorithm for a new algorithm is a better
-// defualt is found.
-
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHM
+// bslh_spookyhashalgorithm.cpp                                       -*-C++-*-
 #include <bslh_spookyhashalgorithm.h>
-#endif
 
-namespace BloombergLP {
-
-namespace bslh {
-
-#pragma bde_verify -TR17
-typedef SpookyHashAlgorithm DefaultHashAlgorithm;
-#pragma bde_verify +TR17
-
-}  // close namespace bslh
-
-}  // close namespace BloombergLP
-
-#endif
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg Finance L.P.
@@ -65,3 +25,4 @@ typedef SpookyHashAlgorithm DefaultHashAlgorithm;
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------
+

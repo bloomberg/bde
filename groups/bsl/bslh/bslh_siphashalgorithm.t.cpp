@@ -1,13 +1,12 @@
-// bslh_defaulthashalgorithm.t.cpp                                    -*-C++-*-
-#include <bslh_defaulthashalgorithm.h>
-
-#include <bslmf_issame.h>
+// bslh_siphashalgorithm.t.cpp                                        -*-C++-*-
+#include <bslh_siphashalgorithm.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,9 +19,9 @@ using namespace bslh;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-// [1] BREATHING TEST
+// [  ]
+// ----------------------------------------------------------------------------
+// [  ]
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -44,7 +43,6 @@ void aSsErT(bool b, const char *s, int i)
 }
 
 }  // close unnamed namespace
-
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -82,6 +80,13 @@ void aSsErT(bool b, const char *s, int i)
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+
+//=============================================================================
+//                     GLOBAL TYPEDEFS FOR TESTING
+//-----------------------------------------------------------------------------
+
+
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -90,45 +95,22 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-//  bool         veryVerbose = argc > 3;
-//  bool     veryVeryVerbose = argc > 4;
-//  bool veryVeryVeryVerbose = argc > 5;
-
-    printf("TEST " __FILE__ " CASE %d\n", test);
-
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+    
     switch (test) { case 0:
       case 1: {
-        // --------------------------------------------------------------------
-        // BREATHING TEST
-        //   This case exercises (but does not fully test) basic functionality.
-        //
-        // Concerns:
-        //: 1 The appropriate typedef exists
-        //
-        // Plan:
-        //: 1 Confirm that DefaultHashAlgorithm is a typedef for
-        //:   SpookyHashAlgorithm
-        //
-        // Testing:
-        //   BREATHING TEST
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
-
-            ASSERT((bslmf::IsSame<bslh::DefaultHashAlgorithm,
-                                  bslh::SpookyHashAlgorithm>::VALUE));
+        SipHashAlgorithm hashAlg;
+        const char * str = "Hello World";
+        hashAlg(str, sizeof(char)*11);
+        printf("Hash: %u\n", hashAlg.getHash());
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;
       }
     }
-
-    if (testStatus > 0) {
-        fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
-    }
-
     return testStatus;
 }
 
@@ -153,5 +135,4 @@ int main(int argc, char *argv[])
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------
-
 

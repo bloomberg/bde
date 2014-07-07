@@ -1,33 +1,34 @@
-// bslh_defaulthashalgorithm.h                                        -*-C++-*-
-#ifndef INCLUDED_BSLH_DEFAULTHASHALGORITHM
-#define INCLUDED_BSLH_DEFAULTHASHALGORITHM
+// bslh_securehashalgorithm.h                                         -*-C++-*-
+#ifndef INCLUDED_BSLH_SECUREHASHALGORITHM
+#define INCLUDED_BSLH_SECUREHASHALGORITHM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a typedef for a reasonable deafult hashing algorithm.
+//@PURPOSE: Provide a typedef for a secure hashing algorithm.
 //
 //@CLASSES:
-// bslh::DefaultHashAlgorithm: Typedef for a good default hashing algorithm
+// bslh::SecureHashAlgorithm: Typedef for a secure hashing algorithm
 //
 //@SEE_ALSO: bslh_hash, bslh_oneatatimehashalgorithm
 //
-//@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a typedef for
-// 'bslh::SpookyHashAlgorithm'. This is done as a way to make it easier for
-// users to find the appropriate hashing algorithm. It is unlikely for users to
-// know whether 'bslh::SpookyHashAlgorithm' is a good defualt choice, so
-// 'bslh::DefaultHashAlgorithm' is supplied to make this more clear. This also
-// allows us to swap out this hash algorithm for a new algorithm is a better
-// defualt is found.
+//@DESCRIPTION: 'bslh::SecureHashAlgorithm' provides a typedef for a secure
+//  hashing algorithm. Given a random seed, this algorithm will act as a
+//  psuedorandom function and produce hashes that are distributed in a way that
+//  is indistinguishable from random. This hash algorithm may operate more
+//  slowly than 'bslh::DefaultHashAlgorithm', however it will help mitigate the
+//  risk of denial of service attacks on hash tables containing potentially
+//  malicious input. For more information on hash table denial of service
+//  attacks, see: https://www.nruns.com/_downloads/advisory28122011.pdf
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHM
-#include <bslh_spookyhashalgorithm.h>
+#ifndef INCLUDED_BSLH_SIPHASHALGORITHM
+#include <bslh_siphashalgorithm.h>
 #endif
 
 namespace BloombergLP {
@@ -35,7 +36,7 @@ namespace BloombergLP {
 namespace bslh {
 
 #pragma bde_verify -TR17
-typedef SpookyHashAlgorithm DefaultHashAlgorithm;
+typedef SipHashAlgorithm SecureHashAlgorithm;
 #pragma bde_verify +TR17
 
 }  // close namespace bslh

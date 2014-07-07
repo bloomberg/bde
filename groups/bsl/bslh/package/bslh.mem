@@ -1,3 +1,7 @@
 bslh_defaulthashalgorithm
 bslh_hash
 bslh_oneatatimehashalgorithm
+bslh_securehashalgorithm
+bslh_siphashalgorithm
+bslh_spookyhashalgorithm
+bslh_spookyhashalgorithmimp
