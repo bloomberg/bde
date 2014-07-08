@@ -64,7 +64,7 @@ class SpookyHashAlgorithm
         // state of the hashing algorithm.
 
 
-    result_type getHash();// const;
+    result_type computeHash();// const;
         // Finalize the hash that has been accumulated and return it.
 };
 
@@ -79,7 +79,7 @@ void SpookyHashAlgorithm::operator()(void const* key, size_t length)
     d_state.Update(key, length);
 }
 
-SpookyHashAlgorithm::result_type SpookyHashAlgorithm::getHash()// const         TODO const?
+SpookyHashAlgorithm::result_type SpookyHashAlgorithm::computeHash()
 {
     bsls::Types::Uint64 h1, h2;
     d_state.Final(&h1, &h2);

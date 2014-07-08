@@ -14,12 +14,51 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslh_hash
 //
-//@DESCRIPTION: 'bslh::SipHashAlgorithm' implements the SipHash algorithm,
-//  which is almost as fast as general purpose algorithms like SpookyHash, but
-//  can offer cryptographically strong output. Given a cryptographically secure
-//  seed, this pseudo random hash function will produce a hash distribution
-//  that is indistinguishable from random. This hash algorithm can help
-//  mitigate delial of service attacks on a hash table.
+//@DESCRIPTION: 'bslh::SipHashAlgorithm' implements the SipHash algorithm.
+// SipHash is an algorithm designed for speed and security.  A primary use case
+// for this algorithm is to provide an extra line of defense in hash tables
+// (such as the underlying implementation of unordered map) against malicious
+// input that could cause denial of service attacks.  It is based on one of the
+// finalists for the SHA-3 cryptographic hash standard.  Full details of the
+// hash function can be found here: https://131002.net/siphash/siphash.pdf
+// This particular implementation has been derived from Howard Hinnant's work
+// here: https://github.com/HowardHinnant/hash_append/blob/master/siphash.h and
+// as much of the original code as possible, including comment headers, has
+// been preserved.
+//
+///Security Gaurentees
+///-------------------
+// SipHash is NOT a cryptographically secure hash. In the paper linked above,
+// the creators of this hash function describe it as "Cryptographically
+// Strong", but explicity avoid calling it cryptographically secure. In order
+// to be cryptographically secure, and algorithm must, among other things,
+// provide "collision resistance".  "Collision resistance" means that it should
+// be difficult to find two different messages m1 and m2 such that hash(m1) =
+// hash(m2).  Because of the limited sized output (only 2^64 possibilities) and
+// the fast execution time of the algorithm, it is feasible to find collisions
+// by brute force, making the algorithm not cryptographically secure.
+//
+// SipHash IS, however, a cryptographically strong PRF (pseudorandom function).
+// This means that, assuming a properly random seed is given, the output of
+// this algorithm will be indistinguishable from a uniform random distribution.
+//
+///Denial of Service Protection
+///----------------------------
+// The inability to predict the output of the hash from the input without
+// exhaustive search means that this algorithm can help mitigate denial of
+// service attacks on a hash table.  Denial of service attacks occur when an
+// attacker deliberately degrades the performace of the hash table by inserting
+// data that will collide to the same bucket, causing an O(1) lookup to become
+// a O(n) linear search.  This protection is only effective if the seed
+// provided is random and hidden from the attacker.
+//
+///Speed
+///-----
+// This algorithm is designed to be fast, compared to other algorithms making
+// similar gaurentees. It is still slower than other commonly accepted and used
+// hashes such as SpookyHash. This hash should only be used when protection
+// from malicious input is required. Otherwise, 'bslh::DefaultHashAlgorithm'
+// should be used to obtain a faster, generally applicable, hashing algorithm.
 
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
@@ -36,31 +75,31 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-//------------------------------- siphash.h ------------------------------------
-// 
+//------------------------------- siphash.h -----------------------------------
+//
 // This software is in the public domain.  The only restriction on its use is
-// that no one can remove it from the public domain by claiming ownership of it,
-// including the original authors.
-// 
+// that no one can remove it from the public domain by claiming ownership of
+// it, including the original authors.
+//
 // There is no warranty of correctness on the software contained herein.  Use
 // at your own risk.
 //
 // Derived from:
-// 
+//
 // SipHash reference C implementation
-// 
+//
 // Written in 2012 by Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
 // Daniel J. Bernstein <djb@cr.yp.to>
-// 
+//
 // To the extent possible under law, the author(s) have dedicated all copyright
 // and related and neighboring rights to this software to the public domain
 // worldwide. This software is distributed without any warranty.
-// 
+//
 // You should have received a copy of the CC0 Public Domain Dedication along
 // with this software. If not, see
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
-// 
-//------------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 
 namespace BloombergLP {
 
@@ -88,17 +127,26 @@ class SipHashAlgorithm
 
   public:
     typedef uint64 result_type;
+        // Typedef indicating the size of the hash this algorithm will return.
 
-    SipHashAlgorithm();
     explicit SipHashAlgorithm(uint64 k0, uint64 k1 = 0);
-        // Initialize the internal state of the algorithm
+        // Construct a new SipHashAlgorithm using the specified 'k0' as the
+        // first half of the initial key used to seed the algorithm. Optionally
+        // specify 'k1' as the second half of the key.Note that if 'k0' and
+        // 'k1' are not random, all gaurentees of security and denial of
+        // service protection are void.
 
     void operator()(void const* key, size_t len);
-        // Incorporates the specified 'key' of 'length' bytes into the internal
-        // state of the hashing algorithm.
+        // Incorporates the specified 'key' of 'len' bytes into the internal
+        // state of the hashing algorithm. Input where 'len' == 0 will have no
+        // effect on the internal state of the algorithm.
 
-    result_type getHash();
-        // Finalize the hash that has been accumulated and return it.
+    result_type computeHash();
+        // Return the finalized version of the hash that has been accumulated.
+        // Note that this changes the internal state of the object, so calling
+        // 'computeHash' multiple times in a row will return different results,
+        // and only the first result returned will match the expected result of
+        // the algorithm.
 };
 
 }  // close namespace bslh

@@ -90,27 +90,19 @@ sipround(u64& v0, u64& v1, u64& v2, u64& v3)
 
 }  // unnamed
 
-SipHashAlgorithm::SipHashAlgorithm() {
-    init();
-}
 
-
-SipHashAlgorithm::SipHashAlgorithm(u64 k0, u64 k1)
+SipHashAlgorithm::SipHashAlgorithm(u64 k0, u64 k1) : 
+                                                   d_v0(0x736f6d6570736575ULL),
+                                                   d_v1(0x646f72616e646f6dULL),
+                                                   d_v2(0x6c7967656e657261ULL),
+                                                   d_v3(0x7465646279746573ULL),
+                                                   d_bufSize(0),
+                                                   d_totalLength(0)
 {
-    init();
     d_v3 ^= k1;
     d_v2 ^= k0;
     d_v1 ^= k1;
     d_v0 ^= k0;
-}
-
-void SipHashAlgorithm::init() {
-    d_v0 = 0x736f6d6570736575ULL;
-    d_v1 = 0x646f72616e646f6dULL;
-    d_v2 = 0x6c7967656e657261ULL;
-    d_v3 = 0x7465646279746573ULL;
-    d_bufSize = 0;
-    d_totalLength = 0;
 }
 
 void
@@ -149,7 +141,7 @@ SipHashAlgorithm::operator()(void const* key, size_t inlen)
     std::copy(end, end + d_bufSize, d_buf);
 }
 
-SipHashAlgorithm::result_type SipHashAlgorithm::getHash()
+SipHashAlgorithm::result_type SipHashAlgorithm::computeHash()
 {
     result_type b = static_cast<u64>(d_totalLength) << 56;
     switch(d_bufSize)
