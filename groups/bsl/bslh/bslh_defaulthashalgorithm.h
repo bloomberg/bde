@@ -7,20 +7,47 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a typedef for a reasonable deafult hashing algorithm.
+//@PURPOSE: Provide a typedef for a reasonable default hashing algorithm.
 //
 //@CLASSES:
 // bslh::DefaultHashAlgorithm: Typedef for a good default hashing algorithm
 //
-//@SEE_ALSO: bslh_hash, bslh_oneatatimehashalgorithm
+//@SEE_ALSO: bslh_hash, bslh_securehashalgorithm
 //
-//@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a typedef for
-// 'bslh::SpookyHashAlgorithm'. This is done as a way to make it easier for
-// users to find the appropriate hashing algorithm. It is unlikely for users to
-// know whether 'bslh::SpookyHashAlgorithm' is a good defualt choice, so
-// 'bslh::DefaultHashAlgorithm' is supplied to make this more clear. This also
-// allows us to swap out this hash algorithm for a new algorithm is a better
-// defualt is found.
+//@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a typedef far a good
+// default hashing algorithm, suitable for producing hashes for a hash table.
+// 
+///Properties
+///----------
+// The following describe the extent to which different properties can be
+// expected from a default hashing algorithm.
+//
+///Security
+/// - - - -
+// There are NO security gaurentees made by 'bslh::DefaultHashAlgorithm'. If
+// security is required, look at 'bslh::SecureHashAlgorithm'.
+//
+///Speed
+///- - -
+// The default hash algorithm will produce hashes fast enough to be applicable
+// for general purpose use.
+//
+///Hash Distribution
+///- - - - - - - - -
+// The default hash algorithm will distribute hashes in a pseudorandom
+// distribution accross the keyspace. The hash function will exhibit avalanche
+// behaviour, meaning changing one bit of input will result in a 50% chance of
+// each output bit changing. Avalance behaviour is enough to gaurentee good key
+// distribution, even when values are consecutive.
+//
+///Hash Consistency
+/// - - - - - - - -
+// The default hash algorithm only gaurentees that hashes will remain
+// consistant within a single process. This means different hashes may be
+// produced on machines of different endianness or even between runs on the
+// same machine. Therefor it is not reccomended to send hashes from
+// 'bslh::DefaultHashAlgorithm' over a network. It is also not reccomended to
+// write hashes from 'bslh::DefaultHashAlgorithm' to shared memory or the disk.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
