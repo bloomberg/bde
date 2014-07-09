@@ -490,7 +490,8 @@ int main(int argc, char *argv[])
                                        SipHashAlgorithm::result_type>::VALUE));
         }
 
-      } break;      case 3: {
+      } break;
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING FUNCTION CALL OPERATOR AND COMPUTEHASH
         //   Verify that the class offers the ability to invoke it via
@@ -560,7 +561,7 @@ int main(int argc, char *argv[])
          {  L_,     "12345678901234567", 16434479071585321762ULL,},
          {  L_,    "123456789012345678",  1230685661702586319ULL,},
          {  L_,   "1234567890123456789",  8034362604589000460ULL,},
-         {  L_,  "12345678901234567890",  544989015912666071ULL,},
+         {  L_,  "12345678901234567890",   544989015912666071ULL,},
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

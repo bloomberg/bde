@@ -17,6 +17,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithmImp' provides BDE style wrapping
 //around Bob Jenkins spooky hash implementation.
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
 
 //
 // SpookyHash: a 128-bit noncryptographic hash function
@@ -55,12 +58,11 @@ BSLS_IDENT("$Id: $")
   typedef  unsigned __int16 uint16;
   typedef  unsigned __int8  uint8;
 #else
-# include <stdint.h>
 # define INLINE inline
-  typedef  uint64_t  uint64;
-  typedef  uint32_t  uint32;
-  typedef  uint16_t  uint16;
-  typedef  uint8_t   uint8;
+  typedef  ::BloombergLP::bsls::Types::Uint64  uint64;
+  typedef  unsigned int                        uint32;
+  typedef  unsigned short                      uint16;
+  typedef  unsigned char                       uint8;
 #endif
 
 namespace BloombergLP {

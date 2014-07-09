@@ -7,17 +7,43 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide an implementation of the spooky hash algorithm.
+//@PURPOSE: Provide a way to use spooky hash algorithm with 'bslh::Hash<>'.
 //
 //@CLASSES:
-// bslh::SpookyHashAlgorithm: Spooky hash algorithm
+// bslh::SpookyHashAlgorithm: Spooky hash algorithm.
 //
-//@SEE_ALSO: bslh_hash
+//@SEE_ALSO: bslh_hash, bslh_spookhashalgorithmimp
 //
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithm' implements the spooky hashing
-//  algorithm that is known to quickly reach good avalance performance and is a
-//  good choice for hashing for associative containers. See:
-//  http://burtleburtle.net/bob/hash/spooky.html
+//  algorithm by Bob Jenkins. The algorithm is a general purpose algorithm
+//  that is known to quickly reach good avalance performance and is very fast.
+//  It is a good choice to use as a default hashing algorithm for associative
+//  containters. See: http://burtleburtle.net/bob/hash/spooky.html
+//
+///Security Gaurentees
+///-------------------
+// This hashing algorithm is NOT a secure hash algorithm and makes no security
+// garuntees. If you are looking to mitigate denial of service attacks on an
+// associative container, see 'bslh_SipHashAlgorithm'.
+//
+///Performance
+///-----------
+// This hashing algorithm is a fast, general purpose algorithm. It is quicker
+// than specialized algorithms such as SipHash, but not as fast as identity
+// hashing. Output hashes will be well distributed and will avalanche, which
+// means changing one bit on the input will completely change the output. This
+// will prevent similar values from funneling to the same hash or bucket.
+//
+///Endianness
+///----------
+// This hash is endian-specific. It is designed for little endian machines,
+// however, it will run on big endian machines. On big endian machines, the
+// Performance and Security Garentees still apply, however the hashes produced
+// will be different from those produced by the cannonical implementation. The
+// creator of this algorithm aknowledges this and says that the big-endian
+// hashes are just as good as the little-endian ones. Be aware that this means
+// storing hashes in memory or transmitting them across the network is not
+// reccomended.
 
 #ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHMIMP
 #include <bslh_spookyhashalgorithmimp.h>
@@ -47,28 +73,35 @@ namespace bslh {
 
 class SpookyHashAlgorithm
 {
-    // This class implements the "SpookyHash" hash algorithm (see
-    // http://burtleburtle.net/bob/hash/spooky.html)
-  public:
-    typedef bsls::Types::Uint64 result_type;
+    // This class wraps an implementation of the "SpookyHash" hash algorithm
+    // (see http://burtleburtle.net/bob/hash/spooky.html)
 
-  private:
+    typedef bsls::Types::Uint64 uint64;
     SpookyHashAlgorithmImp d_state;
 
   public:
-    SpookyHashAlgorithm(size_t seed1 = 1, size_t seed2 = 2);
-        // Initialize the internal state of the algorithm
+    typedef bsls::Types::Uint64 result_type;
+        // Typedef indicating the type of value this algorithm returns
+
+    SpookyHashAlgorithm(uint64 seed1 = 1, uint64 seed2 = 2);                    //TODO explicit?
+        // Create an instance of 'SpookyHashAlgorithm' and optionally specify a
+        // 'seed1' and 'seed2' to be used as the higher and lower order bits
+        // respectively of the 128-bit seed for the algorithm.
 
     void operator()(void const* key, size_t length);
         // Incorporates the specified 'key' of 'length' bytes into the internal
         // state of the hashing algorithm.
 
-
-    result_type computeHash();// const;
-        // Finalize the hash that has been accumulated and return it.
+    result_type computeHash();
+        // Return the finalized version of the hash that has been accumulated.
+        // Note that this changes the internal state of the object, so calling
+        // 'computeHash' multiple times in a row will return different results,
+        // and only the first result returned will match the expected result of
+        // the algorithm.
 };
 
-SpookyHashAlgorithm::SpookyHashAlgorithm(size_t seed1, size_t seed2)
+SpookyHashAlgorithm::SpookyHashAlgorithm(SpookyHashAlgorithm::uint64 seed1,
+                                         SpookyHashAlgorithm::uint64 seed2)
 : d_state()
 {
     d_state.Init(seed1, seed2);
