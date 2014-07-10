@@ -1110,10 +1110,6 @@ class ManagedPtr {
         // Destroy the current managed object (if any) and reset this managed
         // pointer as empty.
 
-    void load(bsl::nullptr_t = 0, bsl::nullptr_t = 0);
-        // Destroy the current managed object (if any) and reset this managed
-        // pointer as empty.
-
     template <class MANAGED_TYPE>
     void load(MANAGED_TYPE *ptr);
         // Destroy the currently managed object, if any.  Then, set the target
@@ -1149,12 +1145,6 @@ class ManagedPtr {
         // unambiguously derived from 'bslma::Allocator', meets the
         // requirements for 'FACTORY_TYPE'.
 
-    template <class FACTORY_TYPE>
-    void load(bsl::nullptr_t, FACTORY_TYPE *factory);
-        // Destroy the current managed object (if any) and reset this managed
-        // pointer as empty.  Note that the specified 'factory' will be
-        // ignored, as empty managed pointers do not invoke a deleter.
-
     template <class MANAGED_TYPE>
     void load(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Destroy the currently managed object, if any.  Then, set the target
@@ -1171,21 +1161,12 @@ class ManagedPtr {
         // This function will be restored on that platform once the deprecated
         // signatures are finally removed.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    void load(TARGET_TYPE *ptr, void *cookie, DeleterFunc deleter);
-        // Destroy the currently managed object, if any.  Then, set the target
-        // object of this managed pointer to be that referenced by the
-        // specified 'ptr', take ownership of '*ptr' as the currently managed
-        // object, and set a deleter that will invoke the specified 'deleter'
-        // with the address of the currently managed object, and with the
-        // specified 'cookie' (that the deleter can use for its own purposes),
-        // unless '0 == ptr', in which case reset this managed pointer as
-        // empty.  The behavior is undefined if 'ptr' is already managed by
-        // another object, or if '0 == deleter && 0 != ptr'.  Note that this
-        // declaration is required only because the deprecated overloads create
-        // an ambiguity for this specific this case.  It should be removed when
-        // the deprecated overloads are removed.
+    void load(bsl::nullptr_t = 0, void *cookie = 0, DeleterFunc deleter = 0);
+        // Destroy the current managed object (if any) and reset this managed
+        // pointer as empty.  Note that the specified 'factory' and 'deleter'
+        // will be ignored, as empty managed pointers do not invoke a deleter.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <class MANAGED_TYPE, class COOKIE_TYPE>
     void load(MANAGED_TYPE *ptr, COOKIE_TYPE *cookie, DeleterFunc deleter);
 
@@ -1632,13 +1613,6 @@ void ManagedPtr<TARGET_TYPE>::clear()
 }
 
 template <class TARGET_TYPE>
-inline
-void ManagedPtr<TARGET_TYPE>::load(bsl::nullptr_t, bsl::nullptr_t)
-{
-    this->clear();
-}
-
-template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
 void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
@@ -1679,26 +1653,13 @@ void ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
 }
 
 template <class TARGET_TYPE>
-template <class FACTORY_TYPE>
 inline
-void ManagedPtr<TARGET_TYPE>::load(bsl::nullptr_t, FACTORY_TYPE *)
+void ManagedPtr<TARGET_TYPE>::load(bsl::nullptr_t, void *, DeleterFunc)
 {
     this->clear();
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class TARGET_TYPE>
-inline
-void ManagedPtr<TARGET_TYPE>::load(TARGET_TYPE *ptr,
-                                   void        *cookie,
-                                   DeleterFunc  deleter)
-{
-    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-
-    d_members.runDeleter();
-    d_members.set(stripBasePointerType(ptr), cookie, deleter);
-}
-
 template <class TARGET_TYPE>
 template <class MANAGED_TYPE, class COOKIE_TYPE>
 inline
