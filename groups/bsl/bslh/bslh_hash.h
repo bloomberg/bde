@@ -10,17 +10,62 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a struct that can run any hashing algorithm on any type.
 //
 //@CLASSES:
-//  bslh::Hash: hash function for fundamental types
+//  bslh::Hash: Universal hashing functor that can apply any algorithm to types
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a templated struct, 'bslh::Hash', which
 // provides hashing functionality and is a drop in replacement for 'bsl::hash'.
-// It also contains hashAppend definitions for fundamental types, which are
-// required to make the hashing algorithms in 'bslh' work. 'bslh::Hash' is a
-// universal hashing algorithm that will hash any type that implements
-// 'hashAppend' and will hash that type using the hashing algorithm provided as
-// a template parameter.
+// 'bslh::Hash' is a wrapper that adapts the hashing algorithms to match the
+// inteface of 'bsl::hash'.  This component also contains hashAppend
+// definitions for fundamental types, which are required to make the hashing
+// algorithms in 'bslh' work. 'bslh::Hash' is a universal hashing functor that
+// will hash any type that implements 'hashAppend' using the hashing algorithm
+// provided as a template parameter.  For more details, see:
+// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
+// Modular+Hashing&spaceKey=bde
+//
+///Modularity
+///----------
+// 'bslh::Hash' provides a modular system for hashing.  Identification of
+// slaient attributes on a type and the actual implementation of hahing
+// algorithms can be decoupled. Salient attributes can be called out on a type
+// using 'hashAppend'. Hashing algorithms can be written (some defaults are
+// provided in 'bslh') to operate on the attributes called out by 'hashAppend'.
+// This prevents type creators from having to duplicate work or write bad
+// hashing algorithms.
+//
+///'hashAppend'
+///------------
+// 'hashAppend' is the function that is used to pass salient attributes from a
+// type into a hashing algorithm. Any type being hashed must implement
+// 'hashAppend'. Within this implementation, the type will call 'hashAppend' on
+// each of it's salient attributes (attributes that contribute to value). If
+// those attributes are themselves user defined types, they will continue
+// calling 'hashAppend' on their own salient attributes until fundamental types
+// are reached.
+//
+// Within this file, 'hashAppend' has been implemented for all of the
+// fundamental types. When 'hashAppend is reached on a fundamental type, the
+// hashing algorithm is no longer propogated, and instead a pointer to the
+// begining of the type in memory is passed to the algorithm, along with the
+// length of the type. The algorithm will then incorporate the type into its
+// internal state and return a finalized hash when requested.
+//
+///Hashing Algorithms
+///------------------
+// All of the hashing algorithms in 'bslh' will implement the same interface.
+// They offer an 'operator()' to pass in a pointer and a length. The algorithms
+// will operate on the number of bytes specified by the length, starting at the
+// location pointed to by the pointer. They will all also offer a 'computHash'
+// method that will return a finalized hash.
+//
+///Typedefs
+///--------
+// Typedefs are offered for standard algorithm usages such as a default or
+// secure algorithms. These typedef's can change at any time and will be used
+// to locate the best algorithm for the use case indicated by the name of the
+// typedef.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -62,8 +107,8 @@ namespace bslh {
 template <class HASHALG = bslh::DefaultHashAlgorithm>
 struct Hash
 {
-    // Wraps hashAttributes and the parameterized 'HASHALG' in an interface
-    // that is a drop in replacement for 'bsl::hash'
+    // Wraps the parameterized 'HASHALG' in an interface that is a drop in
+    // replacement for 'bsl::hash'
 
     typedef typename HASHALG::result_type result_type;
         // Type of the hash that will be returned.
@@ -82,7 +127,7 @@ Hash<HASHALG>::operator()(TYPE const& key) const
 {
     HASHALG hashAlg;
     hashAppend(hashAlg, key);
-    return hashAlg.getHash();
+    return hashAlg.computeHash();
 }
 
 // ============================================================================
@@ -144,7 +189,8 @@ void hashAppend(HASHALG& hashAlg, double const input);
 
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, long double const input);
-    // Passes the specified 'input' to the specified 'hashAlg'
+    // Passes the specified 'input' to the specified 'hashAlg' to be combined
+    // into the hash.
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS

@@ -762,7 +762,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an instance of 'bsl::SipHashAlgorithm'. (C-1)
+        //: 1 Create an instance of 'bslh::SipHashAlgorithm'. (C-1)
         //:
         //: 2 Verify different hashes are produced for different c-strings.
         //:   (C-1)

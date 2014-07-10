@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Security
 /// - - - -
-// 'bslh::SecureHashAlgorithm' is NOT a CRYPTOGRAPHICALY secure hash.  In order
+// 'bslh::SecureHashAlgorithm' is NOT a cryptographicaly secure hash.  In order
 // to be cryptographically secure, and algorithm must, among other things,
 // provide "collision resistance".  "Collision resistance" means that it should
 // be difficult to find two different messages m1 and m2 such that hash(m1) =

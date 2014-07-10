@@ -9,6 +9,24 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <algorithm>
 #include <cstddef>
 
+///Changes
+///-------
+// The third party code begins with the "siphash.h" header below, and continues
+// untill the Bloomberg LP copyright banner below. Changes made to the original
+// code include:
+//
+//: 1 Adding BloombergLP and bslh namespaces
+//:
+//: 2 Renaming 'siphash' to 'SipHashAlgorithm'
+//:
+//: 3 Whitespace changes for formatting
+//:
+//: 4 Added initializer list to handle class member initializers removed from
+//:   the header
+//:
+//: 5 Added 'computeHash' to handle explicit conversion removed from header.
+
+
 //------------------------------- siphash.h ------------------------------------
 // 
 // This software is in the public domain.  The only restriction on its use is

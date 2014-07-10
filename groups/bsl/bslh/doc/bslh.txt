@@ -5,7 +5,7 @@
 @MNEMONIC: Basic Standard Library Hashing (bslh)
 
 @DESCRIPTION: The 'bslh' package provides components for a more modular hashing
- implemenation that is found in the standard. This implementation is based on
+ implemenation than is found in the standard. This implementation is based on
  ISO C++ Proposal N3980. A BDE specific proposal for this is availible at
  https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing. This package
  provides hashing algorithms as well as a 'hash' struct that allows different
@@ -20,11 +20,13 @@
  just alphabetical.
 ..
 
-  3. bslh_hash
+  4. bslh_hash
 
-  2. bslh_defaulthashalgorithm
+  3. bslh_defaulthashalgorithm, bslh_securehashalgorithm
 
-  1. bslh_oneatatimehashalgorithm
+  2. bslh_siphashalgorithm, bslh_spookyhashalgorithm
+
+  1. bslh_spookyhashalgorithmimp
 
 ..
 
@@ -36,8 +38,15 @@
 : 'bslh_hash':
 :      Provide a struct that can run any hashing algorithm on any type.
 :
-: 'bslh_oneatatimehashalgorithm':
+: 'bslh_securehashalgorithm':
+:      Provide a typedef for a reasonable secure hashing algorithm.
+:
+: 'bslh_siphashalgorithm':
+:      Provide a hashing algorithm to secure against denial of service attacks.
+:
+: 'bslh_spookyhashalgorithm':
 :      Provide a hashing algorithm with decent performance for all data.
+
 
 /Component Overview
 /------------------
@@ -46,30 +55,77 @@
  and usage.
 
 /'bslh_defaulthashalgorithm'
-/- - - - - - - - -
- 'bslh::DefaultHashAlgorithm' provides a typedef for
- 'bslh::OneAtATimeHashAlgorithm'. This is done as a way to make it easier for
- users to find the appropriate hashing algorithm. It is unlikely for users to
- know whether 'bslh::OneAtATimeHashAlgorithm' is a good defualt choice, so
- 'bslh::DefaultHashAlgorithm' is supplied to make this more clear. This also
- allows us to swap out this hash algorithm for a new algorithm is a better
- defualt is found.
+/- - - - - - - - - - - - - -
+ 'bslh::DefaultHashAlgorithm' provides a typedef far a good
+ default hashing algorithm, suitable for producing hashes for a hash table.
 
 /'bslh_hash'
-/- - - - - - - - - - - -
+/- - - - - -
  This component provides a templated struct, 'bslh::Hash', which provides
- hashing functionality and is a drop in replacement for 'bsl::hash'.  It also
- contains hashAppend definitions for fundamental types, which are required to
- make the hashing algorithms in 'bslh' work. 'bslh::Hash' is a universal
- hashing algorithm that will hash any type that implements 'hashAppend' and
- will hash that type using the hashing algorithm provided as a template
- parameter.
+ hashing functionality and is a drop in replacement for 'bsl::hash'.
+ 'bslh::Hash' is a wrapper that adapts the hashing algorithms to match the
+ inteface of 'bsl::hash'.  This component also contains hashAppend definitions
+ for fundamental types, which are required to make the hashing algorithms in
+ 'bslh' work. 'bslh::Hash' is a universal hashing functor that will hash any
+ type that implements 'hashAppend' using the hashing algorithm provided as a
+ template parameter.  For more details, see:
+ https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
+ Modular+Hashing&spaceKey=bde
 
-/'bslh_oneatatimehashalgorithm'
-/ - - - - - - - - - - -
- 'bslh::OneAtATimeHashAlg' implements the one-at-a-time hashing algorithm that
- is known to quickly reach good avalance performance and is a good choice for
- hashing for associative containers.
+/'bslh_securethashalgorithm'
+/- - - - - - - - - - - - - -
+ 'bslh::SecureHashAlgorithm' provides a typedef for a secure hashing algorithm.
+ Given a random seed, this algorithm will act as a psuedorandom function and
+ produce hashes that are distributed in a way that is indistinguishable from
+ random. This hash algorithm may operate more slowly than
+ 'bslh::DefaultHashAlgorithm', however it will help mitigate the risk of denial
+ of service attacks on hash tables containing potentially malicious input. For
+ more information on hash table denial of service attacks, see:
+ https://www.nruns.com/_downloads/advisory28122011.pdf
+
+/'bslh_siphashalgorithm'
+/- - - - - - - - - - - -
+ 'bslh::SipHashAlgorithm' implements the SipHash algorithm.  SipHash is an
+ algorithm designed for speed and security.  A primary use case for this
+ algorithm is to provide an extra line of defense in hash tables (such as the
+ underlying implementation of unordered map) against malicious input that could
+ cause denial of service attacks.  It is based on one of the finalists for the
+ SHA-3 cryptographic hash standard.  Full details of the hash function can be
+ found here: https://131002.net/siphash/siphash.pdf This particular
+ implementation has been derived from Howard Hinnant's work here:
+ https://github.com/HowardHinnant/hash_append/blob/master/siphash.h and as much
+ of the original code as possible, including comment headers, has been
+ preserved.
+
+/'bslh_spookyhashalgorithm'
+/ - - - - - - - - - - - - -
+ 'bslh::SpookyHashAlgorithm' implements the spooky hashing algorithm by Bob
+ Jenkins. The algorithm is a general purpose algorithm that is known to quickly
+ reach good avalance performance and is very fast.  It is a good choice to use
+ as a default hashing algorithm for associative containters. See:
+ http://burtleburtle.net/bob/hash/spooky.html
+
+/Terminology
+/-----------
+
+/Avalanche
+/- - - - -
+ Changing one bit in the input to the hashing algorithm results in an
+ "avalanche", which causes each output bit to have a 50% probability of
+ changing. The avalanche property means that two very similar values will
+ produce completely dissimilar hashes.
+
+/Funneling
+/- - - - -
+ An undesirable property of hashing algorithms that results in a large number
+ of collisions when the inputs differ by only a few bits. More information can
+ be found at http://burtleburtle.net/bob/hash/evahash.html
+
+/Salient Attribute
+/- - - - - - - - -
+ An attribute that contributes to the value of an object. All salient
+ attributes should contribute to a hash, and objects with equivalent salient
+ attributes should hash to the same value.
 
 /Why Use This Modular Hashing System?
 /------------------------------------

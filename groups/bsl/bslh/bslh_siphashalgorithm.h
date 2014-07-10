@@ -59,6 +59,28 @@ BSLS_IDENT("$Id: $")
 // hashes such as SpookyHash. This hash should only be used when protection
 // from malicious input is required. Otherwise, 'bslh::DefaultHashAlgorithm'
 // should be used to obtain a faster, generally applicable, hashing algorithm.
+//
+///Changes
+///-------
+// The third party code begins with the "siphash.h" header below, and continues
+// untill the TYPE TRAITS banner below. Changes made to the original code
+// include:
+//
+//: 1 Adding BloombergLP and bslh namespaces
+//:
+//: 2 Renaming 'siphash' to 'SipHashAlgorithm'
+//:
+//: 3 Whitespace changes for formatting
+//:
+//: 4 Added comments
+//:
+//: 5 Removed C++11 features including class member initializer, 'noexcept',
+//:   'std::uint64_t', elxplicit conversion operator, and an '= default'
+//:   constructor.
+//:
+//: 6 Added typedef to replace removed 'std::uint64_t'
+//:
+//: 7 Added 'computeHash' to replace the removed explicit conversion
 
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE

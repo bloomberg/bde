@@ -4,6 +4,18 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+///Changes
+///-------
+// The third party code begins with the "Spooky Hash" header below, and
+// continues untill the BloombergLP copyright notice. Changes made to the
+// original code include:
+//
+//: 1 Adding BloombergLP and bslh namespaces
+//:
+//: 2 Renaming 'SpookyHash' to 'SpookyHashAlgorithmImp'
+//:
+//: 3 Whitespace changes for formatting
+
 // Spooky Hash
 // A 128-bit noncryptographic hash, for checksums and table lookup
 // By Bob Jenkins.  Public domain.
@@ -13,7 +25,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //   April 10 2012: buffer overflow on platforms without unaligned reads
 //   July 12 2012: was passing out variables in final to in/out in short
 //   July 30 2012: I reintroduced the buffer overflow
-//   August 5 2012: SpookyV2: d = should be d += in short hash, and remove extra mix from long hash
+//   August 5 2012: SpookyV2: d = should be d += in short hash, and remove
+//   extra mix from long hash
 
 #include <memory.h>
 
@@ -363,7 +376,7 @@ void SpookyHashAlgorithmImp::Final(uint64 *hash1, uint64 *hash2)
 
 }  // close namespace BloombergLP
 
-// ---------------------------------------------------------------------------- TODO remove?
+// ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
