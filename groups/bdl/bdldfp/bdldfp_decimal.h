@@ -4017,7 +4017,7 @@ bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 value)
 inline
 bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 value)
 {
-    return Decimal32(DecimalImpUtil::neg(value.value()));
+    return Decimal32(DecimalImpUtil::negate(value.value()));
 }
 
 inline
@@ -4209,7 +4209,7 @@ inline Decimal_Type64& Decimal_Type64::operator-=(Decimal32 rhs)
 
 inline Decimal_Type64& Decimal_Type64::operator-=(Decimal64 rhs)
 {
-    return *this = Decimal64(DecimalImpUtil::sub(*this->data(), *rhs.data()));
+    return *this = Decimal64(DecimalImpUtil::subtract(*this->data(), *rhs.data()));
 }
 
 inline Decimal_Type64& Decimal_Type64::operator-=(Decimal128 rhs)
@@ -4256,7 +4256,7 @@ inline Decimal_Type64& Decimal_Type64::operator*=(Decimal32 rhs)
 
 inline Decimal_Type64& Decimal_Type64::operator*=(Decimal64 rhs)
 {
-    return *this = Decimal64(DecimalImpUtil::mul(*this->data(), *rhs.data()));
+    return *this = Decimal64(DecimalImpUtil::multiply(*this->data(), *rhs.data()));
 }
 
 inline Decimal_Type64& Decimal_Type64::operator*=(Decimal128 rhs)
@@ -4303,7 +4303,7 @@ inline Decimal_Type64& Decimal_Type64::operator/=(Decimal32 rhs)
 
 inline Decimal_Type64& Decimal_Type64::operator/=(Decimal64 rhs)
 {
-    return *this = Decimal64(DecimalImpUtil::div(*this->data(), *rhs.data()));
+    return *this = Decimal64(DecimalImpUtil::divide(*this->data(), *rhs.data()));
 }
 
 inline Decimal_Type64& Decimal_Type64::operator/=(Decimal128 rhs)
@@ -4371,7 +4371,7 @@ bdldfp::Decimal64 bdldfp::operator+(bdldfp::Decimal64 value)
 inline
 bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 value)
 {
-    return DecimalImpUtil::neg(*value.data());
+    return DecimalImpUtil::negate(*value.data());
 }
 
 inline
@@ -4487,7 +4487,7 @@ bdldfp::Decimal64 bdldfp::operator+(unsigned long long lhs, bdldfp::Decimal64 rh
 inline
 bdldfp::Decimal64 bdldfp::operator-(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
 {
-    return Decimal64(DecimalImpUtil::sub(*lhs.data(), *rhs.data()));
+    return Decimal64(DecimalImpUtil::subtract(*lhs.data(), *rhs.data()));
 }
 
 inline
@@ -4578,7 +4578,7 @@ bdldfp::Decimal64 bdldfp::operator-(unsigned long long lhs, bdldfp::Decimal64 rh
 
 inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
 {
-    return Decimal64(DecimalImpUtil::mul(*lhs.data(), *rhs.data()));
+    return Decimal64(DecimalImpUtil::multiply(*lhs.data(), *rhs.data()));
 }
 
 inline bdldfp::Decimal64 bdldfp::operator*(bdldfp::Decimal32 lhs, bdldfp::Decimal64 rhs)
@@ -4655,7 +4655,7 @@ inline bdldfp::Decimal64 bdldfp::operator*(unsigned long long lhs, bdldfp::Decim
 
 inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal64 lhs, bdldfp::Decimal64 rhs)
 {
-    return Decimal64(DecimalImpUtil::div(*lhs.data(), *rhs.data()));
+    return Decimal64(DecimalImpUtil::divide(*lhs.data(), *rhs.data()));
 }
 
 inline bdldfp::Decimal64 bdldfp::operator/(bdldfp::Decimal32 lhs, bdldfp::Decimal64 rhs)
@@ -4991,7 +4991,7 @@ Decimal_Type128& Decimal_Type128::operator-=(Decimal64 rhs)
 inline
 Decimal_Type128& Decimal_Type128::operator-=(Decimal128 rhs)
 {
-    return *this = Decimal128(DecimalImpUtil::sub(this->d_value, rhs.d_value));
+    return *this = Decimal128(DecimalImpUtil::subtract(this->d_value, rhs.d_value));
 }
 
 
@@ -5048,7 +5048,7 @@ Decimal_Type128& Decimal_Type128::operator*=(Decimal64 rhs)
 inline
 Decimal_Type128& Decimal_Type128::operator*=(Decimal128 rhs)
 {
-    return *this = Decimal128(DecimalImpUtil::mul(this->d_value, rhs.d_value));
+    return *this = Decimal128(DecimalImpUtil::multiply(this->d_value, rhs.d_value));
 }
 
 
@@ -5105,7 +5105,7 @@ Decimal_Type128& Decimal_Type128::operator/=(Decimal64 rhs)
 inline
 Decimal_Type128& Decimal_Type128::operator/=(Decimal128 rhs)
 {
-    return *this = Decimal128(DecimalImpUtil::div(this->d_value, rhs.d_value));
+    return *this = Decimal128(DecimalImpUtil::divide(this->d_value, rhs.d_value));
 }
 
 
@@ -5178,7 +5178,7 @@ bdldfp::Decimal128 bdldfp::operator+(bdldfp::Decimal128 value)
 inline
 bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 value)
 {
-    return Decimal128(DecimalImpUtil::neg(*value.data()));
+    return Decimal128(DecimalImpUtil::negate(*value.data()));
 }
 
 inline
@@ -5306,7 +5306,7 @@ bdldfp::Decimal128 bdldfp::operator+(unsigned long long lhs, bdldfp::Decimal128 
 inline
 bdldfp::Decimal128 bdldfp::operator-(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
 {
-    return Decimal128(DecimalImpUtil::sub(*lhs.data(), *rhs.data()));
+    return Decimal128(DecimalImpUtil::subtract(*lhs.data(), *rhs.data()));
 }
 
 inline
@@ -5410,7 +5410,7 @@ bdldfp::Decimal128 bdldfp::operator-(unsigned long long lhs, bdldfp::Decimal128 
 inline
 bdldfp::Decimal128 bdldfp::operator*(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
 {
-    return Decimal128(DecimalImpUtil::mul(*lhs.data(), *rhs.data()));
+    return Decimal128(DecimalImpUtil::multiply(*lhs.data(), *rhs.data()));
 }
 
 inline
@@ -5514,7 +5514,7 @@ bdldfp::Decimal128 bdldfp::operator*(unsigned long long lhs, bdldfp::Decimal128 
 inline
 bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
 {
-    return Decimal128(DecimalImpUtil::div(*lhs.data(), *rhs.data()));
+    return Decimal128(DecimalImpUtil::divide(*lhs.data(), *rhs.data()));
 }
 
 inline

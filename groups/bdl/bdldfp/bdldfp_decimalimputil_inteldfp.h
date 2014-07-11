@@ -37,7 +37,6 @@ BSLS_IDENT("$Id$")
 
 #if BDLDFP_DECIMALPLATFORM_INTELDFP
 
-
 #ifndef INCLUDED_BID_FUNCTIONS
 
 // Controlling macros for the intel library configuration
@@ -125,18 +124,18 @@ struct DecimalImpUtil_IntelDFP {
     static ValueType64  add(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 add(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  sub(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 sub(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  subtract(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 subtract(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  mul(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 mul(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  multiply(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 multiply(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  div(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 div(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  divide(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 divide(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType32  neg(ValueType32  value);
-    static ValueType64  neg(ValueType64  value);
-    static ValueType128 neg(ValueType128 value);
+    static ValueType32  negate(ValueType32  value);
+    static ValueType64  negate(ValueType64  value);
+    static ValueType128 negate(ValueType128 value);
 
                         // Comparison
 
@@ -379,18 +378,20 @@ DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::uint64ToDecimal12
 
                         // Arithmetic
 
-inline DecimalImpUtil_Platform::ValueType64  DecimalImpUtil_Platform::add(
-                                               DecimalImpUtil_Platform::ValueType64 lhs,
-                                               DecimalImpUtil_Platform::ValueType64 rhs)
+inline
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::add(DecimalImpUtil_Platform::ValueType64 lhs,
+                             DecimalImpUtil_Platform::ValueType64 rhs)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
     retval.d_raw = __bid64_add(lhs.d_raw, rhs.d_raw);
     return retval;
 }
 
-inline DecimalImpUtil_Platform::ValueType128  DecimalImpUtil_Platform::add(
-                                              DecimalImpUtil_Platform::ValueType128 lhs,
-                                              DecimalImpUtil_Platform::ValueType128 rhs)
+inline
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::add(DecimalImpUtil_Platform::ValueType128 lhs,
+                             DecimalImpUtil_Platform::ValueType128 rhs)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
     retval.d_raw = __bid128_add(lhs.d_raw, rhs.d_raw);
@@ -399,18 +400,20 @@ inline DecimalImpUtil_Platform::ValueType128  DecimalImpUtil_Platform::add(
 
 
 
-inline DecimalImpUtil_Platform::ValueType64  DecimalImpUtil_Platform::sub(
-                                               DecimalImpUtil_Platform::ValueType64 lhs,
-                                               DecimalImpUtil_Platform::ValueType64 rhs)
+inline
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::subtract(DecimalImpUtil_Platform::ValueType64 lhs,
+                                  DecimalImpUtil_Platform::ValueType64 rhs)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
     retval.d_raw = __bid64_sub(lhs.d_raw, rhs.d_raw);
     return retval;
 }
 
-inline DecimalImpUtil_Platform::ValueType128  DecimalImpUtil_Platform::sub(
-                                              DecimalImpUtil_Platform::ValueType128 lhs,
-                                              DecimalImpUtil_Platform::ValueType128 rhs)
+inline
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::subtract(DecimalImpUtil_Platform::ValueType128 lhs,
+                                  DecimalImpUtil_Platform::ValueType128 rhs)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
     retval.d_raw = __bid128_sub(lhs.d_raw, rhs.d_raw);
@@ -419,18 +422,20 @@ inline DecimalImpUtil_Platform::ValueType128  DecimalImpUtil_Platform::sub(
 
 
 
-inline DecimalImpUtil_Platform::ValueType64  DecimalImpUtil_Platform::mul(
-                                               DecimalImpUtil_Platform::ValueType64 lhs,
-                                               DecimalImpUtil_Platform::ValueType64 rhs)
+inline
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::multiply(DecimalImpUtil_Platform::ValueType64 lhs,
+                                  DecimalImpUtil_Platform::ValueType64 rhs)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
     retval.d_raw = __bid64_mul(lhs.d_raw, rhs.d_raw);
     return retval;
 }
 
-inline DecimalImpUtil_Platform::ValueType128  DecimalImpUtil_Platform::mul(
-                                              DecimalImpUtil_Platform::ValueType128 lhs,
-                                              DecimalImpUtil_Platform::ValueType128 rhs)
+inline
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::multiply(DecimalImpUtil_Platform::ValueType128 lhs,
+                                  DecimalImpUtil_Platform::ValueType128 rhs)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
     retval.d_raw = __bid128_mul(lhs.d_raw, rhs.d_raw);
@@ -439,18 +444,20 @@ inline DecimalImpUtil_Platform::ValueType128  DecimalImpUtil_Platform::mul(
 
 
 
-inline DecimalImpUtil_Platform::ValueType64  DecimalImpUtil_Platform::div(
-                                               DecimalImpUtil_Platform::ValueType64 lhs,
-                                               DecimalImpUtil_Platform::ValueType64 rhs)
+inline
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::divide(DecimalImpUtil_Platform::ValueType64 lhs,
+                                DecimalImpUtil_Platform::ValueType64 rhs)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
     retval.d_raw = __bid64_div(lhs.d_raw, rhs.d_raw);
     return retval;
 }
 
-inline DecimalImpUtil_Platform::ValueType128  DecimalImpUtil_Platform::div(
-                                             DecimalImpUtil_Platform::ValueType128  lhs,
-                                             DecimalImpUtil_Platform::ValueType128  rhs)
+inline
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::divide(DecimalImpUtil_Platform::ValueType128  lhs,
+                                DecimalImpUtil_Platform::ValueType128  rhs)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
     retval.d_raw = __bid128_div(lhs.d_raw, rhs.d_raw);
@@ -458,8 +465,8 @@ inline DecimalImpUtil_Platform::ValueType128  DecimalImpUtil_Platform::div(
 }
 
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::neg(
-                                    DecimalImpUtil_Platform::ValueType32 value)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::negate(DecimalImpUtil_Platform::ValueType32 value)
 {
     DecimalImpUtil_Platform::ValueType32 retval;
     retval.d_raw = __bid32_negate(value.d_raw);
@@ -467,8 +474,8 @@ DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::neg(
 }
 
 inline
-DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::neg(
-                                    DecimalImpUtil_Platform::ValueType64 value)
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::negate(DecimalImpUtil_Platform::ValueType64 value)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
     retval.d_raw = __bid64_negate(value.d_raw);
@@ -476,8 +483,8 @@ DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::neg(
 }
 
 inline
-DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::neg(
-                                   DecimalImpUtil_Platform::ValueType128 value)
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::negate(DecimalImpUtil_Platform::ValueType128 value)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
     retval.d_raw = __bid128_negate(value.d_raw);
@@ -485,29 +492,33 @@ DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::neg(
 }
 
 inline
-bool DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType32 lhs,
-                                   DecimalImpUtil_Platform::ValueType32 rhs)
+bool
+DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType32 lhs,
+                              DecimalImpUtil_Platform::ValueType32 rhs)
 {
     return __bid32_quiet_less(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType64 lhs,
-                                   DecimalImpUtil_Platform::ValueType64 rhs)
+bool
+DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType64 lhs,
+                              DecimalImpUtil_Platform::ValueType64 rhs)
 {
     return __bid64_quiet_less(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType128 lhs,
-                                   DecimalImpUtil_Platform::ValueType128 rhs)
+bool
+DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType128 lhs,
+                              DecimalImpUtil_Platform::ValueType128 rhs)
 {
     return __bid128_quiet_less(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType32 lhs,
-                                      DecimalImpUtil_Platform::ValueType32 rhs)
+bool
+DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType32 lhs,
+                                 DecimalImpUtil_Platform::ValueType32 rhs)
 {
     return __bid32_quiet_greater(lhs.d_raw, rhs.d_raw);
 }
@@ -520,55 +531,56 @@ bool DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType64 lhs,
 }
 
 inline
-bool DecimalImpUtil_Platform::greater(
-                                     DecimalImpUtil_Platform::ValueType128 lhs,
-                                     DecimalImpUtil_Platform::ValueType128 rhs)
+bool
+DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType128 lhs,
+                                 DecimalImpUtil_Platform::ValueType128 rhs)
 {
     return __bid128_quiet_greater(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::lessEqual(
-                                      DecimalImpUtil_Platform::ValueType32 lhs,
-                                      DecimalImpUtil_Platform::ValueType32 rhs)
+bool
+DecimalImpUtil_Platform::lessEqual(DecimalImpUtil_Platform::ValueType32 lhs,
+                                   DecimalImpUtil_Platform::ValueType32 rhs)
 {
     return __bid32_quiet_less_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::lessEqual(
-                                      DecimalImpUtil_Platform::ValueType64 lhs,
-                                      DecimalImpUtil_Platform::ValueType64 rhs)
+bool
+DecimalImpUtil_Platform::lessEqual(DecimalImpUtil_Platform::ValueType64 lhs,
+                                   DecimalImpUtil_Platform::ValueType64 rhs)
 {
     return __bid64_quiet_less_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::lessEqual(
-                                     DecimalImpUtil_Platform::ValueType128 lhs,
-                                     DecimalImpUtil_Platform::ValueType128 rhs)
+bool
+DecimalImpUtil_Platform::lessEqual(DecimalImpUtil_Platform::ValueType128 lhs,
+                                   DecimalImpUtil_Platform::ValueType128 rhs)
 {
     return __bid128_quiet_less_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::greaterEqual(
-                                      DecimalImpUtil_Platform::ValueType32 lhs,
+bool
+DecimalImpUtil_Platform::greaterEqual(DecimalImpUtil_Platform::ValueType32 lhs,
                                       DecimalImpUtil_Platform::ValueType32 rhs)
 {
     return __bid32_quiet_greater_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::greaterEqual(
-                                      DecimalImpUtil_Platform::ValueType64 lhs,
+bool
+DecimalImpUtil_Platform::greaterEqual(DecimalImpUtil_Platform::ValueType64 lhs,
                                       DecimalImpUtil_Platform::ValueType64 rhs)
 {
     return __bid64_quiet_greater_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::greaterEqual(
+bool
+DecimalImpUtil_Platform::greaterEqual(
                                      DecimalImpUtil_Platform::ValueType128 lhs,
                                      DecimalImpUtil_Platform::ValueType128 rhs)
 {
@@ -576,55 +588,59 @@ bool DecimalImpUtil_Platform::greaterEqual(
 }
 
 inline
-bool DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType32 lhs,
-                                    DecimalImpUtil_Platform::ValueType32 rhs)
+bool
+DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType32 lhs,
+                               DecimalImpUtil_Platform::ValueType32 rhs)
 {
     return __bid32_quiet_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType64 lhs,
-                                    DecimalImpUtil_Platform::ValueType64 rhs)
+bool
+DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType64 lhs,
+                               DecimalImpUtil_Platform::ValueType64 rhs)
 {
     return __bid64_quiet_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType128 lhs,
-                                    DecimalImpUtil_Platform::ValueType128 rhs)
+bool
+DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType128 lhs,
+                               DecimalImpUtil_Platform::ValueType128 rhs)
 {
     return __bid128_quiet_equal(lhs.d_raw, rhs.d_raw);
 }
 
 
 inline
-bool DecimalImpUtil_Platform::notEqual(
-                                      DecimalImpUtil_Platform::ValueType32 lhs,
-                                      DecimalImpUtil_Platform::ValueType32 rhs)
+bool
+DecimalImpUtil_Platform::notEqual(DecimalImpUtil_Platform::ValueType32 lhs,
+                                  DecimalImpUtil_Platform::ValueType32 rhs)
 {
     return __bid32_quiet_not_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::notEqual(
-                                      DecimalImpUtil_Platform::ValueType64 lhs,
-                                      DecimalImpUtil_Platform::ValueType64 rhs)
+bool
+DecimalImpUtil_Platform::notEqual(DecimalImpUtil_Platform::ValueType64 lhs,
+                                  DecimalImpUtil_Platform::ValueType64 rhs)
 {
     return __bid64_quiet_not_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_Platform::notEqual(
-                                     DecimalImpUtil_Platform::ValueType128 lhs,
-                                     DecimalImpUtil_Platform::ValueType128 rhs)
+bool
+DecimalImpUtil_Platform::notEqual(DecimalImpUtil_Platform::ValueType128 lhs,
+                                  DecimalImpUtil_Platform::ValueType128 rhs)
 {
     return __bid128_quiet_not_equal(lhs.d_raw, rhs.d_raw);
 }
 
 
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::convertToDecimal32(
-                                      const DecimalImpUtil_Platform::ValueType64& input)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::convertToDecimal32(
+                             const DecimalImpUtil_Platform::ValueType64& input)
 {
     DecimalImpUtil_Platform::ValueType32 retval;
     retval.d_raw = __bid64_to_bid32(input.d_raw);

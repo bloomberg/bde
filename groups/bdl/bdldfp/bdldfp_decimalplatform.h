@@ -173,9 +173,6 @@ class UnsupportedEndinanness;
 UnsupportedEndinanness forceError[sizeof(UnsupportedEndinanness)];
 #endif
 
-// All supported platforms are DPD for now
-
-
 #endif
 
 // ----------------------------------------------------------------------------
