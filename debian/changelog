@@ -1,24 +1,35 @@
-bsl-internal (2.20.2.2) unstable; urgency=low
+bsl-internal (2.20.2.3) unstable; urgency=low
 
+  * 09e09c1 bunp bdl version to 2.21.1
+  * fde8cfc [APPROVAL] merge-fix-bdldfp-stlport-build-drqs-54236699 to releases/2.21.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 11 Jul 2014 17:28:18 -0400
+
+bsl-internal (2.20.2.2) git; urgency=low
+
+  * 3fad9bb bump changelog
   * 9a2dddd [APPROVAL] origin/review/fix-debian-sed-command to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 29 Apr 2014 16:19:48 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 29 Apr 2014 16:20:18 -0400
 
-bsl-internal (2.20.2.1) unstable; urgency=low
+bsl-internal (2.20.2.1) git; urgency=low
 
+  * df69f71 bump changelog
   * e43c367 [APPROVAL] INTERNAL review/windows_fixes_bde2.20_drqs51901280 to review/repair-merge-drqs51901280
   * faac267 [APPROVAL] pending/master/windows_fixes_bde2.20_drqs51901280 to master
 
- -- Alexander Beels <abeels@bloomberg.net>  Mon, 28 Apr 2014 19:03:54 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 28 Apr 2014 19:37:51 -0400
 
-bsl-internal (2.20.2.0.beta.2) unstable; urgency=low
+bsl-internal (2.20.2.0.beta.2) git; urgency=low
 
+  * 8cf270c bump changelog
   * a517e40 [APPROVAL] revert-remove-string-transitive-includes-drqs-49354375 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Apr 2014 20:56:39 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 25 Apr 2014 21:00:16 -0400
 
-bsl-internal (2.20.2.0.beta.1) unstable; urgency=low
+bsl-internal (2.20.2.0.beta.1) git; urgency=low
 
+  * facbc58 Bump changelog
   * 1e431dd [APPROVAL] OSS revert-version-to-2.20 to master
   * 35579d2 [APPROVAL] revert-version-to-2.20 to master
   * f39fe9c Revert version to 2.20.2
@@ -42,16 +53,18 @@ bsl-internal (2.20.2.0.beta.1) unstable; urgency=low
   * 48e517e [APPROVAL] OSS pending/master/dfp_bde_verify_warnings_fix_drqs_50920396 to master
   * 6edc064 [APPROVAL] pending/master/dfp_bde_verify_warnings_fix_drqs_50920396 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Apr 2014 10:55:14 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Apr 2014 10:57:50 -0400
 
-bsl-internal (2.21.0.0.beta.1.1) unstable; urgency=low
+bsl-internal (2.21.0.0.beta.1.1) git; urgency=low
 
+  * de9b1e6 Bump changelog to 2.21.0.0.beta.1.1
   * 06095d0 [APPROVAL] correct-debian-control-for-bdl to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Apr 2014 13:35:59 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Apr 2014 13:39:05 -0400
 
-bsl-internal (2.21.0.0.beta.1) unstable; urgency=low
+bsl-internal (2.21.0.0.beta.1) git; urgency=low
 
+  * a880836 bump changelog to 2.21.0.0.beta.1
   * 2df857e [APPROVAL] INTERNAL bump-version-to-2.21 to master
   * 0f5b302 [APPROVAL] bump-version-to-2.21 to master
   * ab26257 Make version 2.21.0
@@ -106,11 +119,11 @@ bsl-internal (2.21.0.0.beta.1) unstable; urgency=low
   * 83bb915 [APPROVAL] pending/master/hash_unicode_compiling_fix-drqs-47609953 to master
   * b3abe41 [APPROVAL] pending/master/waf-fix-bdx-drqs-48940992 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Apr 2014 07:42:44 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 16 Apr 2014 09:58:36 -0400
 
-bsl-internal (2.20.0.1) unstable; urgency=low
+bsl-internal (2.20.0.1) git; urgency=low
 
-  * Bump changelog
+  * f7983ab Bump changelog
   * 017deea [APPROVAL] OSS pending/master/remove-leanandmean-drqs48897179 to master
   * 7934825 [APPROVAL] pending/master/remove-leanandmean-drqs48897179 to master
   * 1b07f0e [APPROVAL] OSS pending/master/d_allocator-missing-_p-drqs-43984816 to master
@@ -121,11 +134,12 @@ bsl-internal (2.20.0.1) unstable; urgency=low
   * 5a03fea [APPROVAL] pending/master/remove-windows.h-include2 to master
   * acfa60d [APPROVAL] pending/master/waf-build-support-bde-bb-drqs-48413481 to master
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Thu, 30 Jan 2014 12:37:38 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 30 Jan 2014 14:12:46 -0500
 
-bsl-internal (2.20.0.0.bsl.freeze.2) unstable; urgency=low
+bsl-internal (2.20.0.0.bsl.freeze.2) git; urgency=low
 
-  * Bump changelog
+  * a5af7c9 [APPROVAL] bump-changelog-2.20.0.bsl-freeze to master
+  * 90fb9cc debian/changelog update for 2.20.0.0.bsl.freeze.2
   * ff16483 [APPROVAL] pending/master/debian-rules-cp-default-internal-opts-drqs-48667615 to master
   * 45ac40d [APPROVAL] OSS pending/master/remove-windows.h-include to master
   * 8b4220d [APPROVAL] pending/master/remove-windows.h-include to master
@@ -136,11 +150,13 @@ bsl-internal (2.20.0.0.bsl.freeze.2) unstable; urgency=low
   * a5e7b96 [APPROVAL] OSS issue-109-update-contributing.md to master
   * 8f86423 [APPROVAL] issue-109-update-contributing.md to master
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Wed, 22 Jan 2014 16:35:57 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 22 Jan 2014 16:40:37 -0500
 
-bsl-internal (2.20.0.0.bsl.freeze) unstable; urgency=low
+bsl-internal (2.20.0.0.bsl.freeze) git; urgency=low
 
-  * Bump changelog
+  * e9317a6 [APPROVAL] bump-changelog-2.20.0.bsl-freeze to master
+  * 68e561b [APPROVAL] bump-changelog-2.20.0.bsl-freeze to master
+  * 1f80926 bump changelog to 2.20.0.0.bsl-freeze
   * 2b7f1d6 [APPROVAL] OSS fix-test-build to master
   * 3be2458 [APPROVAL] fix-test-build to master
   * b45fe2a [APPROVAL] OSS pending/master/bump-versions-to-2.20 to master
@@ -199,11 +215,13 @@ bsl-internal (2.20.0.0.bsl.freeze) unstable; urgency=low
   * 6ac9c52 [APPROVAL] OSS pending/master/fix_bsl_plus_test_drivers_for_posix_hdrs_on_windows_drqs41591557 to master
   * a4dea43 [APPROVAL] pending/master/fix_bsl_plus_test_drivers_for_posix_hdrs_on_windows_drqs41591557 to master
 
- -- (Henry) Mike Verschell <hverschell@bloomberg.net>  Wed, 22 Jan 2014 01:47:31 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 22 Jan 2014 12:11:02 -0500
 
-bsl-internal (2.19.0.0) unstable; urgency=low
+bsl-internal (2.19.0.0) git; urgency=low
 
-  * Bump changelog
+  * 5b16158 [APPROVAL] INTERNAL version-2.19.0 to master
+  * 6a21a90 [APPROVAL] version-2.19.0 to master
+  * c84e0c9 bump changelog
   * aae0485 bump version to 2.19.0
   * bcff1b6 [APPROVAL] INTERNAL review/repair_master_for_smart_pointers_preview to master
   * 03336de [APPROVAL] review/repair_master_for_smart_pointers_preview to master
@@ -251,11 +269,6 @@ bsl-internal (2.19.0.0) unstable; urgency=low
   * 0e4e785 [APPROVAL] pending/master/bsldoc-thread-doc-drqs-39756936 to master
   * 53a9855 [APPROVAL] OSS pending/master/msvc-ice-hashtable-drqs40550559 to master
   * 2c00eb1 [APPROVAL] pending/master/msvc-ice-hashtable-drqs40550559 to master
-
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Sep 2013 11:56:41 -0400
-
-bsl-internal (MERGE_BASE_master_2.18.x) git; urgency=low
-
   * c16cf32 [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
   * 688a736 [APPROVAL] bdemeta-architecture-any-drqs41994729 to master
   * 9e2df54 [APPROVAL] OSS review/format_errors_cause_doxygen_problems-drqs-40608146 to master
@@ -267,15 +280,18 @@ bsl-internal (MERGE_BASE_master_2.18.x) git; urgency=low
   * 503b0c1 [APPROVAL] review/bsl-platform-namespace-drqs41495060 to master
   * 83cdc4d [APPROVAL] OSS review/bsl-stringref-drqs41338618 to master
   * 1d1ade6 [APPROVAL] review/bsl-stringref-drqs41338618 to master
-  * 3cae99a drqs-40608146: Additional format fixes in 2.17 for 'doxygen' conversion.
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 12 Jun 2013 14:10:01 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 16 Sep 2013 12:05:09 -0400
 
-bsl-internal (2.18.0.0) unstable; urgency=low
+bsl-internal (2.18.0.0) git; urgency=low
 
-  * Bump changelog
+  * 1787de3 [APPROVAL] bump-changelog-to-2.18.0.0 to master
+  * 2fe62c6 bump changelog for 2.18.0.0 release
+  * a0d8927 [APPROVAL] OSS review/bsl-stringref-drqs41338618 to master
+  * 28c5755 [APPROVAL] review/bsl-stringref-drqs41338618 to master
   * 5a87563 [APPROVAL] OSS bump-version-to-2.18-drqs-41339858 to master
   * 8285cf6 [APPROVAL] bump-version-to-2.18-drqs-41339858 to master
+  * 46bd7a8 bump version to 2.18.0
   * 66ea7d6 [APPROVAL] pending/master/move-default.opts-metadata-to-bde-tools-drqs-40974008 to master
   * 85116d4 [APPROVAL] OSS pending/master/const-cast-qual-drqs40473559 to master
   * ea47c05 [APPROVAL] pending/master/const-cast-qual-drqs40473559 to master
@@ -299,13 +315,9 @@ bsl-internal (2.18.0.0) unstable; urgency=low
   * e07ebd0 [APPROVAL] pending/master/bsl-endianness-drqs39774236 to master
   * e6a7d54 [APPROVAL] INTERNAL sun-algorithm-extensions-drqs40798754 to master
   * 64ae05b [APPROVAL] sun-algorithm-extensions-drqs40798754 to master
+  * 3cae99a drqs-40608146: Additional format fixes in 2.17 for 'doxygen' conversion.
   * 663207c [APPROVAL] OSS review/update-gyp-files to master
   * a4a9310 [APPROVAL] review/update-gyp-files to master
-
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 17 May 2013 13:16:40 -0400
-
-bsl-internal (BSL_INTERNAL_BASE) git; urgency=low
-
   * c8e9575 [APPROVAL] INTERNAL review/fix-omit-macro-use-in-bslstl_hash-drqs-40636011 to master
   * d6bdff8 [APPROVAL] review/fix-omit-macro-use-in-bslstl_hash-drqs-40636011 to master
   * c2d67d8 [APPROVAL] OSS review/add-internal-build-tool-support-revised to master
@@ -316,16 +328,12 @@ bsl-internal (BSL_INTERNAL_BASE) git; urgency=low
   * a60b8ee [APPROVAL] review/bslint-add-internal-build-tool-support-drqs-40575735 to master
   * f8eb0de [APPROVAL] add-internal-build-tool-support-revised to master
   * b0edd54 [APPROVAL] OSS review/remove-bslma-size-is-signed-from-bslstl-allocator-drqs-40228902 to master
-
- -- Alexander Beels <abeels@bloomberg.net>  Mon, 22 Apr 2013 13:39:11 -0400
-
-bsl-internal (BSLINT_2.17.x_base) git; urgency=low
-
   * c92e96f [APPROVAL] OSS master to master
   * 27f3348 Import internal commit 0454183481f25471c59b3a0f5740766f5a22812b : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
   * 6734b02 Import internal commit 7602e96e54223a3ac2a9c15554d971a7031741d0 : [APPROVAL] pending/master/rbtreeutil-usage-example-drqs37234278 to master
   * afd9b76 Import internal commit f9a3125265ac3d13b12c5c62babdffa669cba457 : [APPROVAL] pending/master/alloctesttype-td-safe-fix-drqs-36772136 to master
   * e2140fb Import internal commit 899fb2b4cd942eba7a41d7016769cf4cc2938eef : [APPROVAL] pending/master/oss-universal-size-type-printf-code-in-bsls_bsltestutil-drqs_37405914 to master
+  * de5ec87 Remove hardcoded GCC and Clang version numbers
   * 22e0cb6 Import internal commit cf441df5f54da3445a2bd15a68aceda8d631b684 : [APPROVAL] pending/master/revert_hash_const_char_intentional_breakage_drqs38592188 to master
   * 6cfb352 Import internal commit a100fe32303c878dd982b899e810b60e2ae45f21 : [APPROVAL] origin/review/remove_mallocfree_from_header_drqs39615021 to master
   * ba3149f Import internal commit 091f6194ae0f32c9f07cb3ab191c0abf6f03f8a0 : [APPROVAL] pending/master/bsls-size_type-drqs-23488202 to master
@@ -403,4 +411,4 @@ bsl-internal (BSLINT_2.17.x_base) git; urgency=low
   * d470f6a Import internal commit 8c1178da0c021dc693be14177f14bb495fcb8adf : [APPROVAL] pending/master/type-traits-update to master
   * 4feb220 Import internal commit 41e7710c4310430d4e068635e41d3db5673adb32 : [APPROVAL] pending/master/include_next-drqs36057057-merge to master
 
- -- Alexander Beels <abeels@bloomberg.net>  Tue, 9 Apr 2013 19:20:18 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 20 May 2013 10:31:10 -0400
