@@ -1,6 +1,6 @@
 // bdldfp_decimalimputil_inteldfp.h                                           -*-C++-*-
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
-#define INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
+#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_DECNUMBER
+#define INCLUDED_BDLDFP_DECIMALIMPUTIL_DECNUMBER
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -35,39 +35,46 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_INTELDFP
-
-
-#ifndef INCLUDED_BID_FUNCTIONS
-
-// Controlling macros for the intel library configuration
-
-#  define DECIMAL_CALL_BY_REFERENCE      0
-#  define DECIMAL_GLOBAL_ROUNDING        1
-#  define DECIMAL_GLOBAL_EXCEPTION_FLAGS 1
-
-// in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
-// about this.
-
-#  define _WCHAR_T_DEFINED
-
-   extern "C" {
-#   include <bid_conf.h>
-#   include <bid_functions.h>
-   }
-#  define INCLUDED_BID_FUNCTIONS
+#ifndef INCLUDED_BDLDFP_BUFFERBUF
+#include <bdldfp_bufferbuf.h>
 #endif
 
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
+#endif
+
+#ifndef INCLUDED_BSL_LIMITS
+#include <bsl_limits.h>
+#endif
+
+#ifndef INCLUDED_BSL_LOCALE
+#include <bsl_locale.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DENSELYPACKEDECIMALIMPUTIL
+#include <bdldfp_denselypackeddecimalimputil.h>
+#endif
+
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER 
+
+#error DO NOT WANT DECNUMBER
+
+# ifndef INCLUDED_DECSINGLE
+ extern "C" {
+#  include <decSingle.h>
+}
+#  define INCLUDED_DECSINGLE
+# endif
 
 
 namespace BloombergLP {
 namespace bdldfp {
 
-                          // =====================
-                          // class DecimalImplUtil
-                          // =====================
+                          // ===============================
+                          // class DecimalImplUtil_decNumber
+                          // ===============================
 
-struct DecimalImpUtil_IntelDFP {
+struct DecimalImpUtil_decNumber {
     // This 'struct' provides a namespace for implementation functions that
     // work in terms of the underlying C-style decimal floating point
     // implementation, Intel's DFP library.
@@ -89,6 +96,7 @@ struct DecimalImpUtil_IntelDFP {
         unsigned long long mantissa;
         int                exponent;
     };
+
 
     // CLASS METHODS
 
@@ -269,7 +277,18 @@ struct DecimalImpUtil_IntelDFP {
     static ValueType128 parse128(const char *string);
 };
 
-typedef DecimalImpUtil_IntelDFP DecimalImpUtil_Platform;
+inline decContext *DecimalImpUtil_decNumber::getDecNumberContext()
+{
+    static decContext context = { 0, 0, 0, DEC_ROUND_HALF_EVEN, 0, 0, 0 };
+    return &context;
+}
+
+
+typedef DecimalImpUtil_decNumber DecimalImpUtil_Platform;
+
+
+
+
 
 
     // Inline functions
@@ -277,54 +296,93 @@ typedef DecimalImpUtil_IntelDFP DecimalImpUtil_Platform;
                         // Integer construction
 
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::int32ToDecimal32(int value)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::int32ToDecimal32(int value)
 {
     DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_from_int32(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decSingleFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::int32ToDecimal64(int value)
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::int32ToDecimal64(int value)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_from_int32(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decDoubleFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::int32ToDecimal128(int value)
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::int32ToDecimal128(int value)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_from_int32(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decQuadFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
 
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::uint32ToDecimal32(
-                                                            unsigned int value)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::uint32ToDecimal32(unsigned int value)
 {
     DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_from_uint32(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decSingleFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::uint32ToDecimal64(
-                                                            unsigned int value)
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::uint32ToDecimal64(unsigned int value)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_from_uint32(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decDoubleFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::uint32ToDecimal128(
-                                                            unsigned int value)
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::uint32ToDecimal128(unsigned int value)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_from_uint32(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decQuadFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
@@ -334,7 +392,13 @@ DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::int64ToDecimal32(
                                                            long long int value)
 {
     DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_from_int64(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decSingleFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
@@ -343,7 +407,13 @@ DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::int64ToDecimal64(
                                                            long long int value)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_from_int64(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decDoubleFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
@@ -352,7 +422,13 @@ DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::int64ToDecimal128
                                                            long long int value)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_from_int64(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decQuadFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
@@ -362,7 +438,13 @@ DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::uint64ToDecimal32(
                                                   unsigned long long int value)
 {
     DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_from_uint64(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decSingleFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
@@ -371,7 +453,13 @@ DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::uint64ToDecimal64(
                                                   unsigned long long int value)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_from_uint64(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decDoubleFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
@@ -380,7 +468,13 @@ DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::uint64ToDecimal12
                                                    unsigned long long int value)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_from_uint64(value);
+    // TODO: TBD we should not convert through strings - it should be possible
+    // to convert directly
+    BufferBuf<24> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out << value;
+    decQuadFromString(&retval, bb.str(), getDecNumberContext());
     return retval;
 }
 
@@ -468,7 +562,9 @@ inline
 DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::neg(
                                     DecimalImpUtil_Platform::ValueType32 value)
 {
-    return convertToDecimal32(neg(convertToDecimal64(value)));
+    DecimalImpUtil_Platform::ValueType32 retval;
+    decSingleCopyNegate(&retval, &value);
+    return retval;
 }
 
 inline
@@ -476,7 +572,7 @@ DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::neg(
                                     DecimalImpUtil_Platform::ValueType64 value)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
-    decDoubleMinus(&retval, &value, getDecNumberContext());
+    decDoubleCopyNegate(&retval, &value);
     return retval;
 }
 
@@ -485,7 +581,7 @@ DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::neg(
                                    DecimalImpUtil_Platform::ValueType128 value)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
-    decQuadMinus(&retval, &value, getDecNumberContext());
+    decQuadCopyNegate(&retval, &value);
     return retval;
 }
 
@@ -500,31 +596,34 @@ inline
 bool DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType64 lhs,
                                    DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    return decDoubleIsNegative(
-           decDoubleCompare(&lhs, &rhs, getDecNumberContext()));
+    ValueType64 comparison;
+    decDoubleCompare(&comparison, &lhs, &rhs, getDecNumberContext());
+    return decDoubleIsNegative(&comparison);
 }
 
 inline
 bool DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType128 lhs,
                                    DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    return greater(convertToDecimal64(lhs), convertToDecimal64(rhs));
+    ValueType128 comparison;
+    decQuadCompare(&comparison, &lhs, &rhs, getDecNumberContext());
+    return decQuadIsNegative(&comparison);
 }
 
 inline
 bool DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType32 lhs,
                                       DecimalImpUtil_Platform::ValueType32 rhs)
 {
-    return decDoubleIsPositive(
-           decDoubleCompare(&lhs, &rhs, getDecNumberContext()));
+    return greater(convertToDecimal64(lhs), convertToDecimal64(rhs));
 }
 
 inline
 bool DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType64 lhs,
                                       DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    return decDoubleIsPositive(
-           decDoubleCompare(&lhs, &rhs, getDecNumberContext()));
+    ValueType64 comparison;
+    decDoubleCompare(&comparison, &lhs, &rhs, getDecNumberContext());
+    return decDoubleIsPositive(&comparison);
 }
 
 inline
@@ -532,7 +631,9 @@ bool DecimalImpUtil_Platform::greater(
                                      DecimalImpUtil_Platform::ValueType128 lhs,
                                      DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    return decQuadIsPositive(decQuadCompare(&lhs, &rhs, getDecNumberContext()));
+    ValueType128 comparison;
+    decQuadCompare(&comparison, &lhs, &rhs, getDecNumberContext());
+    return decQuadIsPositive(&comparison);
 }
 
 inline
@@ -548,7 +649,8 @@ bool DecimalImpUtil_Platform::lessEqual(
                                       DecimalImpUtil_Platform::ValueType64 lhs,
                                       DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    ValueType64 comparison = decDoubleCompare(&lhs, &rhs, getDecNumberContext());
+    ValueType64 comparison;
+    decDoubleCompare(&comparison, &lhs, &rhs, getDecNumberContext());
     return decDoubleIsNegative(&comparison) || decDoubleIsZero(&comparison);
 }
 
@@ -557,7 +659,8 @@ bool DecimalImpUtil_Platform::lessEqual(
                                      DecimalImpUtil_Platform::ValueType128 lhs,
                                      DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    ValueType128 comparison = decQuadCompare(&lhs, &rhs, getDecNumberContext());
+    ValueType128 comparison;
+    decQuadCompare(&comparison, &lhs, &rhs, getDecNumberContext());
     return decQuadIsNegative(&comparison) || decQuadIsZero(&comparison);
 }
 
@@ -574,7 +677,8 @@ bool DecimalImpUtil_Platform::greaterEqual(
                                       DecimalImpUtil_Platform::ValueType64 lhs,
                                       DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    ValueType64 comparison = decDoubleCompare(&lhs, &rhs, getDecNumberContext());
+    ValueType64 comparison;
+    decDoubleCompare(&comparison, &lhs, &rhs, getDecNumberContext());
     return decDoubleIsPositive(&comparison) || decDoubleIsZero(&comparison);
 }
 
@@ -583,8 +687,9 @@ bool DecimalImpUtil_Platform::greaterEqual(
                                      DecimalImpUtil_Platform::ValueType128 lhs,
                                      DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    ValueType128 comparison = decQuadCompare(&lhs, &rhs, getDecNumberContext());
-    return decQuadIsNegative(&comparison) || decQuadIsZero(&comparison);
+    ValueType128 comparison;
+    decQuadCompare(&comparison, &lhs, &rhs, getDecNumberContext());
+    return decQuadIsPositive(&comparison) || decQuadIsZero(&comparison);
 }
 
 inline
@@ -598,7 +703,8 @@ inline
 bool DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType64 lhs,
                                     DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    ValueType64 comparison = decDoubleCompare(&lhs, &rhs, getDecNumberContext());
+    ValueType64 comparison;
+    decDoubleCompare(&comparison, &lhs, &rhs, getDecNumberContext());
     return decDoubleIsZero(&comparison);
 }
 
@@ -606,7 +712,8 @@ inline
 bool DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType128 lhs,
                                     DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    ValueType128 comparison = decQuadCompare(&lhs, &rhs, getDecNumberContext());
+    ValueType128 comparison;
+    decQuadCompare(&comparison, &lhs, &rhs, getDecNumberContext());
     return decQuadIsZero(&comparison);
 }
 
@@ -624,7 +731,8 @@ bool DecimalImpUtil_Platform::notEqual(
                                       DecimalImpUtil_Platform::ValueType64 lhs,
                                       DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    ValueType64 comparison = decDoubleCompare(&lhs, &rhs, getDecNumberContext());
+    ValueType64 comparison;
+    decDoubleCompare(&comparison, &lhs, &rhs, getDecNumberContext());
     return decDoubleIsPositive(&comparison)
         || decDoubleIsNegative(&comparison);
 }
@@ -634,7 +742,8 @@ bool DecimalImpUtil_Platform::notEqual(
                                      DecimalImpUtil_Platform::ValueType128 lhs,
                                      DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    ValueType128 comparison = decQuadCompare(&lhs, &rhs, getDecNumberContext());
+    ValueType128 comparison;
+    decQuadCompare(&comparison, &lhs, &rhs, getDecNumberContext());
     return decQuadIsPositive(&comparison) || decQuadIsNegative(&comparison);
 }
 
@@ -654,7 +763,7 @@ DecimalImpUtil_Platform::convertToDecimal64(
                              const DecimalImpUtil_Platform::ValueType32& input)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
-    decSingleToWider(&retval, &input);
+    decSingleToWider(&input, &retval);
     return retval;
 }
 
@@ -664,7 +773,7 @@ DecimalImpUtil_Platform::convertToDecimal64(
                             const DecimalImpUtil_Platform::ValueType128& input)
 {
     DecimalImpUtil_Platform::ValueType64 retval;
-    decDoubleFromWider(&retval, &input);
+    decDoubleFromWider(&retval, &input, getDecNumberContext());
     return retval;
 }
 
@@ -682,7 +791,7 @@ DecimalImpUtil_Platform::convertToDecimal128(
                              const DecimalImpUtil_Platform::ValueType64& input)
 {
     DecimalImpUtil_Platform::ValueType128 retval;
-    decDoubleToWider(&retval, &input);
+    decDoubleToWider(&input, &retval);
     return retval;
 }
 
@@ -691,7 +800,12 @@ DecimalImpUtil_Platform::ValueType32
 DecimalImpUtil_Platform::binaryToDecimal32(float input)
 {
     ValueType32 result;
-    result.d_raw = __binary32_to_bid32(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(7);
+    out << input;
+    decSingleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -700,7 +814,12 @@ DecimalImpUtil_Platform::ValueType32
 DecimalImpUtil_Platform::binaryToDecimal32(double input)
 {
     ValueType32 result;
-    result.d_raw = __binary64_to_bid32(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(7);
+    out << input;
+    decSingleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -709,7 +828,12 @@ DecimalImpUtil_Platform::ValueType32
 DecimalImpUtil_Platform::binaryToDecimal32(long double input)
 {
     ValueType32 result;
-    result.d_raw = __binary80_to_bid32(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(7);
+    out << input;
+    decSingleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -718,7 +842,12 @@ DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::binaryToDecimal64(float input)
 {
     ValueType64 result;
-    result.d_raw = __binary32_to_bid64(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(16);
+    out << input;
+    decDoubleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -727,7 +856,12 @@ DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::binaryToDecimal64(double input)
 {
     ValueType64 result;
-    result.d_raw = __binary64_to_bid64(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(16);
+    out << input;
+    decDoubleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -736,7 +870,12 @@ DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::binaryToDecimal64(long double input)
 {
     ValueType64 result;
-    result.d_raw = __binary80_to_bid64(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(16);
+    out << input;
+    decDoubleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -746,7 +885,12 @@ DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::binaryToDecimal128(float input)
 {
     ValueType128 result;
-    result.d_raw = __binary32_to_bid128(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(16);
+    out << input;
+    decQuadFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -755,7 +899,12 @@ DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::binaryToDecimal128(double input)
 {
     ValueType128 result;
-    result.d_raw = __binary80_to_bid128(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(34);
+    out << input;
+    decQuadFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -764,7 +913,12 @@ DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::binaryToDecimal128(long double input)
 {
     ValueType128 result;
-    result.d_raw = __binary80_to_bid128(input);
+    BufferBuf<48> bb;
+    bsl::ostream out(&bb);
+    out.imbue(bsl::locale::classic());
+    out.precision(34);
+    out << input;
+    decQuadFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
@@ -873,9 +1027,7 @@ DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::scaleB(
                                     DecimalImpUtil_Platform::ValueType32 value,
                                     int                                  power)
 {
-    DecimalImpUtil_Platform::ValueType32 result;
-    result.d_raw = __bid32_scalbn(value.d_raw, power);
-    return result;
+    return convertToDecimal32(scaleB(convertToDecimal64(value),power));
 }
 
 inline

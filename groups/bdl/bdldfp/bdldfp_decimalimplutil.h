@@ -120,8 +120,12 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
+#ifndef __IBM_DFP__
+#error CRAP
+#endif
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#if BDLDFP_DECIMALPLATFORM_C99_TR || defined(__IBM_DFP__)
+#error WANT THIS TOO
 
         // Implementation when we have C DecFP support only (no C++)
 
@@ -180,6 +184,7 @@ char die[sizeof(DecimalImpl_Assert)];     // if '#error' unsupported
 
 
 #if BDLDFP_DECIMALPLATFORM_SOFTWARE
+#error DO NOT WANT THIS
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
 
@@ -196,7 +201,8 @@ char die[sizeof(DecimalImpl_Assert)];     // if '#error' unsupported
     BloombergLP::bdldfp::DecimalImplUtil::parse128(                           \
         (BloombergLP::bdldfp::DecimalImplUtil::checkLiteral(lit), #lit))
 
-#elif BDLDFP_DECIMALPLATFORM_C99_TR
+#elif BDLDFP_DECIMALPLATFORM_C99_TR || defined(__IBM_DFP__)
+#error WANT THIS
 
                // Portable decimal floating-point literal support
 

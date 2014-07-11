@@ -1,16 +1,16 @@
-// bdldfp_decimalimputil_inteldfp.h                                           -*-C++-*-
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
-#define INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
+// bdldfp_decimalimputil_ibmxlc.h                                     -*-C++-*-
+#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_IBMXLC
+#define INCLUDED_BDLDFP_DECIMALIMPUTIL_IBMXLC
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id$")
 
-//@PURPOSE: Provide utility to implement decimal 'float's on the Intel library.
+//@PURPOSE: Provide utility to implement decimal 'float's on the IBM compiler.
 //
 //@CLASSES:
-//  bdldfp::DecimalImpUtil_IntelDFP: Namespace for Intel decimal FP functions
+//  bdldfp::DecimalImpUtil_IntelDFP: Namespace for IBM decimal FP functions
 //
 //@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
@@ -35,46 +35,30 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_INTELDFP
 
-#ifndef INCLUDED_BID_FUNCTIONS
-
-// Controlling macros for the intel library configuration
-
-#  define DECIMAL_CALL_BY_REFERENCE      0
-#  define DECIMAL_GLOBAL_ROUNDING        1
-#  define DECIMAL_GLOBAL_EXCEPTION_FLAGS 1
-
-// in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
-// about this.
-
-#  define _WCHAR_T_DEFINED
-
-   extern "C" {
-#   include <bid_conf.h>
-#   include <bid_functions.h>
-   }
-#  define INCLUDED_BID_FUNCTIONS
+#ifndef INCLUDED_BDLDFP_DENSELYPACKEDECIMALIMPUTIL
+#include <bdldfp_denselypackeddecimalimputil.h>
 #endif
 
+#if BDLDFP_DECIMALPLATFORM_C99_TR
 
 
 namespace BloombergLP {
 namespace bdldfp {
 
-                          // ==============================
-                          // class DecimalImplUtil_IntelDFP
-                          // ==============================
+                          // ============================
+                          // class DecimalImplUtil_IBMxlC
+                          // ============================
 
-struct DecimalImpUtil_IntelDFP {
+struct DecimalImpUtil_IBMxlC {
     // This 'struct' provides a namespace for implementation functions that
     // work in terms of the underlying C-style decimal floating point
     // implementation, Intel's DFP library.
 
     // TYPES
-    struct ValueType32  { BID_UINT32  d_raw; };
-    struct ValueType64  { BID_UINT64  d_raw; };
-    struct ValueType128 { BID_UINT128 d_raw; };
+    typedef _Decimal32  ValueType32;
+    typedef _Decimal64  ValueType64;
+    typedef _Decimal128 ValueType128;
 
     struct DecimalTriple {
         bool               sign;  // 'true' if negative, 'false' if positive.
@@ -124,18 +108,18 @@ struct DecimalImpUtil_IntelDFP {
     static ValueType64  add(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 add(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  subtract(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 subtract(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  sub(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 sub(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  multiply(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 multiply(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  mul(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 mul(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  divide(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 divide(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  div(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 div(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType32  negate(ValueType32  value);
-    static ValueType64  negate(ValueType64  value);
-    static ValueType128 negate(ValueType128 value);
+    static ValueType32  neg(ValueType32  value);
+    static ValueType64  neg(ValueType64  value);
+    static ValueType128 neg(ValueType128 value);
 
                         // Comparison
 
@@ -251,8 +235,8 @@ struct DecimalImpUtil_IntelDFP {
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // '-6176 <= exponent <= 6111'.
 
-    static ValueType32  scaleB(ValueType32 value, int power);
-    static ValueType64  scaleB(ValueType64 value, int power);
+    static ValueType32 scaleB(ValueType32 value, int power);
+    static ValueType64 scaleB(ValueType64 value, int power);
     static ValueType128 scaleB(ValueType128 value, int power);
 
 
@@ -261,7 +245,7 @@ struct DecimalImpUtil_IntelDFP {
     static ValueType128 parse128(const char *string);
 };
 
-typedef DecimalImpUtil_IntelDFP DecimalImpUtil_Platform;
+typedef DecimalImpUtil_IBMxlC DecimalImpUtil_Platform;
 
 
     // Inline functions
@@ -269,111 +253,90 @@ typedef DecimalImpUtil_IntelDFP DecimalImpUtil_Platform;
                         // Integer construction
 
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::int32ToDecimal32(int value)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::int32ToDecimal32(int value)
 {
-    DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_from_int32(value);
-    return retval;
+    return value;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::int32ToDecimal64(int value)
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::int32ToDecimal64(int value)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_from_int32(value);
-    return retval;
+    return value;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::int32ToDecimal128(int value)
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::int32ToDecimal128(int value)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_from_int32(value);
-    return retval;
+    return value;
 }
 
 
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::uint32ToDecimal32(
-                                                            unsigned int value)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::uint32ToDecimal32(unsigned int value)
 {
-    DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_from_uint32(value);
-    return retval;
+    return value;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::uint32ToDecimal64(
-                                                            unsigned int value)
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::uint32ToDecimal64(unsigned int value)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_from_uint32(value);
-    return retval;
+    return value;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::uint32ToDecimal128(
-                                                            unsigned int value)
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::uint32ToDecimal128(unsigned int value)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_from_uint32(value);
-    return retval;
+    return value;
 }
 
 
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::int64ToDecimal32(
-                                                           long long int value)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::int64ToDecimal32(long long int value)
 {
-    DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_from_int64(value);
-    return retval;
+    return value;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::int64ToDecimal64(
-                                                           long long int value)
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::int64ToDecimal64(long long int value)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_from_int64(value);
-    return retval;
+    return value;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::int64ToDecimal128(
-                                                           long long int value)
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::int64ToDecimal128(long long int value)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_from_int64(value);
-    return retval;
+    return value;
 }
 
 
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::uint64ToDecimal32(
-                                                  unsigned long long int value)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::uint64ToDecimal32(unsigned long long int value)
 {
-    DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_from_uint64(value);
-    return retval;
+    return value;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::uint64ToDecimal64(
-                                                  unsigned long long int value)
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::uint64ToDecimal64(unsigned long long int value)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_from_uint64(value);
-    return retval;
+    return value;
 }
 
 inline
-DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::uint64ToDecimal128(
-                                                   unsigned long long int value)
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::uint64ToDecimal128(unsigned long long int value)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_from_uint64(value);
-    return retval;
+    return value;
 }
 
                         // Arithmetic
@@ -383,9 +346,7 @@ DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::add(DecimalImpUtil_Platform::ValueType64 lhs,
                              DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_add(lhs.d_raw, rhs.d_raw);
-    return retval;
+    return lhs + rhs;
 }
 
 inline
@@ -393,110 +354,92 @@ DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::add(DecimalImpUtil_Platform::ValueType128 lhs,
                              DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_add(lhs.d_raw, rhs.d_raw);
-    return retval;
+    return lhs + rhs;
 }
 
 
 
 inline
 DecimalImpUtil_Platform::ValueType64
-DecimalImpUtil_Platform::subtract(DecimalImpUtil_Platform::ValueType64 lhs,
-                                  DecimalImpUtil_Platform::ValueType64 rhs)
+DecimalImpUtil_Platform::sub(DecimalImpUtil_Platform::ValueType64 lhs,
+                             DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_sub(lhs.d_raw, rhs.d_raw);
-    return retval;
+    return lhs - rhs;
 }
 
 inline
 DecimalImpUtil_Platform::ValueType128
-DecimalImpUtil_Platform::subtract(DecimalImpUtil_Platform::ValueType128 lhs,
-                                  DecimalImpUtil_Platform::ValueType128 rhs)
+DecimalImpUtil_Platform::sub(DecimalImpUtil_Platform::ValueType128 lhs,
+                             DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_sub(lhs.d_raw, rhs.d_raw);
-    return retval;
+    return lhs - rhs;
 }
 
 
 
 inline
 DecimalImpUtil_Platform::ValueType64
-DecimalImpUtil_Platform::multiply(DecimalImpUtil_Platform::ValueType64 lhs,
-                                  DecimalImpUtil_Platform::ValueType64 rhs)
+DecimalImpUtil_Platform::mul(DecimalImpUtil_Platform::ValueType64 lhs,
+                             DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_mul(lhs.d_raw, rhs.d_raw);
-    return retval;
+    return lhs * rhs;
 }
 
 inline
 DecimalImpUtil_Platform::ValueType128
-DecimalImpUtil_Platform::multiply(DecimalImpUtil_Platform::ValueType128 lhs,
-                                  DecimalImpUtil_Platform::ValueType128 rhs)
+DecimalImpUtil_Platform::mul(DecimalImpUtil_Platform::ValueType128 lhs,
+                             DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_mul(lhs.d_raw, rhs.d_raw);
-    return retval;
+    return lhs * rhs;
 }
 
 
 
 inline
 DecimalImpUtil_Platform::ValueType64
-DecimalImpUtil_Platform::divide(DecimalImpUtil_Platform::ValueType64 lhs,
-                                DecimalImpUtil_Platform::ValueType64 rhs)
+DecimalImpUtil_Platform::div(DecimalImpUtil_Platform::ValueType64 lhs,
+                             DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_div(lhs.d_raw, rhs.d_raw);
-    return retval;
+    return lhs / rhs;
 }
 
 inline
 DecimalImpUtil_Platform::ValueType128
-DecimalImpUtil_Platform::divide(DecimalImpUtil_Platform::ValueType128  lhs,
-                                DecimalImpUtil_Platform::ValueType128  rhs)
+DecimalImpUtil_Platform::div(DecimalImpUtil_Platform::ValueType128  lhs,
+                             DecimalImpUtil_Platform::ValueType128  rhs)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_div(lhs.d_raw, rhs.d_raw);
-    return retval;
+    return lhs / rhs;
 }
+
 
 inline
 DecimalImpUtil_Platform::ValueType32
-DecimalImpUtil_Platform::negate(DecimalImpUtil_Platform::ValueType32 value)
+DecimalImpUtil_Platform::neg(DecimalImpUtil_Platform::ValueType32 value)
 {
-    DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid32_negate(value.d_raw);
-    return retval;
+    return -value;
 }
 
 inline
 DecimalImpUtil_Platform::ValueType64
-DecimalImpUtil_Platform::negate(DecimalImpUtil_Platform::ValueType64 value)
+DecimalImpUtil_Platform::neg(DecimalImpUtil_Platform::ValueType64 value)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid64_negate(value.d_raw);
-    return retval;
+    return -value;
 }
 
 inline
 DecimalImpUtil_Platform::ValueType128
-DecimalImpUtil_Platform::negate(DecimalImpUtil_Platform::ValueType128 value)
+DecimalImpUtil_Platform::neg(DecimalImpUtil_Platform::ValueType128 value)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid128_negate(value.d_raw);
-    return retval;
+    return -value;
 }
+
 
 inline
 bool
 DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType32 lhs,
                               DecimalImpUtil_Platform::ValueType32 rhs)
 {
-    return __bid32_quiet_less(lhs.d_raw, rhs.d_raw);
+    return lhs < rhs;
 }
 
 inline
@@ -504,7 +447,7 @@ bool
 DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType64 lhs,
                               DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    return __bid64_quiet_less(lhs.d_raw, rhs.d_raw);
+    return lhs < rhs;
 }
 
 inline
@@ -512,22 +455,24 @@ bool
 DecimalImpUtil_Platform::less(DecimalImpUtil_Platform::ValueType128 lhs,
                               DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    return __bid128_quiet_less(lhs.d_raw, rhs.d_raw);
+    return lhs < rhs;
 }
+
 
 inline
 bool
 DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType32 lhs,
                                  DecimalImpUtil_Platform::ValueType32 rhs)
 {
-    return __bid32_quiet_greater(lhs.d_raw, rhs.d_raw);
+    return lhs > rhs;
 }
 
 inline
-bool DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType64 lhs,
-                                      DecimalImpUtil_Platform::ValueType64 rhs)
+bool
+DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType64 lhs,
+                                 DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    return __bid64_quiet_greater(lhs.d_raw, rhs.d_raw);
+    return lhs > rhs;
 }
 
 inline
@@ -535,15 +480,16 @@ bool
 DecimalImpUtil_Platform::greater(DecimalImpUtil_Platform::ValueType128 lhs,
                                  DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    return __bid128_quiet_greater(lhs.d_raw, rhs.d_raw);
+    return lhs > rhs;
 }
+
 
 inline
 bool
 DecimalImpUtil_Platform::lessEqual(DecimalImpUtil_Platform::ValueType32 lhs,
                                    DecimalImpUtil_Platform::ValueType32 rhs)
 {
-    return __bid32_quiet_less_equal(lhs.d_raw, rhs.d_raw);
+    return lhs <= rhs;
 }
 
 inline
@@ -551,7 +497,7 @@ bool
 DecimalImpUtil_Platform::lessEqual(DecimalImpUtil_Platform::ValueType64 lhs,
                                    DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    return __bid64_quiet_less_equal(lhs.d_raw, rhs.d_raw);
+    return lhs <= rhs;
 }
 
 inline
@@ -559,15 +505,16 @@ bool
 DecimalImpUtil_Platform::lessEqual(DecimalImpUtil_Platform::ValueType128 lhs,
                                    DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    return __bid128_quiet_less_equal(lhs.d_raw, rhs.d_raw);
+    return lhs <= rhs;
 }
+
 
 inline
 bool
 DecimalImpUtil_Platform::greaterEqual(DecimalImpUtil_Platform::ValueType32 lhs,
                                       DecimalImpUtil_Platform::ValueType32 rhs)
 {
-    return __bid32_quiet_greater_equal(lhs.d_raw, rhs.d_raw);
+    return lhs >= rhs;
 }
 
 inline
@@ -575,24 +522,24 @@ bool
 DecimalImpUtil_Platform::greaterEqual(DecimalImpUtil_Platform::ValueType64 lhs,
                                       DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    return __bid64_quiet_greater_equal(lhs.d_raw, rhs.d_raw);
+    return lhs >= rhs;
 }
 
 inline
 bool
-DecimalImpUtil_Platform::greaterEqual(
-                                     DecimalImpUtil_Platform::ValueType128 lhs,
+DecimalImpUtil_Platform::greaterEqual(DecimalImpUtil_Platform::ValueType128 lhs,
                                      DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    return __bid128_quiet_greater_equal(lhs.d_raw, rhs.d_raw);
+    return lhs >= rhs;
 }
+
 
 inline
 bool
 DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType32 lhs,
                                DecimalImpUtil_Platform::ValueType32 rhs)
 {
-    return __bid32_quiet_equal(lhs.d_raw, rhs.d_raw);
+    return lhs == rhs;
 }
 
 inline
@@ -600,7 +547,7 @@ bool
 DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType64 lhs,
                                DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    return __bid64_quiet_equal(lhs.d_raw, rhs.d_raw);
+    return lhs == rhs;
 }
 
 inline
@@ -608,7 +555,7 @@ bool
 DecimalImpUtil_Platform::equal(DecimalImpUtil_Platform::ValueType128 lhs,
                                DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    return __bid128_quiet_equal(lhs.d_raw, rhs.d_raw);
+    return lhs == rhs;
 }
 
 
@@ -617,7 +564,7 @@ bool
 DecimalImpUtil_Platform::notEqual(DecimalImpUtil_Platform::ValueType32 lhs,
                                   DecimalImpUtil_Platform::ValueType32 rhs)
 {
-    return __bid32_quiet_not_equal(lhs.d_raw, rhs.d_raw);
+    return lhs != rhs;
 }
 
 inline
@@ -625,7 +572,7 @@ bool
 DecimalImpUtil_Platform::notEqual(DecimalImpUtil_Platform::ValueType64 lhs,
                                   DecimalImpUtil_Platform::ValueType64 rhs)
 {
-    return __bid64_quiet_not_equal(lhs.d_raw, rhs.d_raw);
+    return lhs != rhs;
 }
 
 inline
@@ -633,7 +580,7 @@ bool
 DecimalImpUtil_Platform::notEqual(DecimalImpUtil_Platform::ValueType128 lhs,
                                   DecimalImpUtil_Platform::ValueType128 rhs)
 {
-    return __bid128_quiet_not_equal(lhs.d_raw, rhs.d_raw);
+    return lhs != rhs;
 }
 
 
@@ -642,9 +589,7 @@ DecimalImpUtil_Platform::ValueType32
 DecimalImpUtil_Platform::convertToDecimal32(
                              const DecimalImpUtil_Platform::ValueType64& input)
 {
-    DecimalImpUtil_Platform::ValueType32 retval;
-    retval.d_raw = __bid64_to_bid32(input.d_raw);
-    return retval;
+    return static_cast<ValueType32>(input);
 }
 
 inline
@@ -652,9 +597,7 @@ DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::convertToDecimal64(
                              const DecimalImpUtil_Platform::ValueType32& input)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid32_to_bid64(input.d_raw);
-    return retval;
+    return input;
 }
 
 inline
@@ -662,9 +605,7 @@ DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::convertToDecimal64(
                             const DecimalImpUtil_Platform::ValueType128& input)
 {
-    DecimalImpUtil_Platform::ValueType64 retval;
-    retval.d_raw = __bid128_to_bid64(input.d_raw);
-    return retval;
+    return static_cast<ValueType64>(input);
 }
 
 inline
@@ -672,9 +613,7 @@ DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::convertToDecimal128(
                              const DecimalImpUtil_Platform::ValueType32& input)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid32_to_bid128(input.d_raw);
-    return retval;
+    return input;
 }
 
 inline
@@ -682,63 +621,50 @@ DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::convertToDecimal128(
                              const DecimalImpUtil_Platform::ValueType64& input)
 {
-    DecimalImpUtil_Platform::ValueType128 retval;
-    retval.d_raw = __bid64_to_bid128(input.d_raw);
-    return retval;
+    return input;
 }
+
 
 inline
 DecimalImpUtil_Platform::ValueType32
 DecimalImpUtil_Platform::binaryToDecimal32(float input)
 {
-    ValueType32 result;
-    result.d_raw = __binary32_to_bid32(input);
-    return result;
+    return static_cast<ValueType32>(input);
 }
 
 inline
 DecimalImpUtil_Platform::ValueType32
 DecimalImpUtil_Platform::binaryToDecimal32(double input)
 {
-    ValueType32 result;
-    result.d_raw = __binary64_to_bid32(input);
-    return result;
+    return static_cast<ValueType32>(input);
 }
 
 inline
 DecimalImpUtil_Platform::ValueType32
 DecimalImpUtil_Platform::binaryToDecimal32(long double input)
 {
-    ValueType32 result;
-    result.d_raw = __binary80_to_bid32(input);
-    return result;
+    return static_cast<ValueType32>(input);
 }
 
 inline
 DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::binaryToDecimal64(float input)
 {
-    ValueType64 result;
-    result.d_raw = __binary32_to_bid64(input);
-    return result;
+    return static_cast<ValueType64>(input);
 }
 
 inline
 DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::binaryToDecimal64(double input)
 {
-    ValueType64 result;
-    result.d_raw = __binary64_to_bid64(input);
-    return result;
+    return static_cast<ValueType64>(input);
 }
 
 inline
 DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::binaryToDecimal64(long double input)
 {
-    ValueType64 result;
-    result.d_raw = __binary80_to_bid64(input);
-    return result;
+    return static_cast<ValueType64>(input);
 }
 
 
@@ -746,27 +672,21 @@ inline
 DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::binaryToDecimal128(float input)
 {
-    ValueType128 result;
-    result.d_raw = __binary32_to_bid128(input);
-    return result;
+    return static_cast<ValueType128>(input);
 }
 
 inline
 DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::binaryToDecimal128(double input)
 {
-    ValueType128 result;
-    result.d_raw = __binary80_to_bid128(input);
-    return result;
+    return static_cast<ValueType128>(input);
 }
 
 inline
 DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::binaryToDecimal128(long double input)
 {
-    ValueType128 result;
-    result.d_raw = __binary80_to_bid128(input);
-    return result;
+    return static_cast<ValueType128>(input);
 }
 
 
@@ -869,43 +789,80 @@ DecimalImpUtil_Platform::makeDecimalRaw128(int mantissa,
     return result;
 }
 
+
 inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::scaleB(
-                                    DecimalImpUtil_Platform::ValueType32 value,
-                                    int                                  power)
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::scaleB(DecimalImpUtil_Platform::ValueType32 value,
+                                int                                  power)
+{
+    ValueType32 result= 1;
+    if (power > 0) {
+        for (int i= 0; i < power; ++i) {
+            result*= 10;
+        }
+    }
+    else if (power < 0) {
+        power= -power;
+        for (int i= 0; i < power; ++i) {
+            result/= 10;
+        }
+    }
+    result *= value;
+    return result;
+}
+
+inline
+DecimalImpUtil_Platform::ValueType64
+DecimalImpUtil_Platform::scaleB(DecimalImpUtil_Platform::ValueType64 value,
+                                int                                  power)
+{
+    ValueType64 result= 1;
+    if (power > 0) {
+        for (int i= 0; i < power; ++i) {
+            result*= 10;
+        }
+    }
+    else if (power < 0) {
+        power= -power;
+        for (int i= 0; i < power; ++i) {
+            result/= 10;
+        }
+    }
+    result *= value;
+    return result;
+}
+
+inline
+DecimalImpUtil_Platform::ValueType128
+DecimalImpUtil_Platform::scaleB(DecimalImpUtil_Platform::ValueType128 value,
+                                int                                   power)
+{
+    ValueType128 result= 1;
+    if (power > 0) {
+        for (int i= 0; i < power; ++i) {
+            result*= 10;
+        }
+    }
+    else if (power < 0) {
+        power= -power;
+        for (int i= 0; i < power; ++i) {
+            result/= 10;
+        }
+    }
+    result *= value;
+    return result;
+}
+
+
+inline
+DecimalImpUtil_Platform::ValueType32
+DecimalImpUtil_Platform::parse32(const char *str)
 {
     DecimalImpUtil_Platform::ValueType32 result;
-    result.d_raw = __bid32_scalbn(value.d_raw, power);
-    return result;
-}
 
-inline
-DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::scaleB(
-                                    DecimalImpUtil_Platform::ValueType64 value,
-                                    int                                  power)
-{
-    DecimalImpUtil_Platform::ValueType64 result;
-    result.d_raw = __bid64_scalbn(value.d_raw, power);
-    return result;
-}
+    int parsed = sscanf(str, "%Hf", &result);
+    (void) parsed;
 
-inline
-DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::scaleB(
-                                   DecimalImpUtil_Platform::ValueType128 value,
-                                   int                                   power)
-{
-    DecimalImpUtil_Platform::ValueType128 result;
-    result.d_raw = __bid128_scalbn(value.d_raw, power);
-    return result;
-}
-
-inline
-DecimalImpUtil_Platform::ValueType32 DecimalImpUtil_Platform::parse32(const char *str)
-{
-    DecimalImpUtil_Platform::ValueType32 result;
-    // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
-    // because the __bid* interfaces are C interfaces.
-    result.d_raw = __bid32_from_string(const_cast<char *>(str));
     return result;
 }
 
@@ -913,9 +870,10 @@ inline
 DecimalImpUtil_Platform::ValueType64 DecimalImpUtil_Platform::parse64(const char *str)
 {
     DecimalImpUtil_Platform::ValueType64 result;
-    // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
-    // because the __bid* interfaces are C interfaces.
-    result.d_raw = __bid64_from_string(const_cast<char *>(str));
+
+    int parsed = sscanf(str, "%Df", &result);
+    (void) parsed;
+
     return result;
 }
 
@@ -923,9 +881,10 @@ inline
 DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::parse128(const char *str)
 {
     DecimalImpUtil_Platform::ValueType128 result;
-    // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
-    // because the __bid* interfaces are C interfaces.
-    result.d_raw = __bid128_from_string(const_cast<char *>(str));
+
+    int parsed = sscanf(str, "%DDf", &result);
+    (void) parsed;
+
     return result;
 }
 

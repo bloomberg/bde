@@ -47,56 +47,12 @@ BSLS_IDENT("$Id$")
 #include <stdio.h>
 #endif
 
+#include <bdldfp_bufferbuf.h>
+
 namespace BloombergLP {
 namespace bdldfp {
 
 namespace {
-                    // ===============
-                    // class BufferBuf
-                    // ===============
-
-template <int Size>
-class BufferBuf : public bsl::streambuf {
-    // A static (capacity) stream buffer helper
-
-    char d_buf[Size + 1];  // Text plus closing NUL character
-
-  public:
-    // CREATORS
-    BufferBuf();
-        // Create an empty 'BufferBuf'.
-
-    // MANIPULATORS
-    void reset();
-        // Clear this buffer (make it empty).
-
-    const char *str();
-        // Return a pointer to a non-modifiable, NUL-terminated string of
-        // characters that is the content of this buffer.
-};
-                    // ---------------
-                    // class BufferBuf
-                    // ---------------
-
-template <int Size>
-BufferBuf<Size>::BufferBuf()
-{
-    reset();
-}
-
-template <int Size>
-void BufferBuf<Size>::reset()
-{
-    this->setp(this->d_buf, this->d_buf + Size);
-}
-
-template <int Size>
-const char *BufferBuf<Size>::str()
-{
-    *this->pptr() = 0;
-    return this->pbase();
-}
-
                     // ================
                     // class NotIsSpace
                     // ================
@@ -1249,7 +1205,10 @@ BloombergLP::bdldfp::Decimal64
 #elif BDLDFP_DECIMALPLATFORM_DECNUMBER
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "qNaN", BloombergLP::bdldfp::getContext());
+    BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv) != 0);
+    decDouble rv2 = rv;
+    BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv2) != 0);
     return rv;
 #elif BDLDFP_DECIMALPLATFORM_INTELDFP
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("NaN");

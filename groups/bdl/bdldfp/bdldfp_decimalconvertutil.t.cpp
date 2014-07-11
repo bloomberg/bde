@@ -634,7 +634,7 @@ int main(int argc, char* argv[])
         {
             if (veryVeryVerbose) bsl::cout << "Decimal32" << bsl::endl;
             {
-                BDEC::Decimal32 original;
+                BDEC::Decimal32 original(0.0);
 
                 long double bin_ld;  // Carrier binaries
                 double      bin_d;
@@ -865,7 +865,7 @@ int main(int argc, char* argv[])
 
             if (veryVeryVerbose) bsl::cout << "Decimal64" << bsl::endl;
             {
-                BDEC::Decimal64 original;
+                BDEC::Decimal64 original(0.0);
 
                 long double bin_ld;  // Carrier binaries
                 double      bin_d;
@@ -1045,13 +1045,24 @@ int main(int argc, char* argv[])
                 // Testing NaN
 
                 original = std::numeric_limits<BDEC::Decimal64>::quiet_NaN();
+                original = std::numeric_limits<BDEC::Decimal64>::quiet_NaN();
+                LOOP2_ASSERT(original,
+                    std::numeric_limits<BDEC::Decimal64>::quiet_NaN(),
+                    strictEqual(original, std::numeric_limits<BDEC::Decimal64>::quiet_NaN()));
+                BDEC::Decimal64 qnan(std::numeric_limits<BDEC::Decimal64>::quiet_NaN());
+                BDEC::Decimal64 zero(0.0);
+                LOOP2_ASSERT(original, qnan, strictEqual(original, qnan));
+                LOOP2_ASSERT(zero, qnan, !strictEqual(zero, qnan));
+                LOOP2_ASSERT(zero, qnan, qnan != zero);
+                LOOP2_ASSERT(zero, qnan, !(qnan == zero));
 
                 bin_ld  = Util::decimalToLongDouble(original);
                 bin_d   = Util::decimalToDouble(original);
                 bin_f   = Util::decimalToFloat(original);
 
                 restored = Util::decimal64FromLongDouble(bin_ld);
-                LOOP2_ASSERT(restored, bin_ld, restored != restored);
+                LOOP4_ASSERT(reinterpret_cast<const unsigned int &>(restored),
+reinterpret_cast<const unsigned int &>(bin_ld), restored, bin_ld, restored != restored);
 
                 restored = Util::decimal64FromDouble(bin_d);
                 LOOP2_ASSERT(restored, bin_d, restored != restored);
@@ -1096,7 +1107,7 @@ int main(int argc, char* argv[])
 
             if (veryVeryVerbose) bsl::cout << "Decimal128" << bsl::endl;
             {
-                BDEC::Decimal128 original;
+                BDEC::Decimal128 original(0.0);
 
                 long double bin_ld;  // Carrier binaries
                 double      bin_d;

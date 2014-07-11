@@ -5,6 +5,14 @@
 #include <bdldfp_decimalimputil_inteldfp.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_DECNUMBER
+#include <bdldfp_decimalimputil_decnumber.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_IBMXLC
+#include <bdldfp_decimalimputil_ibmxlc.h>
+#endif
+
 #ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
 #endif
@@ -26,15 +34,17 @@
     BloombergLP::bdldfp::DecimalImpUtil::parse128(                           \
         (BloombergLP::bdldfp::DecimalImpUtil::checkLiteral(lit), #lit))
 
-#elif BDLDFP_DECIMALPLATFORM_C99_TR
+#elif BDLDFP_DECIMALPLATFORM_C99_TR || defined( __IBM_DFP__ )
+
+#define BDLDFP_DECIMALIMPUTIL_JOIN_(a,b) a##b
 
                // Portable decimal floating-point literal support
 
-#define BDLDFP_DECIMALIMPLUTIL_DF(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,df)
+#define BDLDFP_DECIMALIMPUTIL_DF(lit) BDLDFP_DECIMALIMPUTIL_JOIN_(lit,df)
 
-#define BDLDFP_DECIMALIMPLUTIL_DD(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,dd)
+#define BDLDFP_DECIMALIMPUTIL_DD(lit) BDLDFP_DECIMALIMPUTIL_JOIN_(lit,dd)
 
-#define BDLDFP_DECIMALIMPLUTIL_DL(lit) BDLDFP_DECIMALIMPLUTIL_JOIN_(lit,dl)
+#define BDLDFP_DECIMALIMPUTIL_DL(lit) BDLDFP_DECIMALIMPUTIL_JOIN_(lit,dl)
 
 #endif
 

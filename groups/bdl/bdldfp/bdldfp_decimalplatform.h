@@ -103,6 +103,7 @@ BSLS_IDENT("$Id$")
 // C99 decimal support on xlC/Aix issues should be resolved (see 
 // DRQS 39471014).
 
+
 #if defined(BSLS_PLATFORM_CMP_IBM) && defined(__IBM_DFP__) && __IBM_DFP__
 
 
@@ -133,7 +134,7 @@ BSLS_IDENT("$Id$")
 
 
 #if BDLDFP_DECIMALPLATFORM_SOFTWARE
-#  if defined(BSLS_PLATFORM_CMP_GNU) && (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))
+#  if 1 && defined(BSLS_PLATFORM_CMP_GNU) && (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))
 #    define BDLDFP_DECIMALPLATFORM_DECNUMBER 0
 #    define BDLDFP_DECIMALPLATFORM_INTELDFP  1
 #  else

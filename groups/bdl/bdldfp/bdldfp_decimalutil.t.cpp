@@ -1693,12 +1693,14 @@ int main(int argc, char* argv[])
             {
                 BDEC::Decimal64 d0e0 = makeDecimalRaw64Zero(0, 0);
                 unsigned long long x0e0 = 0x2238000000000000ull;
-                ASSERT(!memcmp(&d0e0, &x0e0, 8));
+                LOOP3_ASSERT(reinterpret_cast<const unsigned long long &>(d0e0),
+                             d0e0, x0e0, !memcmp(&d0e0, &x0e0, 8));
             }
             {
                 BDEC::Decimal64 d0e0 = makeDecimalRaw64Zero(0u, 0);
                 unsigned long long x0e0 = 0x2238000000000000ull;
-                ASSERT(!memcmp(&d0e0, &x0e0, 8));
+                LOOP3_ASSERT(reinterpret_cast<const unsigned long long &>(d0e0),
+                             d0e0, x0e0, !memcmp(&d0e0, &x0e0, 8));
             }
             {
                 BDEC::Decimal64 d0e0 = makeDecimalRaw64Zero(0ll, 0);

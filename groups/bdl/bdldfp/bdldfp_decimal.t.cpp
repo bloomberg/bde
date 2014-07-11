@@ -1709,6 +1709,12 @@ int main(int argc, char* argv[])
             getStringFromStream(out, &s);
             LOOP_ASSERT(s, s[0] == '-'); // it is negative
             ASSERT(-BDLDFP_DECIMAL_DD(0.0) == BDEC::Decimal64(0)) // and 0
+
+            BDEC::Decimal64  dd =  BDLDFP_DECIMAL_DD(0.0);
+            BDEC::Decimal64 ndd = -BDLDFP_DECIMAL_DD(0.0);
+            LOOP2_ASSERT( dd, ndd,  memcmp(&ndd, &dd, sizeof(dd)));
+            dd= -dd;
+            LOOP2_ASSERT(dd, ndd, !memcmp(&ndd, &dd, sizeof(dd)));
         }
 
         if (veryVerbose) bsl::cout << "Unary+" << bsl::endl;
