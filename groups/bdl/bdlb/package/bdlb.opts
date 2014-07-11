@@ -6,3 +6,5 @@
 !! unix-dgux-*-*-*	_	STL_CXXFLAGS	= $(STL_NATIVEINC)
 !! unix-dgux-*-*-*	_	STL_LDFLAGS     = $(STL_NATIVELIB)
 !! windows-Windows_NT-amd64-*-cl	64	TESTDRIVER_BDEBUILD_CXXFLAGS = $(subst /O2,,$(BDEBUILD_CXXFLAGS))
+windows-                _       BDE_ENDLDFLAGS  =  AdvAPI32.Lib* 
+
