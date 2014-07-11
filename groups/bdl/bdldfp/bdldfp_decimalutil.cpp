@@ -13,6 +13,15 @@ BSLS_IDENT("$Id$")
 
 #include <bsls_assert.h>
 
+#include <errno.h>
+#include <math.h>  // For the  FP_* macros
+
+#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+extern "C" {
+#include <decSingle.h>
+}
+#endif
+
 #if BDLDFP_DECIMALPLATFORM_C99_TR
 #  ifndef  __STDC_WANT_DEC_FP__
 #    error __STDC_WANT_DEC_FP__ must be defined on the command line!
@@ -224,19 +233,19 @@ int DecimalUtil::parseDecimal128(Decimal128 *out, const char *str)
 }
 
 
-int DecimalUtil::parseDecimal32(Decimal32 *out, const std::string& str)
+int DecimalUtil::parseDecimal32(Decimal32 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
     return parseDecimal32(out, str.c_str());
 }
-int DecimalUtil::parseDecimal64(Decimal64 *out, const std::string& str)
+int DecimalUtil::parseDecimal64(Decimal64 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
     return parseDecimal64(out, str.c_str());
 }
-int DecimalUtil::parseDecimal128(Decimal128 *out, const std::string& str)
+int DecimalUtil::parseDecimal128(Decimal128 *out, const bsl::string& str)
 {
     BSLS_ASSERT(out != 0);
 
