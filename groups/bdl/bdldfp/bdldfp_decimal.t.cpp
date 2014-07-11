@@ -685,6 +685,7 @@ int main(int argc, char* argv[])
         if (veryVerbose) bsl::cout << "Operator==" << bsl::endl;
 
         ASSERT(! (BDLDFP_DECIMAL_DL(4.0) == BDLDFP_DECIMAL_DL(5.0)));
+        ASSERT(BDLDFP_DECIMAL_DL(4.0) == BDLDFP_DECIMAL_DL(4.0));
         ASSERT(BDLDFP_DECIMAL_DL(-9.345e27) == BDLDFP_DECIMAL_DL(-9.345e27));
 
         ASSERT(! (BDLDFP_DECIMAL_DL(4.0) == BDLDFP_DECIMAL_DD(5.0)));
@@ -788,7 +789,8 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) bsl::cout << "Operator>=" << bsl::endl;
 
-        ASSERT(BDLDFP_DECIMAL_DL(5.0) >= BDLDFP_DECIMAL_DL(4.0));
+        LOOP2_ASSERT(BDLDFP_DECIMAL_DL(5.0),   BDLDFP_DECIMAL_DL(4.0),
+                     BDLDFP_DECIMAL_DL(5.0) >= BDLDFP_DECIMAL_DL(4.0));
         ASSERT(BDLDFP_DECIMAL_DL(-9.345e27) >= BDLDFP_DECIMAL_DL(-9.345e27));
         ASSERT(! (BDLDFP_DECIMAL_DL(4.0) >= BDLDFP_DECIMAL_DL(5.0)));
 
@@ -1485,9 +1487,12 @@ int main(int argc, char* argv[])
             const BDEC::Decimal64  c64  = BDEC::Decimal64(64);
             const BDEC::Decimal128 c128 = BDEC::Decimal128(128);
 
-            ASSERT(BDLDFP_DECIMAL_DD( 32.0) == BDEC::Decimal64(c32));
-            ASSERT(BDLDFP_DECIMAL_DD( 64.0) == BDEC::Decimal64(c64));
-            ASSERT(BDLDFP_DECIMAL_DD(128.0) == BDEC::Decimal64(c128));
+            LOOP2_ASSERT(BDLDFP_DECIMAL_DD( 32.0),   BDEC::Decimal64(c32),
+                         BDLDFP_DECIMAL_DD( 32.0) == BDEC::Decimal64(c32));
+            LOOP2_ASSERT(BDLDFP_DECIMAL_DD( 64.0),   BDEC::Decimal64(c64),
+                         BDLDFP_DECIMAL_DD( 64.0) == BDEC::Decimal64(c64));
+            LOOP2_ASSERT(BDLDFP_DECIMAL_DD(128.0),   BDEC::Decimal64(c128),
+                         BDLDFP_DECIMAL_DD(128.0) == BDEC::Decimal64(c128));
         }
 
         if (veryVeryVerbose) bsl::cout << "Integral" << bsl::endl;
@@ -2252,8 +2257,10 @@ int main(int argc, char* argv[])
             const BDEC::Decimal32  c32  = BDEC::Decimal32(32);
             const BDEC::Decimal64  c64  = BDEC::Decimal64(64);
 
-            ASSERT(BDLDFP_DECIMAL_DF( 32.0) == BDEC::Decimal32(c32));
-            ASSERT(BDLDFP_DECIMAL_DF( 64.0) == BDEC::Decimal32(c64));
+            LOOP2_ASSERT(BDLDFP_DECIMAL_DF( 32.0),   BDEC::Decimal32(c32),
+                         BDLDFP_DECIMAL_DF( 32.0) == BDEC::Decimal32(c32));
+            LOOP2_ASSERT(BDLDFP_DECIMAL_DF( 64.0),   BDEC::Decimal32(c64),
+                         BDLDFP_DECIMAL_DF( 64.0) == BDEC::Decimal32(c64));
             // TODO: Conversions from Decimal128 to Decimal32.
             // ASSERT(BDLDFP_DECIMAL_DF(128.0) == BDEC::Decimal32(c128));
         }

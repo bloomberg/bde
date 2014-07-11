@@ -5650,7 +5650,7 @@ bool bdldfp::operator==(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
 inline
 bool bdldfp::operator!=(bdldfp::Decimal128 lhs, bdldfp::Decimal128 rhs)
 {
-    return DecimalImpUtil::notEqual(*lhs.data(), *lhs.data());
+    return DecimalImpUtil::notEqual(*lhs.data(), *rhs.data());
 }
 
 inline

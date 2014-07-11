@@ -1940,7 +1940,8 @@ int main(int argc, char* argv[])
         {
             BDEC::Decimal64 result;
             ASSERT(Util::parseDecimal64(&result, "1234567890123456") == 0);
-            ASSERT(BDLDFP_DECIMAL_DD(1234567890123456.0) == result);
+            LOOP2_ASSERT(BDLDFP_DECIMAL_DD(1234567890123456.0),   result,
+                         BDLDFP_DECIMAL_DD(1234567890123456.0) == result);
         }
         {
             BDEC::Decimal128 result;
