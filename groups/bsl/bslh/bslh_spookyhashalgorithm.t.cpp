@@ -607,7 +607,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Verify no memory was used\n");
+        if (verbose) printf("Verify no memory was used. (C-4)\n");
         {
             LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }

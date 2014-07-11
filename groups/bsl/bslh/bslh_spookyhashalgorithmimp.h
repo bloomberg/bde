@@ -30,6 +30,8 @@ BSLS_IDENT("$Id: $")
 //: 3 Removed usage of 'stdint.h' and updated associated typedefs
 //:
 //: 4 Whitespace changes for formatting
+//:
+//: 5 Made more methods private
 
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
@@ -149,6 +151,7 @@ public:
         uint64 *hash1,    // out only: first 64 bits of hash value.
         uint64 *hash2);   // out only: second 64 bits of hash value.
 
+  private:
     //
     // left rotate a 64-bit value by k bytes
     //
@@ -297,8 +300,6 @@ public:
         h1 ^= h0;  h0 = Rot64(h0,63);  h1 += h0;
     }
     
-private:
-
     //
     // Short is used for messages under 192 bytes in length
     // Short has a low startup cost, the normal mode is good for long
