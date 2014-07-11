@@ -1,7 +1,10 @@
+bdldfp_bufferbuf
 bdldfp_decimal
 bdldfp_decimalplatform
 bdldfp_decimalconvertutil
 bdldfp_decimalimputil_inteldfp
+bdldfp_decimalimputil_decnumber
 bdldfp_decimalimputil
 bdldfp_decimalutil
+bdldfp_denselypackeddecimalimputil
 bdldfp_uint128
