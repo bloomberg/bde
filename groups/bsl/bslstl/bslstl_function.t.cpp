@@ -2133,7 +2133,7 @@ int main(int argc, char *argv[])
             // TBD: A number of test cases need to be extended to test for
             // correct exception behavior.
 
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // COMPARISON TO NULLPTR
         //
@@ -2194,7 +2194,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // ASSIGNMENT FROM FUNCTOR
         //
@@ -2399,7 +2399,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // ASSIGNMENT FROM 'nullptr'
         //
@@ -2509,7 +2509,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // COPY AND MOVE ASSIGNMENT
         //
@@ -2686,7 +2686,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // SWAP
         // 
@@ -2835,7 +2835,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // MOVE CONSTRUCTORS
         //
@@ -3025,7 +3025,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // COPY CONSTRUCTORS
         //
@@ -3207,7 +3207,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // CONSTRUCTOR 'function(allocator_arg_t,const ALLOC& alloc,FUNC func)'
         //
@@ -3449,7 +3449,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // CONSTRUCTOR function(allocator_arg_t, const ALLOC& alloc)
         //
@@ -3723,7 +3723,7 @@ int main(int argc, char *argv[])
         
       } break;
 
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // FUNCTOR INVOCATION
         //
@@ -3810,7 +3810,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // POINTER TO MEMBER FUNCTION INVOCATION
         //
@@ -4007,7 +4007,7 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // POINTER TO FUNCTION INVOCATION
         //
@@ -4200,6 +4200,130 @@ int main(int argc, char *argv[])
         ASSERT(1 == nc(CountCopies()));
 // #endif
         ASSERT(0 == cc.numCopies());
+
+      } break;
+
+      case 4: {
+        // --------------------------------------------------------------------
+        // EMPTY FUNCTION INVOCATION
+        //
+        // Concerns:
+        //: 1 Invoking an empty function causes 'bsl::bad_function_call' to be
+        //:   thrown.
+        //: 2 The above is true for functions with zero to ten arguments.
+        //: 3 The 'what' member of the thrown exception returns
+        //:   "bad_function_call" as a null-terminated string.
+        //
+        // Plan:
+        //: 1 For concerns 1, default-construct 'bsl::function' objects.
+        //:   Invoke each object with suitable arguments and catch any
+        //:   exceptions.  Verify that 'bad_function_call' is thrown in each
+        //:   case.
+        //: 2 For concern 2, repeat step 1 with different template parameters
+        //:   for the constructed 'function' object, having zero to ten
+        //:   function arguments.
+        //: 3 For concern 3, test the result of calling 'what()' on the caught
+        //:   exception and verify using 'strcmp' that it is a null-terminated
+        //:   string matching "bad_function_call".
+        //
+        // Testing:
+        //      RET operator()(ARGS...) const; // For empty function object
+        //      const char* bad_function_call::what() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nEMPTY FUNCTION INVOCATION"
+                            "\n=========================\n");
+
+#ifdef BDE_BUILD_TARGET_EXC
+
+        for (int numArgs = 0; numArgs <= 10; ++numArgs) {
+
+            if (veryVerbose) printf("with %d arguments\n", numArgs);
+
+            int constructed = -1;
+
+            try {
+                switch (numArgs) {
+                  case 0: {
+                    bsl::function<int()> f0;
+                    constructed = 0;
+                    f0();
+                  } break;
+
+                  case 1: {
+                    bsl::function<int(int)> f1;
+                    constructed = 1;
+                    f1(1);
+                  } break;
+
+                  case 2: {
+                    bsl::function<int(int, int)> f2;
+                    constructed = 2;
+                    f2(1, 2);
+                  } break;
+
+                  case 3: {
+                    bsl::function<int(int, int, int)> f3;
+                    constructed = 3;
+                    f3(1, 2, 4);
+                  } break;
+
+                  case 4: {
+                    bsl::function<int(int, int, int, int)> f4;
+                    constructed = 4;
+                    f4(1, 2, 4, 8);
+                  } break;
+
+                  case 5: {
+                      bsl::function<int(int, int, int, int, int)> f5;
+                    constructed = 5;
+                    f5(1, 2, 4, 8, 0x10);
+                  } break;
+
+                  case 6: {
+                    bsl::function<int(int, int, int, int, int, int)> f6;
+                    constructed = 6;
+                    f6(1, 2, 4, 8, 0x10, 0x20);
+                  } break;
+
+                  case 7: {
+                    bsl::function<int(int, int, int, int, int, int, int)> f7;
+                    constructed = 7;
+                    f7(1, 2, 4, 8, 0x10, 0x20, 0x40);
+                  } break;
+
+                  case 8: {
+                    bsl::function<int(int,int,int,int,int,int,int,int)> f8;
+                    constructed = 8;
+                    f8(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80);
+                  } break;
+
+                  case 9: {
+                    bsl::function<int(int,int,int,int,int,int,int,int,int)> f9;
+                    constructed = 9;
+                    f9(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100);
+                  } break;
+
+                  case 10: {
+                    bsl::function<int(int, int, int, int, int, int, int, int,
+                                      int, int)> f10;
+                    constructed = 10;
+                    f10(1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80, 0x100, 0x200);
+                  } break;
+                } // end switch
+
+                LOOP_ASSERT(numArgs,0 && "Exception should have been thrown");
+            }
+            catch (bsl::bad_function_call ex) {
+                LOOP_ASSERT(numArgs,
+                            0 == strcmp("bad_function_call", ex.what()));
+            }
+            catch (...) {
+                LOOP_ASSERT(numArgs, 0 && "Incorrect exception caught");
+            }
+            LOOP_ASSERT(numArgs, numArgs == constructed);
+        } // end for
+#endif //  BDE_BUILD_TARGET_EXC
 
       } break;
 
