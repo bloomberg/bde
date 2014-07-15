@@ -35,7 +35,7 @@ using namespace bslh;
 // [ 2] SpookyHashAlgorithmImp& operator=(const SpookyHashAlgorithmImp&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -95,6 +95,7 @@ void aSsErT(bool b, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef SpookyHashAlgorithmImp Obj;
+typedef SpookyHashAlgorithmImp::uint64 uint64;
 
 static const struct {
     int                  d_line;
@@ -302,7 +303,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 6: {
-        // -------------------------------------------------------------------- TODO Big vs little endian
+        // --------------------------------------------------------------------
         // TESTING HASH64 AND HASH32
         //   Verify that the class offers the ability to invoke 'Hash64' and
         //   'Hash32' with some bytes and a length. Verify that the values
@@ -329,11 +330,12 @@ int main(int argc, char *argv[])
         //: 3 Verify no memory was used. (C-3)
         //
         // Testing:
-        //   static void Hash128(*msg, len, *h1, *h2);
+        //   static uint64 Hash64(*message, length, seed);
+        //   static uint32 Hash32(*message, length, seed);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING UPDATE"
-                            "\n==============\n");
+        if (verbose) printf("\nTESTING HASH64 AND HASH32"
+                            "\n=========================\n");
 
         static const struct {
             int        d_line;
@@ -404,7 +406,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 5: {
-        // -------------------------------------------------------------------- TODO Big vs little endian
+        // --------------------------------------------------------------------
         // TESTING HASH128
         //   Verify that the class offers the ability to invoke 'Hash128' with
         //   some bytes and a length. Verify that the values returned matches
@@ -433,8 +435,8 @@ int main(int argc, char *argv[])
         //   static void Hash128(*msg, len, *h1, *h2);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING UPDATE"
-                            "\n==============\n");
+        if (verbose) printf("\nTESTING HASH128"
+                            "\n===============\n");
 
         if (verbose) printf("Install a test allocator as the default"
                             " allocator.  Then install an 'AllocatorGuard' to"
@@ -479,7 +481,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 4: {
-        // -------------------------------------------------------------------- TODO Big vs little endian
+        // --------------------------------------------------------------------
         // TESTING UPDATE
         //   Verify that the class offers the ability to invoke 'Update' with
         //   some bytes and a length. Verify that calling 'Update' will permute
@@ -614,7 +616,6 @@ int main(int argc, char *argv[])
                 Obj hash;
                 hash.Init(1, 2);
 
-                
                 hash.Update(VALUE, strlen(VALUE));
 
                 uint64 h1;
@@ -633,7 +634,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 3: {
-        // -------------------------------------------------------------------- TODO Big vs little endian
+        // --------------------------------------------------------------------
         // TESTING INITIALIZATION AND FINALIZATION
         //   Verify that the class offers the ability to initialize and
         //   finalize via 'Init' and 'Final' respectively. Verify that calling
@@ -748,7 +749,6 @@ int main(int argc, char *argv[])
 
                 previousH1 = h1;
                 previousH2 = h2;
-                
             }
 
             for (int i = 0; i != 10; ++i) {
@@ -764,7 +764,6 @@ int main(int argc, char *argv[])
 
                 previousH1 = h1;
                 previousH2 = h2;
-                
             }
 
             for (int i = 0; i != 10; ++i) {
@@ -780,7 +779,6 @@ int main(int argc, char *argv[])
 
                 previousH1 = h1;
                 previousH2 = h2;
-                
             }
         }
 
@@ -837,7 +835,6 @@ int main(int argc, char *argv[])
 
                 previousH1 = h1;
                 previousH2 = h2;
-                
             }
         }
 
@@ -995,10 +992,10 @@ int main(int argc, char *argv[])
             Obj spookyImp;
             const char *str1 = "123456";
             const char *str2 = "654321";
-            ASSERT(spookyImp.Hash32(str1, sizeof(char)*6, 0) != 
+            ASSERT(spookyImp.Hash32(str1, sizeof(char)*6, 0) !=
                    spookyImp.Hash32(str2, sizeof(char)*6, 0));
 
-            ASSERT(spookyImp.Hash64(str1, sizeof(char)*6, 0) != 
+            ASSERT(spookyImp.Hash64(str1, sizeof(char)*6, 0) !=
                    spookyImp.Hash64(str2, sizeof(char)*6, 0));
 
             uint64 hash1a = 0ULL;
@@ -1019,10 +1016,10 @@ int main(int argc, char *argv[])
             Obj spookyImp;
             const char *str1 = "123456";
             const char *str2 = "123456";
-            ASSERT(spookyImp.Hash32(str1, sizeof(char)*6, 0) == 
+            ASSERT(spookyImp.Hash32(str1, sizeof(char)*6, 0) ==
                    spookyImp.Hash32(str2, sizeof(char)*6, 0));
 
-            ASSERT(spookyImp.Hash64(str1, sizeof(char)*6, 0) == 
+            ASSERT(spookyImp.Hash64(str1, sizeof(char)*6, 0) ==
                    spookyImp.Hash64(str2, sizeof(char)*6, 0));
 
             uint64 hash1a = 0ULL;
