@@ -18,13 +18,13 @@
 #pragma bde_verify -FD01  // Function needs contract
 #pragma bde_verify -LL01  // Line longer than 79 chars
 
-#pragma bde_verify set ok_unquoted object factory
-
 using namespace BloombergLP;
 
 //=============================================================================
 //                                  TEST PLAN
-//                                  ---------
+//-----------------------------------------------------------------------------
+//                                  Overview
+//                                  --------
 // The 'bslma_managedptr' component provides a small number of classes that
 // combine to provide a common solution to the problem of managing and
 // transferring ownership of a dynamically allocated object.  It further
@@ -92,10 +92,10 @@ using namespace BloombergLP;
 // [ 8] ManagedPtr(OTHER *, COOKIE *, void (*)(OTHER_BASE*, COOKIE_BASE*))
 // [ 5] ~ManagedPtr();
 // [ 9] operator ManagedPtr_Ref<OTHER_TYPE>();
-// [ 5] void load(bsl::nullptr_t=0, bsl::nullptr_t=0);
 // [ 5] void load(TYPE *ptr);
 // [ 5] void load(TYPE *ptr, FACTORY *factory);
-// [ 5] void load(TYPE *ptr, void *factory, DeleterFunc deleter);
+// [ 5] void load(TYPE *ptr, void *cookie, DeleterFunc deleter);
+// [ 5] void load(nullptr_t=0, void *cookie=0, DeleterFunc deleter=0);
 // [ 5] void load(TYPE *ptr, bsl::nullptr_t, void (*del)(BASE *, void *));
 // [ 5] void load(TYPE *, FACTORY *, void(*)(TYPE_BASE *, FACTORY_BASE *))
 // [ 6] void loadAlias(ManagedPtr<OTHER>& alias, TYPE *ptr);
@@ -376,7 +376,8 @@ namespace USAGE_EXAMPLES {
       public:
         // CREATORS
         explicit Square(double side);
-            // Create a 'Square' having sides of length 'side'.
+            // Create a 'Square' having sides with length of the specified
+            // 'side'.
 
         // ACCESSORS
         virtual double area() const;
@@ -1754,6 +1755,9 @@ void debugprint(const ManagedPtrDeleter& obj)
 //: doLoadOCbaseFnull
 //: doLoadOderivFnull
 //: doLoadOCderivFnull
+
+#pragma bde_verify push
+#pragma bde_verify -FABC01 // Functions ordered logically, for easier audit.
 
 namespace {
 
@@ -4517,6 +4521,8 @@ void testLoadAliasOps3(int                        callLine,
     }
 }
 
+#pragma bde_verify pop  // end of auditable test functionality
+
 //=============================================================================
 // This is the test table for iterating constructor and load functions for
 // 'bslma::ManagedPtr<MyTestObject>'.  The same test table is created for each
@@ -7111,8 +7117,6 @@ int main(int argc, char *argv[])
         //   the ManagedPtr class.
         //
         // Testing:
-        //   [Just because a function is tested, we do not (yet) confirm that
-        //    the testing is adequate.]
         //   ManagedPtr& operator=(ManagedPtr& rhs);
         //   ManagedPtr& operator=(ManagedPtr_Ref<ELEMENT_TYPE> ref);
         // --------------------------------------------------------------------
@@ -7341,8 +7345,6 @@ int main(int argc, char *argv[])
         //   the ManagedPtr class.
         //
         // Testing:
-        //   [Just because a function is tested, we do not (yet) confirm that
-        //    the testing is adequate.]
         //   void swap(ManagedPtr& rhs);
         // --------------------------------------------------------------------
 
@@ -8802,10 +8804,10 @@ int main(int argc, char *argv[])
         //   do not currently test that.
         //
         // Testing:
-        //   void load(bsl::nullptr_t=0, bsl::nullptr_t=0);
+        //   void load(nullptr_t=0, void *cookie=0, DeleterFunc deleter=0);
         //   void load(TYPE *ptr);
         //   void load(TYPE *ptr, FACTORY *factory);
-        //   void load(TYPE *ptr, void *factory, DeleterFunc deleter);
+        //   void load(TYPE *ptr, void *cookie, DeleterFunc deleter);
         //   void load(TYPE *ptr, bsl::nullptr_t, void (*del)(BASE *, void *));
         //   void load(TYPE *, FACTORY *, void(*)(TYPE_BASE *, FACTORY_BASE *))
         //   ~ManagedPtr();

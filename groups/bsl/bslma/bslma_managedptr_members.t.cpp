@@ -639,6 +639,14 @@ int main(int argc, char *argv[])
             struct Local {
                 int d_x;
                 static void deleter(void *a, void *b)
+                    // 'ASSERT' that the 'd_x' data member of the 'Local'
+                    // object pointed to by the specified 'a' has the specieid
+                    // 'b' address, and currently has the value '13', then
+                    // assign to that 'd_x' the value 42,  Note that this
+                    // function provides a verifiable test condition that the
+                    // 'deleter' function is executed when expected, without
+                    // actually destroying any objects nor reclaiming any
+                    // memory.
                 {
                     Local * pThis = static_cast<Local *>(a);
                     ASSERT(&pThis->d_x == b);

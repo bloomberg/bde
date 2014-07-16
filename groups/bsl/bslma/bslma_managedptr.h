@@ -18,19 +18,19 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE_ALSO: bslmf_ispolymporphic
 //
-//@DESCRIPTION: This component provides a proctor, similar to 'bsl::auto_ptr',
-// that supports user-specified deleters.  The proctor is responsible for the
-// automatic destruction of the object referenced by the managed pointer.  As a
-// "smart pointer", this object offers an interface similar to a native
-// pointer, supporting dereference operators (*, ->), (in)equality comparison
-// and testing as if it were a boolean value.  However, like 'bsl::auto_ptr' it
-// has unusual "copy-semantics" that transfer ownership of the managed object,
-// rather than making a copy.  It should be noted that this signature does not
-// satisfy the requirements for an element-type stored in any of the standard
-// library containers.  Note that this component will fail to compile when
-// instantiated for a class that gives a false-positive for the type trait
-// 'bslmf::IsPolymorphic'.  See the 'bslmf_ispolymporphic' component for more
-// details.
+//@DESCRIPTION: This component provides a proctor, 'bslma::ManagedPtr', similar
+// to 'bsl::auto_ptr', that supports user-specified deleters.  The proctor is
+// responsible for the automatic destruction of the object referenced by the
+// managed pointer.  As a "smart pointer", this object offers an interface
+// similar to a native pointer, supporting dereference operators (*, ->),
+// (in)equality comparison and testing as if it were a boolean value.  However,
+// like 'bsl::auto_ptr' it has unusual "copy-semantics" that transfer ownership
+// of the managed object, rather than making a copy.  It should be noted that
+// this signature does not satisfy the requirements for an element-type stored
+// in any of the standard library containers.  Note that this component will
+// fail to compile when instantiated for a class that gives a false-positive
+// for the type trait 'bslmf::IsPolymorphic'.  See the 'bslmf_ispolymporphic'
+// component for more details.
 //
 ///Deleters
 ///--------
@@ -714,11 +714,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_unspecifiedbool.h>
 #endif
 
-// The 'bde_verify' tool needs to be aware of contractual use of a few terms
-// that happen to match function parameter names.
-#pragma bde_verify push
-#pragma bde_verify set ok_unquoted deleter factory
-
 namespace BloombergLP {
 
 namespace bslma {
@@ -751,11 +746,11 @@ class ManagedPtr_Ref {
     ManagedPtr_Ref(ManagedPtr_Members *base, TARGET_TYPE *target);
         // Create a 'ManagedPtr_Ref' object having the specified 'base' value
         // for its 'base' attribute, and the specified 'target' for its
-        // 'target' attribute.  The behavior is undefined unless '0 != base'.
-        // Note that 'target' may be null.
+        // 'target' attribute.  Note that 'target' (but not 'base') may be
+        // null.
 
 
-    //! ManagedPtr_Ref(const ManagedPtr_Ref& original);
+    //! ManagedPtr_Ref(const ManagedPtr_Ref& original) = default;
         // Create a 'ManagedPtr_Ref' object having the same 'd_base_p' value as
         // the specified 'original'.  Note that this trivial constructor's
         // definition is compiler generated.
@@ -769,7 +764,7 @@ class ManagedPtr_Ref {
         // *not* destroyed.
 #endif
 
-    //! ManagedPtr_Ref& operator=(const ManagedPtr_Ref& original);
+    //! ManagedPtr_Ref& operator=(const ManagedPtr_Ref& original) = default;
         // Create a 'ManagedPtr_Ref' object having the same 'd_base_p' as the
         // specified 'original'.  Note that this trivial copy-assignment
         // operator's definition is compiler generated.
@@ -929,8 +924,8 @@ class ManagedPtr {
     ManagedPtr(ManagedPtr& original);
         // Create a managed pointer having the same target object as the
         // specified 'original', and transfer the ownership of the object
-        // managed by 'other' (if any) to this managed pointer, then reset
-        // 'original' as empty.
+        // managed by the 'original' (if any) to this managed pointer, then
+        // reset 'original' as empty.
 
     ManagedPtr(ManagedPtr_Ref<TARGET_TYPE> ref);                    // IMPLICIT
         // Create a managed pointer having the same target object as the
@@ -1104,7 +1099,7 @@ class ManagedPtr {
         // Return a managed pointer reference, referring to this object.  Note
         // that this conversion operator is used implicitly to allow the
         // construction of managed pointers from rvalues because temporaries
-        // cannot be passed by modifiable reference.
+        // cannot be passed by references offering modifiable access.
 
     void clear();
         // Destroy the current managed object (if any) and reset this managed
@@ -1163,8 +1158,9 @@ class ManagedPtr {
 
     void load(bsl::nullptr_t = 0, void *cookie = 0, DeleterFunc deleter = 0);
         // Destroy the current managed object (if any) and reset this managed
-        // pointer as empty.  Note that the specified 'factory' and 'deleter'
-        // will be ignored, as empty managed pointers do not invoke a deleter.
+        // pointer as empty.  Note that the optionally specified 'cookie' and
+        // 'deleter' will be ignored, as empty managed pointers do not invoke a
+        // deleter.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <class MANAGED_TYPE, class COOKIE_TYPE>
@@ -1352,8 +1348,6 @@ struct ManagedPtr_ImpUtil {
         // the current task was started, write a message to the console warning
         // about a pending change of behavior in the next BDE release.
 };
-
-#pragma bde_verify pop
 
 // ============================================================================
 //              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
