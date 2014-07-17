@@ -26,7 +26,7 @@ used to configure and build the BDE repository:
 1. From the root of this source repository, run:
 
    ```shell
-   python waf configure
+   waf configure
    ```
 
 2. To build the libraries, but not the test drivers, run:
