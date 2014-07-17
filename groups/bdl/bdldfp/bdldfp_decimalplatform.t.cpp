@@ -193,30 +193,6 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << "\nTesting for Valid Configuration"
                                << "\n==============================="
                                << bsl::endl;
-        ASSERT(BDLDFP_DECIMALPLATFORM_C99_TR +
-               BDLDFP_DECIMALPLATFORM_DECNUMBER +
-               BDLDFP_DECIMALPLATFORM_INTELDFP == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE +
-               BDLDFP_DECIMALPLATFORM_SOFTWARE == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_BIG_ENDIAN +
-               BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_DPD +
-               BDLDFP_DECIMALPLATFORM_BININT == 1);
-
-        if (BDLDFP_DECIMALPLATFORM_INTELDFP) {
-            ASSERT(BDLDFP_DECIMALPLATFORM_SOFTWARE);
-            ASSERT(BDLDFP_DECIMALPLATFORM_BININT);
-        }
-        else if (BDLDFP_DECIMALPLATFORM_DECNUMBER) {
-            ASSERT(BDLDFP_DECIMALPLATFORM_SOFTWARE);
-            ASSERT(BDLDFP_DECIMALPLATFORM_DPD);
-        }
-        else {
-            ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE);
-        }
 
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
             ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
@@ -226,7 +202,7 @@ int main(int argc, char* argv[])
         // NaN macros must exist, and be valid NaN objects, by not comparing
         // equal:
 
-        #if BDLDFP_DECIMALPLATFORM_C99_TR
+        #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN32
                 ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN32 is not defined!");
             #else
@@ -638,22 +614,12 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << bsl::endl
                                << "SANE CONFIGURATION" << bsl::endl
                                << "==================" << bsl::endl;
-        ASSERT(BDLDFP_DECIMALPLATFORM_C99_TR +
-               BDLDFP_DECIMALPLATFORM_DECNUMBER +
-               BDLDFP_DECIMALPLATFORM_INTELDFP == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_HARDWARE +
-               BDLDFP_DECIMALPLATFORM_SOFTWARE == 1);
-
-        ASSERT(BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN +
-               BDLDFP_DECIMALPLATFORM_BIG_ENDIAN == 1);
-
         #ifndef BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE
             ASSERT(!"BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE"
                     " is not defined!");
         #endif
 
-        #if BDLDFP_DECIMALPLATFORM_C99_TR
+        #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             #ifndef BDLDFP_DECIMALPLATFORM_C99_QNAN32
                 ASSERT(!"BDLDFP_DECIMALPLATFORM_C99_QNAN32 is not defined!");
             #endif
