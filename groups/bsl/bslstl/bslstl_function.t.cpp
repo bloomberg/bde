@@ -393,6 +393,17 @@ struct EmptyFunctor
 
 int moveLimit = -1; // Allow n moves before throw.  No throw if n < 0.
 
+int setMoveLimit(int limit)
+    // For certain classes, set the number of move operations that can be
+    // performed succesfully before an exception is thrown on move and return
+    // the previous value.  If 'limit' is '-1', then throw-on-move is disabled
+    // (all moves will succeed).
+{
+    int prev = moveLimit;
+    moveLimit = limit;
+    return prev;
+}
+
 int decrementMoveLimit()
     // Decrement 'moveLimit'.  Throw "throw on move" on transition from zero
     // to negative.
@@ -910,6 +921,71 @@ struct ValueGenerator<SmartPtr<T> > : ValueGeneratorBase<T> {
     SmartPtr<T> obj() { return SmartPtr<T>(&this->reset()); }
     bool check(int exp) const { return this->value() == exp; }
 };
+
+//=============================================================================
+//                  EXCEPTION TEST MACROS
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_BUILD_TARGET_EXC
+
+#define EXCEPTION_TEST_BEGIN(testallocator, testMoveException) do {           \
+    if (veryVeryVerbose) std::printf("\t*** EXCEPTION_TEST_BEGIN ***\n");     \
+    int bslmaExceptionCounter = 0;                                            \
+    int moveExceptionCounter = -1;                                            \
+    bool doTestMoveEx = testMoveException;                                    \
+    bslma::TestAllocator& testAlloc = (testallocator);                        \
+    do {                                                                      \
+        bool exceptionCaught = false;                                         \
+        testAlloc.setAllocationLimit(bslmaExceptionCounter);                  \
+        setMoveLimit(moveExceptionCounter);                                   \
+        try {
+
+#define EXCEPTION_TEST_ON_EXCEPTION                                           \
+        } catch (...) {                                                       \
+            exceptionCaught = true;                                           \
+            testAlloc.setAllocationLimit(-1);                                 \
+            setMoveLimit(-1);                                                 \
+        }                                                                     \
+        if (exceptionCaught) try { 
+
+#define EXCEPTION_TEST_END                                                    \
+        } catch (...) {                                                       \
+            exceptionCaught = true;                                           \
+        }                                                                     \
+        if (exceptionCaught) {                                                \
+            if (veryVeryVerbose) {                                            \
+                std::printf("\t***   EXCEPTION CAUGHT: "                      \
+                            "alloc limit = %d, move limit = %d ***\n",        \
+                            bslmaExceptionCounter, moveExceptionCounter);     \
+            }                                                                 \
+            if (bslmaExceptionCounter >= 0) {                                 \
+                ++bslmaExceptionCounter;                                      \
+            } else if (doTestMoveEx) {                                        \
+                ++moveExceptionCounter;                                       \
+            }                                                                 \
+        } else {                                                              \
+            if (veryVeryVerbose) {                                            \
+                std::printf("\t*** SUCCEEDED WITH NO EXCEPTION: "             \
+                            "alloc limit = %d, move limit = %d ***\n",        \
+                            bslmaExceptionCounter, moveExceptionCounter);     \
+            }                                                                 \
+            if (moveExceptionCounter >= 0 || !doTestMoveEx) {                 \
+                break;                                                        \
+            }                                                                 \
+            bslmaExceptionCounter = -1;                                       \
+            moveExceptionCounter = 0;                                         \
+        }                                                                     \
+    } while (true);                                                           \
+    testAlloc.setAllocationLimit(-1);                                         \
+    setMoveLimit(-1);                                                         \
+} while (false)
+
+#endif // BDE_BUILD_TARGET_EXC
+
+
+//=============================================================================
+//                  TEST FUNCTIONS
+//-----------------------------------------------------------------------------
 
 template <class T, class RET, class ARG>
 void testPtrToMemFunc(const char *prototypeStr)
@@ -1713,9 +1789,9 @@ void testSwap(const Obj& inA,
     // swap() should not call any potentially-throwing operations; set
     // allocation limit and move limit to detect such operations.
     testAlloc.setAllocationLimit(0);
-    moveLimit = 0;
+    setMoveLimit(0);
     a.swap(b);
-    moveLimit = -1;
+    setMoveLimit(-1);
     testAlloc.setAllocationLimit(-1);
     LOOP2_ASSERT(lineA, lineB, areEqualA_p(a2, b));
     LOOP2_ASSERT(lineA, lineB, areEqualB_p(b2, a));
@@ -1736,9 +1812,9 @@ void testSwap(const Obj& inA,
     // potentially-throwing operations; set allocation limit and move limit to
     // detect such operations.
     testAlloc.setAllocationLimit(0);
-    moveLimit = 0;
+    setMoveLimit(0);
     swap(b, a);
-    moveLimit = -1;
+    setMoveLimit(-1);
     testAlloc.setAllocationLimit(-1);
     LOOP2_ASSERT(lineA, lineB, areEqualA_p(a2, a));
     LOOP2_ASSERT(lineA, lineB, areEqualB_p(b2, b));
@@ -1949,9 +2025,9 @@ void testAssignNullptr(const Obj& func, int line)
     AllocSizeType expTotalBlocks = testAlloc.numBlocksTotal();
 
     testAlloc.setAllocationLimit(0);    // Disable new allocations
-    moveLimit = 0;                      // Disable throwing-functor moves
+    setMoveLimit(0);                    // Disable throwing-functor moves
     funcCopy = nullptr_t(); ///////// Assignment from nullptr ////////
-    moveLimit = -1;
+    setMoveLimit(-1);
     testAlloc.setAllocationLimit(-1);
 
     LOOP_ASSERT(line, ! funcCopy);
@@ -3477,6 +3553,8 @@ int main(int argc, char *argv[])
         //: 9 If memory is allocated, the destructor frees it.
         //: 10 All of the above concerns also apply to the
         //:   'function(allocator_arg_t, const ALLOC&, nullptr_t)' constructor.
+        //: 11 If the allocator throws an exception, no resources are leaked
+        //:   (exception neutral).
         //
         // Plan:
         //: 1 For concern 1 test each 'function' object constructed using this
@@ -3521,6 +3599,9 @@ int main(int argc, char *argv[])
         //:   allocator.
         //: 10 For concern 10, preform all of the previous steps using the 
         //:   'function(allocator_arg_t, const ALLOC&, nullptr_t)' constructor.
+        //: 11 For concern 11 perform the operations within exception-test
+        //:   loop, verifying that memory use doesn't change if the
+        //:   constructor call fails due to an exception.
         //
         // TESTING
         //      function(allocator_arg_t, const ALLOC& alloc);
@@ -3536,9 +3617,9 @@ int main(int argc, char *argv[])
         bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
         if (veryVerbose) printf("with bslma::Allocator*\n");
-        {
+        bslma::TestAllocator ta;
+        EXCEPTION_TEST_BEGIN(ta, false) {
             globalAllocMonitor.reset();
-            bslma::TestAllocator ta;
             bsl::function<int(float)> f(bsl::allocator_arg, &ta);
             ASSERT(! f);
             ASSERT(&ta == f.allocator());
@@ -3551,12 +3632,11 @@ int main(int argc, char *argv[])
             ASSERT(&ta == f2.allocator());
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
-        }
+        } EXCEPTION_TEST_END;
 
         if (veryVerbose) printf("with bsl::allocator<T>\n");
-        {
+        EXCEPTION_TEST_BEGIN(ta, false) {
             globalAllocMonitor.reset();
-            bslma::TestAllocator ta;
             bsl::allocator<void*> alloc(&ta);
 
             bsl::function<int(float)> f(bsl::allocator_arg, alloc);
@@ -3571,16 +3651,15 @@ int main(int argc, char *argv[])
             ASSERT(&ta == f2.allocator());
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
-        }
+        } EXCEPTION_TEST_END;
 
         if (veryVerbose) printf("with stateless allocator\n");
-        {
+        EXCEPTION_TEST_BEGIN(ta, false) {
             typedef EmptySTLAllocator<double>                         Alloc;
             typedef EmptySTLAllocator<bool>                           Alloc2;
             typedef bslma::AllocatorAdaptor<EmptySTLAllocator<char> > Adaptor;
 
             globalAllocMonitor.reset();
-            bslma::TestAllocator ta;
             Alloc alloc(&ta);
             ASSERT(bsl::is_empty<Alloc>::value);
             
@@ -3598,15 +3677,14 @@ int main(int argc, char *argv[])
             ASSERT(erasedAlloc == f2.allocator());
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
-        }
+        } EXCEPTION_TEST_END;
 
         if (veryVerbose) printf("with tiny to medium allocator\n");
-        {
+        EXCEPTION_TEST_BEGIN(ta, false) {
             typedef TinySTLAllocator<double>                         Alloc;
             typedef bslma::AllocatorAdaptor<TinySTLAllocator<char> > Adaptor;
 
             globalAllocMonitor.reset();
-            bslma::TestAllocator ta;
             Alloc alloc(&ta);
             ASSERT(! bsl::is_empty<Alloc>::value);
             
@@ -3628,14 +3706,13 @@ int main(int argc, char *argv[])
             ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
-        }
+        } EXCEPTION_TEST_END;
         
-        {
+        EXCEPTION_TEST_BEGIN(ta, false) {
             typedef SmallSTLAllocator<double>                         Alloc;
             typedef bslma::AllocatorAdaptor<SmallSTLAllocator<char> > Adaptor;
 
             globalAllocMonitor.reset();
-            bslma::TestAllocator ta;
             Alloc alloc(&ta);
             ASSERT(! bsl::is_empty<Alloc>::value);
             
@@ -3657,14 +3734,13 @@ int main(int argc, char *argv[])
             ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
-        }
+        } EXCEPTION_TEST_END;
         
-        {
+        EXCEPTION_TEST_BEGIN(ta, false) {
             typedef MediumSTLAllocator<double>                         Alloc;
             typedef bslma::AllocatorAdaptor<MediumSTLAllocator<char> > Adaptor;
 
             globalAllocMonitor.reset();
-            bslma::TestAllocator ta;
             Alloc alloc(&ta);
             ASSERT(! bsl::is_empty<Alloc>::value);
             
@@ -3686,15 +3762,14 @@ int main(int argc, char *argv[])
             ASSERT(adaptor->adaptedAllocator() == alloc);
             ASSERT(0 == ta.numBlocksInUse());
             ASSERT(globalAllocMonitor.isInUseSame());
-        }
+        } EXCEPTION_TEST_END;
         
         if (veryVerbose) printf("with large allocator\n");
-        {
+        EXCEPTION_TEST_BEGIN(ta, false) {
             typedef LargeSTLAllocator<double>                         Alloc;
             typedef bslma::AllocatorAdaptor<LargeSTLAllocator<char> > Adaptor;
 
             globalAllocMonitor.reset();
-            bslma::TestAllocator ta;
             Alloc alloc(&ta);
             ASSERT(! bsl::is_empty<Alloc>::value);
 
@@ -3719,7 +3794,7 @@ int main(int argc, char *argv[])
                 ASSERT(globalAllocMonitor.isInUseSame());
             }
             ASSERT(0 == ta.numBlocksInUse());
-        }
+        } EXCEPTION_TEST_END;
         
       } break;
 
