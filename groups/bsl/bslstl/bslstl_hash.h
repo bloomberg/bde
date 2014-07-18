@@ -386,6 +386,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_hashutil.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -415,12 +419,35 @@ namespace bsl {
                           // ==================
 
 template <class TYPE>
-struct hash;
-    // Empty base class for hashing.  No general hash struct defined, each type
-    // requires a specialization.  Leaving this struct declared but undefined
-    // will generate error messages that are more clear when someone tries to
-    // use a key that does not have a corresponding hash function.
+struct hash {
+    // Default 'bsl::hash' which will redirect requests to 'bslh::Hash' if
+    // possible, or fail to compile if not possible.
 
+    // STANDARD TYPEDEFS
+    typedef TYPE argument_type;
+    typedef std::size_t result_type;
+
+    //! hash() = default;
+        // Create a 'hash' object.
+
+    //! hash(const hash& original) = default;
+        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! hash& operator=(const hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
+
+    // ACCESSORS
+    std::size_t operator()(TYPE x) const;
+        // Return a hash value computed using the specified 'x'.
+};
 
 // ============================================================================
 //                  SPECIALIZATIONS FOR FUNDAMENTAL TYPES
@@ -1008,18 +1035,24 @@ struct hash<long double> {
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+template <class TYPE>
+inline
+std::size_t hash<TYPE>::operator()(TYPE x) const
+{
+    return ::BloombergLP::bslh::Hash<>()(x);
+}
 
 template<typename TYPE>
 inline
 std::size_t hash<TYPE *>::operator()(TYPE *x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return ::BloombergLP::bslh::Hash<>()(x);
 }
 
 inline
 std::size_t hash<bool>::operator()(bool x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return ::BloombergLP::bslh::Hash<>()(x);
 }
 
 inline
@@ -1050,13 +1083,13 @@ std::size_t hash<wchar_t>::operator()(wchar_t x) const
 inline
 std::size_t hash<char16_t>::operator()(char16_t x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return ::BloombergLP::bslh::Hash<>()(x);
 }
 
 inline
 std::size_t hash<char32_t>::operator()(char32_t x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return ::BloombergLP::bslh::Hash<>()(x);
 }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 
@@ -1150,19 +1183,19 @@ std::size_t hash<unsigned long long>::operator()(unsigned long long x) const
 inline
 std::size_t hash<float>::operator()(float x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return ::BloombergLP::bslh::Hash<>()(x);
 }
 
 inline
 std::size_t hash<double>::operator()(double x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return ::BloombergLP::bslh::Hash<>()(x);
 }
 
 inline
 std::size_t hash<long double>::operator()(long double x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash((double)x);
+    return ::BloombergLP::bslh::Hash<>()(x);
 }
 
 // ============================================================================

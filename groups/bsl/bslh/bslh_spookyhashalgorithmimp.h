@@ -42,6 +42,8 @@ BSLS_IDENT("$Id: $")
 //: 8 Changed c style casts to static_casts
 //:
 //: 9 Reordered methods according to BDE style
+//:
+//: 10 Added inline to 'Hash32' and 'Hash64'
 //
 ///Third Party Doc
 ///---------------
@@ -179,11 +181,15 @@ class SpookyHashAlgorithmImp
 
   public:
     // PUBLIC CLASS METHODS
-    static uint32 Hash32(const void *message, size_t length, uint32 seed);
+    static inline uint32 Hash32(const void *message,
+                                size_t length,
+                                uint32 seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed. Return the resulting 32-bit hash.
 
-    static uint64 Hash64(const void *message, size_t length, uint64 seed);
+    static inline uint64 Hash64(const void *message,
+                                size_t length,
+                                uint64 seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed. Return the resulting 64-bit hash.
 
@@ -219,6 +225,7 @@ class SpookyHashAlgorithmImp
 };
 
 // PUBLIC CLASS METHODS
+inline
 SpookyHashAlgorithmImp::uint32 SpookyHashAlgorithmImp::Hash32(
                                                            const void *message,
                                                            size_t      length,
@@ -229,6 +236,7 @@ SpookyHashAlgorithmImp::uint32 SpookyHashAlgorithmImp::Hash32(
     return static_cast<uint32>(hash1);
 }
 
+inline
 SpookyHashAlgorithmImp::uint64 SpookyHashAlgorithmImp::Hash64(
                                                            const void *message,
                                                            size_t      length,

@@ -32,19 +32,38 @@ using namespace bslh;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-// [ 3] operator()(const T&) const
+// [ 4] operator()(const T&) const
 // [ 2] Hash()
 // [ 2] Hash(const Hash)
 // [ 2] ~Hash()
 // [ 2] Hash& operator=(const Hash&)
+// [ 3] void hashAppend(HASHALG& hashAlg, bool input);
+// [ 3] void hashAppend(HASHALG& hashAlg, char input);
+// [ 3] void hashAppend(HASHALG& hashAlg, signed char input);
+// [ 3] void hashAppend(HASHALG& hashAlg, unsigned char input);
+// [ 3] void hashAppend(HASHALG& hashAlg, wchar_t input);
+// [ 3] void hashAppend(HASHALG& hashAlg, char16_t input);
+// [ 3] void hashAppend(HASHALG& hashAlg, char32_t input);
+// [ 3] void hashAppend(HASHALG& hashAlg, short input);
+// [ 3] void hashAppend(HASHALG& hashAlg, unsigned short input);
+// [ 3] void hashAppend(HASHALG& hashAlg, int input);
+// [ 3] void hashAppend(HASHALG& hashAlg, unsigned int input);
+// [ 3] void hashAppend(HASHALG& hashAlg, long input);
+// [ 3] void hashAppend(HASHALG& hashAlg, unsigned long input);
+// [ 3] void hashAppend(HASHALG& hashAlg, long long input);
+// [ 3] void hashAppend(HASHALG& hashAlg, unsigned long long input);
+// [ 3] void hashAppend(HASHALG& hashAlg, float input);
+// [ 3] void hashAppend(HASHALG& hashAlg, double input);
+// [ 3] void hashAppend(HASHALG& hashAlg, long double st input);
+// [ 3] void hashAppend(HASHALG& hashAlg, const TYPE *input);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
-// [ 4] typedef result_type
-// [ 5] IsBitwiseMovable trait
-// [ 5] is_trivially_copyable trait
-// [ 5] is_trivially_default_constructible trait
-// [ 6] QoI: Support for empty base optimization
+// [ 8] USAGE EXAMPLE
+// [ 5] typedef result_type
+// [ 6] IsBitwiseMovable trait
+// [ 6] is_trivially_copyable trait
+// [ 6] is_trivially_default_constructible trait
+// [ 7] QoI: Support for empty base optimization
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -379,10 +398,119 @@ class HashTable {
 };
 
 //=============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                  GLOBAL TYPEDEFS AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 typedef bslh::Hash<> Obj;
+
+static void printCharAsBinary(const char c) {
+    for(int i = 128; i > 0; i /= 2) {
+        if(c & i) {
+            printf("1");
+        } else {
+            printf("0");
+        }
+    }
+}
+
+static void printStringAsBinary(const char *str, size_t len) {
+    for(size_t i = 0; i < len; ++i) {
+        printCharAsBinary(str[i]);
+    }
+}
+
+static void printString(const char *str, size_t len) {
+    for(size_t i = 0; i < len; ++i) {
+        printf("%c", str[i]);
+    }
+}
+
+static bool binaryCompare(const char *first, const char *second, size_t size) {
+    bool equal = true;
+    for(size_t i = 0; i < size; ++i) {
+        equal = equal && (first[i] == second[i]);
+    }
+    return equal;
+}
+
+template<class TYPE>
+class MockHashingAlgorithm {
+    // Mock hashing algirithm that provides a way to examine data that is being
+    // passed into hashing algorithms by 'hashAppen'.
+    char   *d_data;
+    size_t  d_length;
+  public:
+    void operator()(TYPE *ptr, size_t length)
+        // Store the specified 'ptr' and 'length' for inspection later.
+    {
+        d_data = new char [length];
+        memcpy(d_data, ptr, length);
+        d_length = length;
+    }
+
+    const char *getData()
+        // Return the pointer stored by 'operator()'. Undefined if 'operator()'
+        // has not been called.
+    {
+        //printf("Pointer to: ");
+        //printStringAsBinary(reinterpret_cast<const char *>(p_ptr), sizeof(TYPE));
+        //printf(" requested\n");
+        return d_data;
+    }
+
+    size_t getLength()
+        // Return the length stored by 'operator()'. Undefined if 'operator()'
+        // has not been called.
+    {
+        return d_length;
+    }
+};
+
+template<class TYPE>
+class TestDriver {
+    // Class that can drive tests on any type.
+    char data[10];
+  public:
+    TestDriver()
+        // Construct a 'TestDriver'
+    {
+        srand(37);
+        for(int i = 0; i < 10; ++i) {
+            data[i] = (char)rand();
+        } 
+    }
+
+    void testHashAppendPassThrough(int line)
+        // Test 'hashAppend' on 'TYPE'
+    {
+        MockHashingAlgorithm<TYPE> alg;
+        TYPE input;
+        memcpy(&input, data, sizeof(TYPE));
+        hashAppend(alg, input);
+
+        const char *output = alg.getData();
+        for(int i = 0; i < sizeof(TYPE); ++i) {
+            LOOP_ASSERT(line, output[i] == data[i]);
+        }
+        ASSERT(alg.getLength() == sizeof(TYPE));
+    }
+
+    void testHashAppendNegativeZero(){
+        TYPE zero = 0;
+        TYPE negativeZero = -zero;
+        ASSERT(!binaryCompare(reinterpret_cast<const char *>(&zero),
+                              reinterpret_cast<const char *>(&negativeZero),
+                              sizeof(TYPE)));
+
+        MockHashingAlgorithm<TYPE> zeroAlg;
+        hashAppend(zeroAlg, zero);
+        MockHashingAlgorithm<TYPE> negativeZeroAlg;
+        hashAppend(negativeZeroAlg, negativeZero);
+        ASSERT(binaryCompare(zeroAlg.getData(),
+                             negativeZeroAlg.getData(),
+                             sizeof(TYPE)));
+    }
+};
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -404,7 +532,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be applied to user defined types which
@@ -461,7 +589,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == hashTable.count(Box(Point(3, 3), 3, 3)));
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING QOI: IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
@@ -529,7 +657,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING BDE TRAITS
         //   The functor is an empty POD, and should have the appropriate BDE
@@ -564,7 +692,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING STANDARD TYPEDEFS
         //   Verify that the struct properly forwards the typedefs of the
@@ -597,7 +725,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING FUNCTION CALL OPERATOR
         //   Verify that the struct offers the ability to invoke it with some
@@ -685,6 +813,312 @@ int main(int argc, char *argv[])
         if (verbose) printf("Verify no memory was used. (C-3)\n");
         {
             LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING HASHAPPEND
+        //   Verify that the 'hashAppend' free functions have been implemented
+        //   for all of the fundamental types and dont truncate or pass extra
+        //   data into the algorithms.
+        //
+        // Concerns:
+        //: 1 'hashAppend' has been implemented for the fundamental types.
+        //:
+        //: 2 Floating point values -0.0 and +0.0 result in the same bytes
+        //:   being passed into the hashing algorithm.
+        //:
+        //: 3 'bool' values only result in one of two different binary states
+        //:   being passed into the algorithms (doesn't need to be 00000000 and
+        //:   00000001, but it does need to be consistant).
+        //:
+        //: 4 Pointers are hashed as pointers, NOT the data they point to.
+        //:
+        //: 5 'hashAppend' passes the bytes it is given into the hashing
+        //:   algorithm without truncation or appends for all types (with the
+        //:   exceptions outlined above).
+        //
+        // Plan:
+        //: 1 Call 'hashAppend' with each fundamental type to ensure the
+        //:   function exists. (C-1)
+        //:
+        //: 2 Use a mock hashing algorithm to test that 'hashAppend' inputs the
+        //:   same bytes when given -0.0 or +0.0 floating point numbers. (C-2)
+        //:
+        //: 3 Use a mock hashing algorithm to test that 'hashAppend' inputs one
+        //:   of two possible byte representations of boolean values into the
+        //:   hashing algorithm it is given. Attempt to permute the boolean
+        //:   input using '++', assignment, and memcpy operations. (C-3)
+        //:
+        //: 4 Hash different pointers pointing to different data in different
+        //:   locations, the same data in different locations, and the same
+        //:   location, and verify all behave as expected. (C-4)
+        //:
+        //:5  Copy a known bitsequece into each fundamental type and pass it
+        //:   into 'hashAppend' with a mocked hashing algorith. Verify that the
+        //:   data inputted into the hashing algorithm matches the known input
+        //:   bitsequence. (C-5)
+        //
+        // Testing:
+        //   void hashAppend(HASHALG& hashAlg, bool input);
+        //   void hashAppend(HASHALG& hashAlg, char input);
+        //   void hashAppend(HASHALG& hashAlg, signed char input);
+        //   void hashAppend(HASHALG& hashAlg, unsigned char input);
+        //   void hashAppend(HASHALG& hashAlg, wchar_t input);
+        //   void hashAppend(HASHALG& hashAlg, char16_t input);
+        //   void hashAppend(HASHALG& hashAlg, char32_t input);
+        //   void hashAppend(HASHALG& hashAlg, short input);
+        //   void hashAppend(HASHALG& hashAlg, unsigned short input);
+        //   void hashAppend(HASHALG& hashAlg, int input);
+        //   void hashAppend(HASHALG& hashAlg, unsigned int input);
+        //   void hashAppend(HASHALG& hashAlg, long input);
+        //   void hashAppend(HASHALG& hashAlg, unsigned long input);
+        //   void hashAppend(HASHALG& hashAlg, long long input);
+        //   void hashAppend(HASHALG& hashAlg, unsigned long long input);
+        //   void hashAppend(HASHALG& hashAlg, float input);
+        //   void hashAppend(HASHALG& hashAlg, double input);
+        //   void hashAppend(HASHALG& hashAlg, long double st input);
+        //   void hashAppend(HASHALG& hashAlg, const TYPE *input);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING HASHAPPEND"
+                            "\n==================\n");
+
+        if (verbose) printf("Call 'hashAppend' with each fundamental type to"
+                            " ensure the function exists. (C-1)\n");
+        {
+            MockHashingAlgorithm<bool> boolAlg;
+            hashAppend(boolAlg, static_cast<bool>(1));
+
+            MockHashingAlgorithm<char> charAlg;
+            hashAppend(charAlg, static_cast<char>(1));
+
+            MockHashingAlgorithm<signed char> signedCharAlg;
+            hashAppend(signedCharAlg, static_cast<signed char>(1));
+
+            MockHashingAlgorithm<wchar_t> wchar_tAlg;
+            hashAppend(wchar_tAlg, static_cast<wchar_t>(1));
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+            MockHashingAlgorithm<char16_t> char16_tAlg;
+            hashAppend(char16_tAlg, static_cast<char16_t>(1));
+
+            MockHashingAlgorithm<char32_t> char32_tAlg;
+            hashAppend(char32_tAlg, static_cast<char32_t>(1));
+#endif
+
+            MockHashingAlgorithm<short> shortAlg;
+            hashAppend(shortAlg, static_cast<short>(1));
+
+            MockHashingAlgorithm<unsigned short> unsignedShortAlg;
+            hashAppend(unsignedShortAlg, static_cast<unsigned short>(1));
+
+            MockHashingAlgorithm<int> intAlg;
+            hashAppend(intAlg, static_cast<int>(1));
+
+            MockHashingAlgorithm<unsigned int> unsignedIntAlg;
+            hashAppend(unsignedIntAlg, static_cast<unsigned int>(1));
+
+            MockHashingAlgorithm<long> longAlg;
+            hashAppend(longAlg, static_cast<long>(1));
+
+            MockHashingAlgorithm<unsigned long> unsignedLongAlg;
+            hashAppend(unsignedLongAlg, static_cast<unsigned long>(1));
+
+            MockHashingAlgorithm<long long> longLongAlg;
+            hashAppend(longLongAlg, static_cast<long long>(1));
+
+            MockHashingAlgorithm<unsigned long long> unsignedLongLongAlg;
+            hashAppend(unsignedLongLongAlg,static_cast<unsigned long long>(1));
+
+            MockHashingAlgorithm<float> floatAlg;
+            hashAppend(floatAlg, static_cast<float>(1));
+
+            MockHashingAlgorithm<double> doubleAlg;
+            hashAppend(doubleAlg, static_cast<double>(1));
+
+            MockHashingAlgorithm<long double> longDoubleAlg;
+            hashAppend(longDoubleAlg, static_cast<long double>(1));
+
+            const char *ptr = "asdf";
+            MockHashingAlgorithm<const char *> ptrAlg;
+            hashAppend(ptrAlg, ptr);
+        }
+
+        if (verbose) printf("Use a mock hashing algorithm to test that"
+                            " 'hashAppend' inputs the same bytes when given"
+                            " -0.0 or +0.0 floating point numbers. (C-2)\n");
+        {
+            TestDriver<float> floatDriver;
+            floatDriver.testHashAppendNegativeZero();
+
+            TestDriver<double> doubleDriver;
+            doubleDriver.testHashAppendNegativeZero();
+
+            TestDriver<long double> longDoubleDriver;
+            longDoubleDriver.testHashAppendNegativeZero();
+        }
+
+        if (verbose) printf("Use a mock hashing algorithm to test that"
+                            " 'hashAppend' inputs one of two possible byte"
+                            " representations of boolean values into the"
+                            " hashing algorithm it is given. Attempt to"
+                            " permute the boolean input using '++',"
+                            " assignment, and memcpy operations. (C-3)\n");
+        {
+            MockHashingAlgorithm<bool> defaultAlg;
+            hashAppend(defaultAlg, true);
+
+            bool incrementedBool = true;
+            incrementedBool++;
+            MockHashingAlgorithm<bool> incrementedAlg;
+            hashAppend(incrementedAlg, incrementedBool);
+
+            unsigned short uShort = 219;
+            bool assignedBool = uShort;
+            MockHashingAlgorithm<bool> assignedAlg;
+            hashAppend(assignedAlg, assignedBool);
+
+            bool memcpyBool;
+            char memcpyChar = 'Z';
+            memcpy(&memcpyBool, &memcpyChar, 1);
+            MockHashingAlgorithm<bool> memcpyAlg;
+            hashAppend(memcpyAlg, memcpyBool);
+
+            // All various 'true's are the same
+            ASSERT(binaryCompare(defaultAlg.getData(),
+                                 incrementedAlg.getData(),
+                                 sizeof(bool)));
+
+            ASSERT(binaryCompare(defaultAlg.getData(),
+                                 assignedAlg.getData(),
+                                 sizeof(bool)));
+
+            ASSERT(binaryCompare(defaultAlg.getData(),
+                                 memcpyAlg.getData(),
+                                 sizeof(bool)));
+
+            MockHashingAlgorithm<bool> falseAlg;
+            hashAppend(falseAlg, false);
+
+            // 'true' and 'false' are different
+            ASSERT(!binaryCompare(defaultAlg.getData(),
+                                  falseAlg.getData(),
+                                  sizeof(bool)));
+        }
+
+        if (verbose) printf("Hash different pointers pointing to different"
+                            " data in different locations, the same data in"
+                            " different locations, and the same location, and"
+                            " verify all behave as expected. (C-4)\n");
+        {
+            const char *ptr1Loc1Val1 = "asdf";
+            const char *ptr2Loc1Val1 = ptr1Loc1Val1;
+
+            // 'temp' is required to prevent 'ptr1Loc1Val1' and 'ptr3Loc2Val1'
+            // from being optimized to point to the same location.
+            char *temp = "zxcv";
+            const char *ptr3Loc2Val1 = temp;
+            temp = "asdf";
+
+            const char *ptr4Loc3Val2 = "qwer";
+
+            MockHashingAlgorithm<const char *> ptr1Loc1Val1Alg;
+            hashAppend(ptr1Loc1Val1Alg, ptr1Loc1Val1);
+
+            MockHashingAlgorithm<const char *> ptr2Loc1Val1Alg;
+            hashAppend(ptr2Loc1Val1Alg, ptr2Loc1Val1);
+
+            MockHashingAlgorithm<const char *> ptr3Loc2Val1Alg;
+            hashAppend(ptr3Loc2Val1Alg, ptr3Loc2Val1);
+
+            MockHashingAlgorithm<const char *> ptr4Loc3Val2Alg;
+            hashAppend(ptr4Loc3Val2Alg, ptr4Loc3Val2);
+
+            // Correct length passed into the algorithm
+            ASSERT(ptr1Loc1Val1Alg.getLength() == sizeof(const char *));
+            ASSERT(ptr2Loc1Val1Alg.getLength() == sizeof(const char *));
+            ASSERT(ptr3Loc2Val1Alg.getLength() == sizeof(const char *));
+            ASSERT(ptr4Loc3Val2Alg.getLength() == sizeof(const char *));
+
+            // Pointers to same location come out the same
+            ASSERT(binaryCompare(ptr1Loc1Val1Alg.getData(),
+                                 ptr2Loc1Val1Alg.getData(),
+                                 sizeof(const char *)));
+
+            // Pointers to same value, different location come out different
+            ASSERT(!binaryCompare(ptr1Loc1Val1Alg.getData(),
+                                  ptr3Loc2Val1Alg.getData(),
+                                  sizeof(const char *)));
+
+            // Pointers to different value and location come out different
+            ASSERT(!binaryCompare(ptr1Loc1Val1Alg.getData(),
+                                  ptr4Loc3Val2Alg.getData(),
+                                  sizeof(const char *)));
+        }
+
+        if (verbose) printf("Copy a known bitsequece into each fundamental"
+                            " type and pass it into 'hashAppend' with a mocked"
+                            " hashing algorith. Verify that the data inputted"
+                            " into the hashing algorithm matches the known"
+                            " input bitsequence. (C-5)\n");
+        {
+            // 'bool' has already been tested and we explicitly DONT want it to
+            // preserve it's bitwise representation.
+
+            TestDriver<char> charDriver;
+            charDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<signed char> signedCharDriver;
+            signedCharDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<wchar_t> wchar_tDriver;
+            wchar_tDriver.testHashAppendPassThrough(L_);
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+            TestDriver<char16_t> char16_tDriver;
+            char16_tDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<char32_t> char32_tDriver;
+            char32_tDriver.testHashAppendPassThrough(L_);
+#endif
+
+            TestDriver<short> shortDriver;
+            shortDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<unsigned short> unsignedShortDriver;
+            unsignedShortDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<int> intDriver;
+            intDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<unsigned int> unsignedIntDriver;
+            unsignedIntDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<long> longDriver;
+            longDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<unsigned long> unsignedLongDriver;
+            unsignedLongDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<long long> longLongDriver;
+            longLongDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<unsigned long long> unsignedLongLongDriver;
+            unsignedLongLongDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<float> floatDriver;
+            floatDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<double> doubleDriver;
+            doubleDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<long double> longDoubleDriver;
+            longDoubleDriver.testHashAppendPassThrough(L_);
+
+            TestDriver<char *> ptrDriver;
+            ptrDriver.testHashAppendPassThrough(L_);
         }
 
       } break;
