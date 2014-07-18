@@ -16,6 +16,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <math.h>
 #include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +38,9 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] STRINGTHING
-// [ 8] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE 1
+// [ 9] USAGE EXAMPLE 2
+// [10] USAGE EXAMPLE 3
 // [ 4] Standard typedefs
 // [ 5] Bitwise-movable trait
 // [ 5] IsPod trait
@@ -348,6 +351,141 @@ struct hash<StringThing> {
 
 }  // close namespace bsl
 
+///Example 3: Using 'hashAppend' from 'bslh' with 'HashCrossReference'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In Example 2, we specialized 'bsl::hash' for a custom class. Now we want to
+// do the same thing in the new hashing system implemented in 'bslh'. We will
+// re-use the 'HashCrossReference' template class defined in Example 1.
+//
+// First, we declare 'Point', a class that allows us to identify a loction on a
+// two dimensional cartesian plane.
+//..
+
+class Point {
+    // A value semantic type that represents as two dimensional location on a
+    // cartesian plane.
+
+  private:
+    int    d_x;
+    int    d_y;
+    double d_distToOrigin; // This value will be accessed a lot, so we cache it
+                           // rather than recalculating every time.
+
+  public:
+    Point (int x, int y);
+        // Create a 'Point' with the specified 'x' and 'y' coordinates
+
+    double distanceToOrigin();
+        // Return the distance from the origin (0, 0) to this point.
+
+//..
+// Then, we declare 'operator==' as a friend so that we will be able to compare
+// two points.
+//..
+    friend bool operator==(const Point &left, const Point &right);
+
+//..
+// Next, we declare 'hashAppend' as a friend so that we will be able hash a
+// 'Point'.
+//..
+    template <class HASH_ALGORITHM>
+    friend
+    void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point);
+        // Apply the specified 'hashAlg' to the specified 'point'
+};
+
+Point::Point(int x, int y) : d_x(x), d_y(y) {
+    d_distToOrigin = sqrt(d_x*d_x + d_y*d_y);
+}
+
+double Point::distanceToOrigin() {
+    return d_distToOrigin;
+}
+
+//..
+// Then, we define 'operator=='. Notice how it only checks salient attributes -
+// attributes that contribute to the value of the class. We ignore
+// 'd_distToOrigin' which is not required to determine equality.
+//..
+bool operator==(const Point &left, const Point &right)
+{
+    return (left.d_x == right.d_x) && (left.d_y == right.d_y);
+}
+
+//..
+// Next, we define 'hashAppend'. This method will allow any hashing algorithm
+// to be applied to 'Point'. This is the extent of the work that needs to be
+// done by type creators. They do not need to implement any algorithms, they
+// just need to call out the salient attributes (which have already been
+// determined by 'operator==') by calling 'hashAppend' on them.
+//..
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
+{
+    hashAppend(hashAlg, point.d_x);
+    hashAppend(hashAlg, point.d_y);
+}
+
+//..
+// Then, we declare another value semantic type, 'Box' that will have point as
+// one of its salient attributes.
+//..
+class Box {
+    // A value semantic type that represents a box drawn on to a cartesian
+    // plane.
+
+  private:
+    Point d_position;
+    int d_length;
+    int d_width;
+
+  public:
+    Box(Point position, int length, int width);
+        // Create a box with the specified 'length' and 'width', with its upper
+        // left corner at the specified 'position'
+
+//..
+// Next, we declare 'operator==' and 'hashAppend' as we did before.
+//..
+    friend bool operator==(const Box &left, const Box &right);
+
+    template <class HASH_ALGORITHM>
+    friend
+    void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box);
+        // Apply the specified 'hashAlg' to the specified 'box'
+};
+
+Box::Box(Point position, int length, int width) : d_position(position),
+                                                  d_length(length),
+                                                  d_width(width) { }
+
+//..
+// Then, we define 'operator=='. This time all of the data members contribute
+// to equality.
+//..
+bool operator==(const Box &left, const Box &right)
+{
+    return (left.d_position == right.d_position) &&
+           (left.d_length   == right.d_length) &&
+           (left.d_width    == right.d_width);
+}
+
+//..
+// Next, we define 'hashAppend' for 'Box'. Notice how as well as calling
+// 'hashAppend' on fundamental types, we can also call it on our user defined
+// type 'Point'. Calling 'hashAppend' on 'Point' will propogate the hashing
+// algorithm functor 'hashAlg' down to the fundamental types that make up
+// 'Point', and those types will then be passed into the algorithm functor.
+//..
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+{
+    hashAppend(hashAlg, box.d_position);
+    hashAppend(hashAlg, box.d_length);
+    hashAppend(hashAlg, box.d_width);
+}
+
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -368,6 +506,71 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 10: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 3
+        //   Implement hashing in the new 'bslh' hashing system test that
+        //   'bls::hash' picks up on it when there isn't a 'bsl::hash' template
+        //   specialization.
+        //
+        // Concerns:
+        //: 1 The usage example compiles, links, and runs as shown.
+        //:
+        //: 2 'bsl::hash' picks up on and used the implemented 'hashAppend'
+        //
+        // Plan:
+        //: 1 Incorporate usage example into test driver and verify
+        //:   functionality with some sample values. (C-1,2)
+        //
+        // Testing:
+        //   USAGE EXAMPLE 3
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE 3\n"
+                            "===============\n");
+//..
+// Then, we want to use our cross reference on a 'Box'.  We create an array of
+// unique 'Box's and take its length:
+//..
+
+        Box boxes[] = { Box(Point(0, 0), 2, 3),
+                        Box(Point(1, 0), 1, 1),
+                        Box(Point(0, 1), 1, 5),
+                        Box(Point(1, 1), 5, 6),
+                        Box(Point(2, 1), 1, 13),
+                        Box(Point(0, 4), 3, 3),
+                        Box(Point(3, 2), 2, 17) };
+        enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
+
+//..
+// Next, we create our cross-reference 'hcrsts' and verify that it constructed
+// properly.  Note we don't pass a second parameter template argument and let
+// 'HASHER' default to 'bsl::hash<TYPE>'. Since we have not specialized
+// 'bsl::hash' for 'Box', 'bsl::hash<TYPE>' will attempt to use 'bslh::hash<>'
+// to hash 'Box'.
+//..
+
+        HashCrossReference<Box> hcrsts(boxes, NUM_BOXES);
+        ASSERT(hcrsts.isValid());
+
+//..
+// Now, we verify that each element in our array registers with count:
+//..
+        for(int i = 0; i < NUM_BOXES; ++i) {
+            ASSERT(1 == hcrsts.count(boxes[i]));
+        }
+
+//..
+// Finally, we verify that elements not in our original array are correctly
+// identified as not being in the set:
+//..
+        ASSERT(0 == hcrsts.count(Box(Point(3, 3), 3, 3)));
+        ASSERT(0 == hcrsts.count(Box(Point(3, 2), 1, 0)));
+        ASSERT(0 == hcrsts.count(Box(Point(1, 2), 3, 4)));
+        ASSERT(0 == hcrsts.count(Box(Point(33, 23), 13, 3)));
+        ASSERT(0 == hcrsts.count(Box(Point(30, 37), 34, 13)));
+
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
@@ -383,7 +586,7 @@ int main(int argc, char *argv[])
         //:   (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
         if (verbose) printf("USAGE EXAMPLE 2\n"
@@ -674,11 +877,11 @@ int main(int argc, char *argv[])
             TYPE       d_value;
             size_t     d_hashCode;
         } DATA[] = {
-            // LINE    VALUE   HASHCODE
-            {  L_,     0,       0 },
-            {  L_,     5,       5 },
-            {  L_,     13,     13 },
-            {  L_,     42,     42 },
+            // LINE   VALUE  HASHCODE
+            {  L_,       0,     0 },
+            {  L_,       5,     5 },
+            {  L_,      13,    13 },
+            {  L_,      42,    42 },
             {  L_,     127,   127 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;

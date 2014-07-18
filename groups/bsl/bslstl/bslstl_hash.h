@@ -419,34 +419,9 @@ namespace bsl {
                           // ==================
 
 template <class TYPE>
-struct hash {
-    // Default 'bsl::hash' which will redirect requests to 'bslh::Hash' if
-    // possible, or fail to compile if not possible.
-
-    // STANDARD TYPEDEFS
-    typedef TYPE argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a 'hash' object.
-
-    //! hash(const hash& original) = default;
-        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash& operator=(const hash& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as 'hash' is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(TYPE x) const;
-        // Return a hash value computed using the specified 'x'.
+struct hash : ::BloombergLP::bslh::Hash<> {
+    // Inheriting from 'bslh::Hash' so that the new 'bslh' hashing system will
+    // be used if a 'bls::hash' template specialization doesn't exist.
 };
 
 // ============================================================================
@@ -1035,12 +1010,6 @@ struct hash<long double> {
 // ===========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ===========================================================================
-template <class TYPE>
-inline
-std::size_t hash<TYPE>::operator()(TYPE x) const
-{
-    return ::BloombergLP::bslh::Hash<>()(x);
-}
 
 template<typename TYPE>
 inline
