@@ -926,9 +926,9 @@ STREAM& OutStreamFunctions::bdexStreamOut(STREAM&     stream,
                                           const TYPE& value,
                                           int         version)
 {
-    typedef class bslmf::If<bslmf::IsEnum<TYPE>::value,
-                            IsEnumType,
-                            IsNotEnumType>::Type dummyType;
+    typedef typename bslmf::If<bslmf::IsEnum<TYPE>::value,
+                               IsEnumType,
+                               IsNotEnumType>::Type dummyType;
     return bdexStreamOutImp(stream, value, version, dummyType());
 }
 
