@@ -257,10 +257,6 @@ void bsl::Function_Rep::destructiveMove(Function_Rep *to,
 
 bsl::Function_Rep::~Function_Rep()
 {
-    // Assert class invariants
-    BSLS_ASSERT(d_allocator_p);
-    BSLS_ASSERT(d_allocManager_p);
-
     // Integral function size cast to pointer type.
     PtrOrSize_t sooFuncSize;
 
@@ -269,7 +265,10 @@ bsl::Function_Rep::~Function_Rep()
         sooFuncSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 
-    d_allocManager_p(e_DESTROY, this, sooFuncSize);
+    if (d_allocManager_p) {
+        BSLS_ASSERT(d_allocator_p);
+        d_allocManager_p(e_DESTROY, this, sooFuncSize);
+    }
 }
 
 void bsl::Function_Rep::swap(Function_Rep& other) BSLS_NOTHROW_SPEC

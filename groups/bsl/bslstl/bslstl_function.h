@@ -307,7 +307,7 @@ class Function_Rep {
       , e_IS_EQUAL
             // (Allocator manager only) Return whether the allocator stored in
             // '*rep' is equal to the allocator stored in 'input', where
-            // 'input' is the 'd_allocator_p' member of another 'FunctionRep'
+            // 'input' is the 'd_allocator_p' member of another 'Function_Rep'
             // object.  For 'STL-style' allocators, the allocators will be
             // considered equal only if 'rep->d_allocator_p' and 'input' both
             // point to 'bslma::AllocatorAdaptor' objects of the same type
@@ -547,6 +547,7 @@ class Function_Rep {
 
 public:
     // CREATORS
+    Function_Rep();
     ~Function_Rep();
 
     // MANIPULATORS
@@ -1395,6 +1396,15 @@ void bsl::Function_Rep::copyRep(const Function_Rep&                   other,
     d_funcManager_p(e_COPY_CONSTRUCT, this, otherFunction_p);
 }
 
+inline
+bsl::Function_Rep::Function_Rep()
+{
+    d_objbuf.d_func_p = NULL;
+    d_funcManager_p   = NULL;
+    d_allocator_p     = NULL;
+    d_allocManager_p  = NULL;
+}
+
 template<class TP>
 TP* bsl::Function_Rep::target() BSLS_NOTHROW_SPEC
 {
@@ -1530,8 +1540,6 @@ bsl::function<RET(ARGS...)>::getInvoker(const FUNC&, bslmf::SelectTraitCase<>)
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 {
-    d_objbuf.d_func_p = NULL;
-    d_funcManager_p   = NULL;
     d_allocator_p     = bslma::Default::defaultAllocator();
     d_allocManager_p  = &unownedAllocManager;
     d_invoker_p       = NULL;
@@ -1540,8 +1548,6 @@ bsl::function<RET(ARGS...)>::function() BSLS_NOTHROW_SPEC
 template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>::function(nullptr_t) BSLS_NOTHROW_SPEC
 {
-    d_objbuf.d_func_p = NULL;
-    d_funcManager_p   = NULL;
     d_allocator_p     = bslma::Default::defaultAllocator();
     d_allocManager_p  = &unownedAllocManager;
     d_invoker_p       = NULL;
@@ -1575,10 +1581,6 @@ bsl::function<RET(ARGS...)>::function(FUNC func)
         d_funcManager_p = &functionManager<FUNC>;
         d_funcManager_p(e_MOVE_CONSTRUCT, this, &func);
     }
-    else {
-        // Empty 'func' object
-        d_funcManager_p = NULL;
-    }
 }
 
 template <class RET, class... ARGS>
@@ -1597,7 +1599,6 @@ template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc,
                                       nullptr_t)
 {
-    d_funcManager_p = NULL;
     d_invoker_p     = NULL;
 
     typedef Function_AllocTraits<ALLOC> Traits;
