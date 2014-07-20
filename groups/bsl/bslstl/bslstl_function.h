@@ -381,9 +381,14 @@ class Function_Rep {
         // does not have a nothrow move constructor and cannot, therefore, be
         // swapped safely.  When a size larger than this constant is seen, the
         // actual object size can be determined by subtracting this constant.
-        // A useful quality of this encoding is that if
-        // 'SZ <= sizeof(InplaceBuffer)' for some object size 'SZ', then
-        // 'SZ + k_NON_SOO_SMALL_SIZE > sizeof(InplaceBuffer)', so th
+        // A useful quality of this encoding is that if 'SZ <=
+        // sizeof(InplaceBuffer)' for some object size 'SZ', then 'SZ +
+        // k_NON_SOO_SMALL_SIZE > sizeof(InplaceBuffer)', so the 'SooFuncSize'
+        // (below) for any object that should not be allocated inplace is
+        // larger than 'sizeof(InplaceBuffer)', and the 'SooFuncSize' for any
+        // object that *should* be allocated inplace is smaller than or equal
+        // to 'sizeof(InplaceBuffer)', making the test for "is inplace
+        // function" simple.
 
     BSLMF_ASSERT(k_NON_SOO_SMALL_SIZE > 0);  // Assert unsigned size_t
 
