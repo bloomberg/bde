@@ -211,6 +211,22 @@ public:
 //  } EXCEPTION_TEST_END;
 //..
 
+inline
+void dumpExTest(const char *s, int bslmaExceptionCounter,
+                const char *exLimitName, int exLimitCounter)
+{
+    if (! veryVeryVerbose) return;
+
+    if (bslmaExceptionCounter >= 0) {
+        std::printf("\t***   %s: alloc limit = %d ***\n",
+                    s, bslmaExceptionCounter);
+    }
+    else if (exLimitCounter >= 0) {
+        std::printf("\t***   %s: %s = %d ***\n",
+                    s, exLimitName, exLimitCounter);
+    }
+}
+
 #define EXCEPTION_TEST_BEGIN(testAllocator, exceptionLimit) do {              \
     if (veryVeryVerbose) std::printf("\t*** EXCEPTION_TEST_BEGIN ***\n");     \
     bslma::TestAllocator *testAlloc = (testAllocator);                        \
@@ -226,11 +242,8 @@ public:
 
 #define EXCEPTION_TEST_CATCH                                                  \
         catch (...) {                                                         \
-            if (veryVeryVerbose) {                                            \
-                std::printf("\t***   EXCEPTION CAUGHT: "                      \
-                            "alloc limit = %d, %s = %d ***\n",                \
-                            bslmaExceptionCounter, limitName, exLimitCounter);\
-            }                                                                 \
+            dumpExTest("EXCEPTION CAUGHT",                                    \
+                       bslmaExceptionCounter, limitName, exLimitCounter);     \
             exceptionCaught = true;                                           \
             if (testAlloc) testAlloc->setAllocationLimit(-1);                 \
             if (exLimit) *exLimit = -1;                                       \
@@ -239,11 +252,8 @@ public:
 
 #define EXCEPTION_TEST_END                                                    \
         catch (...) {                                                         \
-            if (veryVeryVerbose) {                                            \
-                std::printf("\t***   EXCEPTION CAUGHT: "                      \
-                            "alloc limit = %d, %s = %d ***\n",                \
-                            bslmaExceptionCounter, limitName, exLimitCounter);\
-            }                                                                 \
+            dumpExTest("EXCEPTION CAUGHT",                                    \
+                       bslmaExceptionCounter, limitName, exLimitCounter);     \
             exceptionCaught = true;                                           \
         }                                                                     \
         if (exceptionCaught) {                                                \
@@ -253,11 +263,8 @@ public:
                 ++exLimitCounter;                                             \
             }                                                                 \
         } else {                                                              \
-            if (veryVeryVerbose) {                                            \
-                std::printf("\t*** SUCCEEDED WITH NO EXCEPTION: "             \
-                            "alloc limit = %d, %s = %d ***\n",                \
-                            bslmaExceptionCounter, limitName, exLimitCounter);\
-            }                                                                 \
+            dumpExTest("SUCCEEDED WITH NO EXCEPTION",                         \
+                       bslmaExceptionCounter, limitName, exLimitCounter);     \
             if (exLimitCounter >= 0 || NULL == exLimit) {                     \
                 break;                                                        \
             }                                                                 \
@@ -267,6 +274,7 @@ public:
     } while (true);                                                           \
     if (testAlloc) testAlloc->setAllocationLimit(-1);                         \
     if (exLimit) *exLimit = -1;                                               \
+    if (veryVeryVerbose) std::printf("\t*** EXCEPTION_TEST_END ***\n");       \
 } while (false)
 
 #endif // BDE_BUILD_TARGET_EXC
@@ -462,14 +470,24 @@ int simpleFunc2(const IntWrapper& iw, int v)
     return iw.value() - v;
 }
 
+// Limits the number of copies before a copy operation throws.
+ExceptionLimit copyLimit("copy limit");
+
+// Limits the number of moves before a move operation throws.
+ExceptionLimit moveLimit("move limit");
+
 // Simple functor with no state
 struct EmptyFunctor
 {
     // Stateless functor
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-    // Nothrow copiable and moveable
-    EmptyFunctor(const EmptyFunctor&) noexcept
+    EmptyFunctor(const EmptyFunctor&)
+        { --copyLimit; std::memset(this, 0xdd, sizeof(*this)); }
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
+    defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Nothrow moveable
+    EmptyFunctor(EmptyFunctor&&) noexcept
         { std::memset(this, 0xdd, sizeof(*this)); }
 #else
     // Bitwise moveable
@@ -519,9 +537,6 @@ struct EmptyFunctor
         { return false; }
 };
 
-// Limits the number of moves before a move operations throws.
-ExceptionLimit moveLimit("move limit");
-
 class SmallFunctor
 {
     // Small stateful functor.
@@ -537,7 +552,8 @@ public:
     enum { IS_STATELESS = false };
 
     explicit SmallFunctor(int v) : d_value(v) { }
-    SmallFunctor(const SmallFunctor& other) : d_value(other.d_value) { }
+    SmallFunctor(const SmallFunctor& other) : d_value(other.d_value)
+        { --copyLimit; }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move-constructor deliberately modifies 'other'.
@@ -642,9 +658,13 @@ class NothrowSmallFunctor
 public:
     explicit NothrowSmallFunctor(int v) : d_encodedValue(v ^ encodeSelf()) { }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    NothrowSmallFunctor(const NothrowSmallFunctor& other)
+        : d_encodedValue(other.value() ^ encodeSelf()) { --copyLimit; }
+
+#if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
+    defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Nothrow move and copy constructible
-    NothrowSmallFunctor(const NothrowSmallFunctor& other) noexcept
+    NothrowSmallFunctor(NothrowSmallFunctor&& other) noexcept
         : d_encodedValue(other.value() ^ encodeSelf()) { }
 #else
     // Bitwise moveable -- use if 'noexcept' is not supported.
@@ -691,7 +711,8 @@ public:
 
     // Throwing move and copy constructor
     ThrowingSmallFunctor(const ThrowingSmallFunctor& other)
-      : d_encodedValue(other.value() ^ encodeSelf()) { --moveLimit; }
+        : d_encodedValue(other.value() ^ encodeSelf())
+        { --copyLimit; --moveLimit; }
 
     ~ThrowingSmallFunctor() {
         std::memset(this, 0xbb, sizeof(*this));
@@ -721,7 +742,7 @@ public:
     explicit ThrowingEmptyFunctor(int v = 0) : EmptyFunctor(v) { }
 
     ThrowingEmptyFunctor(const ThrowingEmptyFunctor& other)
-        : EmptyFunctor(other) { --moveLimit; }
+        : EmptyFunctor(other) { --copyLimit; --moveLimit; }
 
     ~ThrowingEmptyFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
@@ -1379,7 +1400,7 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
 
     bslma::TestAllocator ta;
     globalAllocMonitor.reset();
-    EXCEPTION_TEST_BEGIN(&ta, NULL) {
+    EXCEPTION_TEST_BEGIN(&ta, &moveLimit) {
         ALLOC alloc(&ta);
         Obj f(bsl::allocator_arg, alloc, func);
         ASSERT(isNullPtr(func) == !f);
