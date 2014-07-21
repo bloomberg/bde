@@ -214,10 +214,6 @@ class Uint128 {
 
     bsls::Types::Uint64 low() const;
         // Return the low order bits of this integer.
-
-    Uint128 operator ~() const;
-        // Compute the bitwise ones compliment of this 128 bit integer and
-        // return a copy of the result.
 };
 
 // FREE OPERATORS
@@ -254,6 +250,10 @@ Uint128 operator>>(Uint128 lhs, int rhs);
     // Return an 'Uint128' value equal to the value of a bitwise right shift of
     // the specified 'lhs' 128-bit integer shifted by the specified 'rhs'
     // value.  The behavior is undefined unless '0 <= rhs < 128'.
+
+Uint128 operator ~(Uint128 value);
+    // Return an 'Uint128' value equal to the bitwise ones compliment of the
+    // specified 'value'.
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -368,17 +368,6 @@ void Uint128::setLow(bsls::Types::Uint64 value)
 
 // ACCESSORS
 inline
-Uint128 Uint128::operator~() const
-{
-    Uint128 rv;
-
-    rv.d_high = ~d_high;
-    rv.d_low  = ~d_low;
-
-    return rv;
-}
-
-inline
 bsls::Types::Uint64 Uint128::high() const
 {
     return d_high;
@@ -439,6 +428,15 @@ inline
 bdldfp::Uint128 bdldfp::operator>>(bdldfp::Uint128 lhs, int rhs)
 {
     return lhs >>= rhs;
+}
+
+inline
+bdldfp::Uint128 bdldfp::operator~(bdldfp::Uint128 value)
+{
+    value.setHigh(~value.high());
+    value.setLow( ~value.low());
+
+    return value;
 }
 
 }  // close enterprise namespace
