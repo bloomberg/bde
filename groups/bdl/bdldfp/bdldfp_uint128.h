@@ -147,7 +147,7 @@ class Uint128 {
     #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
     bsls::Types::Uint64 d_high;
     bsls::Types::Uint64 d_low;
-    #elif BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
     bsls::Types::Uint64 d_low;
     bsls::Types::Uint64 d_high;
     #else
