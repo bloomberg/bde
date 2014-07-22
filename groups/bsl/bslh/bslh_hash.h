@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
-#include <cstdio>                                                               // TODO remove
+#include <stdio.h>                                                              // TODO remove
 
 namespace BloombergLP {
 
@@ -191,6 +191,15 @@ void hashAppend(HASHALG& hashAlg, double input);
 
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, long double input);
+
+template <class HASHALG, class TYPE, size_t N>
+void hashAppend(HASHALG& hashAlg, TYPE (&input)[N]);
+
+template <class HASHALG, class TYPE, size_t N>
+void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
+
+template <class HASHALG, class TYPE>
+void hashAppend(HASHALG& hashAlg, TYPE *input);
 
 template <class HASHALG, class TYPE>
 void hashAppend(HASHALG& hashAlg, const TYPE *input);
@@ -323,6 +332,24 @@ void hashAppend(HASHALG& hashAlg, long double input)
         input = 0;
     }
     hashAlg(&input, sizeof(input));
+}
+
+template <class HASHALG, class TYPE, size_t N>
+void hashAppend(HASHALG& hashAlg, TYPE (&input)[N])
+{
+    printf("ARRAY!\n");
+    for (size_t i = 0; i < N; ++i) {
+        hashAppend(hashAlg, input[i]);
+    }
+}
+
+template <class HASHALG, class TYPE, size_t N>
+void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N])
+{
+    printf("const ARRAY!\n");
+    for (size_t i = 0; i < N; ++i) {
+        hashAppend(hashAlg, input[i]);
+    }
 }
 
 template <class HASHALG, class TYPE>

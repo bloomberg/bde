@@ -71,10 +71,10 @@ BSLS_IDENT("$Id: $")
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
 //
-// First, we define our 'HashCrossReference' template class, with the two
-// type parameters 'TYPE" (the type being referenced' and 'HASHER', which
-// defaults to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int',
-// a specialization of 'bsl::hash' is already defined:
+// First, we define our 'HashCrossReference' template class, with the two type
+// parameters 'TYPE" (the type being referenced' and 'HASHER', which defaults
+// to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int', a
+// specialization of 'bsl::hash' is already defined:
 //..
 //  template <class TYPE, class HASHER = bsl::hash<TYPE> >
 //  class HashCrossReference {
@@ -1007,11 +1007,11 @@ struct hash<long double> {
 };
 
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
-template<typename TYPE>
+template<class TYPE>
 inline
 std::size_t hash<TYPE *>::operator()(TYPE *x) const
 {

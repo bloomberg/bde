@@ -60,6 +60,14 @@ BSLS_IDENT("$Id: $")
 // from malicious input is required. Otherwise, 'bslh::DefaultHashAlgorithm'
 // should be used to obtain a faster, generally applicable, hashing algorithm.
 //
+///Endianness
+///----------
+// This hash is endian-specific. The algorithm will run on big and little
+// endian machines and the above gaurentees apply on both architectures,
+// however, the hashes produced will be different. Be aware that this means
+// storing hashes in memory or transmitting them across the network is not
+// reccomended.
+//
 ///Changes
 ///-------
 // The third party code begins with the "siphash.h" header below, and continues
@@ -81,22 +89,9 @@ BSLS_IDENT("$Id: $")
 //: 6 Added typedef to replace removed 'std::uint64_t'
 //:
 //: 7 Added 'computeHash' to replace the removed explicit conversion
-
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
-#include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>  // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
-
-
+//
+///Third Party Doc
+///---------------
 //------------------------------- siphash.h -----------------------------------
 //
 // This software is in the public domain.  The only restriction on its use is
@@ -122,6 +117,22 @@ BSLS_IDENT("$Id: $")
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 //-----------------------------------------------------------------------------
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>  // for 'std::size_t'
+#define INCLUDED_CSTDDEF
+#endif
+
+
+
 
 namespace BloombergLP {
 

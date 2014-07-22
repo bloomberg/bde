@@ -41,28 +41,27 @@ using namespace bsl;
 // [ 8] USAGE EXAMPLE 1
 // [ 9] USAGE EXAMPLE 2
 // [10] USAGE EXAMPLE 3
-// [ 4] Standard typedefs
-// [ 5] Bitwise-movable trait
-// [ 5] IsPod trait
-// [ 6] QoI: Is an empty type
+// [ 4] typedef argument_type
+// [ 4] typedef second_argument_type
+// [ 5] IsBitwiseMovable trait
+// [ 5] is_trivially_copyable trait
+// [ 5] is_trivially_default_constructible trait
+// [ 6] QoI: Support for empty base optimization
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
-namespace {
+static int testStatus = 0;
 
-int testStatus = 0;
-
-void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+    if (c) {
+        cout << "Error " << __FILE__ << "(" << i << "): " << s
+             << "    (failed)" << endl;
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
-
-}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -139,10 +138,10 @@ void aSsErT(bool b, const char *s, int i)
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
 //
-// First, we define our 'HashCrossReference' template class, with the two
-// type parameters 'TYPE" (the type being referenced' and 'HASHER', which
-// defaults to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int',
-// a specialization of 'bsl::hash' is already defined:
+// First, we define our 'HashCrossReference' template class, with the two type
+// parameters 'TYPE" (the type being referenced' and 'HASHER', which defaults
+// to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int', a
+// specialization of 'bsl::hash' is already defined:
 
 template <class TYPE, class HASHER = bsl::hash<TYPE> >
 class HashCrossReference {
@@ -179,9 +178,10 @@ class HashCrossReference {
                 const TYPE&  value,
                 size_t       hashValue) const
         // Look up the specified 'value', having hash value 'hashValue', and
-        // return its index in 'd_bucketArray'.  If not found, return the
-        // vacant entry in 'd_bucketArray' where it should be inserted.  Return
-        // 'true' if 'value is found and 'false' otherwise.
+        // return its index in 'd_bucketArray' stored in the specified 'idx.
+        // If not found, return the vacant entry in 'd_bucketArray' where it
+        // should be inserted.  Return 'true' if 'value is found and 'false'
+        // otherwise.
     {
         const TYPE *ptr;
         for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
@@ -200,7 +200,9 @@ class HashCrossReference {
     HashCrossReference(const TYPE       *valuesArray,
                        size_t            numValues,
                        bslma::Allocator *allocator = 0)
-        // Create a hash cross reference referring to the array of value.
+        // Create a hash table refering to the specified 'valuesArray'
+        // containing 'numValues'. Optionally specify 'allocator' or the
+        // default allocator will be used.
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
@@ -213,8 +215,8 @@ class HashCrossReference {
             BSLS_ASSERT_OPT(bucketArrayLength);
         }
         d_bucketArrayMask = bucketArrayLength - 1;
-        d_bucketArray = (const TYPE **) d_allocator_p->allocate(
-                                          bucketArrayLength * sizeof(TYPE **));
+        d_bucketArray = static_cast<const TYPE **>(d_allocator_p->allocate(
+                                         bucketArrayLength * sizeof(TYPE **)));
         memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 
         for (unsigned i = 0; i < numValues; ++i) {
@@ -299,12 +301,14 @@ class StringThing {
 
 inline
 bool operator==(const StringThing& lhs, const StringThing& rhs)
+    // Return true of the specified 'lhs' and 'rhs' are considered equal.
 {
     return !strcmp(lhs, rhs);
 }
 
 inline
 bool operator!=(const StringThing& lhs, const StringThing& rhs)
+    // Return true of the specified 'lhs' and 'rhs' are considered not equal.
 {
     return !(lhs == rhs);
 }
@@ -716,7 +720,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // QoI: Is an empty type
+        // TESTING QOI: IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
@@ -745,7 +749,7 @@ int main(int argc, char *argv[])
         //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING QoI: Is an empty type"
+        if (verbose) printf("\nTESTING QOI: IS AN EMPTY TYPE"
                             "\n=============================\n");
 
         typedef int TYPE;
@@ -773,7 +777,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // BDE TYPE TRAITS
+        // TESTING BDE TYPE TRAITS
         //   The functor is an empty POD, and should have the appropriate BDE
         //   type traits to reflect this.
         //
@@ -787,11 +791,13 @@ int main(int argc, char *argv[])
         //:   metafunction. (C-1..3)
         //
         // Testing:
-        //   BDE Traits
+        //   IsBitwiseMovable trait
+        //   is_trivially_copyable trait
+        //   is_trivially_default_constructible trait
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING BDE TRAITS"
-                            "\n==================\n");
+        if (verbose) printf("\nTESTING BDE TYPE TRAITS"
+                            "\n=======================\n");
 
         typedef int TYPE;
 
@@ -802,7 +808,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // STANDARD TYPEDEFS
+        // TESTING STANDARD TYPEDEFS
         //   Verify that the class offers the three typedefs required of a
         //   standard adaptable binary function.
         //
@@ -858,7 +864,7 @@ int main(int argc, char *argv[])
         //: 3
         //
         // Testing:
-        //   operator()(const T&) const
+        //   operator()(const VALUE_TYPE&) const
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTION CALL OPERATOR"
@@ -890,6 +896,10 @@ int main(int argc, char *argv[])
             const int         LINE      = DATA[i].d_line;
             const signed char VALUE     = DATA[i].d_value;
             const size_t      HASHCODE  = DATA[i].d_hashCode;
+
+            if(veryVerbose) {
+                printf("Testing that %c hashes to %u", VALUE, HASHCODE);
+            }
 
             LOOP_ASSERT(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
             LOOP_ASSERT(LINE, bsl::hash<unsigned char>()(VALUE) == HASHCODE);
@@ -945,7 +955,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // C'TORS, D'TOR AND ASSIGNMENT OPERATOR (IMPLICITLY DEFINED)
+        // TESTING IMPLICITLY DEFINED OPERATIONS
         //   Ensure that the four implicitly declared and defined special
         //   member functions are publicly callable and have no unexpected side
         //   effects such as allocating memory.  As there is no observable
@@ -993,8 +1003,8 @@ int main(int argc, char *argv[])
         //   hash& operator=(const hash&)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nIMPLICITLY DEFINED OPERATIONS"
-                            "\n=============================\n");
+        if (verbose) printf("\nTESTING IMPLICITLY DEFINED OPERATIONS"
+                            "\n=====================================\n");
 
         typedef int TYPE;
 

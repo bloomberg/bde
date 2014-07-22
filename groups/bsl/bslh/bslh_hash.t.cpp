@@ -54,7 +54,10 @@ using namespace bslh;
 // [ 3] void hashAppend(HASHALG& hashAlg, unsigned long long input);
 // [ 3] void hashAppend(HASHALG& hashAlg, float input);
 // [ 3] void hashAppend(HASHALG& hashAlg, double input);
-// [ 3] void hashAppend(HASHALG& hashAlg, long double st input);
+// [ 3] void hashAppend(HASHALG& hashAlg, long double input);
+// [ 3] void hashAppend(HASHALG& hashAlg, TYPE (&input)[N]);
+// [ 3] void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
+// [ 3] void hashAppend(HASHALG& hashAlg, TYPE *input);
 // [ 3] void hashAppend(HASHALG& hashAlg, const TYPE *input);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -332,8 +335,8 @@ class HashTable {
   public:
     // CREATORS
     HashTable(const TYPE       *valuesArray,
-                       size_t            numValues,
-                       bslma::Allocator *allocator = 0)
+              size_t            numValues,
+              bslma::Allocator *allocator = 0)
         // Create a hash table refering to the specified 'valuesArray'
         // containing 'numValues'. Optionally specify 'allocator' or the
         // default allocator will be used`.
@@ -398,7 +401,7 @@ class HashTable {
 };
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS AND CLASSES FOR TESTING
+//          GLOBAL TYPEDEFS, HELPER FUNCTIONS, AND CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
 typedef bslh::Hash<> Obj;
@@ -436,7 +439,7 @@ static bool binaryCompare(const char *first, const char *second, size_t size) {
 template<class TYPE>
 class MockHashingAlgorithm {
     // Mock hashing algirithm that provides a way to examine data that is being
-    // passed into hashing algorithms by 'hashAppen'.
+    // passed into hashing algorithms by 'hashAppend'.
     char   *d_data;
     size_t  d_length;
   public:
@@ -446,6 +449,48 @@ class MockHashingAlgorithm {
         d_data = new char [length];
         memcpy(d_data, ptr, length);
         d_length = length;
+    }
+
+    const char *getData()
+        // Return the pointer stored by 'operator()'. Undefined if 'operator()'
+        // has not been called.
+    {
+        //printf("Pointer to: ");
+        //printStringAsBinary(reinterpret_cast<const char *>(p_ptr), sizeof(TYPE));
+        //printf(" requested\n");
+        return d_data;
+    }
+
+    size_t getLength()
+        // Return the length stored by 'operator()'. Undefined if 'operator()'
+        // has not been called.
+    {
+        return d_length;
+    }
+};
+
+template<class TYPE>
+class MockAccumulatingHashingAlgorithm {
+    // Mock hashing algirithm that provides a way to accumulate and then
+    // examine data that is being passed into hashing algorithms by
+    // 'hashAppend'.
+    char   *d_data;
+    size_t  d_length;
+  public:
+    MockAccumulatingHashingAlgorithm() : d_length(0) { }
+
+    void operator()(TYPE *ptr, size_t length)
+        // Store the specified 'ptr' and 'length' for inspection later.
+    {
+        char *newPtr = new char [d_length + length];
+        char *oldPtr = d_data;
+        memcpy(newPtr, oldPtr, d_length);
+        memcpy(newPtr + d_length, ptr, length);
+
+        d_data = newPtr;
+        delete [] oldPtr;
+
+        d_length += length;
     }
 
     const char *getData()
@@ -489,7 +534,7 @@ class TestDriver {
         hashAppend(alg, input);
 
         const char *output = alg.getData();
-        for(int i = 0; i < sizeof(TYPE); ++i) {
+        for(size_t i = 0; i < sizeof(TYPE); ++i) {
             LOOP_ASSERT(line, output[i] == data[i]);
         }
         ASSERT(alg.getLength() == sizeof(TYPE));
@@ -879,6 +924,9 @@ int main(int argc, char *argv[])
         //   void hashAppend(HASHALG& hashAlg, float input);
         //   void hashAppend(HASHALG& hashAlg, double input);
         //   void hashAppend(HASHALG& hashAlg, long double st input);
+        //   void hashAppend(HASHALG& hashAlg, TYPE (&input)[N]);
+        //   void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
+        //   void hashAppend(HASHALG& hashAlg, TYPE *input);
         //   void hashAppend(HASHALG& hashAlg, const TYPE *input);
         // --------------------------------------------------------------------
 
@@ -941,9 +989,21 @@ int main(int argc, char *argv[])
             MockHashingAlgorithm<long double> longDoubleAlg;
             hashAppend(longDoubleAlg, static_cast<long double>(1));
 
-            const char *ptr = "asdf";
-            MockHashingAlgorithm<const char *> ptrAlg;
+            char carray[] = "asdf";
+            MockHashingAlgorithm<char> carrayAlg;
+            hashAppend(carrayAlg, carray);
+
+            const char constCarray[] = "asdf";
+            MockHashingAlgorithm<const char> constCarrayAlg;
+            hashAppend(constCarrayAlg, constCarray);
+
+            char *ptr = "asdf";
+            MockHashingAlgorithm<char *> ptrAlg;
             hashAppend(ptrAlg, ptr);
+
+            const char *constPtr = "asdf";
+            MockHashingAlgorithm<const char *> constPtrAlg;
+            hashAppend(constPtrAlg, constPtr);
         }
 
         if (verbose) printf("Use a mock hashing algorithm to test that"
@@ -1116,9 +1176,47 @@ int main(int argc, char *argv[])
 
             TestDriver<long double> longDoubleDriver;
             longDoubleDriver.testHashAppendPassThrough(L_);
+            
+            MockAccumulatingHashingAlgorithm<char> carrayAlg;
+            char carray[] = "asdf";
+            int strLen = strlen(carray) + 1;
+            hashAppend(carrayAlg, carray);
+            const char *carrayOutput = carrayAlg.getData();
+            for(size_t i = 0; i < strLen; ++i) {
+                ASSERT(carrayOutput[i] == carray[i]);
+            }
+            ASSERT(carrayAlg.getLength() == strLen);
 
-            TestDriver<char *> ptrDriver;
-            ptrDriver.testHashAppendPassThrough(L_);
+            MockAccumulatingHashingAlgorithm<char> constCarrayAlg;
+            const char constCarray[] = "asdf";
+            strLen = strlen(constCarray) + 1;
+            hashAppend(constCarrayAlg, constCarray);
+            const char *constCarrayOutput = constCarrayAlg.getData();
+            for(size_t i = 0; i < strLen; ++i) {
+                ASSERT(constCarrayOutput[i] == constCarray[i]);
+            }
+            ASSERT(constCarrayAlg.getLength() == strLen);
+
+            MockHashingAlgorithm<char *> ptrAlg;
+            char *ptr = "asdf";
+            char *ptrPtr = reinterpret_cast<char *>(&ptr);
+            hashAppend(ptrAlg, ptr);
+            const char *ptrOutput = ptrAlg.getData();
+            for(size_t i = 0; i < sizeof(char *); ++i) {
+                ASSERT(ptrOutput[i] == ptrPtr[i]);
+            }
+            ASSERT(ptrAlg.getLength() == sizeof(char *));
+
+            MockHashingAlgorithm<const char *> constPtrAlg;
+            const char *constPtr = "asdf";
+            const char *constPtrPtr =
+                                     reinterpret_cast<const char *>(&constPtr);
+            hashAppend(constPtrAlg, constPtr);
+            const char *constPtrOutput = constPtrAlg.getData();
+            for(size_t i = 0; i < sizeof(const char *); ++i) {
+                ASSERT(constPtrOutput[i] == constPtrPtr[i]);
+            }
+            ASSERT(constPtrAlg.getLength() == sizeof(const char *));
         }
 
       } break;
