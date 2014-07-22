@@ -35,6 +35,7 @@ BSLS_IDENT("$Id$")
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+#include <bsl_cstring.h>
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
 #include <math.h>
@@ -292,7 +293,7 @@ doPutCommon(ITER_TYPE       out,
     // formatting flags of justification, width, uppercase, and showpos are
     // supported.
 {
-    const int size = strlen(buffer);
+    const int size = bsl::strlen(buffer);
     char *end = buffer + size;
 
     // Widen the buffer.
