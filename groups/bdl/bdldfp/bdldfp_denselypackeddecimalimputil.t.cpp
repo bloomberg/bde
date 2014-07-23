@@ -32,8 +32,6 @@ using bsl::hex;
 using bsl::atoi;
 using bsl::stringstream;
 
-#if 1 || BDLDFP_DECIMALPLATFORM_DPD
-
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
@@ -527,16 +525,6 @@ main(int argc, char *argv[])
 
     return testStatus;
 }
-
-#else
-
-int
-main()
-{
-    return -1;
-}
-
-#endif
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.

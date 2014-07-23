@@ -12,10 +12,10 @@
 #include <bsl_string.h>
 #include <bsl_cstdlib.h>
 
-#if 1 || BDLDFP_DECIMALPLATFORM_DPD
+// Even in hardware and intel modes, we need decNumber functions.
 
 extern "C" {
-#include <decSingle.h>  // Even in hardware modes, we need decNumber functions.
+#include <decSingle.h>
 }
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR
@@ -523,8 +523,6 @@ DenselyPackedDecimalImpUtil::makeDecimalRaw128(int mantissa,
 
 }  // close package namespace
 }  // close enterprise namespace
-
-#endif
 
 
 // ----------------------------------------------------------------------------
