@@ -1,6 +1,6 @@
-// bdldfp_decimalimplutil_dpd.h                                       -*-C++-*-
-#ifndef INCLUDED_BDLDFP_DECIMALIMPLUTIL_DPD
-#define INCLUDED_BDLDFP_DECIMALIMPLUTIL_DPD
+// bdldfp_denselypackeddecimalimputil.h                               -*-C++-*-
+#ifndef INCLUDED_BDLDFP_DENSELYPACEKDDECIMALIMPUTIL
+#define INCLUDED_BDLDFP_DENSELYPACEKDDECIMALIMPUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide utilities to help implement decimal floating-point types.
 //
 //@CLASSES:
-//  bdldfp::DecimalImplUtil_DPD: Namespace for decimal FP implementation functions
+//  bdldfp::DenselyPackedDecimalImpUtil: Namespace for DPD functions.
 //
 //@MACROS:
 //  BDLDFP_DECIMALIMPLUTIL_DF: ValueType32  from literal
@@ -67,11 +67,11 @@ BSLS_IDENT("$Id$")
 namespace BloombergLP {
 namespace bdldfp {
 
-                          // ========================
-                          // class DecimalImpUtil_DPD
-                          // ========================
+                          // =================================
+                          // class DenselyPackedDecimalImpUtil
+                          // =================================
 
-struct DecimalImpUtil_DPD {
+struct DenselyPackedDecimalImpUtil {
     // This 'struct' provides a namespace for implementation functions that
     // provide common DPD formatted decimal floating point support.
 
@@ -83,12 +83,27 @@ struct DecimalImpUtil_DPD {
 
     // CLASS METHODS
 
+    static unsigned encodeDeclet(unsigned digits);
+        // Return an unsigned integer which represents an encoding of the
+        // specified 'digits' in Densely Packed Decimal (DPD) format.  The
+        // behavior is undefined unless '0 <= digits < 1000'.  Note that the
+        // result will be a bit pattern whose binary representation corresponds
+        // to a value in the range '[0, 1024]'
+
+    static unsigned decodeDeclet(unsigned declet);
+        // Return an unsigned integer containing the digits represented by the
+        // specified 'declet'.  The behavior is undefined unless the binary
+        // value of 'declet < 1024', 'declet' is encoded in Densely Packed
+        // Decimal (DPD), and if 'declet' represents a densely packed states
+        // with 'unused' bits, those bits are set to 0.  Note that the result
+        // will be an integer in the range '[0, 999]'
+
     static StorageType32  makeDecimalRaw32(int          mantissa,
                                            int          exponent);
-        // Create a 'StorageType32' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa'.  If 'mantissa' is 0,
-        // the result is 0 but the quanta of the result is unspecified.  The
+        // Return a 'StorageType32' object representing a decimal floating
+        // point number consisting of the specified 'mantissa' and 'exponent',
+        // with the sign given by the specified 'mantissa'.  If 'mantissa' is
+        // 0, the result is 0 but the quanta of the result is unspecified.  The
         // behavior is undefined unless 'abs(mantissa) <= 9,999,999' and
         // '-101 <= exponent <= 90'.
 
@@ -116,10 +131,10 @@ struct DecimalImpUtil_DPD {
                                             int                exponent);
     static StorageType128 makeDecimalRaw128(int                mantissa,
                                             int                exponent);
-        // Create a 'StorageType128' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa'.  If 'mantissa' is 0, the
-        // result is 0 but the quanta of the result is unspecified.  The
+        // Create a 'StorageType128' object representing a decimal floating
+        // point number consisting of the specified 'mantissa' and 'exponent',
+        // with the sign given by the specified 'mantissa'.  If 'mantissa' is
+        // 0, the result is 0 but the quanta of the result is unspecified.  The
         // behavior is undefined unless '-6176 <= exponent <= 6111'.
 
     

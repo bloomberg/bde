@@ -1420,8 +1420,7 @@ class Decimal_Type64 {
 
 // FREE OPERATORS
 Decimal64 operator+(Decimal64 value);
-    // Return a copy of the specified 'value' if the value is not negative
-    // zero, and return positive zero otherwise.
+    // Return a copy of the specified 'value'.
 
 Decimal64 operator-(Decimal64 value);
     // Return the result of applying the unary - operator to the specified

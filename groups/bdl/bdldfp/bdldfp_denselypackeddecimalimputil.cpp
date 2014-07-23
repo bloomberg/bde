@@ -257,7 +257,7 @@ static typename Properties<Size>::StorageType getDeclets(
     unsigned int shift(0u);
     StorageType bits = StorageType();
     for (; value; value /= 1000ull, shift += 10u) {
-        bits |= StorageType(declets[value % 1000ull]) << shift;
+        bits |= StorageType(DenselyPackedDecimalImpUtil::encodeDeclet(value % 1000ull)) << shift;
     }
     return bits;
 }
@@ -381,7 +381,8 @@ void makeDecimalRaw(typename Properties<Size>::StorageType *target,
                        target, static_cast<signed long long>(value), exponent);
 }
 
-static inline DecimalImpUtil_DPD::StorageType64 inf64(bool isNegative = false)
+inline
+DenselyPackedDecimalImpUtil::StorageType64 inf64(bool isNegative = false)
 {
     typedef Properties<64> P;
     return P::infBits | (isNegative ? P::getSignBit() : 0);
@@ -390,9 +391,28 @@ static inline DecimalImpUtil_DPD::StorageType64 inf64(bool isNegative = false)
 
 }  // close unnamed namespace
 
-DecimalImpUtil_DPD::StorageType32 DecimalImpUtil_DPD::makeDecimalRaw32(
-                                                                  int mantissa,
-                                                                  int exponent)
+unsigned DenselyPackedDecimalImpUtil::encodeDeclet(unsigned digits)
+{
+    BSLS_ASSERT(digits < 1000);
+    return declets[digits];
+}
+
+unsigned DenselyPackedDecimalImpUtil::decodeDeclet(unsigned declet)
+{
+    BSLS_ASSERT(digits < 1024);
+    unsigned short *loc= std::find(declets, declets + 1000, declet);
+
+    // Undefined behavior, if declet isn't in DPD format.  We require that
+    // there are zeros in the "don't care" bits.
+
+    BSLS_ASSERT(loc != declets + 1000);
+
+    return loc - declets;
+}
+
+DenselyPackedDecimalImpUtil::StorageType32
+DenselyPackedDecimalImpUtil::makeDecimalRaw32(int mantissa,
+                                              int exponent)
 {
     BSLS_ASSERT(-101     <= exponent);
     BSLS_ASSERT(exponent <= 90);
@@ -403,9 +423,9 @@ DecimalImpUtil_DPD::StorageType32 DecimalImpUtil_DPD::makeDecimalRaw32(
     return storagetype32;
 }
 
-DecimalImpUtil_DPD::StorageType64 DecimalImpUtil_DPD::makeDecimalRaw64(
-                                                   unsigned long long mantissa,
-                                                   int                exponent)
+DenselyPackedDecimalImpUtil::StorageType64
+DenselyPackedDecimalImpUtil::makeDecimalRaw64(unsigned long long mantissa,
+                                              int                exponent)
 {
     BSLS_ASSERT(-398     <= exponent);
     BSLS_ASSERT(exponent <= 369);
@@ -416,9 +436,9 @@ DecimalImpUtil_DPD::StorageType64 DecimalImpUtil_DPD::makeDecimalRaw64(
     return storagetype64;
 }
 
-DecimalImpUtil_DPD::StorageType64 DecimalImpUtil_DPD::makeDecimalRaw64(
-                                                            long long mantissa,
-                                                            int       exponent)
+DenselyPackedDecimalImpUtil::StorageType64
+DenselyPackedDecimalImpUtil::makeDecimalRaw64(long long mantissa,
+                                              int       exponent)
 {
     BSLS_ASSERT(-398     <= exponent);
     BSLS_ASSERT(exponent <= 369);
@@ -429,9 +449,9 @@ DecimalImpUtil_DPD::StorageType64 DecimalImpUtil_DPD::makeDecimalRaw64(
     return storagetype64;
 }
 
-DecimalImpUtil_DPD::StorageType64 DecimalImpUtil_DPD::makeDecimalRaw64(
-                                                         unsigned int mantissa,
-                                                         int          exponent)
+DenselyPackedDecimalImpUtil::StorageType64
+DenselyPackedDecimalImpUtil::makeDecimalRaw64(unsigned int mantissa,
+                                              int          exponent)
 {
     BSLS_ASSERT(-398     <= exponent);
     BSLS_ASSERT(exponent <= 369);
@@ -441,9 +461,9 @@ DecimalImpUtil_DPD::StorageType64 DecimalImpUtil_DPD::makeDecimalRaw64(
     return storagetype64;
 }
 
-DecimalImpUtil_DPD::StorageType64 DecimalImpUtil_DPD::makeDecimalRaw64(
-                                                                  int mantissa,
-                                                                  int exponent)
+DenselyPackedDecimalImpUtil::StorageType64
+DenselyPackedDecimalImpUtil::makeDecimalRaw64(int mantissa,
+                                              int exponent)
 {
     BSLS_ASSERT(-398     <= exponent);
     BSLS_ASSERT(exponent <= 369);
@@ -453,9 +473,9 @@ DecimalImpUtil_DPD::StorageType64 DecimalImpUtil_DPD::makeDecimalRaw64(
     return storagetype64;
 }
 
-DecimalImpUtil_DPD::StorageType128 DecimalImpUtil_DPD::makeDecimalRaw128(
-                                                   unsigned long long mantissa,
-                                                   int                exponent)
+DenselyPackedDecimalImpUtil::StorageType128
+DenselyPackedDecimalImpUtil::makeDecimalRaw128(unsigned long long mantissa,
+                                               int                exponent)
 {
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
@@ -465,9 +485,9 @@ DecimalImpUtil_DPD::StorageType128 DecimalImpUtil_DPD::makeDecimalRaw128(
     return storagetype128;
 }
 
-DecimalImpUtil_DPD::StorageType128 DecimalImpUtil_DPD::makeDecimalRaw128(
-                                                           long long  mantissa,
-                                                           int        exponent)
+DenselyPackedDecimalImpUtil::StorageType128
+DenselyPackedDecimalImpUtil::makeDecimalRaw128(long long  mantissa,
+                                               int        exponent)
 {
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
@@ -477,9 +497,9 @@ DecimalImpUtil_DPD::StorageType128 DecimalImpUtil_DPD::makeDecimalRaw128(
     return storagetype128;
 }
 
-DecimalImpUtil_DPD::StorageType128 DecimalImpUtil_DPD::makeDecimalRaw128(
-                                                         unsigned int mantissa,
-                                                         int          exponent)
+DenselyPackedDecimalImpUtil::StorageType128
+DenselyPackedDecimalImpUtil::makeDecimalRaw128(unsigned int mantissa,
+                                               int          exponent)
 {
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);
@@ -489,9 +509,9 @@ DecimalImpUtil_DPD::StorageType128 DecimalImpUtil_DPD::makeDecimalRaw128(
     return storagetype128;
 }
 
-DecimalImpUtil_DPD::StorageType128
-DecimalImpUtil_DPD::makeDecimalRaw128(int mantissa,
-                                      int exponent)
+DenselyPackedDecimalImpUtil::StorageType128
+DenselyPackedDecimalImpUtil::makeDecimalRaw128(int mantissa,
+                                               int exponent)
 {
     BSLS_ASSERT(-6176    <= exponent);
     BSLS_ASSERT(exponent <= 6111);

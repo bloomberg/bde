@@ -1,4 +1,4 @@
-// bdldfp_bufferbuf.h                                   -*-C++-*-
+// bdldfp_bufferbuf.h                                                 -*-C++-*-
 #ifndef INCLUDED_BDLDFP_BUFFERBUF
 #define INCLUDED_BDLDFP_BUFFERBUF
 
@@ -7,11 +7,12 @@
 #endif
 BSLS_IDENT("$Id$")
 
-//@PURPOSE: 
+//@PURPOSE: Provide a stack-based IOstream buffer.
 //
 //@CLASSES:
+//    bdldfp::BufferBuf
 //
-//@SEE_ALSO: 
+//@SEE_ALSO: bsl_iostream
 //
 //@DESCRIPTION:
 //
@@ -36,6 +37,10 @@ BSLS_IDENT("$Id$")
 
 #ifndef INCLUDED_BSL_ISTREAM
 #include <bsl_istream.h>
+#endif
+
+#ifndef INCLUDED_BSL_STREAMBUF
+#include <bsl_streambuf.h>
 #endif
 
 namespace BloombergLP {
@@ -91,8 +96,8 @@ const char *BufferBuf<Size>::str()
     return this->pbase();
 }
 
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 

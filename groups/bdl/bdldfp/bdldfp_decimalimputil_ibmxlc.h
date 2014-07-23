@@ -235,8 +235,8 @@ struct DecimalImpUtil_IBMxlC {
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // '-6176 <= exponent <= 6111'.
 
-    static ValueType32 scaleB(ValueType32 value, int power);
-    static ValueType64 scaleB(ValueType64 value, int power);
+    static ValueType32  scaleB(ValueType32  value, int power);
+    static ValueType64  scaleB(ValueType64  value, int power);
     static ValueType128 scaleB(ValueType128 value, int power);
 
 
@@ -795,20 +795,7 @@ DecimalImpUtil_Platform::ValueType32
 DecimalImpUtil_Platform::scaleB(DecimalImpUtil_Platform::ValueType32 value,
                                 int                                  power)
 {
-    ValueType32 result= 1;
-    if (power > 0) {
-        for (int i= 0; i < power; ++i) {
-            result*= 10;
-        }
-    }
-    else if (power < 0) {
-        power= -power;
-        for (int i= 0; i < power; ++i) {
-            result/= 10;
-        }
-    }
-    result *= value;
-    return result;
+    return convertToDecimal32(scaleB(convertToDecimal64(value), power));
 }
 
 inline
@@ -816,20 +803,7 @@ DecimalImpUtil_Platform::ValueType64
 DecimalImpUtil_Platform::scaleB(DecimalImpUtil_Platform::ValueType64 value,
                                 int                                  power)
 {
-    ValueType64 result= 1;
-    if (power > 0) {
-        for (int i= 0; i < power; ++i) {
-            result*= 10;
-        }
-    }
-    else if (power < 0) {
-        power= -power;
-        for (int i= 0; i < power; ++i) {
-            result/= 10;
-        }
-    }
-    result *= value;
-    return result;
+    return scalblnd64(value, power);
 }
 
 inline
@@ -837,20 +811,7 @@ DecimalImpUtil_Platform::ValueType128
 DecimalImpUtil_Platform::scaleB(DecimalImpUtil_Platform::ValueType128 value,
                                 int                                   power)
 {
-    ValueType128 result= 1;
-    if (power > 0) {
-        for (int i= 0; i < power; ++i) {
-            result*= 10;
-        }
-    }
-    else if (power < 0) {
-        power= -power;
-        for (int i= 0; i < power; ++i) {
-            result/= 10;
-        }
-    }
-    result *= value;
-    return result;
+    return scalblnd128(value, power);
 }
 
 
