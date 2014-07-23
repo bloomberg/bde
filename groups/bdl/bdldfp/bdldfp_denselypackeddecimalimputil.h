@@ -61,9 +61,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_uint128.h>
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_DPD
-
-
 namespace BloombergLP {
 namespace bdldfp {
 
@@ -77,9 +74,9 @@ struct DenselyPackedDecimalImpUtil {
 
     // TYPES
 
-    typedef unsigned int       StorageType32;
-    typedef unsigned long long StorageType64;
-    typedef bdldfp::Uint128    StorageType128;
+    typedef unsigned           int StorageType32;
+    typedef unsigned long long int StorageType64;
+    typedef bdldfp::Uint128        StorageType128;
 
     // CLASS METHODS
 
@@ -88,18 +85,21 @@ struct DenselyPackedDecimalImpUtil {
         // specified 'digits' in Densely Packed Decimal (DPD) format.  The
         // behavior is undefined unless '0 <= digits < 1000'.  Note that the
         // result will be a bit pattern whose binary representation corresponds
-        // to a value in the range '[0, 1024]'
+        // to a value in the range '[0, 1024]'.  Also note that this function
+        // accepts and returns 'unsigned int' type values, as it is intended
+        // for use with raw bit manipulation functions.
 
     static unsigned decodeDeclet(unsigned declet);
         // Return an unsigned integer containing the digits represented by the
         // specified 'declet'.  The behavior is undefined unless the binary
-        // value of 'declet < 1024', 'declet' is encoded in Densely Packed
-        // Decimal (DPD), and if 'declet' represents a densely packed states
-        // with 'unused' bits, those bits are set to 0.  Note that the result
-        // will be an integer in the range '[0, 999]'
+        // value of 'declet < 1024', and 'declet' is encoded in Densely Packed
+        // Decimal (DPD), and every unused bit in the densely packed state is
+        // set to 0.  Note that the result will be an integer in the range
+        // '[0, 999]'.  Also note that this function accepts and returns
+        // 'unsigned int' type values, as it is intended for use with raw bit
+        // manipulation functions.
 
-    static StorageType32  makeDecimalRaw32(int          mantissa,
-                                           int          exponent);
+    static StorageType32  makeDecimalRaw32(int mantissa, int exponent);
         // Return a 'StorageType32' object representing a decimal floating
         // point number consisting of the specified 'mantissa' and 'exponent',
         // with the sign given by the specified 'mantissa'.  If 'mantissa' is
@@ -107,14 +107,14 @@ struct DenselyPackedDecimalImpUtil {
         // behavior is undefined unless 'abs(mantissa) <= 9,999,999' and
         // '-101 <= exponent <= 90'.
 
-    static StorageType64  makeDecimalRaw64(unsigned long long mantissa,
-                                           int                exponent);
-    static StorageType64  makeDecimalRaw64(long long          mantissa,
-                                           int                exponent);
-    static StorageType64  makeDecimalRaw64(unsigned int       mantissa,
-                                           int                exponent);
-    static StorageType64  makeDecimalRaw64(int                mantissa,
-                                           int                exponent);
+    static StorageType64 makeDecimalRaw64(unsigned long long int mantissa,
+                                                             int exponent);
+    static StorageType64 makeDecimalRaw64(         long long int mantissa,
+                                                             int exponent);
+    static StorageType64 makeDecimalRaw64(unsigned           int mantissa,
+                                                             int exponent);
+    static StorageType64 makeDecimalRaw64(                   int mantissa,
+                                                             int exponent);
         // Create a 'StorageType64' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
         // the sign given by the specified 'mantissa'.  If 'mantissa' is 0, the
@@ -123,14 +123,14 @@ struct DenselyPackedDecimalImpUtil {
         // 'abs(mantissa) <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
-    static StorageType128 makeDecimalRaw128(unsigned long long mantissa,
-                                            int                exponent);
-    static StorageType128 makeDecimalRaw128(long long          mantissa,
-                                            int                exponent);
-    static StorageType128 makeDecimalRaw128(unsigned int       mantissa,
-                                            int                exponent);
-    static StorageType128 makeDecimalRaw128(int                mantissa,
-                                            int                exponent);
+    static StorageType128 makeDecimalRaw128(unsigned long long int mantissa,
+                                                               int exponent);
+    static StorageType128 makeDecimalRaw128(         long long int mantissa,
+                                                               int exponent);
+    static StorageType128 makeDecimalRaw128(unsigned           int mantissa,
+                                                               int exponent);
+    static StorageType128 makeDecimalRaw128(                   int mantissa,
+                                                               int exponent);
         // Create a 'StorageType128' object representing a decimal floating
         // point number consisting of the specified 'mantissa' and 'exponent',
         // with the sign given by the specified 'mantissa'.  If 'mantissa' is
@@ -142,8 +142,6 @@ struct DenselyPackedDecimalImpUtil {
 
 }  // close package namespace
 }  // close enterprise namespace
-
-#endif  // BDLDFP_DECIMALPLATFORM_DPD
 
 #endif
 

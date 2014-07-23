@@ -12,7 +12,7 @@
 #include <bsl_string.h>
 #include <bsl_cstdlib.h>
 
-#if BDLDFP_DECIMALPLATFORM_DPD
+#if 1 || BDLDFP_DECIMALPLATFORM_DPD
 
 extern "C" {
 #include <decSingle.h>  // Even in hardware modes, we need decNumber functions.
@@ -399,8 +399,8 @@ unsigned DenselyPackedDecimalImpUtil::encodeDeclet(unsigned digits)
 
 unsigned DenselyPackedDecimalImpUtil::decodeDeclet(unsigned declet)
 {
-    BSLS_ASSERT(digits < 1024);
-    unsigned short *loc= std::find(declets, declets + 1000, declet);
+    BSLS_ASSERT(declet < 1024);
+    const unsigned short *loc= std::find(declets, declets + 1000, declet);
 
     // Undefined behavior, if declet isn't in DPD format.  We require that
     // there are zeros in the "don't care" bits.
