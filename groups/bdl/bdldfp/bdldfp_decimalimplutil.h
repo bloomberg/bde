@@ -125,7 +125,6 @@ BSLS_IDENT("$Id$")
 #endif
 
 #if BDLDFP_DECIMALPLATFORM_C99_TR || defined(__IBM_DFP__)
-#error WANT THIS TOO
 
         // Implementation when we have C DecFP support only (no C++)
 

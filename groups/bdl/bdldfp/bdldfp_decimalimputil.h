@@ -60,6 +60,13 @@ class DecimalImpUtil : public BloombergLP::bdldfp::DecimalImpUtil_Platform
     static ValueType64 makeDecimal64(         long long coeff, int exponent);
     static ValueType64 makeDecimal64(unsigned long long coeff, int exponent);
 
+    static ValueType64 makeInfinity64(bool isNegative = false);
+        // Return a 'ValueType64' representing an infinity.  Optionally specify
+        // whether the infinity 'isNegative'.  If 'isNegative' is not
+        // specified, the infinite value will be positive.  Note that if
+        // 'isNegative' is true, the infinite value will be negative, and
+        // positive otherwise.
+
     // CLASS METHODS
 #if BDLDFP_DECIMALPLATFORM_SOFTWARE
 
