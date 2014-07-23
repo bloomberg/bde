@@ -121,14 +121,14 @@ BSLS_IDENT("$Id$")
 #endif
 
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 
         // Implementation when we have C DecFP support only (no C++)
 
 #define BDLDFP_DECIMALIMPLUTIL_JOIN_(a,b) a##b
     // Helper macro to create floating-point decimal literals
 
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
 
 
 # ifndef INCLUDED_DECSINGLE
@@ -140,7 +140,7 @@ BSLS_IDENT("$Id$")
 
             // End of decNumber-base implementation specific area
 
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 
 
 #ifndef INCLUDED_BID_FUNCTIONS
@@ -179,7 +179,7 @@ char die[sizeof(DecimalImpl_Assert)];     // if '#error' unsupported
 #endif
 
 
-#if BDLDFP_DECIMALPLATFORM_SOFTWARE
+#ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
 
@@ -196,7 +196,7 @@ char die[sizeof(DecimalImpl_Assert)];     // if '#error' unsupported
     BloombergLP::bdldfp::DecimalImplUtil::parse128(                           \
         (BloombergLP::bdldfp::DecimalImplUtil::checkLiteral(lit), #lit))
 
-#elif BDLDFP_DECIMALPLATFORM_C99_TR
+#elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
 
                // Portable decimal floating-point literal support
 
@@ -223,19 +223,19 @@ struct DecimalImplUtil {
     // the C Decimal TR).
 
     // TYPES
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#if defined(BDLDFP_DECIMALPLATFORM_C99_TR)
 
     typedef _Decimal32  ValueType32;
     typedef _Decimal64  ValueType64;
     typedef _Decimal128 ValueType128;
 
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 
     struct ValueType32  { BID_UINT32  d_raw; };
     struct ValueType64  { BID_UINT64  d_raw; };
     struct ValueType128 { BID_UINT128 d_raw; };
 
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
 
     typedef decSingle ValueType32;
     typedef decDouble ValueType64;
@@ -250,7 +250,7 @@ struct DecimalImplUtil {
 
 
     // CLASS METHODS
-#if BDLDFP_DECIMALPLATFORM_SOFTWARE
+#if defined(BDLDFP_DECIMALPLATFORM_SOFTWARE)
 
     struct This_is_not_a_floating_point_literal {};
         // This 'struct' is a helper type used togenerate error messages for
@@ -266,7 +266,7 @@ struct DecimalImplUtil {
         // Overload to avoid an error when the decimal floating-point literal
         // (without the suffix) can be interpreted as a 'double' literal.
 
-#elif BDLDFP_DECIMALPLATFORM_HARDWARE
+#elif (BDLDFP_DECIMALPLATFORM_HARDWARE)
 
 #else
 
@@ -430,7 +430,7 @@ struct DecimalImplUtil {
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-#if BDLDFP_DECIMALPLATFORM_SOFTWARE
+#if defined(BDLDFP_DECIMALPLATFORM_SOFTWARE)
 
                           // ---------------------
                           // class DecimalImplUtil

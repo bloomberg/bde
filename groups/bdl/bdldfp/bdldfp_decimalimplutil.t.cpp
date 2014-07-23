@@ -37,7 +37,7 @@ using bsl::stringstream;
 
 // FIXME: For now, the test is disabled, on intel -- must fix
 
-#if BDLDFP_DECIMALPLATFORM_INTELDFP
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 
 int
 main()
@@ -292,11 +292,11 @@ class D32 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
         char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
         sprintf(buffer, "%#.7HG", &d_data);
         return o << bsl::hex << buffer << bsl::dec;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
         return o << bsl::hex << *d_data.words << bsl::dec;
 #endif
     }
@@ -359,11 +359,11 @@ class D64 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
         char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
         sprintf(buffer, "%.16DG", &d_data);
         return o << bsl::hex << buffer << bsl::dec;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
         return o << bsl::hex << *d_data.words << bsl::dec;
 #endif
     }
@@ -427,11 +427,11 @@ class D128 {
 
     bsl::ostream &printHex(bsl::ostream &o) const
     {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
         char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
         sprintf(buffer, "%.34DDG", &d_data);
         return o << bsl::hex << buffer << bsl::dec;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
         return o << bsl::hex << *d_data.words << bsl::dec;
 #endif
     }
@@ -3015,7 +3015,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             unsigned char d_expectedBCD[34];
             int           d_expectedSign;
         } MAKE_DECIMAL_RAW_TESTS[] = {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             { L_,                    0ll,     0, 0,
               {0, 0, 0, 0, 0, 0, 0, 0, 0,
                0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -3545,11 +3545,11 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
 
         if (veryVerbose) bsl::cout << "Types" << bsl::endl;
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
         ASSERT(sameType<_Decimal32 >(Util::ValueType32()));
         ASSERT(sameType<_Decimal64 >(Util::ValueType64()));
         ASSERT(sameType<_Decimal128>(Util::ValueType128()));
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
         ASSERT(sameType<decSingle>(Util::ValueType32() ));
         ASSERT(sameType<decDouble>(Util::ValueType64() ));
         ASSERT(sameType<decQuad  >(Util::ValueType128()));
@@ -3557,7 +3557,7 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
 
         if (veryVerbose) bsl::cout << "Helper functions" << bsl::endl;
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
 
     ASSERT(sameType<decContext*>(Util::getDecNumberContext()));
 
@@ -3578,25 +3578,25 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             ASSERT(sameType<Util::ValueType32>(Util::parse32("1")));
 
             static const unsigned char bcd42[] = {0x4, 0x2};
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             _Decimal32 expected = 42.df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             D32 expected(0, bcd42, 1);
 #endif
             LOOP2_ASSERT(Util::parse32("42"), expected,
                          Util::parse32("42") == expected);
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             expected = -42e1df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             expected = D32(1, bcd42, -1);
 #endif
             LOOP2_ASSERT(Util::parse32("-42e1"), expected,
                          Util::parse32("-42e1") == expected);
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             expected = -4.2df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             expected = D32(-1, bcd42, -1);
 #endif
             ASSERT(Util::parse32("-4.2") == expected);
@@ -3606,23 +3606,23 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             ASSERT(sameType<Util::ValueType64>(Util::parse64("1")));
 
             static const unsigned char bcd42[] = {0x4, 0x2};
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             _Decimal64 expected = 42.dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             D64 expected(0, bcd42, 1);
 #endif
             ASSERT(Util::parse64("42") == expected);
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             expected = -42e1dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             expected = D64(1, bcd42, -1);
 #endif
             ASSERT(Util::parse64("-42e1") == expected);
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             expected = -4.2dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             expected = D64(-1, bcd42, -1);
 #endif
             ASSERT(Util::parse64("-4.2") == expected);
@@ -3632,23 +3632,23 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
             ASSERT(sameType<Util::ValueType128>(Util::parse128("1")));
 
             static const unsigned char bcd42[] = {0x4, 0x2};
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             _Decimal128 expected = 42.dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             D128 expected(0, bcd42, 1);
 #endif
             ASSERT(Util::parse128("42") == expected);
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             expected = -42e1dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             expected = D128(1, bcd42, -1);
 #endif
             ASSERT(Util::parse128("-42e1") == expected);
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             expected = -4.2dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             expected = D128(-1, bcd42, -1);
 #endif
             ASSERT(Util::parse128("-4.2") == expected);
@@ -3657,10 +3657,10 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         if (veryVerbose) bsl::cout << "Literal macros" << bsl::endl;
 
         {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             ASSERT(sameType<_Decimal32>(BDLDFP_DECIMALIMPLUTIL_DF(42.)));
             ASSERT(42.df == BDLDFP_DECIMALIMPLUTIL_DF(42.));
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             ASSERT(sameType<decSingle>(BDLDFP_DECIMALIMPLUTIL_DF(42.)));
             const D32 expected = Util::parse32("42");
             ASSERT(expected.isEqual(BDLDFP_DECIMALIMPLUTIL_DF(42.)));
@@ -3668,10 +3668,10 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         }
 
         {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             ASSERT(sameType<_Decimal64>(BDLDFP_DECIMALIMPLUTIL_DD(42.)));
             ASSERT(42.dd == BDLDFP_DECIMALIMPLUTIL_DD(42.));
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             ASSERT(sameType<decDouble>(BDLDFP_DECIMALIMPLUTIL_DD(42.)));
             const D64 expected = Util::parse64("42");
             ASSERT(expected.isEqual(BDLDFP_DECIMALIMPLUTIL_DD(42.)));
@@ -3679,10 +3679,10 @@ ASSERT(BloombergLP::bdldfp::DecimalImplUtil::equals(usNationalDebtInJpy,
         }
 
         {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             ASSERT(sameType<_Decimal128>(BDLDFP_DECIMALIMPLUTIL_DL(42.)));
             ASSERT(42.dl == BDLDFP_DECIMALIMPLUTIL_DL(42.));
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
             ASSERT(sameType<decQuad>(BDLDFP_DECIMALIMPLUTIL_DL(42.)));
             const D128 expected = Util::parse128("42");
             ASSERT(expected.isEqual(BDLDFP_DECIMALIMPLUTIL_DL(42.)));

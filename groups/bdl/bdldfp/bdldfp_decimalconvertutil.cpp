@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$")
 
 #include <bsls_assert.h>
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #  ifndef  __STDC_WANT_DEC_FP__
 #    error __STDC_WANT_DEC_FP__ must be defined on the command line!
      char die[-42];     // if '#error' unsupported
@@ -89,7 +89,7 @@ PtrInputBuf::PtrInputBuf(const char *s) {
     this->setg(x, x, x + strlen(x));
 }
 
-#if BDLDFP_DECIMALPLATFORM_INTELDFP
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 template<class DECIMAL_TYPE, class BINARY_TYPE>
 struct IntelFloatingConverter;
 
@@ -183,11 +183,11 @@ void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
     // Construct, in the specified 'bfp', a Binary Floating Point
     // representation of the value of the specified 'dfp'.
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     *bfp = dfp.value();
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     *bfp = IntelFloatingConverter<DECIMAL_TYPE, BINARY_TYPE>::convert(dfp);
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // Handle special values of +/-INF, and NaNs without use of streams
 
     // TODO TBD - set exception-flags here, but how do to know which one??? (E)
@@ -255,7 +255,7 @@ unsigned char *memCpyFlip(void *out, const void *in, size_t count)
 {
     // Just stick the bytes into the buffer first
     memcpy(out, in, count);
-#if BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
+#ifdef BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
     // little endian, needs to do some byte juggling
     memrev(out, count);
 #endif
@@ -264,7 +264,7 @@ unsigned char *memCpyFlip(void *out, const void *in, size_t count)
 
                         // Decimal-network conversion functions
 
-#if BDLDFP_DECIMALPLATFORM_DPD
+#ifdef BDLDFP_DECIMALPLATFORM_DPD
 
 template <class DECIMAL_TYPE>
 inline
@@ -280,7 +280,7 @@ DECIMAL_TYPE toDPDDecimal(DECIMAL_TYPE decimal)
     return decimal;
 }
 
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 
 template <class DECIMAL_TYPE>
 struct DPDDecimalConverter;

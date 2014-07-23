@@ -27,7 +27,7 @@ BSLS_IDENT("$Id$")
 ///Example 1: 
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 
-#if BDLDFP_DECIMALPLATFORM_INTELDFP
+#if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
