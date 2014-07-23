@@ -180,17 +180,17 @@ struct DecimalUtil {
     static int parseDecimal32( Decimal32  *out, const char *str);
     static int parseDecimal64( Decimal64  *out, const char *str);
     static int parseDecimal128(Decimal128 *out, const char *str);
-    static int parseDecimal32( Decimal32  *out, const std::string& str);
-    static int parseDecimal64( Decimal64  *out, const std::string& str);
-    static int parseDecimal128(Decimal128 *out, const std::string& str);
+    static int parseDecimal32( Decimal32  *out, const bsl::string& str);
+    static int parseDecimal64( Decimal64  *out, const bsl::string& str);
+    static int parseDecimal128(Decimal128 *out, const bsl::string& str);
         // Load into the specified 'out' the decimal floating point number
         // described by the specified 'str'; return zero if the conversion was
         // successful and non-zero otherwise.  The value of 'out' is
         // unspecified if the function returns a non-zero value.
 
-    // TODO TBD priority 2
-    // static int parseDecimal32(const wchar_t *str, Decimal32 *out);
-    // static int parseDecimal32(const std::wstring& str, Decimal32 *out);
+    //TODO TBD priority 2
+    //static int parseDecimal32(const wchar_t      *str, Decimal32 *out);
+    //static int parseDecimal32(const bsl::wstring& str, Decimal32 *out);
 
                                   // math
 
