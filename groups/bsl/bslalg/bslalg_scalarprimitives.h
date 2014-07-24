@@ -2323,6 +2323,7 @@ ScalarPrimitives_Imp::construct(
 
         ::new (address) TARGET_TYPE(a1);
     } else {
+        BSLMF_ASSERT(sizeof (TARGET_TYPE) == sizeof(a1));
         std::memcpy(address, BSLS_UTIL_ADDRESSOF(a1), sizeof a1); // no overlap
     }
 }
