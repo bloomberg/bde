@@ -4161,7 +4161,8 @@ inline Decimal_Type64& Decimal_Type64::operator+=(Decimal32 rhs)
 
 inline Decimal_Type64& Decimal_Type64::operator+=(Decimal64 rhs)
 {
-    return *this = Decimal64(DecimalImpUtil::add(*this->data(), *rhs.data()));
+    this->d_value = DecimalImpUtil::add(this->d_value, rhs.d_value);
+    return *this;
 }
 
 inline Decimal_Type64& Decimal_Type64::operator+=(Decimal128 rhs)
@@ -4208,7 +4209,8 @@ inline Decimal_Type64& Decimal_Type64::operator-=(Decimal32 rhs)
 
 inline Decimal_Type64& Decimal_Type64::operator-=(Decimal64 rhs)
 {
-    return *this = Decimal64(DecimalImpUtil::subtract(*this->data(), *rhs.data()));
+    this->d_value = DecimalImpUtil::subtract(this->d_value, rhs.d_value);
+    return *this;
 }
 
 inline Decimal_Type64& Decimal_Type64::operator-=(Decimal128 rhs)
@@ -4255,7 +4257,8 @@ inline Decimal_Type64& Decimal_Type64::operator*=(Decimal32 rhs)
 
 inline Decimal_Type64& Decimal_Type64::operator*=(Decimal64 rhs)
 {
-    return *this = Decimal64(DecimalImpUtil::multiply(*this->data(), *rhs.data()));
+    this->d_value = DecimalImpUtil::multiply(this->d_value, rhs.d_value);
+    return *this;
 }
 
 inline Decimal_Type64& Decimal_Type64::operator*=(Decimal128 rhs)
@@ -4302,7 +4305,8 @@ inline Decimal_Type64& Decimal_Type64::operator/=(Decimal32 rhs)
 
 inline Decimal_Type64& Decimal_Type64::operator/=(Decimal64 rhs)
 {
-    return *this = Decimal64(DecimalImpUtil::divide(*this->data(), *rhs.data()));
+    this->d_value = DecimalImpUtil::divide(this->d_value, rhs.d_value);
+    return *this;
 }
 
 inline Decimal_Type64& Decimal_Type64::operator/=(Decimal128 rhs)
@@ -4934,7 +4938,8 @@ Decimal_Type128& Decimal_Type128::operator+=(Decimal64 rhs)
 inline
 Decimal_Type128& Decimal_Type128::operator+=(Decimal128 rhs)
 {
-    return *this = Decimal128(DecimalImpUtil::add(this->d_value, rhs.d_value));
+    this->d_value = DecimalImpUtil::add(this->d_value, rhs.d_value);
+    return *this;
 }
 
 inline
@@ -4990,7 +4995,8 @@ Decimal_Type128& Decimal_Type128::operator-=(Decimal64 rhs)
 inline
 Decimal_Type128& Decimal_Type128::operator-=(Decimal128 rhs)
 {
-    return *this = Decimal128(DecimalImpUtil::subtract(this->d_value, rhs.d_value));
+    this->d_value = DecimalImpUtil::subtract(this->d_value, rhs.d_value);
+    return *this;
 }
 
 
@@ -5047,7 +5053,8 @@ Decimal_Type128& Decimal_Type128::operator*=(Decimal64 rhs)
 inline
 Decimal_Type128& Decimal_Type128::operator*=(Decimal128 rhs)
 {
-    return *this = Decimal128(DecimalImpUtil::multiply(this->d_value, rhs.d_value));
+    this->d_value = DecimalImpUtil::multiply(this->d_value, rhs.d_value);
+    return *this;
 }
 
 
@@ -5104,7 +5111,8 @@ Decimal_Type128& Decimal_Type128::operator/=(Decimal64 rhs)
 inline
 Decimal_Type128& Decimal_Type128::operator/=(Decimal128 rhs)
 {
-    return *this = Decimal128(DecimalImpUtil::divide(this->d_value, rhs.d_value));
+    this->d_value = DecimalImpUtil::divide(this->d_value, rhs.d_value);
+    return *this;
 }
 
 
