@@ -1,6 +1,8 @@
 // bslh_siphashalgorithm.t.cpp                                        -*-C++-*-
 #include <bslh_siphashalgorithm.h>
 
+#include <bslh_seedgenerator.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -33,8 +35,11 @@ using namespace bslh;
 // TYPEDEF
 // [ 4] typedef bsls::Types::Uint64 result_type;
 //
+// CONSTANTS
+// [ 5] enum { k_SEED_LENGTH = 8 };
+//
 // EXPLICIT CONSTRUCTORS
-// [ 2] explicit SipHashAlgorithm(uint64 k0, uint64 k1 = 0);
+// [ 2] explicit SipHashAlgorithm(const char *seed);
 //
 // IMPLICIT CONSTRUCTORS
 // [ 2] SipHashAlgorithm(const SipHashAlgorithm);
@@ -48,8 +53,8 @@ using namespace bslh;
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] Trait IsBitwiseMoveable
-// [ 6] USAGE EXAMPLE
+// [ 6] Trait IsBitwiseMoveable
+// [ 7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -103,6 +108,33 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+//=============================================================================
+//                   GLOBAL TYPEDEFS AND DATA FOR TESTING
+//-----------------------------------------------------------------------------
+
+typedef SipHashAlgorithm Obj;
+
+const char genericSeed[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+//=============================================================================
+//                    USAGE EXAMPLE IMPLEMENTATIONS
+//-----------------------------------------------------------------------------
+
+class CryptoSecureRNG {
+    // Generates cryptographically secure random number.
+
+  public:
+    typedef unsigned long long result_type;
+        // Type of the number that will be returned.
+
+    result_type operator()();
+        // Return a number that is indistinguishable from random and will not
+        // be able to be predicted by an attacker.
+};
+CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
+    return 49872534ULL; // NOTE: not a real crypto secure random number
+}
 
 //=============================================================================
 //                             USAGE EXAMPLE
@@ -324,13 +356,7 @@ bool operator!=(const Future& lhs, const Future& rhs)
     return !(lhs == rhs);
 }
 
-// Next, we define a function that will give us cryptographically secure random
-// numbers that will be required to make our hashing algorithm secure.
-unsigned long long getCryptographicallySecureNumber();
-    // Return a number that is indistinguishable from random and will not be
-    // able to be predicted by an attacker
-
-// Then, we need a hash functor for 'Future'.  We are going to use the
+// Next, we need a hash functor for 'Future'.  We are going to use the
 // 'SipHashAlgorithm' becuase, it is a secure hash algorithm that will provide
 // a way to securely combine the salient attributes of 'Future' objects into
 // one reasonable hash that an malicious user will not be able to predict.
@@ -345,8 +371,11 @@ struct HashFuture {
         // of 'Future' objects into a hash that is not predictable by an
         // attacker.
     {
-        SipHashAlgorithm hash(getCryptographicallySecureNumber(),
-                              getCryptographicallySecureNumber());
+        char seed[SipHashAlgorithm::k_SEED_LENGTH];
+        SeedGenerator<CryptoSecureRNG> seedGenerator;
+        seedGenerator.generateSeed(seed, SipHashAlgorithm::k_SEED_LENGTH);
+
+        SipHashAlgorithm hash(seed);
 
         hash(future.getName(),  strlen(future.getName())*sizeof(char));
         hash(future.getMonth(), sizeof(char));
@@ -355,20 +384,6 @@ struct HashFuture {
         return hash.computeHash();
     }
 };
-
-//=============================================================================
-//                    USAGE EXAMPLE IMPLEMENTATIONS
-//-----------------------------------------------------------------------------
-
-unsigned long long getCryptographicallySecureNumber() {
-    return 49872534ULL; // NOTE: not a real crypto secure random number
-}
-
-//=============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
-//-----------------------------------------------------------------------------
-
-typedef SipHashAlgorithm Obj;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -383,7 +398,7 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be used to create more powerfull
@@ -403,7 +418,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Next, we want to actually use our hash table on 'Future' objects.  We
+// Then, we want to actually use our hash table on 'Future' objects.  We
 // create an array of 'Future's based on data that was originally from some
 // external source:
 
@@ -416,7 +431,7 @@ int main(int argc, char *argv[])
         enum { NUM_FUTURES =
                               sizeof futures / sizeof *futures };
 
-// Then, we create our HashTable 'hashTable' and verify that it constructed
+// Next, we create our HashTable 'hashTable' and verify that it constructed
 // properly.  We pass the functor that we defined above as the second argument:
 
         HashTable<Future, HashFuture> hashTable(futures, NUM_FUTURES);
@@ -435,7 +450,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == hashTable.count(Future("US Dollar", 'F', 2014)));
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING BDE TYPE TRAITS
         //   The class is bitwise movable and should have a trait that
@@ -459,6 +474,35 @@ int main(int argc, char *argv[])
                             " 'bslalg::HasTrait' metafunction. (C-1)\n");
         {
             ASSERT(bslmf::IsBitwiseMoveable<SipHashAlgorithm>::value);
+        }
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING K_SEED_LENGTH
+        //   The class is a seeded algorithm and should expose a
+        //   'k_SEED_LENGTH' enum.
+        //
+        // Concerns:
+        //: 1 'k_SEED_LENGTH' is publicly accessible.
+        //:
+        //: 2 'k_SEED_LENGTH' has the correct value.
+        //
+        // Plan:
+        //: 1 Access 'k_SEED_LENGTH' and ASSERT it is equal to the expected
+        //:   value. (C-1,2)
+        //
+        // Testing:
+        //   enum { k_SEED_LENGTH = 8 };
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING K_SEED_LENGTH"
+                            "\n=====================\n");
+
+        if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
+                            " the expected value. (C-1,2)\n");
+        {
+            ASSERT(SipHashAlgorithm::k_SEED_LENGTH == 8);
         }
 
       } break;
@@ -588,8 +632,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n", VALUE);
 
-                Obj contiguousHash = Obj(0);
-                Obj dispirateHash  = Obj(0);
+                Obj contiguousHash = Obj(genericSeed);
+                Obj dispirateHash  = Obj(genericSeed);
 
                 contiguousHash(VALUE, strlen(VALUE));
                 for(unsigned int j = 0; j < strlen(VALUE); ++j){
@@ -616,7 +660,7 @@ int main(int argc, char *argv[])
                                         VALUE,
                                         HASH);
 
-                Obj hash = Obj(0);
+                Obj hash = Obj(genericSeed);
                 hash(VALUE, strlen(VALUE));
                 LOOP_ASSERT(LINE, hash.computeHash() == HASH);
             }
@@ -663,7 +707,7 @@ int main(int argc, char *argv[])
         //: 2 Assert the algorithm does not have the is_default_constructable
         //:   trait. (C-1)
         //:
-        //: 3 Call the parameterized constructor using one and two seeds. (C-2)
+        //: 3 Call the parameterized constructor using a seed. (C-2)
         //:
         //: 4 Use the copy-initialization syntax to create a new instance of
         //:   'SipHashAlgorithm' from an existing instance. (C-3,4)
@@ -681,7 +725,7 @@ int main(int argc, char *argv[])
         //: 8 Verify no memory was used. (C-8)
         //
         // Testing:
-        //   explicit SipHashAlgorithm(uint64 k0, uint64 k1 = 0);
+        //   explicit SipHashAlgorithm(const char *seed);
         //   SipHashAlgorithm(const SipHashAlgorithm);
         //   ~SipHashAlgorithm();
         //   SipHashAlgorithm& operator=(const SipHashAlgorithm&);
@@ -707,25 +751,24 @@ int main(int argc, char *argv[])
             //ASSERT(!std::is_default_constructible<SipHashAlgorithm>::value);  //TODO
         }
 
-        if (verbose) printf("Call the parameterized constructor using one and"
-                            " two seeds. (C-2)\n");
+        if (verbose) printf("Call the parameterized constructor using a seed."
+                            " (C-2)\n");
         {
-            Obj alg1 = Obj(0);
-            Obj alg2 = Obj(0, 0);
+            Obj alg1 = Obj(genericSeed);
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
                             " new instance of 'SipHashAlgorithm' from an"
                             " existing instance. (C-3,4)\n");
         {
-            Obj alg1 = Obj(0);
+            Obj alg1 = Obj(genericSeed);
             Obj alg2 = alg1;
         }
 
         if (verbose) printf("Assign the value of the one (const) instance of"
                             " 'SipHashAlgorithm' to a second. (C-5)\n");
         {
-            const Obj alg1 = Obj(0);
+            const Obj alg1 = Obj(genericSeed);
             Obj alg2 = alg1;
         }
 
@@ -734,7 +777,7 @@ int main(int argc, char *argv[])
                             " instance of 'SipHashAlgorithm', into a"
                             " self-assignment of the second object. (C-6)\n");
         {
-            Obj alg1 = Obj(0);
+            Obj alg1 = Obj(genericSeed);
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
         }
@@ -743,7 +786,7 @@ int main(int argc, char *argv[])
                             " allow it to leave scope to be destroyed. (C-7)"
                             "\n");
         {
-            Obj alg1 = Obj(0);
+            Obj alg1 = Obj(genericSeed);
         }
 
         if (verbose) printf("Verify no memory was used\n");
@@ -782,14 +825,14 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Instantiate 'bsl::SipHashAlgorithm'\n");
         {
-            SipHashAlgorithm hashAlg(1);
+            SipHashAlgorithm hashAlg(genericSeed);
         }
 
         if (verbose) printf("Verify different hashes are produced for"
                             " different c-strings.\n");
         {
-            SipHashAlgorithm hashAlg1(1);
-            SipHashAlgorithm hashAlg2(1);
+            SipHashAlgorithm hashAlg1(genericSeed);
+            SipHashAlgorithm hashAlg2(genericSeed);
             const char * str1 = "Hello World";
             const char * str2 = "Goodbye World";
             hashAlg1(str1, strlen(str1));
@@ -800,8 +843,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("Verify the same hashes are produced for the same"
                             " c-strings.\n");
         {
-            SipHashAlgorithm hashAlg1(1);
-            SipHashAlgorithm hashAlg2(1);
+            SipHashAlgorithm hashAlg1(genericSeed);
+            SipHashAlgorithm hashAlg2(genericSeed);
             const char * str1 = "Hello World";
             const char * str2 = "Hello World";
             hashAlg1(str1, strlen(str1));
@@ -812,8 +855,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("Verify different hashes are produced for"
                             " different ints.\n");
         {
-            SipHashAlgorithm hashAlg1(1);
-            SipHashAlgorithm hashAlg2(1);
+            SipHashAlgorithm hashAlg1(genericSeed);
+            SipHashAlgorithm hashAlg2(genericSeed);
             int int1 = 123456;
             int int2 = 654321;
             hashAlg1(&int1, sizeof(int));
@@ -824,8 +867,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("Verify the same hashes are produced for the same"
                             " ints.\n");
         {
-            SipHashAlgorithm hashAlg1(1);
-            SipHashAlgorithm hashAlg2(1);
+            SipHashAlgorithm hashAlg1(genericSeed);
+            SipHashAlgorithm hashAlg2(genericSeed);
             int int1 = 123456;
             int int2 = 123456;
             hashAlg1(&int1, sizeof(int));

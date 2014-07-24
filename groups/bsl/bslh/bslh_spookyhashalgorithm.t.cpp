@@ -33,23 +33,25 @@ using namespace bslh;
 // TYPEDEF
 // [ 4] typedef bsls::Types::Uint64 result_type;
 //
+// CONSTANTS
+// [ 5] enum { k_SEED_LENGTH = 8 };
+//
 // EXPLICIT CONSTRUCTORS
-// [ 2] SpookyHashAlgorithm(uint64 seed1 = 1, uint64 seed2 = 2);  
+// [ 2] SpookyHashAlgorithm();
+// [ 2] SpookyHashAlgorithm(const char *seed);
 //
 // IMPLICIT CONSTRUCTORS
 // [ 2] SpookyHashAlgorithm(const SpookyHashAlgorithm);
 // [ 2] ~SpookyHashAlgorithm();
 // [ 2] SpookyHashAlgorithm& operator=(const SpookyHashAlgorithm&);
 //
-// MANIPULATOR
+// MANIPULATORS
 // [ 3] void operator()(void const* key, size_t len);
-//
-// ACCESSOR
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] Trait IsBitwiseMoveable
-// [ 6] USAGE EXAMPLE
+// [ 6] Trait IsBitwiseMoveable
+// [ 7] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -329,8 +331,8 @@ bool operator!=(const Future& lhs, const Future& rhs)
 // throughout the hash table.
 
 struct HashFuture {
-    // A hash functor that will apply the SpookyHashAlgorithm to objects of type
-    // 'Future'.
+    // A hash functor that will apply the SpookyHashAlgorithm to objects of
+    // type 'Future'.
 
     size_t operator()(const Future& future) const
         // Return the hash of the of the specified 'future'.  Note that this
@@ -353,6 +355,7 @@ struct HashFuture {
 //-----------------------------------------------------------------------------
 
 typedef SpookyHashAlgorithm Obj;
+typedef BloombergLP::bsls::Types::Uint64 uint64;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -365,9 +368,9 @@ int main(int argc, char *argv[])
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
-    
+
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be used to create more powerfull
@@ -419,7 +422,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == hashTable.count(Future("US Dollar", 'F', 2014)));
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING BDE TYPE TRAITS
         //   The class is bitwise movable and should have a trait that
@@ -443,6 +446,35 @@ int main(int argc, char *argv[])
                             " 'bslalg::HasTrait' metafunction. (C-1)\n");
         {
             ASSERT(bslmf::IsBitwiseMoveable<SpookyHashAlgorithm>::value);
+        }
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING K_SEED_LENGTH
+        //   The class is a seeded algorithm and should expose a
+        //   'k_SEED_LENGTH' enum.
+        //
+        // Concerns:
+        //: 1 'k_SEED_LENGTH' is publicly accessible.
+        //:
+        //: 2 'k_SEED_LENGTH' has the correct value.
+        //
+        // Plan:
+        //: 1 Access 'k_SEED_LENGTH' and ASSERT it is equal to the expected
+        //:   value. (C-1,2)
+        //
+        // Testing:
+        //   enum { k_SEED_LENGTH = 8 };
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING K_SEED_LENGTH"
+                            "\n=====================\n");
+
+        if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
+                            " the expected value. (C-1,2)\n");
+        {
+            ASSERT(SpookyHashAlgorithm::k_SEED_LENGTH == 8);
         }
 
       } break;
@@ -475,8 +507,8 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {
-        // -------------------------------------------------------------------- TODO Big vs little endian
+      case 3: {                                                                 // TODO Big vs little endian
+        // --------------------------------------------------------------------
         // TESTING FUNCTION CALL OPERATOR AND COMPUTEHASH
         //   Verify that the class offers the ability to invoke it via
         //   'operator()' with some bytes and a length. Verify that calling
@@ -616,11 +648,11 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR
-        //   Ensure that the three implicitly declared and defined special
-        //   member functions and the one explicitly defined constructor are
-        //   publicly callable and have no unexpected side effects such as
-        //   allocating memory.  Verify that the algorithm can be instantiated
-        //   with or without a seed.
+        //   Ensure that the implicit copy constructor, destructor, and
+        //   assignment operator as well as the explicit default and
+        //   parameterized constructors are publicly callable and have no
+        //   unexpected side effects such as allocating memory.  Verify that
+        //   the algorithm can be instantiated with or without a seed.
         //
         // Concerns:
         //: 1 Objects can be created using the default constructor.
@@ -647,7 +679,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Instantiate the algorithm using a defualt constructor. (C-1)
         //:
-        //: 3 Call the parameterized constructor using one and two seeds. (C-2)
+        //: 3 Call the parameterized constructor with a seed. (C-2)
         //:
         //: 4 Use the copy-initialization syntax to create a new instance of
         //:   'SpookyHashAlgorithm' from an existing instance. (C-3,4)
@@ -666,7 +698,8 @@ int main(int argc, char *argv[])
         //: 8 Verify no memory was used. (C-8)
         //
         // Testing:
-        //   SpookyHashAlgorithm(uint64 seed1 = 1, uint64 seed2 = 2);  
+        //   SpookyHashAlgorithm();
+        //   SpookyHashAlgorithm(const char *seed);
         //   SpookyHashAlgorithm(const SpookyHashAlgorithm);
         //   ~SpookyHashAlgorithm();
         //   SpookyHashAlgorithm& operator=(const SpookyHashAlgorithm&);
@@ -692,25 +725,25 @@ int main(int argc, char *argv[])
             Obj alg1 = Obj();
         }
 
-        if (verbose) printf("Call the parameterized constructor using one and"
-                            " two seeds. (C-2)\n");
+        if (verbose) printf("Call the parameterized constructor with a seed."
+                            " (C-2)\n");
         {
-            Obj alg1 = Obj(0);
-            Obj alg2 = Obj(0, 0);
+            uint64 array[2] = {0,0};
+            Obj alg1 = Obj(reinterpret_cast<const char *>(array));
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
                             " new instance of 'SipHashAlgorithm' from an"
                             " existing instance. (C-3,4)\n");
         {
-            Obj alg1 = Obj(0);
+            Obj alg1 = Obj();
             Obj alg2 = alg1;
         }
 
         if (verbose) printf("Assign the value of the one (const) instance of"
                             " 'SipHashAlgorithm' to a second. (C-5)\n");
         {
-            const Obj alg1 = Obj(0);
+            const Obj alg1 = Obj();
             Obj alg2 = alg1;
         }
 
@@ -719,7 +752,7 @@ int main(int argc, char *argv[])
                             " instance of 'SipHashAlgorithm', into a"
                             " self-assignment of the second object. (C-6)\n");
         {
-            Obj alg1 = Obj(0);
+            Obj alg1 = Obj();
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
         }
@@ -728,7 +761,7 @@ int main(int argc, char *argv[])
                             " allow it to leave scope to be destroyed. (C-7)"
                             "\n");
         {
-            Obj alg1 = Obj(0);
+            Obj alg1 = Obj();
         }
 
         if (verbose) printf("Verify no memory was used\n");

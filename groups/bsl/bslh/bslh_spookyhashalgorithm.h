@@ -45,6 +45,10 @@ BSLS_IDENT("$Id: $")
 // storing hashes in memory or transmitting them across the network is not
 // reccomended.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHMIMP
 #include <bslh_spookyhashalgorithmimp.h>
 #endif
@@ -67,27 +71,38 @@ namespace BloombergLP {
 namespace bslh {
 
 
-                          // ===============================
-                          // class bslh::SpookyHashAlgorithm
-                          // ===============================
+                        // ===============================
+                        // class bslh::SpookyHashAlgorithm
+                        // ===============================
 
 class SpookyHashAlgorithm
 {
     // This class wraps an implementation of the "SpookyHash" hash algorithm
     // (see http://burtleburtle.net/bob/hash/spooky.html)
 
-    typedef bsls::Types::Uint64 uint64;
-    SpookyHashAlgorithmImp d_state;
+    // PRIVATE TYPES
+    typedef bsls::Types::Uint64 uint64;// 64-bit int type
+
+    // DATA
+    SpookyHashAlgorithmImp d_state;    // Representation of SpookHash algorithm
 
   public:
+    // TYPES
     typedef bsls::Types::Uint64 result_type;
         // Typedef indicating the type of value this algorithm returns
 
-    SpookyHashAlgorithm(uint64 seed1 = 1, uint64 seed2 = 2);                    //TODO explicit?
-        // Create an instance of 'SpookyHashAlgorithm' and optionally specify a
-        // 'seed1' and 'seed2' to be used as the higher and lower order bits
-        // respectively of the 128-bit seed for the algorithm.
+    // CONSTANTS
+    enum { k_SEED_LENGTH = 8 };     // Seed length in bytes
 
+    // CREATORS
+    SpookyHashAlgorithm();
+        // Create a 'SpookyHashAlgorithm' with default seed values.
+
+    explicit SpookyHashAlgorithm(const char *seed);
+        // Create an instance of 'SpookyHashAlgorithm' seeded with a 128-bit
+        // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
+
+    // MANIPULATORS
     void operator()(void const* key, size_t length);
         // Incorporates the specified 'key' of 'length' bytes into the internal
         // state of the hashing algorithm.
@@ -100,13 +115,21 @@ class SpookyHashAlgorithm
         // the algorithm.
 };
 
-SpookyHashAlgorithm::SpookyHashAlgorithm(SpookyHashAlgorithm::uint64 seed1,
-                                         SpookyHashAlgorithm::uint64 seed2)
+// CREATORS
+SpookyHashAlgorithm::SpookyHashAlgorithm()
 : d_state()
 {
-    d_state.Init(seed1, seed2);
+    d_state.Init(1, 2);
 }
 
+SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
+: d_state()
+{
+    const uint64 *seedPtr = reinterpret_cast<const uint64 *>(seed);
+    d_state.Init(seedPtr[0], seedPtr[1]);
+}
+
+// MANIPULATORS
 void SpookyHashAlgorithm::operator()(void const* key, size_t length)
 {
     d_state.Update(key, length);

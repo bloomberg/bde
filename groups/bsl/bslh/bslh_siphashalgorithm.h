@@ -89,6 +89,9 @@ BSLS_IDENT("$Id: $")
 //: 6 Added typedef to replace removed 'std::uint64_t'
 //:
 //: 7 Added 'computeHash' to replace the removed explicit conversion
+//:
+//: 8 Added 'k_SEED_LENGTH' and changed the constructor to accept a 'const char
+//:   *'
 //
 ///Third Party Doc
 ///---------------
@@ -118,6 +121,10 @@ BSLS_IDENT("$Id: $")
 //
 //-----------------------------------------------------------------------------
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
@@ -146,7 +153,10 @@ namespace bslh {
 class SipHashAlgorithm
 {
   private:
+    // PRIVATE TYPES
     typedef bsls::Types::Uint64 uint64;
+
+    // DATA
     uint64 d_v0;
     uint64 d_v1;
     uint64 d_v2;
@@ -155,20 +165,26 @@ class SipHashAlgorithm
     unsigned int d_bufSize;
     unsigned int d_totalLength;
 
+    // PRIVATE MANIPULATORS
     void init();
         // Initialize the state of this object
 
   public:
+    // TYPES
     typedef uint64 result_type;
         // Typedef indicating the size of the hash this algorithm will return.
 
-    explicit SipHashAlgorithm(uint64 k0, uint64 k1 = 0);
-        // Construct a new SipHashAlgorithm using the specified 'k0' as the
-        // first half of the initial key used to seed the algorithm. Optionally
-        // specify 'k1' as the second half of the key.Note that if 'k0' and
-        // 'k1' are not random, all gaurentees of security and denial of
-        // service protection are void.
+    // CONSTANTS
+    enum { k_SEED_LENGTH = 8 };     // Seed length in bytes
 
+    // CREATORS
+    explicit SipHashAlgorithm(const char *seed);
+        // Create a 'SipHashAlgorithm' with a 128-bit ('k_SEED_LENGTH' bytes)
+        // seed pointed to by the specified 'seed'. Note that if data in 'seed'
+        // is not random, all gaurentees of security and denial of service
+        // protection are void.
+
+    // MANIPULATORS
     void operator()(void const* key, size_t len);
         // Incorporates the specified 'key' of 'len' bytes into the internal
         // state of the hashing algorithm. Input where 'len' == 0 will have no

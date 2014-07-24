@@ -185,7 +185,7 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 class Seeded32BitHashingAlgorithm {
   public:
     typedef unsigned result_type; // Type of the hash returned
-    enum { SEED_LENGTH = 4 };     // Seed length in bytes
+    enum { k_SEED_LENGTH = 4 };     // Seed length in bytes
 
   private:
     const char *d_seed; // Seed used in the generation of hashes
@@ -215,7 +215,7 @@ Seeded32BitHashingAlgorithm::operator()(const char *data, size_t length) {
 class Seeded64BitHashingAlgorithm {
   public:
     typedef unsigned result_type; // Type of the hash returned
-    enum { SEED_LENGTH = 8 };     // Seed length in bytes
+    enum { k_SEED_LENGTH = 8 };     // Seed length in bytes
 
   private:
     const char *d_seed; // Seed used in the generation of hashes
@@ -245,7 +245,7 @@ Seeded64BitHashingAlgorithm::operator()(const char *data, size_t length) {
 class Seeded1024BitHashingAlgorithm {
   public:
     typedef unsigned result_type; // Type of the hash returned
-    enum { SEED_LENGTH = 128 };   // Seed length in bytes
+    enum { k_SEED_LENGTH = 128 };   // Seed length in bytes
 
   private:
     const char *d_seed; // Seed used in the generation of hashes
@@ -283,7 +283,7 @@ class SeededHash
         // Type of the hash that will be returned.
 
   private:
-    char seed[HASH_ALGORITHM::SEED_LENGTH];
+    char seed[HASH_ALGORITHM::k_SEED_LENGTH];
         // Stores the seed that will be used to run the parameterized
         // 'HASH_ALGORITHM'
 
@@ -302,7 +302,7 @@ class SeededHash
 template <class HASH_ALGORITHM>
 template<class SEED_GENERATOR>
 SeededHash<HASH_ALGORITHM>::SeededHash(SEED_GENERATOR seedGenerator) {
-    seedGenerator.generateSeed(seed, HASH_ALGORITHM::SEED_LENGTH);
+    seedGenerator.generateSeed(seed, HASH_ALGORITHM::k_SEED_LENGTH);
 }
 
 template <class HASH_ALGORITHM>

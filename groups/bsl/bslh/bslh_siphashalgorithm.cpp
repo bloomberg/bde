@@ -19,39 +19,42 @@ BSLS_IDENT("$Id$ $CSID$")
 //:
 //: 2 Renaming 'siphash' to 'SipHashAlgorithm'
 //:
-//: 3 Whitespace changes for formatting
+//: 3 Whitespace to meet BDE standards.
 //:
 //: 4 Added initializer list to handle class member initializers removed from
 //:   the header
 //:
 //: 5 Added 'computeHash' to handle explicit conversion removed from header.
-
-
-//------------------------------- siphash.h ------------------------------------
-// 
+//:
+//: 6 Changed the constructor to accept a 'const char *'
+//
+///Third Party Doc
+///---------------
+//------------------------------- siphash.h -----------------------------------
+//
 // This software is in the public domain.  The only restriction on its use is
-// that no one can remove it from the public domain by claiming ownership of it,
-// including the original authors.
-// 
+// that no one can remove it from the public domain by claiming ownership of
+// it, including the original authors.
+//
 // There is no warranty of correctness on the software contained herein.  Use
 // at your own risk.
 //
 // Derived from:
-// 
+//
 // SipHash reference C implementation
-// 
+//
 // Written in 2012 by Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
 // Daniel J. Bernstein <djb@cr.yp.to>
-// 
+//
 // To the extent possible under law, the author(s) have dedicated all copyright
 // and related and neighboring rights to this software to the public domain
 // worldwide. This software is distributed without any warranty.
-// 
+//
 // You should have received a copy of the CC0 Public Domain Dedication along
 // with this software. If not, see
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
-// 
-//------------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
 
 
 namespace BloombergLP {
@@ -62,19 +65,17 @@ namespace
 {
 
 typedef bsls::Types::Uint64 u64;
-typedef unsigned int u32;
-typedef unsigned char u8;
+typedef unsigned int        u32;
+typedef unsigned char       u8;
 
 inline
-u64
-rotl(u64 x, u64 b)
+u64 rotl(u64 x, u64 b)
 {
     return (x << b) | (x >> (64 - b));
 }
 
 inline
-u64
-u8to64_le(const u8* p)
+u64 u8to64_le(const u8* p)
 {
 #ifdef __LITTLE_ENDIAN__
     return *static_cast<u64 const*>(static_cast<void const*>(p));
@@ -87,8 +88,7 @@ u8to64_le(const u8* p)
 }
 
 inline
-void
-sipround(u64& v0, u64& v1, u64& v2, u64& v3)
+void sipround(u64& v0, u64& v1, u64& v2, u64& v3)
 {
     v0 += v1;
     v1 = rotl(v1, 13);
@@ -109,7 +109,7 @@ sipround(u64& v0, u64& v1, u64& v2, u64& v3)
 }  // unnamed
 
 
-SipHashAlgorithm::SipHashAlgorithm(u64 k0, u64 k1) : 
+SipHashAlgorithm::SipHashAlgorithm(const char *seed) :
                                                    d_v0(0x736f6d6570736575ULL),
                                                    d_v1(0x646f72616e646f6dULL),
                                                    d_v2(0x6c7967656e657261ULL),
@@ -117,10 +117,11 @@ SipHashAlgorithm::SipHashAlgorithm(u64 k0, u64 k1) :
                                                    d_bufSize(0),
                                                    d_totalLength(0)
 {
-    d_v3 ^= k1;
-    d_v2 ^= k0;
-    d_v1 ^= k1;
-    d_v0 ^= k0;
+    const u64 *seedPtr = reinterpret_cast<const u64 *>(seed);
+    d_v3 ^= seedPtr[1];
+    d_v2 ^= seedPtr[0];
+    d_v1 ^= seedPtr[1];
+    d_v0 ^= seedPtr[0];
 }
 
 void
@@ -132,7 +133,7 @@ SipHashAlgorithm::operator()(void const* key, size_t inlen)
     {
         std::copy(in, in+inlen, d_buf + d_bufSize);
         d_bufSize += inlen;
-        return;
+        return;                                                       // RETURN
     }
     if (d_bufSize > 0)
     {

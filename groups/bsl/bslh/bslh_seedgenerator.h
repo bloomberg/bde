@@ -66,13 +66,13 @@ class SeedGenerator
     // CREATORS
     SeedGenerator();
         // Create a 'bslh::SeedGenerator' that will default construct the
-        // parameterized 'RNG' and use it to generate its seeds. 
+        // parameterized 'RNG' and use it to generate its seeds.
 
     explicit SeedGenerator(RNG randomNumberGenerator);
         // Create a 'bslh::SeedGenerator' that will use the specified
         // 'randomNumberGenerator' to generate its seeds.
 
-    // ACCESSORS                                                                TODO correct name?
+    // ACCESSORS
     void generateSeed(char *seedLocation, size_t seedLength);
         // Generate a seed of the specified 'seedLength' bytes and store it at
         // the specified 'seedLocation'. The seed will be generated with bytes
