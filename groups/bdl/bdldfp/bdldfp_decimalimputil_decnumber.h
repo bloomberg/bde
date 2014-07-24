@@ -24,8 +24,10 @@ BSLS_IDENT("$Id$")
 ///-----
 // This section shows the intended use of this component.
 //
-///Example 1: 
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: None
+///- - - - - - - -
+//..
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -1107,4 +1109,3 @@ DecimalImpUtil_Platform::ValueType128 DecimalImpUtil_Platform::parse128(const ch
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 // ----------------------------- END-OF-FILE ----------------------------------
-

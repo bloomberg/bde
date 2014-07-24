@@ -19,6 +19,8 @@ BSLS_IDENT("$Id$")
 
 #include <math.h>
 
+#include <bsl_cstring.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_iostream.h>  // TODO TBD - remove this, it is just for debugging
 
@@ -44,7 +46,7 @@ struct PtrInputBuf : bsl::streambuf {
 
 PtrInputBuf::PtrInputBuf(const char *s) {
     char *x = const_cast<char *>(s);
-    this->setg(x, x, x + strlen(x));
+    this->setg(x, x, x + bsl::strlen(x));
 }
 
 #if BDLDFP_DECIMALPLATFORM_INTELDFP
@@ -212,7 +214,7 @@ unsigned char *memCpyFlip(void *out, const void *in, size_t count)
     // the specified 'out' buffer and flip the byte order if needed.
 {
     // Just stick the bytes into the buffer first
-    memcpy(out, in, count);
+    bsl::memcpy(out, in, count);
 #if BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
     // little endian, needs to do some byte juggling
     memrev(out, count);

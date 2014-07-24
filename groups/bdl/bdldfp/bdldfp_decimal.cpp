@@ -180,21 +180,33 @@ static decContext* getContext()
 
               // Implementation specific helper functions
 
-static
-char *format(const DecimalImpUtil::ValueType64 *value, char *buffer, int);
+static char *format(const DecimalImpUtil::ValueType32  *value,
+                    char                               *buffer,
+                    int                                 size);
+static char *format(const DecimalImpUtil::ValueType64  *value,
+                    char                               *buffer,
+                    int                                 size);
+static char *format(const DecimalImpUtil::ValueType128 *value,
+                    char                               *buffer,
+                    int                                 size);
+    // Produce a string representation of the specified decimal 'value', in the
+    // specified 'buffer', which has at least as much space as specified by
+    // 'size'.
 
 static
-char *format(const DecimalImpUtil::ValueType32 *value, char *buffer, int n) {
+char *format(const DecimalImpUtil::ValueType32 *value, char *buffer, int size)
+{
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
     DecimalImpUtil::ValueType64 tmp;
     tmp.d_raw = __bid32_to_bid64(value->d_raw);
 
-    return format(&tmp, buffer, n);
+    return format(&tmp, buffer, size);
 }
 
 static
-char *format(const DecimalImpUtil::ValueType64 *value, char *buffer, int) {
+char *format(const DecimalImpUtil::ValueType64 *value, char *buffer, int)
+{
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
 
@@ -204,7 +216,11 @@ char *format(const DecimalImpUtil::ValueType64 *value, char *buffer, int) {
 }
 
 static
-char *format(const DecimalImpUtil::ValueType128 *value, char *buffer, int) {
+char *format(const DecimalImpUtil::ValueType128 *value, char *buffer, int)
+    // Produce a string representation of the specified decimal 'value', in the
+    // specified 'buffer', which has at least as much space as specified by
+    // 'size'.
+{
     BSLS_ASSERT(value);
     BSLS_ASSERT(buffer);
 
@@ -1136,7 +1152,8 @@ BloombergLP::bdldfp::Decimal64
                         BloombergLP::bdldfp::getContext());
     return rv;
 #elif BDLDFP_DECIMALPLATFORM_INTELDFP
-    return BloombergLP::bdldfp::DecimalImpUtil::parse64("9.999999999999999e384");
+    return BloombergLP::bdldfp::DecimalImpUtil::parse64(
+                                                      "9.999999999999999e384");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
@@ -1249,7 +1266,8 @@ BloombergLP::bdldfp::Decimal64
                         BloombergLP::bdldfp::getContext());
     return rv;
 #elif BDLDFP_DECIMALPLATFORM_INTELDFP
-    return BloombergLP::bdldfp::DecimalImpUtil::parse64("0.000000000000001e-383");
+    return BloombergLP::bdldfp::DecimalImpUtil::parse64(
+                                                     "0.000000000000001e-383");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
@@ -1291,7 +1309,8 @@ BloombergLP::bdldfp::Decimal128
                       BloombergLP::bdldfp::getContext());
     return rv;
 #elif BDLDFP_DECIMALPLATFORM_INTELDFP
-    return BloombergLP::bdldfp::DecimalImpUtil::parse128("9.999999999999999999999999999999999e6144");
+    return BloombergLP::bdldfp::DecimalImpUtil::parse128(
+                                   "9.999999999999999999999999999999999e6144");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
@@ -1401,7 +1420,8 @@ BloombergLP::bdldfp::Decimal128
                       BloombergLP::bdldfp::getContext());
     return rv;
 #elif BDLDFP_DECIMALPLATFORM_INTELDFP
-    return BloombergLP::bdldfp::DecimalImpUtil::parse128("0.000000000000000000000000000000001e-6143");
+    return BloombergLP::bdldfp::DecimalImpUtil::parse128(
+                                  "0.000000000000000000000000000000001e-6143");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif

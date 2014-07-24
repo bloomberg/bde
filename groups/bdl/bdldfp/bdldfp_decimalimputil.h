@@ -1,5 +1,47 @@
+// bdldfp_decimalimputil.h                                            -*-C++-*-
+
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL
 #define INCLUDED_BDLDFP_DECIMALIMPUTIL
+
+#ifndef INCLUDED_BSLS_IDENT
+#include <bsls_ident.h>
+#endif
+BSLS_IDENT("$Id$")
+
+//@PURPOSE: Provide a unified low-level interface for decimal floating point.
+//
+//@CLASSES:
+//  bdldfp::DecimalImpUtil: Unified low level decimal floating point functions.
+//
+//@SEE ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalimputil_decnumber
+//
+//@DESCRIPTION: The 'bdldfp::DecimalImpUtil' component provides a unified
+// namespace for utility functions for the decimal floating-point operations
+// defined in lower level components.
+//
+///Usage
+///-----
+// This section shows the intended use of this component.
+//
+///Example 1: Constructing a representation of a value in decimal
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Floating-point numbers are built from a sign, a significand and an exponent.
+// All those 3 are integers (of various sizes), therefore it is possible to
+// build decimals from integers:
+//..
+//  long long coefficient = 42; // Yet another name for significand
+//  int exponent          = -1;
+//
+//  typedef bdldfp::DecimalImpUtil Util;
+//
+//  Util::ValueType32  d32  = Util::makeDecimal32( coefficient, exponent);
+//  Util::ValueType64  d64  = Util::makeDecimal64( coefficient, exponent);
+//  Util::ValueType128 d128 = Util::makeDecimal128(coefficient, exponent);
+//
+//  assert(Util::binaryToDecimal32( 4.2) == d32);
+//  assert(Util::binaryToDecimal64( 4.2) == d64);
+//  assert(Util::binaryToDecimal128(4.2) == d128);
+//..
 
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 #include <bdldfp_decimalimputil_inteldfp.h>
@@ -15,6 +57,14 @@
 
 #ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>
 #endif
 
 #if BDLDFP_DECIMALPLATFORM_SOFTWARE
@@ -59,10 +109,14 @@ class DecimalImpUtil
     typedef DecimalImpUtil_Platform::ValueType64  ValueType64;
     typedef DecimalImpUtil_Platform::ValueType128 ValueType128;
 
-    static ValueType64 makeDecimal64(               int coeff, int exponent);
-    static ValueType64 makeDecimal64(unsigned       int coeff, int exponent);
-    static ValueType64 makeDecimal64(         long long coeff, int exponent);
-    static ValueType64 makeDecimal64(unsigned long long coeff, int exponent);
+    static ValueType64 makeDecimal64(                   int mantissa,
+                                                        int exponent);
+    static ValueType64 makeDecimal64(unsigned           int mantissa,
+                                                        int exponent);
+    static ValueType64 makeDecimal64(         long long int mantissa,
+                                                        int exponent);
+    static ValueType64 makeDecimal64(unsigned long long int mantissa,
+                                                        int exponent);
         // Return a 'Decimal64' object that has the specified 'mantissa' and
         // 'exponent', rounded according to the current decimal rounding mode,
         // if necessary.  If an overflow condition occurs. store the value of
@@ -475,9 +529,9 @@ class DecimalImpUtil
         // from 128-bit to 64-bit, and 64-bit to 32-bit representations,
         // because rounding should only be performed once.
 
-    static ValueType32  binaryToDecimal32(      float result);
-    static ValueType32  binaryToDecimal32(     double result);
-    static ValueType32  binaryToDecimal32(long double result);
+    static ValueType32  binaryToDecimal32(      float value);
+    static ValueType32  binaryToDecimal32(     double value);
+    static ValueType32  binaryToDecimal32(long double value);
         // Create a 'Decimal32' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -508,9 +562,9 @@ class DecimalImpUtil
         //:
         //: o Otherwise return a 'Decimal32' object representing 'value'.
 
-    static ValueType64  binaryToDecimal64(      float input);
-    static ValueType64  binaryToDecimal64(     double input);
-    static ValueType64  binaryToDecimal64(long double input);
+    static ValueType64  binaryToDecimal64(      float value);
+    static ValueType64  binaryToDecimal64(     double value);
+    static ValueType64  binaryToDecimal64(long double value);
         // Create a 'Decimal64' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -541,9 +595,9 @@ class DecimalImpUtil
         //:
         //: o Otherwise return a 'Decimal64' object representing 'value'.
 
-    static ValueType128 binaryToDecimal128(      float input);
-    static ValueType128 binaryToDecimal128(     double input);
-    static ValueType128 binaryToDecimal128(long double input);
+    static ValueType128 binaryToDecimal128(      float value);
+    static ValueType128 binaryToDecimal128(     double value);
+    static ValueType128 binaryToDecimal128(long double value);
         // Create a 'Decimal128' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -607,9 +661,9 @@ class DecimalImpUtil
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // '-6176 <= exponent <= 6111'.
 
-    static ValueType32  scaleB(ValueType32 value, int power);
-    static ValueType64  scaleB(ValueType64 value, int power);
-    static ValueType128 scaleB(ValueType128 value, int power);
+    static ValueType32  scaleB(ValueType32  value, int exponent);
+    static ValueType64  scaleB(ValueType64  value, int exponent);
+    static ValueType128 scaleB(ValueType128 value, int exponent);
         // Return the result of multiplying the specified 'value' by ten raised
         // to the specified 'exponent'.  The quantum of 'value' is scaled
         // according to IEEE 754's 'scaleB' operations.  The result is
@@ -1055,72 +1109,72 @@ DecimalImpUtil::convertToDecimal128(const DecimalImpUtil::ValueType64& input)
 
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::binaryToDecimal32(float input)
+DecimalImpUtil::binaryToDecimal32(float value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal32(input);
+    return DecimalImpUtil_Platform::binaryToDecimal32(value);
 }
 
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::binaryToDecimal32(double input)
+DecimalImpUtil::binaryToDecimal32(double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal32(input);
+    return DecimalImpUtil_Platform::binaryToDecimal32(value);
 }
 
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::binaryToDecimal32(long double input)
+DecimalImpUtil::binaryToDecimal32(long double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal32(input);
+    return DecimalImpUtil_Platform::binaryToDecimal32(value);
 }
 
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::binaryToDecimal64(float input)
+DecimalImpUtil::binaryToDecimal64(float value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal64(input);
+    return DecimalImpUtil_Platform::binaryToDecimal64(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::binaryToDecimal64(double input)
+DecimalImpUtil::binaryToDecimal64(double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal64(input);
+    return DecimalImpUtil_Platform::binaryToDecimal64(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::binaryToDecimal64(long double input)
+DecimalImpUtil::binaryToDecimal64(long double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal64(input);
+    return DecimalImpUtil_Platform::binaryToDecimal64(value);
 }
 
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::binaryToDecimal128(float input)
+DecimalImpUtil::binaryToDecimal128(float value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal128(input);
+    return DecimalImpUtil_Platform::binaryToDecimal128(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::binaryToDecimal128(double input)
+DecimalImpUtil::binaryToDecimal128(double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal128(input);
+    return DecimalImpUtil_Platform::binaryToDecimal128(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::binaryToDecimal128(long double input)
+DecimalImpUtil::binaryToDecimal128(long double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal128(input);
+    return DecimalImpUtil_Platform::binaryToDecimal128(value);
 }
 
 
 inline
-DecimalImpUtil::ValueType32 
+DecimalImpUtil::ValueType32
 DecimalImpUtil::makeDecimalRaw32(int mantissa, int exponent)
 {
     BSLS_ASSERT(-101     <= exponent);
@@ -1215,48 +1269,70 @@ DecimalImpUtil::makeDecimalRaw128(int mantissa, int exponent)
 
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::scaleB(DecimalImpUtil::ValueType32 value, int power)
+DecimalImpUtil::scaleB(DecimalImpUtil::ValueType32 value, int exponent)
 {
-    return DecimalImpUtil_Platform::scaleB(value, power);
+    return DecimalImpUtil_Platform::scaleB(value, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::scaleB(DecimalImpUtil::ValueType64 value, int power)
+DecimalImpUtil::scaleB(DecimalImpUtil::ValueType64 value, int exponent)
 {
-    return DecimalImpUtil_Platform::scaleB(value, power);
+    return DecimalImpUtil_Platform::scaleB(value, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::scaleB(DecimalImpUtil::ValueType128 value, int power)
+DecimalImpUtil::scaleB(DecimalImpUtil::ValueType128 value, int exponent)
 {
-    return DecimalImpUtil_Platform::scaleB(value, power);
+    return DecimalImpUtil_Platform::scaleB(value, exponent);
 }
 
 
 inline
 DecimalImpUtil::ValueType32
-DecimalImpUtil::parse32(const char *string)
+DecimalImpUtil::parse32(const char *input)
 {
-    return DecimalImpUtil_Platform::parse32(string);
+    return DecimalImpUtil_Platform::parse32(input);
 }
 
 inline
 DecimalImpUtil::ValueType64
-DecimalImpUtil::parse64(const char *string)
+DecimalImpUtil::parse64(const char *input)
 {
-    return DecimalImpUtil_Platform::parse64(string);
+    return DecimalImpUtil_Platform::parse64(input);
 }
 
 inline
 DecimalImpUtil::ValueType128
-DecimalImpUtil::parse128(const char *string)
+DecimalImpUtil::parse128(const char *input)
 {
-    return DecimalImpUtil_Platform::parse128(string);
+    return DecimalImpUtil_Platform::parse128(input);
 }
 
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
+
+// ----------------------------------------------------------------------------
+// Copyright (C) 2014 Bloomberg L.P.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+// ----------------------------- END-OF-FILE ----------------------------------
