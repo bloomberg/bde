@@ -1,6 +1,10 @@
-// bdldfp_decimalimputil_decnumber.cpp                                -*-C++-*-
+// bdldfp_decimalimputil_ibmxlc.t.cpp                                 -*-C++-*-
+#include <bdldfp_decimalimputil_ibmxlc.h>
 
-#include <bdldfp_decimalimputil_decnumber.h>
+int main()
+{
+    return -1;
+}
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.
