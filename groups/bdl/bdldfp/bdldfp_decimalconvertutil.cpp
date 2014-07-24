@@ -201,10 +201,8 @@ static void memrev(void *buffer, size_t count)
     // Reverse the order of the first specified 'count' bytes, at the beginning
     // of the specified 'buffer'.  'count % 2' must be zero.
 {
-    char *b = static_cast<char *>(buffer);
-    for (unsigned int i = 0; i < count / 2; ++i) {
-        bsl::swap(b[i], b[count - i - 1]);
-    }
+    unsigned char *b = static_cast<unsigned char *>(buffer);
+    bsl::reverse(b, b + count);
 }
 
                         // Mem copy with reversal functions
