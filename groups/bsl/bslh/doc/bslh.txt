@@ -26,7 +26,7 @@
 
   2. bslh_siphashalgorithm, bslh_spookyhashalgorithm
 
-  1. bslh_spookyhashalgorithmimp
+  1. bslh_spookyhashalgorithmimp, bslh_seedgenerator
 
 ..
 
