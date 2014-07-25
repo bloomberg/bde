@@ -57,7 +57,7 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_denselypackeddecimalimputil.h>
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER 
+#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
 
 #error DO NOT WANT DECNUMBER
 

@@ -67,7 +67,7 @@ BSLS_IDENT("$Id$")
 #include <bsl_algorithm.h>
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_SOFTWARE
+#ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
                 // DECIMAL FLOATING-POINT LITERAL EMULATION
 
@@ -84,7 +84,7 @@ BSLS_IDENT("$Id$")
     BloombergLP::bdldfp::DecimalImpUtil::parse128(                           \
         (BloombergLP::bdldfp::DecimalImpUtil::checkLiteral(lit), #lit))
 
-#elif BDLDFP_DECIMALPLATFORM_C99_TR || defined( __IBM_DFP__ )
+#elif defined(BDLDFP_DECIMALPLATFORM_C99_TR) || defined( __IBM_DFP__ )
 
 #define BDLDFP_DECIMALIMPUTIL_JOIN_(a,b) a##b
 
@@ -131,7 +131,7 @@ class DecimalImpUtil
         // positive otherwise.
 
     // CLASS METHODS
-#if BDLDFP_DECIMALPLATFORM_SOFTWARE
+#ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
     struct This_is_not_a_floating_point_literal {};
         // This 'struct' is a helper type used togenerate error messages for
@@ -147,7 +147,7 @@ class DecimalImpUtil
         // Overload to avoid an error when the decimal floating-point literal
         // (without the suffix) can be interpreted as a 'double' literal.
 
-#elif BDLDFP_DECIMALPLATFORM_HARDWARE
+#elif defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
 
 #else
 
@@ -722,7 +722,7 @@ class DecimalImpUtil
                           // class DecimalImpUtil
                           // --------------------
 
-#if BDLDFP_DECIMALPLATFORM_SOFTWARE
+#ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
 template <class TYPE>
 inline

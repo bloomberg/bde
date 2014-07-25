@@ -18,7 +18,7 @@ extern "C" {
 #include <decSingle.h>
 }
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #  ifndef  __STDC_WANT_DEC_FP__
 #    error __STDC_WANT_DEC_FP__ must be defined on the command line!
      char die[-42];     // if '#error' unsupported
