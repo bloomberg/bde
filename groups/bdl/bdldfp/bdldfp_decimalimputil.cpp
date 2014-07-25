@@ -1,6 +1,8 @@
 // bdldfp_decimalimputil.cpp                                          -*-C++-*-
-
 #include <bdldfp_decimalimputil.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$")
 
 #include <bdldfp_uint128.h>
 
@@ -26,11 +28,6 @@ struct Properties64
 };
 
 } // close anonymous namespace
-
-DecimalImpUtil::ValueType64 DecimalImpUtil::makeInfinity64(bool isNegative)
-{
-    return DecimalImpUtil::parse64( isNegative ? "-inf" : "inf" );
-}
 
 DecimalImpUtil::ValueType64 DecimalImpUtil::makeDecimal64(
                                                    unsigned long long mantissa,
@@ -164,8 +161,13 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::makeDecimal64(int mantissa,
     return convertToDecimal64(makeDecimalRaw128(mantissa, exponent)); // RETURN
 }
 
+DecimalImpUtil::ValueType64 DecimalImpUtil::makeInfinity64(bool isNegative)
+{
+    return DecimalImpUtil::parse64( isNegative ? "-inf" : "inf" );
 }
-}
+
+} // close package namespace
+} // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.

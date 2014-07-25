@@ -400,7 +400,7 @@ main(int argc, char *argv[])
         //:   digits, where any of the upper two bits of the declet are set.
         //
         // Testing:
-        //   static unsigned decodeDeclet(unsigned value)
+        //   decodeDeclet(unsigned value)
         // --------------------------------------------------------------------
 
 
@@ -471,7 +471,7 @@ main(int argc, char *argv[])
         //: 3 Test the boundary case of 1000, for BSLS_ASSERT behavior.
         //
         // Testing:
-        //   static unsigned uncodeDeclet(unsigned value);
+        //   encodeDeclet(unsigned value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nNegative Testing." << endl;

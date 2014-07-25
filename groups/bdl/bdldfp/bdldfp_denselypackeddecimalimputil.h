@@ -1,6 +1,6 @@
 // bdldfp_denselypackeddecimalimputil.h                               -*-C++-*-
-#ifndef INCLUDED_BDLDFP_DENSELYPACEKDDECIMALIMPUTIL
-#define INCLUDED_BDLDFP_DENSELYPACEKDDECIMALIMPUTIL
+#ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
+#define INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -44,8 +44,15 @@ BSLS_IDENT("$Id$")
 ///-----
 // This section shows the intended use of this component.
 //
-///Example 1: 
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Get the DPD representation of a 10 digit binary number
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//..
+//  int value = 842;
+//  int asDeclet = bdldfp::DenselyPackedDecimalImpUtil::encodeDeclet(value);
+//  assert(
+//       bdldfp::DenselyPackedDecimalImpUtil::decodeDeclet(asDeclet) == value);
+//..
 
 
 
@@ -99,11 +106,11 @@ struct DenselyPackedDecimalImpUtil {
         // 'unsigned int' type values, as it is intended for use with raw bit
         // manipulation functions.
 
-    static StorageType32  makeDecimalRaw32(int mantissa, int exponent);
+    static StorageType32 makeDecimalRaw32(int mantissa, int exponent);
         // Return a 'StorageType32' object representing a decimal floating
         // point number consisting of the specified 'mantissa' and 'exponent',
-        // with the sign given by the specified 'mantissa'.  If 'mantissa' is
-        // 0, the result is 0 but the quanta of the result is unspecified.  The
+        // with the sign given by the 'mantissa'.  If 'mantissa' is 0, the
+        // result is 0 but the quanta of the result is unspecified.  The
         // behavior is undefined unless 'abs(mantissa) <= 9,999,999' and
         // '-101 <= exponent <= 90'.
 
@@ -115,9 +122,9 @@ struct DenselyPackedDecimalImpUtil {
                                                              int exponent);
     static StorageType64 makeDecimalRaw64(                   int mantissa,
                                                              int exponent);
-        // Create a 'StorageType64' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa'.  If 'mantissa' is 0, the
+        // Create a 'StorageType64' object representing a decimal floating
+        // point number consisting of the specified 'mantissa' and 'exponent',
+        // with the sign given by the 'mantissa'.  If 'mantissa' is 0, the
         // result is 0 but the quanta of the result is unspecified.  The
         // behavior is undefined unless
         // 'abs(mantissa) <= 9,999,999,999,999,999' and
@@ -133,11 +140,9 @@ struct DenselyPackedDecimalImpUtil {
                                                                int exponent);
         // Create a 'StorageType128' object representing a decimal floating
         // point number consisting of the specified 'mantissa' and 'exponent',
-        // with the sign given by the specified 'mantissa'.  If 'mantissa' is
-        // 0, the result is 0 but the quanta of the result is unspecified.  The
+        // with the sign given by the 'mantissa'.  If 'mantissa' is 0, the
+        // result is 0 but the quanta of the result is unspecified.  The
         // behavior is undefined unless '-6176 <= exponent <= 6111'.
-
-    
 };
 
 }  // close package namespace

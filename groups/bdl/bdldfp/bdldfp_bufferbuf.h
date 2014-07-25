@@ -10,18 +10,31 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide a stack-based IOstream buffer.
 //
 //@CLASSES:
-//    bdldfp::BufferBuf
+//    bdldfp::BufferBuf: A stack-based IOstream buffer
 //
 //@SEE_ALSO: bsl_iostream
 //
-//@DESCRIPTION:
+//@DESCRIPTION: The 'bdldfp::BufferBuf' component provides a stack-based
+// iostream buffer which can be used to provide formatting operations without
+// requiring explicit memory allocations.
 //
 ///Usage
 ///-----
 // This section shows the intended use of this component.
 //
-///Example 1: 
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Create a buffer for iostreams on the stack
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+//..
+//  bdldfp::BloombergLP BufferBuf<12> smallBuffer;
+//  bsl::ostringstream lightweightStream(smallBuffer);
+//  lightweightStream << "Hello world!";
+//..
+// Notice that outputting to the stream will not allocate any memory.
+// Finally, we print the stream contents.
+//..
+//  printf("%s", lightweightStream.str().c_str());
+//..
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>

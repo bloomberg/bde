@@ -121,13 +121,13 @@ static void aSsErT(int c, const char *s, int i)
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-//=========================================================================
+//=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #define ASSERT       BDLS_TESTUTIL_ASSERT
 #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
@@ -2357,11 +2357,11 @@ int main(int argc, char* argv[])
         // rounding.  That is wrong (see later why), but necessary to
         // remote-test the 'format' function and make sure it does not lose
         // digits or does some unwanted rounding.  When 'format' will be in the
-        // lower utility, it will be tested directly.
-        // Expecting to see all digits is wrong because that is not how the
-        // stream output should behave: it should print with the default
-        // precision as it would for binary floating point *or* with the
-        // implied precision of the cohort if that is larger.  AFAIU
+        // lower utility, it will be tested directly.  Expecting to see all
+        // digits is wrong because that is not how the stream output should
+        // behave: it should print with the default precision as it would for
+        // binary floating point *or* with the implied precision of the cohort
+        // if that is larger.  AFAIU
 
         if (veryVerbose) bsl::cout << "Test stream out" << bsl::endl;
         {
