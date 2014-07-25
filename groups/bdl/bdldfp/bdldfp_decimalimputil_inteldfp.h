@@ -35,7 +35,7 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_INTELDFP
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 
 #ifndef INCLUDED_BID_FUNCTIONS
 

@@ -355,7 +355,7 @@ int main(int argc, char* argv[])
         } DATA[] = {
             // L   NUMBER    WIDTH JUST    CAPITAL      EXPECTED
             // --- ------    ----- ----    -------      --------
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
 
             {  L_, DFP(4.25),  0,     'l', false,         "4.25" },
             {  L_, DFP(4.25),  1,     'l', false,         "4.25" },
@@ -424,7 +424,7 @@ int main(int argc, char* argv[])
             {  L_, DFP(-4.25), 9,     'r', false,    "    -4.25" },
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             {  L_, INF_P,      0,     'l', false,          "inf" },
             {  L_, INF_P,      1,     'l', false,          "inf" },
             {  L_, INF_P,      2,     'l', false,          "inf" },
@@ -511,7 +511,7 @@ int main(int argc, char* argv[])
 
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
             {  L_, NAN_Q,      0,     'l', false,         "nanq" },
             {  L_, NAN_Q,      1,     'l', false,         "nanq" },
             {  L_, NAN_Q,      2,     'l', false,         "nanq" },
@@ -2521,7 +2521,7 @@ int main(int argc, char* argv[])
         if (verbose) bsl::cout << bsl::endl
                                << "IMPLEMENTATION ASSUMPTIONS" << bsl::endl
                                << "==========================" << bsl::endl;
-        #if BDLDFP_DECIMALPLATFORM_DECNUMBER
+        #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
             LOOP_ASSERT(decContextTestEndian(1), 0 == decContextTestEndian(1));
         #endif
 

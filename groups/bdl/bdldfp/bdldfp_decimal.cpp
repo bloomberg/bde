@@ -42,7 +42,7 @@ BSLS_IDENT("$Id$")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #include <math.h>
 #include <stdio.h>
 #endif
@@ -86,7 +86,7 @@ NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
     return !this->d_ctype.is(bsl::ctype_base::space, character);
 }
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 
 #  ifndef  __STDC_WANT_DEC_FP__
 #    error __STDC_WANT_DEC_FP__ must be defined on the command line!
@@ -134,7 +134,7 @@ char *format(const DecimalImpUtil::ValueType128 *value, char *buffer, int n)
     return buffer;
 }
 
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
 
      // Implementation based on the decNumber library (no C or C++ support)
 
@@ -174,7 +174,7 @@ static decContext* getContext()
     return &context;
 }
 
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 
     // Implementation based upon the Intel DFP library (no C or C++ support)
 
@@ -233,7 +233,7 @@ char *format(const DecimalImpUtil::ValueType128 *value, char *buffer, int)
 
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
 
-#endif // elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#endif // elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
 
                          // Print helper function
 
@@ -693,7 +693,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
             *to = ctype.narrow(*begin, ' ');
         }
     }
-    // exponent (but not a stand-alone exponent
+    // exponent (but not a stand-alone exponent)
     if (hasDigit && begin != end && to != toEnd
         && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
         *to = 'e';
@@ -974,14 +974,14 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-95df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv, "1e-95", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, -95);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -992,14 +992,14 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 9.999999e96df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv, "9.999999e96", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("9.999999e96");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1010,14 +1010,14 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::epsilon()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-6df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv, "1e-6", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, -6);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1028,14 +1028,14 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::round_error()
     BSLS_NOTHROW_SPEC
 { // TBD TODO - determine the real value from the round mode!
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1.0df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, 0);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1046,14 +1046,14 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::infinity()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return HUGE_VAL_D32;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("INF");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1064,14 +1064,14 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::quiet_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_QNAN32;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("NaN");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1082,14 +1082,14 @@ BloombergLP::bdldfp::Decimal32
    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::signaling_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_SNAN32;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("sNaN");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1100,16 +1100,16 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::denorm_min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 0.000001E-95df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv,
                         "0.000001E-95",
                         BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("0.000001E-95");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1124,14 +1124,14 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-383dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv, "1e-383", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw64(1, -383);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1142,16 +1142,16 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 9.999999999999999e384dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv,
                         "9.999999999999999e384",
                         BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64(
                                                       "9.999999999999999e384");
 #else
@@ -1163,14 +1163,14 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::epsilon()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-15dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv, "1e-15", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("1e-15");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1181,14 +1181,14 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::round_error()
     BSLS_NOTHROW_SPEC
 {  // TBD TODO - determine the real value from the round mode!
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1.0dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw64(1, 0);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1199,14 +1199,14 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::infinity()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return HUGE_VAL_D64;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("INF");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1217,9 +1217,9 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::quiet_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_QNAN64;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv, "qNaN", BloombergLP::bdldfp::getContext());
@@ -1227,7 +1227,7 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv2 = rv;
     BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv2) != 0);
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("NaN");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1238,14 +1238,14 @@ BloombergLP::bdldfp::Decimal64
    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::signaling_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_SNAN64;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("sNaN");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1256,16 +1256,16 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::denorm_min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 0.000000000000001e-383dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv,
                         "0.000000000000001e-383",
                         BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64(
                                                      "0.000000000000001e-383");
 #else
@@ -1281,14 +1281,14 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-6143dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv, "1e-6143", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, -6143);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1299,16 +1299,16 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 9.999999999999999999999999999999999e6144dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv,
                       "9.999999999999999999999999999999999e6144",
                       BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128(
                                    "9.999999999999999999999999999999999e6144");
 #else
@@ -1320,14 +1320,14 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::epsilon()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-33dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv, "1e-33", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, -33);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1338,14 +1338,14 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::round_error()
     BSLS_NOTHROW_SPEC
 {  // TBD TODO - determine the real value from the round mode setting!
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1.0dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, 0);
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1356,14 +1356,14 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::infinity()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return HUGE_VAL_D128;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("INF");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1374,14 +1374,14 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::quiet_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_QNAN128;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("NaN");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1392,14 +1392,14 @@ BloombergLP::bdldfp::Decimal128
   std::numeric_limits<BloombergLP::bdldfp::Decimal128>::signaling_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_QNAN128;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("sNaN");
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
@@ -1410,16 +1410,16 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::denorm_min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 0.000000000000000000000000000000001e-6143dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv,
                       "0.000000000000000000000000000000001e-6143",
                       BloombergLP::bdldfp::getContext());
     return rv;
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128(
                                   "0.000000000000000000000000000000001e-6143");
 #else

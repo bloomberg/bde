@@ -35,16 +35,18 @@ BSLS_IDENT("$Id$")
 //
 ///Macros Defining the Underlying Implementation
 ///---------------------------------------------
-// Only one of these macros will evaluate to '1' on any supported platform:
+// Only one of these macros will be defined any supported platform:
 //
 // 'BDLDFP_DECIMALPLATFORM_C99_TR' - Full ISO/IEC TR 24732 support with
 //                                   library.
 //
 // 'BDLDFP_DECIMALPLATFORM_DECNUMBER' - Using bdl+decnumber as emulation
 //
+// 'BDLDFP_DECIMALPLATFORM_INTELDFP' - Using bdl+inteldfp as emulation
+//
 ///Macros Defining Hardware Support vs. Software Emulation
 ///-------------------------------------------------------
-// Only one of these macros will evaluate to '1' on any supported platform:
+// Only one of these macros will be defined on any supported platform:
 //
 // 'BDLDFP_DECIMALPLATFORM_HARDWARE' - Hardware support for at least one type.
 //
@@ -117,44 +119,31 @@ BSLS_IDENT("$Id$")
 #  define BDLDFP_DECIMALPLATFORM_C99_NO_FMAD64 1
 
 #  if defined(__IBM_DFP_SW_EMULATION__) && __IBM_DFP_SW_EMULATION__
-#    define BDLDFP_DECIMALPLATFORM_C99_TR   0
 #    define BDLDFP_DECIMALPLATFORM_SOFTWARE 1
-#    define BDLDFP_DECIMALPLATFORM_HARDWARE 0
 #  else
 #    define BDLDFP_DECIMALPLATFORM_C99_TR   1
-#    define BDLDFP_DECIMALPLATFORM_SOFTWARE 0
 #    define BDLDFP_DECIMALPLATFORM_HARDWARE 1
 #  endif
 #  define BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE 129
 #else
-#  define BDLDFP_DECIMALPLATFORM_C99_TR 0
 #  define BDLDFP_DECIMALPLATFORM_SOFTWARE 1
-#  define BDLDFP_DECIMALPLATFORM_HARDWARE 0
 #endif
 
 
-#if BDLDFP_DECIMALPLATFORM_SOFTWARE
-#  if 1 && defined(BSLS_PLATFORM_CMP_GNU) && (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))
-#    define BDLDFP_DECIMALPLATFORM_DECNUMBER 0
+#ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
+#  if defined(BSLS_PLATFORM_CMP_GNU) && (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))
 #    define BDLDFP_DECIMALPLATFORM_INTELDFP  1
 #  else
 #    define BDLDFP_DECIMALPLATFORM_DECNUMBER 1
-#    define BDLDFP_DECIMALPLATFORM_INTELDFP  0
 #  endif
-#else
-#  define BDLDFP_DECIMALPLATFORM_DECNUMBER 0
-#  define BDLDFP_DECIMALPLATFORM_INTELDFP  0
 #endif
 
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #  define BDLDFP_DECIMALPLATFORM_DPD    1
-#  define BDLDFP_DECIMALPLATFORM_BININT 0
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
 #  define BDLDFP_DECIMALPLATFORM_DPD    1
-#  define BDLDFP_DECIMALPLATFORM_BININT 0
 #  define BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE DECQUAD_String
-#elif BDLDFP_DECIMALPLATFORM_INTELDFP
-#  define BDLDFP_DECIMALPLATFORM_DPD    0
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 #  define BDLDFP_DECIMALPLATFORM_BININT 1
 // TODO: a rough hack -- fix this.
 #  define BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE 256
@@ -164,14 +153,76 @@ BSLS_IDENT("$Id$")
 
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
 #  define BDLDFP_DECIMALPLATFORM_BIG_ENDIAN    1
-#  define BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN 0
-#elif BSLS_PLATFORM_IS_LITTLE_ENDIAN
-#  define BDLDFP_DECIMALPLATFORM_BIG_ENDIAN    0
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
 #  define BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN 1
 #else
 #  error "Unsupported endianness"
 class UnsupportedEndinanness;
 UnsupportedEndinanness forceError[sizeof(UnsupportedEndinanness)];
+#endif
+
+namespace BloombergLP {
+namespace bdldfp {
+
+struct Platform_Assert;
+    // This 'struct' is declared but not defined.  It is used with the 'sizeof'
+    // operator to force a compile-time error on platforms that do not support
+    // '#error'.   For example:
+    //..
+    //  char die[sizeof(Platform_Assert)]; // if '#error' unsupported
+    //..
+
+}  // close package namespace
+}  // close enterprise namespaace
+
+#define BDLDFP_DECIMALPLATFORM_COMPILER_ERROR                                 \
+    char die[sizeof(::BloombergLP::bdldfp::Platform_Assert)]
+
+
+// Exactly one Implementation class (Hardware or software)
+
+#if BDLDFP_DECIMALPLATFORM_HARDWARE                                           \
+  + BDLDFP_DECIMALPLATFORM_SOFTWARE != 1
+    #error "Exactly one decimal platform implementation class must be set."
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
+#endif
+
+// Exactly one endian selection must be made
+
+#if BDLDFP_DECIMALPLATFORM_BIG_ENDIAN                                         \
+  + BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN != 1
+    #error "Exactly one decimal platform endian selection must be set."
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
+#endif
+
+// Exactly one format selection must be made
+
+#if BDLDFP_DECIMALPLATFORM_DPD                                                \
+  + BDLDFP_DECIMALPLATFORM_BININT != 1
+    #error "Exactly one decimal platform format selection must be set."
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
+#endif
+
+// Exactly one implementation library must be selected
+
+#if BDLDFP_DECIMALPLATFORM_INTELDFP                                           \
+  + BDLDFP_DECIMALPLATFORM_C99_TR                                             \
+  + BDLDFP_DECIMALPLATFORM_DECNUMBER != 1
+    #error "Exactly one decimal implementation library must be selected."
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
+#endif
+
+// Under Intel implementation, SOFTWARE and BININT must be set
+#if defined(BDLDFP_DECIMALPLATFORM_INTELDFP) && \
+   !defined(BDLDFP_DECIMALPLATFORM_SOFTWARE) && \
+   !defined(BDLDFP_DECIMALPLATFORM_BININT)
+    #error "INTELDFP mode requires SOFTWARE and BININT modes to be set."
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER) && \
+     !defined(BDLDFP_DECIMALPLATFORM_SOFTWARE) &&\
+     !defined(BDLDFP_DECIMALPLATFORM_DPD)
+    #error "DECNUMBER mode requires SOFTWARE and DPD modes to be set."
+    BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
 #endif
 
 #endif
