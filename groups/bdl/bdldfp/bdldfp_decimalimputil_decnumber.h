@@ -40,6 +40,7 @@ BSLS_IDENT("$Id$")
 #ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
 #include <bdldfp_denselypackeddecimalimputil.h>
 #endif
+
 #ifndef INCLUDED_DECSINGLE
 extern "C" {
 #include <decSingle.h>
@@ -257,7 +258,7 @@ struct DecimalImpUtil_decNumber {
     static ValueType128 parse128(const char *string);
 };
 
-#if BDLDFP_DECIMALPLATFORM_DECNUMBER
+#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
 typedef DecimalImpUtil_decNumber DecimalImpUtil_Platform;
 #endif
 
