@@ -92,7 +92,7 @@ class SpookyHashAlgorithm
         // Typedef indicating the type of value this algorithm returns
 
     // CONSTANTS
-    enum { k_SEED_LENGTH = 8 };     // Seed length in bytes
+    enum { k_SEED_LENGTH = 16 };     // Seed length in bytes
 
     // CREATORS
     SpookyHashAlgorithm();

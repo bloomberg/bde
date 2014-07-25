@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
                             " the expected value. (C-1,2)\n");
         {
-            ASSERT(SpookyHashAlgorithm::k_SEED_LENGTH == 8);
+            ASSERT(SpookyHashAlgorithm::k_SEED_LENGTH == 16);
         }
 
       } break;

@@ -19,6 +19,7 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  5. bslh_seededhash
 
   4. bslh_hash
 

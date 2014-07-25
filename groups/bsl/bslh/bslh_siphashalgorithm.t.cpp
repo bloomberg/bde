@@ -143,8 +143,8 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example: Creating and Using a Hash Cross Reference
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example: Creating and Using a Hash Table containing User Input
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of values that define 'operator==', and we want a
 // really fast way to find out if values are contained in the array. We can
 // create a 'HashTable' data structure that is capable of looking up values in
@@ -174,6 +174,7 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 // First, we define our 'HashTable' template class, with the two type
 // parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
 // produces the hash).
+//..
 
 template <class TYPE, class HASHER>
 class HashTable {
@@ -296,9 +297,10 @@ class HashTable {
     }
 };
 
+//..
 // Then, we define a 'Future' class, which holds a cstring 'name', char
 // 'callMonth', and short 'callYear'.
-
+//..
 class Future {
     // This class identifies a future contract.  It tracks the name, call month
     // and year of the contract it represents, and allows equality comparison.
@@ -356,10 +358,12 @@ bool operator!=(const Future& lhs, const Future& rhs)
     return !(lhs == rhs);
 }
 
+//..
 // Next, we need a hash functor for 'Future'.  We are going to use the
 // 'SipHashAlgorithm' becuase, it is a secure hash algorithm that will provide
 // a way to securely combine the salient attributes of 'Future' objects into
 // one reasonable hash that an malicious user will not be able to predict.
+//..
 
 struct HashFuture {
     // A hash functor that will apply the SipHashAlgorithm to objects of type
@@ -417,11 +421,11 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-
+//..
 // Then, we want to actually use our hash table on 'Future' objects.  We
 // create an array of 'Future's based on data that was originally from some
 // external source:
-
+//..
         Future futures[] = { Future("Swiss Franc", 'F', 2014),
                              Future("US Dollar", 'G', 2015),
                              Future("Canadian Dollar", 'Z', 2014),
@@ -430,21 +434,22 @@ int main(int argc, char *argv[])
                              Future("Eurodollar", 'Q', 2017)};
         enum { NUM_FUTURES =
                               sizeof futures / sizeof *futures };
-
+//..
 // Next, we create our HashTable 'hashTable' and verify that it constructed
 // properly.  We pass the functor that we defined above as the second argument:
-
+//..
         HashTable<Future, HashFuture> hashTable(futures, NUM_FUTURES);
         ASSERT(hashTable.isValid());
-
+//..
 // Now, we verify that each element in our array registers with count:
+//..
         for( int i = 0; i < 6; ++i) {
             ASSERT(1 == hashTable.count(futures[i]));
         }
-
+//..
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
-
+//..
         ASSERT(0 == hashTable.count(Future("French Franc", 'N', 2019)));
         ASSERT(0 == hashTable.count(Future("Swiss Franc", 'X', 2014)));
         ASSERT(0 == hashTable.count(Future("US Dollar", 'F', 2014)));
@@ -502,7 +507,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
                             " the expected value. (C-1,2)\n");
         {
-            ASSERT(SipHashAlgorithm::k_SEED_LENGTH == 8);
+            ASSERT(SipHashAlgorithm::k_SEED_LENGTH == 16);
         }
 
       } break;
@@ -656,7 +661,7 @@ int main(int argc, char *argv[])
                 const char              *VALUE = DATA[i].d_value;
                 const unsigned long long HASH  = DATA[i].d_hash;
 
-                if (veryVerbose) printf("Hashing: %s\n, Expecting: %llu",
+                if (veryVerbose) printf("Hashing: %s, Expecting: %llu\n",
                                         VALUE,
                                         HASH);
 

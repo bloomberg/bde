@@ -55,10 +55,9 @@ using namespace bslh;
 // [ 3] void hashAppend(HASHALG& hashAlg, float input);
 // [ 3] void hashAppend(HASHALG& hashAlg, double input);
 // [ 3] void hashAppend(HASHALG& hashAlg, long double input);
-// [ 3] void hashAppend(HASHALG& hashAlg, TYPE (&input)[N]);
+// [ 3] void hashAppend(HASHALG& hashAlg, const char (&input)[N]);
 // [ 3] void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
-// [ 3] void hashAppend(HASHALG& hashAlg, TYPE *input);
-// [ 3] void hashAppend(HASHALG& hashAlg, const TYPE *input);
+// [ 3] void hashAppend(HASHALG& hashAlg, const void *input);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
@@ -436,16 +435,17 @@ static bool binaryCompare(const char *first, const char *second, size_t size) {
     return equal;
 }
 
-template<class TYPE>
 class MockHashingAlgorithm {
     // Mock hashing algirithm that provides a way to examine data that is being
     // passed into hashing algorithms by 'hashAppend'.
     char   *d_data;
     size_t  d_length;
   public:
-    void operator()(TYPE *ptr, size_t length)
-        // Store the specified 'ptr' and 'length' for inspection later.
+
+    void operator()(const void *voidPtr, size_t length)
+        // Store the specified 'voidPtr' and 'length' for inspection later.
     {
+        const char *ptr = reinterpret_cast<const char *>(voidPtr);
         d_data = new char [length];
         memcpy(d_data, ptr, length);
         d_length = length;
@@ -455,9 +455,6 @@ class MockHashingAlgorithm {
         // Return the pointer stored by 'operator()'. Undefined if 'operator()'
         // has not been called.
     {
-        //printf("Pointer to: ");
-        //printStringAsBinary(reinterpret_cast<const char *>(p_ptr), sizeof(TYPE));
-        //printf(" requested\n");
         return d_data;
     }
 
@@ -469,7 +466,7 @@ class MockHashingAlgorithm {
     }
 };
 
-template<class TYPE>
+
 class MockAccumulatingHashingAlgorithm {
     // Mock hashing algirithm that provides a way to accumulate and then
     // examine data that is being passed into hashing algorithms by
@@ -477,11 +474,14 @@ class MockAccumulatingHashingAlgorithm {
     char   *d_data;
     size_t  d_length;
   public:
-    MockAccumulatingHashingAlgorithm() : d_length(0) { }
+    MockAccumulatingHashingAlgorithm() : d_length(0) {
+        d_data = new char[0];
+    }
 
-    void operator()(TYPE *ptr, size_t length)
+    void operator()(const void *voidPtr, size_t length)
         // Store the specified 'ptr' and 'length' for inspection later.
     {
+        const char *ptr = reinterpret_cast<const char *>(voidPtr);
         char *newPtr = new char [d_length + length];
         char *oldPtr = d_data;
         memcpy(newPtr, oldPtr, d_length);
@@ -528,7 +528,7 @@ class TestDriver {
     void testHashAppendPassThrough(int line)
         // Test 'hashAppend' on 'TYPE'
     {
-        MockHashingAlgorithm<TYPE> alg;
+        MockHashingAlgorithm alg;
         TYPE input;
         memcpy(&input, data, sizeof(TYPE));
         hashAppend(alg, input);
@@ -547,9 +547,9 @@ class TestDriver {
                               reinterpret_cast<const char *>(&negativeZero),
                               sizeof(TYPE)));
 
-        MockHashingAlgorithm<TYPE> zeroAlg;
+        MockHashingAlgorithm zeroAlg;
         hashAppend(zeroAlg, zero);
-        MockHashingAlgorithm<TYPE> negativeZeroAlg;
+        MockHashingAlgorithm negativeZeroAlg;
         hashAppend(negativeZeroAlg, negativeZero);
         ASSERT(binaryCompare(zeroAlg.getData(),
                              negativeZeroAlg.getData(),
@@ -924,10 +924,9 @@ int main(int argc, char *argv[])
         //   void hashAppend(HASHALG& hashAlg, float input);
         //   void hashAppend(HASHALG& hashAlg, double input);
         //   void hashAppend(HASHALG& hashAlg, long double st input);
-        //   void hashAppend(HASHALG& hashAlg, TYPE (&input)[N]);
+        //   void hashAppend(HASHALG& hashAlg, const char (&input)[N]);
         //   void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
-        //   void hashAppend(HASHALG& hashAlg, TYPE *input);
-        //   void hashAppend(HASHALG& hashAlg, const TYPE *input);
+        //   void hashAppend(HASHALG& hashAlg, const void *input);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING HASHAPPEND"
@@ -936,73 +935,81 @@ int main(int argc, char *argv[])
         if (verbose) printf("Call 'hashAppend' with each fundamental type to"
                             " ensure the function exists. (C-1)\n");
         {
-            MockHashingAlgorithm<bool> boolAlg;
+            MockHashingAlgorithm boolAlg;
             hashAppend(boolAlg, static_cast<bool>(1));
 
-            MockHashingAlgorithm<char> charAlg;
+            MockHashingAlgorithm charAlg;
             hashAppend(charAlg, static_cast<char>(1));
 
-            MockHashingAlgorithm<signed char> signedCharAlg;
+            MockHashingAlgorithm signedCharAlg;
             hashAppend(signedCharAlg, static_cast<signed char>(1));
 
-            MockHashingAlgorithm<wchar_t> wchar_tAlg;
+            MockHashingAlgorithm wchar_tAlg;
             hashAppend(wchar_tAlg, static_cast<wchar_t>(1));
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-            MockHashingAlgorithm<char16_t> char16_tAlg;
+            MockHashingAlgorithm char16_tAlg;
             hashAppend(char16_tAlg, static_cast<char16_t>(1));
 
-            MockHashingAlgorithm<char32_t> char32_tAlg;
+            MockHashingAlgorithm char32_tAlg;
             hashAppend(char32_tAlg, static_cast<char32_t>(1));
 #endif
 
-            MockHashingAlgorithm<short> shortAlg;
+            MockHashingAlgorithm shortAlg;
             hashAppend(shortAlg, static_cast<short>(1));
 
-            MockHashingAlgorithm<unsigned short> unsignedShortAlg;
+            MockHashingAlgorithm unsignedShortAlg;
             hashAppend(unsignedShortAlg, static_cast<unsigned short>(1));
 
-            MockHashingAlgorithm<int> intAlg;
+            MockHashingAlgorithm intAlg;
             hashAppend(intAlg, static_cast<int>(1));
 
-            MockHashingAlgorithm<unsigned int> unsignedIntAlg;
+            MockHashingAlgorithm unsignedIntAlg;
             hashAppend(unsignedIntAlg, static_cast<unsigned int>(1));
 
-            MockHashingAlgorithm<long> longAlg;
+            MockHashingAlgorithm longAlg;
             hashAppend(longAlg, static_cast<long>(1));
 
-            MockHashingAlgorithm<unsigned long> unsignedLongAlg;
+            MockHashingAlgorithm unsignedLongAlg;
             hashAppend(unsignedLongAlg, static_cast<unsigned long>(1));
 
-            MockHashingAlgorithm<long long> longLongAlg;
+            MockHashingAlgorithm longLongAlg;
             hashAppend(longLongAlg, static_cast<long long>(1));
 
-            MockHashingAlgorithm<unsigned long long> unsignedLongLongAlg;
+            MockHashingAlgorithm unsignedLongLongAlg;
             hashAppend(unsignedLongLongAlg,static_cast<unsigned long long>(1));
 
-            MockHashingAlgorithm<float> floatAlg;
+            MockHashingAlgorithm floatAlg;
             hashAppend(floatAlg, static_cast<float>(1));
 
-            MockHashingAlgorithm<double> doubleAlg;
+            MockHashingAlgorithm doubleAlg;
             hashAppend(doubleAlg, static_cast<double>(1));
 
-            MockHashingAlgorithm<long double> longDoubleAlg;
+            MockHashingAlgorithm longDoubleAlg;
             hashAppend(longDoubleAlg, static_cast<long double>(1));
 
             char carray[] = "asdf";
-            MockHashingAlgorithm<char> carrayAlg;
+            MockHashingAlgorithm carrayAlg;
             hashAppend(carrayAlg, carray);
 
             const char constCarray[] = "asdf";
-            MockHashingAlgorithm<const char> constCarrayAlg;
+            MockHashingAlgorithm constCarrayAlg;
             hashAppend(constCarrayAlg, constCarray);
 
+            int iarray[] = {1, 2, 3, 4};
+            MockHashingAlgorithm iarrayAlg;
+            hashAppend(iarrayAlg, iarray);
+
+            const int constIarray[] = {1, 2, 3, 4};
+            MockHashingAlgorithm constIarrayAlg;
+            hashAppend(constIarrayAlg, constIarray);
+
             char *ptr = "asdf";
-            MockHashingAlgorithm<char *> ptrAlg;
+            MockHashingAlgorithm ptrAlg;
             hashAppend(ptrAlg, ptr);
 
             const char *constPtr = "asdf";
-            MockHashingAlgorithm<const char *> constPtrAlg;
+            MockHashingAlgorithm constPtrAlg;
             hashAppend(constPtrAlg, constPtr);
         }
 
@@ -1027,23 +1034,23 @@ int main(int argc, char *argv[])
                             " permute the boolean input using '++',"
                             " assignment, and memcpy operations. (C-3)\n");
         {
-            MockHashingAlgorithm<bool> defaultAlg;
+            MockHashingAlgorithm defaultAlg;
             hashAppend(defaultAlg, true);
 
             bool incrementedBool = true;
             incrementedBool++;
-            MockHashingAlgorithm<bool> incrementedAlg;
+            MockHashingAlgorithm incrementedAlg;
             hashAppend(incrementedAlg, incrementedBool);
 
             unsigned short uShort = 219;
             bool assignedBool = uShort;
-            MockHashingAlgorithm<bool> assignedAlg;
+            MockHashingAlgorithm assignedAlg;
             hashAppend(assignedAlg, assignedBool);
 
             bool memcpyBool;
             char memcpyChar = 'Z';
             memcpy(&memcpyBool, &memcpyChar, 1);
-            MockHashingAlgorithm<bool> memcpyAlg;
+            MockHashingAlgorithm memcpyAlg;
             hashAppend(memcpyAlg, memcpyBool);
 
             // All various 'true's are the same
@@ -1059,7 +1066,7 @@ int main(int argc, char *argv[])
                                  memcpyAlg.getData(),
                                  sizeof(bool)));
 
-            MockHashingAlgorithm<bool> falseAlg;
+            MockHashingAlgorithm falseAlg;
             hashAppend(falseAlg, false);
 
             // 'true' and 'false' are different
@@ -1084,16 +1091,16 @@ int main(int argc, char *argv[])
 
             const char *ptr4Loc3Val2 = "qwer";
 
-            MockHashingAlgorithm<const char *> ptr1Loc1Val1Alg;
+            MockHashingAlgorithm ptr1Loc1Val1Alg;
             hashAppend(ptr1Loc1Val1Alg, ptr1Loc1Val1);
 
-            MockHashingAlgorithm<const char *> ptr2Loc1Val1Alg;
+            MockHashingAlgorithm ptr2Loc1Val1Alg;
             hashAppend(ptr2Loc1Val1Alg, ptr2Loc1Val1);
 
-            MockHashingAlgorithm<const char *> ptr3Loc2Val1Alg;
+            MockHashingAlgorithm ptr3Loc2Val1Alg;
             hashAppend(ptr3Loc2Val1Alg, ptr3Loc2Val1);
 
-            MockHashingAlgorithm<const char *> ptr4Loc3Val2Alg;
+            MockHashingAlgorithm ptr4Loc3Val2Alg;
             hashAppend(ptr4Loc3Val2Alg, ptr4Loc3Val2);
 
             // Correct length passed into the algorithm
@@ -1177,7 +1184,8 @@ int main(int argc, char *argv[])
             TestDriver<long double> longDoubleDriver;
             longDoubleDriver.testHashAppendPassThrough(L_);
             
-            MockAccumulatingHashingAlgorithm<char> carrayAlg;
+            // hashAppend char[]
+            MockHashingAlgorithm carrayAlg;
             char carray[] = "asdf";
             int strLen = strlen(carray) + 1;
             hashAppend(carrayAlg, carray);
@@ -1187,7 +1195,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(carrayAlg.getLength() == strLen);
 
-            MockAccumulatingHashingAlgorithm<char> constCarrayAlg;
+            MockHashingAlgorithm constCarrayAlg;
             const char constCarray[] = "asdf";
             strLen = strlen(constCarray) + 1;
             hashAppend(constCarrayAlg, constCarray);
@@ -1197,7 +1205,32 @@ int main(int argc, char *argv[])
             }
             ASSERT(constCarrayAlg.getLength() == strLen);
 
-            MockHashingAlgorithm<char *> ptrAlg;
+            // hashAppend TYPE[]
+            MockAccumulatingHashingAlgorithm iarrayAlg;
+            int iarray[] = {1, 2, 3, 4};
+            int iarrayLen = sizeof(iarray);
+            const char *charIarray = reinterpret_cast<const char *>(iarray);
+            hashAppend(iarrayAlg, iarray);
+            const char *iarrayOutput = iarrayAlg.getData();
+            for(size_t i = 0; i < iarrayLen; ++i) {
+                ASSERT(iarrayOutput[i] == charIarray[i]);
+            }
+            ASSERT(iarrayAlg.getLength() == iarrayLen);
+
+            MockAccumulatingHashingAlgorithm constIarrayAlg;
+            const int constIarray[] = {1, 2, 3, 4};
+            int constIarrayLen = sizeof(constIarray);
+            const char *constCharIarray =
+                                        reinterpret_cast<const char *>(iarray);
+            hashAppend(constIarrayAlg, constIarray);
+            const char *constIarrayOutput = constIarrayAlg.getData();
+            for(size_t i = 0; i < constIarrayLen; ++i) {
+                ASSERT(constIarrayOutput[i] == constCharIarray[i]);
+            }
+            ASSERT(constIarrayAlg.getLength() == constIarrayLen);
+
+            // hashAppend TYPE *
+            MockHashingAlgorithm ptrAlg;
             char *ptr = "asdf";
             char *ptrPtr = reinterpret_cast<char *>(&ptr);
             hashAppend(ptrAlg, ptr);
@@ -1207,7 +1240,7 @@ int main(int argc, char *argv[])
             }
             ASSERT(ptrAlg.getLength() == sizeof(char *));
 
-            MockHashingAlgorithm<const char *> constPtrAlg;
+            MockHashingAlgorithm constPtrAlg;
             const char *constPtr = "asdf";
             const char *constPtrPtr =
                                      reinterpret_cast<const char *>(&constPtr);
@@ -1353,7 +1386,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        if (verbose) printf("Instantiate 'bsl::SipHashAlgorithm'\n");
+        if (verbose) printf("Instantiate 'bslh::Hash'\n");
         {
             Obj hashAlg;
         }
