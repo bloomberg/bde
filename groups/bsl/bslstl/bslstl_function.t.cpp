@@ -478,7 +478,7 @@ class FunctorBase
 public:
     FunctorBase() { ++s_count; }
     FunctorBase(const FunctorBase&) { ++s_count; }
-    ~FunctorBase() { --s_count; ASSERT(0 <= s_count); }
+    ~FunctorBase() { --s_count; ASSERT(s_count >= 0); }
 
     static int count() { return s_count; }
 };
@@ -487,21 +487,27 @@ int FunctorBase::s_count = 0;
 
 class FunctorMonitor
 {
-    // An instance of this class can be used to check change in the
-    // number of functors before and after a specific operation and
+    // An instance of this class can be used to check for a change in the
+    // number of functor objects that have been created or destroyed during a
+    // specific operation.
 
-    int d_line;    // source line number where constructor was invoked
-    int d_snapshot;
+    int d_line;     // source line number where 'FunctorMonitor' was created
+    int d_snapshot; // Number of 'FunctorBase' objects in existance at the
+                    // time when this 'FunctorMonitor' was created.
 
 public:
-    FunctorMonitor(int line)
-      : d_line(line), d_snapshot(FunctorBase::count()) { }
+    FunctorMonitor(int line) { reset(line); }
     ~FunctorMonitor() {
         if (! isSameCount()) {
-            printf("FunctorBase::count(): %d\td_snapshot: %d\n",
+            printf("FunctorBase::count(): %d\td_snapshot : %d\n",
                    FunctorBase::count(), d_snapshot);
             aSsErT(1,"isSameCount() at destruction of FunctorMonitor", d_line);
         }
+    }
+
+    void reset(int line) {
+        d_line     = line;
+        d_snapshot = FunctorBase::count();
     }
 
     bool isSameCount() const { return FunctorBase::count() == d_snapshot; }
@@ -1438,7 +1444,9 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
 
     bslma::TestAllocator ta;
     globalAllocMonitor.reset();
+    FunctorMonitor funcMonitor(L_);
     EXCEPTION_TEST_BEGIN(&ta, &moveLimit) {
+        funcMonitor.reset(L_);
         ALLOC alloc(&ta);
         Obj f(bsl::allocator_arg, alloc, func);
         ASSERT(isNullPtr(func) == !f);
@@ -1457,6 +1465,7 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
         // Exception neutral: All memory has been released.
         ASSERT(0 == ta.numBlocksInUse());
         ASSERT(globalAllocMonitor.isInUseSame());
+        ASSERT(funcMonitor.isSameCount());
     } EXCEPTION_TEST_END;
     ASSERT(0 == ta.numBlocksInUse());
     ASSERT(globalAllocMonitor.isInUseSame());
@@ -1492,6 +1501,7 @@ void testCopyCtorWithAlloc(FUNC        func,
     ASSERT(copyTa.numBytesInUse()  == 0);
 
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
+    FunctorMonitor funcMonitor(L_);
 
     EXCEPTION_TEST_BEGIN(&copyTa, &copyLimit) {
         // We want to select one of two constructors at run time, so instead
@@ -1503,6 +1513,7 @@ void testCopyCtorWithAlloc(FUNC        func,
             bsls::AlignmentUtil::MaxAlignedType d_align;
         } copyBuf;
 
+        funcMonitor.reset(L_);
         if (copyAllocNone) {
             // copyAllocName is "none".  Choose normal copy constructor with
             // no allocator, but install 'copyTa' as the allocator indirectly
@@ -1548,6 +1559,7 @@ void testCopyCtorWithAlloc(FUNC        func,
         // Exception neutral: All memory has been released.
         ASSERT(0 == copyTa.numBlocksInUse());
         ASSERT(globalAllocMonitor.isInUseSame());
+        ASSERT(funcMonitor.isSameCount());
     } EXCEPTION_TEST_END;
     ASSERT(copyTa.numBlocksInUse() == 0);
     ASSERT(copyTa.numBytesInUse()  == 0);
@@ -3291,7 +3303,7 @@ int main(int argc, char *argv[])
         //:   types so that every category combination is represented.
         //: 9 For concern 10, performed the above steps within the exception
         //:   test framework and verify that, on exception, memory allocation
-        //:   does not change.
+        //:   does not change and no functor objects are leaked.
         //
         // Testing:
         //      function(const function& other);
@@ -3527,7 +3539,7 @@ int main(int argc, char *argv[])
         //:   of all varieties.
         //: 16 For concern 16, construct the 'function' within the exception
         //:   test framework.  On exception, verify that any allocated memory
-        //:   has been released.
+        //:   has been released and that no 'FUNC' objects have been leaked.
         //
         // Testing
         //      function(allocator_arg_t, const ALLOC& alloc, FUNC func);
