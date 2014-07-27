@@ -548,7 +548,10 @@ class Function_Rep {
                                      // operate on allocator instance (which
                                      // knows about the erased type 'ALLOC' of
                                      // the allocator object), or null if
-                                     // 'ALLOC' is 'bslma::Allocator*'
+                                     // 'ALLOC' is 'bslma::Allocator*'.
+                                     // INVARIANT: Must be NULL unless
+                                     // 'd_allocator_p' has been set to a
+                                     // fully-constructed allocator.
 
 public:
     // CREATORS
@@ -1592,7 +1595,6 @@ template <class RET, class... ARGS>
 template<class ALLOC>
 bsl::function<RET(ARGS...)>::function(allocator_arg_t, const ALLOC& alloc)
 {
-    d_funcManager_p = NULL;
     d_invoker_p     = NULL;
 
     typedef Function_AllocTraits<ALLOC> Traits;
@@ -1689,6 +1691,17 @@ bsl::function<RET(ARGS...)>::~function()
 {
     // Assert class invariants
     BSLS_ASSERT(d_invoker_p || ! d_funcManager_p);
+    BSLS_ASSERT(d_allocator_p);
+
+    // Destroying the functor is not done in the base class because the
+    // invariant of the functor being fully constructed is not maintained in
+    // the base class.  Moving this destruction to the base class would cause
+    // exception handling to break if an exception is thrown when constructing
+    // the wrapped functor.
+    if (d_funcManager_p) {
+        // e_DESTROY returns the size of the object that was destroyed.
+        d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
+    }
 }
 
 // MANIPULATORS

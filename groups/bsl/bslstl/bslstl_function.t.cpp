@@ -470,6 +470,43 @@ int simpleFunc2(const IntWrapper& iw, int v)
     return iw.value() - v;
 }
 
+class FunctorBase
+{
+    // Keep count of the number of functors in existance
+    static int s_count;
+
+public:
+    FunctorBase() { ++s_count; }
+    FunctorBase(const FunctorBase&) { ++s_count; }
+    ~FunctorBase() { --s_count; ASSERT(0 <= s_count); }
+
+    static int count() { return s_count; }
+};
+
+int FunctorBase::s_count = 0;
+
+class FunctorMonitor
+{
+    // An instance of this class can be used to check change in the
+    // number of functors before and after a specific operation and
+
+    int d_line;    // source line number where constructor was invoked
+    int d_snapshot;
+
+public:
+    FunctorMonitor(int line)
+      : d_line(line), d_snapshot(FunctorBase::count()) { }
+    ~FunctorMonitor() {
+        if (! isSameCount()) {
+            printf("FunctorBase::count(): %d\td_snapshot: %d\n",
+                   FunctorBase::count(), d_snapshot);
+            aSsErT(1,"isSameCount() at destruction of FunctorMonitor", d_line);
+        }
+    }
+
+    bool isSameCount() const { return FunctorBase::count() == d_snapshot; }
+};
+
 // Limits the number of copies before a copy operation throws.
 ExceptionLimit copyLimit("copy limit");
 
@@ -477,11 +514,11 @@ ExceptionLimit copyLimit("copy limit");
 ExceptionLimit moveLimit("move limit");
 
 // Simple functor with no state
-struct EmptyFunctor
+struct EmptyFunctor : FunctorBase
 {
     // Stateless functor
 
-    EmptyFunctor(const EmptyFunctor&)
+    EmptyFunctor(const EmptyFunctor&) : FunctorBase()
         { --copyLimit; std::memset(this, 0xdd, sizeof(*this)); }
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
@@ -537,7 +574,7 @@ struct EmptyFunctor
         { return false; }
 };
 
-class SmallFunctor
+class SmallFunctor : public FunctorBase
 {
     // Small stateful functor.
 
@@ -552,7 +589,8 @@ public:
     enum { IS_STATELESS = false };
 
     explicit SmallFunctor(int v) : d_value(v) { }
-    SmallFunctor(const SmallFunctor& other) : d_value(other.d_value)
+    SmallFunctor(const SmallFunctor& other)
+      : FunctorBase(), d_value(other.d_value)
         { --copyLimit; }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -692,7 +730,7 @@ public:
         { return a.value() != b.value(); }
 };
 
-class ThrowingSmallFunctor
+class ThrowingSmallFunctor : public FunctorBase
 {
     // A small functor that is not bitwise movable, and whose move constructor
     // may throw.
@@ -711,7 +749,7 @@ public:
 
     // Throwing move and copy constructor
     ThrowingSmallFunctor(const ThrowingSmallFunctor& other)
-        : d_encodedValue(other.value() ^ encodeSelf())
+      : FunctorBase(), d_encodedValue(other.value() ^ encodeSelf())
         { --copyLimit; --moveLimit; }
 
     ~ThrowingSmallFunctor() {
@@ -1455,7 +1493,7 @@ void testCopyCtorWithAlloc(FUNC        func,
 
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
 
-    {
+    EXCEPTION_TEST_BEGIN(&copyTa, &copyLimit) {
         // We want to select one of two constructors at run time, so instead
         // of declaring a 'function' object directly, we create a buffer that
         // can hold a 'function' object and construct the 'function' later,
@@ -1478,7 +1516,7 @@ void testCopyCtorWithAlloc(FUNC        func,
                                        original);
         }
 
-        // 'copyBuf' now hold the copy-constructed 'function'.
+        // 'copyBuf' now holds the copy-constructed 'function'.
         Obj& copy = *reinterpret_cast<Obj*>(copyBuf.d_bytes);
         
         ASSERT(copy.target_type() == original.target_type());
@@ -1506,6 +1544,11 @@ void testCopyCtorWithAlloc(FUNC        func,
 
         copy.~Obj();
     }
+    EXCEPTION_TEST_CATCH {
+        // Exception neutral: All memory has been released.
+        ASSERT(0 == copyTa.numBlocksInUse());
+        ASSERT(globalAllocMonitor.isInUseSame());
+    } EXCEPTION_TEST_END;
     ASSERT(copyTa.numBlocksInUse() == 0);
     ASSERT(copyTa.numBytesInUse()  == 0);
     ASSERT(globalAllocMonitor.isInUseSame());
@@ -2272,6 +2315,10 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     bslma::Default::setDefaultAllocator(&globalTestAllocator);
+
+    // Top-level monitor to make sure that every functor constructor is
+    // matched with a destructor.
+    FunctorMonitor topFuncMonitor(L_);
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

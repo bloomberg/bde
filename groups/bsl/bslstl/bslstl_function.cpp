@@ -257,16 +257,20 @@ void bsl::Function_Rep::destructiveMove(Function_Rep *to,
 
 bsl::Function_Rep::~Function_Rep()
 {
-    // Integral function size cast to pointer type.
-    PtrOrSize_t sooFuncSize;
-
-    if (d_funcManager_p) {
-        // e_DESTROY returns the size of the object that was destroyed.
-        sooFuncSize = d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
-    }
+    // Wrapped function must already have been destroyed.  It cannot be
+    // destroyed in this destructor because a 'Function_Rep' may exist with a
+    // wrapped function in either a constructed or uninitialized state.  Only
+    // the derived class knows whether the wrapped function needs to be
+    // destroyed, especially during exception unwinding.
 
     if (d_allocManager_p) {
         BSLS_ASSERT(d_allocator_p);
+        PtrOrSize_t sooFuncSize;  // Defaults to zero
+
+        if (d_funcManager_p) {
+            sooFuncSize = d_funcManager_p(e_GET_SIZE, this, PtrOrSize_t());
+        }
+
         d_allocManager_p(e_DESTROY, this, sooFuncSize);
     }
 }
