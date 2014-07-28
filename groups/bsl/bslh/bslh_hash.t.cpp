@@ -277,7 +277,7 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
 // 'bslh::Hash'.
 //
 // Our hash table takes two type parameters: 'TYPE' (the type being referenced)
-// and 'HASHER' (a functor that produces the hash). We will defualt 'HASHER' to
+// and 'HASHER' (a functor that produces the hash). We will default 'HASHER' to
 // using 'bslh::Hash<>'.
 
 template <class TYPE, class HASHER = bslh::Hash<> >
@@ -337,7 +337,7 @@ class HashTable {
     HashTable(const TYPE       *valuesArray,
               size_t            numValues,
               bslma::Allocator *allocator = 0)
-        // Create a hash table refering to the specified 'valuesArray'
+        // Create a hash table referring to the specified 'valuesArray'
         // containing 'numValues'. Optionally specify 'allocator' or the
         // default allocator will be used`.
     : d_values(valuesArray)
@@ -406,7 +406,9 @@ class HashTable {
 
 typedef bslh::Hash<> Obj;
 
-static void printCharAsBinary(const char c) {
+static void printCharAsBinary(const char c)
+    // Print the binary representation of the specified 'c' to 'printf'.
+{
     for(int i = 128; i > 0; i /= 2) {
         if(c & i) {
             printf("1");
@@ -416,7 +418,10 @@ static void printCharAsBinary(const char c) {
     }
 }
 
-static bool binaryCompare(const char *first, const char *second, size_t size) {
+static bool binaryCompare(const char *first, const char *second, size_t size)
+    // Return the result of a binary comparison betweed the specified 'size'
+    // bytes of 'first' and 'second'.
+{
     bool equal = true;
     for(size_t i = 0; i < size; ++i) {
         equal = equal && (first[i] == second[i]);
@@ -425,7 +430,7 @@ static bool binaryCompare(const char *first, const char *second, size_t size) {
 }
 
 class MockHashingAlgorithm {
-    // Mock hashing algirithm that provides a way to examine data that is being
+    // Mock hashing algorithm that provides a way to examine data that is being
     // passed into hashing algorithms by 'hashAppend'.
     char   *d_data;
     size_t  d_length;
@@ -457,18 +462,20 @@ class MockHashingAlgorithm {
 
 
 class MockAccumulatingHashingAlgorithm {
-    // Mock hashing algirithm that provides a way to accumulate and then
+    // Mock hashing algorithm that provides a way to accumulate and then
     // examine data that is being passed into hashing algorithms by
     // 'hashAppend'.
     char   *d_data;
     size_t  d_length;
   public:
-    MockAccumulatingHashingAlgorithm() : d_length(0) {
+    MockAccumulatingHashingAlgorithm() : d_length(0)
+        // Create a new 'MockAccumulatingHashingAlgorithm'
+    {
         d_data = new char[0];
     }
 
     void operator()(const void *voidPtr, size_t length)
-        // Store the specified 'ptr' and 'length' for inspection later.
+        // Store the specified 'voidPtr' and 'length' for inspection later.
     {
         const char *ptr = reinterpret_cast<const char *>(voidPtr);
         char *newPtr = new char [d_length + length];
@@ -486,9 +493,6 @@ class MockAccumulatingHashingAlgorithm {
         // Return the pointer stored by 'operator()'. Undefined if 'operator()'
         // has not been called.
     {
-        //printf("Pointer to: ");
-        //printStringAsBinary(reinterpret_cast<const char *>(p_ptr), sizeof(TYPE));
-        //printf(" requested\n");
         return d_data;
     }
 
@@ -510,23 +514,8 @@ class TestDriver {
     {
         srand(37);
         for(int i = 0; i < 10; ++i) {
-            data[i] = (char)rand();
-        } 
-    }
-
-    void testHashAppendPassThrough(int line)
-        // Test 'hashAppend' on 'TYPE'
-    {
-        MockHashingAlgorithm alg;
-        TYPE input;
-        memcpy(&input, data, sizeof(TYPE));
-        hashAppend(alg, input);
-
-        const char *output = alg.getData();
-        for(size_t i = 0; i < sizeof(TYPE); ++i) {
-            LOOP_ASSERT(line, output[i] == data[i]);
+            data[i] = static_cast<char>(rand());
         }
-        ASSERT(alg.getLength() == sizeof(TYPE));
     }
 
     void testHashAppendNegativeZero(){
@@ -543,6 +532,22 @@ class TestDriver {
         ASSERT(binaryCompare(zeroAlg.getData(),
                              negativeZeroAlg.getData(),
                              sizeof(TYPE)));
+    }
+
+    void testHashAppendPassThrough(int line)
+        // Test 'hashAppend' on 'TYPE', using the specified 'line' in a
+        // 'LOOP_ASSERT'.
+    {
+        MockHashingAlgorithm alg;
+        TYPE input;
+        memcpy(&input, data, sizeof(TYPE));
+        hashAppend(alg, input);
+
+        const char *output = alg.getData();
+        for(size_t i = 0; i < sizeof(TYPE); ++i) {
+            LOOP_ASSERT(line, output[i] == data[i]);
+        }
+        ASSERT(alg.getLength() == sizeof(TYPE));
     }
 };
 
@@ -570,7 +575,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   The hashing algorithm can be applied to user defined types which
-        //   in turn can be used in more powerfull components such as hash
+        //   in turn can be used in more powerful components such as hash
         //   tables.
         //
         // Concerns:
@@ -603,7 +608,7 @@ int main(int argc, char *argv[])
 
 //..
 // Then, we create our hash table and verify that it constructed properly.  We
-// pass we use the defualt functor which will pick up the 'hashAppend' function
+// pass we use the default functor which will pick up the 'hashAppend' function
 // we created:
 //..
 
@@ -638,7 +643,7 @@ int main(int argc, char *argv[])
         //:   member.
         //
         // Plan:
-        //: 1 Define two non-empty classs with no padding, one of which is
+        //: 1 Define two non-empty classes with no padding, one of which is
         //:   derived from 'hash'. Assert that both classes have the same size.
         //:   (C-1).
         //:
@@ -656,7 +661,7 @@ int main(int argc, char *argv[])
 
         typedef DefaultHashAlgorithm TYPE;
 
-        if (verbose) printf("Define two non-empty classs with no padding, one"
+        if (verbose) printf("Define two non-empty classes with no padding, one"
                             " of which is derived from 'hash'. Assert that"
                             " both classes have the same size. (C-1).\n");
         {
@@ -729,14 +734,14 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING STANDARD TYPEDEFS
-        //   Verify that the struct hash the proper typedefs.
+        //   Verify that the struct hashes the proper 'typedef's.
         //
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
         //:   'size_t'.
         //
         // Plan:
-        //: 1 ASSERT the typedef accessibly aliases the correct type using
+        //: 1 ASSERT the 'typedef' accessibly aliases the correct type using
         //:   'bslmf::IsSame'. (C-1)
         //
         // Testing:
@@ -762,7 +767,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The function call operator will return the expected value
-        //:   according to the cannonical implementation of the algorithm being
+        //:   according to the canonical implementation of the algorithm being
         //:   used.
         //:
         //: 2 The function call operator can be invoked on constant objects.
@@ -848,7 +853,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING HASHAPPEND
         //   Verify that the 'hashAppend' free functions have been implemented
-        //   for all of the fundamental types and dont truncate or pass extra
+        //   for all of the fundamental types and don't truncate or pass extra
         //   data into the algorithms.
         //
         // Concerns:
@@ -859,7 +864,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 'bool' values only result in one of two different binary states
         //:   being passed into the algorithms (doesn't need to be 00000000 and
-        //:   00000001, but it does need to be consistant).
+        //:   00000001, but it does need to be consistent).
         //:
         //: 4 Pointers are hashed as pointers, NOT the data they point to.
         //:
@@ -906,7 +911,7 @@ int main(int argc, char *argv[])
         //   void hashAppend(HASHALG& hashAlg, unsigned long long input);
         //   void hashAppend(HASHALG& hashAlg, float input);
         //   void hashAppend(HASHALG& hashAlg, double input);
-        //   void hashAppend(HASHALG& hashAlg, long double st input);
+        //   void hashAppend(HASHALG& hashAlg, long double input);
         //   void hashAppend(HASHALG& hashAlg, const char (&input)[N]);
         //   void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
         //   void hashAppend(HASHALG& hashAlg, const void *input);
@@ -987,11 +992,13 @@ int main(int argc, char *argv[])
             MockHashingAlgorithm constIarrayAlg;
             hashAppend(constIarrayAlg, constIarray);
 
-            char *ptr = "asdf";
+            char literal[] = "asdf";
+            char *ptr = literal;
             MockHashingAlgorithm ptrAlg;
             hashAppend(ptrAlg, ptr);
 
-            const char *constPtr = "asdf";
+            char constLiteral[] = "asdf";
+            const char *constPtr = constLiteral;
             MockHashingAlgorithm constPtrAlg;
             hashAppend(constPtrAlg, constPtr);
         }
@@ -1068,9 +1075,9 @@ int main(int argc, char *argv[])
 
             // 'temp' is required to prevent 'ptr1Loc1Val1' and 'ptr3Loc2Val1'
             // from being optimized to point to the same location.
-            char *temp = "zxcv";
+            char temp[] = "zxcv";
             const char *ptr3Loc2Val1 = temp;
-            temp = "asdf";
+            temp[0] = 'a';
 
             const char *ptr4Loc3Val2 = "qwer";
 
@@ -1114,8 +1121,8 @@ int main(int argc, char *argv[])
                             " into the hashing algorithm matches the known"
                             " input bitsequence. (C-5)\n");
         {
-            // 'bool' has already been tested and we explicitly DONT want it to
-            // preserve it's bitwise representation.
+            // 'bool' has already been tested and we explicitly DO NOT want it
+            // to preserve it's bitwise representation.
 
             TestDriver<char> charDriver;
             charDriver.testHashAppendPassThrough(L_);
@@ -1166,7 +1173,7 @@ int main(int argc, char *argv[])
 
             TestDriver<long double> longDoubleDriver;
             longDoubleDriver.testHashAppendPassThrough(L_);
-            
+
             // hashAppend char[]
             MockHashingAlgorithm carrayAlg;
             char carray[] = "asdf";
@@ -1174,6 +1181,8 @@ int main(int argc, char *argv[])
             hashAppend(carrayAlg, carray);
             const char *carrayOutput = carrayAlg.getData();
             for(size_t i = 0; i < strLen; ++i) {
+                if(veryVerbose) printf("Asserting %c == %c", carrayOutput[i],
+                                                                    carray[i]);
                 ASSERT(carrayOutput[i] == carray[i]);
             }
             ASSERT(carrayAlg.getLength() == strLen);
@@ -1184,6 +1193,9 @@ int main(int argc, char *argv[])
             hashAppend(constCarrayAlg, constCarray);
             const char *constCarrayOutput = constCarrayAlg.getData();
             for(size_t i = 0; i < strLen; ++i) {
+                if(veryVerbose) printf("Asserting %c == %c",
+                                       constCarrayOutput[i],
+                                       constCarray[i]);
                 ASSERT(constCarrayOutput[i] == constCarray[i]);
             }
             ASSERT(constCarrayAlg.getLength() == strLen);
@@ -1196,6 +1208,8 @@ int main(int argc, char *argv[])
             hashAppend(iarrayAlg, iarray);
             const char *iarrayOutput = iarrayAlg.getData();
             for(size_t i = 0; i < iarrayLen; ++i) {
+                if(veryVerbose) printf("Asserting %c == %c", iarrayOutput[i],
+                                                                charIarray[i]);
                 ASSERT(iarrayOutput[i] == charIarray[i]);
             }
             ASSERT(iarrayAlg.getLength() == iarrayLen);
@@ -1208,17 +1222,23 @@ int main(int argc, char *argv[])
             hashAppend(constIarrayAlg, constIarray);
             const char *constIarrayOutput = constIarrayAlg.getData();
             for(size_t i = 0; i < constIarrayLen; ++i) {
+                if(veryVerbose) printf("Asserting %c == %c",
+                                       constIarrayOutput[i],
+                                       constCharIarray[i]);
                 ASSERT(constIarrayOutput[i] == constCharIarray[i]);
             }
             ASSERT(constIarrayAlg.getLength() == constIarrayLen);
 
             // hashAppend TYPE *
             MockHashingAlgorithm ptrAlg;
-            char *ptr = "asdf";
+            char literal[] = "asdf";
+            char *ptr = literal;
             char *ptrPtr = reinterpret_cast<char *>(&ptr);
             hashAppend(ptrAlg, ptr);
             const char *ptrOutput = ptrAlg.getData();
             for(size_t i = 0; i < sizeof(char *); ++i) {
+                if(veryVerbose) printf("Asserting %c == %c", ptrOutput[i],
+                                                                    ptrPtr[i]);
                 ASSERT(ptrOutput[i] == ptrPtr[i]);
             }
             ASSERT(ptrAlg.getLength() == sizeof(char *));
@@ -1230,6 +1250,8 @@ int main(int argc, char *argv[])
             hashAppend(constPtrAlg, constPtr);
             const char *constPtrOutput = constPtrAlg.getData();
             for(size_t i = 0; i < sizeof(const char *); ++i) {
+                if(veryVerbose) printf("Asserting %c == %c", constPtrOutput[i],
+                                                               constPtrPtr[i]);
                 ASSERT(constPtrOutput[i] == constPtrPtr[i]);
             }
             ASSERT(constPtrAlg.getLength() == sizeof(const char *));
@@ -1266,7 +1288,7 @@ int main(int argc, char *argv[])
         //:   execution of this test case.  Memory from the global allocator is
         //:   tested as a global concern. (C-7)
         //:
-        //: 2 Create a defualt constructed 'Hash'. (C-1)
+        //: 2 Create a default constructed 'Hash'. (C-1)
         //:
         //: 3 Use the copy-initialization syntax to create a new instance of
         //:   'Hash' from an existing instance. (C-2,3)
@@ -1304,7 +1326,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
 
-        if (verbose) printf("Create a defualt constructed 'Hash'. (C-1)\n");
+        if (verbose) printf("Create a default constructed 'Hash'. (C-1)\n");
         {
             Obj alg1;
         }

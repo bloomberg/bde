@@ -119,7 +119,7 @@ void aSsErT(bool b, const char *s, int i)
 // really fast way to find out if values are contained in the array. We can
 // create a 'HashTable' data structure that is capable of looking up values in
 // O(1) time. The hash table implemented here can have numerous simplifications
-// becuse we know the size of the array and never have to resize the table.
+// because we know the size of the array and never have to resize the table.
 //
 // Further suppose that we will be storing futures in this table. Since futures
 // have standardized names, we don't have to worry about any malicious values
@@ -201,7 +201,7 @@ class HashTable {
     HashTable(const TYPE       *valuesArray,
               size_t            numValues,
               bslma::Allocator *allocator = 0)
-        // Create a hash table refering to the specified 'valuesArray'
+        // Create a hash table referring to the specified 'valuesArray'
         // containing 'numValues'. Optionally specify 'allocator' or the
         // default allocator will be used`.
     : d_values(valuesArray)
@@ -264,7 +264,7 @@ class HashTable {
     }
 };
 
-// Then, we define a 'Future' class, which holds a cstring 'name', char
+// Then, we define a 'Future' class, which holds a c-string 'name', char
 // 'callMonth', and short 'callYear'.
 
 class Future {
@@ -325,10 +325,10 @@ bool operator!=(const Future& lhs, const Future& rhs)
 }
 
 // Next, we need a hash functor for 'Future'.  We are going to use the
-// 'SpookyHashAlgorithm' becuase it is a fast, general purpose hashing algorith
-// that will provide an easy way to combie the salient attributes of 'Future'
-// objects into one reasonable hash that will distribute the items evenly
-// throughout the hash table.
+// 'SpookyHashAlgorithm' because it is a fast, general purpose hashing
+// algorithm that will provide an easy way to combine the salient attributes of
+// 'Future' objects into one reasonable hash that will distribute the items
+// evenly throughout the hash table.
 
 struct HashFuture {
     // A hash functor that will apply the SpookyHashAlgorithm to objects of
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   The hashing algorithm can be used to create more powerfull
+        //   The hashing algorithm can be used to create more powerful
         //   components such as functors that can be used to power hash tables.
         //
         // Concerns:
@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
         //:   'bsls::Types::Uint64'.
         //
         // Plan:
-        //: 1 ASSERT the typedef is accessable and is the correct type using
+        //: 1 ASSERT the typedef is accessible and is the correct type using
         //:   'bslmf::IsSame'. (C-1)
         //
         // Testing:
@@ -499,7 +499,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STANDARD TYPEDEF"
                             "\n========================\n");
 
-        if (verbose) printf("ASSERT the typedef is accessable and is the"
+        if (verbose) printf("ASSERT the typedef is accessible and is the"
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
         {
             ASSERT((bslmf::IsSame<bsls::Types::Uint64,
@@ -507,14 +507,14 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {                                                                 // TODO Big vs little endian
+      case 3: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION CALL OPERATOR AND COMPUTEHASH
+        // TESTING FUNCTION CALL OPERATOR AND 'COMPUTEHASH'
         //   Verify that the class offers the ability to invoke it via
         //   'operator()' with some bytes and a length. Verify that calling
         //   'operator()' will permute the algorithm's internal state as
         //   specified by SpookyHash. Verify that 'computeHash' returns the
-        //   final value specified by the cannonical spooky hash
+        //   final value specified by the canonical spooky hash
         //   implementation.
         //
         // Concerns:
@@ -550,8 +550,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                         "\nTESTING FUNCTION CALL OPERATOR AND COMPUTEHASH"
-                         "\n==============================================\n");
+                       "\nTESTING FUNCTION CALL OPERATOR AND 'COMPUTEHASH'"
+                       "\n================================================\n");
 
         static const struct {
             int                  d_line;
@@ -700,7 +700,7 @@ int main(int argc, char *argv[])
         //:   execution of this test case.  Memory from the global allocator is
         //:   tested as a global concern. (C-8)
         //:
-        //: 2 Instantiate the algorithm using a defualt constructor. (C-1)
+        //: 2 Instantiate the algorithm using a default constructor. (C-1)
         //:
         //: 3 Call the parameterized constructor with a seed. (C-2)
         //:
@@ -742,7 +742,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
 
-        if (verbose) printf("Instantiate the algorithm using a defualt"
+        if (verbose) printf("Instantiate the algorithm using a default"
                             " constructor. (C-1)\n");
         {
             Obj alg1 = Obj();
@@ -810,9 +810,9 @@ int main(int argc, char *argv[])
         //:
         //: 3 Verify the same hashes are produced for the same c-strings. (C-1)
         //:
-        //: 4 Verify different hashes are produced for different ints. (C-1)
+        //: 4 Verify different hashes are produced for different 'int's. (C-1)
         //:
-        //: 5 Verify the same hashes are produced for the same ints. (C-1)
+        //: 5 Verify the same hashes are produced for the same 'int's. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -851,7 +851,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Verify different hashes are produced for"
-                            " different ints.\n");
+                            " different 'int's.\n");
         {
             SpookyHashAlgorithm hashAlg1;
             SpookyHashAlgorithm hashAlg2;
@@ -863,7 +863,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Verify the same hashes are produced for the same"
-                            " ints.\n");
+                            " 'int's.\n");
         {
             SpookyHashAlgorithm hashAlg1;
             SpookyHashAlgorithm hashAlg2;

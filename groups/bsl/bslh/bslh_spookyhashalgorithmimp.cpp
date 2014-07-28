@@ -7,14 +7,14 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Changes
 ///-------
 // The third party code begins with the "Spooky Hash" header below, and
-// continues untill the BloombergLP copyright notice. Changes made to the
+// continues until the BloombergLP copyright notice. Changes made to the
 // original code include:
 //
 //: 1 Adding BloombergLP and bslh namespaces
 //:
 //: 2 Renaming 'SpookyHash' to 'SpookyHashAlgorithmImp'
 //:
-//: 3 Whitespace changes for formatting and to match BDE conventions
+//: 3 White space changes for formatting and to match BDE conventions
 //:
 //: 4 Changed C-Style casts to static casts to match BDE conventions
 //
@@ -22,7 +22,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///---------------
 //
 // Spooky Hash
-// A 128-bit noncryptographic hash, for checksums and table lookup
+// A 128-bit non cryptographic hash, for checksums and table lookup
 //
 // By Bob Jenkins.  Public domain.
 //   Oct 31 2010: published framework, disclaimer ShortHash isn't right

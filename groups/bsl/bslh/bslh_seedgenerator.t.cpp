@@ -168,14 +168,14 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example: Seeding hashing algotithms requiring different seed sizes
+///Example: Seeding hashing algorithms requiring different seed sizes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a number of hashing algorithms that all require different
 // length seeds. Some require 32 bits, some require 64 bits, some even require
 // 1024 bits. We want to generate all these seeds in the same way, but we do
 // not want to keep manually generating seeds of different sizes for these
 // algorithms. Moreover, we want to be able to use all these algorithms through
-// a general purpose functor. To accomplish this, we give all our algorithsm
+// a general purpose functor. To accomplish this, we give all our algorithm
 // the same interface and supply a seed generator, which can create any size
 // seed that the algorithms require.
 //
@@ -277,7 +277,7 @@ template <class HASH_ALGORITHM>
 class SeededHash
 {
     // Provides an interface similar to 'std::hash', which will used the
-    // paramaterized 'SEED_GENERATOR' and 'HASH_ALGORITHM' to compute hashes.
+    // parameterized 'SEED_GENERATOR' and 'HASH_ALGORITHM' to compute hashes.
   public:
     typedef typename HASH_ALGORITHM::result_type result_type;
         // Type of the hash that will be returned.
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING GENERATESEED
+        // TESTING 'GENERATESEED'
         //   Ensure that the 'generateSeed' method is publicly callable,
         //   returns the expected values, and has no unexpected side effects
         //   such as allocating memory.
@@ -426,10 +426,10 @@ int main(int argc, char *argv[])
         //: 2 Create a 'SeedGenerator' with a predictable RNG and test that the
         //:   values written to memory match the output of the RNG. (C-1,2)
         //:
-        //: 3 Preload memory with known data, and test that it is all
+        //: 3 Pre-load memory with known data, and test that it is all
         //:   overwritten after a call to 'generateSeed'. (C-3)
         //:
-        //: 4 Preload memory with known data, and test that memory beyond the
+        //: 4 Pre-load memory with known data, and test that memory beyond the
         //:   end of the specified memory is not overwritten after a call to
         //:  'generateSeed' (C-4)
         //:
@@ -446,8 +446,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING GENERATESEED"
-                   "\n====================\n");
+            printf("\nTESTING 'GENERATESEED'"
+                   "\n======================\n");
 
         if (verbose) printf("Install a test allocator as the default"
                             " allocator.  Then install an 'AllocatorGuard' to"
@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
         //: 1 Objects can be created using the user defined default
         //:   constructor.
         //:
-        //: 2 Objects can be created using the user defined patameterized
+        //: 2 Objects can be created using the user defined parameterized
         //:   constructor.
         //:
         //: 3 Objects can be created using the copy constructor.
@@ -601,10 +601,10 @@ int main(int argc, char *argv[])
         //:   tested as a global concern. (C-6)
         //:
         //: 2 Create a 'SeedGenerator' with the user defined default
-        //:   constuctor. (C-1)
+        //:   constructor. (C-1)
         //:
         //: 3 Create a 'SeedGenerator' with the user defined parameterized
-        //:   constuctor. (C-2)
+        //:   constructor. (C-2)
         //:
         //: 4 Use the copy-initialization syntax to create a new instance of
         //:   'SeedGenerator' from an existing instance. (C-3,4)
@@ -638,13 +638,13 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) printf("Create a 'SeedGenerator' with the user defined"
-                            " default constuctor. (C-1)\n");
+                            " default constructor. (C-1)\n");
         {
             Obj generator;
         }
 
         if (verbose) printf("Create a 'SeedGenerator' with the user defined"
-                            " parameterized constuctor. (C-2)\n");
+                            " parameterized constructor. (C-2)\n");
         {
             MockRNG rng;
             Obj generator(rng);
@@ -720,14 +720,11 @@ int main(int argc, char *argv[])
             char seed[8];
             seedGenerator.generateSeed(seed, 8);
 
-            for(int i = 0; i<8; i++) printf("%i", seed[i]);
-
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
             ASSERT(seed[0] == 1);
 #else
             ASSERT(seed[3] == 1);
 #endif
-            
         }
       } break;
       default: {

@@ -331,13 +331,13 @@ int main(int argc, char *argv[])
         // TESTING HASH64 AND HASH32
         //   Verify that the class offers the ability to invoke 'Hash64' and
         //   'Hash32' with some bytes and a length. Verify that the values
-        //   returned matches the hash specified by the cannonical SpookyHash
+        //   returned matches the hash specified by the canonical SpookyHash
         //   implementation.
         //
         // Concerns:
         //: 1 The functions exists and take a pointer and a length.
         //:
-        //: 2 Hashes returned match the data produced by the cannonical
+        //: 2 Hashes returned match the data produced by the canonical
         //:   implementation of SpookyHash.
         //:
         //: 3 No memory is allocated from the default or global allocators.
@@ -456,13 +456,13 @@ int main(int argc, char *argv[])
         // TESTING HASH128
         //   Verify that the class offers the ability to invoke 'Hash128' with
         //   some bytes and a length. Verify that the values returned matches
-        //   the hash specified by the cannonical SpookyHash implementation.
+        //   the hash specified by the canonical SpookyHash implementation.
         //
         // Concerns:
         //: 1 The function exists and takes a pointer and a length.
         //:
         //: 2 Hashes returned via 'h1' and 'h2' match the data produced by the
-        //:   cannonical implementation of SpookyHash.
+        //:   canonical implementation of SpookyHash.
         //:
         //: 3 No memory is allocated from the default or global allocators.
         //
@@ -534,7 +534,7 @@ int main(int argc, char *argv[])
         //   the algorithm's internal state as specified by SpookyHash
         //   (verified by checking 'Final'). Verify that calling 'Update' with
         //   messages incrementally or all at once will return the hash
-        //   specified by the cannonical SpookyHash implementation.
+        //   specified by the canonical SpookyHash implementation.
         //
         // Concerns:
         //: 1 The function exists and takes a pointer and a length.
@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
         //:   and produces the same values as if 'Final' had never been called.
         //:
         //: 4 Hashes produced by inserting data via 'Update' and calling
-        //:  'Final' matches the data produced by the cannonical implementation
+        //:  'Final' matches the data produced by the canonical implementation
         //:   of SpookyHash.
         //:
         //: 5 No memory is allocated from the default or global allocators.
@@ -684,10 +684,10 @@ int main(int argc, char *argv[])
         //   Verify that the class offers the ability to initialize and
         //   finalize via 'Init' and 'Final' respectively. Verify that calling
         //   'operator()' will permute the algorithm's internal state as these
-        //   operators together produces a result that matches the cannonical
+        //   operators together produces a result that matches the canonical
         //   implementation.  Note that these operators must be tested together
         //   because 'Final' is the only way to access the internal state, and
-        //   'Init' must be called for behaviour to be defined.
+        //   'Init' must be called for behavior to be defined.
         //
         // Concerns:
         //: 1 Both functions exist.
@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
         //:   of the finalization.
         //:
         //: 3 Initializing and finalizing with known values will yeild results
-        //:   that match the cannonical implementation.
+        //:   that match the canonical implementation.
         //:
         //: 4 'Final' can be called multiple times and does not modify the
         //:   state of the algorithm or return different results.
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
         //:   the seed permutes the output. (C-1,2)
         //:
         //: 3 Use a table of value to check that known seeds will produce
-        //:   output that matches the cannonical implementation. (C-3)
+        //:   output that matches the canonical implementation. (C-3)
         //:
         //: 4 Call 'Final' multiple times in a row and test that the result
         //:   that is returned is always the same. (C-4)
@@ -826,7 +826,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Use a table of value to check that known seeds"
-                            " will produce output that matches the cannonical"
+                            " will produce output that matches the canonical"
                             " implementation. (C-3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
@@ -917,7 +917,7 @@ int main(int argc, char *argv[])
         //:   execution of this test case.  Memory from the global allocator is
         //:   tested as a global concern. (C-7)
         //:
-        //: 2 Create a defualt constructed 'SpookyHashAlgorithmImp'. (C-1)
+        //: 2 Create a default constructed 'SpookyHashAlgorithmImp'. (C-1)
         //:
         //: 3 Use the copy-initialization syntax to create a new instance of
         //:   'SpookyHashAlgorithmImp' from an existing instance. (C-2,3)
@@ -956,7 +956,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
 
-        if (verbose) printf("Create a defualt constructed"
+        if (verbose) printf("Create a default constructed"
                             " 'SpookyHashAlgorithmImp'. (C-1)\n");
         {
             Obj alg1;

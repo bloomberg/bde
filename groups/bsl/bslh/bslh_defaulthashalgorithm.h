@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a typedef far a good
 // default hashing algorithm, suitable for producing hashes for a hash table.
-// 
+//
 ///Properties
 ///----------
 // The following describe the extent to which different properties can be
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Security
 /// - - - -
-// There are NO security gaurentees made by 'bslh::DefaultHashAlgorithm'. If
+// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm'. If
 // security is required, look at 'bslh::SecureHashAlgorithm'.
 //
 ///Speed
@@ -35,18 +35,18 @@ BSLS_IDENT("$Id: $")
 ///Hash Distribution
 ///- - - - - - - - -
 // The default hash algorithm will distribute hashes in a pseudorandom
-// distribution accross the keyspace. The hash function will exhibit avalanche
-// behaviour, meaning changing one bit of input will result in a 50% chance of
-// each output bit changing. Avalance behaviour is enough to gaurentee good key
+// distribution across the key space. The hash function will exhibit avalanche
+// behavior, meaning changing one bit of input will result in a 50% chance of
+// each output bit changing. Avalanche behavior is enough to guarantee good key
 // distribution, even when values are consecutive.
 //
 ///Hash Consistency
 /// - - - - - - - -
-// The default hash algorithm only gaurentees that hashes will remain
-// consistant within a single process. This means different hashes may be
+// The default hash algorithm only guarantees that hashes will remain
+// consistent within a single process. This means different hashes may be
 // produced on machines of different endianness or even between runs on the
-// same machine. Therefor it is not reccomended to send hashes from
-// 'bslh::DefaultHashAlgorithm' over a network. It is also not reccomended to
+// same machine. Therefor it is not recommended to send hashes from
+// 'bslh::DefaultHashAlgorithm' over a network. It is also not recommended to
 // write hashes from 'bslh::DefaultHashAlgorithm' to shared memory or the disk.
 
 #ifndef INCLUDED_BSLSCM_VERSION

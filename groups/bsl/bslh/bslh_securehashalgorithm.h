@@ -16,13 +16,13 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: 'bslh::SecureHashAlgorithm' provides a typedef for a secure
 //  hashing algorithm. Given a random seed, this algorithm will act as a
-//  psuedorandom function and produce hashes that are distributed in a way that
-//  is indistinguishable from random. This hash algorithm may operate more
-//  slowly than 'bslh::DefaultHashAlgorithm', however it will help mitigate the
-//  risk of denial of service attacks on hash tables containing potentially
-//  malicious input. For more information on hash table denial of service
-//  attacks, see: https://www.nruns.com/_downloads/advisory28122011.pdf
-// 
+//  psuedorandom function (PRF) and produce hashes that are distributed in a
+//  way that is indistinguishable from random. This hash algorithm may operate
+//  more slowly than 'bslh::DefaultHashAlgorithm', however it will help
+//  mitigate the risk of denial of service attacks on hash tables containing
+//  potentially malicious input. For more information on hash table denial of
+//  service attacks, see: https://www.nruns.com/_downloads/advisory28122011.pdf
+//
 ///Properties
 ///----------
 // The following describe the extent to which different properties can be
@@ -30,14 +30,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Security
 /// - - - -
-// 'bslh::SecureHashAlgorithm' is NOT a cryptographicaly secure hash.  In order
-// to be cryptographically secure, and algorithm must, among other things,
-// provide "collision resistance".  "Collision resistance" means that it should
-// be difficult to find two different messages m1 and m2 such that hash(m1) =
-// hash(m2).  Because of the limited sized output (only 2^64 possibilities),
-// and the fast execution time of the algorithm, it is feasible to find
-// collisions by brute force, making the algorithm not cryptographically
-// secure.
+// 'bslh::SecureHashAlgorithm' is NOT a cryptographically secure hash.  In
+// order to be cryptographically secure, and algorithm must, among other
+// things, provide "collision resistance".  "Collision resistance" means that
+// it should be difficult to find two different messages m1 and m2 such that
+// hash(m1) = hash(m2).  Because of the limited sized output (only 2^64
+// possibilities), and the fast execution time of the algorithm, it is feasible
+// to find collisions by brute force, making the algorithm not
+// cryptographically secure.
 //
 // 'bslh::SecureHashAlgorithm' IS, however, a cryptographically strong PRF
 // (pseudorandom function).  This means that, assuming a properly random seed
@@ -48,23 +48,23 @@ BSLS_IDENT("$Id: $")
 ///- - -
 // 'bslh::SecureHashAlgorithm' will produce hashes fast enough to be usable in
 // a hash table, but likely not as fast as algorithms such as
-// 'bslh::DefaultHashAlgorithm' which make fewer gaurentees.
+// 'bslh::DefaultHashAlgorithm' which make fewer guarantees.
 //
 ///Hash Distribution
 ///- - - - - - - - -
 // 'bslh::SecureHashAlgorithm' will distribute hashes in a pseudorandom
-// distribution accross the keyspace. The hash function will exhibit avalanche
-// behaviour, meaning changing one bit of input will result in a 50% chance of
-// each output bit changing. Avalance behaviour is enough to gaurentee good key
+// distribution across the key space. The hash function will exhibit avalanche
+// behavior, meaning changing one bit of input will result in a 50% chance of
+// each output bit changing. Avalanche behavior is enough to guarantee good key
 // distribution, even when values are consecutive.
 //
 ///Hash Consistency
 /// - - - - - - - -
-// The default hash algorithm only gaurentees that hashes will remain
-// consistant within a single process. This means different hashes may be
+// The default hash algorithm only guarantees that hashes will remain
+// consistent within a single process. This means different hashes may be
 // produced on machines of different endianness or even between runs on the
-// same machine. Therefor it is not reccomended to send hashes from
-// 'bslh::SecureHashAlgorithm' over a network. It is also not reccomended to
+// same machine. Therefor it is not recommended to send hashes from
+// 'bslh::SecureHashAlgorithm' over a network. It is also not recommended to
 // write hashes from 'bslh::SecureHashAlgorithm' to shared memory or the disk.
 
 

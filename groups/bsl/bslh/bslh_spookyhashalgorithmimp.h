@@ -17,12 +17,12 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithmImp' provides BDE style wrapping
 //around Bob Jenkins spooky hash implementation. SpookyHash provides a way to
 //hash contiguous data all at once, or discontiguous data in pieces. More
-//information is availible at: http://burtleburtle.net/bob/hash/spooky.html
+//information is available at: http://burtleburtle.net/bob/hash/spooky.html
 //
 ///Changes
 ///-------
 // The third party code begins with the "SpookyHash" header below, and
-// continues untill the BloombergLP copyright notice. Changes made to the
+// continues until the BloombergLP copyright notice. Changes made to the
 // original code include:
 //
 //: 1 Adding BloombergLP and bslh namespaces
@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 ///Third Party Doc
 ///---------------
 //
-// SpookyHash: a 128-bit noncryptographic hash function
+// SpookyHash: a 128-bit non cryptographic hash function
 //
 // By Bob Jenkins, public domain
 //   Oct 31 2010: alpha, framework + SpookyHash::Mix appears right
@@ -147,7 +147,7 @@ class SpookyHashAlgorithmImp
         // Thoroughly mix the first 12 bytes of the specified 'data' into 's0',
         // 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', and
         // 's1'. This method should be used when the input is 96 bytes or
-        // longer to prevent the loss of entropy, becuase the internal state of
+        // longer to prevent the loss of entropy, because the internal state of
         // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes.
 
     static inline uint64 Rot64(uint64 x, int k);
@@ -161,7 +161,7 @@ class SpookyHashAlgorithmImp
         // 'hash2' as seeds. Load the higher order bits of the resulting
         // 128-bit into 'hash1' and the lower order bits in 'hash2'. This
         // method is meant to be used for messages less than 192 bytes in
-        // length becasue of it's lower startup cost.
+        // length because of it's lower startup cost.
 
     static inline void ShortEnd(uint64 &h0,
                                 uint64 &h1,

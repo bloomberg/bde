@@ -21,6 +21,10 @@ BSLS_IDENT("$Id: $")
 //  supplied in order for 'SeedGenerator' to produce seeds suitable for a
 //  cryptographically secure hashing algorithm.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHMIMP
 #include <bslh_spookyhashalgorithmimp.h>
 #endif

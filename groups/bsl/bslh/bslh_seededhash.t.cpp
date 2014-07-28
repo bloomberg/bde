@@ -120,7 +120,7 @@ void aSsErT(bool b, const char *s, int i)
 // form of a hash functor -- an object that will take objects stored in our
 // array as input, and yield a 64-bit int value which is hard enough for an
 // outside observer to predict that it appear random. 'bslh::SeededHash'
-// provides a convenient fuctor that can wrap any seeded hashing algorithm and
+// provides a convenient functor that can wrap any seeded hashing algorithm and
 // use it to produce a hash for any type them implements 'hashAppend'.
 //
 // We can use the result of the hash function to index into our array of
@@ -195,7 +195,7 @@ class HashTable {
               size_t            numValues,
               HASHER            hasher,
               bslma::Allocator *allocator = 0)
-        // Create a hash table refering to the specified 'valuesArray',
+        // Create a hash table referring to the specified 'valuesArray',
         // containing 'numValues', and generating hashes with the specified
         // 'hasher'.  Optionally specify 'allocator' or the default allocator
         // will be used`.
@@ -316,8 +316,8 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   The 'bslh::SeededHash' can be used with seeded algotithms to
-        //   secure more powerfull components such as hash tables.
+        //   The 'bslh::SeededHash' can be used with seeded algorithms to
+        //   secure more powerful components such as hash tables.
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The function call operator will return the expected value
-        //:   according to the cannonical implementation of the algorithm being
+        //:   according to the canonical implementation of the algorithm being
         //:   used.
         //:
         //: 2 The function call operator can be invoked on constant objects.
@@ -492,7 +492,7 @@ int main(int argc, char *argv[])
                 const int     VALUE = DATA[i].d_value;
                 const size_t  HASH  = static_cast<size_t>(DATA[i].d_hash);
 
-                if (veryVerbose) printf("Hashing: %i, Expecting: %u\n",
+                if (veryVerbose) printf("Hashing: %i, Expecting: %lu\n",
                                         VALUE,
                                         HASH);
 
@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //   Ensure that the implicitly defined copy construct, destructor, and
-        //   assignment operator, as well as the explicity defined default and
+        //   assignment operator, as well as the explicitly defined default and
         //   parameterized constructors are publicly callable and have no
         //   unexpected side effects such as allocating memory.  As there is no
         //   observable state to inspect, there is little to verify other than
@@ -540,7 +540,7 @@ int main(int argc, char *argv[])
         //:   execution of this test case.  Memory from the global allocator is
         //:   tested as a global concern. (C-8)
         //:
-        //: 2 Create a defualt constructed 'SeededHash'. (C-1)
+        //: 2 Create a default constructed 'SeededHash'. (C-1)
         //:
         //: 3 Construct a 'SeededHash' using the parameterized constructor.
         //:   (C-2)
@@ -582,7 +582,7 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
 
 
-        if (verbose) printf("Create a defualt constructed 'SeededHash'."
+        if (verbose) printf("Create a default constructed 'SeededHash'."
                             " (C-1)\n");
         {
             Obj alg1;

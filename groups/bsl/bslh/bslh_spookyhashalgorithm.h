@@ -16,14 +16,14 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithm' implements the spooky hashing
 //  algorithm by Bob Jenkins. The algorithm is a general purpose algorithm
-//  that is known to quickly reach good avalance performance and is very fast.
+//  that is known to quickly reach good avalanche performance and is very fast.
 //  It is a good choice to use as a default hashing algorithm for associative
-//  containters. See: http://burtleburtle.net/bob/hash/spooky.html
+//  containers. See: http://burtleburtle.net/bob/hash/spooky.html
 //
-///Security Gaurentees
+///Security Guarantees
 ///-------------------
 // This hashing algorithm is NOT a secure hash algorithm and makes no security
-// garuntees. If you are looking to mitigate denial of service attacks on an
+// guarantees. If you are looking to mitigate denial of service attacks on an
 // associative container, see 'bslh_SipHashAlgorithm'.
 //
 ///Performance
@@ -38,12 +38,12 @@ BSLS_IDENT("$Id: $")
 ///----------
 // This hash is endian-specific. It is designed for little endian machines,
 // however, it will run on big endian machines. On big endian machines, the
-// Performance and Security Garentees still apply, however the hashes produced
-// will be different from those produced by the cannonical implementation. The
-// creator of this algorithm aknowledges this and says that the big-endian
+// Performance and Security Guarantees still apply, however the hashes produced
+// will be different from those produced by the canonical implementation. The
+// creator of this algorithm acknowledges this and says that the big-endian
 // hashes are just as good as the little-endian ones. Be aware that this means
 // storing hashes in memory or transmitting them across the network is not
-// reccomended.
+// recommended.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

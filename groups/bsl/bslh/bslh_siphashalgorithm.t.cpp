@@ -133,7 +133,7 @@ class CryptoSecureRNG {
         // be able to be predicted by an attacker.
 };
 CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
-    return 49872534ULL; // NOTE: not a real crypto secure random number
+    return 49872534ULL; // NOTE: not actually random
 }
 
 //=============================================================================
@@ -149,7 +149,7 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 // really fast way to find out if values are contained in the array. We can
 // create a 'HashTable' data structure that is capable of looking up values in
 // O(1) time. The hash table implemented here can have numerous simplifications
-// becuse we know the size of the array and never have to resize the table.
+// because we know the size of the array and never have to resize the table.
 //
 // Further suppose that we will be storing arbitrary user input in our table.
 // It is possible that an attacker with knowledge of the hashing algorithm we
@@ -234,7 +234,7 @@ class HashTable {
     HashTable(const TYPE       *valuesArray,
               size_t            numValues,
               bslma::Allocator *allocator = 0)
-        // Create a hash table refering to the specified 'valuesArray'
+        // Create a hash table referring to the specified 'valuesArray'
         // containing 'numValues'. Optionally specify 'allocator' or the
         // default allocator will be used`.
     : d_values(valuesArray)
@@ -360,7 +360,7 @@ bool operator!=(const Future& lhs, const Future& rhs)
 
 //..
 // Next, we need a hash functor for 'Future'.  We are going to use the
-// 'SipHashAlgorithm' becuase, it is a secure hash algorithm that will provide
+// 'SipHashAlgorithm' because, it is a secure hash algorithm that will provide
 // a way to securely combine the salient attributes of 'Future' objects into
 // one reasonable hash that an malicious user will not be able to predict.
 //..
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   The hashing algorithm can be used to create more powerfull
+        //   The hashing algorithm can be used to create more powerful
         //   components such as functors that can be used to power hash tables.
         //
         // Concerns:
@@ -522,7 +522,7 @@ int main(int argc, char *argv[])
         //:   'bsls::Types::Uint64'.
         //
         // Plan:
-        //: 1 ASSERT the typedef is accessable and is the correct type using
+        //: 1 ASSERT the typedef is accessible and is the correct type using
         //:   'bslmf::IsSame'. (C-1)
         //
         // Testing:
@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STANDARD TYPEDEF"
                             "\n========================\n");
 
-        if (verbose) printf("ASSERT the typedef is accessable and is the"
+        if (verbose) printf("ASSERT the typedef is accessible and is the"
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
         {
             ASSERT((bslmf::IsSame<bsls::Types::Uint64,
@@ -670,7 +670,6 @@ int main(int argc, char *argv[])
                                         HASH,
                                         hashResult);
 
-                
                 LOOP_ASSERT(LINE, hashResult == HASH);
             }
         }
@@ -822,9 +821,9 @@ int main(int argc, char *argv[])
         //:
         //: 3 Verify the same hashes are produced for the same c-strings. (C-1)
         //:
-        //: 4 Verify different hashes are produced for different ints. (C-1)
+        //: 4 Verify different hashes are produced for different 'int's. (C-1)
         //:
-        //: 5 Verify the same hashes are produced for the same ints. (C-1)
+        //: 5 Verify the same hashes are produced for the same 'int's. (C-1)
         //
         // Testing:
         //   BREATHING TEST

@@ -13,14 +13,14 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Changes
 ///-------
 // The third party code begins with the "siphash.h" header below, and continues
-// untill the Bloomberg LP copyright banner below. Changes made to the original
+// until the Bloomberg LP copyright banner below. Changes made to the original
 // code include:
 //
 //: 1 Adding BloombergLP and bslh namespaces
 //:
 //: 2 Renaming 'siphash' to 'SipHashAlgorithm'
 //:
-//: 3 Whitespace to meet BDE standards.
+//: 3 White space to meet BDE standards.
 //:
 //: 4 Added initializer list to handle class member initializers removed from
 //:   the header
@@ -30,6 +30,10 @@ BSLS_IDENT("$Id$ $CSID$")
 //: 6 Changed the constructor to accept a 'const char *'
 //:
 //: 7 Changed endianness check to use BDE-defined check
+//:
+//: 8 Removed unnamed namespace in favour of 'static'
+//:
+//: 9 Added function contracts
 //
 ///Third Party Doc
 ///---------------
@@ -64,34 +68,23 @@ namespace BloombergLP {
 
 namespace bslh {
 
-namespace
-{
-
 typedef bsls::Types::Uint64 u64;
 typedef unsigned int        u32;
 typedef unsigned char       u8;
 
 inline
-u64 rotl(u64 x, u64 b)
+static u64 rotl(u64 x, u64 b)
+    // Return the bits of the specified 'x' rotated to the left by  the
+    // specified 'b' number of bits.  Bits that are rotated off the end are
+    // wrapped around to the beginning.
 {
     return (x << b) | (x >> (64 - b));
 }
 
 inline
-u64 u8to64_le(const u8* p)
-{
-#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    return *static_cast<u64 const*>(static_cast<void const*>(p));
-#else
-    return static_cast<u64>(p[7]) << 56 | static_cast<u64>(p[6]) << 48 |
-           static_cast<u64>(p[5]) << 40 | static_cast<u64>(p[4]) << 32 |
-           static_cast<u64>(p[3]) << 24 | static_cast<u64>(p[2]) << 16 |
-           static_cast<u64>(p[1]) <<  8 | static_cast<u64>(p[0]);
-#endif
-}
-
-inline
-void sipround(u64& v0, u64& v1, u64& v2, u64& v3)
+static void sipround(u64& v0, u64& v1, u64& v2, u64& v3)
+    // Mix the specified 'v0', 'v1', 'v2', and 'v3' in a "Sip Round" as
+    // described in the SipHash algorithm
 {
     v0 += v1;
     v1 = rotl(v1, 13);
@@ -109,7 +102,20 @@ void sipround(u64& v0, u64& v1, u64& v2, u64& v3)
     v2 = rotl(v2, 32);
 }
 
-}  // unnamed
+inline
+static u64 u8to64_le(const u8* p)
+    // Return the 64-bit integer representation of the specified 'p' taking
+    // into account endianness.
+{
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    return *static_cast<u64 const*>(static_cast<void const*>(p));
+#else
+    return static_cast<u64>(p[7]) << 56 | static_cast<u64>(p[6]) << 48 |
+           static_cast<u64>(p[5]) << 40 | static_cast<u64>(p[4]) << 32 |
+           static_cast<u64>(p[3]) << 24 | static_cast<u64>(p[2]) << 16 |
+           static_cast<u64>(p[1]) <<  8 | static_cast<u64>(p[0]);
+#endif
+}
 
 
 SipHashAlgorithm::SipHashAlgorithm(const char *seed) :
@@ -128,15 +134,15 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed) :
 }
 
 void
-SipHashAlgorithm::operator()(void const* key, size_t inlen)
+SipHashAlgorithm::operator()(void const* key, size_t len)
 {
     u8 const* in = static_cast<const u8*>(key);
 
-    d_totalLength += inlen;
-    if (d_bufSize + inlen < 8)
+    d_totalLength += len;
+    if (d_bufSize + len < 8)
     {
-        std::copy(in, in+inlen, d_buf + d_bufSize);
-        d_bufSize += inlen;
+        std::copy(in, in+len, d_buf + d_bufSize);
+        d_bufSize += len;
         return;                                                       // RETURN
     }
     if (d_bufSize > 0)
@@ -149,10 +155,10 @@ SipHashAlgorithm::operator()(void const* key, size_t inlen)
         sipround(d_v0, d_v1, d_v2, d_v3);
         d_v0 ^= m;
         in += t;
-        inlen -= t;
+        len -= t;
     }
-    d_bufSize = inlen & 7;
-    u8 const* const end = in + (inlen - d_bufSize);
+    d_bufSize = len & 7;
+    u8 const* const end = in + (len - d_bufSize);
     for ( ; in != end; in += 8 )
     {
         u64 m = u8to64_le( in );

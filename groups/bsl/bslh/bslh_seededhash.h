@@ -18,8 +18,8 @@ BSLS_IDENT("$Id: $")
 // which provides hashing functionality and is a drop in replacement for
 // 'bsl::hash'.  It is similar to 'bslh::Hash', however, it is meant for hashes
 // that require a seed. It takes a seed generator and uses that to create seeds
-// to give the the hashing algorithsm.  'bslh::SeededHash' is a wrapper which
-// adapts hashing algorithms from 'bslh' to match the inteface of 'bsl::hash'.
+// to give the the hashing algorithm.  'bslh::SeededHash' is a wrapper which
+// adapts hashing algorithms from 'bslh' to match the interface of 'bsl::hash'.
 // 'bslh::SeededHash' is a universal hashing functor that will hash any type
 // that implements 'hashAppend' using the hashing algorithm provided as a
 // template parameter.  For more details, see:

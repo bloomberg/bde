@@ -7,28 +7,28 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a struct that can run any hashing algorithm on any type.
+//@PURPOSE: Provide a 'struct' that can run any hashing algorithm on any type.
 //
 //@CLASSES:
 //  bslh::Hash: Universal hashing functor that can apply any algorithm to types
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a templated struct, 'bslh::Hash', which
-// provides hashing functionality and is a drop in replacement for 'bsl::hash'.
-// 'bslh::Hash' is a wrapper that adapts the hashing algorithms to match the
-// inteface of 'bsl::hash'.  This component also contains hashAppend
-// definitions for fundamental types, which are required to make the hashing
-// algorithms in 'bslh' work. 'bslh::Hash' is a universal hashing functor that
-// will hash any type that implements 'hashAppend' using the hashing algorithm
-// provided as a template parameter.  For more details, see:
+//@DESCRIPTION: This component provides a templated 'struct', 'bslh::Hash',
+// which provides hashing functionality and is a drop in replacement for
+// 'bsl::hash'.  'bslh::Hash' is a wrapper that adapts the hashing algorithms
+// to match the interface of 'bsl::hash'.  This component also contains
+// hashAppend definitions for fundamental types, which are required to make the
+// hashing algorithms in 'bslh' work. 'bslh::Hash' is a universal hashing
+// functor that will hash any type that implements 'hashAppend' using the
+// hashing algorithm provided as a template parameter.  For more details, see:
 // https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
 // Modular+Hashing&spaceKey=bde
 //
 ///Modularity
 ///----------
 // 'bslh::Hash' provides a modular system for hashing.  Identification of
-// slaient attributes on a type and the actual implementation of hahing
+// salient attributes on a type and the actual implementation of hashing
 // algorithms can be decoupled. Salient attributes can be called out on a type
 // using 'hashAppend'. Hashing algorithms can be written (some defaults are
 // provided in 'bslh') to operate on the attributes called out by 'hashAppend'.
@@ -47,8 +47,8 @@ BSLS_IDENT("$Id: $")
 //
 // Within this file, 'hashAppend' has been implemented for all of the
 // fundamental types. When 'hashAppend is reached on a fundamental type, the
-// hashing algorithm is no longer propogated, and instead a pointer to the
-// begining of the type in memory is passed to the algorithm, along with the
+// hashing algorithm is no longer propagated, and instead a pointer to the
+// beginning of the type in memory is passed to the algorithm, along with the
 // length of the type. The algorithm will then incorporate the type into its
 // internal state and return a finalized hash when requested.
 //
@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_typetraitbitwisecopyable.h>
 #endif
 
-#ifndef INCLUDED_BSLH_DEFAULTHASH_ALGORITHMORITHM
+#ifndef INCLUDED_BSLH_DEFAULTHASHALGORITHM
 #include <bslh_defaulthashalgorithm.h>
 #endif
 
@@ -109,7 +109,7 @@ struct Hash
 {
     // Wraps the parameterized 'HASH_ALGORITHM' in an interface that is a drop
     // in replacement for 'bsl::hash'
-    
+
     // TYPES
     typedef size_t result_type;
         // Type of the hash that will be returned.
@@ -135,7 +135,7 @@ Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
 }
 
 // ============================================================================
-//             HASHAPPEND IMPLEMENTATIONS FOR FUNDAMENTAL TYPES
+//            'HASHAPPEND' IMPLEMENTATIONS FOR FUNDAMENTAL TYPES
 // ============================================================================
 
 template <class HASH_ALGORITHM>

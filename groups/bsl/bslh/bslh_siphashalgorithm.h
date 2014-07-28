@@ -26,11 +26,11 @@ BSLS_IDENT("$Id: $")
 // as much of the original code as possible, including comment headers, has
 // been preserved.
 //
-///Security Gaurentees
+///Security Guarantees
 ///-------------------
 // SipHash is NOT a cryptographically secure hash. In the paper linked above,
 // the creators of this hash function describe it as "Cryptographically
-// Strong", but explicity avoid calling it cryptographically secure. In order
+// Strong", but explicitly avoid calling it cryptographically secure. In order
 // to be cryptographically secure, and algorithm must, among other things,
 // provide "collision resistance".  "Collision resistance" means that it should
 // be difficult to find two different messages m1 and m2 such that hash(m1) =
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 ///Speed
 ///-----
 // This algorithm is designed to be fast, compared to other algorithms making
-// similar gaurentees. It is still slower than other commonly accepted and used
+// similar guarantees. It is still slower than other commonly accepted and used
 // hashes such as SpookyHash. This hash should only be used when protection
 // from malicious input is required. Otherwise, 'bslh::DefaultHashAlgorithm'
 // should be used to obtain a faster, generally applicable, hashing algorithm.
@@ -63,15 +63,15 @@ BSLS_IDENT("$Id: $")
 ///Endianness
 ///----------
 // This hash is endian-specific. The algorithm will run on big and little
-// endian machines and the above gaurentees apply on both architectures,
+// endian machines and the above guarantees apply on both architectures,
 // however, the hashes produced will be different. Be aware that this means
 // storing hashes in memory or transmitting them across the network is not
-// reccomended.
+// recommended.
 //
 ///Changes
 ///-------
 // The third party code begins with the "siphash.h" header below, and continues
-// untill the TYPE TRAITS banner below. Changes made to the original code
+// until the TYPE TRAITS banner below. Changes made to the original code
 // include:
 //
 //: 1 Adding BloombergLP and bslh namespaces
@@ -181,7 +181,7 @@ class SipHashAlgorithm
     explicit SipHashAlgorithm(const char *seed);
         // Create a 'SipHashAlgorithm' with a 128-bit ('k_SEED_LENGTH' bytes)
         // seed pointed to by the specified 'seed'. Note that if data in 'seed'
-        // is not random, all gaurentees of security and denial of service
+        // is not random, all guarantees of security and denial of service
         // protection are void.
 
     // MANIPULATORS
