@@ -658,7 +658,7 @@ STREAM& bdexStreamIn(STREAM&                stream,
 
     float x;
     bdexStreamIn(stream, x, 1);
-    variable = static_cast<MySpecializedTestEnum>(x);
+    variable = static_cast<MySpecializedTestEnum>(static_cast<int>(x));
     return stream;
 }
 

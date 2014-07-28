@@ -11,7 +11,7 @@
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
-#include <bsl_c_ctype.h>
+#include <bsl_cctype.h>
 #include <bsl_iostream.h>
 #include <bsl_strstream.h>
 
