@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
-        //:   the typedef of the current algorithm.
+        //:   'size_t'.
         //
         // Plan:
         //: 1 ASSERT the typedef accessibly aliases the correct type using
@@ -412,11 +412,7 @@ int main(int argc, char *argv[])
                             " type using 'bslmf::IsSame'. (C-1)\n");
         {
 
-            ASSERT((bslmf::IsSame<SipHashAlgorithm::result_type,
-                           SeededHash<SipHashAlgorithm>::result_type>::VALUE));
-
-            ASSERT((bslmf::IsSame<SpookyHashAlgorithm::result_type,
-                        SeededHash<SpookyHashAlgorithm>::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<size_t, Obj::result_type>::VALUE));
         }
 
       } break;
@@ -492,11 +488,11 @@ int main(int argc, char *argv[])
                             " results against known good values. (C-1,2)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
-                const int                LINE  = DATA[i].d_line;
-                const int                VALUE = DATA[i].d_value;
-                const unsigned long long HASH  = DATA[i].d_hash;
+                const int     LINE  = DATA[i].d_line;
+                const int     VALUE = DATA[i].d_value;
+                const size_t  HASH  = static_cast<size_t>(DATA[i].d_hash);
 
-                if (veryVerbose) printf("Hashing: %i, Expecting: %llu\n",
+                if (veryVerbose) printf("Hashing: %i, Expecting: %u\n",
                                         VALUE,
                                         HASH);
 

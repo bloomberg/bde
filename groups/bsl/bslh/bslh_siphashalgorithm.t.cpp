@@ -115,7 +115,7 @@ void aSsErT(bool b, const char *s, int i)
 
 typedef SipHashAlgorithm Obj;
 
-const char genericSeed[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+const char genericSeed[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 //=============================================================================
 //                    USAGE EXAMPLE IMPLEMENTATIONS
@@ -614,7 +614,6 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-
         if (verbose) printf("Install a test allocator as the default"
                             " allocator.  Then install an 'AllocatorGuard' to"
                             " verify no memory is allocated during the"
@@ -657,17 +656,22 @@ int main(int argc, char *argv[])
                             " the algorithm. (C-3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
-                const int                LINE  = DATA[i].d_line;
-                const char              *VALUE = DATA[i].d_value;
-                const unsigned long long HASH  = DATA[i].d_hash;
-
-                if (veryVerbose) printf("Hashing: %s, Expecting: %llu\n",
-                                        VALUE,
-                                        HASH);
+                const int                 LINE  = DATA[i].d_line;
+                const char               *VALUE = DATA[i].d_value;
+                const bsls::Types::Uint64 HASH  = DATA[i].d_hash;
 
                 Obj hash = Obj(genericSeed);
                 hash(VALUE, strlen(VALUE));
-                LOOP_ASSERT(LINE, hash.computeHash() == HASH);
+                bsls::Types::Uint64  hashResult = hash.computeHash();
+
+                if (veryVerbose) printf("Hashing: %s, Expecting: %llu,"
+                                        " Generated: %llu\n",
+                                        VALUE,
+                                        HASH,
+                                        hashResult);
+
+                
+                LOOP_ASSERT(LINE, hashResult == HASH);
             }
         }
 
@@ -753,7 +757,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("Assert the algorithm does not have the"
                             " is_default_constructable trait. (C-1)\n");
         {
-            //ASSERT(!std::is_default_constructible<SipHashAlgorithm>::value);  //TODO
+            // This cannot be done without C++11
+            //ASSERT(!std::is_default_constructible<SipHashAlgorithm>::value);
         }
 
         if (verbose) printf("Call the parameterized constructor using a seed."

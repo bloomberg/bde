@@ -91,9 +91,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>  // for 'std::size_t'
-#define INCLUDED_CSTDDEF
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>  // for 'size_t'
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace BloombergLP {
@@ -131,7 +131,7 @@ Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
 {
     HASH_ALGORITHM hashAlg;
     hashAppend(hashAlg, key);
-    return static_cast<size_t>(hashAlg.computeHash());
+    return static_cast<result_type>(hashAlg.computeHash());
 }
 
 // ============================================================================

@@ -176,7 +176,8 @@ class Point {
 };
 
 Point::Point(int x, int y) : d_x(x), d_y(y) {
-    d_distToOrigin = sqrt(d_x*d_x + d_y*d_y);
+    d_distToOrigin = sqrt(static_cast<long double>(d_x * d_x) +
+                          static_cast<long double>(d_y * d_y));
 }
 
 double Point::distanceToOrigin() {
@@ -809,7 +810,6 @@ int main(int argc, char *argv[])
          {  L_,  4782969,  3383268391725748969ULL,},
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
 
         if (verbose) printf("Install a test allocator as the default"
                             " allocator.  Then install an 'AllocatorGuard' to"

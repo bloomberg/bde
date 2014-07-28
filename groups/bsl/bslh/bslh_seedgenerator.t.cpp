@@ -716,10 +716,18 @@ int main(int argc, char *argv[])
             MockRNG mockRNG;
             Obj seedGenerator(mockRNG);
 
+
             char seed[8];
             seedGenerator.generateSeed(seed, 8);
 
+            for(int i = 0; i<8; i++) printf("%i", seed[i]);
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
             ASSERT(seed[0] == 1);
+#else
+            ASSERT(seed[3] == 1);
+#endif
+            
         }
       } break;
       default: {

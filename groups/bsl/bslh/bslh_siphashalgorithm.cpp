@@ -5,9 +5,10 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_types.h>
+#include <bsls_platform.h>
 
 #include <algorithm>
-#include <cstddef>
+#include <stddef.h>  // for 'size_t'
 
 ///Changes
 ///-------
@@ -27,6 +28,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //: 5 Added 'computeHash' to handle explicit conversion removed from header.
 //:
 //: 6 Changed the constructor to accept a 'const char *'
+//:
+//: 7 Changed endianness check to use BDE-defined check
 //
 ///Third Party Doc
 ///---------------
@@ -77,7 +80,7 @@ u64 rotl(u64 x, u64 b)
 inline
 u64 u8to64_le(const u8* p)
 {
-#ifdef __LITTLE_ENDIAN__
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     return *static_cast<u64 const*>(static_cast<void const*>(p));
 #else
     return static_cast<u64>(p[7]) << 56 | static_cast<u64>(p[6]) << 48 |
@@ -128,6 +131,7 @@ void
 SipHashAlgorithm::operator()(void const* key, size_t inlen)
 {
     u8 const* in = static_cast<const u8*>(key);
+
     d_totalLength += inlen;
     if (d_bufSize + inlen < 8)
     {

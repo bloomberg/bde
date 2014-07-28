@@ -403,7 +403,8 @@ class Point {
 };
 
 Point::Point(int x, int y) : d_x(x), d_y(y) {
-    d_distToOrigin = sqrt(d_x*d_x + d_y*d_y);
+    d_distToOrigin = sqrt(static_cast<long double>(d_x * d_x) +
+                          static_cast<long double>(d_y * d_y));
 }
 
 double Point::distanceToOrigin() {

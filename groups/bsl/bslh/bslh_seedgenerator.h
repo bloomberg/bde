@@ -34,9 +34,9 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTRING
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>  // for 'std::size_t'
-#define INCLUDED_CSTDDEF
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>  // for 'size_t'
+#define INCLUDED_STDDEF_H
 #endif
 
 namespace BloombergLP {
