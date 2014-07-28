@@ -650,6 +650,15 @@ public:
     explicit MediumFunctor(int v) : SmallFunctor(v)
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
 
+    MediumFunctor(const MediumFunctor& other) : SmallFunctor(other)
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // This move constructor is not called in nothrow settings.
+    MediumFunctor(MediumFunctor&& other) : SmallFunctor(std::move(other))
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+#endif
+
     ~MediumFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
     friend bool operator==(const MediumFunctor& a, const MediumFunctor& b)
@@ -671,6 +680,15 @@ public:
 
     explicit LargeFunctor(int v) : SmallFunctor(v)
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+
+    LargeFunctor(const LargeFunctor& other) : SmallFunctor(other)
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // This move constructor is not called in nothrow settings.
+    LargeFunctor(LargeFunctor&& other) : SmallFunctor(std::move(other))
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+#endif
 
     ~LargeFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
@@ -785,8 +803,11 @@ class ThrowingEmptyFunctor : public EmptyFunctor
 public:
     explicit ThrowingEmptyFunctor(int v = 0) : EmptyFunctor(v) { }
 
+    // Throwing move and copy constructor.  Note that the copy constructor for
+    // the 'EmptyFunctor' base class increments 'copyLimit' but not
+    // 'moveLimit'.
     ThrowingEmptyFunctor(const ThrowingEmptyFunctor& other)
-        : EmptyFunctor(other) { --copyLimit; --moveLimit; }
+        : EmptyFunctor(other) { --moveLimit; }
 
     ~ThrowingEmptyFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
 
@@ -1093,6 +1114,10 @@ struct ValueGenerator<SmartPtr<T> > : ValueGeneratorBase<T> {
     SmartPtr<T> obj() { return SmartPtr<T>(&this->reset()); }
     bool check(int exp) const { return this->value() == exp; }
 };
+
+// Special marker for moved-from comparisons
+bsls::ObjectBuffer<Obj> movedFromMarkerBuf;
+const Obj& movedFromMarker = movedFromMarkerBuf.object();
 
 //=============================================================================
 //                  TEST FUNCTIONS
@@ -1787,38 +1812,50 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
     globalAllocMonitor.reset();
 
     {
-        // Create source then move-construct dest using extended move
-        // constructor.
+        // Create source.
         Obj source(bsl::allocator_arg, sourceAlloc, func);
-        Obj dest(bsl::allocator_arg, destAlloc, std::move(source));
+        FunctorMonitor funcMonitor(L_);
 
-        ASSERT(CheckAlloc<SRC_ALLOC>::areEqualAlloc(sourceAlloc,
-                                                source.allocator()));
+        EXCEPTION_TEST_BEGIN(&destTa, &moveLimit) {
+            funcMonitor.reset(L_);
 
-        ASSERT(isEmpty == ! dest);
-        ASSERT(CheckAlloc<DEST_ALLOC>::areEqualAlloc(destAlloc, dest.allocator()));
+            // move-construct dest using extended move constructor.
+            Obj dest(bsl::allocator_arg, destAlloc, std::move(source));
 
-        if (dest) {
+            ASSERT(CheckAlloc<SRC_ALLOC>::areEqualAlloc(sourceAlloc,
+                                                        source.allocator()));
 
-            // Check for faithful move of functor
-            ASSERT(dest.target_type() == typeid(func));
-            ASSERT(*dest.target<FUNC>() == func);
+            ASSERT(isEmpty == ! dest);
+            ASSERT(CheckAlloc<DEST_ALLOC>::areEqualAlloc(destAlloc,
+                                                         dest.allocator()));
 
-            // Invoke
-            Obj temp(func);
-            ASSERT(dest(IntWrapper(0x4000), 7) ==
-                   temp(IntWrapper(0x4000), 7));
+            if (dest) {
 
-            // Invocation performed identical operations on func and on
-            // dest.  Check that equality relationship was not disturbed.
-            ASSERT(*dest.target<FUNC>() == *temp.target<FUNC>());
+                // Check for faithful move of functor
+                ASSERT(dest.target_type() == typeid(func));
+                ASSERT(*dest.target<FUNC>() == func);
+
+                // Invoke
+                Obj temp(func);
+                ASSERT(dest(IntWrapper(0x4000), 7) ==
+                       temp(IntWrapper(0x4000), 7));
+
+                // Invocation performed identical operations on func and on
+                // dest.  Check that equality relationship was not disturbed.
+                ASSERT(*dest.target<FUNC>() == *temp.target<FUNC>());
+            }
+
+            ASSERT(sourceTa.numBlocksInUse() == sourceNumBlocksUsed);
+            ASSERT(sourceTa.numBytesInUse()  == sourceNumBytesUsed);
+            ASSERT(destTa.numBlocksInUse() == destNumBlocksUsed);
+            ASSERT(destTa.numBytesInUse()  == destNumBytesUsed);
+            ASSERT(globalAllocMonitor.isInUseSame());
         }
-
-        ASSERT(sourceTa.numBlocksInUse() == sourceNumBlocksUsed);
-        ASSERT(sourceTa.numBytesInUse()  == sourceNumBytesUsed);
-        ASSERT(destTa.numBlocksInUse() == destNumBlocksUsed);
-        ASSERT(destTa.numBytesInUse()  == destNumBytesUsed);
-        ASSERT(globalAllocMonitor.isInUseSame());
+        EXCEPTION_TEST_CATCH {
+            ASSERT(destTa.numBlocksInUse() == 0);
+            ASSERT(destTa.numBytesInUse()  == 0);
+            ASSERT(funcMonitor.isSameCount());
+        } EXCEPTION_TEST_END;
     }
     ASSERT(sourceTa.numBlocksInUse() == 0);
     ASSERT(sourceTa.numBytesInUse()  == 0);
@@ -1858,11 +1895,42 @@ void testMoveCtor(FUNC func, const char *sourceAllocName)
 template <class FUNC>
 bool AreEqualFunctions(const Obj& inA, const Obj& inB)
     // Given a known invocable type specified by 'FUNC', return true if the
-    // specified 'inA' and the specified 'inB' 'function's are both empty or
-    // both wrap invocables of type 'FUNC' having the same value.
+    // specified 'inA' wraps an invocable of type 'FUNC' with the same value
+    // as the invocable wrapped by 'inB' (or they are both empty); otherwise
+    // return false.  As a special case, if 'inB' is the special object
+    // 'movedFromMarker', then return 'true' if 'inA' is empty or wraps an
+    // invocable of type 'FUNC' that holds the moved-from value of 'FUNC';
+    // otherwise return false.
 {
     if (&inA == &inB) {
         return true;
+    }
+
+    if (&inB == &movedFromMarker) {
+        if (! inA) {
+            return true;  // Empty is a valid moved-from state
+        }
+        else if (typeid(FUNC) != inA.target_type()) {
+            return false;
+        }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Create a 'FUNC' object in a moved-from state.
+        // Note that all of our test functors as well as function pointers can
+        // be initialized from integer zero.
+        FUNC movedFromFunc(0);
+        {
+            // Put 'movedFromFunc' into the moved-to state.
+            FUNC movedToFunc(std::move(movedFromFunc));
+            ASSERT(movedToFunc == FUNC(0));
+        }
+
+        const FUNC *targetA = inA.target<FUNC>();
+        ASSERT(targetA);
+        return *targetA == movedFromFunc;
+#else
+        return false;
+#endif
     }
 
     if (! inA || ! inB) {
@@ -2022,14 +2090,6 @@ void testAssignment(const Obj& inA,
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-    // Construct a 'function' object wrapping the same type as 'inB' in a
-    // moved-from state.
-    Obj movedFromB(bsl::allocator_arg, &testAlloc2, inB);
-    {
-        Obj movedToFunc(std::move(movedFromB));
-        ASSERT(areEqualB_p(movedToFunc, inB));
-    }
-
     // Test move assignment with unequal allocators
     globalAllocMonitor.reset(&globalTestAllocator);
     testAlloc1Monitor.reset(&testAlloc1);
@@ -2057,7 +2117,7 @@ void testAssignment(const Obj& inA,
         AllocSizeType postB2Total = testAlloc2.numBytesTotal();
         LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
         // 'b' should be either in the moved-from state or unchanged.
-        LOOP2_ASSERT(lineA, lineB, (areEqualB_p(b, movedFromB) ||
+        LOOP2_ASSERT(lineA, lineB, (areEqualB_p(b, movedFromMarker) ||
                                     areEqualB_p(b, inB)));
         LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
                                                                a.allocator()));
@@ -3073,6 +3133,8 @@ int main(int argc, char *argv[])
         //:   'bsl::allocator' instantiations, stateless STL-style allocators,
         //:   and stateful STL-style allocators of various sizes.  The
         //:   original and copy can use different allocators.
+        //: 10 If the functor move-constructor or the allocator throws an
+        //:   exception, then no resources are leaked.
         //
         // Plan:
         //: 1 For concern 1 move an empty 'function' using both the move
@@ -3114,6 +3176,9 @@ int main(int argc, char *argv[])
         //:   types described in concern 9.  Invoke 'testMoveCtor' with many
         //:   combinations of functor and allocator types so that every
         //:   category combination is represented.
+        //: 9 For concern 10, performed the above steps within the exception
+        //:   test framework and verify that, on exception, memory allocation
+        //:   does not change and no functor objects are leaked.
         //
         // Testing:
         //      function(function&& other)
