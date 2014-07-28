@@ -415,18 +415,6 @@ static void printCharAsBinary(const char c) {
     }
 }
 
-static void printStringAsBinary(const char *str, size_t len) {
-    for(size_t i = 0; i < len; ++i) {
-        printCharAsBinary(str[i]);
-    }
-}
-
-static void printString(const char *str, size_t len) {
-    for(size_t i = 0; i < len; ++i) {
-        printf("%c", str[i]);
-    }
-}
-
 static bool binaryCompare(const char *first, const char *second, size_t size) {
     bool equal = true;
     for(size_t i = 0; i < size; ++i) {
@@ -740,12 +728,11 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING STANDARD TYPEDEFS
-        //   Verify that the struct properly forwards the typedefs of the
-        //   algorithm it is passed.
+        //   Verify that the struct hash the proper typedefs.
         //
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
-        //:   the typedef of the current algorithm.
+        //:   'size_t'.
         //
         // Plan:
         //: 1 ASSERT the typedef accessibly aliases the correct type using
@@ -762,11 +749,7 @@ int main(int argc, char *argv[])
                             " type using 'bslmf::IsSame'. (C-1)\n");
         {
 
-            ASSERT((bslmf::IsSame<SipHashAlgorithm::result_type,
-                                 Hash<SipHashAlgorithm>::result_type>::VALUE));
-
-            ASSERT((bslmf::IsSame<SpookyHashAlgorithm::result_type,
-                              Hash<SpookyHashAlgorithm>::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<size_t, Hash<>::result_type>::VALUE));
         }
 
       } break;
@@ -842,11 +825,11 @@ int main(int argc, char *argv[])
                             " results against known good values. (C-1,2)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
-                const int                LINE  = DATA[i].d_line;
-                const int                VALUE = DATA[i].d_value;
-                const unsigned long long HASH  = DATA[i].d_hash;
+                const int    LINE  = DATA[i].d_line;
+                const int    VALUE = DATA[i].d_value;
+                const size_t HASH  = static_cast<size_t>(DATA[i].d_hash);
 
-                if (veryVerbose) printf("Hashing: %i, Expecting: %llu\n",
+                if (veryVerbose) printf("Hashing: %i, Expecting: %u\n",
                                         VALUE,
                                         HASH);
 
@@ -1187,7 +1170,7 @@ int main(int argc, char *argv[])
             // hashAppend char[]
             MockHashingAlgorithm carrayAlg;
             char carray[] = "asdf";
-            int strLen = strlen(carray) + 1;
+            size_t strLen = strlen(carray) + 1;
             hashAppend(carrayAlg, carray);
             const char *carrayOutput = carrayAlg.getData();
             for(size_t i = 0; i < strLen; ++i) {

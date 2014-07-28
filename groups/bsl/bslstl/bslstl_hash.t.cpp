@@ -16,6 +16,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <iostream>
 #include <math.h>
 #include <wchar.h>
 #include <stdio.h>
@@ -49,19 +50,22 @@ using namespace bsl;
 // [ 6] QoI: Support for empty base optimization
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                    STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
-             << "    (failed)" << endl;
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+
+}  // close unnamed namespace
 
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
@@ -498,7 +502,7 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-//  bool         veryVerbose = argc > 3;
+    bool         veryVerbose = argc > 3;
 //  bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 

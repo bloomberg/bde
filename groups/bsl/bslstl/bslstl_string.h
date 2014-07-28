@@ -2372,21 +2372,6 @@ std::size_t hashBasicString(const string& str);
 std::size_t hashBasicString(const wstring& str);
     // Return a hash value for the specified 'str'.
 
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
-    // Specialization of 'hash' for 'basic_string'.
-{
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(hash, bsl::is_trivially_copyable);
-
-    std::size_t operator()(const basic_string<CHAR_TYPE,
-                           CHAR_TRAITS, ALLOCATOR>& str) const
-        // Return a hash value computed using the specified 'str' value.
-    {
-        return hashBasicString(str);
-    }
-};
-
 // ============================================================================
 //                       FUNCTION TEMPLATE DEFINITIONS
 // ============================================================================
@@ -5534,6 +5519,7 @@ void hashAppend(HASHALG& hashAlg,
                 const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&  input)
 {
     hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
+    hashAppend(hashAlg, input.size());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>

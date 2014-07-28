@@ -1390,40 +1390,10 @@ void bslstl::hashAppend(HASHALG& hashAlg,
                         const StringRefImp<CHAR_TYPE>&  input)
 {
     hashAlg(input.data(), sizeof(CHAR_TYPE)*input.length());
+    hashAppend(hashAlg, input.length());
 }
 
 }  // close enterprise namespace
-
-                      // =================================
-                      // struct hash<bslstl::StringRefImp>
-                      // =================================
-
-namespace bsl {
-
-template <typename CHAR_TYPE>
-struct hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> > {
-    // This template specialization enables use of 'bslstl::StringRefImp'
-    // within STL hash containers, for example,
-    // 'bsl::unordered_set<bslstl::StringRefImp>' and
-    // 'bsl::unordered_map<bslstl::StringRefImp, Type>' for some type 'Type'.
-
-    // ACCESSORS
-    std::size_t
-    operator()(const BloombergLP::bslstl::StringRefImp<CHAR_TYPE>&
-                                                              stringRef) const;
-        // Return a hash corresponding to the string bound to the specified
-        // 'stringRef'.
-};
-
-// ACCESSORS
-template <typename CHAR_TYPE>
-std::size_t hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> >::
-operator()(const BloombergLP::bslstl::StringRefImp<CHAR_TYPE>& stringRef) const
-{
-    return ::BloombergLP::bslh::Hash<>()(stringRef);
-}
-
-}  // close namespace bsl
 
 #endif
 

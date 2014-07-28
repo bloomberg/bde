@@ -747,8 +747,11 @@ int main(int argc, char *argv[])
         //:   will verify that the hash function returns acceptably distinct
         //:   values for a set of input strings, allowing for at most one
         //:   collision.
+        //:
         //: 2 The 'hashAppend' function should be picked up and used by
         //;   bslh:Hash. The whole string should be used in this hash.
+        //:   'bsl::hash' specialization has been deleted, so calls to
+        //:   'bsl::hash' should automatically forward to 'bslh::Hash'.
         //
         // Plan:
         //: 1 Hash a reasonably large number of strings, capturing the hash
@@ -764,6 +767,7 @@ int main(int argc, char *argv[])
         //:   While there are no guarantees that these data sets are
         //:   representative, this at least allows us to make sure that our hash
         //:   performs in a reasonable manner.
+        //:
         //: 2 Test using both bslh::Hash<> and bsl::hash<StringRef> (both of
         //:    which should now give the same result). Hash strings where only
         //:    the final value differs to ensure that the full length of the
@@ -1972,10 +1976,13 @@ int main(int argc, char *argv[])
             const char *STR          = DATA[ti].d_str;
             Obj o(STR);
 
-            std::size_t hash_value = bslh_hash_function(o);
+            std::size_t hash_value =
+                                    static_cast<size_t>(bslh_hash_function(o));
+            std::size_t bsl_hash_value =
+                                     static_cast<size_t>(bsl_hash_function(o));
 
             // Ensure bslh::Hash and bsl::hash produce the same value
-            ASSERT(hash_value == bsl_hash_function(o));
+            ASSERT(hash_value == bsl_hash_value);
 
             if (veryVerbose) {
                 printf("%4d: STR=%-20s, HASH=" ZU "\n",LINE, STR, hash_value);

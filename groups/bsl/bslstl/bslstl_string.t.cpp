@@ -1212,15 +1212,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     // Testing:
     //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
     // --------------------------------------------------------------------
-
+    typedef ::BloombergLP::bslh::Hash<> Hasher;
+    typedef typename Hasher::result_type HashType;
 
     const int PRIME = 100003; // Arbitrary large prime to be used in hash-table
                               // like testing
 
-    int                         collisions [PRIME] = {};
-    ::BloombergLP::bslh::Hash<> hasher;
-    size_t                      prevHash           = 0;
-    size_t                      hash               = 0;
+    int       collisions [PRIME] = {};
+    Hasher    hasher;
+    size_t    prevHash           = 0;
+    HashType  hash               = 0;
 
     for(int i = 0; i != PRIME; ++i) {
         Obj num;
@@ -1257,18 +1258,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
         Obj numCopy = num;
 
         // Verify same hash is produced for the same value
+        ASSERT(num == numCopy);
         ASSERT(hash == hasher(numCopy));
-
-        /*printf("\nString: %s, Size: %i, Hash: %u\n", 
-                        (const char *) num.c_str(), 
-                        sizeof(TYPE) * num.size(),
-                        hash);*/
     }
-
-    //Valid hash for empty string
-    Obj empty;
-    ASSERT(hasher(empty) == 0);
-
 }
 
 

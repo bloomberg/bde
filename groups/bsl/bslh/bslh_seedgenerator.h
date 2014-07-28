@@ -15,11 +15,11 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a class, 'bslh::SeedGenerator', which
-//  utilizes a user-supplied random number generator to generate arbitrary
-//  length seeds. The quality of the seeds will only be as good as the quality
-//  of the supplied RNG. A cryptographically secure RNG must be supplied in
-//  order for 'SeedGenerator' to produce seeds suitable for a cryptographically
-//  secure hashing algorithm.
+//  utilizes a user-supplied random number generator (RNG) to generate
+//  arbitrary length seeds. The quality of the seeds will only be as good as
+//  the quality of the supplied RNG. A cryptographically secure RNG must be
+//  supplied in order for 'SeedGenerator' to produce seeds suitable for a
+//  cryptographically secure hashing algorithm.
 
 #ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHMIMP
 #include <bslh_spookyhashalgorithmimp.h>
@@ -49,8 +49,8 @@ namespace bslh {
 template<class RNG>
 class SeedGenerator
 {
-    // Takes an initial 32-bit seed and uses it to generate an arbitrary length
-    // seed.
+    // Takes a user supplied random number generator and uses it to generate an
+    // arbitrary length seed.
 
   private:
     // PRIVATE TYPES
@@ -59,7 +59,7 @@ class SeedGenerator
         // 'operator()' on the parameterized 'RNG'
 
     // DATA
-    RNG          d_randomNumberGenerator; // User provided seed
+    RNG          d_randomNumberGenerator; // User provided RNG
     const size_t k_RNGOUTPUTSIZE;         // Size in bytes of the rng's output
 
   public:
@@ -76,7 +76,10 @@ class SeedGenerator
     void generateSeed(char *seedLocation, size_t seedLength);
         // Generate a seed of the specified 'seedLength' bytes and store it at
         // the specified 'seedLocation'. The seed will be generated with bytes
-        // from the random number generator supplied at construction.
+        // from the random number generator supplied at construction. All of
+        // the returned bytes will come from the RNG, meaning if the requested
+        // seed is larger than the return type of the RNG, the RNG will be
+        // called multiple times.
 };
 
 // CREATORS
