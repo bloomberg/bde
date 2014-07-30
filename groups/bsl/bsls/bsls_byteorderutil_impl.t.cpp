@@ -2,7 +2,7 @@
 
 #include <bsls_byteorderutil_impl.h>
 
-#include <bsls_bsltestutil.h>
+#include <bsls_bsltestutil.h>    // for testing only
 
 #include <cstdlib>
 #include <cstdio>
@@ -293,12 +293,18 @@ int main(int argc, char *argv[])
         // TESTING CONSISTENCY OF COMPILE-TIME FLAGS
         //
         // Concerns:
-        //: o Be able to display at run time which compile-time flags are
-        //:   defined and which are not.  Also make sure that the flags are not
-        //:   set in an inconsistent manner.
+        //: 1 When run in 'veryVerbose' moded, display which compile-time flags
+        //:   are defined and which are not.
+        //:
+        //: 2 Verify that 'customSwapNN' and 'customSwapPNN' are never both
+        //:   set for any value of 'NN' on any platform (note that it is
+        //:   permissible for neither to be set).
         //
         // Plan:
-        //: o Do '#ifdef'-driven output and checks.
+        //: 1 Do '#ifdef'-driven output (C-1).
+        //:
+        //: 2 Construct an '#if' statement to check the consistency of the
+        //:   macros being set.
         //
         // Testing:
         //   'BSLS_BYTEORDERUTIL_IMPL_CUSTOM_*'
@@ -362,12 +368,22 @@ int main(int argc, char *argv[])
         // TESTING 'mySwapBytes*'
         //
         // Concerns:
-        //: o Test that 'mySwapBytes', which, when run on all platforms, will
-        //:   use all incarnations of 'customSwap{16,32,64}', properly
-        //:   reverses byte order.
+        //: 1 That all incarnations of 'customSwapNN' or 'customSwapPNN' or
+        //:   'genericSwapNN' work.
         //
         // Plan:
-        //: o Compare the results of 'mySwapBytes' with 'd_swapped'.
+        //: 1 Create the functions 'mySwapBytesNN' (before 'main', above),
+        //:   which, if called on all platforms will result in all incarnations
+        //:   of the functions under tests being tested.
+        //:
+        //: 2 Use the tables 'data16', 'data32', and 'data64', defeined at
+        //:   file scope above, to provie test data and its swapped values.
+        //:
+        //: 3 For word widths 16, 32, and 64
+        //:   A Test swapping signed and unsigned types with 'mySwapBytesNN'.
+        //:   B Test swapping the unsigned type with 'genericSwapNN'
+        //:   C Use '#ifdef's to determine if 'long' or 'wchar_t' have the
+        //:     designated word width under test, and if so, test it.
         //
         // Testing:
         //   'mySwapBytes[16,32,64}'
@@ -391,6 +407,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes16(uValue));
+                LOOP_ASSERT(line, uSwapped == Impl::genericSwap16(uValue));
                 LOOP_ASSERT(line, static_cast<unsigned short>(iSwapped) ==
                                                         mySwapBytes16(iValue));
 #if 2 == BYTEORDERUTIL_SIZEOF_WCHAR_T
@@ -418,6 +435,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes32(uValue));
+                LOOP_ASSERT(line, uSwapped == Impl::genericSwap32(uValue));
                 LOOP_ASSERT(line, iSwapped == (int) mySwapBytes32(iValue));
 
 #if 4 == BYTEORDERUTIL_SIZEOF_WCHAR_T
@@ -468,6 +486,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { PHEX_(uValue); PHEX(uSwapped); }
 
                 LOOP_ASSERT(line, uSwapped == mySwapBytes64(uValue));
+                LOOP_ASSERT(line, uSwapped == Impl::genericSwap64(uValue));
                 LOOP_ASSERT(line, iSwapped ==
                                             (Int64) mySwapBytes64(iValue));
 
@@ -497,19 +516,27 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'genericSwap*' & SOUNDNESS OF TABLE
+        // TESTING 'genericSwap*' & SOUNDNESS OF TABLES
         //
         // Concerns:
-        //: o Test the 'genericSwap*' functions, and that the table values of
-        //:   'd_swapped' are accurate.
+        //: 1 Test that the tables 'data16', 'data32', and 'data64', accurately
+        //:   provide swapped values for their types.
+        //:
+        //: 2 Test that the tables are of significant length (> 10 entries).
+        //:
+        //: 3 Test that 'genericSwapNN' works correctly.
         //
         // Plan:
-        //: 1 Use the 'swapBytesInPlace' oracle (defined in this file) to
-        //:   verify that the 'd_swapped' values are appropriate for the
-        //:   'd_value' values.
-        //: 2 Verify that the return values of 'genericSwap*' deliver the
-        //:   values matching 'd_swapped' (and therefore also the values from
-        //:   the oracle).
+        //: 1 Create a template function 'swapBytesInPlace' that, given a
+        //:   pointer to an object of any itegral type, will reverse the byte
+        //:   order of the object.
+        //:
+        //: 2 For each table:
+        //:   A Assert that the table length is >10.
+        //:   B Traverse the table, apply 'swapBytesInPlace' to verify the
+        //:     expected swapped value matches the swapped value.
+        //:   6 Call 'Impl::genericSwapNN' on signed and unsigned values and
+        //:     confirm the result matches the expected value.
         //
         // Testing:
         //   'genericSwap{16,32,64}'
@@ -521,6 +548,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Testing 16 Bit\n");
         {
+            ASSERT(k_NUM_DATA16 > 10);
+
             for (int ti = 0; ti < k_NUM_DATA16; ++ti) {
                 const int            line     = data16[ti].d_lineNum;
                 const unsigned short uValue   = data16[ti].d_value;
@@ -542,6 +571,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Testing 32 Bit\n");
         {
+            ASSERT(k_NUM_DATA32 > 10);
+
             for (int ti = 0; ti < k_NUM_DATA32; ++ti) {
                 const int          line     = data32[ti].d_lineNum;
                 const unsigned int uValue   = data32[ti].d_value;
@@ -563,6 +594,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Testing 64 Bit\n");
         {
+            ASSERT(k_NUM_DATA64 > 10);
+
             for (int ti = 0; ti < k_NUM_DATA64; ++ti) {
                 const int    line     = data64[ti].d_lineNum;
                 const Uint64 uValue   = data64[ti].d_value;

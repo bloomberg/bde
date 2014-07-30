@@ -2,18 +2,18 @@
 
 #include <bsls_byteorderutil.h>
 
-#include <bsls_bsltestutil.h>
+#include <bsls_bsltestutil.h>    // for testing only
 
-#include <limits>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
+#include <limits>
 
 //=============================================================================
 //                                 TEST PLAN
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The component under test is a namespace component containing a collection
+// The component under test contains a utility 'class' containing a collection
 // of single-argument, passed by value, static functions that return their
 // results.  There are two classes of functions:
 //
@@ -111,7 +111,7 @@ void aSsErT(bool b, const char *s, int i)
     (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
 #define BYTEORDERUTIL_SIZEOF_WCHAR_T 2
 #else
-#define BYTEORDERUTIL_SIZEOF_WCHAR_T 4
+# define BYTEORDERUTIL_SIZEOF_WCHAR_T 4
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_UNIX)
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
 // In this example we demonstrate the use of different overloads of the
 // 'swapBytes' function.
 //
-// First we 'typedef' a shorthand to the namespace 'class':
+// First we 'typedef' a shorthand to the utility 'class':
 //..
     typedef bsls::ByteOrderUtil Util;
 //..
@@ -587,9 +587,11 @@ int main(int argc, char *argv[])
         //:   1 Use the 'swapBytesInPlace' oracle function (defined in this to
         //:     verify that the 'd_swapped' field of the entry is reversed
         //:     version of the 'd_value' entry.
+        //:
         //:   2 Call 'isSameType' to compare the types of different variables
         //:     and calls to 'swapBytes' and 'swapBytesNN', verifying that
         //:     the types match or do not as expected.
+        //:
         //:   3 Call 'swapBytesNN' and 'swapBytes' on the table values and
         //:     verify the results are as expected.
         //
@@ -800,12 +802,32 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 Perform random tests on 'swapBytes' and 'swapBytesNN'.
+        //: 1 Test the swapping functions for all multibyte swap functions in
+        //:   this component.
         //
         // Plan:
-        //: 1 Perform random tests on 'swapBytes' and 'swapBytesNN'.  All
-        //:   aspects of this testing are repeated more systematically in test
-        //:   case 2.
+        //   Test are table driven, based on tables 'data16', 'data32', and
+        //   'data64' declared outside 'main', that supply test values of
+        //   different word widths and their swapped values.
+        //
+        //: 1 Test 16 bit swaps.
+        //:   A Test 'swapBytes16'
+        //:   B Test 'swapBytes' on 'short' and 'unsigned short'
+        //:   C If '2 == sizeof(wchar_t)'. test 'swapBytes(wchar_t)'
+        //:
+        //: 2 Test 32 bit swaps.
+        //:   A Test 'swapBytes32'
+        //:   B Test 'swapBytes' on 'int' and 'unsigned int'
+        //:   C If '4 == sizeof(wchar_t)'. test 'swapBytes(wchar_t)'
+        //:   D If '4 == sizeof(long)'. test 'swapBytes(long)'
+        //:
+        //: 3 Test 64 bit swaps.
+        //:   A Test 'swapBytes64'
+        //:   B Test 'swapBytes' on 'Types::Int64' and 'Types::Uint64'
+        //:   C If '8 == sizeof(long)'. test 'swapBytes(long)'
+        //:
+        //: 4 Check 'bool's set when testing 'wchar_t' and 'long' to make
+        //:   sure the #ifdef logic resulted in both types being tested.
         //
         // Testing:
         //   static TYPE swapBytes(TYPE) for all multi-byte integral 'TYPE'

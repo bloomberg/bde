@@ -10,11 +10,11 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide byte-order swapping functions.
 //
 //@CLASSES:
-//   bsls::ByteOrderUtil: namespace class
+//   bsls::ByteOrderUtil: namespace for byte-order swapping functions.
 //
 //@SEE ALSO: bsls_byteorder
 //
-//@DESCRIPTION: This component provides a namespace 'class'
+//@DESCRIPTION: This component provides a utility 'class',
 // 'bsls::ByteOrderUtil', that contains a suite of static functions for
 // reversing the byte order of integral types.  The functions
 // 'swapByteOrder{16,32,64}' reverse the byte order of words having the
@@ -77,9 +77,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bsls {
 
-                          // ====================
-                          // struct ByteOrderUtil
-                          // ====================
+                          // ===================
+                          // class ByteOrderUtil
+                          // ===================
 
 class ByteOrderUtil {
     // This 'class' provides a namespace for functions used for reversing the
@@ -103,30 +103,29 @@ class ByteOrderUtil {
     static unsigned long  swapBytes(unsigned long  x);
     static Types::Uint64  swapBytes(Types::Uint64  x);
     static Types::Int64   swapBytes(Types::Int64   x);
-        // If the specified 'x' is a multi-byte entity, return its value with
-        // the byte order reversed; otherwise, return its value without
-        // modification.
-
-    // The above functions are all implemented by calling the word-width
-    // specific functions that follow.
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
 
     static unsigned short swapBytes16(unsigned short x);
-        // Return the specified 'x' with byte order swapped.
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
 
     static unsigned int   swapBytes32(unsigned int   x);
-        // Return the specified 'x' with byte order swapped.
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
 
     static Types::Uint64  swapBytes64(Types::Uint64  x);
-        // Return the specified 'x' with byte order swapped.
+        // Return the value that results from reversing the order of the bytes
+        // in the specified 'x'.
 };
 
 //=============================================================================
 //                          INLINE FUNCTION DEFINITIONS
 //=============================================================================
 
-                              // --------------------
-                              // struct ByteOrderUtil
-                              // --------------------
+                              // -------------------
+                              // class ByteOrderUtil
+                              // -------------------
 
 // CLASS METHODS
 inline

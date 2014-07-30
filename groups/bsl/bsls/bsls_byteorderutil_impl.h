@@ -10,20 +10,41 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide implementation of byte-order manipulation functions.
 //
 //@CLASSES:
-//   bsls::ByteOrderUtil_Impl
+//   bsls::ByteOrderUtil_Impl: namespace 'struct' for swapping functions.
 //
 //@MACROS:
-//   BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT
+//   BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT -- compile time assert
+//
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16  -- 'customeSwap16' function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32  -- 'customeSwap32' function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64  -- 'customeSwap64' function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 -- 'customeSwapP16' function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 -- 'customeSwapP32' function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 -- 'customeSwapP64' function is defined
 //
 //@SEE ALSO: bsls_byteorderutil, bsls_byteorder
 //
 //@DESCRIPTION: This component provides a namespace 'struct',
 // 'bsls::ByteOrderUtil_Impl', for a number of high performance
-// platform-specific implementations for functions and macros in the
-// 'bsls_byteorder' and 'bsls_byteorderutil' components.
+// platform-specific static function implementations for functions and macros
+// in the 'bsls_byteorder' and 'bsls_byteorderutil' components.
 //
 // This component is only intended to be used by 'bsls_byteorderutil'.  No
 // other component should call anything in it directly.
+//
+// The functions come in 3 groups:
+//: o 'customSwapNN' -- take an 'NN' bit value by value and return it with its
+//:   byte order swapped.
+//: o 'customSwapPNN' -- take a pointer to a constant 'NN' bit value and return
+//:   the dereferenced value with its byte order swapped.
+//: o 'genericSwapNN' -- take an 'NN' bit value by value and return it with its
+//:   byte order swapped.
+// the 'customSwap*' functions are not always defined on all platforms.  When
+// they are defined the corresponding macro is defined to signal
+// 'bsls_byteorderutil' that it may use that function.  If neither the
+// 'customeSwapNN' nor the 'customSwapPNN' macros are defined,
+// 'bsls_byteorderutil' is to use the 'genericSwapNN' function, which is always
+// defined.
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
@@ -57,6 +78,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
+
 namespace bsls {
 
                           // =========================
@@ -115,7 +137,7 @@ struct ByteOrderUtil_Impl {
 // We don't have access to 'BSLMF_ASSERT' here in bsls -- do a crude compile
 // time assert for use in 'bsls_byteorderutil'.  This macro will deliberately
 // cause a compilation error if 'expr' evaluates to 'false'.  'expr' must be a
-// compile-time expression.
+// compile-time expression.  Note this macro can only be called in a code body.
 
 #define BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(expr)                     \
         { enum { BSLS_BYTEORDERUTIL_IMPL_NOT_INFINITY =                       \
