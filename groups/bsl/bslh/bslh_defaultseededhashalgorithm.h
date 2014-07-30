@@ -1,22 +1,21 @@
-// bslh_defaulthashalgorithm.h                                        -*-C++-*-
-#ifndef INCLUDED_BSLH_DEFAULTHASHALGORITHM
-#define INCLUDED_BSLH_DEFAULTHASHALGORITHM
+// bslh_defaultseededhashalgorithm.h                                  -*-C++-*-
+#ifndef INCLUDED_BSLH_DEFAULTSEEDEDHASHALGORITHM
+#define INCLUDED_BSLH_DEFAULTSEEDEDHASHALGORITHM
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a reasonable default hashing algorithm.
+//@PURPOSE: Provide a reasonable default seeded hashing algorithm.
 //
 //@CLASSES:
-// bslh::DefaultHashAlgorithm: A good default hashing algorithm
+// bslh::DefaultSeededHashAlgorithm: A good default seeded hashing algorithm.
 //
-//@SEE_ALSO: bslh_hash, bslh_securehashalgorithm,
-// bslh_defaultseededhashalgorithm
+//@SEE_ALSO: bslh_hash, bslh_securehashalgorithm, bslh_defaulthashalgorithm
 //
-//@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides a good default hashing
-// algorithm, suitable for producing hashes for a hash table.
+//@DESCRIPTION: 'bslh::DefaultSeededHashAlgorithm' provides a good default
+// seeded hashing algorithm, suitable for producing hashes for a hash table.
 //
 ///Properties
 ///----------
@@ -25,8 +24,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Security
 /// - - - -
-// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm'. If
-// security is required, look at 'bslh::SecureHashAlgorithm'.
+// There are NO security guarantees made by 'bslh::DefaultSeededHashAlgorithm'.
+// If security is required, look at 'bslh::SecureHashAlgorithm'. Not that even
+// if a cryptographically secure seed is provided, the resulting hash will not
+// be cryptographically secure.
 //
 ///Speed
 ///- - -
@@ -47,8 +48,9 @@ BSLS_IDENT("$Id: $")
 // consistent within a single process. This means different hashes may be
 // produced on machines of different endianness or even between runs on the
 // same machine. Therefor it is not recommended to send hashes from
-// 'bslh::DefaultHashAlgorithm' over a network. It is also not recommended to
-// write hashes from 'bslh::DefaultHashAlgorithm' to shared memory or the disk.
+// 'bslh::DefaultSeededHashAlgorithm' over a network. It is also not
+// recommended to write hashes from 'bslh::DefaultSeededHashAlgorithm' to
+// shared memory or the disk.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -62,7 +64,7 @@ namespace BloombergLP {
 
 namespace bslh {
 
-class DefaultHashAlgorithm
+class DefaultSeededHashAlgorithm
 {
     // Provides a default hashing algorithm that is appropriate for general
     // purpose use
@@ -78,10 +80,14 @@ class DefaultHashAlgorithm
     typedef InternalHashAlgorithm::result_type result_type;
         // Typedef indicating the type of the value this algorithm returns
 
+    // CONSTANTS
+    enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
+        // Seed length in bytes
+
     // CREATORS
-    DefaultHashAlgorithm();
-        // Create a 'bslh::DefaultHashAlgorithm', default constructing the
-        // algorithm being used internally.
+    explicit DefaultSeededHashAlgorithm(const char *seed);
+        // Create an instance of 'DefaultSeededHashAlgorithm' seeded with
+        // 'k_SEED_LENGTH' bytes stored in the specified 'seed'.
 
     // MANIPULATORS
     void operator()(void const* key, size_t length);
@@ -97,14 +103,17 @@ class DefaultHashAlgorithm
 };
 
 // CREATORS
-DefaultHashAlgorithm::DefaultHashAlgorithm(): d_state() { }
+DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed) :
+                                                              d_state(seed) { }
 
 // MANIPULATORS
-void DefaultHashAlgorithm::operator()(void const* key, size_t length)
+void DefaultSeededHashAlgorithm::operator()(void const* key, size_t length)
 {
     d_state(key, length);
 }
-DefaultHashAlgorithm::result_type DefaultHashAlgorithm::computeHash()
+
+DefaultSeededHashAlgorithm::result_type
+DefaultSeededHashAlgorithm::computeHash()
 {
     return d_state.computeHash();
 }

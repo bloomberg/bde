@@ -36,7 +36,7 @@ using namespace bslh;
 // [ 4] typedef bsls::Types::Uint64 result_type;
 //
 // CONSTANTS
-// [ 5] enum { k_SEED_LENGTH = 8 };
+// [ 5] enum { k_SEED_LENGTH = 16 };
 //
 // EXPLICIT CONSTRUCTORS
 // [ 2] explicit SipHashAlgorithm(const char *seed);
@@ -157,7 +157,7 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 // table, degrading performance to O(n). To avoid this we will need to use a
 // secure hash algorithm with a random seed. This algorithm will need to be  in
 // the form of a hash functor -- an object that will take objects stored in our
-// array as input, and yield a 64-bit int value which is hard enough for an
+// array as input, and yield an integer value which is hard enough for an
 // outside observer to predict that it appear random. The functor can pass the
 // salient attributes of the 'TYPE' into the hashing algorithm, and then return
 // the hash that is produced.
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
         //:   value. (C-1,2)
         //
         // Testing:
-        //   enum { k_SEED_LENGTH = 8 };
+        //   enum { k_SEED_LENGTH = 16 };
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING K_SEED_LENGTH"

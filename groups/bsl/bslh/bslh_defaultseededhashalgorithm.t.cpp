@@ -1,5 +1,5 @@
-// bslh_securehashalgorithm.t.cpp                                     -*-C++-*-
-#include <bslh_securehashalgorithm.h>
+// bslh_defaultseededhashalgorithm.t.cpp                              -*-C++-*-
+#include <bslh_defaultseededhashalgorithm.h>
 
 #include <bslh_seedgenerator.h>
 
@@ -37,12 +37,12 @@ using namespace bslh;
 // [ 5] enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
 //
 // EXPLICIT CONSTRUCTORS
-// [ 2] SecureHashAlgorithm(const void *seed);
+// [ 2] DefaultSeededHashAlgorithm(const void *seed);
 //
 // IMPLICIT CONSTRUCTORS
-// [ 2] SecureHashAlgorithm(const SecureHashAlgorithm);
-// [ 2] ~SecureHashAlgorithm();
-// [ 2] SecureHashAlgorithm& operator=(const SecureHashAlgorithm&);
+// [ 2] DefaultSeededHashAlgorithm(const DefaultSeededHashAlgorithm);
+// [ 2] ~DefaultSeededHashAlgorithm();
+// [ 2] DfltSeedHashAlgorithm& operator=(const DfltSeedHashAlgorithm&);
 //
 // MANIPULATORS
 // [ 3] void operator()(void const* key, size_t len);
@@ -109,25 +109,24 @@ void aSsErT(bool b, const char *s, int i)
 //                 GLOBAL TYPEDEFS AND DATA FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef SecureHashAlgorithm Obj;
-const char globalSeed[SecureHashAlgorithm::k_SEED_LENGTH] = { 0 };
+typedef DefaultSeededHashAlgorithm Obj;
+const char globalSeed[DefaultSeededHashAlgorithm::k_SEED_LENGTH] = { 0 };
 
 //=============================================================================
 //                      USAGE EXAMPLE IMPLEMENTATIONS
 //-----------------------------------------------------------------------------
 
-class CryptoSecureRNG {
-    // Generates cryptographically secure random number.
+class SomeRNG {
+    // Generates a random number.
 
   public:
     typedef unsigned long long result_type;
         // Type of the number that will be returned.
 
     result_type operator()();
-        // Return a number that is indistinguishable from random and will not
-        // be able to be predicted by an attacker.
+        // Return a pseudorandom number.
 };
-CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
+SomeRNG::result_type SomeRNG::operator()() {
     return 49872534ULL; // NOTE: not actually random
 }
 
@@ -146,14 +145,12 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 // O(1) time. The hash table implemented here can have numerous simplifications
 // because we know the size of the array and never have to resize the table.
 //
-// Further suppose that we will be storing arbitrary user input in our table.
-// It is possible that an attacker with knowledge of the hashing algorithm we
-// are using could specially craft input that will cause collisions in our hash
-// table, degrading performance to O(n). To avoid this we will need to use a
-// secure hash algorithm with a random seed. This algorithm will need to be  in
-// the form of a hash functor -- an object that will take objects stored in our
-// array as input, and yield an integer value which is hard enough for an
-// outside observer to predict that it appear random. The functor can pass the
+// Further suppose that we will be storing futures in this table. Since futures
+// have standardized names, we don't have to worry about any malicious values
+// causing collisions. We will want to use a general purpose hashing algorithm
+// with a good hash distribution and good speed. This algorithm will need to be
+// in the form of a hash functor -- an object that will take objects stored in
+// our array as input, and yield an integer value. The functor can pass the
 // salient attributes of the 'TYPE' into the hashing algorithm, and then return
 // the hash that is produced.
 //
@@ -352,38 +349,38 @@ bool operator!=(const Future& lhs, const Future& rhs)
 }
 
 // Next, we need a hash functor for 'Future'.  We are going to use the
-// 'SecureHashAlgorithm' because it is a secure hash algorithm that will
-// provide a way to securely combine the salient attributes of 'Future' objects
-// into one reasonable hash that an malicious user will not be able to predict.
-// Moreover, when a new hashing algorithm is discovered to be a better default,
-// we will be automatically be upgraded to use it as soon as
-// 'bslh::SecureHashAlgorithm' is updated, rather than us haveing to change our
-// code.
+// 'DefaultSeededHashAlgorithm' because it is a fast, general purpose hashing
+// algorithm that will provide an easy way to combine the salient attributes of
+// 'Future' objects into one reasonable hash that will distribute the items
+// evenly throughout the hash table. Moreover, when a new hashing algorithm is
+// discovered to be a better default, we can be automatically be upgraded to
+// use it as soon as 'bslh::DefaultSeededHashAlgorithm' is updated.
 
 struct HashFuture {
-    // A hash functor that will apply the 'SecureHashAlgorithm' to objects of
-    // type 'Future', using a generated seed.
+    // A hash functor that will apply the 'DefaultSeededHashAlgorithm' to
+    // objects of type 'Future', using a generated seed.
 
     size_t operator()(const Future& future) const
         // Return the hash of the of the specified 'future'.  Note that this
-        // uses the 'SipHashAlgorithm' to quickly combine the salient
+        // uses the 'SpookyHashAlgorithm' to quickly combine the salient
         // attributes of 'Future' objects into a hash suitable for a hash
         // table.
     {
 //..
-// Then, we use a 'bslh::SeedGenerator' combined with a cryptographically
-// secure RNG (implementation not shown), to generate the seeds for our
-// algorithm.
+// Then, we use a 'bslh::SeedGenerator' combined with a RNG (implementation not
+// shown), to generate the seeds for our algorithm.
 //..
-        char seed[SecureHashAlgorithm::k_SEED_LENGTH];
-        SeedGenerator<CryptoSecureRNG> seedGenerator;
-        seedGenerator.generateSeed(seed, SecureHashAlgorithm::k_SEED_LENGTH);
+        char seed[DefaultSeededHashAlgorithm::k_SEED_LENGTH];
+        SeedGenerator<SomeRNG> seedGenerator;
+        seedGenerator.generateSeed(seed,
+                                    DefaultSeededHashAlgorithm::k_SEED_LENGTH);
 
-        SecureHashAlgorithm hash(seed);
+        DefaultSeededHashAlgorithm hash(seed);
 //..
 // Next, after seeding our algorithm, we pass data into it and operate on it
-// just as easily as for a non-secure algorithm
+// just as easily as for a non-seeded algorithm
 //..
+
         hash(future.getName(),  strlen(future.getName())*sizeof(char));
         hash(future.getMonth(), sizeof(char));
         hash(future.getYear(),  sizeof(short));
@@ -473,7 +470,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Access 'k_SEED_LENGTH' and ASSERT it is equal to the value
-        //:   defined by 'bslh::SipHashAlgorithm. (C-1,2)
+        //:   defined by 'bslh::SpookyHashAlgorithm. (C-1,2)
         //
         // Testing:
         //   enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
@@ -483,10 +480,10 @@ int main(int argc, char *argv[])
                             "\n=====================\n");
 
         if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
-                            " the value defined by 'bslh::SipHashAlgorithm."
+                            " the value defined by 'bslh::SpookyHashAlgorithm."
                             " (C-1,2)\n");
         {
-            ASSERT(SipHashAlgorithm::k_SEED_LENGTH == Obj::k_SEED_LENGTH);
+            ASSERT(SpookyHashAlgorithm::k_SEED_LENGTH == Obj::k_SEED_LENGTH);
         }
 
       } break;
@@ -498,7 +495,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
-        //:   'bslh::SipHashAlgorithm::result_type'.
+        //:   'bslh::SpookyHashAlgorithm::result_type'.
         //
         // Plan:
         //: 1 ASSERT the typedef is accessible and is the correct type using
@@ -515,7 +512,7 @@ int main(int argc, char *argv[])
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
         {
             ASSERT((bslmf::IsSame<Obj::result_type,
-                                  SipHashAlgorithm::result_type>::VALUE));
+                                  SpookyHashAlgorithm::result_type>::VALUE));
         }
 
       } break;
@@ -526,7 +523,7 @@ int main(int argc, char *argv[])
         //   'operator()' with some bytes and a length. Verify that calling
         //   'operator()' will permute the algorithm's internal state as
         //   specified by the underlying hashing algorithm
-        //   (bslh::SipHashAlgorithm). Verify that 'computeHash' returns the
+        //   (bslh::SpookyHashAlgorithm). Verify that 'computeHash' returns the
         //   final value specified by the canonical implementation of the
         //   underlying hashing algorithm.
         //
@@ -546,8 +543,8 @@ int main(int argc, char *argv[])
         //:   execution of this test case.  Memory from the global allocator is
         //:   tested as a global concern. (C-4)
         //:
-        //: 2 Hash a number of values with 'bslh::SecureHashAlgorithm'
-        //:   and 'bslh::SipHashAlgorithm' and verify that the outputs
+        //: 2 Hash a number of values with 'bslh::DefaultSeededHashAlgorithm'
+        //:   and 'bslh::SpookyHashAlgorithm' and verify that the outputs
         //:   match. (C-1,2,3)
         //:
         //: 3 Verify no memory was used. (C-4)
@@ -601,8 +598,8 @@ int main(int argc, char *argv[])
 
 
         if (verbose) printf("Hash a number of values with"
-                            " 'bslh::SecureHashAlgorithm' and"
-                            " 'bslh::SipHashAlgorithm' and verify that the"
+                            " 'bslh::DefaultSeededHashAlgorithm' and"
+                            " 'bslh::SpookyHashAlgorithm' and verify that the"
                             " outputs match. (C-1,2,3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
@@ -610,12 +607,13 @@ int main(int argc, char *argv[])
                 const char *VALUE = DATA[i].d_value;
 
                 if (veryVerbose) printf("Hashing: %s\n with"
-                                        " 'bslh::SecureHashAlgorithm' and"
-                                        " 'bslh::SipHashAlgorithm'", VALUE);
+                                        " 'bslh::DefaultSeededHashAlgorithm'"
+                                        " and 'bslh::SpookyHashAlgorithm'",
+                                        VALUE);
 
-                Obj              contiguousHash(globalSeed);
-                Obj              dispirateHash(globalSeed);
-                SipHashAlgorithm cannonicalHashAlgorithm(globalSeed);
+                Obj                 contiguousHash(globalSeed);
+                Obj                 dispirateHash(globalSeed);
+                SpookyHashAlgorithm cannonicalHashAlgorithm(globalSeed);
 
                 cannonicalHashAlgorithm(VALUE, strlen(VALUE));
                 contiguousHash(VALUE, strlen(VALUE));
@@ -626,7 +624,7 @@ int main(int argc, char *argv[])
                     dispirateHash(&VALUE[j], sizeof(char));
                 }
 
-                SipHashAlgorithm::result_type hash =
+                SpookyHashAlgorithm::result_type hash =
                                          cannonicalHashAlgorithm.computeHash();
 
                 LOOP_ASSERT(LINE, hash == contiguousHash.computeHash());
@@ -672,26 +670,26 @@ int main(int argc, char *argv[])
         //: 2 Instantiate the algorithm using a default constructor. (C-1)
         //:
         //: 3 Use the copy-initialization syntax to create a new instance of
-        //:   'SecureHashAlgorithm' from an existing instance. (C-2,3)
+        //:   'DefaultSeededHashAlgorithm' from an existing instance. (C-2,3)
         //:
         //: 4 Assign the value of the one (const) instance of
-        //:   'SecureHashAlgorithm' to a second. (C-4)
+        //:   'DefaultSeededHashAlgorithm' to a second. (C-4)
         //:
         //: 5 Chain the assignment of the value of the one instance of
-        //:   'SecureHashAlgorithm' to a second instance of
-        //:   'SecureHashAlgorithm', into a self-assignment of the second
-        //:   object. (C-5)
+        //:   'DefaultSeededHashAlgorithm' to a second instance of :
+        //:   'DefaultSeededHashAlgorithm', into a self-assignment of the
+        //:   second object. (C-5)
         //:
-        //: 6 Create an instance of 'SecureHashAlgorithm' and allow it to
-        //:   leave scope to be destroyed. (C-6)
+        //: 6 Create an instance of 'DefaultSeededHashAlgorithm' and allow it
+        //:   toleave scope to be destroyed. (C-6)
         //:
         //: 7 Verify no memory was used. (C-7)
         //
         // Testing:
-        //   SecureHashAlgorithm(const void *seed);
-        //   SecureHashAlgorithm(const SecureHashAlgorithm);
-        //   ~SecureHashAlgorithm();
-        //   SecureHashAlgorithm& operator=(const SecureHashAlgorithm&);
+        //   DefaultSeededHashAlgorithm(const void *seed);
+        //   DefaultSeededHashAlgorithm(const DefaultSeededHashAlgorithm);
+        //   ~DefaultSeededHashAlgorithm();
+        //   DfltSeedHashAlgorithm& operator=(const DfltSeedHashAlgorithm&);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -715,7 +713,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
-                            " new instance of 'SecureHashAlgorithm'"
+                            " new instance of 'DefaultSeededHashAlgorithm'"
                             " from an existing instance. (C-2,3)\n");
         {
             Obj alg1(globalSeed);
@@ -723,7 +721,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Assign the value of the one (const) instance of"
-                            " 'SecureHashAlgorithm' to a second."
+                            " 'DefaultSeededHashAlgorithm' to a second."
                             " (C-4)\n");
         {
             const Obj alg1(globalSeed);
@@ -731,8 +729,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Chain the assignment of the value of the one"
-                            " instance of 'SecureHashAlgorithm' to a"
-                            " second instance of 'SecureHashAlgorithm',"
+                            " instance of 'DefaultSeededHashAlgorithm' to a"
+                            " second instance of 'DefaultSeededHashAlgorithm',"
                             " into a self-assignment of the second object."
                             " (C-5)\n");
         {
@@ -742,7 +740,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Create an instance of"
-                            " 'SecureHashAlgorithm' and allow it to"
+                            " 'DefaultSeededHashAlgorithm' and allow it to"
                             " leave scope to be destroyed. (C-6)\n");
         {
             Obj alg1(globalSeed);
@@ -764,7 +762,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an instance of 'bsl::SecureHashAlgorithm'. (C-1)
+        //: 1 Create an instance of 'bsl::DefaultSeededHashAlgorithm'. (C-1)
         //:
         //: 2 Verify different hashes are produced for different c-strings.
         //:   (C-1)
@@ -782,7 +780,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        if (verbose) printf("Instantiate 'bsl::SecureHashAlgorithm'\n");
+        if (verbose) printf("Instantiate 'bsl::DefaultSeededHashAlgorithm'\n");
         {
             Obj hashAlg(globalSeed);
         }

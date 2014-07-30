@@ -7,21 +7,22 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a typedef for a secure hashing algorithm.
+//@PURPOSE: Provide a secure hashing algorithm.
 //
 //@CLASSES:
-// bslh::SecureHashAlgorithm: Typedef for a secure hashing algorithm
+// bslh::SecureHashAlgorithm: A secure hashing algorithm
 //
 //@SEE_ALSO: bslh_hash, bslh_oneatatimehashalgorithm
 //
-//@DESCRIPTION: 'bslh::SecureHashAlgorithm' provides a typedef for a secure
-//  hashing algorithm. Given a random seed, this algorithm will act as a
-//  psuedorandom function (PRF) and produce hashes that are distributed in a
-//  way that is indistinguishable from random. This hash algorithm may operate
-//  more slowly than 'bslh::DefaultHashAlgorithm', however it will help
-//  mitigate the risk of denial of service attacks on hash tables containing
-//  potentially malicious input. For more information on hash table denial of
-//  service attacks, see: https://www.nruns.com/_downloads/advisory28122011.pdf
+//@DESCRIPTION: 'bslh::SecureHashAlgorithm' provides a secure hashing
+//  algorithm. Given a random seed, this algorithm will act as a psuedorandom
+//  function (PRF) and produce hashes that are distributed in a way that is
+//  indistinguishable from random. This hash algorithm may operate more slowly
+//  than non-secure algorithms such as 'bslh::SpookyHashAlgorithm', however, it
+//  will help mitigate the risk of denial of service attacks on hash tables
+//  containing potentially malicious input. For more information on hash table
+//  denial of service attacks, see:
+//  https://www.nruns.com/_downloads/advisory28122011.pdf
 //
 ///Properties
 ///----------
@@ -80,9 +81,59 @@ namespace BloombergLP {
 
 namespace bslh {
 
-#pragma bde_verify -TR17
-typedef SipHashAlgorithm SecureHashAlgorithm;
-#pragma bde_verify +TR17
+class SecureHashAlgorithm
+{
+    // Provides a secure hashing algorithm that is appropriate for use with a
+    // cryptographically secure seed to protect hash tables from denial of
+    // service attacks.
+
+    // PRIVATE TYPES
+    typedef bslh::SipHashAlgorithm InternalHashAlgorithm;
+
+    // DATA
+    InternalHashAlgorithm d_state;
+
+  public:
+    // TYPES
+    typedef InternalHashAlgorithm::result_type result_type;
+        // Typedef indicating the type of the value this algorithm returns
+
+    // CONSTANTS
+    enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
+        // Seed length in bytes
+
+    // CREATORS
+    explicit SecureHashAlgorithm(const char *seed);
+        // Create an instance of 'SecureHashAlgorithm' seeded with
+        // 'k_SEED_LENGTH' bytes stored in the specified 'seed'.
+
+    // MANIPULATORS
+    void operator()(void const* key, size_t length);
+        // Incorporates the specified 'key' of 'length' bytes into the internal
+        // state of the hashing algorithm.
+
+    result_type computeHash();
+        // Return the finalized version of the hash that has been accumulated.
+        // Note that this changes the internal state of the object, so calling
+        // 'computeHash' multiple times in a row will return different results,
+        // and only the first result returned will match the expected result of
+        // the algorithm.
+};
+
+// CREATORS
+SecureHashAlgorithm::SecureHashAlgorithm(const char *seed) : d_state(seed) { }
+
+// MANIPULATORS
+void SecureHashAlgorithm::operator()(void const* key, size_t length)
+{
+    d_state(key, length);
+}
+
+SecureHashAlgorithm::result_type SecureHashAlgorithm::computeHash()
+{
+    return d_state.computeHash();
+}
+
 
 }  // close namespace bslh
 

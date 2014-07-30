@@ -1,4 +1,5 @@
 bslh_defaulthashalgorithm
+bslh_defaultseededhashalgorithm
 bslh_hash
 bslh_oneatatimehashalgorithm
 bslh_securehashalgorithm

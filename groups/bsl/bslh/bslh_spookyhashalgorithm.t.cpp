@@ -113,7 +113,7 @@ void aSsErT(bool b, const char *s, int i)
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example: Creating and Using a Hash Cross Reference
+///Example: Creating and Using a Hash Table
 /// - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of values that define 'operator==', and we want a
 // really fast way to find out if values are contained in the array. We can
