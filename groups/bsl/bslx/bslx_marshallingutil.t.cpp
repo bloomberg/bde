@@ -1201,34 +1201,34 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, TV, 3));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(TV, ZCHARPTR, 3));
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, SV, 3));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(SV, ZCHARPTR, 3));
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, UV, 3));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(UV, ZCHARPTR, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, TV, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(TV, ZCHARPTR, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, SV, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(SV, ZCHARPTR, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(ZCHARPTR, UV, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(UV, ZCHARPTR, 3));
 
             // invalid 'values'
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZTPTR, 3));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(ZTPTR, BUFFER, 3));
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZSPTR, 3));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(ZSPTR, BUFFER, 3));
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZUPTR, 3));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(ZUPTR, BUFFER, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZTPTR, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(ZTPTR, BUFFER, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZSPTR, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(ZSPTR, BUFFER, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, ZUPTR, 3));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(ZUPTR, BUFFER, 3));
 
             // valid and invalid 'numValues'
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(BUFFER, TV, -1));
-            ASSERT_PASS(MarshallingUtil::putArrayInt8(BUFFER, TV, 0));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(TV, BUFFER, -1));
-            ASSERT_PASS(MarshallingUtil::getArrayInt8(TV, BUFFER, 0));
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(BUFFER, SV, -1));
-            ASSERT_PASS(MarshallingUtil::putArrayInt8(BUFFER, SV, 0));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(SV, BUFFER, -1));
-            ASSERT_PASS(MarshallingUtil::getArrayInt8(SV, BUFFER, 0));
-            ASSERT_FAIL(MarshallingUtil::putArrayInt8(BUFFER, UV, -1));
-            ASSERT_PASS(MarshallingUtil::putArrayInt8(BUFFER, UV, 0));
-            ASSERT_FAIL(MarshallingUtil::getArrayInt8(UV, BUFFER, -1));
-            ASSERT_PASS(MarshallingUtil::getArrayInt8(UV, BUFFER, 0));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, TV, -1));
+            ASSERT_SAFE_PASS(MarshallingUtil::putArrayInt8(BUFFER, TV, 0));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(TV, BUFFER, -1));
+            ASSERT_SAFE_PASS(MarshallingUtil::getArrayInt8(TV, BUFFER, 0));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, SV, -1));
+            ASSERT_SAFE_PASS(MarshallingUtil::putArrayInt8(BUFFER, SV, 0));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(SV, BUFFER, -1));
+            ASSERT_SAFE_PASS(MarshallingUtil::getArrayInt8(SV, BUFFER, 0));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putArrayInt8(BUFFER, UV, -1));
+            ASSERT_SAFE_PASS(MarshallingUtil::putArrayInt8(BUFFER, UV, 0));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(UV, BUFFER, -1));
+            ASSERT_SAFE_PASS(MarshallingUtil::getArrayInt8(UV, BUFFER, 0));
         }
 
       } break;
@@ -3076,11 +3076,11 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putFloat32(ZCHARPTR, TV));
-            ASSERT_FAIL(MarshallingUtil::getFloat32(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putFloat32(ZCHARPTR, TV));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getFloat32(&TV, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getFloat32(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getFloat32(ZTPTR, BUFFER));
         }
 
       } break;
@@ -3322,11 +3322,11 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putFloat64(ZCHARPTR, TV));
-            ASSERT_FAIL(MarshallingUtil::getFloat64(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putFloat64(ZCHARPTR, TV));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getFloat64(&TV, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getFloat64(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getFloat64(ZTPTR, BUFFER));
         }
 
       } break;
@@ -3509,15 +3509,15 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putInt8(ZCHARPTR, V));
-            ASSERT_FAIL(MarshallingUtil::getInt8(&TV, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getInt8(&TU, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getInt8(&TS, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putInt8(ZCHARPTR, V));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(&TU, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(&TS, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getInt8(ZTPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getInt8(ZUPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getInt8(ZSPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(ZUPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(ZSPTR, BUFFER));
         }
 
       } break;
@@ -3660,13 +3660,13 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putInt16(ZCHARPTR, V));
-            ASSERT_FAIL(MarshallingUtil::getInt16(&TV, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getUint16(&TU, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putInt16(ZCHARPTR, V));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt16(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint16(&TU, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getInt16(ZTPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getUint16(ZUPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt16(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint16(ZUPTR, BUFFER));
         }
 
       } break;
@@ -3814,13 +3814,13 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putInt24(ZCHARPTR, V));
-            ASSERT_FAIL(MarshallingUtil::getInt24(&TV, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getUint24(&TU, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putInt24(ZCHARPTR, V));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt24(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint24(&TU, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getInt24(ZTPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getUint24(ZUPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt24(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint24(ZUPTR, BUFFER));
         }
 
       } break;
@@ -3965,13 +3965,13 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putInt32(ZCHARPTR, V));
-            ASSERT_FAIL(MarshallingUtil::getInt32(&TV, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getUint32(&TU, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putInt32(ZCHARPTR, V));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt32(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint32(&TU, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getInt32(ZTPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getUint32(ZUPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt32(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint32(ZUPTR, BUFFER));
         }
 
       } break;
@@ -4121,13 +4121,13 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putInt40(ZCHARPTR, V));
-            ASSERT_FAIL(MarshallingUtil::getInt40(&TV, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getUint40(&TU, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putInt40(ZCHARPTR, V));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt40(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint40(&TU, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getInt40(ZTPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getUint40(ZUPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt40(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint40(ZUPTR, BUFFER));
         }
 
       } break;
@@ -4278,13 +4278,13 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putInt48(ZCHARPTR, V));
-            ASSERT_FAIL(MarshallingUtil::getInt48(&TV, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getUint48(&TU, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putInt48(ZCHARPTR, V));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt48(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint48(&TU, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getInt48(ZTPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getUint48(ZUPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt48(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint48(ZUPTR, BUFFER));
         }
 
       } break;
@@ -4435,13 +4435,13 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putInt56(ZCHARPTR, V));
-            ASSERT_FAIL(MarshallingUtil::getInt56(&TV, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getUint56(&TU, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putInt56(ZCHARPTR, V));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt56(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint56(&TU, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getInt56(ZTPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getUint56(ZUPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt56(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint56(ZUPTR, BUFFER));
         }
 
       } break;
@@ -4588,13 +4588,13 @@ int main(int argc, char *argv[]) {
                                           hG(bsls::AssertTest::failTestDriver);
 
             // invalid 'buffer'
-            ASSERT_FAIL(MarshallingUtil::putInt64(ZCHARPTR, V));
-            ASSERT_FAIL(MarshallingUtil::getInt64(&TV, ZCHARPTR));
-            ASSERT_FAIL(MarshallingUtil::getUint64(&TU, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::putInt64(ZCHARPTR, V));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt64(&TV, ZCHARPTR));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint64(&TU, ZCHARPTR));
 
             // invalid 'value'
-            ASSERT_FAIL(MarshallingUtil::getInt64(ZTPTR, BUFFER));
-            ASSERT_FAIL(MarshallingUtil::getUint64(ZUPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getInt64(ZTPTR, BUFFER));
+            ASSERT_SAFE_FAIL(MarshallingUtil::getUint64(ZUPTR, BUFFER));
         }
 
       } break;
