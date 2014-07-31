@@ -806,8 +806,8 @@ int main(int argc, char *argv[])
         //:   this component.
         //
         // Plan:
-        //   Test are table driven, based on tables 'data16', 'data32', and
-        //   'data64' declared outside 'main', that supply test values of
+        //   The tests are table driven, based on tables 'data16', 'data32',
+        //   and 'data64' declared outside 'main', that supply test values of
         //   different word widths and their swapped values.
         //
         //: 1 Test 16 bit swaps.

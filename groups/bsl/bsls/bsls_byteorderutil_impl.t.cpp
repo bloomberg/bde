@@ -376,8 +376,8 @@ int main(int argc, char *argv[])
         //:   which, if called on all platforms will result in all incarnations
         //:   of the functions under tests being tested.
         //:
-        //: 2 Use the tables 'data16', 'data32', and 'data64', defeined at
-        //:   file scope above, to provie test data and its swapped values.
+        //: 2 Use the tables 'data16', 'data32', and 'data64', defined at file
+        //:   scope above, to provide test data and its swapped values.
         //:
         //: 3 For word widths 16, 32, and 64
         //:   A Test swapping signed and unsigned types with 'mySwapBytesNN'.
@@ -528,7 +528,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a template function 'swapBytesInPlace' that, given a
-        //:   pointer to an object of any itegral type, will reverse the byte
+        //:   pointer to an object of any integral type, will reverse the byte
         //:   order of the object.
         //:
         //: 2 For each table:

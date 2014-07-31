@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide byte-order swapping functions.
 //
 //@CLASSES:
-//   bsls::ByteOrderUtil: namespace for byte-order swapping functions.
+//   bsls::ByteOrderUtil: namespace for byte-order swapping functions
 //
 //@SEE ALSO: bsls_byteorder
 //

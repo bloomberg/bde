@@ -10,17 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide implementation of byte-order manipulation functions.
 //
 //@CLASSES:
-//   bsls::ByteOrderUtil_Impl: namespace 'struct' for swapping functions.
+//   bsls::ByteOrderUtil_Impl: namespace for swapping functions
 //
 //@MACROS:
 //   BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT -- compile time assert
 //
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16  -- 'customeSwap16' function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32  -- 'customeSwap32' function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64  -- 'customeSwap64' function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16 -- 'customeSwapP16' function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32 -- 'customeSwapP32' function is defined
-//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64 -- 'customeSwapP64' function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16:  'customeSwap16'  function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32:  'customeSwap32'  function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64:  'customeSwap64'  function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P16: 'customeSwapP16' function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P32: 'customeSwapP32' function is defined
+//   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_P64: 'customeSwapP64' function is defined
 //
 //@SEE ALSO: bsls_byteorderutil, bsls_byteorder
 //
