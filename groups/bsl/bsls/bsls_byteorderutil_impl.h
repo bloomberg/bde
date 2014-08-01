@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //   bsls::ByteOrderUtil_Impl: namespace for swapping functions
 //
 //@MACROS:
-//   BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT -- compile time assert
+//   BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT: compile time assert
 //
 //   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16:  'customeSwap16'  function is defined
 //   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32:  'customeSwap32'  function is defined
