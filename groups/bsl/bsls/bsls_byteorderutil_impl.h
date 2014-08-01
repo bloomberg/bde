@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //   bsls::ByteOrderUtil_Impl: namespace for swapping functions
 //
 //@MACROS:
-//   BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT: compile time assert
-//
 //   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_16:  'customeSwap16'  function is defined
 //   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_32:  'customeSwap32'  function is defined
 //   BSLS_BYTEORDERUTIL_IMPL_CUSTOM_64:  'customeSwap64'  function is defined
@@ -133,16 +131,6 @@ struct ByteOrderUtil_Impl {
     Types::Uint64  genericSwap64(      Types::Uint64    x);
         // Return the specified '*x' with byte order swapped.
 };
-
-// We don't have access to 'BSLMF_ASSERT' here in bsls -- do a crude compile
-// time assert for use in 'bsls_byteorderutil'.  This macro will deliberately
-// cause a compilation error if 'expr' evaluates to 'false'.  'expr' must be a
-// compile-time expression.  Note this macro can only be called in a code body.
-
-#define BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(expr)                     \
-        { enum { BSLS_BYTEORDERUTIL_IMPL_NOT_INFINITY =                       \
-                                      1 / static_cast<int>(expr) };           \
-        (void) BSLS_BYTEORDERUTIL_IMPL_NOT_INFINITY; }
 
                          // -------------------------
                          // struct ByteOrderUtil_Impl
