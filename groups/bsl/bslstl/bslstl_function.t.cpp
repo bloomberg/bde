@@ -187,27 +187,45 @@ public:
 // optionally-specified exception limit is reached.  If both the allocator and
 // the exception limit are non-null, the exception test is run twice, once
 // testing the allocator limit and a second time testing the other exception
-// limit.  If an allocator is specified, it must be a 'bslma::TestAllocator'.
+// limit.  If an allocator is specified, it must be a 'bslma::TestAllocator*'.
 //
 // The simple usage of these macros is as follows (curly braces required):
 //..
 //  bslma::TestAllocator alloc;
 //  EXCEPTION_TEST_BEGIN(&alloc, &moveLimit) {
-//      code-that-might-throw;
-//      verify-success-conditions;
+//      EXCEPTION_TEST_TRY {
+//          code-that-might-throw;
+//          verify-post-conditions;
+//      } EXCEPTION_TEST_ENDTRY;
 //  } EXCEPTION_TEST_END;
 //..
-// Some invariants should be tested only if an exception is thrown.  For
-// example, in assignment fails with an exception, both the lhs and rhs should
-// be unchanged.  For these cases, the usage is expanded to include
+// If there are local variables that need to be constructed each time through
+// the exception loop with the exception trigger turned off, they should be
+// defined between the 'EXCEPTION_TEST_BEGIN' and 'EXCEPTION_TEST_TRY':
+//..
+//  bslma::TestAllocator alloc;
+//  EXCEPTION_TEST_BEGIN(&alloc, NULL) { // Allocator limit only
+//      Obj localVariable(alloc);     // Won't throw a test exception
+//      EXCEPTION_TEST_TRY {
+//          code-that-might-throw;    // Might throw a test exception
+//          verify-post-conditions;
+//      } EXCEPTION_TEST_ENDTRY;
+//  } EXCEPTION_TEST_END;
+//..
+// Sometimes, we need to test postconditions on failure.  For example, if
+// assignment fails with an exception, both the lhs and rhs should be
+// unchanged.  For these cases, the usage is expanded to include
 // 'EXCEPTION_TEST_CATCH':
 //..
 //  bslma::TestAllocator alloc;
 //  EXCEPTION_TEST_BEGIN(alloc, NULL) {
-//      code-that-might-throw;
-//      verify-success-conditions;
-//  } EXCEPTION_TEST_CATCH {
-//      verify-failure-conditions;
+//      Obj localVariable(alloc);
+//      EXCEPTION_TEST_TRY {
+//          code-that-might-throw;
+//          verify-success-post-conditions;
+//      } EXCEPTION_TEST_CATCH {
+//          verify-failure-post-conditions;
+//      } EXCEPTION_TEST_ENDTRY;
 //  } EXCEPTION_TEST_END;
 //..
 
@@ -236,6 +254,10 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
     const char *const limitName = exLimit ? exLimit->what() : "(ignored)";    \
     do {                                                                      \
         bool exceptionCaught = false;                                         \
+        if (testAlloc) testAlloc->setAllocationLimit(-1);                     \
+        if (exLimit) *exLimit = -1;
+
+#define EXCEPTION_TEST_TRY                                                    \
         if (testAlloc) testAlloc->setAllocationLimit(bslmaExceptionCounter);  \
         if (exLimit) *exLimit = exLimitCounter;                               \
         try
@@ -250,7 +272,7 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
         }                                                                     \
         if (exceptionCaught) try
 
-#define EXCEPTION_TEST_END                                                    \
+#define EXCEPTION_TEST_ENDTRY                                                 \
         catch (...) {                                                         \
             dumpExTest("EXCEPTION CAUGHT",                                    \
                        bslmaExceptionCounter, limitName, exLimitCounter);     \
@@ -270,7 +292,9 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
             }                                                                 \
             bslmaExceptionCounter = -1;                                       \
             exLimitCounter = 0;                                               \
-        }                                                                     \
+        }
+
+#define EXCEPTION_TEST_END                                                    \
     } while (true);                                                           \
     if (testAlloc) testAlloc->setAllocationLimit(-1);                         \
     if (exLimit) *exLimit = -1;                                               \
@@ -1471,26 +1495,28 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
     globalAllocMonitor.reset();
     FunctorMonitor funcMonitor(L_);
     EXCEPTION_TEST_BEGIN(&ta, &moveLimit) {
-        funcMonitor.reset(L_);
-        ALLOC alloc(&ta);
-        Obj f(bsl::allocator_arg, alloc, func);
-        ASSERT(isNullPtr(func) == !f);
-        ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(alloc, f.allocator()));
-        if (f) {
-            ASSERT(typeid(func) == f.target_type());
-            ASSERT(f.target<FUNC>());
-            ASSERT(f.target<FUNC>() && func == *f.target<FUNC>());
-            ASSERT(0x4005 == f(IntWrapper(0x4000), 5));
-        }
-        ASSERT(numBlocksUsed == ta.numBlocksInUse());
-        ASSERT(minBytesUsed <= ta.numBytesInUse() &&
-               ta.numBytesInUse() <= maxBytesUsed);
-        ASSERT(globalAllocMonitor.isInUseSame());
-    } EXCEPTION_TEST_CATCH {
-        // Exception neutral: All memory has been released.
-        ASSERT(0 == ta.numBlocksInUse());
-        ASSERT(globalAllocMonitor.isInUseSame());
-        ASSERT(funcMonitor.isSameCount());
+        EXCEPTION_TEST_TRY {
+            funcMonitor.reset(L_);
+            ALLOC alloc(&ta);
+            Obj f(bsl::allocator_arg, alloc, func);
+            ASSERT(isNullPtr(func) == !f);
+            ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(alloc, f.allocator()));
+            if (f) {
+                ASSERT(typeid(func) == f.target_type());
+                ASSERT(f.target<FUNC>());
+                ASSERT(f.target<FUNC>() && func == *f.target<FUNC>());
+                ASSERT(0x4005 == f(IntWrapper(0x4000), 5));
+            }
+            ASSERT(numBlocksUsed == ta.numBlocksInUse());
+            ASSERT(minBytesUsed <= ta.numBytesInUse() &&
+                   ta.numBytesInUse() <= maxBytesUsed);
+            ASSERT(globalAllocMonitor.isInUseSame());
+        } EXCEPTION_TEST_CATCH {
+            // Exception neutral: All memory has been released.
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+            ASSERT(funcMonitor.isSameCount());
+        } EXCEPTION_TEST_ENDTRY;
     } EXCEPTION_TEST_END;
     ASSERT(0 == ta.numBlocksInUse());
     ASSERT(globalAllocMonitor.isInUseSame());
@@ -1529,62 +1555,65 @@ void testCopyCtorWithAlloc(FUNC        func,
     FunctorMonitor funcMonitor(L_);
 
     EXCEPTION_TEST_BEGIN(&copyTa, &copyLimit) {
-        // We want to select one of two constructors at run time, so instead
-        // of declaring a 'function' object directly, we create a buffer that
-        // can hold a 'function' object and construct the 'function' later,
-        // using the desired constructor.
-        union {
-            char                                d_bytes[sizeof(Obj)];
-            bsls::AlignmentUtil::MaxAlignedType d_align;
-        } copyBuf;
+        EXCEPTION_TEST_TRY {
+            // We want to select one of two constructors at run time, so
+            // instead of declaring a 'function' object directly, we create a
+            // buffer that can hold a 'function' object and construct the
+            // 'function' later, using the desired constructor.
+            union {
+                char                                d_bytes[sizeof(Obj)];
+                bsls::AlignmentUtil::MaxAlignedType d_align;
+            } copyBuf;
 
-        funcMonitor.reset(L_);
-        if (copyAllocNone) {
-            // copyAllocName is "none".  Choose normal copy constructor with
-            // no allocator, but install 'copyTa' as the allocator indirectly
-            // by setting the default allocator.
-            bslma::DefaultAllocatorGuard guard(&copyTa);
-            ::new(copyBuf.d_bytes) Obj(original);
-        }
-        else {
-            // Use extended copy constructor.
-            ::new(copyBuf.d_bytes) Obj(bsl::allocator_arg, copyAlloc,
-                                       original);
-        }
+            funcMonitor.reset(L_);
+            if (copyAllocNone) {
+                // copyAllocName is "none".  Choose normal copy constructor
+                // with no allocator, but install 'copyTa' as the allocator
+                // indirectly by setting the default allocator.
+                bslma::DefaultAllocatorGuard guard(&copyTa);
+                ::new(copyBuf.d_bytes) Obj(original);
+            }
+            else {
+                // Use extended copy constructor.
+                ::new(copyBuf.d_bytes) Obj(bsl::allocator_arg, copyAlloc,
+                                           original);
+            }
 
-        // 'copyBuf' now holds the copy-constructed 'function'.
-        Obj& copy = *reinterpret_cast<Obj*>(copyBuf.d_bytes);
+            // 'copyBuf' now holds the copy-constructed 'function'.
+            Obj& copy = *reinterpret_cast<Obj*>(copyBuf.d_bytes);
         
-        ASSERT(copy.target_type() == original.target_type());
-        ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(copyAlloc, copy.allocator()));
-        ASSERT(! copy == ! original);
+            ASSERT(copy.target_type() == original.target_type());
+            ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(copyAlloc,
+                                                    copy.allocator()));
+            ASSERT(! copy == ! original);
 
-        if (copy) {
+            if (copy) {
 
-            // Check for faithful copy of functor
-            ASSERT(*copy.target<FUNC>() == *original.target<FUNC>());
-            ASSERT(copy.target<FUNC>() != original.target<FUNC>());
+                // Check for faithful copy of functor
+                ASSERT(*copy.target<FUNC>() == *original.target<FUNC>());
+                ASSERT(copy.target<FUNC>() != original.target<FUNC>());
 
-            // Invoke
-            ASSERT(copy(IntWrapper(0x4000), 9) ==
-                   original(IntWrapper(0x4000), 9));
+                // Invoke
+                ASSERT(copy(IntWrapper(0x4000), 9) ==
+                       original(IntWrapper(0x4000), 9));
 
-            // Invocation performed identical operations on original and on
-            // copy.  Check that equality relationship was not disturbed.
-            ASSERT(*copy.target<FUNC>() == *original.target<FUNC>());
+                // Invocation performed identical operations on original and on
+                // copy.  Check that equality relationship was not disturbed.
+                ASSERT(*copy.target<FUNC>() == *original.target<FUNC>());
+            }
+
+            ASSERT(copyTa.numBlocksInUse() == numBlocksUsed);
+            ASSERT(copyTa.numBytesInUse()  == numBytesUsed);
+            ASSERT(globalAllocMonitor.isInUseSame());
+
+            copy.~Obj();
         }
-
-        ASSERT(copyTa.numBlocksInUse() == numBlocksUsed);
-        ASSERT(copyTa.numBytesInUse()  == numBytesUsed);
-        ASSERT(globalAllocMonitor.isInUseSame());
-
-        copy.~Obj();
-    }
-    EXCEPTION_TEST_CATCH {
-        // Exception neutral: All memory has been released.
-        ASSERT(0 == copyTa.numBlocksInUse());
-        ASSERT(globalAllocMonitor.isInUseSame());
-        ASSERT(funcMonitor.isSameCount());
+        EXCEPTION_TEST_CATCH {
+            // Exception neutral: All memory has been released.
+            ASSERT(0 == copyTa.numBlocksInUse());
+            ASSERT(globalAllocMonitor.isInUseSame());
+            ASSERT(funcMonitor.isSameCount());
+        } EXCEPTION_TEST_ENDTRY;
     } EXCEPTION_TEST_END;
     ASSERT(copyTa.numBlocksInUse() == 0);
     ASSERT(copyTa.numBytesInUse()  == 0);
@@ -1817,44 +1846,47 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
         FunctorMonitor funcMonitor(L_);
 
         EXCEPTION_TEST_BEGIN(&destTa, &moveLimit) {
-            funcMonitor.reset(L_);
+            EXCEPTION_TEST_TRY {
+                funcMonitor.reset(L_);
 
-            // move-construct dest using extended move constructor.
-            Obj dest(bsl::allocator_arg, destAlloc, std::move(source));
+                // move-construct dest using extended move constructor.
+                Obj dest(bsl::allocator_arg, destAlloc, std::move(source));
 
-            ASSERT(CheckAlloc<SRC_ALLOC>::areEqualAlloc(sourceAlloc,
-                                                        source.allocator()));
+                ASSERT(CheckAlloc<SRC_ALLOC>::areEqualAlloc(sourceAlloc,
+                                                          source.allocator()));
 
-            ASSERT(isEmpty == ! dest);
-            ASSERT(CheckAlloc<DEST_ALLOC>::areEqualAlloc(destAlloc,
-                                                         dest.allocator()));
+                ASSERT(isEmpty == ! dest);
+                ASSERT(CheckAlloc<DEST_ALLOC>::areEqualAlloc(destAlloc,
+                                                            dest.allocator()));
 
-            if (dest) {
+                if (dest) {
 
-                // Check for faithful move of functor
-                ASSERT(dest.target_type() == typeid(func));
-                ASSERT(*dest.target<FUNC>() == func);
+                    // Check for faithful move of functor
+                    ASSERT(dest.target_type() == typeid(func));
+                    ASSERT(*dest.target<FUNC>() == func);
 
-                // Invoke
-                Obj temp(func);
-                ASSERT(dest(IntWrapper(0x4000), 7) ==
-                       temp(IntWrapper(0x4000), 7));
+                    // Invoke
+                    Obj temp(func);
+                    ASSERT(dest(IntWrapper(0x4000), 7) ==
+                           temp(IntWrapper(0x4000), 7));
 
-                // Invocation performed identical operations on func and on
-                // dest.  Check that equality relationship was not disturbed.
-                ASSERT(*dest.target<FUNC>() == *temp.target<FUNC>());
+                    // Invocation performed identical operations on func and
+                    // on dest.  Check that equality relationship was not
+                    // disturbed.
+                    ASSERT(*dest.target<FUNC>() == *temp.target<FUNC>());
+                }
+
+                ASSERT(sourceTa.numBlocksInUse() == sourceNumBlocksUsed);
+                ASSERT(sourceTa.numBytesInUse()  == sourceNumBytesUsed);
+                ASSERT(destTa.numBlocksInUse() == destNumBlocksUsed);
+                ASSERT(destTa.numBytesInUse()  == destNumBytesUsed);
+                ASSERT(globalAllocMonitor.isInUseSame());
             }
-
-            ASSERT(sourceTa.numBlocksInUse() == sourceNumBlocksUsed);
-            ASSERT(sourceTa.numBytesInUse()  == sourceNumBytesUsed);
-            ASSERT(destTa.numBlocksInUse() == destNumBlocksUsed);
-            ASSERT(destTa.numBytesInUse()  == destNumBytesUsed);
-            ASSERT(globalAllocMonitor.isInUseSame());
-        }
-        EXCEPTION_TEST_CATCH {
-            ASSERT(destTa.numBlocksInUse() == 0);
-            ASSERT(destTa.numBytesInUse()  == 0);
-            ASSERT(funcMonitor.isSameCount());
+            EXCEPTION_TEST_CATCH {
+                ASSERT(destTa.numBlocksInUse() == 0);
+                ASSERT(destTa.numBytesInUse()  == 0);
+                ASSERT(funcMonitor.isSameCount());
+            } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
     }
     ASSERT(sourceTa.numBlocksInUse() == 0);
@@ -1921,8 +1953,15 @@ bool AreEqualFunctions(const Obj& inA, const Obj& inB)
         FUNC movedFromFunc(0);
         {
             // Put 'movedFromFunc' into the moved-to state.
+            // Disable move and copy limits during this operation.
+            int savedMoveLimit = moveLimit.value();
+            moveLimit = -1;
+            int savedCopyLimit = copyLimit.value();
+            copyLimit = -1;
             FUNC movedToFunc(std::move(movedFromFunc));
             ASSERT(movedToFunc == FUNC(0));
+            copyLimit = savedCopyLimit;
+            moveLimit = savedMoveLimit;
         }
 
         const FUNC *targetA = inA.target<FUNC>();
@@ -2029,6 +2068,7 @@ void testSwap(const Obj& inA,
 template <class ALLOC_A, class ALLOC_B>
 void testAssignment(const Obj& inA,
                     const Obj& inB,
+                    bool (*    areEqualA_p)(const Obj&, const Obj&),
                     bool (*    areEqualB_p)(const Obj&, const Obj&),
                     int        lineA,
                     int        lineB)
@@ -2044,7 +2084,10 @@ void testAssignment(const Obj& inA,
     bslma::TestAllocatorMonitor testAlloc2Monitor(&testAlloc2);
 
     // Test copy assignment
-    {
+    EXCEPTION_TEST_BEGIN(&testAlloc1, &copyLimit) {
+
+        FunctorMonitor funcMonitor(L_);
+
         // Make copies of inA and inB.
         AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
         Obj a(bsl::allocator_arg, allocA1, inA);
@@ -2060,30 +2103,48 @@ void testAssignment(const Obj& inA,
         preA1Bytes = testAlloc1.numBytesInUse();
         AllocSizeType preB2Bytes = testAlloc2.numBytesInUse();
         AllocSizeType preB2Total = testAlloc2.numBytesTotal();
-        a = b;  ///////// COPY ASSIGNMENT //////////
-        AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
-        AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
-        AllocSizeType postB2Total = testAlloc2.numBytesTotal();
-        LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
-        LOOP2_ASSERT(lineA, lineB, areEqualB_p(b, inB)); // b is unchanged
-        LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
-                                                               a.allocator()));
-        LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_B>::areEqualAlloc(allocB2,
-                                                               b.allocator()));
-        // Verify that memory allocator usage in a's allocator is the same as
-        // destroying a and recreating it with b's functor.
-        LOOP2_ASSERT(lineA, lineB,
-                     postA1Bytes == preA1Bytes - aBytesBefore + expBytes);
-        // No allocations or deallcations from testAlloc2
-        LOOP2_ASSERT(lineA, lineB, postB2Bytes == preB2Bytes);
-        LOOP2_ASSERT(lineA, lineB, postB2Total == preB2Total);
-        if (a) {
-            LOOP2_ASSERT(lineA, lineB, a(1, 2) == exp(1, 2));
+        EXCEPTION_TEST_TRY {
+            a = b;  ///////// COPY ASSIGNMENT //////////
+            AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
+            AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
+            AllocSizeType postB2Total = testAlloc2.numBytesTotal();
+            LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
+            LOOP2_ASSERT(lineA, lineB, areEqualB_p(b, inB)); // b is unchanged
+            LOOP2_ASSERT(lineA, lineB,
+                         CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
+                                                            a.allocator()));
+            LOOP2_ASSERT(lineA, lineB,
+                         CheckAlloc<ALLOC_B>::areEqualAlloc(allocB2,
+                                                            b.allocator()));
+            // Verify that memory allocator usage in a's allocator is the
+            // same as destroying a and recreating it with b's functor.
+            LOOP2_ASSERT(lineA, lineB,
+                         postA1Bytes == preA1Bytes - aBytesBefore + expBytes);
+            // No allocations or deallcations from testAlloc2
+            LOOP2_ASSERT(lineA, lineB, postB2Bytes == preB2Bytes);
+            LOOP2_ASSERT(lineA, lineB, postB2Total == preB2Total);
+            if (a) {
+                LOOP2_ASSERT(lineA, lineB, a(1, 2) == exp(1, 2));
+            }
+            if (b) {
+                LOOP2_ASSERT(lineA, lineB, b(1, 2) == inB(1, 2));
+            }
         }
-        if (b) {
-            LOOP2_ASSERT(lineA, lineB, b(1, 2) == inB(1, 2));
-        }
-    }
+        EXCEPTION_TEST_CATCH {
+            // a and b are unchanged.
+            LOOP2_ASSERT(lineA, lineB, areEqualA_p(a, inA));
+            LOOP2_ASSERT(lineA, lineB, areEqualB_p(b, inB));
+
+            // No memory was leaked
+            AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
+            AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
+            AllocSizeType postB2Total = testAlloc2.numBytesTotal();
+            LOOP2_ASSERT(lineA, lineB, postA1Bytes == preA1Bytes);
+            // No allocations or deallcations from testAlloc2
+            LOOP2_ASSERT(lineA, lineB, postB2Bytes == preB2Bytes);
+            LOOP2_ASSERT(lineA, lineB, postB2Total == preB2Total);
+        } EXCEPTION_TEST_ENDTRY;
+    } EXCEPTION_TEST_END;
     LOOP2_ASSERT(lineA, lineB, globalAllocMonitor.isInUseSame());
     LOOP2_ASSERT(lineA, lineB, testAlloc1Monitor.isInUseSame());
     LOOP2_ASSERT(lineA, lineB, testAlloc2Monitor.isInUseSame());
@@ -2095,7 +2156,10 @@ void testAssignment(const Obj& inA,
     testAlloc1Monitor.reset(&testAlloc1);
     testAlloc2Monitor.reset(&testAlloc2);
 
-    {
+    EXCEPTION_TEST_BEGIN(&testAlloc1, &moveLimit) {
+
+        FunctorMonitor funcMonitor(L_);
+
         // Make copies of inA and inB.
         AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
         Obj a( bsl::allocator_arg, allocA1, inA);
@@ -2111,29 +2175,47 @@ void testAssignment(const Obj& inA,
         preA1Bytes = testAlloc1.numBytesInUse();
         AllocSizeType preB2Bytes = testAlloc2.numBytesInUse();
         AllocSizeType preB2Total = testAlloc2.numBytesTotal();
-        a = std::move(b);  ///////// MOVE ASSIGNMENT //////////
-        AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
-        AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
-        AllocSizeType postB2Total = testAlloc2.numBytesTotal();
-        LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
-        // 'b' should be either in the moved-from state or unchanged.
-        LOOP2_ASSERT(lineA, lineB, (areEqualB_p(b, movedFromMarker) ||
-                                    areEqualB_p(b, inB)));
-        LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
-                                                               a.allocator()));
-        LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_B>::areEqualAlloc(allocB2,
-                                                               b.allocator()));
-        // Verify that memory allocator usage in a's allocator is the same as
-        // destroying a and recreating it with b's functor.
-        LOOP2_ASSERT(lineA, lineB,
-                     postA1Bytes == preA1Bytes - aBytesBefore + expBytes);
-        // No allocations or deallcations from testAlloc2
-        LOOP2_ASSERT(lineA, lineB, postB2Bytes == preB2Bytes);
-        LOOP2_ASSERT(lineA, lineB, postB2Total == preB2Total);
-        if (a) {
-            LOOP2_ASSERT(lineA, lineB, a(1, 2) == exp(1, 2));
+        EXCEPTION_TEST_TRY {
+            a = std::move(b);  ///////// MOVE ASSIGNMENT //////////
+            AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
+            AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
+            AllocSizeType postB2Total = testAlloc2.numBytesTotal();
+            LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
+            // 'b' should be either in the moved-from state or unchanged.
+            LOOP2_ASSERT(lineA, lineB, (areEqualB_p(b, movedFromMarker) ||
+                                        areEqualB_p(b, inB)));
+            LOOP2_ASSERT(lineA, lineB,
+                         CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
+                                                            a.allocator()));
+            LOOP2_ASSERT(lineA, lineB,
+                         CheckAlloc<ALLOC_B>::areEqualAlloc(allocB2,
+                                                            b.allocator()));
+            // Verify that memory allocator usage in a's allocator is the same
+            // as destroying a and recreating it with b's functor.
+            LOOP2_ASSERT(lineA, lineB,
+                         postA1Bytes == preA1Bytes - aBytesBefore + expBytes);
+            // No allocations or deallcations from testAlloc2
+            LOOP2_ASSERT(lineA, lineB, postB2Bytes == preB2Bytes);
+            LOOP2_ASSERT(lineA, lineB, postB2Total == preB2Total);
+            if (a) {
+                LOOP2_ASSERT(lineA, lineB, a(1, 2) == exp(1, 2));
+            }
         }
-    }
+        EXCEPTION_TEST_CATCH {
+            // a and b are unchanged.
+            LOOP2_ASSERT(lineA, lineB, areEqualA_p(a, inA));
+            LOOP2_ASSERT(lineA, lineB, areEqualB_p(b, inB));
+
+            // No memory was leaked
+            AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
+            AllocSizeType postB2Bytes = testAlloc2.numBytesInUse();
+            AllocSizeType postB2Total = testAlloc2.numBytesTotal();
+            LOOP2_ASSERT(lineA, lineB, postA1Bytes == preA1Bytes);
+            // No allocations or deallcations from testAlloc2
+            LOOP2_ASSERT(lineA, lineB, postB2Bytes == preB2Bytes);
+            LOOP2_ASSERT(lineA, lineB, postB2Total == preB2Total);
+        } EXCEPTION_TEST_ENDTRY;
+    } EXCEPTION_TEST_END;
     LOOP2_ASSERT(lineA, lineB, globalAllocMonitor.isInUseSame());
     LOOP2_ASSERT(lineA, lineB, testAlloc1Monitor.isInUseSame());
     LOOP2_ASSERT(lineA, lineB, testAlloc2Monitor.isInUseSame());
@@ -2148,40 +2230,52 @@ void testAssignment(const Obj& inA,
     // type, but they must be compatible, and hence comparable.  If they are
     // not comparable, then skip this part of the test.
     ALLOC_B allocB1(&testAlloc1);
-    if (areEqualAlloc(allocA1, allocB1))
-    {
-        // Make copies of inA and inB.
-        Obj a( bsl::allocator_arg, allocA1, inA);
-        Obj b( bsl::allocator_arg, allocB1, inB);
+    if (areEqualAlloc(allocA1, allocB1)) {
+        EXCEPTION_TEST_BEGIN(&testAlloc1, &moveLimit) {
 
-        // // 'exp' should look like 'a' after the assignment
-        // Obj exp(bsl::allocator_arg, allocA1, inB);
+            FunctorMonitor funcMonitor(L_);
 
-        // preA1Bytes = testAlloc1.numBytesInUse();
-        // Obj emptyObj(bsl::allocator_arg, allocA1);
-        // AllocSizeType emptyBytes =
-        //     testAlloc1.numBytesInUse() - preA1Bytes;
+            // Make copies of inA and inB.
+            Obj a( bsl::allocator_arg, allocA1, inA);
+            Obj b( bsl::allocator_arg, allocB1, inB);
 
-        // Move assigment with equal allocators is the same as swap
-        AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
-        AllocSizeType preA1Total = testAlloc1.numBytesTotal();
-        a = std::move(b);  ///////// move ASSIGNMENT //////////
-        AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
-        AllocSizeType postA1Total = testAlloc1.numBytesTotal();
-        LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
-        LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
+            // 'exp' should look like 'a' after the assignment
+            // Obj exp(bsl::allocator_arg, allocA1, inB);
+
+            // preA1Bytes = testAlloc1.numBytesInUse();
+            // Obj emptyObj(bsl::allocator_arg, allocA1);
+            // AllocSizeType emptyBytes =
+            //     testAlloc1.numBytesInUse() - preA1Bytes;
+
+            EXCEPTION_TEST_TRY {
+                // Move assigment with equal allocators is the same as swap
+                AllocSizeType preA1Bytes = testAlloc1.numBytesInUse();
+                AllocSizeType preA1Total = testAlloc1.numBytesTotal();
+                a = std::move(b);  ///////// move ASSIGNMENT //////////
+                AllocSizeType postA1Bytes = testAlloc1.numBytesInUse();
+                AllocSizeType postA1Total = testAlloc1.numBytesTotal();
+                LOOP2_ASSERT(lineA, lineB, areEqualB_p(a, inB));
+                LOOP2_ASSERT(lineA, lineB,
+                             CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
                                                                a.allocator()));
-        LOOP2_ASSERT(lineA, lineB, CheckAlloc<ALLOC_A>::areEqualAlloc(allocA1,
+                LOOP2_ASSERT(lineA, lineB,
+                             CheckAlloc<ALLOC_B>::areEqualAlloc(allocB1,
                                                                b.allocator()));
-        // Verify that no memory was allocated or deallocated.
-        LOOP2_ASSERT(lineA, lineB, postA1Bytes == preA1Bytes);
-        LOOP2_ASSERT(lineA, lineB, postA1Total == preA1Total);
-        if (a) {
-            LOOP2_ASSERT(lineA, lineB, a(1, 2) == inB(1, 2));
-        }
-        if (b) {
-            LOOP2_ASSERT(lineA, lineB, b(1, 2) == inA(1, 2));
-        }
+                // Verify that no memory was allocated or deallocated.
+                LOOP2_ASSERT(lineA, lineB, postA1Bytes == preA1Bytes);
+                LOOP2_ASSERT(lineA, lineB, postA1Total == preA1Total);
+                if (a) {
+                    LOOP2_ASSERT(lineA, lineB, a(1, 2) == inB(1, 2));
+                }
+                if (b) {
+                    LOOP2_ASSERT(lineA, lineB, b(1, 2) == inA(1, 2));
+                }
+            }
+            EXCEPTION_TEST_CATCH {
+                LOOP2_ASSERT(lineA, lineB,
+                             0 && "Exception should not be thrown");
+            } EXCEPTION_TEST_ENDTRY;
+        } EXCEPTION_TEST_END;
     }
     LOOP2_ASSERT(lineA, lineB, globalAllocMonitor.isInUseSame());
     LOOP2_ASSERT(lineA, lineB, testAlloc1Monitor.isInUseSame());
@@ -2807,6 +2901,8 @@ int main(int argc, char *argv[])
         //:   STL-style allocators, as these are represented internally as
         //:   pointers to 'bslma::Allocator')  Note that the allocators in the
         //:   lhs and rhs might be differnt.
+        //: 10 If an exception is thrown during an assignment, both operands
+        //:   of the assignment are unchanged.
         //
         // Plan:
         //: 1 For concern 1, construct a pair of 'function' objects 'a' and
@@ -2853,6 +2949,9 @@ int main(int argc, char *argv[])
         //:   through the 4-way cross product of the two arrays and two sets
         //:   of allocator types and call 'testAssign' to perform the test on
         //:   each combination.
+        //: 9 For concern 10, test assignments in within the exception-test
+        //:   framework and verify that, on exception, both operands retain
+        //:   their original values.
         //
         // Testing
         //      function& operator=(const function&);
@@ -2917,8 +3016,8 @@ int main(int argc, char *argv[])
 #define TEST(ALLOC1, ALLOC2) do {                                       \
             if (veryVeryVerbose) printf("\tAllocator types = %s, %s\n", \
                                         #ALLOC1, #ALLOC2);              \
-            testAssignment<ALLOC1, ALLOC2>(funcA, funcB, areEqualB,     \
-                                           lineA, lineB);               \
+            testAssignment<ALLOC1, ALLOC2>(funcA, funcB, areEqualA,     \
+                                           areEqualB, lineA, lineB);    \
         } while (false)
 
         int dataBSize = sizeof(dataB) / sizeof(TestData);
@@ -2927,6 +3026,7 @@ int main(int argc, char *argv[])
             const int lineA             = dataA[i].d_line;
             const Obj& funcA            = dataA[i].d_function;
             const char* funcAName       = dataA[i].d_funcName;
+            AreEqualFuncPtr_t areEqualA = dataA[i].d_areEqualFunc_p;
             for (int j = 0; j < dataBSize; ++j) {
                 const int lineB             = dataB[j].d_line;
                 const Obj& funcB            = dataB[j].d_function;
@@ -3824,38 +3924,42 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("with bslma::Allocator*\n");
         bslma::TestAllocator ta;
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            globalAllocMonitor.reset();
-            bsl::function<int(float)> f(bsl::allocator_arg, &ta);
-            ASSERT(! f);
-            ASSERT(&ta == f.allocator());
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
+            EXCEPTION_TEST_TRY {
+                globalAllocMonitor.reset();
+                bsl::function<int(float)> f(bsl::allocator_arg, &ta);
+                ASSERT(! f);
+                ASSERT(&ta == f.allocator());
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
 
-            bsl::function<int(float)> f2(bsl::allocator_arg, &ta,
-                                         bsl::nullptr_t());
-            ASSERT(! f2);
-            ASSERT(&ta == f2.allocator());
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
+                bsl::function<int(float)> f2(bsl::allocator_arg, &ta,
+                                             bsl::nullptr_t());
+                ASSERT(! f2);
+                ASSERT(&ta == f2.allocator());
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+            } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
 
         if (veryVerbose) printf("with bsl::allocator<T>\n");
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            globalAllocMonitor.reset();
-            bsl::allocator<void*> alloc(&ta);
+            EXCEPTION_TEST_TRY {
+                globalAllocMonitor.reset();
+                bsl::allocator<void*> alloc(&ta);
 
-            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
-            ASSERT(! f);
-            ASSERT(&ta == f.allocator());
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
+                bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+                ASSERT(! f);
+                ASSERT(&ta == f.allocator());
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
 
-            bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
-                                         bsl::nullptr_t());
-            ASSERT(! f2);
-            ASSERT(&ta == f2.allocator());
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
+                bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                             bsl::nullptr_t());
+                ASSERT(! f2);
+                ASSERT(&ta == f2.allocator());
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+            } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
 
         if (veryVerbose) printf("with stateless allocator\n");
@@ -3863,129 +3967,46 @@ int main(int argc, char *argv[])
             typedef EmptySTLAllocator<double>                         Alloc;
             typedef EmptySTLAllocator<bool>                           Alloc2;
             typedef bslma::AllocatorAdaptor<EmptySTLAllocator<char> > Adaptor;
+            EXCEPTION_TEST_TRY {
 
-            globalAllocMonitor.reset();
-            Alloc alloc(&ta);
-            ASSERT(bsl::is_empty<Alloc>::value);
+                globalAllocMonitor.reset();
+                Alloc alloc(&ta);
+                ASSERT(bsl::is_empty<Alloc>::value);
             
-            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
-            ASSERT(! f);
-            bslma::Allocator *erasedAlloc = f.allocator();
-            ASSERT(0 != dynamic_cast<Adaptor *>(erasedAlloc));
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
+                bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+                ASSERT(! f);
+                bslma::Allocator *erasedAlloc = f.allocator();
+                ASSERT(0 != dynamic_cast<Adaptor *>(erasedAlloc));
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
 
-            Alloc2 alloc2(&ta);
-            bsl::function<int(float)> f2(bsl::allocator_arg, alloc2,
-                                         bsl::nullptr_t());
-            ASSERT(! f2);
-            ASSERT(erasedAlloc == f2.allocator());
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
+                Alloc2 alloc2(&ta);
+                bsl::function<int(float)> f2(bsl::allocator_arg, alloc2,
+                                             bsl::nullptr_t());
+                ASSERT(! f2);
+                ASSERT(erasedAlloc == f2.allocator());
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+            } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
 
         if (veryVerbose) printf("with tiny to medium allocator\n");
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
             typedef TinySTLAllocator<double>                         Alloc;
             typedef bslma::AllocatorAdaptor<TinySTLAllocator<char> > Adaptor;
+            EXCEPTION_TEST_TRY {
 
-            globalAllocMonitor.reset();
-            Alloc alloc(&ta);
-            ASSERT(! bsl::is_empty<Alloc>::value);
+                globalAllocMonitor.reset();
+                Alloc alloc(&ta);
+                ASSERT(! bsl::is_empty<Alloc>::value);
             
-            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
-            ASSERT(! f);
-            bslma::Allocator *erasedAlloc = f.allocator();
-            Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-            ASSERT(adaptor);
-            ASSERT(adaptor->adaptedAllocator() == alloc);
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
-
-            bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
-                                         bsl::nullptr_t());
-            ASSERT(! f2);
-            erasedAlloc = f.allocator();
-            adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-            ASSERT(adaptor);
-            ASSERT(adaptor->adaptedAllocator() == alloc);
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
-        } EXCEPTION_TEST_END;
-        
-        EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef SmallSTLAllocator<double>                         Alloc;
-            typedef bslma::AllocatorAdaptor<SmallSTLAllocator<char> > Adaptor;
-
-            globalAllocMonitor.reset();
-            Alloc alloc(&ta);
-            ASSERT(! bsl::is_empty<Alloc>::value);
-            
-            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
-            ASSERT(! f);
-            bslma::Allocator *erasedAlloc = f.allocator();
-            Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-            ASSERT(adaptor);
-            ASSERT(adaptor->adaptedAllocator() == alloc);
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
-
-            bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
-                                         bsl::nullptr_t());
-            ASSERT(! f2);
-            erasedAlloc = f.allocator();
-            adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-            ASSERT(adaptor);
-            ASSERT(adaptor->adaptedAllocator() == alloc);
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
-        } EXCEPTION_TEST_END;
-        
-        EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef MediumSTLAllocator<double>                         Alloc;
-            typedef bslma::AllocatorAdaptor<MediumSTLAllocator<char> > Adaptor;
-
-            globalAllocMonitor.reset();
-            Alloc alloc(&ta);
-            ASSERT(! bsl::is_empty<Alloc>::value);
-            
-            bsl::function<int(float)> f(bsl::allocator_arg, alloc);
-            ASSERT(! f);
-            bslma::Allocator *erasedAlloc = f.allocator();
-            Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-            ASSERT(adaptor);
-            ASSERT(adaptor->adaptedAllocator() == alloc);
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
-
-            bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
-                                         bsl::nullptr_t());
-            ASSERT(! f2);
-            erasedAlloc = f.allocator();
-            adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-            ASSERT(adaptor);
-            ASSERT(adaptor->adaptedAllocator() == alloc);
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
-        } EXCEPTION_TEST_END;
-        
-        if (veryVerbose) printf("with large allocator\n");
-        EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef LargeSTLAllocator<double>                         Alloc;
-            typedef bslma::AllocatorAdaptor<LargeSTLAllocator<char> > Adaptor;
-
-            globalAllocMonitor.reset();
-            Alloc alloc(&ta);
-            ASSERT(! bsl::is_empty<Alloc>::value);
-
-            {
                 bsl::function<int(float)> f(bsl::allocator_arg, alloc);
                 ASSERT(! f);
                 bslma::Allocator *erasedAlloc = f.allocator();
                 Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
                 ASSERT(adaptor);
                 ASSERT(adaptor->adaptedAllocator() == alloc);
-                ASSERT(1 == ta.numBlocksInUse());
+                ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
 
                 bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
@@ -3995,10 +4016,103 @@ int main(int argc, char *argv[])
                 adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
                 ASSERT(adaptor);
                 ASSERT(adaptor->adaptedAllocator() == alloc);
-                ASSERT(2 == ta.numBlocksInUse());
+                ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
-            }
-            ASSERT(0 == ta.numBlocksInUse());
+            } EXCEPTION_TEST_ENDTRY;
+        } EXCEPTION_TEST_END;
+        
+        EXCEPTION_TEST_BEGIN(&ta, NULL) {
+            typedef SmallSTLAllocator<double>                         Alloc;
+            typedef bslma::AllocatorAdaptor<SmallSTLAllocator<char> > Adaptor;
+            EXCEPTION_TEST_TRY {
+
+                globalAllocMonitor.reset();
+                Alloc alloc(&ta);
+                ASSERT(! bsl::is_empty<Alloc>::value);
+            
+                bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+                ASSERT(! f);
+                bslma::Allocator *erasedAlloc = f.allocator();
+                Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+                ASSERT(adaptor);
+                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+
+                bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                             bsl::nullptr_t());
+                ASSERT(! f2);
+                erasedAlloc = f.allocator();
+                adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+                ASSERT(adaptor);
+                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+            } EXCEPTION_TEST_ENDTRY;
+        } EXCEPTION_TEST_END;
+        
+        EXCEPTION_TEST_BEGIN(&ta, NULL) {
+            typedef MediumSTLAllocator<double>                         Alloc;
+            typedef bslma::AllocatorAdaptor<MediumSTLAllocator<char> > Adaptor;
+            EXCEPTION_TEST_TRY {
+
+                globalAllocMonitor.reset();
+                Alloc alloc(&ta);
+                ASSERT(! bsl::is_empty<Alloc>::value);
+            
+                bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+                ASSERT(! f);
+                bslma::Allocator *erasedAlloc = f.allocator();
+                Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+                ASSERT(adaptor);
+                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+
+                bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                             bsl::nullptr_t());
+                ASSERT(! f2);
+                erasedAlloc = f.allocator();
+                adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+                ASSERT(adaptor);
+                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(0 == ta.numBlocksInUse());
+                ASSERT(globalAllocMonitor.isInUseSame());
+            } EXCEPTION_TEST_ENDTRY;
+        } EXCEPTION_TEST_END;
+        
+        if (veryVerbose) printf("with large allocator\n");
+        EXCEPTION_TEST_BEGIN(&ta, NULL) {
+            typedef LargeSTLAllocator<double>                         Alloc;
+            typedef bslma::AllocatorAdaptor<LargeSTLAllocator<char> > Adaptor;
+            EXCEPTION_TEST_TRY {
+
+                globalAllocMonitor.reset();
+                Alloc alloc(&ta);
+                ASSERT(! bsl::is_empty<Alloc>::value);
+
+                {
+                    bsl::function<int(float)> f(bsl::allocator_arg, alloc);
+                    ASSERT(! f);
+                    bslma::Allocator *erasedAlloc = f.allocator();
+                    Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+                    ASSERT(adaptor);
+                    ASSERT(adaptor->adaptedAllocator() == alloc);
+                    ASSERT(1 == ta.numBlocksInUse());
+                    ASSERT(globalAllocMonitor.isInUseSame());
+
+                    bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
+                                                 bsl::nullptr_t());
+                    ASSERT(! f2);
+                    erasedAlloc = f.allocator();
+                    adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
+                    ASSERT(adaptor);
+                    ASSERT(adaptor->adaptedAllocator() == alloc);
+                    ASSERT(2 == ta.numBlocksInUse());
+                    ASSERT(globalAllocMonitor.isInUseSame());
+                }
+                ASSERT(0 == ta.numBlocksInUse());
+            } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
         
       } break;
@@ -5051,6 +5165,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 
+    ASSERT(topFuncMonitor.isSameCount());
     return testStatus;
 }
 

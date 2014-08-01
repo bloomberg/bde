@@ -1709,24 +1709,30 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(const function& rhs)
 {
-    function temp;
+    Function_Rep tempRep;
 
-    temp.d_funcManager_p = rhs.d_funcManager_p;
-    temp.d_invoker_p     = rhs.d_invoker_p;
+    tempRep.d_funcManager_p = rhs.d_funcManager_p;
 
-    // Initialize temp using allocator from 'this'
-    this->d_allocManager_p(e_INIT_REP, &temp, this->d_allocator_p);
+    // Initialize tempRep using allocator from 'this'
+    this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
 
-    // Copy function into initialized temp.
-    if (temp.d_funcManager_p) {
+    // Copy function into initialized tempRep.
+    if (tempRep.d_funcManager_p) {
         PtrOrSize_t source = rhs.d_funcManager_p(e_GET_TARGET,
                                                  const_cast<function*>(&rhs),
                                                  PtrOrSize_t());
-        temp.d_funcManager_p(e_COPY_CONSTRUCT, &temp, source);
+        tempRep.d_funcManager_p(e_COPY_CONSTRUCT, &tempRep, source);
     }
 
-    // If successful (no exceptions thrown) 'temp' swap into '*this'.
-    temp.swap(*this);
+    // If successful (no exceptions thrown) 'tempRep' swap into '*this'.
+    tempRep.swap(*this);
+
+    this->d_invoker_p = rhs.d_invoker_p;
+
+    if (tempRep.d_funcManager_p) {
+        // Destroy the functor in 'tempRep' before 'tempRep' goes out of scope
+        tempRep.d_funcManager_p(e_DESTROY, &tempRep, PtrOrSize_t());
+    }
 
     return *this;
 }
@@ -1752,24 +1758,30 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
         return *this;
     }
 
-    function temp;
+    Function_Rep tempRep;
 
-    temp.d_funcManager_p = rhs.d_funcManager_p;
-    temp.d_invoker_p     = rhs.d_invoker_p;
+    tempRep.d_funcManager_p = rhs.d_funcManager_p;
 
-    // Initialize temp using allocator from 'this'
-    this->d_allocManager_p(e_INIT_REP, &temp, this->d_allocator_p);
+    // Initialize tempRep using allocator from 'this'
+    this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
 
-    // Move function into initialized temp.
-    if (temp.d_funcManager_p) {
+    // Move function into initialized tempRep.
+    if (tempRep.d_funcManager_p) {
         PtrOrSize_t source = rhs.d_funcManager_p(e_GET_TARGET,
                                                  const_cast<function*>(&rhs),
                                                  PtrOrSize_t());
-        temp.d_funcManager_p(e_MOVE_CONSTRUCT, &temp, source);
+        tempRep.d_funcManager_p(e_MOVE_CONSTRUCT, &tempRep, source);
     }
 
-    // If successful (no exceptions thrown) swap 'temp' into '*this'.
-    temp.swap(*this);
+    // If successful (no exceptions thrown) swap 'tempRep' into '*this'.
+    tempRep.swap(*this);
+
+    this->d_invoker_p = rhs.d_invoker_p;
+
+    if (tempRep.d_funcManager_p) {
+        // Destroy the functor in 'tempRep' before 'tempRep' goes out of scope
+        tempRep.d_funcManager_p(e_DESTROY, &tempRep, PtrOrSize_t());
+    }
 
     return *this;
 }
