@@ -505,6 +505,20 @@ class Function_Rep {
                  const ALLOC&                          alloc,
                  integral_constant<AllocCategory, ATP> atp);
 
+    void assign(Function_Rep *from, ManagerOpCode moveOrCopy);
+        // Move or copy the value of the specified '*from' object into
+        // '*this', depending on the the value of the specified 'moveOrCopy'
+        // argument.  The previous value of '*this' is discarded.  The
+        // bahavior is undefined unless 'moveOrCopy' is either
+        // 'e_MOVE_CONSTRUCT' or 'e_COPY_CONSTRUCT'.
+
+    static void destructiveMove(Function_Rep *to,
+                                Function_Rep *from) BSLS_NOTHROW_SPEC;
+        // Move the state from the specified 'from' location to the specified
+        // 'to' location, where 'to' points to uninitialized storage.  After
+        // the move, 'from' points to uninitialized storage.  The move
+        // is performed using only non-throwing operations.
+
     template <class FUNC>
     static PtrOrSize_t functionManager(ManagerOpCode  opCode,
                                        Function_Rep  *rep,
@@ -520,13 +534,6 @@ class Function_Rep {
     static PtrOrSize_t ownedAllocManager(ManagerOpCode  opCode,
                                          Function_Rep  *rep,
                                          PtrOrSize_t    input);
-
-    static void destructiveMove(Function_Rep *to,
-                                Function_Rep *from) BSLS_NOTHROW_SPEC;
-        // Move the state from the specified 'from' location to the specified
-        // 'to' location, where 'to' points to uninitialized storage.  After
-        // the move, 'from' points to uninitialized storage.  The move
-        // is performed using only non-throwing operations.
 
   private:
     // DATA
@@ -1709,30 +1716,8 @@ template <class RET, class... ARGS>
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(const function& rhs)
 {
-    Function_Rep tempRep;
-
-    tempRep.d_funcManager_p = rhs.d_funcManager_p;
-
-    // Initialize tempRep using allocator from 'this'
-    this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
-
-    // Copy function into initialized tempRep.
-    if (tempRep.d_funcManager_p) {
-        PtrOrSize_t source = rhs.d_funcManager_p(e_GET_TARGET,
-                                                 const_cast<function*>(&rhs),
-                                                 PtrOrSize_t());
-        tempRep.d_funcManager_p(e_COPY_CONSTRUCT, &tempRep, source);
-    }
-
-    // If successful (no exceptions thrown) 'tempRep' swap into '*this'.
-    tempRep.swap(*this);
-
-    this->d_invoker_p = rhs.d_invoker_p;
-
-    if (tempRep.d_funcManager_p) {
-        // Destroy the functor in 'tempRep' before 'tempRep' goes out of scope
-        tempRep.d_funcManager_p(e_DESTROY, &tempRep, PtrOrSize_t());
-    }
+    Function_Rep::assign(const_cast<function*>(&rhs), e_COPY_CONSTRUCT);
+    d_invoker_p = rhs.d_invoker_p;
 
     return *this;
 }
@@ -1754,33 +1739,11 @@ bsl::function<RET(ARGS...)>::operator=(function&& rhs)
 {
     if (d_allocManager_p(e_IS_EQUAL, this, rhs.d_allocator_p).asSize_t()) {
         // Equal allocators.  Just swap.
-        rhs.swap(*this);
-        return *this;
+        this->swap(rhs);
     }
-
-    Function_Rep tempRep;
-
-    tempRep.d_funcManager_p = rhs.d_funcManager_p;
-
-    // Initialize tempRep using allocator from 'this'
-    this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
-
-    // Move function into initialized tempRep.
-    if (tempRep.d_funcManager_p) {
-        PtrOrSize_t source = rhs.d_funcManager_p(e_GET_TARGET,
-                                                 const_cast<function*>(&rhs),
-                                                 PtrOrSize_t());
-        tempRep.d_funcManager_p(e_MOVE_CONSTRUCT, &tempRep, source);
-    }
-
-    // If successful (no exceptions thrown) swap 'tempRep' into '*this'.
-    tempRep.swap(*this);
-
-    this->d_invoker_p = rhs.d_invoker_p;
-
-    if (tempRep.d_funcManager_p) {
-        // Destroy the functor in 'tempRep' before 'tempRep' goes out of scope
-        tempRep.d_funcManager_p(e_DESTROY, &tempRep, PtrOrSize_t());
+    else {
+        Function_Rep::assign(&rhs, e_MOVE_CONSTRUCT);
+        d_invoker_p = rhs.d_invoker_p;
     }
 
     return *this;

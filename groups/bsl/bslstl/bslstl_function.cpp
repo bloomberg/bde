@@ -207,6 +207,31 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
     return PtrOrSize_t();
 }
 
+void bsl::Function_Rep::assign(Function_Rep *rhs_p, ManagerOpCode moveOrCopy)
+{
+    Function_Rep tempRep;
+
+    tempRep.d_funcManager_p = rhs_p->d_funcManager_p;
+
+    // Initialize tempRep using allocator from 'this'
+    this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
+
+    // Move function into initialized tempRep.
+    if (tempRep.d_funcManager_p) {
+        PtrOrSize_t source = rhs_p->d_funcManager_p(e_GET_TARGET, rhs_p,
+                                                    PtrOrSize_t());
+        tempRep.d_funcManager_p(moveOrCopy, &tempRep, source);
+    }
+
+    // If successful (no exceptions thrown) swap 'tempRep' into '*this'.
+    this->swap(tempRep);
+
+    if (tempRep.d_funcManager_p) {
+        // Destroy the functor in 'tempRep' before 'tempRep' goes out of scope
+        tempRep.d_funcManager_p(e_DESTROY, &tempRep, PtrOrSize_t());
+    }
+}
+
 void bsl::Function_Rep::destructiveMove(Function_Rep *to,
                                         Function_Rep *from) BSLS_NOTHROW_SPEC
 {
