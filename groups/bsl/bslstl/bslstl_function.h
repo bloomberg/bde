@@ -1700,13 +1700,12 @@ bsl::function<RET(ARGS...)>::~function()
     BSLS_ASSERT(d_invoker_p || ! d_funcManager_p);
     BSLS_ASSERT(d_allocator_p);
 
-    // Destroying the functor is not done in the base class because the
-    // invariant of the functor being fully constructed is not maintained in
-    // the base class.  Moving this destruction to the base class would cause
-    // exception handling to break if an exception is thrown when constructing
-    // the wrapped functor.
+    // Destroying the functor is not done in the base class destructor because
+    // the invariant of the functor being fully constructed is not maintained
+    // in the base class.  Moving this destruction to the base class would
+    // cause exception handling to break if an exception is thrown when
+    // constructing the wrapped functor.
     if (d_funcManager_p) {
-        // e_DESTROY returns the size of the object that was destroyed.
         d_funcManager_p(e_DESTROY, this, PtrOrSize_t());
     }
 }

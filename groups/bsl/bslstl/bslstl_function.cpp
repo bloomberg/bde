@@ -223,7 +223,8 @@ void bsl::Function_Rep::assign(Function_Rep *rhs_p, ManagerOpCode moveOrCopy)
         tempRep.d_funcManager_p(moveOrCopy, &tempRep, source);
     }
 
-    // If successful (no exceptions thrown) swap 'tempRep' into '*this'.
+    // If functor construction into 'tempRep' was successful (no exceptions
+    // thrown), swap 'tempRep' into '*this'.
     this->swap(tempRep);
 
     if (tempRep.d_funcManager_p) {

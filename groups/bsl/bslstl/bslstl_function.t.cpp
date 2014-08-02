@@ -2299,6 +2299,8 @@ void testAssignNullptr(const Obj& func, int line)
 
     ASSERT(0 == testAlloc.numBlocksInUse());
 
+    FunctorMonitor funcMonitor(L_);
+
     // Make copy of function with specified allocator
     Obj funcCopy(bsl::allocator_arg, alloc, func); 
 
@@ -2306,12 +2308,15 @@ void testAssignNullptr(const Obj& func, int line)
 
     testAlloc.setAllocationLimit(0);    // Disable new allocations
     moveLimit = 0;                      // Disable throwing-functor moves
+    copyLimit = 0;                      // Disable throwing-functor copies
     funcCopy = nullptr_t(); ///////// Assignment from nullptr ////////
+    copyLimit = -1;
     moveLimit = -1;
     testAlloc.setAllocationLimit(-1);
 
     LOOP_ASSERT(line, ! funcCopy);
     LOOP_ASSERT(line, areEqualAlloc(alloc, funcCopy.allocator()));
+    LOOP_ASSERT(line, funcMonitor.isSameCount());
     // Test memory usage:
     //  * No new memory was allocated (total did not increase)
     //  * Memory blocks used matches expected use for empty function.
@@ -2572,6 +2577,7 @@ int main(int argc, char *argv[])
         //:   with the specified functor.
         //: 6 The above concerns apply to the entire range of functor types
         //:   and allocator types for the lhs and functor types for the rhs.
+        //: 7 If an exception is thrown, both lhs and rhs are unchanged.
         //
         // Plan:
         //: 1 For concern 1, assign from functor to a 'function' object and
@@ -2601,6 +2607,9 @@ int main(int argc, char *argv[])
         //:   Instantiate 'testAssignFromFunctor' with each combination of our
         //:   test allocator and test functor types.  Call each instantiation
         //:   with each functor in the data array.
+        //: 7 For concern 7, test assignments in within the exception-test
+        //:   framework and verify that, on exception, both operands retain
+        //:   their original values.
         //
         // Testing:
         //      function& operator=(FUNC&& f);
