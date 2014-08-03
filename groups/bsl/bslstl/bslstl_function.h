@@ -1753,42 +1753,48 @@ template<class FUNC>
 bsl::function<RET(ARGS...)>&
 bsl::function<RET(ARGS...)>::operator=(FUNC&& func)
 {
-    function temp;
+    Function_Rep tempRep;
 
     // Remove reference and const from 'FUNC' to get underlying functor type.
     typedef typename bsl::remove_const<
             typename bsl::remove_reference<FUNC>::type
         >::type FuncType;
 
-    // Select the invoker and manager for 'temp'
+    // Select the invoker and manager for 'tempRep'
     typedef typename bslmf::SelectTrait<FuncType,
                                         bslmf::IsFunctionPointer,
                                         bslmf::IsMemberFunctionPointer,
                                         InplaceFunc>::Type FuncSelection;
 
-    temp.d_invoker_p = getInvoker(func, FuncSelection());
-    temp.d_funcManager_p = temp.d_invoker_p ? &functionManager<FuncType> :NULL;
+    Invoker *invoker_p = getInvoker(func, FuncSelection());
+    tempRep.d_funcManager_p = invoker_p ? &functionManager<FuncType> : NULL;
 
-    // Initialize temp using allocator from 'this'
-    this->d_allocManager_p(e_INIT_REP, &temp, this->d_allocator_p);
+    // Initialize tempRep using allocator from 'this'
+    this->d_allocManager_p(e_INIT_REP, &tempRep, this->d_allocator_p);
 
-    // Move 'func' into initialized 'temp'
-    if (temp.d_funcManager_p) {
+    // Move 'func' into initialized 'tempRep'
+    if (tempRep.d_funcManager_p) {
         // Get non-const pointer to 'func'
         FuncType *funcAddr = const_cast<FuncType*>(&func);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         if (std::is_rvalue_reference<FUNC&&>::value) {
-            temp.d_funcManager_p(e_MOVE_CONSTRUCT, &temp, funcAddr);
+            tempRep.d_funcManager_p(e_MOVE_CONSTRUCT, &tempRep, funcAddr);
         }
         else
 #endif
         {
-            temp.d_funcManager_p(e_COPY_CONSTRUCT, &temp, funcAddr);
+            tempRep.d_funcManager_p(e_COPY_CONSTRUCT, &tempRep, funcAddr);
         }
     }
 
-    // If successful (no exceptions thrown) swap 'temp' into '*this'.
-    temp.swap(*this);
+    // If successful (no exceptions thrown) swap 'tempRep' into '*this'.
+    tempRep.swap(*this);
+    if (tempRep.d_funcManager_p) {
+        // Destroy the functor in 'tempRep' before 'tempRep' goes out of scope
+        tempRep.d_funcManager_p(e_DESTROY, &tempRep, PtrOrSize_t());
+    }
+
+    d_invoker_p = invoker_p;
 
     return *this;
 }

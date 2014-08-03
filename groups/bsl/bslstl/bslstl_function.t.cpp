@@ -502,6 +502,7 @@ class FunctorBase
 public:
     FunctorBase() { ++s_count; }
     FunctorBase(const FunctorBase&) { ++s_count; }
+    FunctorBase(FunctorBase&&) { ++s_count; }
     ~FunctorBase() { --s_count; ASSERT(s_count >= 0); }
 
     static int count() { return s_count; }
@@ -2337,74 +2338,127 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                allocName, lhsFuncName, rhsFuncName);
     }
 
-    bslma::TestAllocator testAlloc;
-    ALLOC alloc(&testAlloc);
+    bslma::TestAllocator ta;
+    ALLOC alloc(&ta);
 
     bslma::TestAllocatorMonitor globalAllocMonitor(&globalTestAllocator);
-    bslma::TestAllocatorMonitor testAllocMonitor(&testAlloc);
+    bslma::TestAllocatorMonitor testAllocMonitor(&ta);
+    FunctorMonitor funcMonitor(L_);
 
-    // Test copy-assignment from functor
-    {
+    // Test copy-assignment from non-const functor
+    EXCEPTION_TEST_BEGIN(&ta, &copyLimit) {
         // Make copy of lhsIn using desired allocator.  Measure memory usage.
-        AllocSizeType preBytes = testAlloc.numBytesInUse();
+        AllocSizeType preBytes = ta.numBytesInUse();
         Obj lhs(bsl::allocator_arg, alloc, lhsIn);
-        AllocSizeType lhsBytesBefore = testAlloc.numBytesInUse() - preBytes;
+        AllocSizeType lhsBytesBefore = ta.numBytesInUse() - preBytes;
 
         // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
         // value should be unchanged by the assignment.
         FUNC rhs(rhsIn);
 
-        // 'exp' is what 'lsh' should look like after the assignment
-        preBytes = testAlloc.numBytesInUse();
+        // 'exp' is what 'lsh' should look like after the assignment.
+        preBytes = ta.numBytesInUse();
         Obj exp(bsl::allocator_arg, alloc, rhsIn);
-        AllocSizeType expBytes = testAlloc.numBytesInUse() - preBytes;
+        AllocSizeType expBytes = ta.numBytesInUse() - preBytes;
 
-        preBytes = testAlloc.numBytesInUse();
-        lhs = rhs;  ///////// COPY-ASSIGNMENT FROM FUNC //////////
-        AllocSizeType lhsBytesAfter = (lhsBytesBefore +
-                                       testAlloc.numBytesInUse() -
-                                       preBytes);
-        if (exp) {
-            // Non-empty expected result
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, lhs);
+        preBytes = ta.numBytesInUse();
+        EXCEPTION_TEST_TRY {
+            lhs = rhs;  ///////// COPY-ASSIGNMENT FROM FUNC //////////
+
+            // The number of bytes used by the lhs after the assignment is
+            // equal to the number of bytes used before the assignment plus
+            // the delta caused by the assignment.  Note that the delta might
+            // be negative.
+            AllocSizeType lhsBytesAfter = (lhsBytesBefore +
+                                           ta.numBytesInUse() -
+                                           preBytes);
+            if (exp) {
+                // Non-empty expected result
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, lhs);
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             lhs.target_type() == typeid(FUNC));
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             *lhs.target<FUNC>() == rhsIn);
+            }
+            else {
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs);
+            }
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         lhs.target_type() == typeid(FUNC));
+                         CheckAlloc<ALLOC>::areEqualAlloc(alloc,
+                                                          lhs.allocator()));
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         *lhs.target<FUNC>() == rhsIn);
-        }
-        else {
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs);
-        }
-        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                     CheckAlloc<ALLOC>::areEqualAlloc(alloc, lhs.allocator()));
-        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                     lhsBytesAfter == expBytes);
+                         lhsBytesAfter == expBytes);
 
-        // verify that rhs is unchanged
-        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
+            // verify that rhs is unchanged
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
 
-        if (lhs && exp) {
+            if (lhs && exp) {
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             lhs(1, 2) == exp(1, 2));
+            }
+        }
+        EXCEPTION_TEST_CATCH {
+            // verify that both lhs and rhs are unchanged
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         lhs(1, 2) == exp(1, 2));
-        }
+                         lhs.target_type() == lhsIn.target_type());
+            if (lhs && lhsIn) {
+                Obj lhsInCopy(lhsIn);
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             lhs(1, 2) == lhsInCopy(1, 2));
+            }
+        } EXCEPTION_TEST_ENDTRY;
+    } EXCEPTION_TEST_END;
 
-        // Prove that assignment can be called with const rhs.
-        const FUNC& RHS = rhsIn;
-        Obj exp2(rhsIn);
-        lhs = bsl::nullptr_t();  // Empty lhs
-        lhs = RHS;  // Assignment from const rhs
-
-        // Basic test that assignment worked.
-        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs == ! exp2);
-        if (lhs && exp2) {
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         lhs(1, 2) == exp2(1, 2));
-        }
-    }
     LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                  globalAllocMonitor.isInUseSame());
     LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                  testAllocMonitor.isInUseSame());
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 funcMonitor.isSameCount());
+
+    // Test copy-assignment from const functor
+    EXCEPTION_TEST_BEGIN(&ta, &copyLimit) {
+        // Make copy of lhsIn using desired allocator.  Measure memory usage.
+        Obj lhs(bsl::allocator_arg, alloc, lhsIn);
+
+        // Make copy of 'rhsIn'.  The copy is a non-const lvalue, but its
+        // value should be unchanged by the assignment.
+        FUNC rhs(rhsIn); const FUNC& RHS = rhs;
+
+        // 'exp' is what 'lsh' should look like after the assignment.
+        Obj exp(bsl::allocator_arg, alloc, rhsIn);
+
+        EXCEPTION_TEST_TRY {
+            // Prove that assignment can be called with const rhs.
+            lhs = RHS;  // Assignment from const rhs
+
+            // Basic test that assignment worked.
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs == ! exp);
+            if (lhs && exp) {
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             lhs(1, 2) == exp(1, 2));
+            }
+        }
+        EXCEPTION_TEST_CATCH {
+            // verify that both lhs and rhs are unchanged
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         lhs.target_type() == lhsIn.target_type());
+            if (lhs && lhsIn) {
+                Obj lhsInCopy(lhsIn);
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             lhs(1, 2) == lhsInCopy(1, 2));
+            }
+        } EXCEPTION_TEST_ENDTRY;
+    } EXCEPTION_TEST_END;
+
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 globalAllocMonitor.isInUseSame());
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 testAllocMonitor.isInUseSame());
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 funcMonitor.isSameCount());
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
@@ -2415,55 +2469,80 @@ void testAssignFromFunctor(const Obj&   lhsIn,
         (void) movedToFunc;
     }
 
+    FunctorMonitor funcMonitor2(L_);
+
     // Test move-assignment from functor
-    {
+    EXCEPTION_TEST_BEGIN(&ta, &moveLimit) {
         // Make copy of lhsIn using desired allocator.  Measure memory usage.
-        AllocSizeType preBytes = testAlloc.numBytesInUse();
+        AllocSizeType preBytes = ta.numBytesInUse();
         Obj lhs(bsl::allocator_arg, alloc, lhsIn);
-        AllocSizeType lhsBytesBefore = testAlloc.numBytesInUse() - preBytes;
+        AllocSizeType lhsBytesBefore = ta.numBytesInUse() - preBytes;
 
         // Copy 'rhsIn' so as to not change 'rhsIn'
         FUNC rhs(rhsIn);
 
         // 'exp' is what 'lsh' should look like after the assignment
-        preBytes = testAlloc.numBytesInUse();
+        preBytes = ta.numBytesInUse();
         Obj exp(bsl::allocator_arg, alloc, rhsIn);
-        AllocSizeType expBytes = testAlloc.numBytesInUse() - preBytes;
+        AllocSizeType expBytes = ta.numBytesInUse() - preBytes;
 
-        preBytes = testAlloc.numBytesInUse();
-        lhs = std::move(rhs);  ///////// MOVE-ASSIGNMENT FROM FUNC //////////
-        AllocSizeType lhsBytesAfter = (lhsBytesBefore +
-                                       testAlloc.numBytesInUse() -
-                                       preBytes);
-        if (exp) {
-            // Non-empty expected result
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, lhs);
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         lhs.target_type() == typeid(FUNC));
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         *lhs.target<FUNC>() == rhsIn);
-        }
-        else {
-            // Empty expected result
-            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs);
-        }
-        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                     CheckAlloc<ALLOC>::areEqualAlloc(alloc, lhs.allocator()));
-        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                     lhsBytesAfter == expBytes);
+        preBytes = ta.numBytesInUse();
+        EXCEPTION_TEST_TRY {
+            lhs = std::move(rhs);  //////// MOVE-ASSIGNMENT FROM FUNC /////////
 
-        // verify that rhs is in moved-from state
-        LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == movedFromRhs);
-
-        if (lhs && exp) {
+            // The number of bytes used by the lhs after the assignment is
+            // equal to the number of bytes used before the assignment plus
+            // the delta caused by the assignment.  Note that the delta might
+            // be negative.
+            AllocSizeType lhsBytesAfter = (lhsBytesBefore +
+                                           ta.numBytesInUse() -
+                                           preBytes);
+            if (exp) {
+                // Non-empty expected result
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, lhs);
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             lhs.target_type() == typeid(FUNC));
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             *lhs.target<FUNC>() == rhsIn);
+            }
+            else {
+                // Empty expected result
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, ! lhs);
+            }
             LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
-                         lhs(1, 2) == exp(1, 2));
+                         CheckAlloc<ALLOC>::areEqualAlloc(alloc,
+                                                          lhs.allocator()));
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         lhsBytesAfter == expBytes);
+
+            // verify that rhs is in moved-from state
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         rhs == movedFromRhs);
+
+            if (lhs && exp) {
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             lhs(1, 2) == exp(1, 2));
+            }
         }
-    }
+        EXCEPTION_TEST_CATCH {
+            // verify that both lhs and rhs are unchanged
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName, rhs == rhsIn);
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         lhs.target_type() == lhsIn.target_type());
+            if (lhs && lhsIn) {
+                Obj lhsInCopy(lhsIn);
+                LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                             lhs(1, 2) == lhsInCopy(1, 2));
+            }
+        } EXCEPTION_TEST_ENDTRY;
+    } EXCEPTION_TEST_END;
+
     LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                  globalAllocMonitor.isInUseSame());
     LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                  testAllocMonitor.isInUseSame());
+    LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                 funcMonitor2.isSameCount());
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
