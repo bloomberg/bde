@@ -9,6 +9,7 @@
 #include <bsl_limits.h>
 #include <bsl_cmath.h>
 #include <bsl_cfloat.h>
+#include <bsl_algorithm.h>
 
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
@@ -589,7 +590,7 @@ int main(int argc, char* argv[])
             ASSERT(0 == memcmp(n_d32, buffer, sizeof(n_d32)));
 
             Util::decimalFromNetwork(&d32, buffer);
-            ASSERT(d32 == h_d32);
+            LOOP2_ASSERT(d32, h_d32, d32 == h_d32);
         }
 
         { // 64
@@ -603,7 +604,7 @@ int main(int argc, char* argv[])
             ASSERT(0 == memcmp(n_d64, buffer, sizeof(n_d64)));
 
             Util::decimalFromNetwork(&d64, buffer);
-            ASSERT(d64 == h_d64);
+            LOOP2_ASSERT(d64, h_d64, d64 == h_d64);
         }
 
         { // 128
@@ -620,7 +621,16 @@ int main(int argc, char* argv[])
             ASSERT(0 == memcmp(n_d128, buffer, sizeof(n_d128)));
 
             Util::decimalFromNetwork(&d128, buffer);
-            ASSERT(d128 == h_d128);
+            LOOP2_ASSERT(d128, h_d128, d128 == h_d128);
+            std::cout << "d128: " << std::endl;
+            std::copy(reinterpret_cast<const unsigned char *>(&d128),
+                      reinterpret_cast<const unsigned char *>(&d128) + 8,
+                        std::ostream_iterator<unsigned int>(std::cout, " "));
+
+            std::cout << "h_d128: " << std::endl;
+            std::copy(reinterpret_cast<const unsigned char *>(&h_d128),
+                      reinterpret_cast<const unsigned char *>(&h_d128) + 8,
+                        std::ostream_iterator<unsigned int>(std::cout, " "));
         }
 
         if (veryVerbose) bsl::cout << "Decimal-binary-decimal trip"
