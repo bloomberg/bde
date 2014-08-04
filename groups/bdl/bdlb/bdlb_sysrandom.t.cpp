@@ -1,7 +1,7 @@
 // bdlb_sysrandom.t.cpp                                               -*-C++-*-
 #include <bdlb_sysrandom.h>
 
-// Note the headers are in non-standard order. This was reqired to silence an
+// Note the headers are in non-standard order.  This was required to silence an
 // error from clang 3.4.
 //..
 //  /usr/include/unistd.h:449:12: error: declaration conflicts with target of
@@ -22,9 +22,10 @@
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>                  // for usage example
+#include <bsl_string.h>
 
 using namespace BloombergLP;
-using namespace bsl;  // automatically added by script
+using namespace bsl;
 
 // ============================================================================
 //                             TEST PLAN
@@ -33,17 +34,17 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [-1] static int randomN(void *buffer, unsigned numBytes = 1);
-// [ 2] static int urandomN(void *buffer, unsigned numBytes = 1);
+// [-1] static int getRandomBytes(unsigned char *buf, size_t numB);
+// [ 2] static int getRandomBytesNonBlocking(buf, numB);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [-2] PERFORMANCE: 'RANDOMN'
-// [-3] PERFORMANCE: 'URANDOMN'
-// [-4] PERFORMANCE: 'RANDOMN'
-// [-5] PERFORMANCE: 'RANDOMN'
+// [-2] PERFORMANCE: 'getRandomBytes'
+// [-3] PERFORMANCE: 'getRandomBytesNonBlocking'
+// [-4] PERFORMANCE: 'getRandomBytes'
+// [-5] PERFORMANCE: 'getRandomBytes'
 // [ 3] USAGE EXAMPLE
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                    STANDARD BDE ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
 
 static int testStatus = 0;
@@ -86,7 +87,7 @@ static void aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+// SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -98,7 +99,6 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 //-----------------------------------------------------------------------------
-
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 #define sleep(x) Sleep((x))
 #else
@@ -106,18 +106,20 @@ static void aSsErT(int c, const char *s, int i)
 #endif
 
 //=============================================================================
-//                             USAGE EXAMPLE
+//                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 template <class CHOICE_TYPE>
-class RandomChoice
-{
-    //DATA
-    CHOICE_TYPE *d_choices;  // the possibilities
-    unsigned     d_size;
+class RandomChoice {
+  // This class manages selecting pseudo-random elements out of an array
+  // sampling with replacement.
+
+  // DATA
+    CHOICE_TYPE *d_choices;  // the possibilities (used not owned)
+    int          d_size;     // the number of elements to choose amongst
 
   public:
     // CREATORS
-    RandomChoice(CHOICE_TYPE choices[], unsigned numChoices);
+    RandomChoice(CHOICE_TYPE choices[], int numChoices);
         // Create an object to return a random one of the first specified
         // 'numChoices' elements of the specified 'choices' array.
 
@@ -126,26 +128,20 @@ class RandomChoice
 
     // ACCESSOR
     const CHOICE_TYPE& choice() const;
-        // Return a random member of the 'choices'.
+        // Return a random member of the 'choices', sampling with replacement.
 };
 
 // CREATORS
 template <class CHOICE_TYPE>
 RandomChoice<CHOICE_TYPE>::RandomChoice(CHOICE_TYPE choices[],
-                                        unsigned     numChoices)
-: d_size(numChoices)
+                                        int         numChoices)
+: d_choices(choices), d_size(numChoices)
 {
-    d_choices = new CHOICE_TYPE[numChoices];
-    for (unsigned i = 0; i < numChoices; ++i)
-    {
-        d_choices[i] = choices[i];
-    }
 }
 
 template <class CHOICE_TYPE>
 RandomChoice<CHOICE_TYPE>::~RandomChoice()
 {
-    delete  [] d_choices;
 }
 
 // ACCESSORS
@@ -153,7 +149,9 @@ template <class CHOICE_TYPE>
 const CHOICE_TYPE& RandomChoice<CHOICE_TYPE>::choice() const
 {
     int index;
-    bdlb::SysRandom::urandomN(&index, sizeof(index));
+    bdlb::SysRandom::getRandomBytesNonBlocking(
+                                     reinterpret_cast<unsigned char *>(&index),
+                                     sizeof(index));
     return d_choices[index % d_size];
 }
 
@@ -166,7 +164,6 @@ int main(int argc, char *argv[])
     int  test = argc > 1 ? atoi(argv[1]) : 0;
     bool verbose = argc > 2;
     bool veryVerbose = argc > 3;
-
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -199,7 +196,7 @@ int main(int argc, char *argv[])
 //..
 // Initialize an array of colors to choose between.
 //..
-    string colors[] = {"Red" , "Orange", "Yellow", "Green",
+    bsl::string colors[] = {"Red" , "Orange", "Yellow", "Green",
                        "Blue", "Indigo", "Violet"};
     unsigned numColors = sizeof(colors)/sizeof(colors[0]);
 //..
@@ -215,58 +212,48 @@ if (verbose)
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // STATIC INT URANDOMN(VOID *BUFFER, UNSIGNED NUMBYTES) TEST
+        // 'int getRandomBytesNonBlocking(buf, numB)' TEST
         //
         // Concerns:
-        //   1) The default number of random bytes is 1.
-        //   2) If a number is passed, that many bytes are set.
-        //   3) The random bytes are distributed normally (probabilistic)
+        //   1) If a number is passed, that many bytes are set.
+        //   2) The random bytes are distributed normally (probabilistic)
         //
         // Plan:
-        //   Request a large pool and random bytes from non-blocking random 
-        //   number generator.  Verify that each is unique. Verify that the 
+        //   Request a large pool and random bytes from non-blocking random
+        //   number generator.  Verify that each is unique. Verify that the
         //   numbers approximate a uniform distribution.
         //
         // Testing:
-        //   static int urandomN(void *buffer, unsigned numBytes = 1);
+        //   static int getRandomBytesNonBlocking(buf, numB);
         // --------------------------------------------------------------------
         enum { NUM_ITERATIONS = 25};
         int cnt = 0;
         int numbers [NUM_ITERATIONS]      = {0};
-        int prev_numbers [NUM_ITERATIONS] = {0};
+        // int prev_numbers [NUM_ITERATIONS] = {0};
         const unsigned NUM_BYTES = sizeof(numbers);
-        
+
         if (verbose)
           cout << endl
-               << "STATIC INT URANDOMN(VOID *BUFFER, UNSIGNED NUMBYTES) TEST" 
-               << endl
-               << "=========================================================" 
-               << endl;
-        //   1) The default number of random bytes is 1.
-        if (veryVerbose) cout << "\nTesting the default." << endl;
-        for (unsigned i = 0; i < NUM_BYTES; ++i) {
-             char *p  = reinterpret_cast<char *>  (numbers) + i;
-             char *p2 = reinterpret_cast<char *>(prev_numbers) + i;
-             ASSERT(0 == bdlb::SysRandom::urandomN(p));
-             if (veryVerbose) cout << "random[" << i <<"]: " << *p << endl;
-             if (i > 0)  {
-                 ASSERT(0 == memcmp(numbers, prev_numbers, i - 1));
-             }
-             *p2 = *p;
-        }
-        
-        // 2) If a number is passed, that many bytes are set.
+               << "'int getRandomBytesNonBlocking(buf, numB)' TEST" << endl
+               << "===============================================" << endl;
+
+        // 1) If a number is passed, that many bytes are set.
         if (veryVerbose) cout << "\nTesting the number of bytes set."
                               << endl;
         for (unsigned i = 0; i < 5; ++i) {
             unsigned j;
-            char *p = reinterpret_cast<char *>(numbers);
+            unsigned char *p = reinterpret_cast<unsigned char *>(numbers);
             memset(numbers, 0, NUM_BYTES);
-            ASSERT(0 == bdlb::SysRandom::urandomN(numbers, i));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(p,
+                                                                   i));
 
+            int sum = 0;
             for (j = 0; j < i; ++j)    {
                 if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
-                LOOP2_ASSERT(i,j, 0 != p[j]);
+                sum += p[j];
+            }
+            if (i > 0) {
+              LOOP_ASSERT(i, 0 != sum)
             }
             for (; j < NUM_BYTES; ++j) {
                 if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
@@ -279,7 +266,9 @@ if (verbose)
         // 3) The random bytes are distributed normally (probabilistic)
         for (int i = 0; i<NUM_ITERATIONS; ++i) {
             int rand;
-            ASSERT(0 == bdlb::SysRandom::urandomN(&rand, sizeof(rand)));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(
+                                      reinterpret_cast<unsigned char *>(&rand),
+                                      sizeof(rand)));
             numbers[i] = rand;
             if (veryVerbose) cout << "rand[" << i << "]: " << rand << endl;
             for (int j = 0; j < i; ++j) {
@@ -323,7 +312,10 @@ if (verbose)
                           << "==============" << endl;
         if (verbose) cout << "testing random" << endl;
         int rand;
-        ASSERT(0 == bdlb::SysRandom::randomN(&rand, sizeof(rand)));
+        ASSERT(0 == bdlb::SysRandom::getRandomBytes(
+                                      reinterpret_cast<unsigned char *>(&rand),
+                                      sizeof(rand)));
+
         for (char*p1 = reinterpret_cast<char *>(&rand);
              p1 < reinterpret_cast<char *>(&rand + 1);
              ++p1)
@@ -339,56 +331,40 @@ if (verbose)
       } break;
       case -1: {
         // --------------------------------------------------------------------
-        // STATIC INT RANDOMN(VOID *BUFFER, UNSIGNED NUMBYTES = 1)
+        // 'int getRandomBytes(void *buf, int numBytes) TEST'
         //
         // Concerns:
-        //   1) The default number of random bytes is 1.
-        //   2) If a number is passed, that many bytes are set.
-        //   3) The random bytes are distributed normally (probabilistic)
+        //   1) If a number is passed, that many bytes are set.
+        //   2) The random bytes are distributed normally (probabilistic)
         //
         // Plan:
-        //   Request a large pool and random bytes from non-blocking random 
-        //   number generator.  Verify that each is unique. Verify that the 
+        //   Request a large pool and random bytes from non-blocking random
+        //   number generator.  Verify that each is unique. Verify that the
         //   numbers approximate a uniform distribution.
         //
         // Testing:
-        //   static int randomN(void *buffer, unsigned numBytes = 1);
+        //   static int getRandomBytes(unsigned char *buf, size_t numB);
         // --------------------------------------------------------------------
         enum { NUM_ITERATIONS = 25};
         int cnt = 0;
         int numbers [NUM_ITERATIONS]      = {0};
-        int prev_numbers [NUM_ITERATIONS] = {0};
+        // int prev_numbers [NUM_ITERATIONS] = {0};
         const unsigned NUM_BYTES = sizeof(numbers);
-        
+
         if (verbose)
           cout << endl
-               << "STATIC INT RANDOMN(VOID *BUFFER, UNSIGNED NUMBYTES = 1);"
-               << endl
-               << "========================================================"
-               << endl;
-
-        if (veryVerbose) cout << "\nTesting the default." << endl;
-
-        //   1) The default number of random bytes is 1.
-        for (unsigned i = 0; i < NUM_BYTES; ++i) {
-             char *p  = reinterpret_cast<char *>  (numbers) + i;
-             char *p2 = reinterpret_cast<char *>(prev_numbers) + i;
-             ASSERT(0 == bdlb::SysRandom::urandomN(p));
-             if (veryVerbose) cout << "random[" << i <<"]: " << *p << endl;
-             if (i > 0)  {
-                 ASSERT(0 == memcmp(numbers, prev_numbers, i - 1));
-             }
-             *p2 = *p;
-        }
+               << "'int getRandomBytes(void *buf, int numBytes) TEST'" << endl
+               << "==================================================" << endl;
 
         if (veryVerbose) cout << "\nTesting the number of bytes set."
                               << endl;
         // 2) If a number is passed, that many bytes are set.
         for (unsigned i = 0; i < 5; ++i) {
             unsigned j;
-            char *p = reinterpret_cast<char *>(numbers);
+            unsigned char *p = reinterpret_cast<unsigned char *>(numbers);
             memset(numbers, 0, NUM_BYTES);
-            ASSERT(0 == bdlb::SysRandom::urandomN(numbers, i));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(p,
+                                                                   i));
 
             for (j = 0; j < i; ++j)    {
                 if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
@@ -402,22 +378,25 @@ if (verbose)
 
         if (veryVerbose) cout << "\nTesting the distribution of rand."
                               << endl;
-        
+
         // 3) The random bytes are distributed normally (probabilistic)
         for (int i = 0; i<NUM_ITERATIONS; ++i) {
-            int rand;
-            ASSERT(0 == bdlb::SysRandom::urandomN(&rand, sizeof(rand)));
-            numbers[i] = rand;
-            if (veryVerbose) cout << "rand[" << i << "]: " << rand << endl;
+            int rand_int = 0;
+            unsigned char *p1 = reinterpret_cast<unsigned char *>(rand_int);
+            ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(
+                                                            p1,
+                                                            sizeof(rand_int)));
+            numbers[i] = rand_int;
+            if (veryVerbose) cout << "rand[" << i << "]: " << rand_int << endl;
             for (int j = 0; j < i; ++j) {
-                ASSERT(numbers[j] != rand);
+                ASSERT(numbers[j] != rand_int);
                 if (veryVerbose)
-                    cout << "rand[" << j << "]: " << numbers[j] << endl;
+                    cout << "rand_int[" << j << "]: " << numbers[j] << endl;
             }
 
             for (int b = 0; b < 15; ++b) {
-                cnt += rand & 1;
-                rand >>= 1;
+                cnt += rand_int & 1;
+                rand_int >>= 1;
                 if (veryVerbose) cout << "Cnt:  " << cnt << endl;
             }
         }
@@ -427,7 +406,7 @@ if (verbose)
       } break;
       case -2: {
         // --------------------------------------------------------------------
-        // PERFORMANCE: 'RANDOMN'
+        // PERFORMANCE: 'getRandomBytes'
         //
         // Concerns:
         //   Measure the effect of requesting larger random numbers per
@@ -440,16 +419,16 @@ if (verbose)
         //   time to complete each request.
         //
         // Testing:
-        //   PERFORMANCE: 'RANDOMN'
+        //   PERFORMANCE: 'getRandomBytes'
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "PERFORMANCE: 'RANDOMN'" << endl
-                          << "======================" << endl;
+                          << "PERFORMANCE: 'getRandomBytes'" << endl
+                          << "=============================" << endl;
         enum { NUM_ITERATIONS = 4};
         bsls::Stopwatch s;
         const int MAX_GRANUALARITY = 1 << NUM_ITERATIONS;
-        char buffer [MAX_GRANUALARITY] = {0};
-        char prev_buffer[MAX_GRANUALARITY] = {0};
+        unsigned char buffer [MAX_GRANUALARITY] = {0};
+        unsigned char prev_buffer[MAX_GRANUALARITY] = {0};
         int i, granularity;
         for (granularity = 1;
              granularity < MAX_GRANUALARITY;
@@ -459,8 +438,9 @@ if (verbose)
             s.start(true);
             for (i = 0; i <= MAX_GRANUALARITY; i +=  granularity)
             {
-                ASSERT(0 == bdlb::SysRandom::randomN(buffer + granularity,
-                                                     granularity));
+                ASSERT(0 ==
+                       bdlb::SysRandom::getRandomBytes(buffer + granularity,
+                                                       granularity));
             }
             s.stop();
             LOOP2_ASSERT(granularity,
@@ -470,13 +450,13 @@ if (verbose)
                           s.accumulatedWallTime();
             cout << "Granularity : " << granularity  << endl
                  << "Time Elapsed: " << time << endl
-                  << "--------------" << endl << endl;
+                 << "--------------" << endl << endl;
             s.reset();
         }
     } break;
     case -3: {
       // ----------------------------------------------------------------------
-      // PERFORMANCE: 'URANDOMN'
+      // PERFORMANCE: 'getRandomBytesNonBlocking'
       //
       // Concerns:
       //    Measure the effect of requesting larger random numbers per
@@ -489,21 +469,25 @@ if (verbose)
       //      time to complete each request.
       //
       // Testing:
-      //   PERFORMANCE: 'URANDOMN'
+      //   PERFORMANCE: 'getRandomBytesNonBlocking'
       //---------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "PERFORMANCE: 'URANDOMN'" << endl
-                          << "=======================" << endl;
+                         << "PERFORMANCE: 'getRandomBytesNonBlocking'" << endl
+                         << "========================================" << endl;
         int rand_int;
         for (int i = 0; i < 15; ++i) {
-            ASSERT(0 == bdlb::SysRandom::urandomN(&rand_int,
-                                                  sizeof(rand_int)));
+            ASSERT(0 ==
+                 bdlb::SysRandom::getRandomBytesNonBlocking(
+                                  reinterpret_cast<unsigned char *>(&rand_int),
+                                                            sizeof(rand_int)));
         }
-          enum { NUM_ITERATIONS = 4};
-          bsls::Stopwatch s;
+
+        enum { NUM_ITERATIONS = 4};
+        bsls::Stopwatch s;
+
         const int MAX_GRANUALARITY = 1 << NUM_ITERATIONS;
-        char buffer [MAX_GRANUALARITY] = {0};
-        char prev_buffer[MAX_GRANUALARITY] = {0};
+        unsigned char buffer [MAX_GRANUALARITY] = {0};
+        unsigned char prev_buffer[MAX_GRANUALARITY] = {0};
         int i, granularity;
         for (granularity = 1;
              granularity < MAX_GRANUALARITY;
@@ -513,8 +497,10 @@ if (verbose)
             s.start(true);
             for (i = 0; i <= MAX_GRANUALARITY; i +=  granularity)
             {
-                ASSERT(0 == bdlb::SysRandom::urandomN(buffer + granularity,
-                                                        granularity));
+                ASSERT(0 ==
+                      bdlb::SysRandom::getRandomBytesNonBlocking(
+                                                          buffer + granularity,
+                                                          granularity));
             }
             s.stop();
             LOOP2_ASSERT(granularity,
@@ -524,13 +510,13 @@ if (verbose)
                           s.accumulatedWallTime();
             if (veryVerbose) cout << "Granularity : " << granularity  << endl
                                   << "Time Elapsed: " << time << endl
-                                  << "-------------" << endl << endl;
+                                  << "-------------"  << endl << endl;
             s.reset();
         }
     } break;
     case -4: {
       // ----------------------------------------------------------------------
-      // PERFORMANCE: 'RANDOMN'
+      // PERFORMANCE: 'getRandomBytes'
       //
       // Concerns:
       //   Measure the amount of time necessary to wait between successive
@@ -543,22 +529,26 @@ if (verbose)
       //   required to receive the next random number.
       //
       // Testing:
-      //   PERFORMANCE: 'RANDOMN'
+      //   PERFORMANCE: 'getRandomBytes'
       //---------------------------------------------------------------------
-      if (verbose) cout << "PERFORMANCE: 'RANDOMN'"
-                        << "======================" << endl;
+      if (verbose) cout << "PERFORMANCE: 'getRandomBytes'"
+                        << "=============================" << endl;
       bsls::Stopwatch s;
 
       int rand_int;
+      unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
       for (int i = 0; i < 15; ++i) {
-         ASSERT(0 == bdlb::SysRandom::randomN(&rand_int, sizeof(rand_int)));
+         ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
+                                                     sizeof(int)));
       }
       enum { MAX_SLEEP = 10};
       for (unsigned curr_sleep = 0; curr_sleep <= MAX_SLEEP; ++curr_sleep) {
-          ASSERT(0 == bdlb::SysRandom::randomN(&rand_int, sizeof(rand_int)));
+          ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
+                                                      sizeof(int)));
           ///sleep(curr_sleep);
           s.start(true);
-          ASSERT(0 == bdlb::SysRandom::randomN(&rand_int, sizeof(rand_int)));
+          ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
+                                                      sizeof(int)));
           s.stop();
           double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
                         s.accumulatedWallTime();
@@ -566,38 +556,40 @@ if (verbose)
       if (veryVerbose)
           cout << "Current Delay             : " << curr_sleep
                 << " ms" << endl
-                <<  "Time to get next number: "   << time * 100
+                <<  "Time to get next number: "  << time * 100
                 << " ms" << endl
-                << "-------------------------"    << endl  << endl;
+                << "-------------------------"   << endl  << endl;
       }
     } break;
     case -5: {
       // ----------------------------------------------------------------------
-      // PERFORMANCE: 'RANDOMN'
+      // PERFORMANCE: 'getRandomBytes'
       //
       // Concerns:
-      //      Measure the amount of time required to acquire 'NUM_ITERATIONS'
-      //       'int'(s).
+      //   Measure the amount of time required to acquire 'NUM_ITERATIONS'
+      //   'int'(s).
       //
-      //  Plan:
-      //      Call 'SysRandom::randomN' 'NUM_ITERATIONS' times, each time re
-      //       requesting a 'int'.
+      // Plan:
+      //   Call 'SysRandom::getRandomBytes' 'NUM_ITERATIONS' times, each
+      //   time
+      //   requesting a 'int'.
       //
       // Testing:
-      //   PERFORMANCE: 'RANDOMN'
+      //   PERFORMANCE: 'getRandomBytes'
       // ----------------------------------------------------------------------
       if (verbose)
             cout << endl
-                 << "PERFORMANCE: 'RANDOMN'" << endl
-                 << "======================" << endl;
+                 << "PERFORMANCE: 'getRandomBytes'" << endl
+                 << "=============================" << endl;
         bsls::Stopwatch s;
         int rand_int;
+        unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
         enum {NUM_ITERATIONS = 15};
 
         s.start(true);
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                ASSERT(0 == bdlb::SysRandom::randomN(&rand_int,
-                                                      sizeof(rand_int)));
+                ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
+                                                      sizeof(int)));
         }
         s.stop();
         double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +

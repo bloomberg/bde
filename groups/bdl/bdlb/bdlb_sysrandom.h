@@ -7,10 +7,10 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a universal interface to a system random number generators.
+//@PURPOSE: Provide a universal interface to a system random number generator.
 //
 //@CLASSES:
-// bdlb::SysRandom: namespace for a suite of system random-number generators.
+//  bdlb::SysRandom: namespace for a suite of system random-number generator.
 //
 //@SEE_ALSO:
 //
@@ -25,54 +25,53 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate how to create and use a
-// 'bdlb_SysRandom' object.
+// This section illustrates intended use of this component
 //..
 //  template <class CHOICE_TYPE>
-//  class RandomChoice
-//  {
-//      CHOICE_TYPE *d_choices;  // the possibilities
-//      unsigned     d_size;
+//  class RandomChoice {
+//    // This class manages selecting pseudo-random elements out of an array
+//    // sampling with replacement.
+//
+//    // DATA
+//      CHOICE_TYPE *d_choices;  // the possibilities (used not owned)
+//      int          d_size;     // the number of elements to choose amongst
 //
 //    public:
 //      // CREATORS
-//      RandomChoice(CHOICE_TYPE choices[], unsigned numChoices);
+//      RandomChoice(CHOICE_TYPE choices[], int numChoices);
 //          // Create an object to return a random one of the first specified
 //          // 'numChoices' elements of the specified 'choices' array.
 //
 //      ~RandomChoice();
 //          // Delete this object
-
+//
 //      // ACCESSOR
 //      const CHOICE_TYPE& choice() const;
-//          // Return a random member of the 'choices'.
+//          // Return a random member of the 'choices', sampling with
+//          // replacement.
 //  };
-
+//
 //  // CREATORS
 //  template <class CHOICE_TYPE>
 //  RandomChoice<CHOICE_TYPE>::RandomChoice(CHOICE_TYPE choices[],
-//                                          unsigned     numChoices)
-// :  d_size(numChoices)
+//                                          int         numChoices)
+//  : d_choices(choices), d_size(numChoices)
 //  {
-//      d_choices = new CHOICE_TYPE[numChoices];
-//      for (unsigned i = 0; i < numChoices; ++i)
-//      {
-//          d_choices[i] = choices[i];
-//      }
 //  }
-
+//
 //  template <class CHOICE_TYPE>
 //  RandomChoice<CHOICE_TYPE>::~RandomChoice()
 //  {
-//      delete  [] d_choices;
 //  }
-
+//
 //  // ACCESSORS
 //  template <class CHOICE_TYPE>
 //  const CHOICE_TYPE& RandomChoice<CHOICE_TYPE>::choice() const
 //  {
 //      int index;
-//      bdlb::SysRandom::urandomN(&index, sizeof(index));
+//      bdlb::SysRandom::getRandomBytesNonBlocking(
+//                                   reinterpret_cast<unsigned char *>(&index),
+//                                   sizeof(index));
 //      return d_choices[index % d_size];
 //  }
 //..
@@ -101,7 +100,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
 namespace bdlb {
 
                         // ================
@@ -111,19 +109,22 @@ namespace bdlb {
 struct SysRandom {
     // This 'struct' provides a namespace for a suite of functions used for
     // acquiring random numbers from the system.
+    //TYPES
+    typedef bsls::Types::size_type size_t;       // for brevity of name
 
     // CLASS METHODS
-    static int randomN(void *buffer, unsigned numBytes = 1);
-        // Read the the optionally specified 'numBytes' from the from the
-        // system random number generator into the specified 'buffer'.  Returns
-        // 0 on success, non-zero otherwise.  Note that this method may block
-        // if called repeatedly or if 'numBytes' is high.
+    static int getRandomBytes(unsigned char *buffer, size_t numBytes);
+        // Read the the specified 'numBytes' from the system random number
+        // generator into the specified 'buffer'.  Returns 0 on success,
+        // non-zero otherwise.  Note that this method may block if called
+        // repeatedly or if 'numBytes' is high.
 
-    static int urandomN(void *buffer, unsigned numBytes = 1);
-        // Read the the optionally specified 'numBytes' from the from the
-        // system non-blocking random number generator into the specified
-        // 'buffer'.  Returns 0 on success, non-zero otherwise.  Note that this
-        // method may return a random-number unsuitable for cryptography.
+    static int getRandomBytesNonBlocking(unsigned char *buffer,
+                                         size_t         numBytes);
+        // Read the the specified 'numBytes' from the system non-blocking
+        // random number generator into the specified 'buffer'.  Returns 0 on
+        // success, non-zero otherwise.  Note that this method may block if
+        // called repeatedly or if 'numBytes' is high.
 };
 
 }  // close package namespace
