@@ -1,4 +1,4 @@
-// bdldfp_decimalimputil_inteldfp.h                                           -*-C++-*-
+// bdldfp_decimalimputil_inteldfp.h                                   -*-C++-*-
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 #define INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
 
@@ -57,6 +57,10 @@ BSLS_IDENT("$Id$")
 #  define INCLUDED_BID_FUNCTIONS
 #endif
 
+
+#ifndef INCLUDED_BSL_LOCALE
+#include <bsl_locale.h>
+#endif
 
 
 namespace BloombergLP {

@@ -167,7 +167,7 @@ Decimal64 DecimalUtil::fma(Decimal64 x, Decimal64 y, Decimal64 z)
                  x.data(),
                  y.data(),
                  z.data(),
-                 DecimalImpUtil::getDecNumberContext());
+                 DecimalImpUtil_decNumber::getDecNumberContext());
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     rv.data()->d_raw = __bid64_fma(x.data()->d_raw, y.data()->d_raw, z.data()->d_raw);
 #else
@@ -186,7 +186,7 @@ Decimal128 DecimalUtil::fma(Decimal128 x, Decimal128 y, Decimal128 z)
                x.data(),
                y.data(),
                z.data(),
-               DecimalImpUtil::getDecNumberContext());
+               DecimalImpUtil_decNumber::getDecNumberContext());
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     rv.data()->d_raw = __bid128_fma(x.data()->d_raw, y.data()->d_raw, z.data()->d_raw);
 #else
@@ -218,7 +218,7 @@ Decimal64 DecimalUtil::fabs(Decimal64 value)
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     decDoubleAbs(rv.data(),
                  value.data(),
-                 DecimalImpUtil::getDecNumberContext());
+                 DecimalImpUtil_decNumber::getDecNumberContext());
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     rv.data()->d_raw = __bid64_abs(value.data()->d_raw);
 #else
@@ -234,7 +234,7 @@ Decimal128 DecimalUtil::fabs(Decimal128 value)
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     decQuadAbs(rv.data(),
                value.data(),
-               DecimalImpUtil::getDecNumberContext());
+               DecimalImpUtil_decNumber::getDecNumberContext());
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     rv.data()->d_raw = __bid128_abs(value.data()->d_raw);
 #else
@@ -403,7 +403,7 @@ Decimal32 DecimalUtil::ceil(Decimal32 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              xw.data(),
-                             DecimalImpUtil::getDecNumberContext(),
+                             DecimalImpUtil_decNumber::getDecNumberContext(),
                              DEC_ROUND_CEILING);
     return Decimal32(rv);
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -422,7 +422,7 @@ Decimal64 DecimalUtil::ceil(Decimal64 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              x.data(),
-                             DecimalImpUtil::getDecNumberContext(),
+                             DecimalImpUtil_decNumber::getDecNumberContext(),
                              DEC_ROUND_CEILING);
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -441,7 +441,7 @@ Decimal128 DecimalUtil::ceil(Decimal128 x)
     Decimal128 rv;
     decQuadToIntegralValue(rv.data(),
                            x.data(),
-                           DecimalImpUtil::getDecNumberContext(),
+                           DecimalImpUtil_decNumber::getDecNumberContext(),
                            DEC_ROUND_CEILING);
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -461,7 +461,7 @@ Decimal32 DecimalUtil::floor(Decimal32 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              xw.data(),
-                             DecimalImpUtil::getDecNumberContext(),
+                             DecimalImpUtil_decNumber::getDecNumberContext(),
                              DEC_ROUND_FLOOR);
     return Decimal32(rv);
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -480,7 +480,7 @@ Decimal64 DecimalUtil::floor(Decimal64 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              x.data(),
-                             DecimalImpUtil::getDecNumberContext(),
+                             DecimalImpUtil_decNumber::getDecNumberContext(),
                              DEC_ROUND_FLOOR);
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -499,7 +499,7 @@ Decimal128 DecimalUtil::floor(Decimal128 x)
     Decimal128 rv;
     decQuadToIntegralValue(rv.data(),
                            x.data(),
-                           DecimalImpUtil::getDecNumberContext(),
+                           DecimalImpUtil_decNumber::getDecNumberContext(),
                            DEC_ROUND_FLOOR);
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -519,7 +519,7 @@ Decimal32 DecimalUtil::trunc(Decimal32 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              xw.data(),
-                             DecimalImpUtil::getDecNumberContext(),
+                             DecimalImpUtil_decNumber::getDecNumberContext(),
                              DEC_ROUND_DOWN);
     return Decimal32(rv);
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -538,7 +538,7 @@ Decimal64 DecimalUtil::trunc(Decimal64 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              x.data(),
-                             DecimalImpUtil::getDecNumberContext(),
+                             DecimalImpUtil_decNumber::getDecNumberContext(),
                              DEC_ROUND_DOWN);
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -557,7 +557,7 @@ Decimal128 DecimalUtil::trunc(Decimal128 x)
     Decimal128 rv;
     decQuadToIntegralValue(rv.data(),
                            x.data(),
-                           DecimalImpUtil::getDecNumberContext(),
+                           DecimalImpUtil_decNumber::getDecNumberContext(),
                            DEC_ROUND_DOWN);
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -577,7 +577,7 @@ Decimal32 DecimalUtil::round(Decimal32 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              xw.data(),
-                             DecimalImpUtil::getDecNumberContext(),
+                             DecimalImpUtil_decNumber::getDecNumberContext(),
                              DEC_ROUND_HALF_UP);
     return Decimal32(rv);
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -596,7 +596,7 @@ Decimal64 DecimalUtil::round(Decimal64 x)
     Decimal64 rv;
     decDoubleToIntegralValue(rv.data(),
                              x.data(),
-                             DecimalImpUtil::getDecNumberContext(),
+                             DecimalImpUtil_decNumber::getDecNumberContext(),
                              DEC_ROUND_HALF_UP);
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -615,7 +615,7 @@ Decimal128 DecimalUtil::round(Decimal128 x)
     Decimal128 rv;
     decQuadToIntegralValue(rv.data(),
                            x.data(),
-                           DecimalImpUtil::getDecNumberContext(),
+                           DecimalImpUtil_decNumber::getDecNumberContext(),
                            DEC_ROUND_HALF_UP);
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
@@ -641,7 +641,7 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
     decDoubleScaleB(result.data(),
                     value.data(),
                     makeDecimal64(longLongExponent, 0).data(),
-                    DecimalImpUtil::getDecNumberContext());
+                    DecimalImpUtil_decNumber::getDecNumberContext());
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     value.data()->d_raw = __bid64_scalbn(value.data()->d_raw, exponent);
@@ -665,7 +665,7 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     decDoubleScaleB(result.data(),
                     value.data(),
                     exponent.data(),
-                    DecimalImpUtil::getDecNumberContext());
+                    DecimalImpUtil_decNumber::getDecNumberContext());
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     value.data()->d_raw = __bid64_scalbn(value.data()->d_raw, __bid64_to_int32_int(exponent.data()->d_raw));
@@ -689,7 +689,7 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
     decQuadScaleB(result.data(),
                   value.data(),
                   &scale,
-                  DecimalImpUtil::getDecNumberContext());
+                  DecimalImpUtil_decNumber::getDecNumberContext());
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     value.data()->d_raw = __bid128_scalbn(value.data()->d_raw, exponent);
@@ -710,7 +710,7 @@ Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value,
     decQuadScaleB(result.data(),
                   value.data(),
                   exponent.data(),
-                  DecimalImpUtil::getDecNumberContext());
+                  DecimalImpUtil_decNumber::getDecNumberContext());
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     value.data()->d_raw = __bid128_scalbn(value.data()->d_raw, __bid128_to_int32_int(exponent.data()->d_raw));
@@ -729,7 +729,7 @@ Decimal64 DecimalUtil::quantize(Decimal64 value, Decimal64 exponent)
     decDoubleQuantize(result.data(),
                       value.data(),
                       exponent.data(),
-                      DecimalImpUtil::getDecNumberContext());
+                      DecimalImpUtil_decNumber::getDecNumberContext());
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     value.data()->d_raw = __bid64_quantize(value.data()->d_raw, exponent.data()->d_raw);
@@ -748,7 +748,7 @@ Decimal128 DecimalUtil::quantize(Decimal128 x, Decimal128 y)
     decQuadQuantize(rv.data(),
                     x.data(),
                     y.data(),
-                    DecimalImpUtil::getDecNumberContext());
+                    DecimalImpUtil_decNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     x.data()->d_raw = __bid128_quantize(x.data()->d_raw, y.data()->d_raw);

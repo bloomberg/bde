@@ -41,6 +41,18 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_denselypackeddecimalimputil.h>
 #endif
 
+#ifndef INCLUDED_BSL_LOCALE
+#include <bsl_locale.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_BUFFERBUF
+#include <bdldfp_bufferbuf.h>
+#endif
+
 #ifndef INCLUDED_DECSINGLE
 extern "C" {
 #include <decSingle.h>
@@ -121,18 +133,18 @@ struct DecimalImpUtil_decNumber {
     static ValueType64  add(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 add(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  sub(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 sub(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  subtract(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 subtract(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  mul(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 mul(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  multiply(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 multiply(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType64  div(ValueType64  lhs,  ValueType64  rhs);
-    static ValueType128 div(ValueType128 lhs,  ValueType128 rhs);
+    static ValueType64  divide(ValueType64  lhs,  ValueType64  rhs);
+    static ValueType128 divide(ValueType128 lhs,  ValueType128 rhs);
 
-    static ValueType32  neg(ValueType32  value);
-    static ValueType64  neg(ValueType64  value);
-    static ValueType128 neg(ValueType128 value);
+    static ValueType32  negate(ValueType32  value);
+    static ValueType64  negate(ValueType64  value);
+    static ValueType128 negate(ValueType128 value);
 
                         // Comparison
 
@@ -258,12 +270,19 @@ struct DecimalImpUtil_decNumber {
     static ValueType128 parse128(const char *string);
 };
 
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+inline decContext *DecimalImpUtil_decNumber::getDecNumberContext()
+{
+    static decContext context = { 0, 0, 0, DEC_ROUND_HALF_EVEN, 0, 0, 0 };
+    return &context;
+}
+
 #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
 typedef DecimalImpUtil_decNumber DecimalImpUtil_Platform;
 #endif
-
-
-    // Inline functions
 
                         // Integer construction
 
@@ -277,12 +296,12 @@ DecimalImpUtil_decNumber::int32ToDecimal32(int value)
     } rawAccess;
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType64
->>>>>>> Stashed changes
+DecimalImpUtil_decNumber::int32ToDecimal64(int value)
 {
     union {
         DecimalImpUtil_decNumber::ValueType64      result;
@@ -290,20 +309,19 @@ DecimalImpUtil_decNumber::ValueType64
     } rawAccess;
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::int32ToDecimal128(int value)
 {
-    union {
-        DecimalImpUtil_decNumber::ValueType128      result;
-        DenselyPackedDecimalImpUtil::StorageType128 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
+    DecimalImpUtil_decNumber::ValueType128      result;
+    DenselyPackedDecimalImpUtil::StorageType128 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
+    bsl::memcpy(&result, &raw, sizeof(raw));
 
-    return rawAccess.retval;
+    return result;
 }
 
 
@@ -317,7 +335,7 @@ DecimalImpUtil_decNumber::uint32ToDecimal32(unsigned int value)
     } rawAccess;
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
@@ -330,20 +348,19 @@ DecimalImpUtil_decNumber::uint32ToDecimal64(unsigned int value)
     } rawAccess;
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::uint32ToDecimal128(unsigned int value)
 {
-    union {
-        DecimalImpUtil_decNumber::ValueType128      result;
-        DenselyPackedDecimalImpUtil::StorageType128 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
+    DecimalImpUtil_decNumber::ValueType128      result;
+    DenselyPackedDecimalImpUtil::StorageType128 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
+    bsl::memcpy(&result, &raw, sizeof(raw));
 
-    return rawAccess.retval;
+    return result;
 }
 
 
@@ -357,7 +374,7 @@ DecimalImpUtil_decNumber::int64ToDecimal32(long long int value)
     } rawAccess;
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
@@ -370,20 +387,19 @@ DecimalImpUtil_decNumber::int64ToDecimal64(long long int value)
     } rawAccess;
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::int64ToDecimal128(long long int value)
 {
-    union {
-        DecimalImpUtil_decNumber::ValueType128      result;
-        DenselyPackedDecimalImpUtil::StorageType128 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
+    DecimalImpUtil_decNumber::ValueType128      result;
+    DenselyPackedDecimalImpUtil::StorageType128 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
+    bsl::memcpy(&result, &raw, sizeof(raw));
 
-    return rawAccess.retval;
+    return result;
 }
 
 
@@ -397,7 +413,7 @@ DecimalImpUtil_decNumber::uint64ToDecimal32(unsigned long long int value)
     } rawAccess;
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
@@ -410,20 +426,19 @@ DecimalImpUtil_decNumber::uint64ToDecimal64(unsigned long long int value)
     } rawAccess;
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::uint64ToDecimal128(unsigned long long int value)
 {
-    union {
-        DecimalImpUtil_decNumber::ValueType128      result;
-        DenselyPackedDecimalImpUtil::StorageType128 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
+    DecimalImpUtil_decNumber::ValueType128      result;
+    DenselyPackedDecimalImpUtil::StorageType128 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
+    bsl::memcpy(&result, &raw, sizeof(raw));
 
-    return rawAccess.retval;
+    return result;
 }
 
                         // Arithmetic
@@ -433,9 +448,9 @@ DecimalImpUtil_decNumber::ValueType64
 DecimalImpUtil_decNumber::add(DecimalImpUtil_decNumber::ValueType64 lhs,
                               DecimalImpUtil_decNumber::ValueType64 rhs)
 {
-    DecimalImpUtil_decNumber::ValueType64 retval;
-    decDoubleAdd(&retval, &lhs, &rhs, getDecNumberContext());
-    return retval;
+    DecimalImpUtil_decNumber::ValueType64 result;
+    decDoubleAdd(&result, &lhs, &rhs, getDecNumberContext());
+    return result;
 }
 
 inline
@@ -443,9 +458,9 @@ DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::add(DecimalImpUtil_decNumber::ValueType128 lhs,
                               DecimalImpUtil_decNumber::ValueType128 rhs)
 {
-    DecimalImpUtil_decNumber::ValueType128 retval;
-    decQuadAdd(&retval, &lhs, &rhs, getDecNumberContext());
-    return retval;
+    DecimalImpUtil_decNumber::ValueType128 result;
+    decQuadAdd(&result, &lhs, &rhs, getDecNumberContext());
+    return result;
 }
 
 
@@ -455,9 +470,9 @@ DecimalImpUtil_decNumber::ValueType64
 DecimalImpUtil_decNumber::subtract(DecimalImpUtil_decNumber::ValueType64 lhs,
                                    DecimalImpUtil_decNumber::ValueType64 rhs)
 {
-    DecimalImpUtil_decNumber::ValueType64 retval;
-    decDoubleSubtract(&retval, &lhs, &rhs, getDecNumberContext());
-    return retval;
+    DecimalImpUtil_decNumber::ValueType64 result;
+    decDoubleSubtract(&result, &lhs, &rhs, getDecNumberContext());
+    return result;
 }
 
 inline
@@ -465,9 +480,9 @@ DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::subtract(DecimalImpUtil_decNumber::ValueType128 lhs,
                                    DecimalImpUtil_decNumber::ValueType128 rhs)
 {
-    DecimalImpUtil_decNumber::ValueType128 retval;
-    decQuadSubtract(&retval, &lhs, &rhs, getDecNumberContext());
-    return retval;
+    DecimalImpUtil_decNumber::ValueType128 result;
+    decQuadSubtract(&result, &lhs, &rhs, getDecNumberContext());
+    return result;
 }
 
 
@@ -477,9 +492,9 @@ DecimalImpUtil_decNumber::ValueType64
 DecimalImpUtil_decNumber::multiply(DecimalImpUtil_decNumber::ValueType64 lhs,
                                    DecimalImpUtil_decNumber::ValueType64 rhs)
 {
-    DecimalImpUtil_decNumber::ValueType64 retval;
-    decDoubleMultiply(&retval, &lhs, &rhs, getDecNumberContext());
-    return retval;
+    DecimalImpUtil_decNumber::ValueType64 result;
+    decDoubleMultiply(&result, &lhs, &rhs, getDecNumberContext());
+    return result;
 }
 
 inline
@@ -487,9 +502,9 @@ DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::multiply(DecimalImpUtil_decNumber::ValueType128 lhs,
                                    DecimalImpUtil_decNumber::ValueType128 rhs)
 {
-    DecimalImpUtil_decNumber::ValueType128 retval;
-    decQuadMultiply(&retval, &lhs, &rhs, getDecNumberContext());
-    return retval;
+    DecimalImpUtil_decNumber::ValueType128 result;
+    decQuadMultiply(&result, &lhs, &rhs, getDecNumberContext());
+    return result;
 }
 
 
@@ -499,9 +514,9 @@ DecimalImpUtil_decNumber::ValueType64
 DecimalImpUtil_decNumber::divide(DecimalImpUtil_decNumber::ValueType64 lhs,
                                  DecimalImpUtil_decNumber::ValueType64 rhs)
 {
-    DecimalImpUtil_decNumber::ValueType64 retval;
-    decDoubleDivide(&retval, &lhs, &rhs, getDecNumberContext());
-    return retval;
+    DecimalImpUtil_decNumber::ValueType64 result;
+    decDoubleDivide(&result, &lhs, &rhs, getDecNumberContext());
+    return result;
 }
 
 inline
@@ -509,36 +524,36 @@ DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::divide(DecimalImpUtil_decNumber::ValueType128 lhs,
                                  DecimalImpUtil_decNumber::ValueType128 rhs)
 {
-    DecimalImpUtil_decNumber::ValueType128 retval;
-    decQuadDivide(&retval, &lhs, &rhs, getDecNumberContext());
-    return retval;
+    DecimalImpUtil_decNumber::ValueType128 result;
+    decQuadDivide(&result, &lhs, &rhs, getDecNumberContext());
+    return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType32
 DecimalImpUtil_decNumber::negate(DecimalImpUtil_decNumber::ValueType32 value)
 {
-    DecimalImpUtil_decNumber::ValueType32 retval;
-    decSingleCopyNegate(&retval, &value);
-    return retval;
+    DecimalImpUtil_decNumber::ValueType32 result;
+    decSingleCopyNegate(&result, &value);
+    return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType64
 DecimalImpUtil_decNumber::negate(DecimalImpUtil_decNumber::ValueType64 value)
 {
-    DecimalImpUtil_decNumber::ValueType64 retval;
-    decDoubleCopyNegate(&retval, &value);
-    return retval;
+    DecimalImpUtil_decNumber::ValueType64 result;
+    decDoubleCopyNegate(&result, &value);
+    return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::negate(DecimalImpUtil_decNumber::ValueType128 value)
 {
-    DecimalImpUtil_decNumber::ValueType128 retval;
-    decQuadCopyNegate(&retval, &value);
-    return retval;
+    DecimalImpUtil_decNumber::ValueType128 result;
+    decQuadCopyNegate(&result, &value);
+    return result;
 }
 
 inline
@@ -731,7 +746,7 @@ DecimalImpUtil_decNumber::convertToDecimal64(
                             const DecimalImpUtil_decNumber::ValueType32& input)
 {
     DecimalImpUtil_decNumber::ValueType64 retval;
-    decSingleToWider(&retval, &input);
+    decSingleToWider(&input, &retval);
     return retval;
 }
 
@@ -741,7 +756,7 @@ DecimalImpUtil_decNumber::convertToDecimal64(
                            const DecimalImpUtil_decNumber::ValueType128& input)
 {
     DecimalImpUtil_decNumber::ValueType64 retval;
-    decDoubleFromWider(&retval, &input);
+    decDoubleFromWider(&retval, &input, getDecNumberContext());
     return retval;
 }
 
@@ -759,7 +774,7 @@ DecimalImpUtil_decNumber::convertToDecimal128(
                             const DecimalImpUtil_decNumber::ValueType64& input)
 {
     DecimalImpUtil_decNumber::ValueType128 retval;
-    decDoubleToWider(&retval, &input);
+    decDoubleToWider(&input, &retval);
     return retval;
 }
 
@@ -781,70 +796,70 @@ DecimalImpUtil_decNumber::binaryToDecimal32(float value)
 
 inline
 DecimalImpUtil_decNumber::ValueType32
-DecimalImpUtil_decNumber::binaryToDecimal32(double input)
+DecimalImpUtil_decNumber::binaryToDecimal32(double value)
 {
     ValueType32 result;
     bdldfp::BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
     out.precision(7);
-    out << other;
+    out << value;
     decSingleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType32
-DecimalImpUtil_decNumber::binaryToDecimal32(long double input)
+DecimalImpUtil_decNumber::binaryToDecimal32(long double value)
 {
     ValueType32 result;
     bdldfp::BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
     out.precision(7);
-    out << other;
+    out << value;
     decSingleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType64
-DecimalImpUtil_decNumber::binaryToDecimal64(float input)
+DecimalImpUtil_decNumber::binaryToDecimal64(float value)
 {
     ValueType64 result;
     bdldfp::BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
     out.precision(16);
-    out << other;
+    out << value;
     decDoubleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType64
-DecimalImpUtil_decNumber::binaryToDecimal64(double input)
+DecimalImpUtil_decNumber::binaryToDecimal64(double value)
 {
     ValueType64 result;
     bdldfp::BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
     out.precision(16);
-    out << other;
+    out << value;
     decDoubleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType64
-DecimalImpUtil_decNumber::binaryToDecimal64(long double input)
+DecimalImpUtil_decNumber::binaryToDecimal64(long double value)
 {
     ValueType64 result;
     bdldfp::BufferBuf<48> bb;
     bsl::ostream out(&bb);
     out.imbue(bsl::locale::classic());
     out.precision(16);
-    out << other;
+    out << value;
     decDoubleFromString(&result, bb.str(), getDecNumberContext());
     return result;
 }
@@ -852,7 +867,7 @@ DecimalImpUtil_decNumber::binaryToDecimal64(long double input)
 
 inline
 DecimalImpUtil_decNumber::ValueType128
-DecimalImpUtil_decNumber::binaryToDecimal128(float input)
+DecimalImpUtil_decNumber::binaryToDecimal128(float value)
 {
     ValueType128 result;
     bdldfp::BufferBuf<48> bb;
@@ -866,7 +881,7 @@ DecimalImpUtil_decNumber::binaryToDecimal128(float input)
 
 inline
 DecimalImpUtil_decNumber::ValueType128
-DecimalImpUtil_decNumber::binaryToDecimal128(double input)
+DecimalImpUtil_decNumber::binaryToDecimal128(double value)
 {
     ValueType128 result;
     bdldfp::BufferBuf<48> bb;
@@ -880,7 +895,7 @@ DecimalImpUtil_decNumber::binaryToDecimal128(double input)
 
 inline
 DecimalImpUtil_decNumber::ValueType128
-DecimalImpUtil_decNumber::binaryToDecimal128(long double input)
+DecimalImpUtil_decNumber::binaryToDecimal128(long double value)
 {
     ValueType128 result;
     bdldfp::BufferBuf<48> bb;
@@ -905,7 +920,7 @@ DecimalImpUtil_decNumber::makeDecimalRaw32(int mantissa,
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(mantissa,
                                                                   exponent);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
@@ -920,7 +935,7 @@ DecimalImpUtil_decNumber::makeDecimalRaw64(unsigned long long mantissa,
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa,
                                                                   exponent);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
@@ -935,7 +950,7 @@ DecimalImpUtil_decNumber::makeDecimalRaw64(long long mantissa,
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa,
                                                                   exponent);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
@@ -950,7 +965,7 @@ DecimalImpUtil_decNumber::makeDecimalRaw64(unsigned int mantissa,
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa,
                                                                   exponent);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
@@ -965,7 +980,7 @@ DecimalImpUtil_decNumber::makeDecimalRaw64(int mantissa,
     rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa,
                                                                   exponent);
 
-    return rawAccess.retval;
+    return rawAccess.result;
 }
 
 inline
@@ -973,14 +988,12 @@ DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::makeDecimalRaw128(unsigned long long mantissa,
                                             int                exponent)
 {
-    union {
-        DecimalImpUtil_decNumber::ValueType128      result;
-        DenselyPackedDecimalImpUtil::StorageType128 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa,
-                                                                   exponent);
+    DecimalImpUtil_decNumber::ValueType128      result;
+    DenselyPackedDecimalImpUtil::StorageType128 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    bsl::memcpy(&result, &raw, sizeof(result));
 
-    return rawAccess.retval;
+    return result;
 }
 
 inline
@@ -988,14 +1001,12 @@ DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::makeDecimalRaw128(long long mantissa,
                                             int       exponent)
 {
-    union {
-        DecimalImpUtil_decNumber::ValueType128      result;
-        DenselyPackedDecimalImpUtil::StorageType128 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa,
-                                                                   exponent);
+    DecimalImpUtil_decNumber::ValueType128      result;
+    DenselyPackedDecimalImpUtil::StorageType128 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    bsl::memcpy(&result, &raw, sizeof(result));
 
-    return rawAccess.retval;
+    return result;
 }
 
 inline
@@ -1003,14 +1014,12 @@ DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::makeDecimalRaw128(unsigned int mantissa,
                                             int          exponent)
 {
-    union {
-        DecimalImpUtil_decNumber::ValueType128      result;
-        DenselyPackedDecimalImpUtil::StorageType128 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa,
-                                                                   exponent);
+    DecimalImpUtil_decNumber::ValueType128      result;
+    DenselyPackedDecimalImpUtil::StorageType128 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    bsl::memcpy(&result, &raw, sizeof(result));
 
-    return rawAccess.retval;
+    return result;
 }
 
 inline
@@ -1018,14 +1027,12 @@ DecimalImpUtil_decNumber::ValueType128
 DecimalImpUtil_decNumber::makeDecimalRaw128(int mantissa,
                                             int exponent)
 {
-    union {
-        DecimalImpUtil_decNumber::ValueType128      result;
-        DenselyPackedDecimalImpUtil::StorageType128 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa,
-                                                                   exponent);
+    DecimalImpUtil_decNumber::ValueType128      result;
+    DenselyPackedDecimalImpUtil::StorageType128 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    bsl::memcpy(&result, &raw, sizeof(result));
 
-    return rawAccess.retval;
+    return result;
 }
 
 inline
