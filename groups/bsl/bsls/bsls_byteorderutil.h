@@ -119,29 +119,28 @@ class ByteOrderUtil {
         // in the specified 'x'.
 };
 
-//=============================================================================
+// ============================================================================
 //                                  LOCAL MACROS
-//=============================================================================
+// ============================================================================
 
                   // --------------------------------------------
                   // macro BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT
                   // --------------------------------------------
 
-// We don't have access to 'BSLMF_ASSERT' here in bsls -- do a crude compile
-// time assert for use in 'bsls_byteorderutil'.  This macro will deliberately
-// cause a compilation error if 'expr' evaluates to 'false'.  'expr' must be a
-// compile-time expression.  Note that this macro can only be called in a code
-// body.
-
-// This macro is not to be used outside this file.
+// We don't have access to 'BSLMF_ASSERT' here in 'bsls' -- do a crude
+// compile-time assert for use in 'bsls_byteorderutil'.  This macro will
+// deliberately cause a compilation error if 'expr' evaluates to 'false'.
+// 'expr' must be a compile-time expression.  Note that this macro can only be
+// called in a code body.  Also note that this macro is not to be used outside
+// this file.
 
 #define BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(expr)                          \
         { enum { k_NOT_INFINITY = 1 / static_cast<int>(expr) };               \
         (void) k_NOT_INFINITY; }
 
-//=============================================================================
+// ============================================================================
 //                          INLINE FUNCTION DEFINITIONS
-//=============================================================================
+// ============================================================================
 
                               // -------------------
                               // class ByteOrderUtil
@@ -177,11 +176,11 @@ wchar_t ByteOrderUtil::swapBytes(wchar_t x)
 {
 #if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
     (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(2 == sizeof(x));
+    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(2 == sizeof x);
 
     return static_cast<wchar_t>(swapBytes16(x));
 #else
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof(x));
+    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof x);
 
     return static_cast<wchar_t>(swapBytes32(x));
 #endif
@@ -215,11 +214,11 @@ inline
 long ByteOrderUtil::swapBytes(long x)
 {
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_UNIX)
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(8 == sizeof(x));
+    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(8 == sizeof x);
 
     return static_cast<long>(swapBytes64(x));
 #else
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof(x));
+    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof x);
 
     return static_cast<long>(swapBytes32(x));
 #endif
@@ -229,11 +228,11 @@ inline
 unsigned long ByteOrderUtil::swapBytes(unsigned long x)
 {
 #if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_UNIX)
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(8 == sizeof(x));
+    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(8 == sizeof x);
 
     return swapBytes64(x);
 #else
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof(x));
+    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof x);
 
     return swapBytes32(x);
 #endif
@@ -294,7 +293,7 @@ ByteOrderUtil::swapBytes64(bsls::Types::Uint64 x)
 }  // close enterprise namespace
 
 #undef BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT    // This macro is not for use
-                                                 // outside this file
+                                                 // outside this file.
 
 #endif
 
