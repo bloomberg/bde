@@ -3937,7 +3937,6 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::reserveForNumElements(
         return;                                                       // RETURN
     }
 
-    d_parameters.nodeFactory().reserveNodes(numElements);
     if (numElements > d_capacity) {
         // Compute a "good" number of buckets, e.g., pick a prime number from a
         // sorted array of exponentially increasing primes.

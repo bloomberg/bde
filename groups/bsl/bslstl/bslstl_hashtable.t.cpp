@@ -5241,7 +5241,8 @@ bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>&
 TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::gg(Obj        *object,
                                                           const char *spec)
 {
-    ASSERTV(-1 == ggg(object, spec));
+    int result = ggg(object, spec);
+    ASSERTV(result, -1 == result);
     return *object;
 }
 
@@ -8289,6 +8290,67 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
                 }
             }
         }
+
+        for (int tj = 0; tj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++tj) {
+            const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
+            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
+
+            Obj mZ(HASH, COMPARE, NUM_BUCKETS, MAX_LF, scratchAlloc);
+            const Obj& Z = gg(&mZ,  SPEC);
+
+            for (int tk = 0; tk < NUM_REHASH_SIZE; ++tk) {
+
+                bslma::TestAllocator reserve("reserveAlloc",
+                                             veryVeryVeryVerbose);
+                bslma::TestAllocator noReserve("noReserveAlloc",
+                                               veryVeryVeryVerbose);
+
+                ALLOCATOR reserveAlloc = MakeAllocator<ALLOCATOR>::make(
+                                                                     &reserve);
+                ALLOCATOR noReserveAlloc = MakeAllocator<ALLOCATOR>::make(
+                                                                   &noReserve);
+
+                Obj mResX(Z, reserveAlloc); const Obj& resX = mResX;
+                Obj mNoResX(Z, noReserveAlloc); const Obj& noResX = mNoResX;
+
+                if (veryVerbose) { T_ P_(LINE) P_(Z) P_(resX) P(noResX) }
+
+                const size_t ADDITIONAL_ELEMENTS = REHASH_SIZE[tk];
+                const size_t INITIAL_SIZE = resX.size();
+                const size_t RESERVE_ELEMENTS = ADDITIONAL_ELEMENTS +
+                                                                  INITIAL_SIZE;
+
+                mResX.reserveForNumElements(RESERVE_ELEMENTS);
+
+                const bsls::Types::Int64 RESERVED_MEM = reserve.numBytesTotal();
+
+                mResX.reserveForNumElements(RESERVE_ELEMENTS);
+
+                // Reserve doesn't allocate memory when some is already
+                // availible from previous reserve
+                ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() ==
+                                                                 RESERVED_MEM);
+
+                bslma::TestAllocator tda("test-array values",
+                                         veryVeryVeryVerbose);
+                const TestValues VALUES(&tda);
+
+                for (int tl = 0; tl < ADDITIONAL_ELEMENTS; ++tl) {
+                    mResX.insert( VALUES[tl % 10] );
+                    mNoResX.insert( VALUES[tl % 10] );
+                }
+
+                // Reserving X elements allocates same or less amount of memory
+                // as inserting 'X' elements one at a time
+                ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() <=
+                                                    noReserve.numBytesTotal());
+            }
+        }
+
+
 #if defined BDE_BUILD_TARGET_EXC
         // The following set of tests are expected, at least in some test
         // configurations, to fail by throwing exceptions.
