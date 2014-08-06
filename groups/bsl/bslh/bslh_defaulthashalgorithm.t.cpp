@@ -108,12 +108,11 @@ void aSsErT(bool b, const char *s, int i)
 // This section illustrates intended usage of this component.
 //
 ///Example: Creating and Using a Hash Table
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have any array of values that define 'operator==', and we want a
-// really fast way to find out if values are contained in the array. We can
-// create a 'HashTable' data structure that is capable of looking up values in
-// O(1) time. The hash table implemented here can have numerous simplifications
-// because we know the size of the array and never have to resize the table.
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we have any array of types that define 'operator==', and we want a
+// fast way to find out if values are contained in the array. We can create a
+// 'HashTable' data structure that is capable of looking up values in O(1)
+// time.
 //
 // Further suppose that we will be storing futures in this table. Since futures
 // have standardized names, we don't have to worry about any malicious values
@@ -155,6 +154,10 @@ class HashTable {
     //..
     // and 'HASHER' must have a publicly available default constructor and
     // destructor.
+    //
+    // Note that the hash table implemented here has numerous simplifications
+    // because we know the size of the array and never have to resize the
+    // table.
 
     // DATA
     const TYPE       *d_values;             // Array of values we are

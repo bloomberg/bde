@@ -169,7 +169,7 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 // This section illustrates intended usage of this component.
 //
 ///Example: Seeding hashing algorithms requiring different seed sizes
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a number of hashing algorithms that all require different
 // length seeds. Some require 32 bits, some require 64 bits, some even require
 // 1024 bits. We want to generate all these seeds in the same way, but we do

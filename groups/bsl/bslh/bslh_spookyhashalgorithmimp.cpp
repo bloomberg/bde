@@ -378,9 +378,9 @@ void SpookyHashAlgorithmImp::Update(const void *message, size_t length)
     m_state[11] = h11;
 }
 
-}  // close namespace bslh
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg Finance L.P.

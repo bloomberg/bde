@@ -299,6 +299,10 @@ class HashTable {
     // and 'HASHER' must have a publicly available default constructor and
     // destructor. Here we use 'bslh::Hash' as our default value. This allows
     // us to hash any types that implement a 'hashAppend' method.
+    //
+    // Note that the hash table implemented here has numerous simplifications
+    // because we know the size of the array and never have to resize the
+    // table.
 
     // DATA
     const TYPE       *d_values;             // Array of values table is to hold

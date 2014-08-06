@@ -152,6 +152,9 @@ namespace bslh {
 
 class SipHashAlgorithm
 {
+    // Provides an implementation of the "SipHash" algorithm (see
+    // https://131002.net/siphash/).
+
   private:
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 uint64;
@@ -167,12 +170,12 @@ class SipHashAlgorithm
 
     // PRIVATE MANIPULATORS
     void init();
-        // Initialize the state of this object
+        // Initialize the state of this object.
 
   public:
     // TYPES
     typedef uint64 result_type;
-        // Typedef indicating the size of the hash this algorithm will return.
+        // Typedef indicating the value type returned by this algorithm.
 
     // CONSTANTS
     enum { k_SEED_LENGTH = 16 };     // Seed length in bytes
@@ -198,7 +201,7 @@ class SipHashAlgorithm
         // the algorithm.
 };
 
-}  // close namespace bslh
+}  // close package namespace
 
 // ============================================================================
 //                                TYPE TRAITS
@@ -210,7 +213,7 @@ struct IsBitwiseMoveable<bslh::SipHashAlgorithm>
     : bsl::true_type {};
 }  // close namespace bslmf
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

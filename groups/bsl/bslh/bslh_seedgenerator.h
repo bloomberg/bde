@@ -60,7 +60,7 @@ class SeedGenerator
     // PRIVATE TYPES
     typedef typename RNG::result_type result_type;
         // 'result_type' is an alias for the value returned by a call to
-        // 'operator()' on the parameterized 'RNG'
+        // 'operator()' on the parameterized 'RNG'.
 
     // DATA
     RNG          d_randomNumberGenerator; // User provided RNG
@@ -88,18 +88,26 @@ class SeedGenerator
 
 // CREATORS
 template<class RNG>
-SeedGenerator<RNG>::SeedGenerator() :
-                         d_randomNumberGenerator(),
-                         k_RNGOUTPUTSIZE(sizeof(typename RNG::result_type)) { }
+inline
+SeedGenerator<RNG>::SeedGenerator()
+: d_randomNumberGenerator()
+, k_RNGOUTPUTSIZE(sizeof(typename RNG::result_type))
+{
+}
 
 template<class RNG>
-SeedGenerator<RNG>::SeedGenerator(RNG randomNumberGenerator) :
-                         d_randomNumberGenerator(randomNumberGenerator),
-                         k_RNGOUTPUTSIZE(sizeof(typename RNG::result_type)) { }
+inline
+SeedGenerator<RNG>::SeedGenerator(RNG randomNumberGenerator)
+: d_randomNumberGenerator(randomNumberGenerator)
+, k_RNGOUTPUTSIZE(sizeof(typename RNG::result_type))
+{
+}
 
 // ACCESSORS
 template<class RNG>
-void SeedGenerator<RNG>::generateSeed(char *seedLocation, size_t seedLength) {
+inline
+void SeedGenerator<RNG>::generateSeed(char *seedLocation, size_t seedLength)
+{
     size_t numChunks = seedLength / k_RNGOUTPUTSIZE;
     size_t remainder = seedLength % k_RNGOUTPUTSIZE;
     char  *chunkEnd  = seedLocation + numChunks * k_RNGOUTPUTSIZE;
@@ -115,9 +123,9 @@ void SeedGenerator<RNG>::generateSeed(char *seedLocation, size_t seedLength) {
     }
 }
 
-}  // close namespace bslh
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

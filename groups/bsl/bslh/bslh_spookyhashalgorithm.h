@@ -22,9 +22,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Security Guarantees
 ///-------------------
-// This hashing algorithm is NOT a secure hash algorithm and makes no security
-// guarantees. If you are looking to mitigate denial of service attacks on an
-// associative container, see 'bslh_SipHashAlgorithm'.
+// In this context "security" refers to the ability of the algorithm to produce
+// hashes that are not predictable by an attacker. Security is a concern when
+// an attacker may be able to provide malicious input into a hash table,
+// thereby causing hashes to collide to buckets, which degrades performance.
+// There are NO security guarantees made by 'bslh::SpookyHashAlgorithm'. If
+// security is required, look at 'bslh::SipHashAlgorithm'.
 //
 ///Performance
 ///-----------
@@ -41,9 +44,10 @@ BSLS_IDENT("$Id: $")
 // Performance and Security Guarantees still apply, however the hashes produced
 // will be different from those produced by the canonical implementation. The
 // creator of this algorithm acknowledges this and says that the big-endian
-// hashes are just as good as the little-endian ones. Be aware that this means
-// storing hashes in memory or transmitting them across the network is not
-// recommended.
+// hashes are just as good as the little-endian ones. Therefor it is not
+// recommended to send hashes from 'bslh::SpookyHashAlgorihtm' over a network.
+// It is also not recommended to write hashes from 'bslh::SpookyHashAlgorihtm'
+// to any memory accessible by multiple machines.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -78,7 +82,7 @@ namespace bslh {
 class SpookyHashAlgorithm
 {
     // This class wraps an implementation of the "SpookyHash" hash algorithm
-    // (see http://burtleburtle.net/bob/hash/spooky.html)
+    // (see http://burtleburtle.net/bob/hash/spooky.html).
 
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 uint64;// 64-bit int type
@@ -89,10 +93,11 @@ class SpookyHashAlgorithm
   public:
     // TYPES
     typedef bsls::Types::Uint64 result_type;
-        // Typedef indicating the type of value this algorithm returns
+        // Typedef indicating the value type returned by this algorithm.
+
 
     // CONSTANTS
-    enum { k_SEED_LENGTH = 16 };     // Seed length in bytes
+    enum { k_SEED_LENGTH = 16 }; // Seed length in bytes
 
     // CREATORS
     SpookyHashAlgorithm();
@@ -142,7 +147,7 @@ SpookyHashAlgorithm::result_type SpookyHashAlgorithm::computeHash()
     return h1;
 }
 
-}  // close namespace bslh
+}  // close package namespace
 
 // ============================================================================
 //                                TYPE TRAITS
@@ -154,7 +159,7 @@ struct IsBitwiseMoveable<bslh::SpookyHashAlgorithm>
     : bsl::true_type {};
 }  // close namespace bslmf
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

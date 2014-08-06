@@ -115,9 +115,9 @@ SeededHash<SEED_GENERATOR, HASH_ALGORITHM>::operator()(TYPE const& key) const
 }
 
 
-}  // close namespace bslh
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 #endif

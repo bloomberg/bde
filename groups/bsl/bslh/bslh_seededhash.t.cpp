@@ -104,13 +104,11 @@ void aSsErT(bool b, const char *s, int i)
 // This section illustrates intended usage of this component.
 //
 ///Example 1: Storing User Defined Input in a Hash Table
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of user-specified nicknames, and we want a really
 // fast way to find out if values are contained in the array. We can create a
 // 'HashTable' data structure that is capable of looking up values in O(1)
-// time. The hash table implemented here can have numerous simplifications
-// because of our more relaxed specifications (it is more of a hash set), we
-// know the size of the array, and never have to resize the table.
+// time.
 //
 // Because we will be storing arbitrary user input in our table, it is possible
 // that an attacker with knowledge of the hashing algorithm we are using could
@@ -156,6 +154,10 @@ class HashTable {
     // and 'HASHER' must have a publicly available default constructor and
     // destructor. Here we use 'bslh::Hash' as our default value. This allows
     // us to hash any types that implement a 'hashAppend' method.
+    //
+    // Note that the hash table implemented here has numerous simplifications
+    // because we know the size of the array and never have to resize the
+    // table.
 
     // DATA
     const TYPE       *d_values;             // Array of values table is to hold

@@ -59,13 +59,7 @@ BSLS_IDENT("$Id: $")
 // will operate on the number of bytes specified by the length, starting at the
 // location pointed to by the pointer. They will all also offer a 'computHash'
 // method that will return a finalized hash.
-//
-///Typedefs
-///--------
-// Typedefs are offered for standard algorithm usages such as a default or
-// secure algorithms. These typedef's can change at any time and will be used
-// to locate the best algorithm for the use case indicated by the name of the
-// typedef.
+
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -205,13 +199,14 @@ void hashAppend(HASH_ALGORITHM& hashAlg, const void *input);
     // Passes the specified 'input' to the specified 'hashAlg' to be combined
     // into the hash.
 
-}  // close namespace bslh
+}  // close package namespace
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, bool input)
 {
     if(input) {
@@ -223,24 +218,28 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, bool input)
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, signed char input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned char input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, wchar_t input)
 {
     hashAlg(&input, sizeof(input));
@@ -248,12 +247,14 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, wchar_t input)
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char16_t input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char32_t input)
 {
     hashAlg(&input, sizeof(input));
@@ -261,54 +262,63 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char32_t input)
 #endif
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, short input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned short input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, int input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned int input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned long input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long long input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned long long input)
 {
     hashAlg(&input, sizeof(input));
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, float input)
 {
     if(input == 0){
@@ -318,6 +328,7 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, float input)
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, double input)
 {
     if(input == 0){
@@ -327,6 +338,7 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, double input)
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
 {
     if(input == 0){
@@ -336,12 +348,14 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
 }
 
 template <class HASH_ALGORITHM, size_t N>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N])
 {
     hashAlg(&input, sizeof(char)*N);
 }
 
 template <class HASH_ALGORITHM, class TYPE, size_t N>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N])
 {
     for (size_t i = 0; i < N; ++i) {
@@ -350,6 +364,7 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N])
 }
 
 template <class HASH_ALGORITHM>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const void *input)
 {
     hashAlg(&input, sizeof(input));
@@ -372,7 +387,7 @@ struct IsBitwiseMoveable<bslh::Hash<TYPE> >
 }  // close namespace bsl
 
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 namespace bsl {
 template <class TYPE>

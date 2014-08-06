@@ -7,32 +7,39 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a reasonable default seeded hashing algorithm.
+//@PURPOSE: Provide a reasonable seeded hashing algorithm for default use.
 //
 //@CLASSES:
-// bslh::DefaultSeededHashAlgorithm: A good default seeded hashing algorithm.
+// bslh::DefaultSeededHashAlgorithm: A default seeded hashing algorithm.
 //
-//@SEE_ALSO: bslh_hash, bslh_securehashalgorithm, bslh_defaulthashalgorithm
+//@SEE_ALSO: bslh_hash, bslh_siphashalgorithm, bslh_defaulthashalgorithm
 //
-//@DESCRIPTION: 'bslh::DefaultSeededHashAlgorithm' provides a good default
-// seeded hashing algorithm, suitable for producing hashes for a hash table.
+//@DESCRIPTION: 'bslh::DefaultSeededHashAlgorithm' provides an unspecified
+// default seeded hashing algorithm. The supplied algorithm is suitable for
+// general purpose use in a hash table. The underlying algorithm is subject to
+// change in future releases.
 //
 ///Properties
 ///----------
-// The following describe the extent to which different properties can be
-// expected from a default hashing algorithm.
+// The extent to which different properties can be expected from a default
+// seeded hashing algorithm are described as follows:
 //
 ///Security
 /// - - - -
+// In this context "security" refers to the ability of the algorithm to produce
+// hashes that are not predictable by an attacker. Security is a concern when
+// an attacker may be able to provide malicious input into a hash table,
+// thereby causing hashes to collide to buckets, which degrades performance.
 // There are NO security guarantees made by 'bslh::DefaultSeededHashAlgorithm'.
-// If security is required, look at 'bslh::SecureHashAlgorithm'. Not that even
-// if a cryptographically secure seed is provided, the resulting hash will not
-// be cryptographically secure.
+// If security is required, look at 'bslh::SipHashAlgorithm'. Not that even if
+// a cryptographically secure seed is provided, the resulting hash will not be
+// cryptographically secure.
 //
 ///Speed
 ///- - -
-// The default hash algorithm will produce hashes fast enough to be applicable
-// for general purpose use.
+// The default hash algorithm will comput the hash on the order of O(n) where n
+// is the length of the input data. Note that the default hash algorithm will
+// produce hashes fast enough to be used for keying a hash table.
 //
 ///Hash Distribution
 ///- - - - - - - - -
@@ -44,13 +51,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Hash Consistency
 /// - - - - - - - -
-// The default hash algorithm only guarantees that hashes will remain
-// consistent within a single process. This means different hashes may be
-// produced on machines of different endianness or even between runs on the
-// same machine. Therefor it is not recommended to send hashes from
+// The default hash algorithm guarantees only that hashes will remain
+// consistent within a single process, meaning different hashes may be produced
+// on machines of different endianness or even between runs on the same
+// machine. Therefor it is not recommended to send hashes from
 // 'bslh::DefaultSeededHashAlgorithm' over a network. It is also not
-// recommended to write hashes from 'bslh::DefaultSeededHashAlgorithm' to
-// shared memory or the disk.
+// recommended to write hashes from 'bslh::DefaultSeededHashAlgorithm' to any
+// memory accessible by multiple machines.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -67,18 +74,22 @@ namespace bslh {
 class DefaultSeededHashAlgorithm
 {
     // Provides a default hashing algorithm that is appropriate for general
-    // purpose use
+    // purpose use.
 
     // PRIVATE TYPES
     typedef bslh::SpookyHashAlgorithm InternalHashAlgorithm;
+        // Typedef indicating the algorithm currently being used by
+        // 'bslh::DefualtHashAlgorithm' to compute hashes. This algorithm is
+        // subject to change.
 
     // DATA
     InternalHashAlgorithm d_state;
+        // Object storing the state of the chosen 'InternalHashAlgorithm'.
 
   public:
     // TYPES
     typedef InternalHashAlgorithm::result_type result_type;
-        // Typedef indicating the type of the value this algorithm returns
+        // Typedef indicating the value type returned by this algorithm.
 
     // CONSTANTS
     enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
@@ -103,8 +114,10 @@ class DefaultSeededHashAlgorithm
 };
 
 // CREATORS
-DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed) :
-                                                              d_state(seed) { }
+DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed)
+: d_state(seed)
+{
+}
 
 // MANIPULATORS
 void DefaultSeededHashAlgorithm::operator()(void const* key, size_t length)
@@ -118,9 +131,9 @@ DefaultSeededHashAlgorithm::computeHash()
     return d_state.computeHash();
 }
 
-}  // close namespace bslh
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

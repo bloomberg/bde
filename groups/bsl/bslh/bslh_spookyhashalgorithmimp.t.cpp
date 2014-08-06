@@ -159,7 +159,7 @@ const int NUM_DATA = sizeof DATA / sizeof *DATA;
 // This section illustrates intended usage of this component.
 //
 ///Example: Creating 128-bit checksums
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - 
 // Suppose we have a library of 4 billion pieces of data and we want to store
 // checksums for this data. For a 64-bit hash, there is a 35% chance of two of
 // these checksums colliding (according to the approximation found here:

@@ -118,13 +118,13 @@ static u64 u8to64_le(const u8* p)
 }
 
 
-SipHashAlgorithm::SipHashAlgorithm(const char *seed) :
-                                                   d_v0(0x736f6d6570736575ULL),
-                                                   d_v1(0x646f72616e646f6dULL),
-                                                   d_v2(0x6c7967656e657261ULL),
-                                                   d_v3(0x7465646279746573ULL),
-                                                   d_bufSize(0),
-                                                   d_totalLength(0)
+SipHashAlgorithm::SipHashAlgorithm(const char *seed)
+: d_v0(0x736f6d6570736575ULL)
+, d_v1(0x646f72616e646f6dULL)
+, d_v2(0x6c7967656e657261ULL)
+, d_v3(0x7465646279746573ULL)
+, d_bufSize(0)
+, d_totalLength(0)
 {
     const u64 *seedPtr = reinterpret_cast<const u64 *>(seed);
     d_v3 ^= seedPtr[1];
@@ -205,9 +205,9 @@ SipHashAlgorithm::result_type SipHashAlgorithm::computeHash()
     return b;
 }
 
-}  // close namespace bslh
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 
 // ----------------------------------------------------------------------------

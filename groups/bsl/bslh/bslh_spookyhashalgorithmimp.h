@@ -94,6 +94,9 @@ namespace bslh {
 
 
 class SpookyHashAlgorithmImp
+    // Wraps Bob Jenkin's implementation of "SpookyHash" in a BDE-style
+    // component. For more information, see
+    // http://burtleburtle.net/bob/hash/spooky.html .
 {
   public:
     typedef  ::BloombergLP::bsls::Types::Uint64  uint64;
@@ -104,13 +107,13 @@ class SpookyHashAlgorithmImp
   private:
     // DATA
     static const size_t sc_numVars = 12;
-        // Number of 64-bit integers used in the internal state
+        // Number of 64-bit integers used in the internal state.
 
     static const size_t sc_blockSize = sc_numVars*8;
-        // Size of the internal state, in bytes
+        // Size of the internal state, in bytes.
 
     static const size_t sc_bufSize = 2*sc_blockSize;
-        // Size of buffer of unhashed data, in bytes
+        // Size of buffer of unhashed data, in bytes.
 
     static const uint64 sc_const = 0xdeadbeefdeadbeefLL;
         // A non-zero, odd, constant that has an irregular distribution of 1's
@@ -248,7 +251,8 @@ SpookyHashAlgorithmImp::uint64 SpookyHashAlgorithmImp::Hash64(
 }
 
 // PRIVATE CLASS METHODS
-inline void SpookyHashAlgorithmImp::End(
+inline
+void SpookyHashAlgorithmImp::End(
     const uint64 *data,
     uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3,
     uint64 &h4, uint64 &h5, uint64 &h6, uint64 &h7,
@@ -262,7 +266,8 @@ inline void SpookyHashAlgorithmImp::End(
     EndPartial(h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
 }
 
-inline void SpookyHashAlgorithmImp::EndPartial(
+inline
+void SpookyHashAlgorithmImp::EndPartial(
     uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3,
     uint64 &h4, uint64 &h5, uint64 &h6, uint64 &h7,
     uint64 &h8, uint64 &h9, uint64 &h10,uint64 &h11)
@@ -281,7 +286,8 @@ inline void SpookyHashAlgorithmImp::EndPartial(
     h10+= h0;    h1 ^= h10;   h0 = Rot64(h0,54);
 }
 
-inline void SpookyHashAlgorithmImp::Mix(
+inline
+void SpookyHashAlgorithmImp::Mix(
     const uint64 *data,
     uint64 &s0, uint64 &s1, uint64 &s2, uint64 &s3,
     uint64 &s4, uint64 &s5, uint64 &s6, uint64 &s7,
@@ -307,10 +313,11 @@ SpookyHashAlgorithmImp::uint64 SpookyHashAlgorithmImp::Rot64(uint64 x, int k)
     return (x << k) | (x >> (64 - k));
 }
 
-inline void SpookyHashAlgorithmImp::ShortEnd(uint64 &h0,
-                                             uint64 &h1,
-                                             uint64 &h2,
-                                             uint64 &h3)
+inline
+void SpookyHashAlgorithmImp::ShortEnd(uint64 &h0,
+                                      uint64 &h1,
+                                      uint64 &h2,
+                                      uint64 &h3)
 {
     h3 ^= h2;  h2 = Rot64(h2,15);  h3 += h2;
     h0 ^= h3;  h3 = Rot64(h3,52);  h0 += h3;
@@ -325,10 +332,11 @@ inline void SpookyHashAlgorithmImp::ShortEnd(uint64 &h0,
     h1 ^= h0;  h0 = Rot64(h0,63);  h1 += h0;
 }
 
-inline void SpookyHashAlgorithmImp::ShortMix(uint64 &h0,
-                                                    uint64 &h1,
-                                                    uint64 &h2,
-                                                    uint64 &h3)
+inline
+void SpookyHashAlgorithmImp::ShortMix(uint64 &h0,
+                                      uint64 &h1,
+                                      uint64 &h2,
+                                      uint64 &h3)
 {
     h2 = Rot64(h2,50);  h2 += h3;  h0 ^= h2;
     h3 = Rot64(h3,52);  h3 += h0;  h1 ^= h3;
@@ -344,9 +352,9 @@ inline void SpookyHashAlgorithmImp::ShortMix(uint64 &h0,
     h1 = Rot64(h1,36);  h1 += h2;  h3 ^= h1;
 }
 
-}  // close namespace bslh
+}  // close package namespace
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 
