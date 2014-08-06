@@ -1177,24 +1177,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
                           / static_cast<double>(X.bucket_count()) <
                                                           X.max_load_factor());
 
-                if (!TYPE_ALLOC) {
-                    numPasses = 0;
-                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
-                        ++numPasses;
-                        values.resetIterators();
+                mX.insert(values.index(len2), values.end());
 
-                        mX.insert(values.index(len2), values.end());
-                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-                    // verify insert didn't alloc
-
-                    ASSERTV(LINE, SPEC, 1 == numPasses);
-                }
-                else {
-                    mX.insert(values.index(len2), values.end());
-                }
-
-                ASSERTV(LINE, SPEC, LENGTH == X.size());
+                ASSERTV(LINE, SPEC, LENGTH, X.size(), LENGTH == X.size());
                 ASSERTV(verifySpec(X, SPEC));
 
                 ASSERTV(BC == X.bucket_count());
