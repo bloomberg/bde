@@ -49,8 +49,8 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
 
     // We have alignment concerns here: there are no alignment issues with
     // 'bsl::shared_ptrRep', but the buffer address (i.e., the address of
-    // 'd_instance' in the 'bsl::shared_ptrInplaceRep' object) must be at
-    // least *naturally* *aligned* to 'bufferSize'.  (See 'bslma' package
+    // 'd_instance' in the 'bsl::shared_ptrInplaceRep' object) must be at least
+    // *naturally* *aligned* to 'bufferSize'.  (See 'bslma' package
     // documentation for a definition of natural alignment.)  We achieve this
     // in the simplest way by always maximally aligning the returned pointer.
 
@@ -65,27 +65,7 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
 
     Rep *rep = new (basicAllocator->allocate(repSize)) Rep(basicAllocator);
 
-    return bsl::shared_ptr<char>((char *)rep->ptr(), rep);
-}
-
-
-                        // -------------------------------
-                        // class bslstl::SharedPtr_ImpUtil
-                        // -------------------------------
-
-void SharedPtr_ImpUtil::checkAllocatorIsNewDelete(bslma::Allocator *allocator)
-{
-    static bool firstBadCall = false;
-    if (!firstBadCall) {
-        bslma::Allocator *expected = &bslma::NewDeleteAllocator::singleton();
-        if (allocator != expected) {
-            firstBadCall = true;
-            fprintf(stderr,
-                  "WARNING: Constructing a shared pointer without an "
-                  "allocator when the default is not the NewDelete allocator; "
-                  "see {TEAM BDEI:SMART POINTER CONSTRUCTORS<GO>}\n");
-        }
-    }
+    return bsl::shared_ptr<char>(reinterpret_cast<char *>(rep->ptr()), rep);
 }
 
 }  // close namespace bslstl

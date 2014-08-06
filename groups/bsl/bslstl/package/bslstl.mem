@@ -22,6 +22,7 @@ bslstl_mapcomparator
 bslstl_multimap
 bslstl_multiset
 bslstl_ostringstream
+bslstl_ownerless
 bslstl_pair
 bslstl_priorityqueue
 bslstl_queue
@@ -29,6 +30,8 @@ bslstl_randomaccessiterator
 bslstl_set
 bslstl_setcomparator
 bslstl_sharedptr
+bslstl_sharedptrallocateinplacerep
+bslstl_sharedptrallocateoutofplacerep
 bslstl_simplepool
 bslstl_stack
 bslstl_sstream

@@ -117,6 +117,10 @@ BSLS_IDENT("$Id: $")
 //  assert(3 == p->bitpos());
 //..
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsls {
@@ -133,6 +137,24 @@ struct Util_Identity {
 
     typedef TYPE type;  // alias of the template parameter 'TYPE'.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class BSLS_TYPE>
+struct Util_RemoveReference {
+    typedef BSLS_TYPE type;
+};
+
+template <class BSLS_TYPE>
+struct Util_RemoveReference<BSLS_TYPE&> {
+    typedef BSLS_TYPE type;
+};
+
+template <class BSLS_TYPE>
+struct Util_RemoveReference<BSLS_TYPE&&> {
+    typedef BSLS_TYPE type;
+};
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
                                  // ===========
                                  // struct Util
@@ -165,6 +187,16 @@ struct Util {
     typename Util_Identity<RESULT(ARG1, ARG2)>::type *addressOf(
                                                      RESULT (&fn)(ARG1, ARG2));
         // Return the address of the specified function 'fn'.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template <class BSLS_TYPE>
+    static
+    BSLS_TYPE&& forward(typename Util_RemoveReference<BSLS_TYPE>::type& t);
+
+    template <class BSLS_TYPE>
+    static
+    BSLS_TYPE&& forward(typename Util_RemoveReference<BSLS_TYPE>::type&& t);
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 };
 
 }  // close package namespace
@@ -234,6 +266,21 @@ Util::addressOf(RESULT (&fn)(ARG1, ARG2))
 {
     return fn;
 }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class BSLS_TYPE>
+BSLS_TYPE&& Util::forward(typename Util_RemoveReference<BSLS_TYPE>::type& t)
+{
+    return static_cast<BSLS_TYPE&&>(t);
+}
+
+template <class BSLS_TYPE>
+BSLS_TYPE&& Util::forward(typename Util_RemoveReference<BSLS_TYPE>::type&& t)
+{
+    return static_cast<BSLS_TYPE&&>(t);
+}
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 }  // close package namespace
 
