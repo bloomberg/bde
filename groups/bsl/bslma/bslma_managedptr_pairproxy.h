@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a class that can be used to create a
 // 'bsl::pair' with the same arguments.  It is provided in order to support a
 // (deprecated) legacy API in 'ManagedPtr' as part of the transition from the
-// 'bdema' package to 'bslma'.  After the transition, the component is lower
-// in the package group levelization than 'bsl::pair', so we instead return a
-// type that will be implicitly convertible to 'pair'.  Note that this implies
+// 'bdema' package to 'bslma'.  After the transition, the component is lower in
+// the package group levelization than 'bsl::pair', so we instead return a type
+// that will be implicitly convertible to 'pair'.  Note that this implies
 // adding an implicit constructor to 'bsl::pair'.
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -47,10 +47,10 @@ template <class POINTER_TYPE, class ASSOCIATED_TYPE>
 struct ManagedPtr_PairProxy {
     // This class is a simple aggregate that may be used to construct a
     // 'bsl::pair' object.  It will be a POD is the (template parameter)
-    // 'ASSOCIATED_TYPE' is a POD.
-    // Note that the names of the data members must exactly match those of
-    // 'bsl::pair' to support users simply acting on the results of the
-    // function call and not assigning that result to a 'bsl::pair' first.
+    // 'ASSOCIATED_TYPE' is a POD.  Note that the names of the data members
+    // must exactly match those of 'bsl::pair' to support users simply acting
+    // on the results of the function call and not assigning that result to a
+    // 'bsl::pair' first.
 
     POINTER_TYPE    *first;
     ASSOCIATED_TYPE  second;

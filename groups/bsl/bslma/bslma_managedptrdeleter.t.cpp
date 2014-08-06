@@ -1,6 +1,9 @@
 // bslma_managedptrdeleter.t.cpp                                      -*-C++-*-
 #include <bslma_managedptrdeleter.h>
 
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+
 #include <bslmf_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -12,10 +15,9 @@
 #include <stdio.h>
 
 using namespace BloombergLP;
-using std::swap;
 
 // ============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
@@ -48,41 +50,43 @@ using std::swap;
 //:   certain methods require the testing of this property:
 //:   o copy-assignment
 // ----------------------------------------------------------------------------
-// CLASS METHODS
-// [10] static int maxSupportedBdexVersion();
-//
 // CREATORS
-// [ 2] bslma::ManagedPtrDeleter()
-// [ 3] bslma::ManagedPtrDeleter(void *object, void *factory, Deleter deleter)
-// [ 7] bslma::ManagedPtrDeleter(const bslma::ManagedPtrDeleter& original)
-// [ 2] ~bslma::ManagedPtrDeleter()
+// [ 2] ManagedPtrDeleter();
+// [ 3] ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
+// [ 7] ManagedPtrDeleter(const ManagedPtrDeleter& original);
+// [ 2] ~ManagedPtrDeleter();
 //
 // MANIPULATORS
-// [ 2] set(void *object, void *factory, Deleter deleter)
-// [11] clear()
+// [ 9] ManagedPtrDeleter& operator=(const ManagedPtrDeleter& rhs);
+// [ 2] void set(void *object, void *factory, Deleter deleter);
+// [11] void clear();
 //
 // ACCESSORS
-// [12] void deleteManagedObject() const
-// [ 4] void (*)(void *, void *) deleter() const
-// [ 4] void *factory() const
-// [ 4] void *object() const
+// [12] void deleteManagedObject() const;
+// [ 4] Deleter deleter() const;
+// [ 4] void *factory() const;
+// [ 4] void *object() const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const bslma::ManagedPtrDeleter& lhs, rhs)
-// [ 6] bool operator!=(const bslma::ManagedPtrDeleter& lhs, rhs)
+// [ 6] bool operator==(const ManagedPtrDeleter& lhs, rhs);
+// [ 6] bool operator!=(const ManagedPtrDeleter& lhs, rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
+// [ 8] void swap(ManagedPtrDeleter&, ManagedPtrDeleter&);    // ADL
 // [ 3] CONCERN: All creator/manipulator ptr./ref. parameters are 'const'.
 // [ 4] CONCERN: All accessor methods are declared 'const'.
 // [ 8] CONCERN: Precondition violations are detected when enabled.
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -90,13 +94,12 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -135,7 +138,7 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                      GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bslma::ManagedPtrDeleter Obj;
@@ -143,74 +146,54 @@ typedef bslma::ManagedPtrDeleter Obj;
 // ============================================================================
 //                      GLOBAL CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
-template <class T>
+template <class TYPE>
 struct StatelessFactory
 {
-    void destroy(T *object) const;
+    void destroy(TYPE *object) const;
 };
 
-template <class T>
-void StatelessFactory<T>::destroy(T *object) const
-{
-    ASSERT(object);
-    ++*object;
-}
-
-template <class T>
+template <class TYPE>
 class StatefulFactory
 {
-    T d_data;
+    TYPE d_data;
     mutable bool d_empty;
 
   public:
     StatefulFactory() : d_data(), d_empty(true) {}
 
-    T *create();
+    TYPE *create();
 
-    void destroy(T *object) const;
+    void destroy(TYPE *object) const;
 };
 
-template <class T>
-T *StatefulFactory<T>::create()
+
+template <class TYPE>
+void StatelessFactory<TYPE>::destroy(TYPE *object) const
 {
-    if (!d_empty) { return 0; }
+    ASSERT(object);
+    ++*object;
+}
+
+
+template <class TYPE>
+TYPE *StatefulFactory<TYPE>::create()
+{
+    if (!d_empty) { return 0; }                                       // RETURN
 
     d_empty = false;
     return &d_data;
 }
 
-template <class T>
-void StatefulFactory<T>::destroy(T *object) const
+template <class TYPE>
+void StatefulFactory<TYPE>::destroy(TYPE *object) const
 {
     ASSERT(object == &d_data);
     d_empty = true;
 }
 
 // ============================================================================
-//                     GLOBAL FUNCTIONS FOR TESTING
+//                      GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
-
-void destroyWithNoFactory(void * object, void *)
-{
-    ASSERT(object);
-    ++*reinterpret_cast<int *>(object);
-}
-
-void destroyWithStatelessFactory(void * object, void *factory)
-{
-    ASSERT(object);
-    ASSERT(factory);
-    reinterpret_cast<StatelessFactory<int>*>(factory)->destroy(
-                                              reinterpret_cast<int *>(object));
-}
-
-void destroyWithStatefulFactory(void * object, void *factory)
-{
-    ASSERT(object);
-    ASSERT(factory);
-    reinterpret_cast<StatefulFactory<int>*>(factory)->destroy(
-                                              reinterpret_cast<int *>(object));
-}
 
 // 'debugprint' support for 'bsl' types
 
@@ -234,8 +217,31 @@ void debugprint(const ManagedPtrDeleter& obj)
 }  // close namespace bslma
 }  // close namespace BloombergLP
 
+
+void destroyWithNoFactory(void * object, void *)
+{
+    ASSERT(object);
+    ++*reinterpret_cast<int *>(object);
+}
+
+void destroyWithStatelessFactory(void * object, void *factory)
+{
+    ASSERT(object);
+    ASSERT(factory);
+    reinterpret_cast<StatelessFactory<int>*>(factory)->destroy(
+                                              reinterpret_cast<int *>(object));
+}
+
+void destroyWithStatefulFactory(void * object, void *factory)
+{
+    ASSERT(object);
+    ASSERT(factory);
+    reinterpret_cast<StatefulFactory<int>*>(factory)->destroy(
+                                              reinterpret_cast<int *>(object));
+}
+
 // ============================================================================
-//                   GLOBAL CONSTANTS USED FOR TESTING
+//                      GLOBAL CONSTANTS USED FOR TESTING
 // ----------------------------------------------------------------------------
 
 // Define DEFAULT DATA used by test cases 3, 7, 8, 9, and 10
@@ -273,6 +279,7 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 // ----------------------------------------------------------------------------
 
 BSLMF_ASSERT((bslmf::IsBitwiseMoveable<bslma::ManagedPtrDeleter>::value));
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -285,7 +292,21 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void)veryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
       case 13: {
@@ -332,12 +353,12 @@ int main(int argc, char *argv[])
         //:   default state.
         //
         // Testing:
-        //   deleteManagedObject()
+        //   void deleteManagedObject() const;
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nMANIPULATOR 'reset'"
-                  "\n===================\n");
+            printf("\nACCESSOR 'deleteManagedObject'"
+                   "\n==============================\n");
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
 
@@ -405,11 +426,11 @@ int main(int argc, char *argv[])
         //:   default state.
         //
         // Testing:
-        //   clear()
+        //   void clear();
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nMANIPULATOR 'reset'"
+            printf("\nMANIPULATOR 'clear'"
                    "\n===================\n");
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
@@ -443,11 +464,11 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // BSLX STREAMING
+        // BSLX STREAMING (NOT IMPLEMENTED)
         //   bslx streaming is not implemented for this type.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBDEX STREAMING (not implemented)"
+        if (verbose) printf("\nBSLX STREAMING (NOT IMPLEMENTED)"
                             "\n================================\n");
       } break;
       case 9: {
@@ -523,7 +544,7 @@ int main(int argc, char *argv[])
         //:     target object, 'mX', still has the same value as that of 'ZZ'.
         //
         // Testing:
-        //   operator=(const ManagedPtrDeleter& rhs);
+        //   ManagedPtrDeleter& operator=(const ManagedPtrDeleter& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
@@ -609,11 +630,13 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //   void swap(ManagedPtrDeleter&, ManagedPtrDeleter&);
+        //   void swap(ManagedPtrDeleter&, ManagedPtrDeleter&);    // ADL
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nSWAP FUNCTIONS"
-                            "\n==============\n");
+        if (verbose) printf("\nSWAP MEMBER AND FREE FUNCTIONS"
+                            "\n==============================\n");
+
+        using std::swap;
 
         if (verbose) printf("\nUse a table of distinct object values.\n");
 
@@ -710,7 +733,7 @@ int main(int argc, char *argv[])
         //:     2 'Z' still has the same value as that of 'ZZ'.  (C-3)
         //
         // Testing:
-        //   bslma::ManagedPtrDeleter(const ManagedPtrDeleter& o);
+        //   ManagedPtrDeleter(const ManagedPtrDeleter& original);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY CONSTRUCTOR"
@@ -1054,7 +1077,7 @@ int main(int argc, char *argv[])
         //:   (C-3)
         //
         // Testing:
-        //   ManagedPtrDeleter(int o, bool f);
+        //   ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nVALUE CTOR"
@@ -1078,8 +1101,8 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ T_ P(X) }
 
-            // Use untested functionality to help ensure the first row
-            // of the table contains the default-constructed value.
+            // Use untested functionality to help ensure the first row of the
+            // table contains the default-constructed value.
             if (0 == ti) {
                 LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
             }
@@ -1169,7 +1192,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   ManagedPtrDeleter();
         //   ~ManagedPtrDeleter();
-        //   set(int value);
+        //   void set(void *object, void *factory, Deleter deleter);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
@@ -1210,8 +1233,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ T_ P(X) }
 
-                // Use untested functionality to help ensure the first row
-                // of the table contains the default-constructed value.
+                // Use untested functionality to help ensure the first row of
+                // the table contains the default-constructed value.
                 if (0 == ti) {
                     LOOP3_ASSERT(LINE, Obj(), X, Obj() == X)
                 }
@@ -1490,6 +1513,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
