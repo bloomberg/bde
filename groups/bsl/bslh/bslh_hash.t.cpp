@@ -83,9 +83,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -171,8 +171,8 @@ class Point {
 };
 
 Point::Point(int x, int y) : d_x(x), d_y(y) {
-    d_distToOrigin = sqrt(static_cast<long double>(d_x * d_x) +
-                          static_cast<long double>(d_y * d_y));
+    d_distToOrigin = sqrt(static_cast<double>(d_x * d_x) +
+                          static_cast<double>(d_y * d_y));
 }
 
 double Point::distanceToOrigin() {
@@ -401,18 +401,6 @@ class HashTable {
 
 typedef bslh::Hash<> Obj;
 
-static void printCharAsBinary(const char c)
-    // Print the binary representation of the specified 'c' to 'printf'.
-{
-    for (int i = 128; i > 0; i /= 2) {
-        if (c & i) {
-            printf("1");
-        } else {
-            printf("0");
-        }
-    }
-}
-
 static bool binaryCompare(const char *first, const char *second, size_t size)
     // Return the result of a binary comparison betweed the specified 'size'
     // bytes of 'first' and 'second'.
@@ -513,7 +501,12 @@ class TestDriver {
         }
     }
 
-    void testHashAppendNegativeZero(){
+    void testHashAppendNegativeZero()
+        // Test 'hashAppend' on the parameterized 'TYPE' ensuring that both 0
+        // and -0 will hash to the same value. This is intended to test
+        // floating point numbers where 0.0 and -0.0 have different binary
+        // representations.
+    {
         TYPE zero = 0;
         TYPE negativeZero = -zero;
         ASSERT(!binaryCompare(reinterpret_cast<const char *>(&zero),
@@ -556,7 +549,7 @@ int main(int argc, char *argv[])
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
 //  bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -805,7 +798,7 @@ int main(int argc, char *argv[])
                 const int    VALUE = DATA[i].d_value;
                 const size_t HASH  = static_cast<size_t>(DATA[i].d_hash);
 
-                if (veryVerbose) printf("Hashing: %i, Expecting: %u\n",
+                if (veryVerbose) printf("Hashing: %i, Expecting: %lu\n",
                                         VALUE,
                                         HASH);
 
@@ -1169,7 +1162,7 @@ int main(int argc, char *argv[])
             // hashAppend TYPE[]
             MockAccumulatingHashingAlgorithm iarrayAlg;
             int iarray[] = {1, 2, 3, 4};
-            int iarrayLen = sizeof(iarray);
+            size_t iarrayLen = sizeof(iarray);
             const char *charIarray = reinterpret_cast<const char *>(iarray);
             hashAppend(iarrayAlg, iarray);
             const char *iarrayOutput = iarrayAlg.getData();
@@ -1182,7 +1175,7 @@ int main(int argc, char *argv[])
 
             MockAccumulatingHashingAlgorithm constIarrayAlg;
             const int constIarray[] = {1, 2, 3, 4};
-            int constIarrayLen = sizeof(constIarray);
+            size_t constIarrayLen = sizeof(constIarray);
             const char *constCharIarray =
                                         reinterpret_cast<const char *>(iarray);
             hashAppend(constIarrayAlg, constIarray);
@@ -1216,8 +1209,9 @@ int main(int argc, char *argv[])
             hashAppend(constPtrAlg, constPtr);
             const char *constPtrOutput = constPtrAlg.getData();
             for (size_t i = 0; i < sizeof(const char *); ++i) {
-                if (veryVerbose) printf("Asserting %c == %c", constPtrOutput[i],
-                                                               constPtrPtr[i]);
+                if (veryVerbose) printf("Asserting %c == %c",
+                                        constPtrOutput[i],
+                                        constPtrPtr[i]);
                 ASSERT(constPtrOutput[i] == constPtrPtr[i]);
             }
             ASSERT(constPtrAlg.getLength() == sizeof(const char *));

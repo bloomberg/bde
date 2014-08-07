@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLH_HASH
+#ifndef INCLUDED_BSLH_DEFAULTSEEDEDHASHALGORITHM
 #include <bslh_defaultseededhashalgorithm.h>
 #endif
 

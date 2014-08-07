@@ -72,9 +72,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -378,7 +378,7 @@ struct HashFuture {
         hash(future.getMonth(), sizeof(char));
         hash(future.getYear(),  sizeof(short));
 
-        return hash.computeHash();
+        return static_cast<size_t>(hash.computeHash());
     }
 };
 
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     switch (test) { case 0:
       case 7: {

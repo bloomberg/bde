@@ -128,10 +128,7 @@ Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
     return static_cast<result_type>(hashAlg.computeHash());
 }
 
-// ============================================================================
-//            'HASHAPPEND' IMPLEMENTATIONS FOR FUNDAMENTAL TYPES
-// ============================================================================
-
+// FREE FUNCTIONS
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, bool input);
 

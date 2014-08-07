@@ -67,10 +67,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -545,7 +544,6 @@ int main(int argc, char *argv[])
         static const struct {
             int                  d_line;
             const char           d_value [21];
-            bsls::Types::Uint64  d_hash;
         } DATA[] = {
            // LINE           DATA
             {  L_,                     "1",},

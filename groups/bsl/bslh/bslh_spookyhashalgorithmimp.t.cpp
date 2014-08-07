@@ -53,9 +53,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -154,7 +154,7 @@ const int NUM_DATA = sizeof DATA / sizeof *DATA;
 // This section illustrates intended usage of this component.
 //
 ///Example: Creating 128-bit checksums
-///- - - - - - - - - - - - - - - - - - 
+///- - - - - - - - - - - - - - - - - -
 // Suppose we have a library of 4 billion pieces of data and we want to store
 // checksums for this data. For a 64-bit hash, there is a 35% chance of two of
 // these checksums colliding (according to the approximation found here:
@@ -193,10 +193,12 @@ class CheckedData {
 // 'SpookyHashImp' to calculate a 128-bit checksum.
 //..
 
-CheckedData::CheckedData(const char *data, size_t length) : d_data(data),
-                                                            d_length(length),
-                                                            d_checksum1(0),
-                                                            d_checksum2(0) {
+CheckedData::CheckedData(const char *data, size_t length)
+: d_length(length)
+, d_data(data)
+, d_checksum1(0)
+, d_checksum2(0)
+{
     SpookyHashAlgorithmImp hashAlg;
 
     hashAlg.Hash128(d_data, d_length, &d_checksum1, &d_checksum2);
@@ -238,7 +240,7 @@ int main(int argc, char *argv[])
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

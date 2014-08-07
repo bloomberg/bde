@@ -51,9 +51,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -318,7 +318,7 @@ int main(int argc, char *argv[])
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
 //  bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+//  bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -586,7 +586,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Create a 'SeedGenerator' with the user defined"
                             " default constructor. (C-1)\n");
         {
-            Obj generator;
+            Obj generator = Obj();
         }
 
         if (verbose) printf("Create a 'SeedGenerator' with the user defined"
