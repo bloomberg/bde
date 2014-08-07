@@ -28,22 +28,22 @@ BSLS_IDENT("$Id: $")
 ///Modularity
 ///----------
 // 'bslh::Hash' provides a modular system for hashing.  Identification of
-// salient attributes on a type and the actual implementation of hashing
-// algorithms can be decoupled. Salient attributes can be called out on a type
-// using 'hashAppend'. Hashing algorithms can be written (some defaults are
-// provided in 'bslh') to operate on the attributes called out by 'hashAppend'.
-// This prevents type creators from having to duplicate work or write bad
-// hashing algorithms.
+// attributes on a type that are salient to hashing and the actual
+// implementation of hashing algorithms can be decoupled. Attributes that are
+// salient to hashing can be called out on a type using 'hashAppend'. Hashing
+// algorithms can be written (some defaults are provided in 'bslh') to operate
+// on the attributes called out by 'hashAppend'.  This prevents type creators
+// from having to duplicate work or write bad hashing algorithms.
 //
 ///'hashAppend'
 ///------------
-// 'hashAppend' is the function that is used to pass salient attributes from a
-// type into a hashing algorithm. Any type being hashed must implement
-// 'hashAppend'. Within this implementation, the type will call 'hashAppend' on
-// each of it's salient attributes (attributes that contribute to value). If
+// 'hashAppend' is the function that is used to pass attributes that are
+// salient to hashing into a hashing algorithm. Any type being hashed must
+// implement 'hashAppend'. Within this implementation, the type will call
+// 'hashAppend' on each of it's attributes that are salient to hashing. If
 // those attributes are themselves user defined types, they will continue
-// calling 'hashAppend' on their own salient attributes until fundamental types
-// are reached.
+// calling 'hashAppend' on their own  attributes until fundamental types are
+// reached.
 //
 // Within this file, 'hashAppend' has been implemented for all of the
 // fundamental types. When 'hashAppend is reached on a fundamental type, the

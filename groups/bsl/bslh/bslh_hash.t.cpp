@@ -125,13 +125,13 @@ void aSsErT(bool b, const char *s, int i)
 //
 ///Example 1: Keying a hash table with a user defined type
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we have a value semantic type, 'Box', that contains salient
-// attributes (attributes that contribute to value) as well as non-salient
-// attributes. Some of these attributes are themselves user defined types. We
-// want to store this 'Box' in a hash table, so we need to hash it. We don't
-// want to write our own hashing or hash combine algorithm, because we know
-// very little about hashing. In order to hash this 'Box', we will use the
-// modular hashing system supplied in 'bslh'.
+// Suppose we have a value semantic type, 'Box', that contains attributes that
+// are salient to hashing as well as attributes that are not salient to
+// hashing. Some of these attributes are themselves user defined types. We want
+// to store this 'Box' in a hash table, so we need to hash it. We don't want to
+// write our own hashing or hash combine algorithm, because we know very little
+// about hashing. In order to hash this 'Box', we will use the modular hashing
+// system supplied in 'bslh'.
 //
 // First, we declare 'Point', a class that allows us to identify a loction on a
 // two dimensional cartesian plane.
@@ -180,9 +180,10 @@ double Point::distanceToOrigin() {
 }
 
 //..
-// Then, we define 'operator=='. Notice how it only checks salient attributes -
-// attributes that contribute to the value of the class. We ignore
-// 'd_distToOrigin' which is not required to determine equality.
+// Then, we define 'operator=='. Notice how it only checks attributes that we
+// would want to hash. Attributes that are checked in 'operator==' tend to be
+// salient to hashing. We ignore 'd_distToOrigin' which is not required to
+// determine equality.
 //..
 bool operator==(const Point &left, const Point &right)
 {
@@ -193,8 +194,8 @@ bool operator==(const Point &left, const Point &right)
 // Next, we define 'hashAppend'. This method will allow any hashing algorithm
 // to be applied to 'Point'. This is the extent of the work that needs to be
 // done by type creators. They do not need to implement any algorithms, they
-// just need to call out the salient attributes (which have already been
-// determined by 'operator==') by calling 'hashAppend' on them.
+// just need to call out the attributes that are salient to hashing by calling
+// 'hashAppend' on them.
 //..
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
@@ -205,7 +206,7 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
 
 //..
 // Then, we declare another value semantic type, 'Box' that will have point as
-// one of its salient attributes.
+// one of its attributes that are salient to hashing.
 //..
 class Box {
     // A value semantic type that represents a box drawn on to a cartesian

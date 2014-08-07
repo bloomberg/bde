@@ -153,8 +153,8 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 // the form of a hash functor -- an object that will take objects stored in our
 // array as input, and yield an integer value which is hard enough for an
 // outside observer to predict that it appear random. The functor can pass the
-// salient attributes of the 'TYPE' into the hashing algorithm, and then return
-// the hash that is produced.
+// attributes of the 'TYPE' that are salient to hashing into the hashing
+// algorithm, and then return the hash that is produced.
 //
 // We can use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
@@ -354,8 +354,9 @@ bool operator!=(const Future& lhs, const Future& rhs)
 //..
 // Next, we need a hash functor for 'Future'.  We are going to use the
 // 'SipHashAlgorithm' because, it is a secure hash algorithm that will provide
-// a way to securely combine the salient attributes of 'Future' objects into
-// one reasonable hash that an malicious user will not be able to predict.
+// a way to securely combine the attributes of 'Future' objects that are
+// salient to hashing into one reasonable hash that an malicious user will not
+// be able to predict.
 //..
 
 struct HashFuture {
@@ -364,9 +365,9 @@ struct HashFuture {
 
     size_t operator()(const Future& future) const
         // Return the hash of the of the specified 'future'.  Note that this
-        // uses the 'SipHashAlgorithm' to safely combine the salient attributes
-        // of 'Future' objects into a hash that is not predictable by an
-        // attacker.
+        // uses the 'SipHashAlgorithm' to safely combine the attributes of
+        // 'Future' objects that are salient to hashing into a hash that is not
+        // predictable by an attacker.
     {
         char seed[SipHashAlgorithm::k_SEED_LENGTH];
         SeedGenerator<CryptoSecureRNG> seedGenerator;

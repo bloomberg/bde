@@ -158,11 +158,15 @@ releases.
  of collisions when the inputs differ by only a few bits. More information can
  be found at http://burtleburtle.net/bob/hash/evahash.html
 
-/Salient Attribute
+/Salient to Hashing
 /- - - - - - - - -
- An attribute that contributes to the value of an object. All salient
- attributes should contribute to a hash, and objects with equivalent salient
- attributes should hash to the same value.
+ A property of attributes of a type. An attribute is considered salient to
+ hashing if it should be incorporated into the bytes that are used to produce a
+ hash of a given object. As a general rule is that every attribute used in
+ 'operator==' is usually salient to hashing. For a more in depth explanation
+ for choosing attributes that are salient to hashing, see:
+ https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
+ Using+Modular+Hashing&spaceKey=bde#UsingModularHashing-DeterminingwhattoHash
 
 /Why Use This Modular Hashing System?
 /------------------------------------
