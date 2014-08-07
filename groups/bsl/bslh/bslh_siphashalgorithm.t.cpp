@@ -3,11 +3,6 @@
 
 #include <bslh_seedgenerator.h>
 
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocatormonitor.h>
-
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
 
@@ -207,7 +202,6 @@ class HashTable {
     unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
     HASHER            d_hasher;
     bool              d_valid;              // Object was properly initialized.
-    bslma::Allocator *d_allocator_p;        // held, not owned
 
   private:
     // PRIVATE ACCESSORS
@@ -235,16 +229,13 @@ class HashTable {
   public:
     // CREATORS
     HashTable(const TYPE       *valuesArray,
-              size_t            numValues,
-              bslma::Allocator *allocator = 0)
+              size_t            numValues)
         // Create a hash table referring to the specified 'valuesArray'
-        // containing 'numValues'. Optionally specify 'allocator' or the
-        // default allocator will be used`.
+        // containing 'numValues'.
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
     , d_valid(true)
-    , d_allocator_p(bslma::Default::allocator(allocator))
     {
         size_t bucketArrayLength = 4;
         while (bucketArrayLength < numValues * 4) {
@@ -252,8 +243,7 @@ class HashTable {
             BSLS_ASSERT_OPT(bucketArrayLength);
         }
         d_bucketArrayMask = bucketArrayLength - 1;
-        d_bucketArray = static_cast<const TYPE **>(d_allocator_p->allocate(
-                                         bucketArrayLength * sizeof(TYPE **)));
+        d_bucketArray = new const TYPE *[bucketArrayLength];
         memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 
         for (unsigned i = 0; i < numValues; ++i) {
@@ -278,7 +268,7 @@ class HashTable {
     ~HashTable()
         // Free up memory used by this cross-reference.
     {
-        d_allocator_p->deallocate(d_bucketArray);
+        delete [] d_bucketArray;
     }
 
     // ACCESSORS
@@ -561,23 +551,14 @@ int main(int argc, char *argv[])
         //:
         //: 3 'computeHash()' exists and returns the appropriate value
         //:   according to the SipHash specification.
-        //:
-        //: 4 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-4)
-        //:
-        //: 2 Insert various lengths of c-strings into the algorithm both all
+        //: 1 Insert various lengths of c-strings into the algorithm both all
         //:   at once and char by char using 'operator()'. Assert that the
         //:   algorithm produces the same result in both cases. (C-1,2)
         //:
-        //: 3 Check the output of 'computeHash()' against the expected results
+        //: 2 Check the output of 'computeHash()' against the expected results
         //:   from a known good version of the algorithm. (C-3)
-        //:
-        //: 4 Verify no memory was used. (C-4)
         //
         // Testing:
         //   void operator()(void const* key, size_t len);
@@ -616,16 +597,6 @@ int main(int argc, char *argv[])
          {  L_,  "12345678901234567890",   544989015912666071ULL,},
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-4)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
 
         if (verbose) printf("Insert various lengths of c-strings into the"
                             " algorithm both all at once and char by char"
@@ -677,19 +648,13 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Verify no memory was used\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR
         //   Ensure that the three implicitly declared and defined special
         //   member functions and the one explicitly defined constructor are
-        //   publicly callable and have no unexpected side effects such as
-        //   allocating memory.  Verify that the algorithm does not have a
+        //   publicly callable.  Verify that the algorithm does not have a
         //   default constructor and can only be instantiated with a seed.
         //
         // Concerns:
@@ -706,34 +671,25 @@ int main(int argc, char *argv[])
         //: 6 Assignments operations can be chained.
         //:
         //: 7 Objects can be destroyed.
-        //:
-        //: 8 No memory is allocated by the default and global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-8)
-        //:
-        //: 2 Assert the algorithm does not have the is_default_constructable
+        //: 1 Assert the algorithm does not have the is_default_constructable
         //:   trait. (C-1)
         //:
-        //: 3 Call the parameterized constructor using a seed. (C-2)
+        //: 2 Call the parameterized constructor using a seed. (C-2)
         //:
-        //: 4 Use the copy-initialization syntax to create a new instance of
+        //: 3 Use the copy-initialization syntax to create a new instance of
         //:   'SipHashAlgorithm' from an existing instance. (C-3,4)
         //:
-        //: 5 Assign the value of the one (const) instance of
+        //: 4 Assign the value of the one (const) instance of
         //:   'SipHashAlgorithm' to a second. (C-5)
         //:
-        //: 6 Chain the assignment of the value of the one instance of
+        //: 5 Chain the assignment of the value of the one instance of
         //:   'SipHashAlgorithm' to a second instance of 'SipHashAlgorithm',
         //:   into a self-assignment of the second object. (C-6)
         //:
-        //: 7 Create an instance of 'SipHashAlgorithm' and allow it to leave
+        //: 6 Create an instance of 'SipHashAlgorithm' and allow it to leave
         //:   scope to be destroyed. (C-7)
-        //:
-        //: 8 Verify no memory was used. (C-8)
         //
         // Testing:
         //   explicit SipHashAlgorithm(const char *seed);
@@ -745,16 +701,6 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nTESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR"
                    "\n==============================================\n");
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-8)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
 
         if (verbose) printf("Assert the algorithm does not have the"
                             " is_default_constructable trait. (C-1)\n");
@@ -799,11 +745,6 @@ int main(int argc, char *argv[])
                             "\n");
         {
             Obj alg1 = Obj(genericSeed);
-        }
-
-        if (verbose) printf("Verify no memory was used\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
 
       } break;

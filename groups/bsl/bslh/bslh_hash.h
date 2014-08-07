@@ -65,12 +65,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
 #ifndef INCLUDED_BSLH_DEFAULTHASHALGORITHM
 #include <bslh_defaulthashalgorithm.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
+#include <bslmf_isbitwisemoveable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE

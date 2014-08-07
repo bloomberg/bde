@@ -1,11 +1,6 @@
 // bslh_seedgenerator.t.cpp                                           -*-C++-*-
 #include <bslh_seedgenerator.h>
 
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocatormonitor.h>
-
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -327,11 +322,6 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    // CONCERN: In no case does memory come from the global allocator.
-
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
-
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
@@ -397,8 +387,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'GENERATESEED'
         //   Ensure that the 'generateSeed' method is publicly callable,
-        //   returns the expected values, and has no unexpected side effects
-        //   such as allocating memory.
+        //   returns the expected values.
         //
         // Concerns:
         //: 1 The method exists and is callable with a pointer and a length.
@@ -414,32 +403,23 @@ int main(int argc, char *argv[])
         //:
         //: 6 The method behaves as expected when input length is not a
         //:   multiple of the supplied RNG 'result_type'.
-        //:
-        //: 7 No memory is allocated by the default and global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-7)
-        //:
-        //: 2 Create a 'SeedGenerator' with a predictable RNG and test that the
+        //: 1 Create a 'SeedGenerator' with a predictable RNG and test that the
         //:   values written to memory match the output of the RNG. (C-1,2)
         //:
-        //: 3 Pre-load memory with known data, and test that it is all
+        //: 2 Pre-load memory with known data, and test that it is all
         //:   overwritten after a call to 'generateSeed'. (C-3)
         //:
-        //: 4 Pre-load memory with known data, and test that memory beyond the
+        //: 3 Pre-load memory with known data, and test that memory beyond the
         //:   end of the specified memory is not overwritten after a call to
         //:  'generateSeed' (C-4)
         //:
-        //: 5 Call 'generateSeed' with a length of zero and verify the RNG was
+        //: 4 Call 'generateSeed' with a length of zero and verify the RNG was
         //:   not called, and the supplied memory was not written. (C-6)
         //:
-        //: 6 Call 'generateSeed' with lengths that are not multiples of the
+        //: 5 Call 'generateSeed' with lengths that are not multiples of the
         //:   size of 'MockRNG::result_type'. (C-6)
-        //:
-        //: 7 Verify no memory was used. (C-7)
         //
         // Testing:
         //   void generateSeed(char *seedLocation, size_t seedLength)
@@ -448,16 +428,6 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nTESTING 'GENERATESEED'"
                    "\n======================\n");
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-7)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
 
         if (verbose) printf("Create a 'SeedGenerator' with a predictable RNG"
                             " and test that the values written to memory match"
@@ -561,21 +531,15 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Verify no memory was used. (C-7)\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //   Ensure that the implicitly declared and defined copy constructor
         //   and destructor, as well as the explicitly defined default and
-        //   parameterized constructors, are publicly callable and have no
-        //   unexpected side effects such as allocating memory.  As there is no
+        //   parameterized constructors, are publicly callable.  As there is no
         //   observable state to inspect, there is little to verify other than
-        //   that the expected expressions all compile, and:
+        //   that the expected expressions all compile.
         //
         // Concerns:
         //: 1 Objects can be created using the user defined default
@@ -591,31 +555,22 @@ int main(int argc, char *argv[])
         //: 5 Objects can be copy constructed from constant objects.
         //:
         //: 6 Objects can be destroyed.
-        //:
-        //: 7 No memory is allocated by the default and global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-6)
-        //:
-        //: 2 Create a 'SeedGenerator' with the user defined default
+        //: 1 Create a 'SeedGenerator' with the user defined default
         //:   constructor. (C-1)
         //:
-        //: 3 Create a 'SeedGenerator' with the user defined parameterized
+        //: 2 Create a 'SeedGenerator' with the user defined parameterized
         //:   constructor. (C-2)
         //:
-        //: 4 Use the copy-initialization syntax to create a new instance of
+        //: 3 Use the copy-initialization syntax to create a new instance of
         //:   'SeedGenerator' from an existing instance. (C-3,4)
         //:
-        //: 5 Copy the value of the one (const) instance of 'SeedGenerator'
+        //: 4 Copy the value of the one (const) instance of 'SeedGenerator'
         //:   to a second non-const one. (C-5)
         //:
-        //: 6 Create an instance of 'SeedGenerator' and allow it to leave scope
+        //: 5 Create an instance of 'SeedGenerator' and allow it to leave scope
         //:   to be destroyed. (C-6)
-        //:
-        //: 7 Verify no memory was used. (C-7)
         //
         // Testing:
         //   SeedGenerator()
@@ -627,15 +582,6 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nTESTING CREATORS"
                    "\n================\n");
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-6)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) printf("Create a 'SeedGenerator' with the user defined"
                             " default constructor. (C-1)\n");
@@ -675,11 +621,6 @@ int main(int argc, char *argv[])
         {
             MockRNG rng;
             Obj generator(rng);
-        }
-
-        if (verbose) printf("Verify no memory was used. (C-7)\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
 
       } break;
@@ -732,11 +673,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-
-    // CONCERN: In no case does memory come from the global allocator.
-
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

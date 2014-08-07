@@ -3,11 +3,6 @@
 #include <bslh_defaulthashalgorithm.h>
 #include <bslh_siphashalgorithm.h>
 
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocatormonitor.h>
-
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
@@ -311,7 +306,6 @@ class HashTable {
     unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
     HASHER            d_hasher;
     bool              d_valid;              // Object was properly initialized.
-    bslma::Allocator *d_allocator_p;        // held, not owned
 
   private:
     // PRIVATE ACCESSORS
@@ -339,16 +333,13 @@ class HashTable {
   public:
     // CREATORS
     HashTable(const TYPE       *valuesArray,
-              size_t            numValues,
-              bslma::Allocator *allocator = 0)
+              size_t            numValues)
         // Create a hash table referring to the specified 'valuesArray'
-        // containing 'numValues'. Optionally specify 'allocator' or the
-        // default allocator will be used`.
+        // containing 'numValues'.
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
     , d_valid(true)
-    , d_allocator_p(bslma::Default::allocator(allocator))
     {
         size_t bucketArrayLength = 4;
         while (bucketArrayLength < numValues * 4) {
@@ -356,8 +347,8 @@ class HashTable {
             BSLS_ASSERT_OPT(bucketArrayLength);
         }
         d_bucketArrayMask = bucketArrayLength - 1;
-        d_bucketArray = static_cast<const TYPE **>(d_allocator_p->allocate(
-                                         bucketArrayLength * sizeof(TYPE **)));
+        d_bucketArray = new const TYPE *[bucketArrayLength];
+
         memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 
         for (unsigned i = 0; i < numValues; ++i) {
@@ -382,7 +373,7 @@ class HashTable {
     ~HashTable()
         // Free up memory used by this hash table.
     {
-        d_allocator_p->deallocate(d_bucketArray);
+        delete [] d_bucketArray;
     }
 
     // ACCESSORS
@@ -568,11 +559,6 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
-
-    // CONCERN: In no case does memory come from the global allocator.
-
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
       case 8: {
@@ -775,19 +761,10 @@ int main(int argc, char *argv[])
         //:   used.
         //:
         //: 2 The function call operator can be invoked on constant objects.
-        //:
-        //: 3 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-3)
-        //:
-        //: 2 Create 'const' ints and hash them. Compare the results against
+        //: 1 Create 'const' ints and hash them. Compare the results against
         //:   known good values. (C-1,2)
-        //:
-        //: 3 Verify no memory was used. (C-3)
         //
         // Testing:
         //   operator()(const T&) const
@@ -820,16 +797,6 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-3)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
-
         if (verbose) printf("Create 'const' strings and hash them. Compare the"
                             " results against known good values. (C-1,2)\n");
         {
@@ -845,11 +812,6 @@ int main(int argc, char *argv[])
                 Obj hash = Obj();
                 LOOP_ASSERT(LINE, hash(VALUE) == HASH);
             }
-        }
-
-        if (verbose) printf("Verify no memory was used. (C-3)\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
 
       } break;
@@ -1267,9 +1229,9 @@ int main(int argc, char *argv[])
         // TESTING IMPLICITLY DEFINED OPERATIONS
         //   Ensure that the four implicitly declared and defined special
         //   member functions are publicly callable and have no unexpected side
-        //   effects such as allocating memory.  As there is no observable
-        //   state to inspect, there is little to verify other than that the
-        //   expected expressions all compile, and
+        //   effects.  As there is no observable state to inspect, there is
+        //   little to verify other than that the expected expressions all
+        //   compile.
         //
         // Concerns:
         //: 1 Objects can be created using the default constructor.
@@ -1283,31 +1245,22 @@ int main(int argc, char *argv[])
         //: 5 Assignments operations can be chained.
         //:
         //: 6 Objects can be destroyed.
-        //:
-        //: 7 No memory is allocated by the default and global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-7)
+        //: 1 Create a default constructed 'Hash'. (C-1)
         //:
-        //: 2 Create a default constructed 'Hash'. (C-1)
-        //:
-        //: 3 Use the copy-initialization syntax to create a new instance of
+        //: 2 Use the copy-initialization syntax to create a new instance of
         //:   'Hash' from an existing instance. (C-2,3)
         //:
-        //: 4 Assign the value of the one (const) instance of 'Hash' to a
+        //: 3 Assign the value of the one (const) instance of 'Hash' to a
         //:   second. (C-4)
         //:
-        //: 5 Chain the assignment of the value of the one instance of 'Hash'
+        //: 4 Chain the assignment of the value of the one instance of 'Hash'
         //:   to a second instance of 'Hash', into a self-assignment of the
         //:   second object. (C-5)
         //:
-        //: 6 Create an instance of 'Hash' and allow it to leave scope to be
+        //: 5 Create an instance of 'Hash' and allow it to leave scope to be
         //:   destroyed. (C-6)
-        //:
-        //: 7 Verify no memory was used. (C-7)
         //
         // Testing:
         //   Hash()
@@ -1319,16 +1272,6 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nTESTING IMPLICITLY DEFINED OPERATIONS"
                    "\n=====================================\n");
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-7)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
 
         if (verbose) printf("Create a default constructed 'Hash'. (C-1)\n");
         {
@@ -1364,11 +1307,6 @@ int main(int argc, char *argv[])
                             " leave scope to be destroyed. (C-6)\n");
         {
             Obj alg1;
-        }
-
-        if (verbose) printf("Verify no memory was used. (C-7)\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
 
       } break;
@@ -1423,11 +1361,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-
-    // CONCERN: In no case does memory come from the global allocator.
-
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

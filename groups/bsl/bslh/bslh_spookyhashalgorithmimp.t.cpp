@@ -1,11 +1,6 @@
 // bslh_spookyhashalgorithmimp.t.cpp                                  -*-C++-*-
 #include <bslh_spookyhashalgorithmimp.h>
 
-#include <bslma_default.h>
-#include <bslma_defaultallocatorguard.h>
-#include <bslma_testallocator.h>
-#include <bslma_testallocatormonitor.h>
-
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -247,11 +242,6 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    // CONCERN: In no case does memory come from the global allocator.
-
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
-
     switch (test) { case 0:
       case 7: {
         // --------------------------------------------------------------------
@@ -339,19 +329,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 Hashes returned match the data produced by the canonical
         //:   implementation of SpookyHash.
-        //:
-        //: 3 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-3)
-        //:
-        //: 2 Check the values returned against the expected results from a
+        //: 1 Check the values returned against the expected results from a
         //:   known good version of the algorithm. (C-1,2)
-        //:
-        //: 3 Verify no memory was used. (C-3)
         //
         // Testing:
         //   static uint64 Hash64(*message, length, seed);
@@ -412,16 +393,6 @@ int main(int argc, char *argv[])
 #endif
         };
 
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-3)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
-
         if (verbose) printf("Check the values returned against the expected"
                             " results from a known good version of the"
                             " algorithm. (C-1,2)\n");
@@ -445,11 +416,6 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Verify no memory was used. (C-3)\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-        }
-
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -463,19 +429,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 Hashes returned via 'h1' and 'h2' match the data produced by the
         //:   canonical implementation of SpookyHash.
-        //:
-        //: 3 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-3)
-        //:
-        //: 2 Check the values returned in 'h1' and 'h2' against the expected
+        //: 1 Check the values returned in 'h1' and 'h2' against the expected
         //:   results from a known good version of the algorithm. (C-1,2)
-        //:
-        //: 3 Verify no memory was used. (C-3)
         //
         // Testing:
         //   static void Hash128(*msg, len, *h1, *h2);
@@ -483,16 +440,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING HASH128"
                             "\n===============\n");
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-3)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
 
         if (verbose) printf("Check the values returned in 'h1' and 'h2'"
                             " against the expected results from a known good"
@@ -520,11 +467,6 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Verify no memory was used. (C-3)\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-        }
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -549,25 +491,16 @@ int main(int argc, char *argv[])
         //: 4 Hashes produced by inserting data via 'Update' and calling
         //:  'Final' matches the data produced by the canonical implementation
         //:   of SpookyHash.
-        //:
-        //: 5 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-5)
-        //:
-        //: 2 Insert various lengths of c-strings into the algorithm both all
+        //: 1 Insert various lengths of c-strings into the algorithm both all
         //:   at once, char by char, and in chunks using 'Update'. Call 'Final'
         //:   periodically between updates. Assert that the algorithm produces
         //:   the same result in all cases. (C-1,2,3)
         //:
-        //: 3 Check the output of 'Update' followed by 'Final' against the
+        //: 2 Check the output of 'Update' followed by 'Final' against the
         //:   expected results from a known good version of the algorithm.
         //:   (C-4)
-        //:
-        //: 4 Verify no memory was used. (C-5)
         //
         // Testing:
         //   void Update(const void *message, size_t length);
@@ -575,15 +508,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING UPDATE"
                             "\n==============\n");
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-5)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
 
         if (verbose) printf("Insert various lengths of c-strings into the"
                             " algorithm both all at once, char by char, and in"
@@ -672,11 +596,6 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Verify no memory was used. (C-5)\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-        }
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -700,25 +619,16 @@ int main(int argc, char *argv[])
         //:
         //: 4 'Final' can be called multiple times and does not modify the
         //:   state of the algorithm or return different results.
-        //:
-        //: 5 No memory is allocated from the default or global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-5)
-        //:
-        //: 2 Initialize the algorithm with various seeds test that permuting
+        //: 1 Initialize the algorithm with various seeds test that permuting
         //:   the seed permutes the output. (C-1,2)
         //:
-        //: 3 Use a table of value to check that known seeds will produce
+        //: 2 Use a table of value to check that known seeds will produce
         //:   output that matches the canonical implementation. (C-3)
         //:
-        //: 4 Call 'Final' multiple times in a row and test that the result
+        //: 3 Call 'Final' multiple times in a row and test that the result
         //:   that is returned is always the same. (C-4)
-        //:
-        //: 5 Verify no memory was used. (C-5)
         //
         // Testing:
         //   void Init(uint64 seed1, uint64 seed2);
@@ -759,16 +669,6 @@ int main(int argc, char *argv[])
      {L_,0x6701178d, 0x7e390505, 0xe67281e302349273LL, 0x9ecc924e1d487eefLL, },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-4)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
 
         if (verbose) printf("Initialize the algorithm with various seeds test"
                             " that permuting the seed permutes the output."
@@ -881,18 +781,12 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("Verify no memory was used\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
-        }
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING IMPLICITLY DEFINED OPERATIONS
         //   Ensure that the four implicitly declared and defined special
-        //   member functions are publicly callable and have no unexpected side
-        //   effects such as allocating memory.  As there is no observable
+        //   member functions are publicly callable.  As there is no observable
         //   state to inspect, there is little to verify other than that the
         //   expected expressions all compile, and
         //
@@ -908,32 +802,23 @@ int main(int argc, char *argv[])
         //: 5 Assignments operations can be chained.
         //:
         //: 6 Objects can be destroyed.
-        //:
-        //: 7 No memory is allocated by the default and global allocators.
         //
         // Plan:
-        //: 1 Install a test allocator as the default allocator.  Then install
-        //:   an 'AllocatorGuard' to verify no memory is allocated during the
-        //:   execution of this test case.  Memory from the global allocator is
-        //:   tested as a global concern. (C-7)
+        //: 1 Create a default constructed 'SpookyHashAlgorithmImp'. (C-1)
         //:
-        //: 2 Create a default constructed 'SpookyHashAlgorithmImp'. (C-1)
-        //:
-        //: 3 Use the copy-initialization syntax to create a new instance of
+        //: 2 Use the copy-initialization syntax to create a new instance of
         //:   'SpookyHashAlgorithmImp' from an existing instance. (C-2,3)
         //:
-        //: 4 Assign the value of the one (const) instance of
+        //: 3 Assign the value of the one (const) instance of
         //:   'SpookyHashAlgorithmImp' to a second. (C-4)
         //:
-        //: 5 Chain the assignment of the value of the one instance of
+        //: 4 Chain the assignment of the value of the one instance of
         //:   'SpookyHashAlgorithmImp' to a second instance of
         //:   'SpookyHashAlgorithmImp', into a self-assignment of the second
         //:   object. (C-5)
         //:
-        //: 6 Create an instance of 'SpookyHashAlgorithmImp' and allow it to
+        //: 5 Create an instance of 'SpookyHashAlgorithmImp' and allow it to
         //:   leave scope to be destroyed. (C-6)
-        //:
-        //: 7 Verify no memory was used. (C-7)
         //
         // Testing:
         //   SpookyHashAlgorithmImp()
@@ -945,16 +830,6 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nTESTING IMPLICITLY DEFINED OPERATIONS"
                    "\n=====================================\n");
-
-        if (verbose) printf("Install a test allocator as the default"
-                            " allocator.  Then install an 'AllocatorGuard' to"
-                            " verify no memory is allocated during the"
-                            " execution of this test case.  Memory from the"
-                            " global allocator is tested as a global concern."
-                            " (C-7)\n");
-        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard dag(&da);
-
 
         if (verbose) printf("Create a default constructed"
                             " 'SpookyHashAlgorithmImp'. (C-1)\n");
@@ -992,11 +867,6 @@ int main(int argc, char *argv[])
                             " (C-6)\n");
         {
             Obj alg1;
-        }
-
-        if (verbose) printf("Verify no memory was used. (C-7)\n");
-        {
-            LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
 
       } break;
@@ -1082,11 +952,6 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-
-    // CONCERN: In no case does memory come from the global allocator.
-
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
