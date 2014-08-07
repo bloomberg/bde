@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a universal interface to a system random number generator.
 //
 //@CLASSES:
-//  bdlb::SysRandom: namespace for a suite of system random-number generator.
+//  bdlb::SysRandom: namespace for system specific random-number generators.
 //
 //@SEE_ALSO:
 //
@@ -123,8 +123,7 @@ struct SysRandom {
                                          size_t         numBytes);
         // Read the the specified 'numBytes' from the system non-blocking
         // random number generator into the specified 'buffer'.  Returns 0 on
-        // success, non-zero otherwise.  Note that this method may block if
-        // called repeatedly or if 'numBytes' is high.
+        // success, non-zero otherwise.
 };
 
 }  // close package namespace

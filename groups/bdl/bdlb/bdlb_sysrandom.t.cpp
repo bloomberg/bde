@@ -87,7 +87,7 @@ static void aSsErT(int c, const char *s, int i)
        aSsErT(1, #X, __LINE__); } }
 
 // ============================================================================
-// SEMI-STANDARD TEST OUTPUT MACROS
+//                     SEMI-STANDARD TEST OUTPUT MACROS
 // ----------------------------------------------------------------------------
 
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
@@ -216,7 +216,7 @@ if (verbose)
         //
         // Concerns:
         //   1) If a number is passed, that many bytes are set.
-        //   2) The random bytes are distributed normally (probabilistic)
+        //   2) The random bytes are distributed uniformly (probabilistic)
         //
         // Plan:
         //   Request a large pool and random bytes from non-blocking random
@@ -227,10 +227,11 @@ if (verbose)
         //   static int getRandomBytesNonBlocking(buf, numB);
         // --------------------------------------------------------------------
         enum { NUM_ITERATIONS = 25};
+        enum { NUM_TRIALS = 10};
         int cnt = 0;
-        int numbers [NUM_ITERATIONS]      = {0};
-        // int prev_numbers [NUM_ITERATIONS] = {0};
-        const unsigned NUM_BYTES = sizeof(numbers);
+        unsigned char buffer [NUM_ITERATIONS * 4]      = {0};
+        unsigned char prev_buffer [NUM_ITERATIONS * 4] = {0};
+        const unsigned NUM_BYTES = sizeof(buffer);
 
         if (verbose)
           cout << endl
@@ -241,30 +242,43 @@ if (verbose)
         if (veryVerbose) cout << "\nTesting the number of bytes set."
                               << endl;
         for (unsigned i = 0; i < 5; ++i) {
-            unsigned j;
-            unsigned char *p = reinterpret_cast<unsigned char *>(numbers);
-            memset(numbers, 0, NUM_BYTES);
-            ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(p,
-                                                                   i));
-
+            memset(buffer, 0, NUM_BYTES);
+            // Repeat the accession of random bytes 'NUM_TRIALS' times to
+            // prevent false negatives
+            for (int j = 0; j < NUM_TRIALS; ++j) {
+                ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(buffer,
+                                                                       i));
+                // sum the bytes
+                for (unsigned k = 0; k < NUM_BYTES; ++k) {
+                    buffer[k] =  static_cast<unsigned char>(buffer[k] +
+                                                            prev_buffer[k]);
+                }
+                // copy the buffer
+                memcpy(prev_buffer, buffer, sizeof(buffer));
+                if (veryVerbose) P(buffer[i])
+            }
             int sum = 0;
+            // check that the bytes set are non-zero
+            unsigned j;
             for (j = 0; j < i; ++j)    {
-                if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
-                sum += p[j];
+                if (veryVerbose) cout << "Random bytes: " << buffer[j] << endl;
+                sum += static_cast<int>(buffer[j]) ;
             }
             if (i > 0) {
               LOOP_ASSERT(i, 0 != sum)
             }
+            //
             for (; j < NUM_BYTES; ++j) {
-                if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
-                LOOP2_ASSERT(i,j, 0 == p[j]);
+                if (veryVerbose) cout << "Random bytes: " << buffer[j] << endl;
+                LOOP2_ASSERT(i, j, 0 == buffer[j]);
             }
         }
 
         if (veryVerbose) cout << "\nTesting the distribution of rand."
                               << endl;
-        // 3) The random bytes are distributed normally (probabilistic)
-        for (int i = 0; i<NUM_ITERATIONS; ++i) {
+        // 3) The random bytes are uniformly distributed (probabilistic)
+        int numbers[NUM_ITERATIONS] = {0};
+        for (int i = 0; i< NUM_ITERATIONS; ++i) {
             int rand;
             ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(
                                       reinterpret_cast<unsigned char *>(&rand),
@@ -305,29 +319,28 @@ if (verbose)
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
-        enum { NUM_ITERATIONS = 15};
+        enum { NUM_ITERATIONS = 8};
 
         if (verbose) cout << endl
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
         if (verbose) cout << "testing random" << endl;
         int rand;
-        ASSERT(0 == bdlb::SysRandom::getRandomBytes(
-                                      reinterpret_cast<unsigned char *>(&rand),
-                                      sizeof(rand)));
-
-        for (char*p1 = reinterpret_cast<char *>(&rand);
-             p1 < reinterpret_cast<char *>(&rand + 1);
-             ++p1)
-        {
-            for (char*p2 = p1 + 1;
-                 p2 < reinterpret_cast<char *>(&rand + 1);
-                 ++p2)
-            {
-                ASSERT(*p1 != *p2);
-                if (veryVerbose) cout << *p1 << ": " << *p2 << endl;
+        int numbers [NUM_ITERATIONS];
+        // fill buffer with random bytes
+        for (int i = 0; i < NUM_ITERATIONS; ++i) {
+            unsigned char *p = reinterpret_cast<unsigned char *>(&rand);
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p, sizeof(rand)));
+            numbers[i] = rand;
+            if (veryVerbose) P(rand);
+        }
+        // verify uniqueness
+        for (int i = 0; i < NUM_ITERATIONS; ++i) {
+            for (int j = i + 1; j < NUM_ITERATIONS; ++j) {
+                LOOP2_ASSERT(i, j, numbers[i] != numbers[j]);
             }
         }
+
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -335,7 +348,7 @@ if (verbose)
         //
         // Concerns:
         //   1) If a number is passed, that many bytes are set.
-        //   2) The random bytes are distributed normally (probabilistic)
+        //   2) The random bytes are distributed uniform (probabilistic)
         //
         // Plan:
         //   Request a large pool and random bytes from non-blocking random
@@ -368,18 +381,18 @@ if (verbose)
 
             for (j = 0; j < i; ++j)    {
                 if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
-                LOOP2_ASSERT(i,j, 0 != p[j]);
+                LOOP2_ASSERT(i, j, 0 != p[j]);
             }
             for (; j < NUM_BYTES; ++j) {
                 if (veryVerbose) cout << "Random bytes: " << p[j] << endl;
-                LOOP2_ASSERT(i,j, 0 == p[j]);
+                LOOP2_ASSERT(i, j, 0 == p[j]);
             }
         }
 
         if (veryVerbose) cout << "\nTesting the distribution of rand."
                               << endl;
 
-        // 3) The random bytes are distributed normally (probabilistic)
+        // 3) The random bytes are distributed uniform (probabilistic)
         for (int i = 0; i<NUM_ITERATIONS; ++i) {
             int rand_int = 0;
             unsigned char *p1 = reinterpret_cast<unsigned char *>(rand_int);

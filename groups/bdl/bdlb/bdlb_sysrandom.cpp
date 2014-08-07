@@ -9,19 +9,21 @@ BSLS_IDENT_RCSID(bdlb_sysrandom_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_LINUX)                                           \
  || defined(BSLS_PLATFORM_OS_SUNOS)                                           \
  || defined(BSLS_PLATFORM_OS_SOLARIS)                                         \
- || defined(BSLS_PLATFORM_OS_DARWIN)
+ || defined(BSLS_PLATFORM_OS_DARWIN)                                          \
+ || defined(BSLS_PLATFORM_OS_AIX)
 #define BDLB_USE_SYS_RAND
+
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 #include <windows.h>
 #include <Wincrypt.h>
 #define BDLB_USE_WIN_CRYPT
+
 #else
-#error
-#endif
+#error Unknown Platfrom
+#endif // defined(BSLS_PLATFORM_OS_WINDOWS)
+
 #include <unistd.h>
- #include <fcntl.h>
-#include <bsl_fstream.h>
-#include <bsl_iostream.h>
+#include <fcntl.h>
 
 namespace BloombergLP {
 namespace bdlb {
@@ -84,10 +86,10 @@ HCRYPTPROV_Adapter::HCRYPTPROV_Adapter(LPCTSTR container,
                                        DWORD   flag)
 {
     if (!CryptAcquireContext(&d_hCryptProv,
-                            container,
-                            provider,
-                            provider_type,
-                            flag))
+                              container,
+                              provider,
+                              provider_type,
+                              flag))
     {
     //-------------------------------------------------------------------
     // An error occurred in acquiring the context.  This could mean that
@@ -97,10 +99,10 @@ HCRYPTPROV_Adapter::HCRYPTPROV_Adapter(LPCTSTR container,
         if (GetLastError() == NTE_BAD_KEYSET)
         {
             if (!CryptAcquireContext(&d_hCryptProv,
-                                    container,
-                                    provider,
-                                    provider_type,
-                                    CRYPT_NEWKEYSET))
+                                      container,
+                                      provider,
+                                      provider_type,
+                                      CRYPT_NEWKEYSET))
             {
                 d_hCryptProv = NULL;
             }
@@ -109,6 +111,13 @@ HCRYPTPROV_Adapter::HCRYPTPROV_Adapter(LPCTSTR container,
         {
             d_hCryptProv = NULL;
         }
+    }
+    // if the context was unable to be initialized
+    if (!d_hCryptProv) {
+        // unconditionally call the installed 'ASSERT' handler
+        bsls::Assert::invokeHandler(NULL != d_hCryptProv, __FILE__, __LINE__);
+        // invokeHandler is no return, so this line should never execute
+        abort();
     }
 }
 
@@ -162,8 +171,8 @@ int readFile(unsigned char *buffer, size_t numBytes, const char *filename)
         }
         while (fileDataLen < numBytes); // continue read until the requested
                                         // number bytes read
+        close(fileData);
     }
-    close(fileData);
     return rval;
 }
 
@@ -181,19 +190,20 @@ int SysRandom::getRandomBytes(unsigned char *buffer, size_t numBytes)
 #ifdef BDLB_USE_WIN_CRYPT
 
     static HCRYPTPROV_Adapter hCryptProv;
-    return !CryptGenRandom(hCryptProv.hCryptProv(),
+    // if the context is NULL, return error, otherwise return the return value
+    // of CryptGenRandom
+    return hCryptProv.hCryptProv() &&
+           !CryptGenRandom(hCryptProv.hCryptProv(),
                            numBytes,
                            static_cast<BYTE *>(buffer));
 
 #else
-    return readFile(static_cast<unsigned char *>(buffer),
-                    numBytes,
-                    "/dev/random");
+    return readFile(buffer, numBytes, "/dev/random");
 #endif
 }
 
 int SysRandom::getRandomBytesNonBlocking(unsigned char *buffer,
-                                         size_t    numBytes)
+                                         size_t         numBytes)
 {
 #ifdef BDLB_USE_WIN_CRYPT
     return getRandomBytes(buffer, numBytes);
@@ -203,7 +213,6 @@ int SysRandom::getRandomBytesNonBlocking(unsigned char *buffer,
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 // ----------------------------------------------------------------------------
 // NOTICE:
