@@ -1,4 +1,4 @@
-bsl-internal (2.22.0.0-icbeta) unstable; urgency=low
+bsl-internal (2.22.0.0.icbeta) unstable; urgency=low
 
   * f1b9df2 bump version to 2.22.0
   * c9f7416 Merge remote-tracking branch 'origin/review/standard_headers_for_smart_pointer_review_drqs27411521' into bsl-shared_ptr-ic-beta
