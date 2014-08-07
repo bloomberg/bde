@@ -157,7 +157,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<bslh::SpookyHashAlgorithm>
     : bsl::true_type {};
-}  // close namespace bslmf
+}  // close package namespacemf
 
 }  // close enterprise namespace
 

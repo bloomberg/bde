@@ -420,8 +420,15 @@ namespace bsl {
 
 template <class TYPE>
 struct hash : ::BloombergLP::bslh::Hash<> {
-    // Inheriting from 'bslh::Hash' so that the new 'bslh' hashing system will
-    // be used if a 'bls::hash' template specialization doesn't exist.
+    // Empty base class for hashing. This class, and all explicit and partial
+    // specializations of this class, shall conform to the C++11 Hash
+    // Requirements (C++11 17.6.3.4, [hash.requirements]). Unless this template
+    // is explicitly specialized, it will use the defualt hash algorithm
+    // provided by 'bslh::Hash<>' to supply hash values. In order to hash a
+    // user defined type using 'bsl::hash', 'bsl::hash' must be explicitly
+    // specialized for the type, or, perferably, 'hashAppend' must be
+    // implemented for the type. For more details on 'hashAppend' and
+    // 'bslh::Hash' see the component 'bslh_hash'.
 };
 
 // ============================================================================
@@ -432,36 +439,6 @@ template <class BSLSTL_KEY>
 struct hash<const BSLSTL_KEY> : hash<BSLSTL_KEY> {
     // This class provides hashing functionality for constant key types, by
     // delegating to the same function for non-constant key types.
-};
-
-template <class TYPE>
-struct hash<TYPE *> {
-    // Specialization of 'hash' for pointers.
-
-    // STANDARD TYPEDEFS
-    typedef TYPE *argument_type;
-    typedef std::size_t result_type;
-
-    //! hash() = default;
-        // Create a 'hash' object.
-
-    //! hash(const hash& original) = default;
-        // Create a 'hash' object.  Note that as 'hash' is an empty (stateless)
-        // type, this operation will have no observable effect.
-
-    //! ~hash() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    //! hash& operator=(const hash& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.  Note
-        // that as 'hash' is an empty (stateless) type, this operation will
-        // have no observable effect.
-
-    // ACCESSORS
-    std::size_t operator()(TYPE *x) const;
-        // Return a hash value computed using the specified 'x'.
 };
 
 template <>
@@ -857,13 +834,6 @@ struct hash<unsigned long long> {
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-template<class TYPE>
-inline
-std::size_t hash<TYPE *>::operator()(TYPE *x) const
-{
-    return ::BloombergLP::bslh::Hash<>()(x);
-}
 
 inline
 std::size_t hash<bool>::operator()(bool x) const

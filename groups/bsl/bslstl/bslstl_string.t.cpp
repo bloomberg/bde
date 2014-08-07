@@ -1202,12 +1202,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     //
     // Concerns:
     //: 1 'bslh::Hash' picks up 'hashAppend(string)' and can hash strings
+    //:
     //: 2 'hashAppend' hashes the entire string, regardless of 'char' or
     //:   'wchar'
+    //:
+    //: 3 Empty strings can be hashed
+    //:
+    //: 4 Hash is not computed on data beyond the end of very short strings
     //
     // Plan:
-    //: 1 Use 'bslh::Hash' to hash a few values of strings with each char type
+    //: 1 Use 'bslh::Hash' to hash a few values of strings with each char type.
     //:   (C-1,2)
+    //:
+    //: 2 Hash an empty string. (C-3)
+    //:
+    //: 3 Hash two very short strings with the same value and assert that they
+    //:   produce equal hashes. (C-4)
     //
     // Testing:
     //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
@@ -1223,43 +1233,66 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
     size_t    prevHash           = 0;
     HashType  hash               = 0;
 
-    for(int i = 0; i != PRIME; ++i) {
-        Obj num;
-        if(i > 66000){
-            //Make sure we're testing long strings
-            for(int j = 0; j < 40; ++j) {
-                num.push_back(TYPE('A'));
+    if (verbose) printf("Use 'bslh::Hash' to hash a few values of strings with"
+                        " each char type. (C-1,2)\n");
+    {
+        for (int i = 0; i != PRIME; ++i) {
+            Obj num;
+            if (i > 66000){
+                //Make sure we're testing long strings
+                for (int j = 0; j < 40; ++j) {
+                    num.push_back(TYPE('A'));
+                }
             }
-        } else if(i > 33000) {
-            //Make sure we're testing with null characters in the strings
-            for(int j = 0; j < 5; ++j) {
-                num.push_back(TYPE('A'));
-                num.push_back(TYPE('\0'));
+            else if (i > 33000) {
+                //Make sure we're testing with null characters in the strings
+                for (int j = 0; j < 5; ++j) {
+                    num.push_back(TYPE('A'));
+                    num.push_back(TYPE('\0'));
+                }
             }
-        }
-        num.push_back( TYPE('0' + (i/1000000)     ));
-        num.push_back( TYPE('0' + (i/100000)  %10 ));
-        num.push_back( TYPE('0' + (i/10000)   %10 ));
-        num.push_back( TYPE('0' + (i/1000)    %10 ));
-        num.push_back( TYPE('0' + (i/100)     %10 ));
-        num.push_back( TYPE('0' + (i/10)      %10 ));
-        num.push_back( TYPE('0' + (i)         %10 ));
+            num.push_back( TYPE('0' + (i/1000000)     ));
+            num.push_back( TYPE('0' + (i/100000)  %10 ));
+            num.push_back( TYPE('0' + (i/10000)   %10 ));
+            num.push_back( TYPE('0' + (i/1000)    %10 ));
+            num.push_back( TYPE('0' + (i/100)     %10 ));
+            num.push_back( TYPE('0' + (i/10)      %10 ));
+            num.push_back( TYPE('0' + (i)         %10 ));
 
-        prevHash = hash;
-        hash     = hasher(num);
+            if (veryVerbose) printf("Testing hash of %s\n", num.data());
 
-        // Check consecutive values arent hashing to the same hash
-        ASSERT(prevHash != hash);
+            prevHash = hash;
+            hash     = hasher(num);
 
-        // Check that minimal collisions are happening
-        ASSERT(++collisions[hash % PRIME] <= 11);  // Choose 11 as a max
+            // Check consecutive values arent hashing to the same hash
+            ASSERT(prevHash != hash);
+
+            // Check that minimal collisions are happening
+            ASSERT(++collisions[hash % PRIME] <= 11);  // Choose 11 as a max
                                                    // number collisions
 
-        Obj numCopy = num;
+            Obj numCopy = num;
 
-        // Verify same hash is produced for the same value
-        ASSERT(num == numCopy);
-        ASSERT(hash == hasher(numCopy));
+            // Verify same hash is produced for the same value
+            ASSERT(num == numCopy);
+            ASSERT(hash == hasher(numCopy));
+        }
+    }
+
+    if (verbose) printf("Hash an empty string. (C-3)\n");
+    {
+        Obj empty;
+        ASSERT(hasher(empty));
+    }
+
+    if (verbose) printf("Hash two very short strings with the same value and"
+                        " assert that they produce equal hashes. (C-4)\n");
+    {
+        Obj small1;
+        Obj small2;
+        small1.push_back( TYPE('0') );
+        small2.push_back( TYPE('0') );
+        ASSERT(hasher(small1) == hasher(small2));
     }
 }
 

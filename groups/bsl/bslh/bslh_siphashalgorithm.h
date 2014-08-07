@@ -211,7 +211,7 @@ namespace bslmf {
 template <>
 struct IsBitwiseMoveable<bslh::SipHashAlgorithm>
     : bsl::true_type {};
-}  // close namespace bslmf
+}  // close package namespacemf
 
 }  // close enterprise namespace
 

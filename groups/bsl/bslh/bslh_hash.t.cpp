@@ -285,9 +285,9 @@ class HashTable {
     // This hash table to provides a fast lookup of an external, non-owned,
     // array of values of configurable type.
     //
-    // The only requirement for 'TYPE' is that it have a transitive, symmetric
-    // 'operator==' function and that a it is hashable using 'bslh::Hash'.
-    // There is no requirement that it have any kind of creator defined.
+    // The parameterized 'TYPE' shall have a transitive, symmetric 'operator=='
+    // function and that a it is hashable using 'bslh::Hash'.  There is no
+    // requirement that it have any kind of creator defined.
     //
     // The 'HASHER' template parameter type must be a functor with a function
     // of the following signature:

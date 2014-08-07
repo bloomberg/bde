@@ -384,7 +384,7 @@ namespace bslmf {
 template <class TYPE>
 struct IsBitwiseMoveable<bslh::Hash<TYPE> >
     : bsl::true_type {};
-}  // close namespace bsl
+}  // close package namespace
 
 
 }  // close enterprise namespace
@@ -399,7 +399,7 @@ template <class TYPE>
 struct is_trivially_copyable< ::BloombergLP::bslh::Hash<TYPE> >
 : bsl::true_type
 {};
-}  // close namespace bsl
+}  // close package namespace
 
 
 

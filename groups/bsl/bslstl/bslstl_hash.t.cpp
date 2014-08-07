@@ -16,12 +16,11 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <iostream>
 #include <math.h>
-#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -305,14 +304,18 @@ class StringThing {
 
 inline
 bool operator==(const StringThing& lhs, const StringThing& rhs)
-    // Return true of the specified 'lhs' and 'rhs' are considered equal.
+    // Return true if the specified 'lhs' and 'rhs' have the same value. Two
+    // 'StringThing' objects have the same value if they point to C-strings
+    // that compare equal.
 {
     return !strcmp(lhs, rhs);
 }
 
 inline
 bool operator!=(const StringThing& lhs, const StringThing& rhs)
-    // Return true of the specified 'lhs' and 'rhs' are considered not equal.
+    // Return true if the specified 'lhs' and 'rhs' do not have the same value. Two
+    // 'StringThing' objects do not have the same value if they point to
+    // C-strings that do not compare equal.
 {
     return !(lhs == rhs);
 }

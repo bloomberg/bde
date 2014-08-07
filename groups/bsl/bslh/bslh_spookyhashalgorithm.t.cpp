@@ -14,10 +14,10 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 using namespace BloombergLP;
 using namespace bslh;
@@ -120,14 +120,14 @@ void aSsErT(bool b, const char *s, int i)
 // 'HashTable' data structure that is capable of looking up values in O(1)
 // time.
 //
-// Further suppose that we will be storing futures in this table. Since futures
-// have standardized names, we don't have to worry about any malicious values
-// causing collisions. We will want to use a general purpose hashing algorithm
-// with a good hash distribution and good speed. This algorithm will need to be
-// in the form of a hash functor -- an object that will take objects stored in
-// our array as input, and yield a 64-bit int value. The functor can pass the
-// salient attributes of the 'TYPE' into the hashing algorithm, and then return
-// the hash that is produced.
+// Further suppose that we will be storing futures (the financial instruments)
+// in this table. Since futures have standardized names, we don't have to worry
+// about any malicious values causing collisions. We will want to use a general
+// purpose hashing algorithm with a good hash distribution and good speed. This
+// algorithm will need to be in the form of a hash functor -- an object that
+// will take objects stored in our array as input, and yield a 64-bit int
+// value. The functor can pass the salient attributes of the 'TYPE' into the
+// hashing algorithm, and then return the hash that is produced.
 //
 // We can use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
@@ -144,12 +144,12 @@ void aSsErT(bool b, const char *s, int i)
 
 template <class TYPE, class HASHER>
 class HashTable {
-    // Implements a hash table to provide a fast lookup of an external,
-    // non-owned, array of values of configurable type.
+    // This class template implements a hash table to provide a fast lookup of
+    // an external, non-owned, array of values of configurable type.
     //
-    // The only requirement for 'TYPE' is that it have a transitive, symmetric
-    // 'operator==' function.  There is no requirement that it have any kind of
-    // creator defined.
+    // The parameterized 'TYPE' shall have a transitive, symmetric 'operator=='
+    // function.  There is no requirement that it have any kind of creator
+    // defined.
     //
     // The 'HASHER' template parameter type must be a functor with a function
     // of the following signature:

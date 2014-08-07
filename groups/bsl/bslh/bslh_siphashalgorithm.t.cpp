@@ -177,12 +177,12 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 
 template <class TYPE, class HASHER>
 class HashTable {
-    // Implements a hash table to provide a fast lookup of an external,
-    // non-owned, array of values of configurable type.
+    // This class template implements a hash table to provide a fast lookup of
+    // an external, non-owned, array of values of configurable type.
     //
-    // The only requirement for 'TYPE' is that it have a transitive, symmetric
-    // 'operator==' function.  There is no requirement that it have any kind of
-    // creator defined.
+    // The parameterized 'TYPE' shall have a transitive, symmetric 'operator=='
+    // function.  There is no requirement that it have any kind of creator
+    // defined.
     //
     // The 'HASHER' template parameter type must be a functor with a function
     // of the following signature:
