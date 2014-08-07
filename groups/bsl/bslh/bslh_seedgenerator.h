@@ -63,8 +63,8 @@ class SeedGenerator
         // 'operator()' on the parameterized 'RNG'.
 
     // DATA
-    RNG          d_randomNumberGenerator; // User provided RNG
-    const size_t k_RNGOUTPUTSIZE;         // Size in bytes of the rng's output
+    RNG          d_randomNumberGenerator; // User provided RNG.
+    const size_t k_RNGOUTPUTSIZE;         // Size in bytes of the rng's output.
 
   public:
     // CREATORS
@@ -112,12 +112,12 @@ void SeedGenerator<RNG>::generateSeed(char *seedLocation, size_t seedLength)
     size_t remainder = seedLength % k_RNGOUTPUTSIZE;
     char  *chunkEnd  = seedLocation + numChunks * k_RNGOUTPUTSIZE;
 
-    for(; seedLocation != chunkEnd; seedLocation += k_RNGOUTPUTSIZE) {
+    for (; seedLocation != chunkEnd; seedLocation += k_RNGOUTPUTSIZE) {
         *(reinterpret_cast<result_type *>(seedLocation)) =
                                                      d_randomNumberGenerator();
     }
 
-    if(remainder) {
+    if (remainder) {
         result_type randomBytes = d_randomNumberGenerator();
         memcpy(seedLocation, &randomBytes, remainder);
     }

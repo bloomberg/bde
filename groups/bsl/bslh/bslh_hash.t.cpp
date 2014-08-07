@@ -413,8 +413,8 @@ typedef bslh::Hash<> Obj;
 static void printCharAsBinary(const char c)
     // Print the binary representation of the specified 'c' to 'printf'.
 {
-    for(int i = 128; i > 0; i /= 2) {
-        if(c & i) {
+    for (int i = 128; i > 0; i /= 2) {
+        if (c & i) {
             printf("1");
         } else {
             printf("0");
@@ -427,7 +427,7 @@ static bool binaryCompare(const char *first, const char *second, size_t size)
     // bytes of 'first' and 'second'.
 {
     bool equal = true;
-    for(size_t i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         equal = equal && (first[i] == second[i]);
     }
     return equal;
@@ -517,7 +517,7 @@ class TestDriver {
         // Construct a 'TestDriver'
     {
         srand(37);
-        for(int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             data[i] = static_cast<char>(rand());
         }
     }
@@ -548,7 +548,7 @@ class TestDriver {
         hashAppend(alg, input);
 
         const char *output = alg.getData();
-        for(size_t i = 0; i < sizeof(TYPE); ++i) {
+        for (size_t i = 0; i < sizeof(TYPE); ++i) {
             LOOP_ASSERT(line, output[i] == data[i]);
         }
         ASSERT(alg.getLength() == sizeof(TYPE));
@@ -620,7 +620,7 @@ int main(int argc, char *argv[])
         ASSERT(hashTable.isValid());
 
 // Now, we verify that each element in our array registers with count:
-        for( int i = 0; i < 6; ++i) {
+        for ( int i = 0; i < 6; ++i) {
             ASSERT(1 == hashTable.count(boxes[i]));
         }
 
@@ -1184,8 +1184,8 @@ int main(int argc, char *argv[])
             size_t strLen = strlen(carray) + 1;
             hashAppend(carrayAlg, carray);
             const char *carrayOutput = carrayAlg.getData();
-            for(size_t i = 0; i < strLen; ++i) {
-                if(veryVerbose) printf("Asserting %c == %c", carrayOutput[i],
+            for (size_t i = 0; i < strLen; ++i) {
+                if (veryVerbose) printf("Asserting %c == %c", carrayOutput[i],
                                                                     carray[i]);
                 ASSERT(carrayOutput[i] == carray[i]);
             }
@@ -1196,8 +1196,8 @@ int main(int argc, char *argv[])
             strLen = strlen(constCarray) + 1;
             hashAppend(constCarrayAlg, constCarray);
             const char *constCarrayOutput = constCarrayAlg.getData();
-            for(size_t i = 0; i < strLen; ++i) {
-                if(veryVerbose) printf("Asserting %c == %c",
+            for (size_t i = 0; i < strLen; ++i) {
+                if (veryVerbose) printf("Asserting %c == %c",
                                        constCarrayOutput[i],
                                        constCarray[i]);
                 ASSERT(constCarrayOutput[i] == constCarray[i]);
@@ -1211,8 +1211,8 @@ int main(int argc, char *argv[])
             const char *charIarray = reinterpret_cast<const char *>(iarray);
             hashAppend(iarrayAlg, iarray);
             const char *iarrayOutput = iarrayAlg.getData();
-            for(size_t i = 0; i < iarrayLen; ++i) {
-                if(veryVerbose) printf("Asserting %c == %c", iarrayOutput[i],
+            for (size_t i = 0; i < iarrayLen; ++i) {
+                if (veryVerbose) printf("Asserting %c == %c", iarrayOutput[i],
                                                                 charIarray[i]);
                 ASSERT(iarrayOutput[i] == charIarray[i]);
             }
@@ -1225,8 +1225,8 @@ int main(int argc, char *argv[])
                                         reinterpret_cast<const char *>(iarray);
             hashAppend(constIarrayAlg, constIarray);
             const char *constIarrayOutput = constIarrayAlg.getData();
-            for(size_t i = 0; i < constIarrayLen; ++i) {
-                if(veryVerbose) printf("Asserting %c == %c",
+            for (size_t i = 0; i < constIarrayLen; ++i) {
+                if (veryVerbose) printf("Asserting %c == %c",
                                        constIarrayOutput[i],
                                        constCharIarray[i]);
                 ASSERT(constIarrayOutput[i] == constCharIarray[i]);
@@ -1240,8 +1240,8 @@ int main(int argc, char *argv[])
             char *ptrPtr = reinterpret_cast<char *>(&ptr);
             hashAppend(ptrAlg, ptr);
             const char *ptrOutput = ptrAlg.getData();
-            for(size_t i = 0; i < sizeof(char *); ++i) {
-                if(veryVerbose) printf("Asserting %c == %c", ptrOutput[i],
+            for (size_t i = 0; i < sizeof(char *); ++i) {
+                if (veryVerbose) printf("Asserting %c == %c", ptrOutput[i],
                                                                     ptrPtr[i]);
                 ASSERT(ptrOutput[i] == ptrPtr[i]);
             }
@@ -1253,8 +1253,8 @@ int main(int argc, char *argv[])
                                      reinterpret_cast<const char *>(&constPtr);
             hashAppend(constPtrAlg, constPtr);
             const char *constPtrOutput = constPtrAlg.getData();
-            for(size_t i = 0; i < sizeof(const char *); ++i) {
-                if(veryVerbose) printf("Asserting %c == %c", constPtrOutput[i],
+            for (size_t i = 0; i < sizeof(const char *); ++i) {
+                if (veryVerbose) printf("Asserting %c == %c", constPtrOutput[i],
                                                                constPtrPtr[i]);
                 ASSERT(constPtrOutput[i] == constPtrPtr[i]);
             }

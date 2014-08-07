@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
 
                 contiguousHash.Update(VALUE, strlen(VALUE));
 
-                for(unsigned int j = 0; j < strlen(VALUE); ++j){
+                for (unsigned int j = 0; j < strlen(VALUE); ++j){
                     if (veryVeryVerbose) printf("Hashing by char: %c\n",
                                                                      VALUE[j]);
                     charHash.Update(&VALUE[j], sizeof(char));
@@ -618,8 +618,8 @@ int main(int argc, char *argv[])
                     charHash.Final(&h1, &h2);
                 }
 
-                for(unsigned int j = 0; j < strlen(VALUE); j+=2){
-                    if(strlen(VALUE) - j == 1) {
+                for (unsigned int j = 0; j < strlen(VALUE); j+=2){
+                    if (strlen(VALUE) - j == 1) {
                         if (veryVeryVerbose) printf("Hashing by chunk: %c\n",
                                                                      VALUE[j]);
                         chunkHash.Update(&VALUE[j], sizeof(char));

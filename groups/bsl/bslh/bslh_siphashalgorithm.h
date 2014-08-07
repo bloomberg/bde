@@ -178,7 +178,7 @@ class SipHashAlgorithm
         // Typedef indicating the value type returned by this algorithm.
 
     // CONSTANTS
-    enum { k_SEED_LENGTH = 16 };     // Seed length in bytes
+    enum { k_SEED_LENGTH = 16 }; // Seed length in bytes.
 
     // CREATORS
     explicit SipHashAlgorithm(const char *seed);

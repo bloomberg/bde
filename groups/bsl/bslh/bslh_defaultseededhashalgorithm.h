@@ -93,7 +93,7 @@ class DefaultSeededHashAlgorithm
 
     // CONSTANTS
     enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
-        // Seed length in bytes
+        // Seed length in bytes.
 
     // CREATORS
     explicit DefaultSeededHashAlgorithm(const char *seed);
@@ -114,17 +114,20 @@ class DefaultSeededHashAlgorithm
 };
 
 // CREATORS
+inline
 DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed)
 : d_state(seed)
 {
 }
 
 // MANIPULATORS
+inline
 void DefaultSeededHashAlgorithm::operator()(void const* key, size_t length)
 {
     d_state(key, length);
 }
 
+inline
 DefaultSeededHashAlgorithm::result_type
 DefaultSeededHashAlgorithm::computeHash()
 {

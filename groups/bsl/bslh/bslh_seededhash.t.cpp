@@ -1,7 +1,6 @@
 // bslh_seededhash.t.cpp                                              -*-C++-*-
 #include <bslh_seededhash.h>
-#include <bslh_defaulthashalgorithm.h>
-#include <bslh_securehashalgorithm.h>
+#include <bslh_defaultseededhashalgorithm.h>
 #include <bslh_seedgenerator.h>
 #include <bslh_siphashalgorithm.h>
 
@@ -353,12 +352,10 @@ int main(int argc, char *argv[])
 // Next, we create a seed generator, with a cryptographically secure random
 // number generator, that can be used to generate seeds for our secure hashing
 // algorithm. We then pass that seed generator into 'bslh::SeededHash'. We use
-// the 'bslh::SecureHashAlgorithm' typedef to pick our secure hashing algorithm
-// for us.
+// the 'bslh::SipHashAlgorithm' as our secure hashing algorithm.
 //..
         typedef SeedGenerator<CryptographicallySecureRNG> SecureSeedGenerator;
-        typedef SeededHash<SecureSeedGenerator, SecureHashAlgorithm>
-                                                                    SecureHash;
+        typedef SeededHash<SecureSeedGenerator, SipHashAlgorithm> SecureHash;
 
         SecureSeedGenerator secureSeedGenerator;
         SecureHash          secureHash(secureSeedGenerator);
@@ -377,7 +374,7 @@ int main(int argc, char *argv[])
         ASSERT(hashTable.isValid());
 
 // Now, we verify that each element in our array registers with count:
-        for( int i = 0; i < NUM_NAMES; ++i) {
+        for ( int i = 0; i < NUM_NAMES; ++i) {
             ASSERT(1 == hashTable.count(names[i]));
         }
 

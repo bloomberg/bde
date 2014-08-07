@@ -1,8 +1,6 @@
 bslh_defaulthashalgorithm
 bslh_defaultseededhashalgorithm
 bslh_hash
-bslh_oneatatimehashalgorithm
-bslh_securehashalgorithm
 bslh_seededhash
 bslh_seedgenerator
 bslh_siphashalgorithm

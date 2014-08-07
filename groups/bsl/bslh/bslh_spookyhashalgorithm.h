@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a way to use spooky hash algorithm with 'bslh::Hash<>'.
+//@PURPOSE: Provide and implementation of the SpookyHash algorithm.
 //
 //@CLASSES:
 // bslh::SpookyHashAlgorithm: Spooky hash algorithm.
@@ -80,15 +80,15 @@ namespace bslh {
                         // ===============================
 
 class SpookyHashAlgorithm
-{
     // This class wraps an implementation of the "SpookyHash" hash algorithm
     // (see http://burtleburtle.net/bob/hash/spooky.html).
+{
 
     // PRIVATE TYPES
-    typedef bsls::Types::Uint64 uint64;// 64-bit int type
+    typedef bsls::Types::Uint64 uint64;// 64-bit int type.
 
     // DATA
-    SpookyHashAlgorithmImp d_state;    // Representation of SpookHash algorithm
+    SpookyHashAlgorithmImp d_state;   // Representation of SpookHash algorithm.
 
   public:
     // TYPES
@@ -97,7 +97,7 @@ class SpookyHashAlgorithm
 
 
     // CONSTANTS
-    enum { k_SEED_LENGTH = 16 }; // Seed length in bytes
+    enum { k_SEED_LENGTH = 16 }; // Seed length in bytes.
 
     // CREATORS
     SpookyHashAlgorithm();
@@ -121,12 +121,14 @@ class SpookyHashAlgorithm
 };
 
 // CREATORS
+inline
 SpookyHashAlgorithm::SpookyHashAlgorithm()
 : d_state()
 {
     d_state.Init(1, 2);
 }
 
+inline
 SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 : d_state()
 {
@@ -135,11 +137,13 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 }
 
 // MANIPULATORS
+inline
 void SpookyHashAlgorithm::operator()(void const* key, size_t length)
 {
     d_state.Update(key, length);
 }
 
+inline
 SpookyHashAlgorithm::result_type SpookyHashAlgorithm::computeHash()
 {
     bsls::Types::Uint64 h1, h2;

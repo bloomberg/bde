@@ -15,9 +15,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithm
 //
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithmImp' provides BDE style wrapping
-//around Bob Jenkins spooky hash implementation. SpookyHash provides a way to
-//hash contiguous data all at once, or discontiguous data in pieces. More
-//information is available at: http://burtleburtle.net/bob/hash/spooky.html
+// around Bob Jenkins spooky hash implementation. SpookyHash provides a way to
+// hash contiguous data all at once, or discontiguous data in pieces. More
+// information is available at: http://burtleburtle.net/bob/hash/spooky.html
 //
 ///Changes
 ///-------

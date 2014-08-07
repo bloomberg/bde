@@ -132,8 +132,8 @@ void verifyResultMatchesRNG(const char *result, size_t length)
     MockRNG::result_type rand;
     const char *randPtr = reinterpret_cast<const char *>(&rand);
 
-    for(size_t i = 0; i < length; ++i) {
-        if(i % rngSize == 0) {
+    for (size_t i = 0; i < length; ++i) {
+        if (i % rngSize == 0) {
             rand = rng();
         }
         ASSERT(result[i] == randPtr[i % rngSize]);
@@ -149,11 +149,11 @@ unsigned int someSeededHash(const char *seed, size_t seedLength,
     const unsigned int *castedSeed = reinterpret_cast<const unsigned int *>(
                                                                          seed);
     unsigned int hash = 0;
-    for(size_t i = 0; i < seedLength/4; ++i) {
+    for (size_t i = 0; i < seedLength/4; ++i) {
         hash ^= castedSeed[i];
     }
 
-    for(size_t i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) {
         hash *= data[i];
     }
     return hash;
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
         SeededHash<Seeded64BitHashingAlgorithm>   hashAlg64BitSeed(seedGen);
         SeededHash<Seeded1024BitHashingAlgorithm> hashAlg1024BitSeed(seedGen);
 
-        for(int i = 0; i < NUM_STRINGS; ++i) {
+        for (int i = 0; i < NUM_STRINGS; ++i) {
             unsigned int hash32BitSeed = hashAlg32BitSeed(data[i],
                                                               strlen(data[i]));
             unsigned int hash64BitSeed = hashAlg64BitSeed(data[i],
@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
             unsigned int hash1024BitSeed = hashAlg1024BitSeed(data[i],
                                                               strlen(data[i]));
 
-            if(veryVerbose) printf("Asserting hashes of %s come out"
+            if (veryVerbose) printf("Asserting hashes of %s come out"
                                    " different\n", data[i]);
             ASSERT(hash32BitSeed != hash64BitSeed);
             ASSERT(hash32BitSeed != hash1024BitSeed);
@@ -501,8 +501,8 @@ int main(int argc, char *argv[])
 
             generator.generateSeed(&seed[8], 8);
 
-            for(int i = 0; i < 8; ++i) {
-                if(veryVerbose) printf("Asserting seed[%i]: %hhu from"
+            for (int i = 0; i < 8; ++i) {
+                if (veryVerbose) printf("Asserting seed[%i]: %hhu from"
                                        " generated seed is inchanged\n",
                                        i ,
                                        seed[i]);
@@ -511,8 +511,8 @@ int main(int argc, char *argv[])
 
             verifyResultMatchesRNG(&seed[8], 8);
 
-            for(int i = 16; i < 24; ++i) {
-                if(veryVerbose) printf("Asserting seed[%i]: %hhu from"
+            for (int i = 16; i < 24; ++i) {
+                if (veryVerbose) printf("Asserting seed[%i]: %hhu from"
                                        " generated seed is inchanged\n",
                                        i ,
                                        seed[i]);
@@ -533,8 +533,8 @@ int main(int argc, char *argv[])
 
             generator.generateSeed(&seed[4], 0);
 
-            for(int i = 0; i < 8; ++i) {
-                if(veryVerbose) printf("Asserting seed[%i]: %hhu from"
+            for (int i = 0; i < 8; ++i) {
+                if (veryVerbose) printf("Asserting seed[%i]: %hhu from"
                                        " generated seed is inchanged\n",
                                        i ,
                                        seed[i]);
@@ -552,8 +552,8 @@ int main(int argc, char *argv[])
             const char maxChar = static_cast<char>(255);
             std::fill_n(seed, 24, maxChar);
 
-            for(int i = 0; i < 24; ++i) {
-                if(veryVerbose) printf("Testing seeds of length %i\n", i);
+            for (int i = 0; i < 24; ++i) {
+                if (veryVerbose) printf("Testing seeds of length %i\n", i);
                 MockRNG rng;
                 Obj generator(rng);
                 generator.generateSeed(seed, i);

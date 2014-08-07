@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
         ASSERT(hashTable.isValid());
 
 // Now, we verify that each element in our array registers with count:
-        for( int i = 0; i < 6; ++i) {
+        for ( int i = 0; i < 6; ++i) {
             ASSERT(1 == hashTable.count(futures[i]));
         }
 
@@ -552,7 +552,7 @@ int main(int argc, char *argv[])
                 cannonicalHashAlgorithm(VALUE, strlen(VALUE));
                 contiguousHash(VALUE, strlen(VALUE));
 
-                for(unsigned int j = 0; j < strlen(VALUE); ++j){
+                for (unsigned int j = 0; j < strlen(VALUE); ++j){
                     if (veryVeryVerbose) printf("Hashing by char: %c\n",
                                                                      VALUE[j]);
                     dispirateHash(&VALUE[j], sizeof(char));
