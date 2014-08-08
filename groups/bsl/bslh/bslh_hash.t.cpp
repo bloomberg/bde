@@ -463,6 +463,11 @@ class MockAccumulatingHashingAlgorithm {
         d_data = new char[0];
     }
 
+    ~MockAccumulatingHashingAlgorithm()
+    {
+        delete [] d_data;
+    }
+
     void operator()(const void *voidPtr, size_t length)
         // Store the specified 'voidPtr' and 'length' for inspection later.
     {
