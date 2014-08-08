@@ -93,11 +93,11 @@ namespace BloombergLP {
 namespace bslh {
 
 
-class SpookyHashAlgorithmImp
-    // Wraps Bob Jenkin's implementation of "SpookyHash" in a BDE-style
-    // component. For more information, see
+class SpookyHashAlgorithmImp {
+    // This class wraps an implementation of Bob Jenkin's "SpookyHash" in a
+    // BDE-style component. For more information, see
     // http://burtleburtle.net/bob/hash/spooky.html .
-{
+
   public:
     typedef  ::BloombergLP::bsls::Types::Uint64  uint64;
     typedef  unsigned int                        uint32;

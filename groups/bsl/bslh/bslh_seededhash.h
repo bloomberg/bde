@@ -61,10 +61,11 @@ namespace bslh {
 
 template <class SEED_GENERATOR, class HASH_ALGORITHM
                                             = bslh::DefaultSeededHashAlgorithm>
-struct SeededHash
-{
-    // Wraps the parameterized 'HASH_ALGORITHM', which requires a seed, in an
-    // interface that is a drop in replacement for 'bsl::hash'.
+struct SeededHash {
+    // This class wraps the (template paramete) 'HASH_ALGORITHM', which
+    // requires a seed, in an interface that is a drop in replacement for
+    // 'bsl::hash'.
+
   private:
     // DATA
     char seed[HASH_ALGORITHM::k_SEED_LENGTH];

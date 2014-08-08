@@ -138,8 +138,8 @@ void aSsErT(bool b, const char *s, int i)
 //..
 
 class Point {
-    // A value semantic type that represents as two dimensional location on a
-    // cartesian plane.
+    // This class is a value semantic type that represents as two dimensional
+    // location on a cartesian plane.
 
   private:
     int    d_x;
@@ -209,8 +209,8 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
 // one of its attributes that are salient to hashing.
 //..
 class Box {
-    // A value semantic type that represents a box drawn on to a cartesian
-    // plane.
+    // This class is a value semantic type that represents a box drawn on to a
+    // cartesian plane.
 
   private:
     Point d_position;
@@ -278,8 +278,8 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
 
 template <class TYPE, class HASHER = bslh::Hash<> >
 class HashTable {
-    // This hash table to provides a fast lookup of an external, non-owned,
-    // array of values of configurable type.
+    // This class template implements a hash table providing fast lookup of an
+    // external, non-owned, array of values of configurable type.
     //
     // The parameterized 'TYPE' shall have a transitive, symmetric 'operator=='
     // function and that a it is hashable using 'bslh::Hash'.  There is no
@@ -414,12 +414,14 @@ static bool binaryCompare(const char *first, const char *second, size_t size)
 }
 
 class MockHashingAlgorithm {
-    // Mock hashing algorithm that provides a way to examine data that is being
-    // passed into hashing algorithms by 'hashAppend'.
-    char   *d_data;
-    size_t  d_length;
-  public:
+    // This class implements a mock hashing algorithm that provides a way to
+    // examine data that is being passed into hashing algorithms by
+    // 'hashAppend'.
 
+    char   *d_data;   // Data we were asked to hash
+    size_t  d_length; // Length of the data we were asked to hash
+
+  public:
     void operator()(const void *voidPtr, size_t length)
         // Store the specified 'voidPtr' and 'length' for inspection later.
     {
@@ -446,13 +448,16 @@ class MockHashingAlgorithm {
 
 
 class MockAccumulatingHashingAlgorithm {
-    // Mock hashing algorithm that provides a way to accumulate and then
-    // examine data that is being passed into hashing algorithms by
-    // 'hashAppend'.
-    char   *d_data;
-    size_t  d_length;
+    // This class implements a mock hashing algorithm that provides a way to
+    // accumulate and then examine data that is being passed into hashing
+    // algorithms by 'hashAppend'.
+
+    char   *d_data;   // Data we were asked to hash
+    size_t  d_length; // Length of the data we were asked to hash
+
   public:
-    MockAccumulatingHashingAlgorithm() : d_length(0)
+    MockAccumulatingHashingAlgorithm()
+    : d_length(0)
         // Create a new 'MockAccumulatingHashingAlgorithm'
     {
         d_data = new char[0];
@@ -490,8 +495,10 @@ class MockAccumulatingHashingAlgorithm {
 
 template<class TYPE>
 class TestDriver {
-    // Class that can drive tests on any type.
+    // This class implements a test driver that can run tests on any type.
+
     char data[10];
+
   public:
     TestDriver()
         // Construct a 'TestDriver'

@@ -88,7 +88,9 @@ void aSsErT(bool b, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 class MockRNG {
-    // Predictable mock random number generator for use in testing
+    // This class provides a predictable mock random number generator for use
+    // in testing.
+
   public:
     typedef unsigned int result_type;
         // The type of the random data that 'operator()' will return.
@@ -178,6 +180,9 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 // returns a 32-bit unsigned int.
 //..
 class Seeded32BitHashingAlgorithm {
+    // This class is a functor that implements a hashing algorithm seeded with
+    // 32 bits.
+
   public:
     typedef unsigned result_type; // Type of the hash returned
     enum { k_SEED_LENGTH = 4 };     // Seed length in bytes
@@ -208,6 +213,9 @@ Seeded32BitHashingAlgorithm::operator()(const char *data, size_t length) {
 //..
 
 class Seeded64BitHashingAlgorithm {
+    // This class is a functor that implements a hashing algorithm seeded with
+    // 64 bits.
+
   public:
     typedef unsigned result_type; // Type of the hash returned
     enum { k_SEED_LENGTH = 8 };     // Seed length in bytes
@@ -238,6 +246,9 @@ Seeded64BitHashingAlgorithm::operator()(const char *data, size_t length) {
 //..
 
 class Seeded1024BitHashingAlgorithm {
+    // This class is a functor that implements a hashing algorithm seeded with
+    // 1024 bits.
+
   public:
     typedef unsigned result_type; // Type of the hash returned
     enum { k_SEED_LENGTH = 128 };   // Seed length in bytes
@@ -269,10 +280,11 @@ Seeded1024BitHashingAlgorithm::operator()(const char *data, size_t length) {
 //..
 
 template <class HASH_ALGORITHM>
-class SeededHash
-{
-    // Provides an interface similar to 'std::hash', which will used the
-    // parameterized 'SEED_GENERATOR' and 'HASH_ALGORITHM' to compute hashes.
+class SeededHash {
+    // This class template implements an interface similar to 'std::hash',
+    // which will used the parameterized 'SEED_GENERATOR' and 'HASH_ALGORITHM'
+    // to compute hashes.
+
   public:
     typedef typename HASH_ALGORITHM::result_type result_type;
         // Type of the hash that will be returned.

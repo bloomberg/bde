@@ -148,7 +148,7 @@ void aSsErT(bool b, const char *s, int i)
 
 template <class TYPE, class HASHER = bsl::hash<TYPE> >
 class HashCrossReference {
-    // This table leverages a hash table to provide a fast lookup of an
+    // This class template implements a hash table providing fast lookup of an
     // external, non-owned, array of values of configurable type.
     //
     // The only requirement for 'TYPE' is that it have a transitive, symmetric
@@ -365,16 +365,16 @@ struct hash<StringThing> {
 ///Example 3: Using 'hashAppend' from 'bslh' with 'HashCrossReference'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // In Example 2, we specialized 'bsl::hash' for a custom class. Now we want to
-// do the same thing in the new hashing system implemented in 'bslh'. We will
-// re-use the 'HashCrossReference' template class defined in Example 1.
+// do the same thing in the modular hashing system implemented in 'bslh'. We
+// will re-use the 'HashCrossReference' template class defined in Example 1.
 //
 // First, we declare 'Point', a class that allows us to identify a loction on a
 // two dimensional cartesian plane.
 //..
 
 class Point {
-    // A value semantic type that represents as two dimensional location on a
-    // cartesian plane.
+    // This class is a value semantic type that represents as two dimensional
+    // location on a cartesian plane.
 
   private:
     int    d_x;
@@ -443,8 +443,8 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
 // one of its salient attributes.
 //..
 class Box {
-    // A value semantic type that represents a box drawn on to a cartesian
-    // plane.
+    // This class is a value semantic type that represents a box drawn on to a
+    // cartesian plane.
 
   private:
     Point d_position;

@@ -131,8 +131,8 @@ void aSsErT(bool b, const char *s, int i)
 
 template <class TYPE, class HASHER>
 class HashTable {
-    // This hash table to provides a fast lookup of an external, non-owned,
-    // array of values of configurable type.
+    // This class template implements a hash table providing fast lookup of an
+    // external, non-owned, array of values of configurable type.
     //
     // The parameterized 'TYPE' shall have a transitive, symmetric 'operator=='
     // function and that a it is hashable using 'bslh::Hash'.  There is no
@@ -255,7 +255,9 @@ class HashTable {
 //-----------------------------------------------------------------------------
 
 class MockRNG {
-    // Predictable mock random number generator for use in testing
+    // This class implements a predictable mock random number generator for use
+    // in testing.
+
   public:
     typedef unsigned long long result_type;
         // The type of the random data that 'operator()' will return.

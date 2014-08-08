@@ -71,10 +71,10 @@ namespace BloombergLP {
 
 namespace bslh {
 
-class DefaultSeededHashAlgorithm
-{
-    // Provides a default hashing algorithm that is appropriate for general
-    // purpose use.
+class DefaultSeededHashAlgorithm {
+    // This class wraps an unspecified default hashing algorithm, which takes a
+    // seed, that is appropriate for general purpose use such as generating
+    // hashes for a hash table.
 
     // PRIVATE TYPES
     typedef bslh::SpookyHashAlgorithm InternalHashAlgorithm;

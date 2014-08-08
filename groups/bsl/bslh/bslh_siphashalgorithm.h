@@ -156,9 +156,9 @@ namespace bslh {
                           // class bslh::SipHashAlgorithm
                           // ============================
 
-class SipHashAlgorithm
-{
-    // Provides an implementation of the "SipHash" algorithm (see
+class SipHashAlgorithm {
+    // This class wraps an implementation of the "SipHash" algorithm in an
+    // interface that is usable in the modular hashing system in 'bslh' (see
     // https://131002.net/siphash/).
 
   private:

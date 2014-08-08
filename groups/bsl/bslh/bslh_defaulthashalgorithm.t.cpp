@@ -133,8 +133,8 @@ void aSsErT(bool b, const char *s, int i)
 
 template <class TYPE, class HASHER>
 class HashTable {
-    // This class template implements a hash table to provide a fast lookup of
-    // an external, non-owned, array of values of configurable type.
+    // This class template implements a hash table providing fast lookup of an
+    // external, non-owned, array of values of configurable type.
     //
     // The parameterized 'TYPE' shall have a transitive, symmetric 'operator=='
     // function.  There is no requirement that it have any kind of creator
@@ -321,8 +321,8 @@ bool operator!=(const Future& lhs, const Future& rhs)
 // is updated.
 
 struct HashFuture {
-    // A hash functor that will apply the 'DefaultHashAlgorithm' to objects of
-    // type 'Future'.
+    // This struct is a functor that will apply the 'DefaultHashAlgorithm' to
+    // objects of type 'Future'.
 
     size_t operator()(const Future& future) const
         // Return the hash of the of the specified 'future'.  Note that this

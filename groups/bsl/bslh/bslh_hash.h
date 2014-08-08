@@ -99,10 +99,9 @@ namespace bslh {
                           // ================
 
 template <class HASH_ALGORITHM = bslh::DefaultHashAlgorithm>
-struct Hash
-{
-    // Wraps the parameterized 'HASH_ALGORITHM' in an interface that is a drop
-    // in replacement for 'bsl::hash'.
+struct Hash {
+    // This struct wraps the (template parameter) 'HASH_ALGORITHM' in an
+    // interface that is a drop in replacement for 'bsl::hash'.
 
     // TYPES
     typedef size_t result_type;

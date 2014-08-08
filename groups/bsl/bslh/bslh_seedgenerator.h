@@ -53,8 +53,9 @@ namespace bslh {
 template<class RNG>
 class SeedGenerator
 {
-    // Takes a user supplied random number generator and uses it to generate an
-    // arbitrary length seed.
+    // This class template implements a seed generator which takes a user
+    // supplied random number generator and uses it to generate an arbitrary
+    // length seed.
 
   private:
     // PRIVATE TYPES

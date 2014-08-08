@@ -167,6 +167,9 @@ const int NUM_DATA = sizeof DATA / sizeof *DATA;
 //..
 
 class CheckedData {
+    // This class holds a pointer to data and provides a way of verifying that
+    // the data has not changed.
+
     typedef bsls::Types::Uint64 uint64;
     size_t      d_length;
     const char *d_data;
@@ -174,7 +177,6 @@ class CheckedData {
     uint64      d_checksum2;
 
   public:
-    // Stores some data along with the associated checksum.
     CheckedData(const char *data, size_t length);
         // Creates an instance of this class with the specified 'length' bytes
         // of 'data'. Note that only a pointer to the data will be maintained,

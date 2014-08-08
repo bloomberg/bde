@@ -84,10 +84,10 @@ namespace bslh {
                         // class bslh::SpookyHashAlgorithm
                         // ===============================
 
-class SpookyHashAlgorithm
-{
-    // This class wraps an implementation of the "SpookyHash" hash algorithm
-    // (see http://burtleburtle.net/bob/hash/spooky.html).
+class SpookyHashAlgorithm {
+    // This class wraps an implementation of the "SpookyHash" hash algorithm in
+    // an interface that is usable in the modular hashing system in 'bslh' (see
+    // http://burtleburtle.net/bob/hash/spooky.html).
 
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 uint64;
