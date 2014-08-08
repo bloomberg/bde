@@ -61,7 +61,7 @@ class SeedGenerator
     // PRIVATE TYPES
     typedef typename RNG::result_type result_type;
         // 'result_type' is an alias for the value returned by a call to
-        // 'operator()' on the (template parameter) 'RNG'.
+        // 'operator()' on the (template parameter) type 'RNG'.
 
     // DATA
     RNG          d_randomNumberGenerator; // User provided RNG.

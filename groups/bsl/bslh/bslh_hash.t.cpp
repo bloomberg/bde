@@ -510,8 +510,8 @@ class TestDriver {
     }
 
     void testHashAppendNegativeZero()
-        // Test 'hashAppend' on the (template parameter) 'TYPE' ensuring that both 0
-        // and -0 will hash to the same value. This is intended to test
+        // Test 'hashAppend' on the (template parameter) 'TYPE' ensuring that
+        // both 0 and -0 will hash to the same value. This is intended to test
         // floating point numbers where 0.0 and -0.0 have different binary
         // representations.
     {
