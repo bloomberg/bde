@@ -7,22 +7,22 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a struct to run seeded hashing algorithms on any type.
+//@PURPOSE: Provide a struct to run seeded 'bslh' hash algorithms on types.
 //
 //@CLASSES:
-//  bslh::Hash: Universal hashing functor that can apply any algorithm to types
+//  bslh::SeededHash: Functor that runs seeded 'bslh' hash algorithms on types.
 //
 //@SEE_ALSO: bslh_hash, bslh_seedgenerator
 //
 //@DESCRIPTION: This component provides a templated struct, 'bslh::SeededHash',
-// which provides hashing functionality and is a drop in replacement for
-// 'bsl::hash'.  It is similar to 'bslh::Hash', however, it is meant for hashes
-// that require a seed. It takes a seed generator and uses that to create seeds
-// to give the the hashing algorithm.  'bslh::SeededHash' is a wrapper which
-// adapts hashing algorithms from 'bslh' to match the interface of 'bsl::hash'.
-// 'bslh::SeededHash' is a universal hashing functor that will hash any type
-// that implements 'hashAppend' using the hashing algorithm provided as a
-// template parameter.  For more details, see:
+// which provides hashing functionality. This struct is a drop in replacement
+// for 'bsl::hash'.  It is similar to 'bslh::Hash', however, it is meant for
+// hashes that require a seed. It takes a seed generator and uses that to
+// create seeds to give the the hashing algorithm.  'bslh::SeededHash' is a
+// wrapper which adapts hashing algorithms from 'bslh' to match the interface
+// of 'bsl::hash'.  'bslh::SeededHash' is a universal hashing functor that will
+// hash any type that implements 'hashAppend' using the hashing algorithm
+// provided as a template parameter.  For more details, see:
 // https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
 // Modular+Hashing&spaceKey=bde
 //
@@ -63,8 +63,8 @@ template <class SEED_GENERATOR, class HASH_ALGORITHM
                                             = bslh::DefaultSeededHashAlgorithm>
 struct SeededHash {
     // This class wraps the (template paramete) 'HASH_ALGORITHM', which
-    // requires a seed, in an interface that is a drop in replacement for
-    // 'bsl::hash'.
+    // requires a seed, in an interface that satisfies the 'hash' requirements
+    // of the C++11 standard.
 
   private:
     // DATA
@@ -73,7 +73,8 @@ struct SeededHash {
   public:
     // TYPES
     typedef size_t result_type;
-        // Type of the hash that will be returned.
+        // The type of the hash value that will be returned by the
+        // function-call operator.
 
     // CREATORS
     SeededHash();

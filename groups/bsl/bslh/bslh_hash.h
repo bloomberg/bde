@@ -7,58 +7,72 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a 'struct' that can run any hashing algorithm on any type.
+//@PURPOSE: Provide a struct to run 'bslh' hash algorithms on supported types.
 //
 //@CLASSES:
-//  bslh::Hash: Universal hashing functor that can apply any algorithm to types
+//  bslh::Hash: Functor that runs 'bslh' hash algorithms on supported types.
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a templated 'struct', 'bslh::Hash',
-// which provides hashing functionality and is a drop in replacement for
-// 'bsl::hash'.  'bslh::Hash' is a wrapper that adapts the hashing algorithms
-// to match the interface of 'bsl::hash'.  This component also contains
-// hashAppend definitions for fundamental types, which are required to make the
-// hashing algorithms in 'bslh' work. 'bslh::Hash' is a universal hashing
-// functor that will hash any type that implements 'hashAppend' using the
-// hashing algorithm provided as a template parameter.  For more details, see:
+// which provides hashing functionality. This struct is a drop in replacement
+// for 'bsl::hash'.  'bslh::Hash' is a wrapper that adapts hashing algorithms
+// from 'bslh' and 'hashAppend' free functions to match the interface of
+// 'bsl::hash'.  This component also contains 'hashAppend' definitions for
+// fundamental types, which are required to make the hashing algorithms in
+// 'bslh' work.  For more details, see the following pages:
 // https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
 // Modular+Hashing&spaceKey=bde
+// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
+// Using+Modular+Hashing&spaceKey=bde
 //
 ///Modularity
 ///----------
 // 'bslh::Hash' provides a modular system for hashing.  Identification of
 // attributes on a type that are salient to hashing and the actual
-// implementation of hashing algorithms can be decoupled. Attributes that are
-// salient to hashing can be called out on a type using 'hashAppend'. Hashing
-// algorithms can be written (some defaults are provided in 'bslh') to operate
-// on the attributes called out by 'hashAppend'.  This prevents type creators
-// from having to duplicate work or write bad hashing algorithms.
+// implementation of hashing algorithms can be decoupled.  Attributes that are
+// salient to hashing can be called out on a type using 'hashAppend'.  Hashing
+// algorithms can be written to operate on the attributes called out by
+// 'hashAppend'.  Some default algorithms have been provided in the 'bslh'
+// package.  This modularity allows type creators to avoid writing hashing
+// algorithms, which can save work avoid bad hashing algorithm implementations.
 //
 ///'hashAppend'
 ///------------
 // 'hashAppend' is the function that is used to pass attributes that are
-// salient to hashing into a hashing algorithm. Any type being hashed must
-// implement 'hashAppend'. Within this implementation, the type will call
-// 'hashAppend' on each of it's attributes that are salient to hashing. If
-// those attributes are themselves user defined types, they will continue
-// calling 'hashAppend' on their own  attributes until fundamental types are
-// reached.
+// salient to hashing into a hashing algorithm.  A type must define a
+// 'hashAppend' overload that can be discovered through ADL in order to be
+// hashed using this facility.  The simplest 'hashAppend' overload will call
+// 'hashAppend' on each of the type's attributes that are salient to hashing.
+// Other 'hashAppend' implementations are possible, such as for the special
+// case of c-strings where the data contained in the string must be passed
+// directly into the algorithm, rather than calling 'hashAppend' on the
+// pointer. This special case exists becuase calling 'hashAppend' on a pointer
+// will hash the pointer rather than the data that is pointed to. 
 //
-// Within this file, 'hashAppend' has been implemented for all of the
+// Within this component, 'hashAppend' has been implemented for all of the
 // fundamental types. When 'hashAppend is reached on a fundamental type, the
 // hashing algorithm is no longer propagated, and instead a pointer to the
 // beginning of the type in memory is passed to the algorithm, along with the
-// length of the type. The algorithm will then incorporate the type into its
-// internal state and return a finalized hash when requested.
+// length of the type. There are special cases with floating point numbers and
+// bools where the data is tweaked before hashing to ensure that values that
+// compare equal will be hashed with the same bit-wise representation. The
+// algorithm will then incorporate the type into its internal state and return
+// a finalized hash when requested.
 //
 ///Hashing Algorithms
 ///------------------
-// All of the hashing algorithms in 'bslh' will implement the same interface.
-// They offer an 'operator()' to pass in a pointer and a length. The algorithms
-// will operate on the number of bytes specified by the length, starting at the
-// location pointed to by the pointer. They will all also offer a 'computHash'
-// method that will return a finalized hash.
+// There are algorithms implemented in the 'bslh' package that can be passed in
+// and used as template parameters for 'bslh::Hash' or other structs like it.
+// Some of these algorithms, such as 'bslh::SpookyHashAlgorithm', are named for
+// the algorithm they implement. These named algorithms are intended for use by
+// those who want a specific algorithm. There are other algorithms, such as
+// 'bslh::DefaultHashAlgorithm', which wrap an unspecified algorithm and
+// describe the properties of the wrapped algorithm. The descriptive algorithms
+// are intended for use by those who need specific properties and want to be
+// updated to a new algorithm when one is published with improvements to the
+// desired properties. 'bslh::DefaultHashAlgorithm' has the property of being a
+// good default algorithm, specifically for use in a hash table.
 
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -101,11 +115,12 @@ namespace bslh {
 template <class HASH_ALGORITHM = bslh::DefaultHashAlgorithm>
 struct Hash {
     // This struct wraps the (template parameter) 'HASH_ALGORITHM' in an
-    // interface that is a drop in replacement for 'bsl::hash'.
+    // interface that satisfies the 'hash' requirements of the C++11 standard.
 
     // TYPES
     typedef size_t result_type;
-        // Type of the hash that will be returned.
+        // The type of the hash value that will be returned by the
+        // function-call operator.
 
     // ACCESSORS
     template <class TYPE>
