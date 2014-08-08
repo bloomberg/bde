@@ -1,24 +1,24 @@
-// bdldfp_decimalconvertutil.h                                        -*-C++-*-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL
-#define INCLUDED_BDLDFP_DECIMALCONVERTUTIL
+// bdldfp_decimalconvertutil_inteldfp.h                               -*-C++-*-
+#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
+#define INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id$")
 
-//@PURPOSE: Provide decimal floating-point conversion functions.
+//@PURPOSE: Provide decimal floating-point conversion functions for Intel DFP.
 //
 //@CLASSES:
-//  bdldfp::DecimalConvertUtil: Namespace for decimal FP conversion functions
+//  bdldfp::DecimalConvertUtil: Namespace for Intel DFP conversion functions
 //
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION:
 // This component provides functions that are able to convert between the
-// native decimal types of the platform and various other possible
-// representations, such as binary floating-point, network format (big endian,
-// DPD encoded decimals).
+// native decimal types of the Intel DFP implementation and various other
+// possible representations, such as binary floating-point, network format (big
+// endian, DPD encoded decimals).
 //
 ///Usage
 ///-----
@@ -40,7 +40,7 @@ BSLS_IDENT("$Id$")
 //                            0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
 //
 //  unsigned char *next = msgbuffer;
-//  next = bdldfp::DecimalConvertUtil::decimalToNetwork(next, number);
+//  next = bdldfp::DecimalConvertUtil_IntelDFP::decimalToNetwork(next, number);
 //
 //  assert(memcmp(msgbuffer, expected, sizeof(number)) == 0);
 //..
@@ -52,7 +52,8 @@ BSLS_IDENT("$Id$")
 //  BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
 //
 //  unsigned char *next = msgbuffer;
-//  next = bdldfp::DecimalConvertUtil::decimalFromNetwork(number, next);
+//  next = bdldfp::DecimalConvertUtil_IntelDFP::decimalFromNetwork(number,
+//                                                                 next);
 //
 //  assert(number == expected);
 //..
@@ -68,7 +69,7 @@ BSLS_IDENT("$Id$")
 //..
 //  const BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.23456789012345e-42));
 //
-//  typedef bdldfp::DecimalConvertUtil Util;
+//  typedef bdldfp::DecimalConvertUtil_IntelDFP Util;
 //  double dbl = Util::decimalToDouble(number);
 //
 //  if (Util::decimal64FromDouble(dbl) != number) {
@@ -91,18 +92,6 @@ BSLS_IDENT("$Id$")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
-#include <bdldfp_decimalconvertutil_inteldfp.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_DECNUMBER
-#include <bdldfp_decimalconvertutil_decnumber.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_IBMXLC
-#include <bdldfp_decimalconvertutil_ibmxlc.h>
-#endif
-
 #ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
 #endif
@@ -111,13 +100,39 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
+#include <bdldfp_decimalplatform.h>
+#endif
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+
+#ifndef INCLUDED_BID_FUNCTIONS
+
+// Controlling macros for the intel library configuration
+
+#  define DECIMAL_CALL_BY_REFERENCE      0
+#  define DECIMAL_GLOBAL_ROUNDING        1
+#  define DECIMAL_GLOBAL_EXCEPTION_FLAGS 1
+
+// in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
+// about this.
+
+#  define _WCHAR_T_DEFINED
+
+   extern "C" {
+#   include <bid_conf.h>
+#   include <bid_functions.h>
+   }
+#  define INCLUDED_BID_FUNCTIONS
+#endif
+
 namespace BloombergLP {
 namespace bdldfp {
-                        // ========================
-                        // class DecimalConvertUtil
-                        // ========================
+                        // =================================
+                        // class DecimalConvertUtil_IntelDFP
+                        // =================================
 
-struct DecimalConvertUtil {
+struct DecimalConvertUtil_IntelDFP {
     // This 'struct' provides a namespace for utility functions that convert
     // between the decimal floating-point types of 'bdldfp_decimal' and various
     // other formats.
@@ -261,111 +276,6 @@ struct DecimalConvertUtil {
         //: o Otherwise use the exact value of the 'other' object for the
         //:   initialization if this object.
 
-                        // decimalFromLongDouble functions
-
-    static Decimal32  decimal32FromLongDouble (long double binary);
-    static Decimal64  decimal64FromLongDouble (long double binary);
-    static Decimal128 decimal128FromLongDouble(long double binary);
-        // Return the original decimal floating-point value stored in the
-        // specified 'binary' floating-point value by a call to the
-        // corresponding 'decimalToLongDouble' function earlier.  Thus this
-        // function provides a limited decimal-binary-decimal round-trip
-        // conversion when used together with 'decimalToLongDouble'.  The
-        // behavior is undefined:
-        //
-        //: o unless 'std::numeric_limits<long double>::radix == 2'.
-        //:
-        //: o unless the decimal is read back into the same size decimal type
-        //    that was passed as argument to 'decimalToLongDouble'.
-        //:
-        //: o unless the decimal is read back from an unchanged 'long double'
-        //:   returned by 'decimalToLongDouble'.
-        //:
-        //: o if the decimal originally stored into the 'long double' had more
-        //:   than 'std::numeric_limits<long double>::digits10' significant
-        //:   digits.
-        //:
-        //: o if the absolute value of the decimal originally stored into the
-        //:   'long double' was larger than
-        //:   'std::numeric_limits<long double>::max()'.
-        //:
-        //: o If the absolute value of the decimal originally stored into the
-        //:   'long double' was larger than
-        //:   'std::numeric_limits<long double>::min()'.
-        //
-        // Note that the purpose of this function is to restore a decimal value
-        // that has been stored earlier into a base-2 floating-point type and
-        // *not* to create a decimal from the exact base-2 value.  Use the
-        // conversion constructors when you are not restoring a decimal.
-
-                        // decimalFromDouble functions
-
-    static Decimal32  decimal32FromDouble (double binary);
-    static Decimal64  decimal64FromDouble (double binary);
-    static Decimal128 decimal128FromDouble(double binary);
-        // Return the original decimal floating-point value stored in the
-        // specified 'binary' floating-point value by a call to the
-        // corresponding 'decimalToDouble' function earlier.  Thus this
-        // function provides a limited decimal-binary-decimal round-trip
-        // conversion when used together with 'decimalToDouble'.  The behavior
-        // is undefined:
-        //
-        //: o unless 'std::numeric_limits<long double>::radix == 2'.
-        //:
-        //: o unless the decimal is read back into the same size decimal type
-        //    that was passed as argument to 'decimalToFloat'.
-        //:
-        //: o unless the decimal is read back from an unchanged 'double'
-        //:   returned by 'decimalToFloat'.
-        //:
-        //: o if the decimal originally stored into the 'long double' had more
-        //:   than 'std::numeric_limits<double>::digits10' significant digits.
-        //:
-        //: o if the absolute value of the decimal originally stored into the
-        //:   'long double' was larger than
-        //:   'std::numeric_limits<double>::max()'.
-        //:
-        //: o if the absolute value of the decimal originally stored into the
-        //:   'double' was larger than 'std::numeric_limits<double>::min()'.
-        //
-        // Note that the purpose of this function is to restore a decimal value
-        // that has been stored earlier into a base-2 floating-point type and
-        // *not* to create a decimal from the exact base-2 value.  Use the
-        // conversion constructors when you are not restoring a decimal.
-
-                        // decimalFromFloat functions
-
-    static Decimal32  decimal32FromFloat (float binary);
-    static Decimal64  decimal64FromFloat (float binary);
-    static Decimal128 decimal128FromFloat(float binary);
-        // Return the original decimal floating-point value stored in the
-        // specified 'binary' floating-point value by a call to the
-        // corresponding 'decimalToFloat' function earlier.  Thus this
-        // function provides a limited decimal-binary-decimal round-trip
-        // conversion when used together with 'decimalToFloat'.  The behavior
-        // is undefined:
-        //
-        //: o unless 'std::numeric_limits<float>::radix == 2'.
-        //:
-        //: o unless the decimal is read back into the same size decimal type
-        //    that was passed as argument to 'decimalToFloat'.
-        //:
-        //: o unless the decimal is read back from an unchanged 'float'
-        //:   returned by 'decimalToFloat'.
-        //:
-        //: o if the decimal originally stored into the 'float' had more than
-        //:   'std::numeric_limits<float>::digits10' significant digits.
-        //:
-        //: o if the absolute value of the decimal originally stored into the
-        //:   'long double' was larger than
-        //:   'std::numeric_limits<float>::max()'.
-        //:
-        //: o if the absolute value of the decimal originally stored into the
-        //:   'float' was larger than 'std::numeric_limits<float>::min()'.
-        // Note that the purpose of this function is to restore a decimal value
-        // that has been stored earlier into a base-2 floating-point type and
-        // *not* to create a decimal from the exact base-2 value.  Use the
-        // conversion constructors when you are not restoring a decimal.
 
                         // decimalToDenselyPacked functions
 
@@ -409,267 +319,286 @@ struct DecimalConvertUtil {
         // 'buffer' address.  The behavior is undefined unless 'buffer' points
         // to a memory area at least 'sizeof(decimal)' in size containing a
         // value in DPD format.
-
-                        // decimalToNetwork functions
-
-    static unsigned char *decimal32ToNetwork(unsigned char *buffer,
-                                             Decimal32      decimal);
-    static unsigned char *decimal64ToNetwork(unsigned char *buffer,
-                                             Decimal64      decimal);
-    static unsigned char *decimal128ToNetwork(unsigned char *buffer,
-                                              Decimal128     decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal32      decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal64      decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal128     decimal);
-        // Store the specified 'decimal', in network format, into the specified
-        // 'buffer' and return the address one past the last byte written into
-        // the 'buffer'. The network format is defined as big endian byte order
-        // and densely packed base-10 significand encoding.  This corresponds
-        // to the way IBM hardware represents these numbers in memory. The
-        // behavior is undefined unless 'buffer' points to a memory area at
-        // least 'sizeof(decimal)' in size.  Note that these functions always
-        // return 'buffer + sizeof(decimal)' on the supported 8-bits-byte
-        // architectures.
-
-                        // decimalFromNetwork functions
-
-    static unsigned char *decimal32FromNetwork(Decimal32           *decimal,
-                                               const unsigned char *buffer);
-    static unsigned char *decimal64FromNetwork(Decimal64           *decimal,
-                                               const unsigned char *buffer);
-    static unsigned char *decimal128FromNetwork(Decimal128          *decimal,
-                                                const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal32           *decimal,
-                                             const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal64           *decimal,
-                                             const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal128          *decimal,
-                                             const unsigned char *buffer);
-        // Store into the specified 'decimal', the value of the same size
-        // base-10 floating-point value stored in network format at the
-        // specified 'buffer' address and return the address one past the last
-        // byte read from 'buffer'.  The network format is defined as big
-        // endian byte order and densely packed base-10 significand encoding.
-        // This corresponds to the way IBM hardware represents these numbers in
-        // memory.  The behavior is undefined unless 'buffer' points to a
-        // memory area at least 'sizeof(decimal)' in size.  Note that these
-        // functions always return 'buffer + sizeof(decimal)' on the supported
-        // 8-bits-byte architectures.
-
 };
+
+typedef DecimalConvertUtil_IntelDFP DecimalConvertUtil_Platform;
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                        // ---------------------------------
+                        // class DecimalConvertUtil_IntelDFP
+                        // ---------------------------------
+
                         // decimalToLongDouble functions
 
 inline
-long double DecimalConvertUtil::decimal32ToLongDouble(Decimal32 decimal)
+long double
+DecimalConvertUtil_IntelDFP::decimal32ToLongDouble(Decimal32 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
+    return decimalToLongDouble(decimal);
 }
 
 inline
-long double DecimalConvertUtil::decimal64ToLongDouble(Decimal64 decimal)
+long double
+DecimalConvertUtil_IntelDFP::decimal64ToLongDouble(Decimal64 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
+    return decimalToLongDouble(decimal);
 }
 
 inline
-long double DecimalConvertUtil::decimal128ToLongDouble(Decimal128 decimal)
+long double
+DecimalConvertUtil_IntelDFP::decimal128ToLongDouble(Decimal128 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
+    return decimalToLongDouble(decimal);
 }
 
 inline
-long double DecimalConvertUtil::decimalToLongDouble(Decimal32 decimal)
+long double
+DecimalConvertUtil_IntelDFP::decimalToLongDouble(Decimal32 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
+    return __bid32_to_binary80(decimal.data()->d_raw);
 }
 
 inline
-long double DecimalConvertUtil::decimalToLongDouble(Decimal64 decimal)
+long double
+DecimalConvertUtil_IntelDFP::decimalToLongDouble(Decimal64 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
+    return __bid64_to_binary80(decimal.data()->d_raw);
 }
 
 inline
-long double DecimalConvertUtil::decimalToLongDouble(Decimal128 decimal)
+long double
+DecimalConvertUtil_IntelDFP::decimalToLongDouble(Decimal128 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
+    return __bid128_to_binary80(decimal.data()->d_raw);
 }
 
                         // decimalToDouble functions
 
 inline
-double DecimalConvertUtil::decimal32ToDouble(Decimal32 decimal)
+double
+DecimalConvertUtil_IntelDFP::decimal32ToDouble(Decimal32 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
+    return decimalToDouble(decimal);
 }
 
 inline
-double DecimalConvertUtil::decimal64ToDouble(Decimal64 decimal)
+double
+DecimalConvertUtil_IntelDFP::decimal64ToDouble(Decimal64 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
+    return decimalToDouble(decimal);
 }
 
 inline
-double DecimalConvertUtil::decimal128ToDouble(Decimal128 decimal)
+double
+DecimalConvertUtil_IntelDFP::decimal128ToDouble(Decimal128 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
+    return decimalToDouble(decimal);
 }
 
 inline
-double DecimalConvertUtil::decimalToDouble(Decimal32 decimal)
+double
+DecimalConvertUtil_IntelDFP::decimalToDouble(Decimal32 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
+    return __bid32_to_binary64(decimal.data()->d_raw);
 }
 
 inline
-double DecimalConvertUtil::decimalToDouble(Decimal64 decimal)
+double
+DecimalConvertUtil_IntelDFP::decimalToDouble(Decimal64 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
+    return __bid64_to_binary64(decimal.data()->d_raw);
 }
 
 inline
-double DecimalConvertUtil::decimalToDouble(Decimal128 decimal)
+double
+DecimalConvertUtil_IntelDFP::decimalToDouble(Decimal128 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
+    return __bid128_to_binary64(decimal.data()->d_raw);
 }
 
                         // decimalToFloat functions
 
 inline
-float DecimalConvertUtil::decimal32ToFloat(Decimal32 decimal)
+float
+DecimalConvertUtil_IntelDFP::decimal32ToFloat(Decimal32 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
+    return decimalToFloat(decimal);
+}
+
+inline float
+DecimalConvertUtil_IntelDFP::decimal64ToFloat(Decimal64 decimal)
+{
+    return decimalToFloat(decimal);
+}
+
+inline float
+DecimalConvertUtil_IntelDFP::decimal128ToFloat(Decimal128 decimal)
+{
+    return decimalToFloat(decimal);
 }
 
 inline
-float DecimalConvertUtil::decimal64ToFloat(Decimal64 decimal)
+float
+DecimalConvertUtil_IntelDFP::decimalToFloat(Decimal32 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
+    return __bid32_to_binary32(decimal.data()->d_raw);
 }
 
 inline
-float DecimalConvertUtil::decimal128ToFloat(Decimal128 decimal)
+float
+DecimalConvertUtil_IntelDFP::decimalToFloat(Decimal64 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
+    return __bid64_to_binary32(decimal.data()->d_raw);
 }
 
 inline
-float DecimalConvertUtil::decimalToFloat(Decimal32 decimal)
+float
+DecimalConvertUtil_IntelDFP::decimalToFloat(Decimal128 decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
+    return __bid128_to_binary32(decimal.data()->d_raw);
+}
+
+                        // decimalToNetwork functions
+
+inline
+void
+DecimalConvertUtil_IntelDFP::decimal32ToDenselyPacked(unsigned char *buffer,
+                                                      Decimal32      decimal)
+{
+    decimalToDenselyPacked(buffer, decimal);
 }
 
 inline
-float DecimalConvertUtil::decimalToFloat(Decimal64 decimal)
+void
+DecimalConvertUtil_IntelDFP::decimal64ToDenselyPacked(unsigned char *buffer,
+                                                      Decimal64      decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
+    decimalToDenselyPacked(buffer, decimal);
 }
 
 inline
-float DecimalConvertUtil::decimalToFloat(Decimal128 decimal)
+void
+DecimalConvertUtil_IntelDFP::decimal128ToDenselyPacked(unsigned char *buffer,
+                                                       Decimal128     decimal)
 {
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
-}
-
-                        // decimalToDenselyPacked functions
-
-inline
-void DecimalConvertUtil::decimal32ToDenselyPacked(unsigned char *buffer,
-                                                  Decimal32      decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
+    decimalToDenselyPacked(buffer, decimal);
 }
 
 inline
-void DecimalConvertUtil::decimal64ToDenselyPacked(unsigned char *buffer,
-                                                  Decimal64      decimal)
+void
+DecimalConvertUtil_IntelDFP::decimalToDenselyPacked(unsigned char *buffer,
+                                                    Decimal32      decimal)
 {
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
+    decimal.data()->d_raw = __bid_to_dpd32(decimal.data()->d_raw);
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
 }
 
 inline
-void DecimalConvertUtil::decimal128ToDenselyPacked(unsigned char *buffer,
-                                                  Decimal128     decimal)
+void
+DecimalConvertUtil_IntelDFP::decimalToDenselyPacked(unsigned char *buffer,
+                                                    Decimal64      decimal)
 {
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
+    decimal.data()->d_raw = __bid_to_dpd64(decimal.data()->d_raw);
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
 }
 
 inline
-void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
-                                                Decimal32      decimal)
+void
+DecimalConvertUtil_IntelDFP::decimalToDenselyPacked(unsigned char *buffer,
+                                                    Decimal128     decimal)
 {
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
+    decimal.data()->d_raw = __bid_to_dpd128(decimal.data()->d_raw);
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
 }
-
-inline
-void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
-                                                Decimal64      decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-}
-
-inline
-void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
-                                                Decimal128     decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-}
-
 
                         // decimalFromDenselyPacked functions
 
 inline
 Decimal32
-DecimalConvertUtil::decimal32FromDenselyPacked(const unsigned char *buffer)
+DecimalConvertUtil_IntelDFP::decimal32FromDenselyPacked(
+                                                   const unsigned char *buffer)
 {
-    return DecimalConvertUtil_Platform::decimal32FromDenselyPacked(buffer);
+    BSLS_ASSERT(buffer);
+
+    DecimalImpUtil::ValueType32 value;
+    bsl::memcpy(&value, buffer, sizeof(value));
+    value.d_raw = __bid_dpd_to_bid32(value.d_raw);
+
+    return Decimal32(value);
 }
 
 inline
 Decimal64
-DecimalConvertUtil::decimal64FromDenselyPacked(const unsigned char *buffer)
+DecimalConvertUtil_IntelDFP::decimal64FromDenselyPacked(
+                                                   const unsigned char *buffer)
 {
-    return DecimalConvertUtil_Platform::decimal64FromDenselyPacked(buffer);
+    BSLS_ASSERT(buffer);
+
+    DecimalImpUtil::ValueType64 value;
+    bsl::memcpy(&value, buffer, sizeof(value));
+    value.d_raw = __bid_dpd_to_bid64(value.d_raw);
+
+    return Decimal64(value);
 }
 
 inline
 Decimal128
-DecimalConvertUtil::decimal128FromDenselyPacked(const unsigned char *buffer)
+DecimalConvertUtil_IntelDFP::decimal128FromDenselyPacked(
+                                                   const unsigned char *buffer)
 {
-    return DecimalConvertUtil_Platform::decimal128FromDenselyPacked(buffer);
+    BSLS_ASSERT(buffer);
+
+    DecimalImpUtil::ValueType128 value;
+    bsl::memcpy(&value, buffer, sizeof(value));
+    value.d_raw = __bid_dpd_to_bid128(value.d_raw);
+
+    return Decimal128(value);
 }
 
 inline
-void DecimalConvertUtil::decimalFromDenselyPacked(Decimal32           *decimal,
+void
+DecimalConvertUtil_IntelDFP::decimalFromDenselyPacked(
+                                                  Decimal32           *decimal,
                                                   const unsigned char *buffer)
 {
-    DecimalConvertUtil_Platform::decimalFromDenselyPacked(decimal, buffer);
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal32FromDenselyPacked(buffer);
 }
 
 inline
-void DecimalConvertUtil::decimalFromDenselyPacked(Decimal64           *decimal,
+void
+DecimalConvertUtil_IntelDFP::decimalFromDenselyPacked(
+                                                  Decimal64           *decimal,
                                                   const unsigned char *buffer)
 {
-    DecimalConvertUtil_Platform::decimalFromDenselyPacked(decimal, buffer);
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal64FromDenselyPacked(buffer);
 }
 
 inline
-void DecimalConvertUtil::decimalFromDenselyPacked(Decimal128          *decimal,
+void
+DecimalConvertUtil_IntelDFP::decimalFromDenselyPacked(
+                                                  Decimal128          *decimal,
                                                   const unsigned char *buffer)
 {
-    DecimalConvertUtil_Platform::decimalFromDenselyPacked(decimal, buffer);
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal128FromDenselyPacked(buffer);
 }
+
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#endif
 
 #endif
 

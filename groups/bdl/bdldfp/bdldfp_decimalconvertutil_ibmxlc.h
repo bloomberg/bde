@@ -1,6 +1,6 @@
-// bdldfp_decimalconvertutil.h                                        -*-C++-*-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL
-#define INCLUDED_BDLDFP_DECIMALCONVERTUTIL
+// bdldfp_decimalconvertutil_ibmxlc.h                                 -*-C++-*-
+#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_IBMXLC
+#define INCLUDED_BDLDFP_DECIMALCONVERTUTIL_IBMXLC
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -91,18 +91,6 @@ BSLS_IDENT("$Id$")
 #include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
-#include <bdldfp_decimalconvertutil_inteldfp.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_DECNUMBER
-#include <bdldfp_decimalconvertutil_decnumber.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_IBMXLC
-#include <bdldfp_decimalconvertutil_ibmxlc.h>
-#endif
-
 #ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
 #endif
@@ -111,13 +99,17 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
+#include <bdldfp_decimalplatform.h>
+#endif
+
 namespace BloombergLP {
 namespace bdldfp {
                         // ========================
                         // class DecimalConvertUtil
                         // ========================
 
-struct DecimalConvertUtil {
+struct DecimalConvertUtil_IBMxlC {
     // This 'struct' provides a namespace for utility functions that convert
     // between the decimal floating-point types of 'bdldfp_decimal' and various
     // other formats.
@@ -464,209 +456,6 @@ struct DecimalConvertUtil {
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-                        // decimalToLongDouble functions
-
-inline
-long double DecimalConvertUtil::decimal32ToLongDouble(Decimal32 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
-}
-
-inline
-long double DecimalConvertUtil::decimal64ToLongDouble(Decimal64 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
-}
-
-inline
-long double DecimalConvertUtil::decimal128ToLongDouble(Decimal128 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
-}
-
-inline
-long double DecimalConvertUtil::decimalToLongDouble(Decimal32 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
-}
-
-inline
-long double DecimalConvertUtil::decimalToLongDouble(Decimal64 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
-}
-
-inline
-long double DecimalConvertUtil::decimalToLongDouble(Decimal128 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToLongDouble(decimal);
-}
-
-                        // decimalToDouble functions
-
-inline
-double DecimalConvertUtil::decimal32ToDouble(Decimal32 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
-}
-
-inline
-double DecimalConvertUtil::decimal64ToDouble(Decimal64 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
-}
-
-inline
-double DecimalConvertUtil::decimal128ToDouble(Decimal128 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
-}
-
-inline
-double DecimalConvertUtil::decimalToDouble(Decimal32 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
-}
-
-inline
-double DecimalConvertUtil::decimalToDouble(Decimal64 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
-}
-
-inline
-double DecimalConvertUtil::decimalToDouble(Decimal128 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToDouble(decimal);
-}
-
-                        // decimalToFloat functions
-
-inline
-float DecimalConvertUtil::decimal32ToFloat(Decimal32 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
-}
-
-inline
-float DecimalConvertUtil::decimal64ToFloat(Decimal64 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
-}
-
-inline
-float DecimalConvertUtil::decimal128ToFloat(Decimal128 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
-}
-
-inline
-float DecimalConvertUtil::decimalToFloat(Decimal32 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
-}
-
-inline
-float DecimalConvertUtil::decimalToFloat(Decimal64 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
-}
-
-inline
-float DecimalConvertUtil::decimalToFloat(Decimal128 decimal)
-{
-    return DecimalConvertUtil_Platform::decimalToFloat(decimal);
-}
-
-                        // decimalToDenselyPacked functions
-
-inline
-void DecimalConvertUtil::decimal32ToDenselyPacked(unsigned char *buffer,
-                                                  Decimal32      decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-}
-
-inline
-void DecimalConvertUtil::decimal64ToDenselyPacked(unsigned char *buffer,
-                                                  Decimal64      decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-}
-
-inline
-void DecimalConvertUtil::decimal128ToDenselyPacked(unsigned char *buffer,
-                                                  Decimal128     decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-}
-
-inline
-void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
-                                                Decimal32      decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-}
-
-inline
-void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
-                                                Decimal64      decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-}
-
-inline
-void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
-                                                Decimal128     decimal)
-{
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-}
-
-
-                        // decimalFromDenselyPacked functions
-
-inline
-Decimal32
-DecimalConvertUtil::decimal32FromDenselyPacked(const unsigned char *buffer)
-{
-    return DecimalConvertUtil_Platform::decimal32FromDenselyPacked(buffer);
-}
-
-inline
-Decimal64
-DecimalConvertUtil::decimal64FromDenselyPacked(const unsigned char *buffer)
-{
-    return DecimalConvertUtil_Platform::decimal64FromDenselyPacked(buffer);
-}
-
-inline
-Decimal128
-DecimalConvertUtil::decimal128FromDenselyPacked(const unsigned char *buffer)
-{
-    return DecimalConvertUtil_Platform::decimal128FromDenselyPacked(buffer);
-}
-
-inline
-void DecimalConvertUtil::decimalFromDenselyPacked(Decimal32           *decimal,
-                                                  const unsigned char *buffer)
-{
-    DecimalConvertUtil_Platform::decimalFromDenselyPacked(decimal, buffer);
-}
-
-inline
-void DecimalConvertUtil::decimalFromDenselyPacked(Decimal64           *decimal,
-                                                  const unsigned char *buffer)
-{
-    DecimalConvertUtil_Platform::decimalFromDenselyPacked(decimal, buffer);
-}
-
-inline
-void DecimalConvertUtil::decimalFromDenselyPacked(Decimal128          *decimal,
-                                                  const unsigned char *buffer)
-{
-    DecimalConvertUtil_Platform::decimalFromDenselyPacked(decimal, buffer);
-}
 
 }  // close package namespace
 }  // close enterprise namespace

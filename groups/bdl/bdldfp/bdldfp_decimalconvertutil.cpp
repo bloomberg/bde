@@ -49,95 +49,6 @@ PtrInputBuf::PtrInputBuf(const char *s) {
     this->setg(x, x, x + bsl::strlen(x));
 }
 
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-template<class DECIMAL_TYPE, class BINARY_TYPE>
-struct IntelFloatingConverter;
-
-
-template<>
-struct IntelFloatingConverter<Decimal32, float>
-{
-    static inline float convert(Decimal32 value)
-    {
-        return __bid32_to_binary32(value.data()->d_raw);
-    }
-};
-
-template<>
-struct IntelFloatingConverter<Decimal32, double>
-{
-    static inline double convert(Decimal32 value)
-    {
-        return __bid32_to_binary64(value.data()->d_raw);
-    }
-};
-
-template<>
-struct IntelFloatingConverter<Decimal32, long double>
-{
-    static inline long double convert(Decimal32 value)
-    {
-        return __bid32_to_binary80(value.data()->d_raw);
-    }
-};
-
-template<>
-struct IntelFloatingConverter<Decimal64, float>
-{
-    static inline float convert(Decimal64 value)
-    {
-        return __bid64_to_binary32(value.data()->d_raw);
-    }
-};
-
-template<>
-struct IntelFloatingConverter<Decimal64, double>
-{
-    static inline double convert(Decimal64 value)
-    {
-        return __bid64_to_binary64(value.data()->d_raw);
-    }
-};
-
-template<>
-struct IntelFloatingConverter<Decimal64, long double>
-{
-    static inline long double convert(Decimal64 value)
-    {
-        return __bid64_to_binary80(value.data()->d_raw);
-    }
-};
-
-template<>
-struct IntelFloatingConverter<Decimal128, float>
-{
-    static inline float convert(Decimal128 value)
-    {
-        return __bid128_to_binary32(value.data()->d_raw);
-    }
-};
-
-template<>
-struct IntelFloatingConverter<Decimal128, double>
-{
-    static inline double convert(Decimal128 value)
-    {
-        return __bid128_to_binary64(value.data()->d_raw);
-    }
-};
-
-template<>
-struct IntelFloatingConverter<Decimal128, long double>
-{
-    static inline long double convert(Decimal128 value)
-    {
-        return __bid128_to_binary80(value.data()->d_raw);
-    }
-};
-
-#endif
-
-
 template <class DECIMAL_TYPE, class BINARY_TYPE>
 void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
     // Construct, in the specified 'bfp', a Binary Floating Point
@@ -145,53 +56,6 @@ void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
 {
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     *bfp = dfp.value();
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    *bfp = IntelFloatingConverter<DECIMAL_TYPE, BINARY_TYPE>::convert(dfp);
-#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
-    // Handle special values of +/-INF, and NaNs without use of streams
-
-    // TODO TBD - set exception-flags here, but how do to know which one??? (E)
-    // ::decClass fclass(decFloatClass(dfp)); -- to be used for NaNs
-
-    if (dfp != dfp) {
-        *bfp = bsl::numeric_limits<BINARY_TYPE>::quiet_NaN();
-        if (dfp < DECIMAL_TYPE(0)) {
-            *bfp = -*bfp;
-        }
-        return;                                                       // RETURN
-    }
-
-    if (dfp == bsl::numeric_limits<DECIMAL_TYPE>::infinity()) {
-        *bfp = bsl::numeric_limits<BINARY_TYPE>::infinity();
-        return;                                                       // RETURN
-    }
-
-    if (dfp == -bsl::numeric_limits<DECIMAL_TYPE>::infinity()) {
-        *bfp = -bsl::numeric_limits<BINARY_TYPE>::infinity();
-        return;                                                       // RETURN
-    }
-
-    // TODO: TBD we should not convert through strings - it should be possible
-    // to convert directly
-    BufferBuf<48> bb;
-    bsl::ostream out(&bb);
-    out.imbue(bsl::locale::classic());
-    out.precision(std::numeric_limits<DECIMAL_TYPE>::digits10);
-    out << dfp;
-    BSLS_ASSERT(out);
-
-    PtrInputBuf pb(bb.str());
-    bsl::istream in(&pb);
-    if (!(in >> *bfp)) {
-        if (dfp > DECIMAL_TYPE(1) || dfp < DECIMAL_TYPE(-1)) { // overflow
-            *bfp = bsl::numeric_limits<BINARY_TYPE>::infinity();
-        } else { // underflow
-            *bfp = 0.0;
-        }
-        if (dfp < DECIMAL_TYPE(0)) {
-            *bfp = -*bfp;
-        }
-    }
 #endif
 }
 
@@ -207,111 +71,22 @@ static void memrev(void *buffer, size_t count)
 
                         // Mem copy with reversal functions
 
-unsigned char *memCpyFlip(void *out, const void *in, size_t count)
-    // Copy the first specified 'count' bytes from the specified 'in' buffer to
-    // the specified 'out' buffer and flip the byte order if needed.
+unsigned char *memRevIfNeeded(void *buffer, size_t count)
+    // Reverse the first specified 'count' bytes from the specified 'buffer`,
+    // if the host endian is different from network endian, and return the
+    // address computed from 'static_cast<unsigned char *>(buffer) + count'.
 {
-    // Just stick the bytes into the buffer first
-    bsl::memcpy(out, in, count);
 #ifdef BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
+//#error Should reverse, and we will
     // little endian, needs to do some byte juggling
-    memrev(out, count);
+    memrev(buffer, count);
+#else
+#error Should reverse, and we will not
 #endif
-    return static_cast<unsigned char*>(out) + count;
+    return static_cast<unsigned char*>(buffer) + count;
 }
 
                         // Decimal-network conversion functions
-
-#ifdef BDLDFP_DECIMALPLATFORM_DPD
-
-template <class DECIMAL_TYPE>
-inline
-DECIMAL_TYPE toNativeDecimal(DECIMAL_TYPE decimal)
-{
-    return decimal;
-}
-
-template <class DECIMAL_TYPE>
-inline
-DECIMAL_TYPE toDPDDecimal(DECIMAL_TYPE decimal)
-{
-    return decimal;
-}
-
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-
-template <class DECIMAL_TYPE>
-struct DPDDecimalConverter;
-
-template <class DECIMAL_TYPE>
-inline
-DECIMAL_TYPE toNativeDecimal(DECIMAL_TYPE decimal)
-{
-    return DPDDecimalConverter<DECIMAL_TYPE>::convertFromDPD(decimal);
-}
-
-template <class DECIMAL_TYPE>
-inline
-DECIMAL_TYPE toDPDDecimal(DECIMAL_TYPE decimal)
-{
-    return DPDDecimalConverter<DECIMAL_TYPE>::convertToDPD(decimal);
-}
-
-template <>
-struct DPDDecimalConverter <Decimal32>
-{
-    static inline Decimal32 convertToDPD(Decimal32 decimal)
-    {
-        decimal.data()->d_raw = __bid_to_dpd32(decimal.data()->d_raw);
-        return decimal;
-    }
-
-    static inline Decimal32 convertFromDPD(Decimal32 decimal)
-    {
-        decimal.data()->d_raw = __bid_dpd_to_bid32(decimal.data()->d_raw);
-        return decimal;
-    }
-};
-
-template <>
-struct DPDDecimalConverter <Decimal64>
-{
-    static inline Decimal64 convertToDPD(Decimal64 decimal)
-    {
-        decimal.data()->d_raw = __bid_to_dpd64(decimal.data()->d_raw);
-        return decimal;
-    }
-
-    static inline Decimal64 convertFromDPD(Decimal64 decimal)
-    {
-        decimal.data()->d_raw = __bid_dpd_to_bid64(decimal.data()->d_raw);
-        return decimal;
-    }
-};
-
-template <>
-struct DPDDecimalConverter <Decimal128>
-{
-    static inline Decimal128 convertToDPD(Decimal128 decimal)
-    {
-        decimal.data()->d_raw = __bid_to_dpd128(decimal.data()->d_raw);
-        return decimal;
-    }
-
-    static inline Decimal128 convertFromDPD(Decimal128 decimal)
-    {
-        decimal.data()->d_raw = __bid_dpd_to_bid128(decimal.data()->d_raw);
-        return decimal;
-    }
-};
-
-#else
-#  error Non-Intel Binary Integer Significand format is not supported.
-struct BinaryIntegerSignificand_FormatNotSupported;
-BinaryIntegerSignificand_FormatNotSupported //
-    forceError[sizeof(BinaryIntegerSignificand_FormatNotSupported)];
-#endif
-
 
 template <class DECIMAL_TYPE>
 unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
@@ -321,9 +96,12 @@ unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
     // memory pointer, providing modifiable access, to one byte past the last
     // byte of 'decimal'.
 {
-    unsigned char *result = memCpyFlip(decimal, buffer, sizeof(DECIMAL_TYPE));
+    bsl::memcpy(decimal, buffer, sizeof(DECIMAL_TYPE));
+    unsigned char *result = memRevIfNeeded(decimal, sizeof(DECIMAL_TYPE));
 
-    *decimal = toNativeDecimal(*decimal);
+    DecimalConvertUtil_Platform::decimalFromDenselyPacked(
+                                   decimal,
+                                   reinterpret_cast<unsigned char *>(decimal));
 
     return result;
 }
@@ -336,8 +114,8 @@ unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
     // return a raw memory pointer, providing modifiable access, to one byte
     // past the last written byte of the 'buffer'.
 {
-    decimal = toDPDDecimal(decimal);
-    return memCpyFlip(buffer, &decimal, sizeof(DECIMAL_TYPE));
+    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
+    return memRevIfNeeded(buffer, sizeof(DECIMAL_TYPE));
 }
 
                   // Helpers for Restoring Decimal from Binary
@@ -395,120 +173,6 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
 }
 
 } // end anonymous namespace
-
-                        // decimalToLongDouble functions
-
-long double DecimalConvertUtil::decimal32ToLongDouble(Decimal32 decimal)
-{
-    long double rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-long double DecimalConvertUtil::decimal64ToLongDouble(Decimal64 decimal)
-{
-    long double rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-long double DecimalConvertUtil::decimal128ToLongDouble(Decimal128 decimal)
-{
-    long double rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-long double DecimalConvertUtil::decimalToLongDouble(Decimal32 decimal)
-{
-    return decimal32ToLongDouble(decimal);
-}
-
-long double DecimalConvertUtil::decimalToLongDouble(Decimal64 decimal)
-{
-    return decimal64ToLongDouble(decimal);
-}
-
-long double DecimalConvertUtil::decimalToLongDouble(Decimal128 decimal)
-{
-    return decimal128ToLongDouble(decimal);
-}
-
-                        // decimalToDouble functions
-
-double DecimalConvertUtil::decimal32ToDouble(Decimal32 decimal)
-{
-    double rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-double DecimalConvertUtil::decimal64ToDouble(Decimal64 decimal)
-{
-    double rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-double DecimalConvertUtil::decimal128ToDouble(Decimal128 decimal)
-{
-    double rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-double DecimalConvertUtil::decimalToDouble(Decimal32 decimal)
-{
-    return decimal32ToDouble(decimal);
-}
-
-double DecimalConvertUtil::decimalToDouble(Decimal64 decimal)
-{
-    return decimal64ToDouble(decimal);
-}
-
-double DecimalConvertUtil::decimalToDouble(Decimal128 decimal)
-{
-    return decimal128ToDouble(decimal);
-}
-
-                        // decimalToFloat functions
-
-float DecimalConvertUtil::decimal32ToFloat (Decimal32 decimal)
-{
-    float rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-float DecimalConvertUtil::decimal64ToFloat (Decimal64 decimal)
-{
-    float rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-float DecimalConvertUtil::decimal128ToFloat (Decimal128 decimal)
-{
-    float rv;
-    makeBinaryFloatingPoint(&rv, decimal);
-    return rv;
-}
-
-float DecimalConvertUtil::decimalToFloat (Decimal32 decimal)
-{
-    return decimal32ToFloat (decimal);
-}
-
-float DecimalConvertUtil::decimalToFloat (Decimal64 decimal)
-{
-    return decimal64ToFloat (decimal);
-}
-
-float DecimalConvertUtil::decimalToFloat (Decimal128 decimal)
-{
-    return decimal128ToFloat (decimal);
-}
 
                         // Network format converters
 
