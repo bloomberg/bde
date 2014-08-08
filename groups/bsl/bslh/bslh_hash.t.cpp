@@ -281,7 +281,7 @@ class HashTable {
     // This class template implements a hash table providing fast lookup of an
     // external, non-owned, array of values of configurable type.
     //
-    // The parameterized 'TYPE' shall have a transitive, symmetric 'operator=='
+    // The (template parameter) 'TYPE' shall have a transitive, symmetric 'operator=='
     // function and that a it is hashable using 'bslh::Hash'.  There is no
     // requirement that it have any kind of creator defined.
     //
@@ -510,7 +510,7 @@ class TestDriver {
     }
 
     void testHashAppendNegativeZero()
-        // Test 'hashAppend' on the parameterized 'TYPE' ensuring that both 0
+        // Test 'hashAppend' on the (template parameter) 'TYPE' ensuring that both 0
         // and -0 will hash to the same value. This is intended to test
         // floating point numbers where 0.0 and -0.0 have different binary
         // representations.
