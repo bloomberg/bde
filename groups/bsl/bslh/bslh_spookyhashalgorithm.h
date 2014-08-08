@@ -10,15 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide and implementation of the SpookyHash algorithm.
 //
 //@CLASSES:
-// bslh::SpookyHashAlgorithm: Spooky hash algorithm.
+// bslh::SpookyHashAlgorithm: SpookyHash algorithm functor
 //
 //@SEE_ALSO: bslh_hash, bslh_spookhashalgorithmimp
 //
-//@DESCRIPTION: 'bslh::SpookyHashAlgorithm' implements the spooky hashing
-//  algorithm by Bob Jenkins. The algorithm is a general purpose algorithm
-//  that is known to quickly reach good avalanche performance and is very fast.
-//  It is a good choice to use as a default hashing algorithm for associative
-//  containers. See: http://burtleburtle.net/bob/hash/spooky.html
+//@DESCRIPTION: 'bslh::SpookyHashAlgorithm' implements the SpookyHash algorithm
+// by Bob Jenkins. This algorithm is a general purpose algorithm that is known
+// to quickly reach good avalanche performance and execute in time that is
+// comprable to or faster than other industry standard algorithms such as
+// CityHash.  It is a good choice to use as a default hashing algorithm for
+// associative containers.  For more information, see:
+// http://burtleburtle.net/bob/hash/spooky.html
 //
 ///Security Guarantees
 ///-------------------
@@ -31,11 +33,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Performance
 ///-----------
-// This hashing algorithm is a fast, general purpose algorithm. It is quicker
-// than specialized algorithms such as SipHash, but not as fast as identity
-// hashing. Output hashes will be well distributed and will avalanche, which
-// means changing one bit on the input will completely change the output. This
-// will prevent similar values from funneling to the same hash or bucket.
+// This algorithm will compute a hash on the order of O(n) where n is the
+// length of the input data. Note that this algorithm will produce hashes fast
+// enough to be used for keying a hash table.  It is quicker than specialized
+// algorithms such as SipHash, but not as fast as identity hashing. Output
+// hashes will be well distributed and will avalanche, which means changing one
+// bit of the input will change approximately 50% of the output bits. This will
+// prevent similar values from funneling to the same hash or bucket.
 //
 ///Endianness
 ///----------
@@ -44,10 +48,11 @@ BSLS_IDENT("$Id: $")
 // Performance and Security Guarantees still apply, however the hashes produced
 // will be different from those produced by the canonical implementation. The
 // creator of this algorithm acknowledges this and says that the big-endian
-// hashes are just as good as the little-endian ones. Therefor it is not
-// recommended to send hashes from 'bslh::SpookyHashAlgorihtm' over a network.
-// It is also not recommended to write hashes from 'bslh::SpookyHashAlgorihtm'
-// to any memory accessible by multiple machines.
+// hashes are just as good as the little-endian ones. Becuase of the
+// differances in hashes, it is not recommended to send hashes from
+// 'bslh::SpookyHashAlgorihtm' over a network.  It is also not recommended to
+// write hashes from 'bslh::SpookyHashAlgorihtm' to any memory accessible by
+// multiple machines.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -80,15 +85,18 @@ namespace bslh {
                         // ===============================
 
 class SpookyHashAlgorithm
+{
     // This class wraps an implementation of the "SpookyHash" hash algorithm
     // (see http://burtleburtle.net/bob/hash/spooky.html).
-{
 
     // PRIVATE TYPES
-    typedef bsls::Types::Uint64 uint64;// 64-bit int type.
+    typedef bsls::Types::Uint64 uint64;
+        // Typedef for a 64-bit integer type used in the hashing algorithm.
 
     // DATA
-    SpookyHashAlgorithmImp d_state;   // Representation of SpookHash algorithm.
+    SpookyHashAlgorithmImp d_state;
+        // Object that contains the actual implementation of the SpookHash
+        // algorithm.
 
   public:
     // TYPES
@@ -101,16 +109,24 @@ class SpookyHashAlgorithm
 
     // CREATORS
     SpookyHashAlgorithm();
-        // Create a 'SpookyHashAlgorithm' with default seed values.
+        // Create a 'SpookyHashAlgorithm' using a default initial seed.
 
     explicit SpookyHashAlgorithm(const char *seed);
         // Create an instance of 'SpookyHashAlgorithm' seeded with a 128-bit
         // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
+        // Each bit of the supplied seed will contribute to the final hash
+        // produced by 'computeHash()'.
 
     // MANIPULATORS
-    void operator()(void const* key, size_t length);
-        // Incorporates the specified 'key' of 'length' bytes into the internal
-        // state of the hashing algorithm.
+    void operator()(const void *data, size_t length);
+        // Incorporates the specified 'length' bytes of 'data' into the
+        // internal state of the hashing algorithm. Every bit of data
+        // incorporated into the internal state of the algorithm will
+        // contribute to the final hash produced by 'computeHash()'. The same
+        // hash will be produced regardless of whether a sequence of bytes is
+        // passed in all at once or through multiple calls to this member
+        // function. Input where 'length' == 0 will have no effect on the
+        // internal state of the algorithm.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
@@ -138,9 +154,9 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 
 // MANIPULATORS
 inline
-void SpookyHashAlgorithm::operator()(void const* key, size_t length)
+void SpookyHashAlgorithm::operator()(const void *data, size_t length)
 {
-    d_state.Update(key, length);
+    d_state.Update(data, length);
 }
 
 inline

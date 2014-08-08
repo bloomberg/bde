@@ -10,17 +10,17 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an implementation of the SipHash algorithm.
 //
 //@CLASSES:
-// bslh::SipHashAlgorithm: SipHash algorithm
+// bslh::SipHashAlgorithm: SipHash algorithm functor
 //
 //@SEE_ALSO: bslh_hash
 //
 //@DESCRIPTION: 'bslh::SipHashAlgorithm' implements the SipHash algorithm.
 // SipHash is an algorithm designed for speed and security.  A primary use case
 // for this algorithm is to provide an extra line of defense in hash tables
-// (such as the underlying implementation of unordered map) against malicious
-// input that could cause denial of service attacks.  It is based on one of the
-// finalists for the SHA-3 cryptographic hash standard.  Full details of the
-// hash function can be found here: https://131002.net/siphash/siphash.pdf
+// (such as the underlying implementation of 'unordered_map') against malicious
+// input that could cause denial of service (DOS) attacks.  It is based on one
+// of the finalists for the SHA-3 cryptographic hash standard.  Full details of
+// the hash function can be found here: https://131002.net/siphash/siphash.pdf
 // This particular implementation has been derived from Howard Hinnant's work
 // here: https://github.com/HowardHinnant/hash_append/blob/master/siphash.h and
 // as much of the original code as possible, including comment headers, has
@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------
 // SipHash is NOT a cryptographically secure hash. In the paper linked above,
 // the creators of this hash function describe it as "Cryptographically
-// Strong", but explicitly avoid calling it cryptographically secure. In order
+// Strong", but explicitly avoid calling it cryptographically secure.  In order
 // to be cryptographically secure, and algorithm must, among other things,
 // provide "collision resistance".  "Collision resistance" means that it should
 // be difficult to find two different messages m1 and m2 such that hash(m1) =
@@ -41,32 +41,39 @@ BSLS_IDENT("$Id: $")
 // SipHash IS, however, a cryptographically strong PRF (pseudorandom function).
 // This means that, assuming a properly random seed is given, the output of
 // this algorithm will be indistinguishable from a uniform random distribution.
+// This property is enough for the algorithm to be able to protect a hash table
+// from malicious DOS attacks
 //
 ///Denial of Service Protection
 ///----------------------------
-// The inability to predict the output of the hash from the input without
-// exhaustive search means that this algorithm can help mitigate denial of
-// service attacks on a hash table.  Denial of service attacks occur when an
-// attacker deliberately degrades the performace of the hash table by inserting
-// data that will collide to the same bucket, causing an O(1) lookup to become
-// a O(n) linear search.  This protection is only effective if the seed
-// provided is random and hidden from the attacker.
+// Given a cryptographically secure seed, this algorithm will produce hashes
+// with a distribution that is indistinguishable from random.  This
+// distribution means that there is no way for an attacker to predict which
+// keys will cause collisions, meaning that this algorithm can help mitigate
+// denial of service attacks on a hash table.  Denial of service attacks occur
+// when an attacker deliberately degrades the performace of the hash table by
+// inserting data that will collide to the same bucket, causing an average
+// constant time lookup to become a linear search.  This protection is only
+// effective if the seed provided is a cryptographically secure random number
+// that is not availible to the attacker.
 //
 ///Speed
 ///-----
-// This algorithm is designed to be fast, compared to other algorithms making
-// similar guarantees. It is still slower than other commonly accepted and used
-// hashes such as SpookyHash. This hash should only be used when protection
-// from malicious input is required. Otherwise, 'bslh::DefaultHashAlgorithm'
-// should be used to obtain a faster, generally applicable, hashing algorithm.
+// This algorithm is designed to be fast in comparison to other algorithms
+// making similar guarantees. It is still slower than other commonly accepted
+// and used hashes such as SpookyHash. This algorithm should only be used when
+// protection from malicious input is required. Otherwise,
+// 'bslh::DefaultHashAlgorithm' should be used to obtain a faster, generally
+// applicable, hashing algorithm.
 //
 ///Endianness
 ///----------
 // This hash is endian-specific. The algorithm will run on big and little
 // endian machines and the above guarantees apply on both architectures,
-// however, the hashes produced will be different. Be aware that this means
-// storing hashes in memory or transmitting them across the network is not
-// recommended.
+// however, the hashes produced will be different. Therefor it is not
+// recommended to send hashes from 'bslh::SipHashAlgorithm' over a network. It
+// is also not recommended to write hashes from 'bslh::SipHashAlgorithm' to any
+// memory accessible by multiple machines.
 //
 ///Changes
 ///-------
@@ -83,7 +90,7 @@ BSLS_IDENT("$Id: $")
 //: 4 Added comments
 //:
 //: 5 Removed C++11 features including class member initializer, 'noexcept',
-//:   'std::uint64_t', elxplicit conversion operator, and an '= default'
+//:   'std::uint64_t', explicit conversion operator, and an '= default'
 //:   constructor.
 //:
 //: 6 Added typedef to replace removed 'std::uint64_t'
@@ -92,6 +99,8 @@ BSLS_IDENT("$Id: $")
 //:
 //: 8 Added 'k_SEED_LENGTH' and changed the constructor to accept a 'const char
 //:   *'
+//:
+//: 9 Added includes and include guards
 //
 ///Third Party Doc
 ///---------------
@@ -139,12 +148,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-
-
 namespace BloombergLP {
 
 namespace bslh {
-
 
                           // ============================
                           // class bslh::SipHashAlgorithm
@@ -158,19 +164,26 @@ class SipHashAlgorithm
   private:
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 uint64;
+        // Typedef for a 64-bit integer type used in the hashing algorithm.
 
     // DATA
     uint64 d_v0;
     uint64 d_v1;
     uint64 d_v2;
     uint64 d_v3;
-    unsigned char d_buf [8];
-    unsigned int d_bufSize;
-    unsigned int d_totalLength;
+        // Stores the intermediate state of the algorithm as values are
+        // accumulated
 
-    // PRIVATE MANIPULATORS
-    void init();
-        // Initialize the state of this object.
+    unsigned char d_buf [8];
+        // Used to buffer data until we have enough to do a full round of
+        // computation as specified by the algorithm.
+
+    unsigned int d_bufSize;
+        // The length of the data currently stored in the buffer.
+
+    unsigned int d_totalLength;
+        // The total length of all data that has been passed into the
+        // algorithm.
 
   public:
     // TYPES
@@ -182,16 +195,23 @@ class SipHashAlgorithm
 
     // CREATORS
     explicit SipHashAlgorithm(const char *seed);
-        // Create a 'SipHashAlgorithm' with a 128-bit ('k_SEED_LENGTH' bytes)
-        // seed pointed to by the specified 'seed'. Note that if data in 'seed'
-        // is not random, all guarantees of security and denial of service
-        // protection are void.
+        // Create an instance of 'SipHashAlgorithm' seeded with a 128-bit
+        // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
+        // Each bit of the supplied seed will contribute to the final hash
+        // produced by 'computeHash()'. Note that if data in 'seed' is not
+        // random, all guarantees of security and denial of service protection
+        // are void.
 
     // MANIPULATORS
-    void operator()(void const* key, size_t len);
-        // Incorporates the specified 'key' of 'len' bytes into the internal
-        // state of the hashing algorithm. Input where 'len' == 0 will have no
-        // effect on the internal state of the algorithm.
+    void operator()(const void *data, size_t length);
+        // Incorporates the specified 'length' bytes of 'data' into the
+        // internal state of the hashing algorithm. Every bit of data
+        // incorporated into the internal state of the algorithm will
+        // contribute to the final hash produced by 'computeHash()'. The same
+        // hash will be produced regardless of whether a sequence of bytes is
+        // passed in all at once or through multiple calls to this member
+        // function. Input where 'length' == 0 will have no effect on the
+        // internal state of the algorithm.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.

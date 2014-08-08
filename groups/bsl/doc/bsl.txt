@@ -47,6 +47,7 @@
    5. bslalg
 
    4. bslma
+      bslh
 
    3. bsldoc
       bslmf
@@ -79,6 +80,9 @@
 :
 : 'bsldoc':
 :      Provide documentation of terms and concepts used throughout BDE.
+:
+: 'bslh':
+:      Provide modular hashing functionality
 :
 : 'bslim':
 :      Provide implementation mechanisms.
@@ -138,6 +142,11 @@
  {'bsldoc'} documents key terminology and concepts used throughout BDE
  documentation.  Note that the components in this package consist entirely of
  comments, no code.
+
+/'bslh'
+/ - - -
+ {'bslh'} provides standard hashing algorithms and components allowing the
+ application of those hashing algorithms to types in a modular way.
 
 /'bslim'
 /- - - -

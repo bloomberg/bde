@@ -550,7 +550,10 @@ int main(int argc, char *argv[])
         //:   internal state of the algorithm in the same way, regardless of
         //:   whether the bytes are passed in all at once or in pieces.
         //:
-        //: 3 'computeHash()' exists and returns the appropriate value
+        //: 3 Byte sequences passed in to 'operator()' with a length of 0 will
+        //:   not contribute to the final hash
+        //:
+        //: 4 'computeHash()' exists and returns the appropriate value
         //:   according to the SipHash specification.
         //
         // Plan:
@@ -558,8 +561,12 @@ int main(int argc, char *argv[])
         //:   at once and char by char using 'operator()'. Assert that the
         //:   algorithm produces the same result in both cases. (C-1,2)
         //:
-        //: 2 Check the output of 'computeHash()' against the expected results
-        //:   from a known good version of the algorithm. (C-3)
+        //: 2 Hash c-strings all at once and with multiple calls to
+        //:   'operator()' with length 0. Assert that both methods of hashing
+        //:   c-strings produce the same values.(C-3)
+        //:
+        //: 3 Check the output of 'computeHash()' against the expected results
+        //:   from a known good version of the algorithm. (C-4)
         //
         // Testing:
         //   void operator()(void const* key, size_t len);
@@ -626,9 +633,36 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) printf("Hash c-strings all at once and with multiple"
+                            " calls to 'operator()' with length 0. Assert that"
+                            " both methods of hashing c-strings produce the"
+                            " same values.(C-3)\n");
+        {
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int   LINE  = DATA[i].d_line;
+                const char *VALUE = DATA[i].d_value;
+
+                if (veryVerbose) printf("Hashing: %s\n", VALUE);
+
+                Obj contiguousHash = Obj();
+                Obj dispirateHash  = Obj();
+
+                contiguousHash(VALUE, strlen(VALUE));
+                for (unsigned int j = 0; j < strlen(VALUE); ++j){
+                    if (veryVeryVerbose) printf("Hashing by char: %c\n",
+                                                                     VALUE[j]);
+                    dispirateHash(&VALUE[j], sizeof(char));
+                    dispirateHash(VALUE, 0);
+                }
+
+                LOOP_ASSERT(LINE, contiguousHash.computeHash() ==
+                                                  dispirateHash.computeHash());
+            }
+        }
+
         if (verbose) printf("Check the output of 'computeHash()' against the"
                             " expected results from a known good version of"
-                            " the algorithm. (C-3)\n");
+                            " the algorithm. (C-4)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int                 LINE  = DATA[i].d_line;

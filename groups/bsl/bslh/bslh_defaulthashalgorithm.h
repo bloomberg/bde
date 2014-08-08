@@ -36,8 +36,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Speed
 ///- - -
-// The default hash algorithm will comput the hash on the order of O(n) where n
-// is the length of the input data. Note that the default hash algorithm will
+// The default hash algorithm will compute the hash on the order of O(n) where
+// n is the length of the input data. Note that the default hash algorithm will
 // produce hashes fast enough to be used for keying a hash table.
 //
 ///Hash Distribution
@@ -96,9 +96,15 @@ class DefaultHashAlgorithm
         // algorithm being used internally.
 
     // MANIPULATORS
-    void operator()(void const* key, size_t length);
-        // Incorporates the specified 'key' of 'length' bytes into the internal
-        // state of the hashing algorithm.
+    void operator()(const void *data, size_t length);
+        // Incorporates the specified 'length' bytes of 'data' into the
+        // internal state of the hashing algorithm. Every bit of data
+        // incorporated into the internal state of the algorithm will
+        // contribute to the final hash produced by 'computeHash()'. The same
+        // hash will be produced regardless of whether a sequence of bytes is
+        // passed in all at once or through multiple calls to this member
+        // function. Input where 'length' == 0 will have no effect on the
+        // internal state of the algorithm.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
@@ -117,9 +123,9 @@ DefaultHashAlgorithm::DefaultHashAlgorithm()
 
 // MANIPULATORS
 inline
-void DefaultHashAlgorithm::operator()(void const* key, size_t length)
+void DefaultHashAlgorithm::operator()(const void *data, size_t length)
 {
-    d_state(key, length);
+    d_state(data, length);
 }
 
 inline

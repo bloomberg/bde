@@ -134,15 +134,15 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
 }
 
 void
-SipHashAlgorithm::operator()(void const* key, size_t len)
+SipHashAlgorithm::operator()(const void *data, size_t length)
 {
-    u8 const* in = static_cast<const u8*>(key);
+    u8 const* in = static_cast<const u8*>(data);
 
-    d_totalLength += len;
-    if (d_bufSize + len < 8)
+    d_totalLength += length;
+    if (d_bufSize + length < 8)
     {
-        std::copy(in, in+len, d_buf + d_bufSize);
-        d_bufSize += len;
+        std::copy(in, in + length, d_buf + d_bufSize);
+        d_bufSize += length;
         return;                                                       // RETURN
     }
     if (d_bufSize > 0)
@@ -155,10 +155,10 @@ SipHashAlgorithm::operator()(void const* key, size_t len)
         sipround(d_v0, d_v1, d_v2, d_v3);
         d_v0 ^= m;
         in += t;
-        len -= t;
+        length -= t;
     }
-    d_bufSize = len & 7;
-    u8 const* const end = in + (len - d_bufSize);
+    d_bufSize = length & 7;
+    u8 const* const end = in + (length - d_bufSize);
     for ( ; in != end; in += 8 )
     {
         u64 m = u8to64_le( in );

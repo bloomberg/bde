@@ -97,13 +97,21 @@ class DefaultSeededHashAlgorithm
 
     // CREATORS
     explicit DefaultSeededHashAlgorithm(const char *seed);
-        // Create an instance of 'DefaultSeededHashAlgorithm' seeded with
-        // 'k_SEED_LENGTH' bytes stored in the specified 'seed'.
+        // Create an instance of 'DefaultSeededHashAlgorithm' seeded with a
+        // 128-bit ('k_SEED_LENGTH' bytes) seed pointed to by the specified
+        // 'seed'.  Each bit of the supplied seed will contribute to the final
+        // hash produced by 'computeHash()'.
 
     // MANIPULATORS
-    void operator()(void const* key, size_t length);
-        // Incorporates the specified 'key' of 'length' bytes into the internal
-        // state of the hashing algorithm.
+    void operator()(const void *data, size_t length);
+        // Incorporates the specified 'length' bytes of 'data' into the
+        // internal state of the hashing algorithm. Every bit of data
+        // incorporated into the internal state of the algorithm will
+        // contribute to the final hash produced by 'computeHash()'. The same
+        // hash will be produced regardless of whether a sequence of bytes is
+        // passed in all at once or through multiple calls to this member
+        // function. Input where 'length' == 0 will have no effect on the
+        // internal state of the algorithm.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
@@ -122,9 +130,9 @@ DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed)
 
 // MANIPULATORS
 inline
-void DefaultSeededHashAlgorithm::operator()(void const* key, size_t length)
+void DefaultSeededHashAlgorithm::operator()(const void *data, size_t length)
 {
-    d_state(key, length);
+    d_state(data, length);
 }
 
 inline
