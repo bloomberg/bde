@@ -2,6 +2,9 @@
 
 #include <bdldfp_denselypackeddecimalimputil.h>
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$")
+
 #include <bdldfp_decimalplatform.h>
 #include <bdldfp_uint128.h>
 
@@ -155,19 +158,31 @@ struct Properties<32>
     static const long long   smallLimit      = 1000000ll;
     static const long long   mediumLimit     = 10000000ll;
 
-    static inline unsigned long long lowDigits(unsigned long long value);
     static inline StorageType getSignBit();
-    static inline unsigned int topDigit(unsigned long long value);
-};
+        // Return a 'StorageType' bit-package encoding a sign bit for 32-bit
+        // DPD values.
 
-inline unsigned long long Properties<32>::lowDigits(unsigned long long value)
-{
-    return value % smallLimit;
-}
+    static inline unsigned long long lowDigits(unsigned long long value);
+        // Return a 64-bit unsigned integer representing the low order decimal
+        // digits in the specified 'value' capable of being encoded in declet
+        // fields.  Digits which must be encoded into a combination field are
+        // removed.
+
+    static inline unsigned int topDigit(unsigned long long value);
+        // Return an unsigned integer representing the high order decimal digit
+        // of the specified 'value' capable of being encoded in a combination
+        // field.  Digits which must be encoded into declet fields field are
+        // removed.
+};
 
 inline Properties<32>::StorageType Properties<32>::getSignBit()
 {
     return signBit;
+}
+
+inline unsigned long long Properties<32>::lowDigits(unsigned long long value)
+{
+    return value % smallLimit;
 }
 
 inline unsigned int Properties<32>::topDigit(unsigned long long value)
@@ -192,19 +207,31 @@ struct Properties<64>
     static const StorageType plusInfBits     = 0x7800000000000000ull;
     static const StorageType minusInfBits    = 0xF800000000000000ull;
 
-    static inline unsigned long long lowDigits(unsigned long long value);
     static inline StorageType getSignBit();
-    static inline unsigned int topDigit(unsigned long long value);
-};
+        // Return a 'StorageType' bit-package encoding a sign bit for 32-bit
+        // DPD values.
 
-inline unsigned long long Properties<64>::lowDigits(unsigned long long value)
-{
-    return value % smallLimit;
-}
+    static inline unsigned long long lowDigits(unsigned long long value);
+        // Return a 64-bit unsigned integer representing the low order decimal
+        // digits in the specified 'value' capable of being encoded in declet
+        // fields.  Digits which must be encoded into a combination field are
+        // removed.
+
+    static inline unsigned int topDigit(unsigned long long value);
+        // Return an unsigned integer representing the high order decimal digit
+        // of the specified 'value' capable of being encoded in a combination
+        // field.  Digits which must be encoded into declet fields field are
+        // removed.
+};
 
 inline Properties<64>::StorageType Properties<64>::getSignBit()
 {
     return signBit;
+}
+
+inline unsigned long long Properties<64>::lowDigits(unsigned long long value)
+{
+    return value % smallLimit;
 }
 
 inline unsigned int Properties<64>::topDigit(unsigned long long value)
@@ -225,15 +252,22 @@ struct Properties<128>
     static const int bias            = 6176;
     static const int maxExponent     = 6111;
 
-    static inline unsigned long long lowDigits(unsigned long long value);
     static inline StorageType getSignBit();
-    static inline unsigned int topDigit(unsigned long long);
-};
+        // Return a 'StorageType' bit-package encoding a sign bit for 32-bit
+        // DPD values.
 
-inline unsigned long long Properties<128>::lowDigits(unsigned long long value)
-{
-    return value;
-}
+    static inline unsigned long long lowDigits(unsigned long long value);
+        // Return a 64-bit unsigned integer representing the low order decimal
+        // digits in the specified 'value' capable of being encoded in declet
+        // fields.  Digits which must be encoded into a combination field are
+        // removed.
+
+    static inline unsigned int topDigit(unsigned long long value);
+        // Return an unsigned integer representing the high order decimal digit
+        // of the specified 'value' capable of being encoded in a combination
+        // field.  Digits which must be encoded into declet fields field are
+        // removed.
+};
 
 inline Properties<128>::StorageType Properties<128>::getSignBit()
 {
@@ -241,23 +275,31 @@ inline Properties<128>::StorageType Properties<128>::getSignBit()
     return signBit;
 }
 
+inline unsigned long long Properties<128>::lowDigits(unsigned long long value)
+{
+    return value;
+}
+
 inline unsigned int Properties<128>::topDigit(unsigned long long)
 {
     return 0;
 }
 
-// Create the binary-encoded declets of the mantissa, excluding the leading
-// digit which is encoded in the combination field.
 template <int Size>
 static typename Properties<Size>::StorageType getDeclets(
                                                       unsigned long long value)
+    // Create the binary-encoded declets of the representing the specified
+    // 'value', excluding the leading digit of 'value' which needs to be
+    // encoded in a combination field.
 {
     typedef typename Properties<Size>::StorageType StorageType;
 
     unsigned int shift(0u);
     StorageType bits = StorageType();
     for (; value; value /= 1000ull, shift += 10u) {
-        bits |= StorageType(DenselyPackedDecimalImpUtil::encodeDeclet(value % 1000ull)) << shift;
+        bits |= StorageType(
+                DenselyPackedDecimalImpUtil::encodeDeclet(value %
+                                                          1000ull)) << shift;
     }
     return bits;
 }
@@ -266,10 +308,10 @@ static typename Properties<Size>::StorageType getDeclets(
 
 template <int Size>
 static typename Properties<Size>::StorageType makeCombinationField(
-                                                            unsigned int digit,
-                                                            int          exp)
-    // Create the binary-encoded combination field, which combines the exponent
-    // with the leading digit of the mantissa.
+                                                         unsigned int digit,
+                                                         int          exponent)
+    // Create the binary-encoded combination field, which combines the
+    // specified 'exponent' with the specified leading 'digit' of the mantissa.
 {
     // lower (size - 5) bits: the bits of the exp with the bias addded top 5
     // bits: G0...G4
@@ -288,76 +330,89 @@ static typename Properties<Size>::StorageType makeCombinationField(
         shift = size - 5,
         clear = (1ul << shift) - 1ul
     };
-    unsigned long expo(exp + Properties<Size>::bias);
+    unsigned long expo(exponent + Properties<Size>::bias);
 
-    typename Properties<Size>::StorageType exponent(expo & clear);
-    exponent |= digit < 8u
+    typename Properties<Size>::StorageType exp(expo & clear);
+    exp |= digit < 8u
         ? (((expo & (0x3ul << shift)) << 3u)
            | (digit << shift))
         : ((0x18ul << shift)
            | ((expo & (0x3ul << shift)) << 1u)
            | (digit & 0x1u) << shift);
 
-    return exponent <<= (Size - size - 1);
+    return exp <<= (Size - size - 1);
 }
 
 template <int Size>
-static typename Properties<Size>::StorageType
-combineDecimalRaw(unsigned long long value,
-                  int                exp,
-                  bool               negative)
-    // Given the mantissa, exponent, and sign, create the bits of the decimal
-    // floating point value.
+static typename Properties<Size>::StorageType combineDecimalRaw(
+                                                   unsigned long long mantissa,
+                                                   int                exponent,
+                                                   bool               negative)
+    // Return the a pattern of bits representing a decimal floating point value
+    // specified by the given 'mantissa', 'exponent', and 'negative'.
 {
     typedef typename Properties<Size>::StorageType StorageType;
     StorageType combinationField(makeCombinationField<Size>(
-                                      Properties<Size>::topDigit(value), exp));
+                              Properties<Size>::topDigit(mantissa), exponent));
 
     StorageType sign = negative ? Properties<Size>::getSignBit() : 0;
 
-    return sign | combinationField |
-               getDeclets<Size>(Properties<Size>::lowDigits(value));  // RETURN
+    return sign |
+           combinationField |
+           getDeclets<Size>(Properties<Size>::lowDigits(mantissa));   // RETURN
 }
 
 template <int Size>
 static typename Properties<Size>::StorageType toDecimalRaw(
-                                                   unsigned long long value,
-                                                   int                exp,
+                                                   unsigned long long mantissa,
+                                                   int                exponent,
                                                    bool               negative)
+    // Return the a pattern of bits representing a decimal floating point value
+    // specified by the given 'mantissa', 'exponent', and 'negative'.
 {
-    return combineDecimalRaw<Size>(value, exp, negative);
+    return combineDecimalRaw<Size>(mantissa, exponent, negative);
 }
 
 template <int Size>
 void toDecimalRaw(typename Properties<Size>::StorageType *target,
-                  unsigned long long                      value)
+                  unsigned long long                      mantissa)
+    // Assign to the specified 'target' a pattern of bits representing a
+    // decimal floating point value specified by the given 'mantissa'.
 {
-    return toDecimalRaw<Size>(value, 0, false);
+    return toDecimalRaw<Size>(mantissa, 0, false);
 }
 
                         // makeDecimalRaw implementation functions
 
 template<int Size>
 void makeDecimalRaw(typename Properties<Size>::StorageType *target,
-                    unsigned long long                      value,
+                    unsigned long long                      mantissa,
                     int                                     exponent)
+    // Assign to the specified 'target' a pattern of bits representing a
+    // decimal floating point value specified by the given 'mantissa', and
+    // 'exponent'.
 {
-    *target = toDecimalRaw<Size>(value, exponent, false);
+    *target = toDecimalRaw<Size>(mantissa, exponent, false);
 }
 
 template<int Size>
 void makeDecimalRaw(typename Properties<Size>::StorageType *target,
-                    signed long long                        value,
+                    signed long long                        mantissa,
                     int                                     exponent)
+    // Assign to the specified 'target' a pattern of bits representing a
+    // decimal floating point value specified by the given 'mantissa', and
+    // 'exponent'.
 {
     typename Properties<Size>::StorageType bits;
 
-    if (value == std::numeric_limits<long long>::min()) {
+    if (mantissa == std::numeric_limits<long long>::min()) {
         bits = toDecimalRaw<Size>(static_cast<unsigned long long>(
                    std::numeric_limits<long long>::max()) + 1, exponent, true);
     }
     else {
-        bits = toDecimalRaw<Size>(bsl::max(-value, value), exponent, value < 0);
+        bits = toDecimalRaw<Size>(bsl::max(-mantissa, mantissa),
+                                  exponent,
+                                  mantissa < 0);
     }
 
     *target = bits;
@@ -365,37 +420,55 @@ void makeDecimalRaw(typename Properties<Size>::StorageType *target,
 
 template<int Size>
 void makeDecimalRaw(typename Properties<Size>::StorageType *target,
-                    unsigned int                            value,
+                    unsigned int                            mantissa,
                     int                                     exponent)
+    // Assign to the specified 'target' a pattern of bits representing a
+    // decimal floating point value specified by the given 'mantissa', and
+    // 'exponent'.
 {
-    makeDecimalRaw<Size>(
-                     target, static_cast<unsigned long long>(value), exponent);
+    makeDecimalRaw<Size>(target,
+                         static_cast<unsigned long long>(mantissa),
+                         exponent);
 }
 
 template<int Size>
 void makeDecimalRaw(typename Properties<Size>::StorageType *target,
-                    signed int                              value,
+                    signed int                              mantissa,
                     int                                     exponent)
+    // Assign to the specified 'target' a pattern of bits representing a
+    // decimal floating point value specified by the given 'mantissa', and
+    // 'exponent'.
 {
-    makeDecimalRaw<Size>(
-                       target, static_cast<signed long long>(value), exponent);
+    makeDecimalRaw<Size>(target,
+                         static_cast<signed long long>(mantissa),
+                         exponent);
 }
+
+                        // Infinity encoding functions
 
 inline
 DenselyPackedDecimalImpUtil::StorageType64 inf64(bool isNegative = false)
+    // Return a pattern of bits representing a Densely Packed Decimal infinity
+    // value.  Optionally specify whether the infinity 'isNegative', If
+    // 'isNegative' is false, the returned value will be positive.
+
 {
-    typedef Properties<64> P;
-    return P::infBits | (isNegative ? P::getSignBit() : 0);
+    typedef Properties<64> Props;
+    return Props::infBits | (isNegative ? Props::getSignBit() : 0);
 }
 
 
 }  // close unnamed namespace
+
+                        // Declet encoding functions
 
 unsigned DenselyPackedDecimalImpUtil::encodeDeclet(unsigned digits)
 {
     BSLS_ASSERT(digits < 1000);
     return declets[digits];
 }
+
+                        // Declet decoding functions
 
 unsigned DenselyPackedDecimalImpUtil::decodeDeclet(unsigned declet)
 {

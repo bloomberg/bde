@@ -25,8 +25,8 @@ BSLS_IDENT("$Id$")
 //
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION: This component provides utility functions for the decimal
-// floating-point types defined in 'bdldfp_decimal':
+//@DESCRIPTION: The 'bdldfp::DecimalUtil' component provides utility functions
+// for the decimal floating-point types defined in 'bdldfp_decimal':
 //
 //: o 'FP_XXX', C99 standard floating-point classification macros
 //:
@@ -133,9 +133,9 @@ struct DecimalUtil {
     static Decimal32 makeDecimalRaw32 (int mantissa, int exponent);
         // Create a 'Decimal32' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa' (if signed).  The
-        // behavior is undefined unless '-9,999,999 <= mantissa <= 9,999,999'
-        // and '-101 <= exponent <= 90'.
+        // the sign given by the 'mantissa' (if signed).  The behavior is
+        // undefined unless '-9,999,999 <= mantissa <= 9,999,999' and
+        // '-101 <= exponent <= 90'.
 
     static Decimal64 makeDecimalRaw64(int                mantissa,
                                       int                exponent);
@@ -147,9 +147,9 @@ struct DecimalUtil {
                                       int                exponent);
         // Create a 'Decimal64' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the specified 'mantissa' (if signed).  If
-        // 'mantissa' is 0, the  result is 0 but the quanta of the result is
-        // unspecified.  The behavior is undefined unless
+        // the sign given by the 'mantissa' (if signed).  If 'mantissa' is 0,
+        // the result is 0 but the quanta of the result is unspecified.  The
+        // behavior is undefined unless
         // '-9,999,999,999,999,999 <= mantissa <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
@@ -162,10 +162,10 @@ struct DecimalUtil {
     static Decimal128 makeDecimalRaw128(unsigned long long mantissa,
                                         int                exponent);
         // Create a 'Deciaml128' object representing a decimal floating point
-        // number consisting of the specified 'mantissa' and 'exponent', with
-        // the sign given by the 'mantissa' (if signed).  If 'mantissa' is 0,
-        // the result is 0 but the quanta of the result is unspecified.  The
-        // behavior is undefined unless '-6176 <= exponent <= 6111'.
+        // number consisting of the 'mantissa' and 'exponent', with the sign
+        // given by the 'mantissa' (if signed).  If 'mantissa' is 0, the result
+        // is 0 but the quanta of the result is unspecified.  The behavior is
+        // undefined unless '-6176 <= exponent <= 6111'.
 
     static Decimal64 makeDecimal64(int                mantissa, int exponent);
     static Decimal64 makeDecimal64(unsigned int       mantissa, int exponent);
@@ -426,71 +426,72 @@ struct DecimalUtil {
 // ============================================================================
 
 inline
-Decimal32 DecimalUtil::makeDecimalRaw32(int coeff, int exponent)
+Decimal32 DecimalUtil::makeDecimalRaw32(int mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw32(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw32(mantissa, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimalRaw64(int coeff, int exponent)
+Decimal64 DecimalUtil::makeDecimalRaw64(int mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw64(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimalRaw64(unsigned int coeff, int exponent)
+Decimal64 DecimalUtil::makeDecimalRaw64(unsigned int mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw64(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimalRaw64(long long coeff, int exponent)
+Decimal64 DecimalUtil::makeDecimalRaw64(long long mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw64(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimalRaw64(unsigned long long coeff, int exponent)
+Decimal64
+DecimalUtil::makeDecimalRaw64(unsigned long long mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw64(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
 }
 inline
-Decimal128 DecimalUtil::makeDecimalRaw128(int coeff, int exponent)
+Decimal128 DecimalUtil::makeDecimalRaw128(int mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw128(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 }
 inline
-Decimal128 DecimalUtil::makeDecimalRaw128(unsigned int coeff, int exponent)
+Decimal128 DecimalUtil::makeDecimalRaw128(unsigned int mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw128(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 }
 inline
-Decimal128 DecimalUtil::makeDecimalRaw128(long long coeff, int exponent)
+Decimal128 DecimalUtil::makeDecimalRaw128(long long mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw128(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 }
 inline
-Decimal128 DecimalUtil::makeDecimalRaw128(
-                                        unsigned long long coeff, int exponent)
+Decimal128
+DecimalUtil::makeDecimalRaw128(unsigned long long mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimalRaw128(coeff, exponent);
+    return DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 }
 
 inline
-Decimal64 DecimalUtil::makeDecimal64(int coeff, int exponent)
+Decimal64 DecimalUtil::makeDecimal64(int mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimal64(coeff, exponent);
+    return DecimalImpUtil::makeDecimal64(mantissa, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimal64(unsigned int coeff, int exponent)
+Decimal64 DecimalUtil::makeDecimal64(unsigned int mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimal64(coeff, exponent);
+    return DecimalImpUtil::makeDecimal64(mantissa, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimal64(long long coeff, int exponent)
+Decimal64 DecimalUtil::makeDecimal64(long long mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimal64(coeff, exponent);
+    return DecimalImpUtil::makeDecimal64(mantissa, exponent);
 }
 inline
-Decimal64 DecimalUtil::makeDecimal64(unsigned long long coeff, int exponent)
+Decimal64 DecimalUtil::makeDecimal64(unsigned long long mantissa, int exponent)
 {
-    return DecimalImpUtil::makeDecimal64(coeff, exponent);
+    return DecimalImpUtil::makeDecimal64(mantissa, exponent);
 }
 
 }  // close package namespace

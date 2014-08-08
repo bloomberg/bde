@@ -42,9 +42,81 @@ BSLS_IDENT("$Id$")
 //  assert(Util::binaryToDecimal64( 4.2) == d64);
 //  assert(Util::binaryToDecimal128(4.2) == d128);
 //..
+//
+///Example 2: Adding two Decimal Floating Point Values
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// Decimal Floating Point values are highly efficient for arithmetic.  Often
+// times it is necessary to sum up stock prices or other securities.
+//
+// Suppose that we had a list of stock prices to total.  This list is a
+// sequence of 'DecimalImpUtil::ValueType64' values.
+//
+// First, we write a function which totals security prices, and returns a
+// Decimal Floating Point number:
+//..
+//  bdldfp::DecimalImpUtil::ValueType64
+//  totalSecurities(bdldfp::DecimalImpUtil::ValueType64 *prices,
+//                  int                                  numPrices)
+//      // Return a Decimal Floating Point number representing the arithmetic
+//      // total of the values specified by 'prices' and 'numPrices'.
+//  {
+//..
+// Then, we create a local variable to hold the total value, and set it to
+// zero:
+//..
+//      bdldfp::DecimalImpUtil::ValueType64 total;
+//      total = bdldfp::DecimalImpUtil::int32ToDecimal64(0);
+//..
+// Next, we loop over the values in 'prices':
+//..
+//      for (int i = 0; i < numPrices; ++i) {
+//..
+// Then, we add the price at each index in the array to the total:
+//..
+//          total = bdldfp::DecimalImpUtil::add(total, prices[i]);
+//      }
+//..
+// Now, we return the computed total value of the securities:
+//..
+//      return total;
+//  }
+//..
+// Notice that the computation is performed using a functional notation.  This
+// is because the 'bdldfp::DecimalImpUtil' utility is intended to be used in
+// the implementation of operator overloads on a more full fledged type.
+//
+// Finally, we call the function with some sample data, and check the result:
+//..
+//  bdldfp::DecimalImpUtil::ValueType64 data[16];
+//
+//  for (int i = 0; i < 16; ++i) {
+//      data[i] = bdldfp::DecimalImpUtil::int32ToDecimal64(i + 1);
+//  }
+//
+//  bdldfp::DecimalImpUtil::ValueType64 result;
+//  result = totalSecurities(data, 16);
+//
+//  bdldfp::DecimalImpUtil::ValueType64 expected;
+//
+//  expected = bdldfp::DecimalImpUtil::int32ToDecimal64(16);
+//
+//  // Totals of values from 1 to 'x' are '(x * x + x) / 2':
+//
+//  expected = bdldfp::DecimalImpUtil::add(
+//               bdldfp::DecimalImpUtil::multiply(expected, expected),
+//               expected);
+//  expected = bdldfp::DecimalImpUtil::divide(
+//                       expected,
+//                       bdldfp::DecimalImpUtil::int32ToDecimal64(2));
+//
+//  assert(bdldfp::DecimalImpUtil::equal(expected, result));
+//..
+// Notice that arithmetic is unwieldy and hard to visualize.  This is by
+// design, as the DecimalImpUtil and subordinate components are not intended
+// for public consumption, or direct use in decimal arithmetic.
 
-#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
-#include <bdldfp_decimalimputil_inteldfp.h>
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
 #endif
 
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_DECNUMBER
@@ -53,6 +125,10 @@ BSLS_IDENT("$Id$")
 
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_IBMXLC
 #include <bdldfp_decimalimputil_ibmxlc.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL_INTELDFP
+#include <bdldfp_decimalimputil_inteldfp.h>
 #endif
 
 #ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
@@ -105,10 +181,12 @@ namespace bdldfp {
 class DecimalImpUtil
 {
   public:
+    // TYPES
     typedef DecimalImpUtil_Platform::ValueType32  ValueType32;
     typedef DecimalImpUtil_Platform::ValueType64  ValueType64;
     typedef DecimalImpUtil_Platform::ValueType128 ValueType128;
 
+    // CLASS METHODS
     static ValueType64 makeDecimal64(                   int mantissa,
                                                         int exponent);
     static ValueType64 makeDecimal64(unsigned           int mantissa,
@@ -130,8 +208,9 @@ class DecimalImpUtil
         // 'isNegative' is true, the infinite value will be negative, and
         // positive otherwise.
 
-    // CLASS METHODS
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
+
+                        // Literal Checking Functions
 
     struct This_is_not_a_floating_point_literal {};
         // This 'struct' is a helper type used togenerate error messages for
@@ -154,8 +233,6 @@ class DecimalImpUtil
 #error Improperly configured decimal floating point platform settings
 
 #endif
-
-    // CLASS METHODS
 
                         // compose and decompose
 
@@ -257,9 +334,9 @@ class DecimalImpUtil
         // The exponent 0 (quantum 1e-33) is preferred during conversion unless
         // it would cause unnecessary loss of precision.
 
-
-
                         // Arithmetic
+
+                        // Addition functions
 
     static ValueType64  add(ValueType64  lhs, ValueType64  rhs);
     static ValueType128 add(ValueType128 lhs, ValueType128 rhs);
@@ -284,6 +361,8 @@ class DecimalImpUtil
         //:
         //: o Otherwise return the sum of the number represented by 'lhs' and
         //:   the number represented by 'rhs'.
+
+                        // Subtraction functions
 
     static ValueType64  subtract(ValueType64  lhs, ValueType64  rhs);
     static ValueType128 subtract(ValueType128 lhs, ValueType128 rhs);
@@ -311,6 +390,8 @@ class DecimalImpUtil
         //:
         //: o Otherwise return the result of subtracting the value of 'rhs'
         //:   from the value of 'lhs'.
+
+                        // Multiplication functions
 
     static ValueType64  multiply(ValueType64  lhs, ValueType64  rhs);
     static ValueType128 multiply(ValueType128 lhs, ValueType128 rhs);
@@ -345,6 +426,8 @@ class DecimalImpUtil
         //:
         //: o Otherwise return the product of the value of 'rhs' and the number
         //:   represented by 'rhs'.
+
+                        // Division functions
 
     static ValueType64  divide(ValueType64  lhs, ValueType64  rhs);
     static ValueType128 divide(ValueType128 lhs, ValueType128 rhs);
@@ -381,6 +464,8 @@ class DecimalImpUtil
         //: o Otherwise return the result of dividing the value of 'lhs' with
         //:   the value of 'rhs'.
 
+                        // Negation functions
+
     static ValueType32  negate(ValueType32  value);
     static ValueType64  negate(ValueType64  value);
     static ValueType128 negate(ValueType128 value);
@@ -389,7 +474,9 @@ class DecimalImpUtil
         // have signed zero, therefore this operation is not the same as
         // '0-value'.
 
-                        // Comparison
+                        // Comparison functions
+
+                        // Less Than functions
 
     static bool less(ValueType32  lhs, ValueType32  rhs);
     static bool less(ValueType64  lhs, ValueType64  rhs);
@@ -413,6 +500,8 @@ class DecimalImpUtil
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
 
+                        // Greater Than functions
+
     static bool greater(ValueType32  lhs, ValueType32  rhs);
     static bool greater(ValueType64  lhs, ValueType64  rhs);
     static bool greater(ValueType128 lhs, ValueType128 rhs);
@@ -435,6 +524,8 @@ class DecimalImpUtil
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
 
+                        // Less Or Equal functions
+
     static bool lessEqual(ValueType32  lhs, ValueType32  rhs);
     static bool lessEqual(ValueType64  lhs, ValueType64  rhs);
     static bool lessEqual(ValueType128 lhs, ValueType128 rhs);
@@ -455,6 +546,8 @@ class DecimalImpUtil
         //
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
+
+                        // Greater Or Equal functions
 
     static bool greaterEqual(ValueType32  lhs, ValueType32  rhs);
     static bool greaterEqual(ValueType64  lhs, ValueType64  rhs);
@@ -478,6 +571,8 @@ class DecimalImpUtil
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
 
+                        // Equality functions
+
     static bool equal(ValueType32  lhs, ValueType32  rhs);
     static bool equal(ValueType64  lhs, ValueType64  rhs);
     static bool equal(ValueType128 lhs, ValueType128 rhs);
@@ -496,6 +591,8 @@ class DecimalImpUtil
         //
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
+
+                        // Inequality functions
 
     static bool notEqual(ValueType32  lhs, ValueType32  rhs);
     static bool notEqual(ValueType64  lhs, ValueType64  rhs);
@@ -516,6 +613,8 @@ class DecimalImpUtil
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
 
+                        // Inter-type Conversion functions
+
     static ValueType32  convertToDecimal32 (const ValueType64&  input);
     static ValueType64  convertToDecimal64 (const ValueType32&  input);
     static ValueType64  convertToDecimal64 (const ValueType128& input);
@@ -528,6 +627,8 @@ class DecimalImpUtil
         // representations is *not* identical to the composing the conversions
         // from 128-bit to 64-bit, and 64-bit to 32-bit representations,
         // because rounding should only be performed once.
+
+                        // Binary floating point conversion functions
 
     static ValueType32  binaryToDecimal32(      float value);
     static ValueType32  binaryToDecimal32(     double value);
@@ -628,34 +729,36 @@ class DecimalImpUtil
         //:
         //: o Otherwise return a 'Decimal128' object representing 'value'.
 
+                        // makeDecimalRaw functions
+
     static ValueType32  makeDecimalRaw32(int mantissa, int exponent);
         // Create a 'ValueType32' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // 'abs(mantissa) <= 9,999,999' and '-101 <= exponent <= 90'.
 
-    static ValueType64 makeDecimalRaw64(unsigned long long mantissa,
-                                        int                exponent);
-    static ValueType64 makeDecimalRaw64(long long          mantissa,
-                                        int                exponent);
-    static ValueType64 makeDecimalRaw64(unsigned int       mantissa,
-                                        int                exponent);
-    static ValueType64 makeDecimalRaw64(int                mantissa,
-                                        int                exponent);
+    static ValueType64 makeDecimalRaw64(unsigned long long int mantissa,
+                                                           int exponent);
+    static ValueType64 makeDecimalRaw64(         long long int mantissa,
+                                                           int exponent);
+    static ValueType64 makeDecimalRaw64(unsigned           int mantissa,
+                                                           int exponent);
+    static ValueType64 makeDecimalRaw64(                   int mantissa,
+                                                           int exponent);
         // Create a 'ValueType64' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // 'abs(mantissa) <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
-    static ValueType128 makeDecimalRaw128(unsigned long long mantissa,
-                                          int                exponent);
-    static ValueType128 makeDecimalRaw128(long long          mantissa,
-                                          int                exponent);
-    static ValueType128 makeDecimalRaw128(unsigned int       mantissa,
-                                          int                exponent);
-    static ValueType128 makeDecimalRaw128(int                mantissa,
-                                          int                exponent);
+    static ValueType128 makeDecimalRaw128(unsigned long long int mantissa,
+                                                             int exponent);
+    static ValueType128 makeDecimalRaw128(         long long int mantissa,
+                                                             int exponent);
+    static ValueType128 makeDecimalRaw128(unsigned           int mantissa,
+                                                             int exponent);
+    static ValueType128 makeDecimalRaw128(                   int mantissa,
+                                                             int exponent);
         // Create a 'ValueType128' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
         // the sign given by 'mantissa'.  The behavior is undefined unless
@@ -829,7 +932,9 @@ DecimalImpUtil::uint64ToDecimal128(unsigned long long int value)
     return DecimalImpUtil_Platform::uint64ToDecimal128(value);
 }
 
-                    // Arithmetic
+                        // Arithmetic
+
+                        // Addition Functions
 
 inline
 DecimalImpUtil::ValueType64
@@ -846,6 +951,7 @@ DecimalImpUtil::add(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::add(lhs, rhs);
 }
 
+                        // Subtraction Functions
 
 inline
 DecimalImpUtil::ValueType64
@@ -863,6 +969,7 @@ DecimalImpUtil::subtract(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::subtract(lhs, rhs);
 }
 
+                        // Multiplication Functions
 
 inline
 DecimalImpUtil::ValueType64
@@ -880,6 +987,7 @@ DecimalImpUtil::multiply(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::multiply(lhs, rhs);
 }
 
+                        // Division Functions
 
 inline
 DecimalImpUtil::ValueType64
@@ -897,6 +1005,7 @@ DecimalImpUtil::divide(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::divide(lhs, rhs);
 }
 
+                        // Negation Functions
 
 inline
 DecimalImpUtil::ValueType32
@@ -919,7 +1028,9 @@ DecimalImpUtil::negate(DecimalImpUtil::ValueType128 value)
     return DecimalImpUtil_Platform::negate(value);
 }
 
-                    // Comparison
+                        // Comparison
+
+                        // Less Than Functions
 
 inline
 bool
@@ -945,6 +1056,7 @@ DecimalImpUtil::less(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::less(lhs, rhs);
 }
 
+                        // Greater Than Functions
 
 inline
 bool
@@ -970,6 +1082,7 @@ DecimalImpUtil::greater(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::greater(lhs, rhs);
 }
 
+                        // Less Or Equal Functions
 
 inline
 bool
@@ -995,6 +1108,7 @@ DecimalImpUtil::lessEqual(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::lessEqual(lhs, rhs);
 }
 
+                        // Greater Or Equal Functions
 
 inline
 bool
@@ -1020,6 +1134,7 @@ DecimalImpUtil::greaterEqual(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::greaterEqual(lhs, rhs);
 }
 
+                        // Equality Functions
 
 inline
 bool
@@ -1045,6 +1160,7 @@ DecimalImpUtil::equal(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::equal(lhs, rhs);
 }
 
+                        // Inequality Functions
 
 inline
 bool
@@ -1070,6 +1186,7 @@ DecimalImpUtil::notEqual(DecimalImpUtil::ValueType128 lhs,
     return DecimalImpUtil_Platform::notEqual(lhs, rhs);
 }
 
+                        // Inter-type Conversion functions
 
 inline
 DecimalImpUtil::ValueType32
@@ -1106,6 +1223,7 @@ DecimalImpUtil::convertToDecimal128(const DecimalImpUtil::ValueType64& input)
     return DecimalImpUtil_Platform::convertToDecimal128(input);
 }
 
+                        // Binary floating point conversion functions
 
 inline
 DecimalImpUtil::ValueType32
@@ -1172,13 +1290,14 @@ DecimalImpUtil::binaryToDecimal128(long double value)
     return DecimalImpUtil_Platform::binaryToDecimal128(value);
 }
 
+                        // makeDecimalRaw Functions
 
 inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::makeDecimalRaw32(int mantissa, int exponent)
 {
-    BSLS_ASSERT(-101     <= exponent);
-    BSLS_ASSERT(            exponent <= 90);
+    BSLS_ASSERT(-101 <= exponent);
+    BSLS_ASSERT(        exponent <= 90);
     BSLS_ASSERT(bsl::max(mantissa, -mantissa) <= 9999999);
     return DecimalImpUtil_Platform::makeDecimalRaw32(mantissa, exponent);
 }
@@ -1188,8 +1307,8 @@ inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::makeDecimalRaw64(unsigned long long mantissa, int exponent)
 {
-    BSLS_ASSERT(-398     <= exponent);
-    BSLS_ASSERT(            exponent <= 369);
+    BSLS_ASSERT(-398 <= exponent);
+    BSLS_ASSERT(        exponent <= 369);
     BSLS_ASSERT(mantissa <= 9999999999999999LL);
 
     return DecimalImpUtil_Platform::makeDecimalRaw64(mantissa, exponent);
@@ -1199,8 +1318,8 @@ inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::makeDecimalRaw64(long long mantissa, int exponent)
 {
-    BSLS_ASSERT(-398     <= exponent);
-    BSLS_ASSERT(            exponent <= 369);
+    BSLS_ASSERT(-398 <= exponent);
+    BSLS_ASSERT(        exponent <= 369);
     BSLS_ASSERT(std::max(mantissa, -mantissa) <= 9999999999999999LL);
 
     return DecimalImpUtil_Platform::makeDecimalRaw64(mantissa, exponent);
@@ -1210,8 +1329,8 @@ inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::makeDecimalRaw64(unsigned int mantissa, int exponent)
 {
-    BSLS_ASSERT(-398     <= exponent);
-    BSLS_ASSERT(            exponent <= 369);
+    BSLS_ASSERT(-398 <= exponent);
+    BSLS_ASSERT(        exponent <= 369);
 
     return DecimalImpUtil_Platform::makeDecimalRaw64(mantissa, exponent);
 }
@@ -1220,8 +1339,8 @@ inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::makeDecimalRaw64(int mantissa, int exponent)
 {
-    BSLS_ASSERT(-398     <= exponent);
-    BSLS_ASSERT(            exponent <= 369);
+    BSLS_ASSERT(-398 <= exponent);
+    BSLS_ASSERT(        exponent <= 369);
     return DecimalImpUtil_Platform::makeDecimalRaw64(mantissa, exponent);
 }
 
@@ -1230,8 +1349,8 @@ inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::makeDecimalRaw128(unsigned long long mantissa, int exponent)
 {
-    BSLS_ASSERT(-6176    <= exponent);
-    BSLS_ASSERT(            exponent <= 6111);
+    BSLS_ASSERT(-6176 <= exponent);
+    BSLS_ASSERT(         exponent <= 6111);
 
     return DecimalImpUtil_Platform::makeDecimalRaw128(mantissa, exponent);
 }
@@ -1240,8 +1359,8 @@ inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::makeDecimalRaw128(long long mantissa, int exponent)
 {
-    BSLS_ASSERT(-6176    <= exponent);
-    BSLS_ASSERT(            exponent <= 6111);
+    BSLS_ASSERT(-6176 <= exponent);
+    BSLS_ASSERT(         exponent <= 6111);
 
     return DecimalImpUtil_Platform::makeDecimalRaw128(mantissa, exponent);
 }
@@ -1250,8 +1369,8 @@ inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::makeDecimalRaw128(unsigned int mantissa, int exponent)
 {
-    BSLS_ASSERT(-6176    <= exponent);
-    BSLS_ASSERT(            exponent <= 6111);
+    BSLS_ASSERT(-6176 <= exponent);
+    BSLS_ASSERT(         exponent <= 6111);
 
     return DecimalImpUtil_Platform::makeDecimalRaw128(mantissa, exponent);
 }
@@ -1260,12 +1379,13 @@ inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::makeDecimalRaw128(int mantissa, int exponent)
 {
-    BSLS_ASSERT(-6176    <= exponent);
-    BSLS_ASSERT(            exponent <= 6111);
+    BSLS_ASSERT(-6176 <= exponent);
+    BSLS_ASSERT(         exponent <= 6111);
 
     return DecimalImpUtil_Platform::makeDecimalRaw128(mantissa, exponent);
 }
 
+                        // IEEE Scale B Functions
 
 inline
 DecimalImpUtil::ValueType32
@@ -1288,6 +1408,7 @@ DecimalImpUtil::scaleB(DecimalImpUtil::ValueType128 value, int exponent)
     return DecimalImpUtil_Platform::scaleB(value, exponent);
 }
 
+                        // Parsing functions
 
 inline
 DecimalImpUtil::ValueType32

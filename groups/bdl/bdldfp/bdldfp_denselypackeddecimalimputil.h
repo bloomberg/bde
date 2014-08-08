@@ -12,33 +12,18 @@ BSLS_IDENT("$Id$")
 //@CLASSES:
 //  bdldfp::DenselyPackedDecimalImpUtil: Namespace for DPD functions.
 //
-//@MACROS:
-//  BDLDFP_DECIMALIMPLUTIL_DF: ValueType32  from literal
-//  BDLDFP_DECIMALIMPLUTIL_DD: ValueType64  from literal
-//  BDLDFP_DECIMALIMPLUTIL_DL: ValueType128 from literal
-//
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component is for internal use only by the
 // 'bdldfp_decimal*' components.  Direct use of any names declared in this
 // component by any other code invokes undefined behavior.  In other words:
 // this code may change, disappear, break, move without notice, and no support
-// whatsoever will ever be provided for it.
+// whatsoever will ever be provided for it.  The
+// 'bdldfp::DenselyPackedDecimalImpUtil' utility facilitates construction of
+// Densely Packed Decimal formatted data.
 //
 // This component contains:
 //
-//: o portable decimal floating-point macros that create the implementation
-//:   type (C99 or 'decNumber' library)
-//:
-//: o the decimal floating-point environment/context for 'decNumber' library
-//:   (when it is used)
-//:
-//: o the definitions of the implementation types (to be used, e.g., as members
-//:   in the 'DecimalN' types)
-//:
-//: o the parsing functions that turn literals into values on platforms that do
-//:   not yet support decimal floating-point literals, and possibly to use by
-//:   stream input operators.
 //
 ///Usage
 ///-----
@@ -46,10 +31,29 @@ BSLS_IDENT("$Id$")
 //
 ///Example 1: Get the DPD representation of a 10 digit binary number
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Decimal floating point numbers are used to represent, in human-convenient
+// form, approximations of real-number-line values.  The Densely Packed Decimal
+// format is a storage format which represents significant digits of a value in
+// a compressed BCD format.  It is derived from Chen-Ho encoding.  Densely
+// Packed Decimal significands consist of a seqence of declets, each declet
+// encoding 3 decimal digits, in 10 bits.  The encoding is not a 1:1 mapping
+// with the binary values corresponding to the decimal value of any three
+// digits.
 //
+// Suppose we have a 0 to 3 digit value which we want to encode in declet form,
+// for use in DenselyPackedDecimal operations.
+//
+// First, we represent our decimal digits as an integer.
 //..
 //  int value = 842;
+//..
+// Now, we encode the integer using the 'encodeDeclet' function:
+//..
 //  int asDeclet = bdldfp::DenselyPackedDecimalImpUtil::encodeDeclet(value);
+//..
+// Finally, we can confirm that the declet representation converts back to the
+// binary representation of our three digits:
+//..
 //  assert(
 //       bdldfp::DenselyPackedDecimalImpUtil::decodeDeclet(asDeclet) == value);
 //..
@@ -71,9 +75,9 @@ BSLS_IDENT("$Id$")
 namespace BloombergLP {
 namespace bdldfp {
 
-                          // =================================
-                          // class DenselyPackedDecimalImpUtil
-                          // =================================
+                        // =================================
+                        // class DenselyPackedDecimalImpUtil
+                        // =================================
 
 struct DenselyPackedDecimalImpUtil {
     // This 'struct' provides a namespace for implementation functions that
@@ -119,7 +123,7 @@ struct DenselyPackedDecimalImpUtil {
     static StorageType64 makeDecimalRaw64(         long long int mantissa,
                                                              int exponent);
     static StorageType64 makeDecimalRaw64(unsigned           int mantissa,
-                                                             int exponent);
+            int exponent);
     static StorageType64 makeDecimalRaw64(                   int mantissa,
                                                              int exponent);
         // Create a 'StorageType64' object representing a decimal floating

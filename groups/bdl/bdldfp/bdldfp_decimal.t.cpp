@@ -125,9 +125,9 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BDLS_TESTUTIL_ASSERT
 #define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
@@ -1624,6 +1624,7 @@ int main(int argc, char* argv[])
         // remote-test the 'format' function and make sure it does not lose
         // digits or does some unwanted rounding.  When 'format' will be in the
         // lower utility, it will be tested directly.
+        //
         // Expecting to see all digits is wrong because that is not how the
         // stream output should behave: it should print with the default
         // precision as it would for binary floating point *or* with the
@@ -2507,8 +2508,7 @@ int main(int argc, char* argv[])
 
     case 1: {
         // --------------------------------------------------------------------
-        // Testing:
-        //   Implementation Assumptions
+        // TESTING IMPLEMENTATION ASSUMPTIONS
         //
         // Concerns:
         //: 1 The implementation is setup properly.
@@ -2517,6 +2517,9 @@ int main(int argc, char* argv[])
         //
         // Plan:
         //: 1 Individual assertions for each compile-time configuration choice.
+        //
+        // Testing:
+        //   IMPLEMENTATION ASSUMPTIONS
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << bsl::endl
                                << "IMPLEMENTATION ASSUMPTIONS" << bsl::endl

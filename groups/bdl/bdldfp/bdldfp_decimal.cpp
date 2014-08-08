@@ -472,6 +472,8 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::get(
     return this->do_get(begin, end, str, err, value);
 }
 
+                        // do_get Functions
+
 template <class CHARTYPE, class INPUTITERATOR>
 typename DecimalNumGet<CHARTYPE, INPUTITERATOR>::iter_type
 DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
@@ -829,7 +831,6 @@ template class DecimalNumPut<char, bsl::ostreambuf_iterator<char> >;
 template class DecimalNumPut<wchar_t, bsl::ostreambuf_iterator<wchar_t> >;
 
 }  // close package namespace
-}  // close enterprise namespace
 
                      // Streaming operators implementations
 
@@ -837,24 +838,24 @@ template class DecimalNumPut<wchar_t, bsl::ostreambuf_iterator<wchar_t> >;
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
-                               Decimal32                             object)
+bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
+                   Decimal32                             object)
 {
     return print(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
-                               Decimal64                             object)
+bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
+                   Decimal64                             object)
 {
     return print(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
-                               Decimal128                            object)
+bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
+                   Decimal128                            object)
 {
     return print(stream, object);
 }
@@ -863,24 +864,24 @@ BloombergLP::bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
-                               Decimal32&                            object)
+bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
+                   Decimal32&                            object)
 {
     return read(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
-                               Decimal64&                            object)
+bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
+                   Decimal64&                            object)
 {
     return read(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
-                               Decimal128&                           object)
+bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
+                   Decimal128&                           object)
 {
     return read(stream, object);
 }
@@ -891,74 +892,75 @@ BloombergLP::bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
 
 template
 bsl::basic_istream<char>&
-BloombergLP::bdldfp::operator>> <char, bsl::char_traits<char> >(
-                                        bsl::basic_istream<char>&      in,
-                                        BloombergLP::bdldfp::Decimal32& value);
+bdldfp::operator>> <char, bsl::char_traits<char> >(
+                                        bsl::basic_istream<char>& in,
+                                        bdldfp::Decimal32&        value);
 template
 bsl::basic_istream<wchar_t>&
-BloombergLP::bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
-                                        bsl::basic_istream<wchar_t>&   in,
-                                        BloombergLP::bdldfp::Decimal32& value);
+bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
+                                        bsl::basic_istream<wchar_t>& in,
+                                        bdldfp::Decimal32&           value);
 
 template
 bsl::basic_ostream<char>&
-BloombergLP::bdldfp::operator<< <char, bsl::char_traits<char> >(
-                                         bsl::basic_ostream<char>&     out,
-                                         BloombergLP::bdldfp::Decimal32 value);
+bdldfp::operator<< <char, bsl::char_traits<char> >(
+                                         bsl::basic_ostream<char>& out,
+                                         bdldfp::Decimal32         value);
 template
 bsl::basic_ostream<wchar_t>&
-BloombergLP::bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
-                                         bsl::basic_ostream<wchar_t>&  out,
-                                         BloombergLP::bdldfp::Decimal32 value);
+bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
+                                         bsl::basic_ostream<wchar_t>& out,
+                                         bdldfp::Decimal32            value);
 
                                 // Decimal64
 
 template
 bsl::basic_istream<char>&
-BloombergLP::bdldfp::operator>> <char, bsl::char_traits<char> >(
-                                        bsl::basic_istream<char>&      in,
-                                        BloombergLP::bdldfp::Decimal64& value);
+bdldfp::operator>> <char, bsl::char_traits<char> >(
+                                        bsl::basic_istream<char>& in,
+                                        bdldfp::Decimal64&        value);
 template
 bsl::basic_istream<wchar_t>&
-BloombergLP::bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
-                                        bsl::basic_istream<wchar_t>&   in,
-                                        BloombergLP::bdldfp::Decimal64& value);
+bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
+                                        bsl::basic_istream<wchar_t>& in,
+                                        bdldfp::Decimal64&           value);
 
 template
 bsl::basic_ostream<char>&
-BloombergLP::bdldfp::operator<< <char, bsl::char_traits<char> >(
-                                         bsl::basic_ostream<char>&     out,
-                                         BloombergLP::bdldfp::Decimal64 value);
+bdldfp::operator<< <char, bsl::char_traits<char> >(
+                                         bsl::basic_ostream<char>& out,
+                                         bdldfp::Decimal64         value);
 template
 bsl::basic_ostream<wchar_t>&
-BloombergLP::bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
-                                         bsl::basic_ostream<wchar_t>&  out,
-                                         BloombergLP::bdldfp::Decimal64 value);
+bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
+                                         bsl::basic_ostream<wchar_t>& out,
+                                         bdldfp::Decimal64            value);
 
                                 // Decimal128
 
 template
 bsl::basic_istream<char>&
-BloombergLP::bdldfp::operator>> <char, bsl::char_traits<char> >(
-                                       bsl::basic_istream<char>&       in,
-                                       BloombergLP::bdldfp::Decimal128& value);
+bdldfp::operator>> <char, bsl::char_traits<char> >(
+                                       bsl::basic_istream<char>& in,
+                                       bdldfp::Decimal128&       value);
 template
 bsl::basic_istream<wchar_t>&
-BloombergLP::bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
-                                       bsl::basic_istream<wchar_t>&    in,
-                                       BloombergLP::bdldfp::Decimal128& value);
+bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
+                                       bsl::basic_istream<wchar_t>& in,
+                                       bdldfp::Decimal128&          value);
 
 template
 bsl::basic_ostream<char>&
-BloombergLP::bdldfp::operator<< <char, bsl::char_traits<char> >(
-                                        bsl::basic_ostream<char>&      out,
-                                        BloombergLP::bdldfp::Decimal128 value);
+bdldfp::operator<< <char, bsl::char_traits<char> >(
+                                        bsl::basic_ostream<char>& out,
+                                        bdldfp::Decimal128        value);
 template
 bsl::basic_ostream<wchar_t>&
-BloombergLP::bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
-                                        bsl::basic_ostream<wchar_t>&   out,
-                                        BloombergLP::bdldfp::Decimal128 value);
+bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
+                                        bsl::basic_ostream<wchar_t>& out,
+                                        bdldfp::Decimal128           value);
 
+}  // close enterprise namespace
                   // std::numeric_limits<> specializations
 
 #if defined(BSL_OVERRIDES_STD) && defined(std)

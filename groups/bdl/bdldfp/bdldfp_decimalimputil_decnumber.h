@@ -7,27 +7,100 @@
 #endif
 BSLS_IDENT("$Id$")
 
-//@PURPOSE: Provide utility implementing decimal FP  with decNumber library.
+//@PURPOSE: Provide utility implementing decimal FP on the decNumber library.
 //
 //@CLASSES:
-//  bdldfp::DecimalImpUtil_IntelDFP: Namespace for Intel decimal FP functions
+//  bdldfp::DecimalImpUtil_decNumber: Namespace for decNumber FP functions
 //
 //@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION:
-// This component is for internal use only by the 'bdldfp_decimal*' components.
-// Direct use of any names declared in this component by any other code invokes
-// undefined behavior.  In other words: this code may change, disappear, break,
-// move without notice, and no support whatsoever will ever be provided for it.
+// This component, 'bdldfp::DecimalImpUtil_decNumber' is for internal use only
+// by the 'bdldfp_decimal*' components.  Direct use of any names declared in
+// this component by any other code invokes undefined behavior.  In other
+// words: this code may change, disappear, break, move without notice, and no
+// support whatsoever will ever be provided for it.  This component provides
+// implementations of core Decimal Floating Point functionality using the Intel
+// DFP library.
 //
 ///Usage
 ///-----
 // This section shows the intended use of this component.
 //
-///Example 1: None
-///- - - - - - - -
+///Example 1: Adding two DPD-formatted Decimal Values
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// DPD formatted Decimal Floating Point values are the preferred IEE format for
+// decimal floating point numbers.  Often times it is necessary to sum up stock
+// prices or other securities.
+//
+// Suppose that we had a list of stock prices to total.  This list is a
+// sequence of 'DecimalImpUtil_decNumber::ValueType64' values.
+//
+// First, we write a function which totals security prices, and returns a
+// Decimal Floating Point number in Intel Format:
 //..
+//  bdldfp::DecimalImpUtil_decNumber::ValueType64
+//  totalSecurities(bdldfp::DecimalImpUtil_decNumber::ValueType64 *prices,
+//                  int                                            numPrices)
+//      // Return a DPD formatted Decimal Floating Point number representing
+//      // the arithmetic total of the values specified by 'prices' and
+//      // 'numPrices'.
+//  {
 //..
+// Then, we create a local variable to hold the total value, and set it to
+// zero:
+//..
+//      bdldfp::DecimalImpUtil_decNumber::ValueType64 total;
+//      total = bdldfp::DecimalImpUtil_decNumber::int32ToDecimal64(0);
+//..
+// Next, we loop over the values in 'prices':
+//..
+//      for (int i = 0; i < numPrices; ++i) {
+//..
+// Then, we add the price at each index in the array to the total:
+//..
+//          total = bdldfp::DecimalImpUtil_decNumber::add(total, prices[i]);
+//      }
+//..
+// Now, we return the computed total value of the securities:
+//..
+//      return total;
+//  }
+//..
+// Notice that the computation is performed using a functional notation.  This
+// is because the 'bdldfp::DecimalImpUtil_decNumber' utility is intended to be
+// used in the implementation of operator overloads on a more full fledged
+// type.
+//
+// Finally, we call the function with some sample data, and check the result:
+//..
+//  bdldfp::DecimalImpUtil_decNumber::ValueType64 data[16];
+//
+//  for (int i = 0; i < 16; ++i) {
+//      data[i] = bdldfp::DecimalImpUtil_decNumber::int32ToDecimal64(i + 1);
+//  }
+//
+//  bdldfp::DecimalImpUtil_decNumber::ValueType64 result;
+//  result = totalSecurities(data, 16);
+//
+//  bdldfp::DecimalImpUtil_decNumber::ValueType64 expected;
+//
+//  expected = bdldfp::DecimalImpUtil_decNumber::int32ToDecimal64(16);
+//
+//  // Totals of values from 1 to 'x' are '(x * x + x) / 2':
+//
+//  expected = bdldfp::DecimalImpUtil_decNumber::add(
+//              bdldfp::DecimalImpUtil_decNumber::multiply(expected, expected),
+//              expected);
+//  expected = bdldfp::DecimalImpUtil_decNumber::divide(
+//                      expected,
+//                      bdldfp::DecimalImpUtil_decNumber::int32ToDecimal64(2));
+//
+//  assert(bdldfp::DecimalImpUtil_decNumber::equal(expected, result));
+//..
+// Notice that arithmetic is unwieldy and hard to visualize.  This is by
+// design, as the DecimalImpUtil and subordinate components are not intended
+// for public consumption, for decimal arithmetic.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -80,8 +153,8 @@ struct DecimalImpUtil_decNumber {
 
     static decContext *getDecNumberContext();
         // Return a pointer providing modifiable access to the floating point
-        // environment of the 'decNumber' library.  This function exists on
-        // certain supported platforms only.
+        // environment of the 'decNumber' library.  This function does not get
+        // exposed through 'bdldfp::DecimalImpUtil'.
 
 
     struct DecimalTriple {
@@ -110,59 +183,331 @@ struct DecimalImpUtil_decNumber {
         // of the specified 'value'.  The behavior is undefined, unless 'value'
         // is neither 'NaN' nor 'Inf'.
 
-                        // Integer construction
+                        // Integer construction (32-bit)
 
-    static ValueType32  int32ToDecimal32 (int value);
-    static ValueType64  int32ToDecimal64 (int value);
-    static ValueType128 int32ToDecimal128(int value);
-
-    static ValueType32  uint32ToDecimal32 (unsigned int value);
-    static ValueType64  uint32ToDecimal64 (unsigned int value);
-    static ValueType128 uint32ToDecimal128(unsigned int value);
-
-    static ValueType32  int64ToDecimal32 (long long int value);
-    static ValueType64  int64ToDecimal64 (long long int value);
-    static ValueType128 int64ToDecimal128(long long int value);
-
+    static ValueType32   int32ToDecimal32 (                   int value);
+    static ValueType32  uint32ToDecimal32 (unsigned           int value);
+    static ValueType32   int64ToDecimal32 (         long long int value);
     static ValueType32  uint64ToDecimal32 (unsigned long long int value);
-    static ValueType64  uint64ToDecimal64 (unsigned long long int value);
-    static ValueType128 uint64ToDecimal128(unsigned long long int value);
+        // Return a 'Decimal32' object having the value closest to the
+        // specified 'value' following the conversion rules as defined by
+        // IEEE-754:
+        //
+        //: o If 'value' is zero then initialize this object to a zero with an
+        //:   unspecified sign and an unspecified exponent.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+        //:   floating-point exception and initialize this object to infinity
+        //:   with the same sign as 'other'.
+        //:
+        //: o Otherwise if 'value' has a value that is not exactly
+        //:   representable using 'std::numeric_limits<Decimal32>::max_digit'
+        //:   decimal digits then raise the "inexact" floating-point exception
+        //:   and initialize this object to the value of 'other' rounded
+        //:   according to the rounding direction.
+        //:
+        //: o Otherwise initialize this object to the value of the 'value'.
+        //
+        // The exponent 0 (quantum 1e-6) is preferred during conversion unless
+        // it would cause unnecessary loss of precision.
 
-                        // Arithmetic
+                        // Integer construction (64-bit)
+
+    static ValueType64   int32ToDecimal64 (                   int value);
+    static ValueType64  uint32ToDecimal64 (unsigned           int value);
+    static ValueType64   int64ToDecimal64 (         long long int value);
+    static ValueType64  uint64ToDecimal64 (unsigned long long int value);
+        // Return a 'Decimal64' object having the value closest to the
+        // specified 'value' following the conversion rules as defined by
+        // IEEE-754:
+        //
+        //: o If 'value' is zero then initialize this object to a zero with an
+        //:   unspecified sign and an unspecified exponent.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
+        //:   floating-point exception and initialize this object to infinity
+        //:   with the same sign as 'other'.
+        //:
+        //: o Otherwise if 'value' has a value that is not exactly
+        //:   representable using 'std::numeric_limits<Decimal64>::max_digit'
+        //:   decimal digits then raise the "inexact" floating-point exception
+        //:   and initialize this object to the value of 'other' rounded
+        //:   according to the rounding direction.
+        //:
+        //: o Otherwise initialize this object to the value of the 'value'.
+        //
+        // The exponent 0 (quantum 1e-15) is preferred during conversion unless
+        // it would cause unnecessary loss of precision.
+
+                        // Integer construction (128-bit)
+
+    static ValueType128  int32ToDecimal128(                   int value);
+    static ValueType128 uint32ToDecimal128(unsigned           int value);
+    static ValueType128  int64ToDecimal128(         long long int value);
+    static ValueType128 uint64ToDecimal128(unsigned long long int value);
+        // Return a 'Decimal128' object having the value closest to the
+        // specified 'value' subject to the conversion rules as defined by
+        // IEEE-754:
+        //
+        //: o If 'value' is zero then initialize this object to a zero with an
+        //:   unspecified sign and an unspecified exponent.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal128>::max()' then raise the
+        //:   "overflow" floating-point exception and initialize this object to
+        //:   infinity with the same sign as 'other'.
+        //:
+        //: o Otherwise if 'value' has a value that is not exactly
+        //:   representable using 'std::numeric_limits<Decimal128>::max_digit'
+        //:   decimal digits then raise the "inexact" floating-point exception
+        //:   and initialize this object to the value of 'value' rounded
+        //:   according to the rounding direction.
+        //:
+        //: o Otherwise initialize this object to 'value'.
+        //
+        // The exponent 0 (quantum 1e-33) is preferred during conversion unless
+        // it would cause unnecessary loss of precision.
+
+                        // Arithmetic functions
+
+                        // Addition functions
 
     static ValueType64  add(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 add(ValueType128 lhs,  ValueType128 rhs);
+        // Add the value of the specified 'rhs' to the value of the specified
+        // 'lhs' as described by IEEE-754 and return the result.
+        //
+        //: o If either of 'lhs' or 'rhs' is NaN, then raise the "invalid"
+        //:   floating-point exception and return a NaN.
+        //:
+        //: o Otherwise if 'lhs' and 'rhs' are infinities of differing signs,
+        //:   raise the "invalid" floating-point exception and return a NaN.
+        //:
+        //: o Otherwise if 'lhs' and 'rhs' are infinities of the same sign then
+        //:   return infinity of that sign.
+        //:
+        //: o Otherwise if 'rhs' is zero (positive or negative), return 'lhs'.
+        //:
+        //: o Otherwise if the sum of 'lhs' and 'rhs' has an absolute value
+        //:   that is larger than 'std::numeric_limits<Decimal64>::max()' then
+        //:   raise the "overflow" floating-point exception and return infinity
+        //:   with the same sign as that result.
+        //:
+        //: o Otherwise return the sum of the number represented by 'lhs' and
+        //:   the number represented by 'rhs'.
+
+                        // Subtraction functions
 
     static ValueType64  subtract(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 subtract(ValueType128 lhs,  ValueType128 rhs);
+        // Subtract the value of the specified 'rhs' from the value of the
+        // specified 'lhs' as described by IEEE-754 and return the result.
+        //
+        //: o If either 'lhs' or 'rhs' is NaN, then raise the "invalid"
+        //:   floating-point exception and return a NaN.
+        //:
+        //: o Otherwise if 'lhs' and the 'rhs' have infinity values of the same
+        //:   sign, then raise the "invalid" floating-point exception and
+        //:   return a NaN.
+        //:
+        //: o Otherwise if 'lhs' and the 'rhs' have infinity values of
+        //:   differing signs, then return 'lhs'.
+        //:
+        //: o Otherwise if 'rhs' has a zero value (positive or negative), then
+        //:   return 'lhs'.
+        //:
+        //: o Otherwise if subtracting the value of the 'rhs' object from the
+        //:   value of 'lhs' results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
+        //:   floating-point exception and return infinity with the same sign
+        //:   as that result.
+        //:
+        //: o Otherwise return the result of subtracting the value of 'rhs'
+        //:   from the value of 'lhs'.
+
+                        // Multiplication functions
 
     static ValueType64  multiply(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 multiply(ValueType128 lhs,  ValueType128 rhs);
+        // Multiply the value of the specified 'lhs' object by the value of the
+        // specified 'rhs' as described by IEEE-754 and return the result.
+        //
+        //: o If either of 'lhs' or 'rhs' is NaN, return a NaN.
+        //:
+        //: o Otherwise if one of the operands is infinity (positive or
+        //:   negative) and the other is zero (positive or negative), then
+        //:   raise the "invalid" floating-point exception raised and return a
+        //:   NaN.
+        //:
+        //: o Otherwise if both 'lhs' and 'rhs' are infinity (positive or
+        //:   negative), return infinity.  The sign of the returned value will
+        //:   be positive if 'lhs' and 'rhs' have the same sign, and negative
+        //:   otherwise.
+        //:
+        //: o Otherwise, if either 'lhs' or 'rhs' is zero, return zero.  The
+        //:   sign of the returned value will be positive if 'lhs' and 'rhs'
+        //:   have the same sign, and negative otherwise.
+        //:
+        //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
+        //:   that is larger than 'std::numeric_limits<Decimal64>::max()' then
+        //:   raise the "overflow" floating-point exception and return infinity
+        //:   with the same sign as that result.
+        //:
+        //: o Otherwise if the product of 'lhs' and 'rhs' has an absolute value
+        //:   that is smaller than 'std::numeric_limits<Decimal64>::min()' then
+        //:   raise the "underflow" floating-point exception and return zero
+        //:   with the same sign as that result.
+        //:
+        //: o Otherwise return the product of the value of 'rhs' and the number
+        //:   represented by 'rhs'.
+
+                        // Division functions
 
     static ValueType64  divide(ValueType64  lhs,  ValueType64  rhs);
     static ValueType128 divide(ValueType128 lhs,  ValueType128 rhs);
+        // Divide the value of the specified 'lhs' by the value of the
+        // specified 'rhs' as described by IEEE-754, and return the result.
+        //
+        //: o If 'lhs' or 'rhs' is NaN, raise the "invalid" floating-point
+        //:   exception and return a NaN.
+        //:
+        //: o Otherwise if 'lhs' and 'rhs' are both infinity (positive or
+        //:   negative) or both zero (positive or negative), raise the
+        //:   "invalid" floating-point exception and return a NaN.
+        //:
+        //: o Otherwise if 'rhs' has a positive zero value, raise the
+        //:   "overflow" floating-point exception and return infinity with the
+        //:   sign of 'lhs'.
+        //:
+        //: o Otherwise if 'rhs' has a negative zero value, raise the
+        //:   "overflow" floating-point exception and return infinity with the
+        //:   opposite sign as 'lhs'.
+        //:
+        //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+        //:   results in an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
+        //:   floating-point exception and return infinity with the same sign
+        //:   as that result.
+        //:
+        //: o Otherwise if dividing the value of 'lhs' with the value of 'rhs'
+        //:   results in an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal64>::min()' then raise the
+        //:   "underflow" floating-point exception and return zero with the
+        //:   same sign as that result.
+        //:
+        //: o Otherwise return the result of dividing the value of 'lhs' with
+        //:   the value of 'rhs'.
+
+                        // Negation functions
 
     static ValueType32  negate(ValueType32  value);
     static ValueType64  negate(ValueType64  value);
     static ValueType128 negate(ValueType128 value);
+        // Return the result of applying the unary - operator to the specified
+        // 'value' as described by IEEE-754.  Note that floating-point numbers
+        // have signed zero, therefore this operation is not the same as
+        // '0-value'.
 
-                        // Comparison
+                        // Comparison functions
+
+                        // Less Than functions
 
     static bool less(ValueType32  lhs, ValueType32  rhs);
     static bool less(ValueType64  lhs, ValueType64  rhs);
     static bool less(ValueType128 lhs, ValueType128 rhs);
+        // Return 'true' if the specified 'lhs' has a value less than the
+        // specified 'rhs' and 'false' otherwise.  The value of a 'Decimal64'
+        // object 'lhs' is less than that of an object 'rhs' if the
+        // 'compareQuietLess' operation (IEEE-754 defined, non-total ordering
+        // comparison) considers the underlying IEEE representation of 'lhs' to
+        // be less than of that of 'rhs'.  In other words, 'lhs' is less than
+        // 'rhs' if:
+        //
+        //: o neither 'lhs' nor 'rhs' are NaN, or
+        //: o 'lhs' is zero (positive or negative) and 'rhs' is positive, or
+        //: o 'rhs' is zero (positive or negative) and 'lhs' negative, or
+        //: o 'lhs' is not positive infinity, or
+        //: o 'lhs' is negative infinity and 'rhs' is not, or
+        //: o 'lhs' and 'rhs' both represent a real number and the real number
+        //:   of 'lhs' is less than that of 'rhs'
+        //
+        // This operation raises the "invalid" floating-point exception if
+        // either or both operands are NaN.
+
+                        // Greater Than functions
 
     static bool greater(ValueType32  lhs, ValueType32  rhs);
     static bool greater(ValueType64  lhs, ValueType64  rhs);
     static bool greater(ValueType128 lhs, ValueType128 rhs);
+        // Return 'true' if the specified 'lhs' has a greater value than the
+        // specified 'rhs' and 'false' otherwise.  The value of a 'Decimal64'
+        // object 'lhs' is greater than that of an object 'rhs' if the
+        // 'compareQuietGreater' operation (IEEE-754 defined, non-total
+        // ordering comparison) considers the underlying IEEE representation of
+        // 'lhs' to be greater than of that of 'rhs'.  In other words, 'lhs' is
+        // greater than 'rhs' if:
+        //
+        //: o neither 'lhs' nor 'rhs' are NaN, or
+        //: o 'rhs' is zero (positive or negative) and 'lhs' positive, or
+        //: o 'lhs' is zero (positive or negative) and 'rhs' negative, or
+        //: o 'lhs' is not negative infinity, or
+        //: o 'lhs' is positive infinity and 'rhs' is not, or
+        //: o 'lhs' and 'rhs' both represent a real number and the real number
+        //:   of 'lhs' is greater than that of 'rhs'
+        //
+        // This operation raises the "invalid" floating-point exception if
+        // either or both operands are NaN.
+
+                        // Less Or Equal functions
 
     static bool lessEqual(ValueType32  lhs, ValueType32  rhs);
     static bool lessEqual(ValueType64  lhs, ValueType64  rhs);
     static bool lessEqual(ValueType128 lhs, ValueType128 rhs);
+        // Return 'true' if the specified 'lhs' has a value less than or equal
+        // the value of the specified 'rhs' and 'false' otherwise.  The value
+        // of a 'Decimal64' object 'lhs' is less than or equal to the value of
+        // an object 'rhs' if the 'compareQuietLessEqual' operation (IEEE-754
+        // defined, non-total ordering comparison) considers the underlying
+        // IEEE representation of 'lhs' to be less or equal to that of 'rhs'.
+        // In other words, 'lhs' is less or equal than 'rhs' if:
+        //
+        //: o neither 'lhs' nor 'rhs' are NaN, or
+        //: o 'lhs' and 'rhs' are both zero (positive or negative), or
+        //: o both 'lhs' and 'rhs' are positive infinity, or
+        //: o 'lhs' is negative infinity, or
+        //: o 'lhs' and 'rhs' both represent a real number and the real number
+        //:   of 'lhs' is less or equal to that of 'rhs'
+        //
+        // This operation raises the "invalid" floating-point exception if
+        // either or both operands are NaN.
+
+                        // Greater Or Equal functions
 
     static bool greaterEqual(ValueType32  lhs, ValueType32  rhs);
     static bool greaterEqual(ValueType64  lhs, ValueType64  rhs);
     static bool greaterEqual(ValueType128 lhs, ValueType128 rhs);
+        // Return 'true' if the specified 'lhs' has a value greater than or
+        // equal to the value of the specified 'rhs' and 'false' otherwise.
+        // The value of a 'Decimal64' object 'lhs' is greater or equal to a
+        // 'Decimal64' object 'rhs' if the 'compareQuietGreaterEqual' operation
+        // (IEEE-754 defined, non-total ordering comparison ) considers the
+        // underlying IEEE representation of 'lhs' to be greater or equal to
+        // that of 'rhs'.  In other words, 'lhs' is greater than or equal to
+        // 'rhs' if:
+        //
+        //: o neither 'lhs' nor 'rhs' are NaN, or
+        //: o 'lhs' and 'rhs' are both zero (positive or negative), or
+        //: o both 'lhs' and 'rhs' are negative infinity, or
+        //: o 'lhs' is positive infinity, or
+        //: o 'lhs' and 'rhs' both represent a real number and the real number
+        //:   of 'lhs' is greater or equal to that of 'rhs'
+        //
+        // This operation raises the "invalid" floating-point exception if
+        // either or both operands are NaN.
+
+                        // Equality functions
 
     static bool equal(ValueType32  lhs, ValueType32  rhs);
     static bool equal(ValueType64  lhs, ValueType64  rhs);
@@ -183,6 +528,8 @@ struct DecimalImpUtil_decNumber {
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
 
+                        // Inequality functions
+
     static bool notEqual(ValueType32  lhs, ValueType32  rhs);
     static bool notEqual(ValueType64  lhs, ValueType64  rhs);
     static bool notEqual(ValueType128 lhs, ValueType128 rhs);
@@ -202,6 +549,8 @@ struct DecimalImpUtil_decNumber {
         // This operation raises the "invalid" floating-point exception if
         // either or both operands are NaN.
 
+                        // Inter-type Conversion functions
+
     static ValueType32  convertToDecimal32 (const ValueType64&  input);
     static ValueType64  convertToDecimal64 (const ValueType32&  input);
     static ValueType64  convertToDecimal64 (const ValueType128& input);
@@ -215,59 +564,195 @@ struct DecimalImpUtil_decNumber {
         // from 128-bit to 64-bit, and 64-bit to 32-bit representations,
         // because rounding should only be performed once.
 
-    static ValueType32  binaryToDecimal32(      float input);
-    static ValueType32  binaryToDecimal32(     double input);
-    static ValueType32  binaryToDecimal32(long double input);
+                        // Binary floating point conversion functions
 
-    static ValueType64  binaryToDecimal64(      float input);
-    static ValueType64  binaryToDecimal64(     double input);
-    static ValueType64  binaryToDecimal64(long double input);
+    static ValueType32 binaryToDecimal32(      float value);
+    static ValueType32 binaryToDecimal32(     double value);
+    static ValueType32 binaryToDecimal32(long double value);
+        // Create a 'Decimal32' object having the value closest to the
+        // specified 'value' following the conversion rules as defined by
+        // IEEE-754:
+        //
+        //: o If 'value' is NaN, return a NaN.
+        //:
+        //: o Otherwise if 'value' is infinity (positive or negative), then
+        //:   return an object equal to infinity with the same sign.
+        //:
+        //: o Otherwise if 'value' is a zero value, then return an object equal
+        //:   to zero with the same sign.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal32>::max()' then raise the "overflow"
+        //:   floating-point exception and return an infinity with the same
+        //:   sign as 'value'.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal32>::min()' then raise the
+        //:   "underflow" floating-point exception and return a zero with the
+        //:   same sign as 'value'.
+        //:
+        //: o Otherwise if 'value' needs more than
+        //:   'std::numeric_limits<Decimal32>::max_digit' significant decimal
+        //:   digits to represent then raise the "inexact" floating-point
+        //:   exception and return the 'value' rounded according to the
+        //:   rounding direction.
+        //:
+        //: o Otherwise return a 'Decimal32' object representing 'value'.
 
-    static ValueType128 binaryToDecimal128(      float input);
-    static ValueType128 binaryToDecimal128(     double input);
-    static ValueType128 binaryToDecimal128(long double input);
+    static ValueType64 binaryToDecimal64(      float value);
+    static ValueType64 binaryToDecimal64(     double value);
+    static ValueType64 binaryToDecimal64(long double value);
+        // Create a 'Decimal64' object having the value closest to the
+        // specified 'value' following the conversion rules as defined by
+        // IEEE-754:
+        //
+        //: o If 'value' is NaN, return a NaN.
+        //:
+        //: o Otherwise if 'value' is infinity (positive or negative), then
+        //:   return an object equal to infinity with the same sign.
+        //:
+        //: o Otherwise if 'value' is a zero value, then return an object equal
+        //:   to zero with the same sign.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal64>::max()' then raise the "overflow"
+        //:   floating-point exception and return an infinity with the same
+        //:   sign as 'value'.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal64>::min()' then raise the
+        //:   "underflow" floating-point exception and return a zero with the
+        //:   same sign as 'value'.
+        //:
+        //: o Otherwise if 'value' needs more than
+        //:   'std::numeric_limits<Decimal64>::max_digit' significant decimal
+        //:   digits to represent then raise the "inexact" floating-point
+        //:   exception and return the 'value' rounded according to the
+        //:   rounding direction.
+        //:
+        //: o Otherwise return a 'Decimal64' object representing 'value'.
 
-    static ValueType32  makeDecimalRaw32(int mantissa, int exponent);
+    static ValueType128 binaryToDecimal128(      float value);
+    static ValueType128 binaryToDecimal128(     double value);
+    static ValueType128 binaryToDecimal128(long double value);
+        // Create a 'Decimal128' object having the value closest to the
+        // specified 'value' following the conversion rules as defined by
+        // IEEE-754:
+        //
+        //: o If 'value' is NaN, return a NaN.
+        //:
+        //: o Otherwise if 'value' is infinity (positive or negative), then
+        //:   return an object equal to infinity with the same sign.
+        //:
+        //: o Otherwise if 'value' is a zero value, then return an object equal
+        //:   to zero with the same sign.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is larger than
+        //:   'std::numeric_limits<Decimal128>::max()' then raise the
+        //:   "overflow" floating-point exception and return an infinity with
+        //:   the same sign as 'value'.
+        //:
+        //: o Otherwise if 'value' has an absolute value that is smaller than
+        //:   'std::numeric_limits<Decimal128>::min()' then raise the
+        //:   "underflow" floating-point exception and return a zero with the
+        //:   same sign as 'value'.
+        //:
+        //: o Otherwise if 'value' needs more than
+        //:   'std::numeric_limits<Decimal128>::max_digit' significant decimal
+        //:   digits to represent then raise the "inexact" floating-point
+        //:   exception and return the 'value' rounded according to the
+        //:   rounding direction.
+        //:
+        //: o Otherwise return a 'Decimal128' object representing 'value'.
+
+    static ValueType32 makeDecimalRaw32(int mantissa, int exponent);
         // Create a 'ValueType32' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // 'abs(mantissa) <= 9,999,999' and '-101 <= exponent <= 90'.
 
-    static ValueType64 makeDecimalRaw64(unsigned long long mantissa,
-                                        int                exponent);
-    static ValueType64 makeDecimalRaw64(long long          mantissa,
-                                        int                exponent);
-    static ValueType64 makeDecimalRaw64(unsigned int       mantissa,
-                                        int                exponent);
-    static ValueType64 makeDecimalRaw64(int                mantissa,
-                                        int                exponent);
+    static ValueType64 makeDecimalRaw64(unsigned long long int mantissa,
+                                                           int exponent);
+    static ValueType64 makeDecimalRaw64(         long long int mantissa,
+                                                           int exponent);
+    static ValueType64 makeDecimalRaw64(unsigned           int mantissa,
+                                                           int exponent);
+    static ValueType64 makeDecimalRaw64(                   int mantissa,
+                                                           int exponent);
         // Create a 'ValueType64' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // 'abs(mantissa) <= 9,999,999,999,999,999' and
         // '-398 <= exponent <= 369'.
 
-    static ValueType128 makeDecimalRaw128(unsigned long long mantissa,
-                                          int                exponent);
-    static ValueType128 makeDecimalRaw128(long long          mantissa,
-                                          int                exponent);
-    static ValueType128 makeDecimalRaw128(unsigned int       mantissa,
-                                          int                exponent);
-    static ValueType128 makeDecimalRaw128(int                mantissa,
-                                          int                exponent);
+    static ValueType128 makeDecimalRaw128(unsigned long long int mantissa,
+                                                             int exponent);
+    static ValueType128 makeDecimalRaw128(         long long int mantissa,
+                                                             int exponent);
+    static ValueType128 makeDecimalRaw128(unsigned           int mantissa,
+                                                             int exponent);
+    static ValueType128 makeDecimalRaw128(                   int mantissa,
+                                                             int exponent);
         // Create a 'ValueType128' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // '-6176 <= exponent <= 6111'.
 
-    static ValueType32 scaleB(ValueType32 value, int power);
-    static ValueType64 scaleB(ValueType64 value, int power);
-    static ValueType128 scaleB(ValueType128 value, int power);
+                        // IEEE Scale B functions
+
+    static ValueType32  scaleB(ValueType32  value, int exponent);
+    static ValueType64  scaleB(ValueType64  value, int exponent);
+    static ValueType128 scaleB(ValueType128 value, int exponent);
+        // Return the result of multiplying the specified 'value' by ten raised
+        // to the specified 'exponent'.  The quantum of 'value' is scaled
+        // according to IEEE 754's 'scaleB' operations.  The result is
+        // unspecified if 'value' is NaN or infinity.  The behavior is
+        // undefined unless '-1999999997 <= y <= 99999999'.
 
 
-    static ValueType32  parse32 (const char *string);
-    static ValueType64  parse64 (const char *string);
+                        // Parsing functions
+
+    static ValueType32 parse32 (const char *string);
+        // Parse the specified 'string' as a 32 bit decimal floating- point
+        // value and return the result.  The parsing is as specified for the
+        // 'strtod32' function in section 9.6 of the ISO/EIC TR 24732 C Decimal
+        // Floating-Point Technical Report, except that it is unspecified
+        // whether the NaNs returned are quiet or signaling.  The behavior is
+        // undefined unless 'input' represents a valid 32 bit decimal
+        // floating-point number in scientific or fixed notation, and no
+        // unrelated characters precede (not even whitespace) that textual
+        // representation and a terminating nul character immediately follows
+        // it.  Note that this method does not guarantee the behavior of
+        // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
+        // intrinsics return a signaling NaN.
+
+    static ValueType64 parse64(const char *string);
+        // Parse the specified 'string' string as a 64 bit decimal floating-
+        // point value and return the result.  The parsing is as specified for
+        // the 'strtod64' function in section 9.6 of the ISO/EIC TR 24732 C
+        // Decimal Floating-Point Technical Report, except that it is
+        // unspecified whether the NaNs returned are quiet or signaling.  The
+        // behavior is undefined unless 'input' represents a valid 64 bit
+        // decimal floating-point number in scientific or fixed notation, and
+        // no unrelated characters precede (not even whitespace) that textual
+        // representation and a terminating nul character immediately follows
+        // it.  Note that this method does not guarantee the behavior of
+        // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
+        // intrinsics return a signaling NaN.
+
     static ValueType128 parse128(const char *string);
+        // Parse the specified 'string' string as a 128 bit decimal floating-
+        // point value and return the result.  The parsing is as specified for
+        // the 'strtod128' function in section 9.6 of the ISO/EIC TR 24732 C
+        // Decimal Floating-Point Technical Report, except that it is
+        // unspecified whether the NaNs returned are quiet or signaling.  The
+        // behavior is undefined unless 'input' represents a valid 128 bit
+        // decimal floating-point number in scientific or fixed notation, and
+        // no unrelated characters precede (not even whitespace) that textual
+        // representation and a terminating nul character immediately follows
+        // it.  Note that this method does not guarantee the behavior of
+        // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
+        // intrinsics return a signaling NaN.
 };
 
 // ============================================================================
@@ -443,6 +928,8 @@ DecimalImpUtil_decNumber::uint64ToDecimal128(unsigned long long int value)
 
                         // Arithmetic
 
+                        // Addition Functions
+
 inline
 DecimalImpUtil_decNumber::ValueType64
 DecimalImpUtil_decNumber::add(DecimalImpUtil_decNumber::ValueType64 lhs,
@@ -463,7 +950,7 @@ DecimalImpUtil_decNumber::add(DecimalImpUtil_decNumber::ValueType128 lhs,
     return result;
 }
 
-
+                        // Subtraction Functions
 
 inline
 DecimalImpUtil_decNumber::ValueType64
@@ -485,7 +972,7 @@ DecimalImpUtil_decNumber::subtract(DecimalImpUtil_decNumber::ValueType128 lhs,
     return result;
 }
 
-
+                        // Multiplication Functions
 
 inline
 DecimalImpUtil_decNumber::ValueType64
@@ -507,7 +994,7 @@ DecimalImpUtil_decNumber::multiply(DecimalImpUtil_decNumber::ValueType128 lhs,
     return result;
 }
 
-
+                        // Division Functions
 
 inline
 DecimalImpUtil_decNumber::ValueType64
@@ -528,6 +1015,8 @@ DecimalImpUtil_decNumber::divide(DecimalImpUtil_decNumber::ValueType128 lhs,
     decQuadDivide(&result, &lhs, &rhs, getDecNumberContext());
     return result;
 }
+
+                        // Negation Functions
 
 inline
 DecimalImpUtil_decNumber::ValueType32
@@ -555,6 +1044,10 @@ DecimalImpUtil_decNumber::negate(DecimalImpUtil_decNumber::ValueType128 value)
     decQuadCopyNegate(&result, &value);
     return result;
 }
+
+                        // Comparison Functions
+
+                        // Less Than Functions
 
 inline
 bool
@@ -584,6 +1077,8 @@ DecimalImpUtil_decNumber::less(DecimalImpUtil_decNumber::ValueType128 lhs,
     return decQuadIsNegative(&comparison);
 }
 
+                        // Greater Than Functions
+
 inline
 bool
 DecimalImpUtil_decNumber::greater(DecimalImpUtil_decNumber::ValueType32 lhs,
@@ -612,6 +1107,8 @@ DecimalImpUtil_decNumber::greater(DecimalImpUtil_decNumber::ValueType128 lhs,
     return decQuadIsPositive(&comparison);
 }
 
+                        // Less Or Equal Functions
+
 inline
 bool
 DecimalImpUtil_decNumber::lessEqual(DecimalImpUtil_decNumber::ValueType32 lhs,
@@ -639,6 +1136,8 @@ DecimalImpUtil_decNumber::lessEqual(DecimalImpUtil_decNumber::ValueType128 lhs,
     decQuadCompare(&comparison, &lhs, &rhs, getDecNumberContext());
     return decQuadIsNegative(&comparison) || decQuadIsZero(&comparison);
 }
+
+                        // Greater Or Equal Functions
 
 inline
 bool
@@ -671,6 +1170,8 @@ DecimalImpUtil_decNumber::greaterEqual(
     return decQuadIsPositive(&comparison) || decQuadIsZero(&comparison);
 }
 
+                        // Equality Functions
+
 inline
 bool
 DecimalImpUtil_decNumber::equal(DecimalImpUtil_decNumber::ValueType32 lhs,
@@ -699,6 +1200,7 @@ DecimalImpUtil_decNumber::equal(DecimalImpUtil_decNumber::ValueType128 lhs,
     return decQuadIsZero(&comparison);
 }
 
+                        // Inequality Functions
 
 inline
 bool
@@ -729,6 +1231,7 @@ DecimalImpUtil_decNumber::notEqual(DecimalImpUtil_decNumber::ValueType128 lhs,
     return decQuadIsPositive(&comparison) || decQuadIsNegative(&comparison);
 }
 
+                        // Inter-type Conversion functions
 
 inline
 DecimalImpUtil_decNumber::ValueType32
@@ -777,6 +1280,8 @@ DecimalImpUtil_decNumber::convertToDecimal128(
     decDoubleToWider(&input, &retval);
     return retval;
 }
+
+                        // Binary floating point conversion functions
 
 inline
 DecimalImpUtil_decNumber::ValueType32
@@ -907,6 +1412,7 @@ DecimalImpUtil_decNumber::binaryToDecimal128(long double value)
     return result;
 }
 
+                        // makeDecimalRaw Functions
 
 inline
 DecimalImpUtil_decNumber::ValueType32
@@ -1035,62 +1541,69 @@ DecimalImpUtil_decNumber::makeDecimalRaw128(int mantissa,
     return result;
 }
 
+                        // IEEE Scale B Functions
+
 inline
 DecimalImpUtil_decNumber::ValueType32
-DecimalImpUtil_decNumber::scaleB(DecimalImpUtil_decNumber::ValueType32 value,
-                                 int                                   power)
+DecimalImpUtil_decNumber::scaleB(
+                                DecimalImpUtil_decNumber::ValueType32 value,
+                                int                                   exponent)
 {
-    return convertToDecimal32(scaleB(convertToDecimal64(value),power));
+    return convertToDecimal32(scaleB(convertToDecimal64(value), exponent));
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType64
-DecimalImpUtil_decNumber::scaleB(DecimalImpUtil_decNumber::ValueType64 value,
-                                 int                                   power)
+DecimalImpUtil_decNumber::scaleB(
+                                DecimalImpUtil_decNumber::ValueType64 value,
+                                int                                   exponent)
 {
     DecimalImpUtil_decNumber::ValueType64 result;
     DecimalImpUtil_decNumber::ValueType64 decPower;
-    decDoubleFromInt32(&decPower, power);
+    decDoubleFromInt32(&decPower, exponent);
     decDoubleScaleB(&result, &value, &decPower, getDecNumberContext());
     return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType128
-DecimalImpUtil_decNumber::scaleB(DecimalImpUtil_decNumber::ValueType128 value,
-                                 int                                    power)
+DecimalImpUtil_decNumber::scaleB(
+                               DecimalImpUtil_decNumber::ValueType128 value,
+                               int                                    exponent)
 {
     DecimalImpUtil_decNumber::ValueType128 result;
     DecimalImpUtil_decNumber::ValueType128 decPower;
-    decQuadFromInt32(&decPower, power);
+    decQuadFromInt32(&decPower, exponent);
     decQuadScaleB(&result, &value, &decPower, getDecNumberContext());
     return result;
 }
 
+                        // Parsing functions
+
 inline
 DecimalImpUtil_decNumber::ValueType32
-DecimalImpUtil_decNumber::parse32(const char *str)
+DecimalImpUtil_decNumber::parse32(const char *string)
 {
     DecimalImpUtil_decNumber::ValueType32 result;
-    decSingleFromString(&result, str, getDecNumberContext());
+    decSingleFromString(&result, string, getDecNumberContext());
     return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType64
-DecimalImpUtil_decNumber::parse64(const char *str)
+DecimalImpUtil_decNumber::parse64(const char *string)
 {
     DecimalImpUtil_decNumber::ValueType64 result;
-    decDoubleFromString(&result, str, getDecNumberContext());
+    decDoubleFromString(&result, string, getDecNumberContext());
     return result;
 }
 
 inline
 DecimalImpUtil_decNumber::ValueType128
-DecimalImpUtil_decNumber::parse128(const char *str)
+DecimalImpUtil_decNumber::parse128(const char *string)
 {
     DecimalImpUtil_decNumber::ValueType128 result;
-    decQuadFromString(&result, str, getDecNumberContext());
+    decQuadFromString(&result, string, getDecNumberContext());
     return result;
 }
 

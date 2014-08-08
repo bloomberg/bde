@@ -56,10 +56,9 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::makeDecimal64(
         return makeDecimalRaw64(0, Properties64::maxExponent);        // RETURN
     }
 
-    // Note that static_cast<int> is needed to prevent the RHS of the <=
-    // comparison from promoting to a signed int. '3 * sizeof(long long)'
-    // is at least the number of digits in the longest representable
-    // 'long long'.
+    // Note that static_cast<int> is needed to prevent the RHS of the '<='
+    // comparison from promoting to a signed int.  '3 * sizeof(long long)' is
+    // at least the number of digits in the longest representable 'long long'.
 
     if (exponent <= -Properties64::bias -
                                      3 * static_cast<int>(sizeof(long long))) {

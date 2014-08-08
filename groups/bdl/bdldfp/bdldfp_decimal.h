@@ -924,6 +924,7 @@ operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream, Decimal32& object);
     //
     // NOTE: This method does not yet fully support iostream flags or the
     // decimal floating point exception context.
+
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
 operator<< (bsl::basic_ostream<CHARTYPE, TRAITS>& stream, Decimal32 object);
@@ -5665,7 +5666,8 @@ bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal64  lhs,
 }
 
 inline
-bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
+bdldfp::Decimal128 bdldfp::operator/(bdldfp::Decimal128 lhs,
+                                     bdldfp::Decimal64  rhs)
 {
     return lhs / Decimal128(rhs);
 }
