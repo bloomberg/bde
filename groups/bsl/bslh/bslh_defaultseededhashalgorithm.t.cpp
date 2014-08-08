@@ -165,9 +165,9 @@ class HashTable {
     // This class template implements a hash table providing fast lookup of an
     // external, non-owned, array of values of configurable type.
     //
-    // The (template parameter) 'TYPE' shall have a transitive, symmetric 'operator=='
-    // function.  There is no requirement that it have any kind of creator
-    // defined.
+    // The (template parameter) 'TYPE' shall have a transitive, symmetric
+    // 'operator==' function.  There is no requirement that it have any kind of
+    // creator defined.
     //
     // The 'HASHER' template parameter type must be a functor with a function
     // of the following signature:

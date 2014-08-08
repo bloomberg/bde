@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // case of c-strings where the data contained in the string must be passed
 // directly into the algorithm, rather than calling 'hashAppend' on the
 // pointer. This special case exists becuase calling 'hashAppend' on a pointer
-// will hash the pointer rather than the data that is pointed to. 
+// will hash the pointer rather than the data that is pointed to.
 //
 // Within this component, 'hashAppend' has been implemented for all of the
 // fundamental types. When 'hashAppend is reached on a fundamental type, the

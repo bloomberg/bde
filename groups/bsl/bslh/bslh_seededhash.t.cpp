@@ -26,11 +26,11 @@ using namespace bslh;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // [ 3] operator()(const T&) const
-// [ 2] Hash()
-// [ 2] Hash(SEED_GENERATOR seedGenerator)
-// [ 2] Hash(const Hash)
-// [ 2] ~Hash()
-// [ 2] Hash& operator=(const Hash&)
+// [ 2] SeededHash()
+// [ 2] SeededHash(SEED_GENERATOR seedGenerator)
+// [ 2] SeededHash(const SeededHash)
+// [ 2] ~SeededHash()
+// [ 2] SeededHash& operator=(const SeededHash&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
@@ -134,9 +134,9 @@ class HashTable {
     // This class template implements a hash table providing fast lookup of an
     // external, non-owned, array of values of configurable type.
     //
-    // The (template parameter) 'TYPE' shall have a transitive, symmetric 'operator=='
-    // function and that a it is hashable using 'bslh::Hash'.  There is no
-    // requirement that it have any kind of creator defined.
+    // The (template parameter) 'TYPE' shall have a transitive, symmetric
+    // 'operator==' function and that a it is hashable using 'bslh::Hash'.
+    // There is no requirement that it have any kind of creator defined.
     //
     // The 'HASHER' template parameter type must be a functor with a function
     // of the following signature:
@@ -512,11 +512,11 @@ int main(int argc, char *argv[])
         //:   be destroyed. (C-7)
         //
         // Testing:
-        //   Hash()
-        //   Hash(SEED_GENERATOR seedGenerator)
-        //   Hash(const Hash)
-        //   ~Hash()
-        //   Hash& operator=(const Hash&)
+        //   SeededHash()
+        //   SeededHash(SEED_GENERATOR seedGenerator)
+        //   SeededHash(const SeededHash)
+        //   ~SeededHash()
+        //   SeededHash& operator=(const SeededHash&)
         // --------------------------------------------------------------------
 
         if (verbose)
