@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+#ifdef BDE_BUILD_TARGET_EXC
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -124,6 +125,7 @@ int main(int argc, char *argv[])
         ASSERT(bslx::TypeCode::e_UINT32 == e.dataType());
     }
 //..
+#endif
 
       } break;
       case 1: {

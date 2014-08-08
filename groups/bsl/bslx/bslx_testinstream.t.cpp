@@ -1348,9 +1348,11 @@ int main(int argc, char *argv[]) {
             // we want i + sum(i)_1_n (the number of inputs for the successful
             // pass plus all the failure inputs)
 
+#if BDE_BUILD_TARGET_EXC
             LOOP_ASSERT(requiredInputs, totalInputs == (requiredInputs
                                                         * (requiredInputs + 3)
                                                         / 2));
+#endif
         }
       } break;
       case 31: {
