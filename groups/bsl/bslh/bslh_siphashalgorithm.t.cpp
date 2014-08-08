@@ -644,8 +644,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n", VALUE);
 
-                Obj contiguousHash = Obj();
-                Obj dispirateHash  = Obj();
+                Obj contiguousHash = Obj(genericSeed);
+                Obj dispirateHash  = Obj(genericSeed);
 
                 contiguousHash(VALUE, strlen(VALUE));
                 for (unsigned int j = 0; j < strlen(VALUE); ++j){
