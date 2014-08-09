@@ -134,70 +134,51 @@ struct Hash {
 // FREE FUNCTIONS
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, bool input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, char input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, signed char input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, unsigned char input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, wchar_t input);
-
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, char16_t input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, char32_t input);
 #endif
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, short input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, unsigned short input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, int input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, unsigned int input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, long input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, unsigned long input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, long long input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, unsigned long long input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, float input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, double input);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, long double input);
-
 template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N]);
-
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
-
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, const void *input);
-    // Passes the specified 'input' to the specified 'hashAlg' to be combined
-    // into the hash.
+    // Passes the specified 'input' into the specified 'hashAlg' to be combined
+    // into the internal state of the algorithm which is used to produce the
+    // resulting hash value.
 
 }  // close package namespace
 
@@ -222,11 +203,12 @@ template <class HASH_ALGORITHM>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, bool input)
 {
-    if (input) {
-        input = 1;
-    } else {
-        input = 0;
-    }
+    // We need to ensure that any inputs that compare equal produce the same
+    // hash. Any non-zero binary representation of 'input' can be 'true', so we
+    // need to normalize 'input' to ensure that we do not pass two different
+    // binary representations of 'true' true into our hashing algorithm.
+    input = input ? 1 : 0;
+
     hashAlg(&input, sizeof(input));
 }
 
@@ -397,7 +379,7 @@ namespace bslmf {
 template <class TYPE>
 struct IsBitwiseMoveable<bslh::Hash<TYPE> >
     : bsl::true_type {};
-}  // close package namespace
+}  // close traits namespace
 
 
 }  // close enterprise namespace
@@ -412,7 +394,7 @@ template <class TYPE>
 struct is_trivially_copyable< ::BloombergLP::bslh::Hash<TYPE> >
 : bsl::true_type
 {};
-}  // close package namespace
+}  // close traits namespace
 
 
 

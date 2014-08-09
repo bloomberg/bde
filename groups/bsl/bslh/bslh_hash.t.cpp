@@ -128,28 +128,30 @@ void aSsErT(bool b, const char *s, int i)
 // Suppose we have a value semantic type, 'Box', that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
 // hashing. Some of these attributes are themselves user defined types. We want
-// to store this 'Box' in a hash table, so we need to hash it. We don't want to
-// write our own hashing or hash combine algorithm, because we know very little
-// about hashing. In order to hash this 'Box', we will use the modular hashing
-// system supplied in 'bslh'.
+// to store objects of type 'Box' in a hash table, so we need to be able to
+// produce hash values that represent instances of 'Box'. We don't want to
+// write our own hashing or hash combine algorithm, because we know it is very
+// difficult and labour intensive to write a proper hashing algorithm. In order
+// to hash this 'Box', we will use the modular hashing system supplied in
+// 'bslh'.
 //
-// First, we declare 'Point', a class that allows us to identify a loction on a
+// First, we define 'Point', a class that allows us to identify a loction on a
 // two dimensional cartesian plane.
 //..
 
 class Point {
-    // This class is a value semantic type that represents as two dimensional
+    // This class is a value semantic type that represents a two dimensional
     // location on a cartesian plane.
 
   private:
     int    d_x;
     int    d_y;
-    double d_distToOrigin; // This value will be accessed a lot, so we cache it
-                           // rather than recalculating every time.
+    double d_distToOrigin; // This value will be accessed frequently, so we
+                           // cache it rather than recalculate it every time.
 
   public:
     Point (int x, int y);
-        // Create a 'Point' with the specified 'x' and 'y' coordinates
+        // Create a 'Point' having the specified 'x' and 'y' coordinates.
 
     double distanceToOrigin();
         // Return the distance from the origin (0, 0) to this point.
@@ -170,20 +172,22 @@ class Point {
         // Apply the specified 'hashAlg' to the specified 'point'
 };
 
+inline
 Point::Point(int x, int y) : d_x(x), d_y(y) {
     d_distToOrigin = sqrt(static_cast<double>(d_x * d_x) +
                           static_cast<double>(d_y * d_y));
 }
 
+inline
 double Point::distanceToOrigin() {
     return d_distToOrigin;
 }
 
 //..
-// Then, we define 'operator=='. Notice how it only checks attributes that we
-// would want to hash. Attributes that are checked in 'operator==' tend to be
-// salient to hashing. We ignore 'd_distToOrigin' which is not required to
-// determine equality.
+// Then, we define 'operator=='. Notice how it checks only attributes that we
+// would want to incorporate into the hashed value. Note that attributes that
+// are salient to hashing tend to be the same as or a subset of the attributes
+// that are checked in 'operator=='.
 //..
 bool operator==(const Point &left, const Point &right)
 {
@@ -191,11 +195,12 @@ bool operator==(const Point &left, const Point &right)
 }
 
 //..
-// Next, we define 'hashAppend'. This method will allow any hashing algorithm
-// to be applied to 'Point'. This is the extent of the work that needs to be
-// done by type creators. They do not need to implement any algorithms, they
-// just need to call out the attributes that are salient to hashing by calling
-// 'hashAppend' on them.
+// Next, we define 'hashAppend'. This function will allow any hashing algorithm
+// that meets the 'bslh' hashing algorithm requirements to be applied to
+// 'Point'. This is the full extent of the work that needs to be done by type
+// creators. They do not need to implement any algorithms, they just need to
+// call out the attributes that are salient to hashing by calling 'hashAppend'
+// on them.
 //..
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
@@ -205,8 +210,8 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
 }
 
 //..
-// Then, we declare another value semantic type, 'Box' that will have point as
-// one of its attributes that are salient to hashing.
+// Then, we declare another value semantic type, 'Box' that will have a 'Point'
+// as one of its attributes that are salient to hashing.
 //..
 class Box {
     // This class is a value semantic type that represents a box drawn on to a
@@ -219,8 +224,8 @@ class Box {
 
   public:
     Box(Point position, int length, int width);
-        // Create a box with the specified 'length' and 'width', with its upper
-        // left corner at the specified 'position'
+        // Create a box having the specified 'length' and 'width', with its
+        // upper left corner at the specified 'position'
 
 //..
 // Next, we declare 'operator==' and 'hashAppend' as we did before.
