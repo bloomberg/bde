@@ -156,24 +156,18 @@ class Point {
     double distanceToOrigin();
         // Return the distance from the origin (0, 0) to this point.
 
-//..
-// Then, we declare 'operator==' as a friend so that we will be able to compare
-// two points.
-//..
-    friend bool operator==(const Point &left, const Point &right);
+    int getX();
+        // Return the x coordinate of this point.
 
-//..
-// Next, we declare 'hashAppend' as a friend so that we will be able hash a
-// 'Point'.
-//..
-    template <class HASH_ALGORITHM>
-    friend
-    void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point);
-        // Apply the specified 'hashAlg' to the specified 'point'
+    int getY();
+        // Return the y coordinate of this point.
 };
 
 inline
-Point::Point(int x, int y) : d_x(x), d_y(y) {
+Point::Point(int x, int y)
+: d_x(x)
+, d_y(y)
+{
     d_distToOrigin = sqrt(static_cast<double>(d_x * d_x) +
                           static_cast<double>(d_y * d_y));
 }
@@ -183,6 +177,19 @@ double Point::distanceToOrigin() {
     return d_distToOrigin;
 }
 
+inline
+int getX()
+{
+    return d_x;
+}
+
+inline
+int getY()
+{
+    return d_y;
+}
+
+
 //..
 // Then, we define 'operator=='. Notice how it checks only attributes that we
 // would want to incorporate into the hashed value. Note that attributes that
@@ -191,7 +198,7 @@ double Point::distanceToOrigin() {
 //..
 bool operator==(const Point &left, const Point &right)
 {
-    return (left.d_x == right.d_x) && (left.d_y == right.d_y);
+    return (left.getX() == right.getX()) && (left.getY() == right.getY());
 }
 
 //..
@@ -204,9 +211,10 @@ bool operator==(const Point &left, const Point &right)
 //..
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
+    // Apply the specified 'hashAlg' to the specified 'point'
 {
-    hashAppend(hashAlg, point.d_x);
-    hashAppend(hashAlg, point.d_y);
+    hashAppend(hashAlg, point.getX());
+    hashAppend(hashAlg, point.getY());
 }
 
 //..
@@ -227,81 +235,100 @@ class Box {
         // Create a box having the specified 'length' and 'width', with its
         // upper left corner at the specified 'position'
 
-//..
-// Next, we declare 'operator==' and 'hashAppend' as we did before.
-//..
-    friend bool operator==(const Box &left, const Box &right);
+    int getLength();
+        // Return the length of this box.
 
-    template <class HASH_ALGORITHM>
-    friend
-    void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box);
-        // Apply the specified 'hashAlg' to the specified 'box'
+    Point getPosition();
+        // Return a 'Point' representing the upper left corner of this box on a
+        // cartesian plane
+
+    int getWidth()
+        // Return the width of this box.
 };
 
-Box::Box(Point position, int length, int width) : d_position(position),
-                                                  d_length(length),
-                                                  d_width(width) { }
+inline
+Box::Box(Point position, int length, int width)
+: d_position(position)
+, d_length(length)
+, d_width(width) { }
+
+int getLength()
+{
+    return d_length;
+}
+
+Point getPosition()
+{
+    return d_position;
+}
+
+int getWidth()
+{
+    return d_width;
+}
 
 //..
-// Then, we define 'operator=='. This time all of the data members contribute
+// Then, we define 'operator=='. This time all of the data members are salient
 // to equality.
 //..
-bool operator==(const Box &left, const Box &right)
+bool operator==(const Box &lhs, const Box &rhs)
 {
-    return (left.d_position == right.d_position) &&
-           (left.d_length   == right.d_length) &&
-           (left.d_width    == right.d_width);
+    return (lhs.getPosition() == rhs.getPosition()) &&
+           (lhs.getLength()   == rhs.getLength()) &&
+           (lhs.getWidth()    == rhs.getWidth());
 }
 
 //..
 // Next, we define 'hashAppend' for 'Box'. Notice how as well as calling
-// 'hashAppend' on fundamental types, we can also call it on our user defined
-// type 'Point'. Calling 'hashAppend' on 'Point' will propogate the hashing
-// algorithm functor 'hashAlg' down to the fundamental types that make up
-// 'Point', and those types will then be passed into the algorithm functor.
+// 'hashAppend' on fundamental types, we can also call it with our user defined
+// type 'Point'. Calling 'hashAppend' with 'Point' will propogate a reference
+// to the hashing algorithm functor 'hashAlg' down to the fundamental types
+// that make up 'Point', and those types will then be passed into the
+// referenced algorithm functor.
 //..
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+    // Apply the specified 'hashAlg' to the specified 'box'
 {
-    hashAppend(hashAlg, box.d_position);
-    hashAppend(hashAlg, box.d_length);
-    hashAppend(hashAlg, box.d_width);
+    hashAppend(hashAlg, box.getPosition());
+    hashAppend(hashAlg, box.getLength());
+    hashAppend(hashAlg, box.getWidth());
 }
 
 //..
-// Then, we create our hash table. We simplify the problem by requiring an
-// array to be passed in. This means we already know how many buckets we need.
-// We do not need to copy the values into our own area, so we don't have to
-// create storage for them, or require that a copy constructor or destructor be
-// available.  We only require that they have a transitive, symmetric
+// Then, we create our hash table. We simplify the problem by requiring the
+// caller to supply an array. This means we already know how many buckets we
+// need.  We do not need to copy the values into our own area, so we don't have
+// to create storage for them, or require that a copy constructor or destructor
+// be available.  We only require that they have a transitive, symmetric
 // equivalence operation 'bool operator==' and that a they are hashable using
 // 'bslh::Hash'.
 //
 // Our hash table takes two type parameters: 'TYPE' (the type being referenced)
-// and 'HASHER' (a functor that produces the hash). We will default 'HASHER' to
-// using 'bslh::Hash<>'.
+// and 'HASHER' (a functor that produces the hash). 'HASHER' will default to
+// 'bslh::Hash<>'.
 
 template <class TYPE, class HASHER = bslh::Hash<> >
 class HashTable {
     // This class template implements a hash table providing fast lookup of an
-    // external, non-owned, array of values of configurable type.
+    // external, non-owned, array of values of (template parameter) 'TYPE'.
     //
     // The (template parameter) 'TYPE' shall have a transitive, symmetric
-    // 'operator==' function and that a it is hashable using 'bslh::Hash'.
-    // There is no requirement that it have any kind of creator defined.
+    // 'operator==' function and it will be hashable using 'bslh::Hash'.  Note
+    // that there is no requirement that it have any kind of creator defined.
     //
-    // The 'HASHER' template parameter type must be a functor with a function
-    // of the following signature:
+    // The 'HASHER' template parameter type must be a functor with a method
+    // having the following signature:
     //..
-    //  size_t operator()(const TYPE)  const;
+    //  size_t operator()(TYPE)  const;
     //                   -OR-
     //  size_t operator()(const TYPE&) const;
     //..
-    // and 'HASHER' must have a publicly available default constructor and
-    // destructor. Here we use 'bslh::Hash' as our default value. This allows
-    // us to hash any types that implement a 'hashAppend' method.
+    // and 'HASHER' shall have a publicly accessible default constructor and
+    // destructor. Here we use 'bslh::Hash' as our default template argument.
+    // This allows us to hash any type for which 'hashAppend' has been implemented.
     //
-    // Note that the hash table implemented here has numerous simplifications
+    // Note that this hash table has numerous simplifications
     // because we know the size of the array and never have to resize the
     // table.
 
@@ -318,10 +345,10 @@ class HashTable {
     bool lookup(size_t      *idx,
                 const TYPE&  value,
                 size_t       hashValue) const
-        // Look up the specified 'value', having hash value 'hashValue', and
-        // return its index in 'd_bucketArray' stored in the specified 'idx.
+        // Look up the specified 'value', having the specified 'hashValue', and
+        // load its index in 'd_bucketArray' into the specified 'idx'.
         // If not found, return the vacant entry in 'd_bucketArray' where it
-        // should be inserted.  Return 'true' if 'value is found and 'false'
+        // should be inserted.  Return 'true' if 'value' is found and 'false'
         // otherwise.
     {
         const TYPE *ptr;
@@ -338,10 +365,10 @@ class HashTable {
 
   public:
     // CREATORS
-    HashTable(const TYPE       *valuesArray,
-              size_t            numValues)
+    HashTable(const TYPE *valuesArray,
+              size_t      numValues)
         // Create a hash table referring to the specified 'valuesArray'
-        // containing 'numValues'.
+        // having length of the specified 'numValues'.
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()

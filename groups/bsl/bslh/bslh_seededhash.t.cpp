@@ -132,24 +132,24 @@ void aSsErT(bool b, const char *s, int i)
 template <class TYPE, class HASHER>
 class HashTable {
     // This class template implements a hash table providing fast lookup of an
-    // external, non-owned, array of values of configurable type.
+    // external, non-owned, array of values of (template parameter) 'TYPE'.
     //
     // The (template parameter) 'TYPE' shall have a transitive, symmetric
-    // 'operator==' function and that a it is hashable using 'bslh::Hash'.
-    // There is no requirement that it have any kind of creator defined.
+    // 'operator==' function and it will be hashable using 'bslh::Hash'.  Note
+    // that there is no requirement that it have any kind of creator defined.
     //
-    // The 'HASHER' template parameter type must be a functor with a function
-    // of the following signature:
+    // The 'HASHER' template parameter type must be a functor with a method
+    // having the following signature:
     //..
-    //  size_t operator()(const TYPE)  const;
+    //  size_t operator()(TYPE)  const;
     //                   -OR-
     //  size_t operator()(const TYPE&) const;
     //..
-    // and 'HASHER' must have a publicly available default constructor and
-    // destructor. Here we use 'bslh::Hash' as our default value. This allows
-    // us to hash any types that implement a 'hashAppend' method.
+    // and 'HASHER' shall have a publicly accessible default constructor and
+    // destructor. Here we use 'bslh::Hash' as our default template argument. This allows
+    // us to hash any type for which 'hashAppend' has been implemented.
     //
-    // Note that the hash table implemented here has numerous simplifications
+    // Note that this hash table has numerous simplifications
     // because we know the size of the array and never have to resize the
     // table.
 
@@ -166,10 +166,10 @@ class HashTable {
     bool lookup(size_t      *idx,
                 const TYPE&  value,
                 size_t       hashValue) const
-        // Look up the specified 'value', having hash value 'hashValue', and
-        // return its index in 'd_bucketArray' stored in the specified 'idx.
+        // Look up the specified 'value', having the specified 'hashValue', and
+        // load its index in 'd_bucketArray' into the specified 'idx'.
         // If not found, return the vacant entry in 'd_bucketArray' where it
-        // should be inserted.  Return 'true' if 'value is found and 'false'
+        // should be inserted.  Return 'true' if 'value' is found and 'false'
         // otherwise.
     {
         const TYPE *ptr;
@@ -186,11 +186,11 @@ class HashTable {
 
   public:
     // CREATORS
-    HashTable(const TYPE       *valuesArray,
-              size_t            numValues,
-              HASHER            hasher)
+    HashTable(const TYPE *valuesArray,
+              size_t      numValues,
+              HASHER      hasher)
         // Create a hash table referring to the specified 'valuesArray',
-        // containing 'numValues', and generating hashes with the specified
+        // having length of the specified 'numValues', and generating hashes having the specified
         // 'hasher'.
     : d_values(valuesArray)
     , d_numValues(numValues)

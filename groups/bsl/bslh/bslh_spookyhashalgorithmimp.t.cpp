@@ -178,7 +178,7 @@ class CheckedData {
 
   public:
     CheckedData(const char *data, size_t length);
-        // Creates an instance of this class with the specified 'length' bytes
+        // Creates an instance of this class having the specified 'length' bytes
         // of 'data'. Note that only a pointer to the data will be maintained,
         // it will not be copied.
 
