@@ -151,7 +151,9 @@ struct Function_AllocTraits;
                         // class bad_function_call
                         // =======================
 
-class bad_function_call : public std::exception {
+#ifdef BDE_BUILD_TARGET_EXC
+
+class bad_function_call : public native_std::exception {
     // Standard exception object thrown when attempting to invoke a null
     // function object.
 
@@ -162,6 +164,9 @@ public:
     const char* what() const BSLS_NOTHROW_SPEC;
         // Returns "bad_function_call".
 };
+
+#endif // BDE_BUILD_TARGET_EXC
+
 
                         // ================================
                         // class template Function_ArgTypes
@@ -808,11 +813,15 @@ void swap(function<RET(ARGS...)>& a, function<RET(ARGS...)>& b);
                         // class bad_function_call
                         // -----------------------
 
+#ifdef BDE_BUILD_TARGET_EXC
+
 inline
 bsl::bad_function_call::bad_function_call() BSLS_NOTHROW_SPEC
     : std::exception()
 {
 }
+
+#endif
 
 namespace bsl {
 
@@ -1830,12 +1839,20 @@ void bsl::function<RET(ARGS...)>::swap(function& other) BSLS_NOTHROW_SPEC
 template <class RET, class... ARGS>
 RET bsl::function<RET(ARGS...)>::operator()(ARGS... args) const
 {
+#ifdef BDE_BUILD_TARGET_EXC
+
     if (d_invoker_p) {
         return d_invoker_p(this, args...);
     }
     else {
         BSLS_THROW(bad_function_call());
     }
+
+#else
+    // Non-exception build
+    BSLS_ASSERT_OPT(d_invoker_p);
+    return d_invoker_p(this, args...);
+#endif
 }
 
 // ACCESSORS

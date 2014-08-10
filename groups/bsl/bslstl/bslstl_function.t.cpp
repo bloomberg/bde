@@ -170,17 +170,17 @@ public:
     ExceptionLimit& operator--() {
         // Decrement 'counter'.  Throw 'this' on transition from zero
         // to negative.
+#ifdef BDE_BUILD_TARGET_EXC
         if (d_counter >= 0 && --d_counter < 0) {
             throw this;
         }
+#endif
         return *this;
     }
 
     int value() const { return d_counter; }
     const char *what() const { return d_name; }
 };
-
-#ifdef BDE_BUILD_TARGET_EXC
 
 // These macros are used to test for exception neutrality in the case where
 // either an optionally-specified allocator throws an exception or an
@@ -228,6 +228,8 @@ public:
 //      } EXCEPTION_TEST_ENDTRY;
 //  } EXCEPTION_TEST_END;
 //..
+
+#ifdef BDE_BUILD_TARGET_EXC
 
 inline
 void dumpExTest(const char *s, int bslmaExceptionCounter,
@@ -300,6 +302,14 @@ void dumpExTest(const char *s, int bslmaExceptionCounter,
     if (exLimit) *exLimit = -1;                                               \
     if (veryVeryVerbose) std::printf("\t*** EXCEPTION_TEST_END ***\n");       \
 } while (false)
+
+#else // if ! BDE_BUILD_TARGET_EXC
+
+#define EXCEPTION_TEST_BEGIN(testAllocator, exceptionLimit) do {
+#define EXCEPTION_TEST_TRY do { if (true)
+#define EXCEPTION_TEST_CATCH else
+#define EXCEPTION_TEST_ENDTRY } while (false)
+#define EXCEPTION_TEST_END } while (false)
 
 #endif // BDE_BUILD_TARGET_EXC
 
@@ -502,7 +512,9 @@ class FunctorBase
 public:
     FunctorBase() { ++s_count; }
     FunctorBase(const FunctorBase&) { ++s_count; }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     FunctorBase(FunctorBase&&) { ++s_count; }
+#endif
     ~FunctorBase() { --s_count; ASSERT(s_count >= 0); }
 
     static int count() { return s_count; }

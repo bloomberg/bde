@@ -5,10 +5,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#ifdef BDE_BUILD_TARGET_EXC
+
 const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
 {
     return "bad_function_call";
 }
+
+#endif
 
 bool bsl::Function_Rep::moveInit(Function_Rep& other)
 {
