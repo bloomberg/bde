@@ -189,9 +189,8 @@ class HashTable {
     // and 'HASHER' shall have a publicly accessible default constructor and
     // destructor.
     //
-    // Note that this hash table has numerous simplifications
-    // because we know the size of the array and never have to resize the
-    // table.
+    // Note that this hash table has numerous simplifications because we know
+    // the size of the array and never have to resize the table.
 
     // DATA
     const TYPE       *d_values;             // Array of values we are
@@ -201,7 +200,6 @@ class HashTable {
     const TYPE      **d_bucketArray;        // Contains ptrs into 'd_values'
     unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
     HASHER            d_hasher;
-    bool              d_valid;              // Object was properly initialized.
 
   private:
     // PRIVATE ACCESSORS
@@ -230,17 +228,17 @@ class HashTable {
     // CREATORS
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
-        // Create a hash table referring to the specified 'valuesArray'
-        // having length of the specified 'numValues'.
+        // Create a hash table referring to the specified 'valuesArray' having
+        // length of the specified 'numValues'. No value in 'valuesArray' shall
+        // have the same value as any of the other values in 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
-    , d_valid(true)
     {
         size_t bucketArrayLength = 4;
         while (bucketArrayLength < numValues * 4) {
             bucketArrayLength *= 2;
-            BSLS_ASSERT_OPT(bucketArrayLength);
+
         }
         d_bucketArrayMask = bucketArrayLength - 1;
         d_bucketArray = new const TYPE *[bucketArrayLength];
@@ -249,19 +247,8 @@ class HashTable {
         for (unsigned i = 0; i < numValues; ++i) {
             const TYPE& value = d_values[i];
             size_t idx;
-            if (lookup(&idx, value, d_hasher(value))) {
-                // Duplicate value.  Fail.
-
-                printf("Error: entries %u and %u have the same value\n",
-                       i,
-                       static_cast<unsigned>((d_bucketArray[idx] - d_values)));
-                d_valid = false;
-
-                // don't return, continue reporting other redundant entries.
-            }
-            else {
-                d_bucketArray[idx] = &d_values[i];
-            }
+            BSLS_ASSERT_OPT(!lookup(&idx, value, d_hasher(value)));
+            d_bucketArray[idx] = &d_values[i];
         }
     }
 
@@ -272,21 +259,12 @@ class HashTable {
     }
 
     // ACCESSORS
-    int count(const TYPE& value) const
-        // Return 1 if the specified 'value' is found in the table and 0
+    bool contains(const TYPE& value) const
+        // Return true if the specified 'value' is found in the table and false
         // otherwise.
     {
-        BSLS_ASSERT_OPT(d_valid);
-
         size_t idx;
         return lookup(&idx, value, d_hasher(value));
-    }
-
-    bool isValid() const
-        // Return 'true' if this cross reference was successfully constructed
-        // and 'false' otherwise.
-    {
-        return d_valid;
     }
 };
 
@@ -428,25 +406,24 @@ int main(int argc, char *argv[])
                              Future("Eurodollar", 'Q', 2017)};
         enum { NUM_FUTURES =
                               sizeof futures / sizeof *futures };
-//..
-// Next, we create our HashTable 'hashTable' and verify that it constructed
-// properly.  We pass the functor that we defined above as the second argument:
-//..
+
+// Next, we create our HashTable 'hashTable'.  We pass the functor that we
+// defined above as the second argument:
+
         HashTable<Future, HashFuture> hashTable(futures, NUM_FUTURES);
-        ASSERT(hashTable.isValid());
 //..
 // Now, we verify that each element in our array registers with count:
 //..
         for ( int i = 0; i < 6; ++i) {
-            ASSERT(1 == hashTable.count(futures[i]));
+            ASSERT(hashTable.contains(futures[i]));
         }
 //..
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
 //..
-        ASSERT(0 == hashTable.count(Future("French Franc", 'N', 2019)));
-        ASSERT(0 == hashTable.count(Future("Swiss Franc", 'X', 2014)));
-        ASSERT(0 == hashTable.count(Future("US Dollar", 'F', 2014)));
+        ASSERT(!hashTable.contains(Future("French Franc", 'N', 2019)));
+        ASSERT(!hashTable.contains(Future("Swiss Franc", 'X', 2014)));
+        ASSERT(!hashTable.contains(Future("US Dollar", 'F', 2014)));
 
       } break;
       case 6: {
@@ -514,10 +491,15 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
         //:   'bsls::Types::Uint64'.
+        //:
+        //: 2 'computeHash()' returns 'result_type'
         //
         // Plan:
         //: 1 ASSERT the typedef is accessible and is the correct type using
         //:   'bslmf::IsSame'. (C-1)
+        //:
+        //: 2 Declare the expected signature of 'computeHash()' and then assign
+        //:   to it. If it compiles, the test passes. (C-2)
         //
         // Testing:
         //   typedef bsls::Types::Uint64 result_type;
@@ -531,6 +513,15 @@ int main(int argc, char *argv[])
         {
             ASSERT((bslmf::IsSame<bsls::Types::Uint64,
                                        SipHashAlgorithm::result_type>::VALUE));
+        }
+
+        if (verbose) printf("Declare the expected signature of 'computeHash()'"
+                            " and then assign to it. If it compiles, the test"
+                            " passes. (C-2)\n");
+        {
+            Obj::result_type (Obj::*expectedSignature) ();
+
+            expectedSignature = &Obj::computeHash;
         }
 
       } break;

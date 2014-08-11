@@ -146,12 +146,12 @@ class HashTable {
     //  size_t operator()(const TYPE&) const;
     //..
     // and 'HASHER' shall have a publicly accessible default constructor and
-    // destructor. Here we use 'bslh::Hash' as our default template argument. This allows
-    // us to hash any type for which 'hashAppend' has been implemented.
+    // destructor. Here we use 'bslh::Hash' as our default template argument.
+    // This allows us to hash any type for which 'hashAppend' has been
+    // implemented.
     //
-    // Note that this hash table has numerous simplifications
-    // because we know the size of the array and never have to resize the
-    // table.
+    // Note that this hash table has numerous simplifications because we know
+    // the size of the array and never have to resize the table.
 
     // DATA
     const TYPE       *d_values;             // Array of values table is to hold
@@ -159,7 +159,6 @@ class HashTable {
     const TYPE      **d_bucketArray;        // Contains ptrs into 'd_values'
     unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
     HASHER            d_hasher;
-    bool              d_valid;              // Object was properly initialized.
 
   private:
     // PRIVATE ACCESSORS
@@ -167,10 +166,9 @@ class HashTable {
                 const TYPE&  value,
                 size_t       hashValue) const
         // Look up the specified 'value', having the specified 'hashValue', and
-        // load its index in 'd_bucketArray' into the specified 'idx'.
-        // If not found, return the vacant entry in 'd_bucketArray' where it
-        // should be inserted.  Return 'true' if 'value' is found and 'false'
-        // otherwise.
+        // load its index in 'd_bucketArray' into the specified 'idx'.  If not
+        // found, return the vacant entry in 'd_bucketArray' where it should be
+        // inserted.  Return 'true' if 'value' is found and 'false' otherwise.
     {
         const TYPE *ptr;
         for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
@@ -189,18 +187,18 @@ class HashTable {
     HashTable(const TYPE *valuesArray,
               size_t      numValues,
               HASHER      hasher)
-        // Create a hash table referring to the specified 'valuesArray',
-        // having length of the specified 'numValues', and generating hashes having the specified
-        // 'hasher'.
+        // Create a hash table referring to the specified 'valuesArray' having
+        // length of the specified 'numValues' and using the specified 'hasher'
+        // to generate hash values. No value in 'valuesArray' shall have the
+        // same value as any of the other values in 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher(hasher)
-    , d_valid(true)
     {
         size_t bucketArrayLength = 4;
         while (bucketArrayLength < numValues * 4) {
             bucketArrayLength *= 2;
-            BSLS_ASSERT_OPT(bucketArrayLength);
+
         }
         d_bucketArrayMask = bucketArrayLength - 1;
         d_bucketArray = new const TYPE *[bucketArrayLength];
@@ -209,44 +207,24 @@ class HashTable {
         for (unsigned i = 0; i < numValues; ++i) {
             const TYPE& value = d_values[i];
             size_t idx;
-            if (lookup(&idx, value, d_hasher(value))) {
-                // Duplicate value.  Fail.
-
-                printf("Error: entries %u and %u have the same value\n",
-                       i,
-                       static_cast<unsigned>((d_bucketArray[idx] - d_values)));
-                d_valid = false;
-
-                // don't return, continue reporting other redundant entries.
-            }
-            else {
-                d_bucketArray[idx] = &d_values[i];
-            }
+            BSLS_ASSERT_OPT(!lookup(&idx, value, d_hasher(value)));
+            d_bucketArray[idx] = &d_values[i];
         }
     }
 
     ~HashTable()
-        // Free up memory used by this hash table.
+        // Free up memory used by this cross-reference.
     {
         delete [] d_bucketArray;
     }
 
     // ACCESSORS
-    int count(const TYPE& value) const
-        // Return 1 if the specified 'value' is found in the hash table and 0
+    bool contains(const TYPE& value) const
+        // Return true if the specified 'value' is found in the table and false
         // otherwise.
     {
-        BSLS_ASSERT_OPT(d_valid);
-
         size_t idx;
         return lookup(&idx, value, d_hasher(value));
-    }
-
-    bool isValid() const
-        // Return 'true' if this hash table was successfully constructed and
-        // 'false' otherwise.
-    {
-        return d_valid;
     }
 };
 
@@ -284,7 +262,7 @@ typedef MockRNG CryptographicallySecureRNG;
     // Not actually cryptographically secure!
 
 typedef bslh::SeedGenerator<MockRNG> SeedGen;
-typedef bslh::SeededHash<SeedGen, SpookyHashAlgorithm>    Obj;
+typedef bslh::SeededHash<SeedGen, DefaultSeededHashAlgorithm> Obj;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -348,44 +326,51 @@ int main(int argc, char *argv[])
         SecureHash          secureHash(secureSeedGenerator);
 
 //..
-// Then, we create our hash table and verify that it constructed properly.  We
-// pass it the 'secureHash' hashing functor we created. Passing it in through
-// the functor, rather than just having it default constructed from the
-// template parameter, allows us to pass in an algorithm with a pre-configured
-// state if we so desire.
+// Then, we create our hash table 'hashTable'.  We pass it the 'secureHash'
+// hashing functor we created. Passing it in through the functor, rather than
+// just having it default constructed from the template parameter, allows us to
+// pass in an algorithm with a pre-configured state if we so desire.
 //..
 
         HashTable<const char [11], SecureHash> hashTable(names,
                                                          NUM_NAMES,
                                                          secureHash);
-        ASSERT(hashTable.isValid());
 
 // Now, we verify that each element in our array registers with count:
         for ( int i = 0; i < NUM_NAMES; ++i) {
-            ASSERT(1 == hashTable.count(names[i]));
+            ASSERT(hashTable.contains(names[i]));
         }
 
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
 
-        ASSERT(0 == hashTable.count("asdfasdfas"));
-        ASSERT(0 == hashTable.count("asdfqwerqw"));
-        ASSERT(0 == hashTable.count("asdfqwerzx"));
+        ASSERT(!hashTable.contains("asdfasdfas"));
+        ASSERT(!hashTable.contains("asdfqwerqw"));
+        ASSERT(!hashTable.contains("asdfqwerzx"));
 
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING STANDARD TYPEDEFS
-        //   Verify that the struct properly forwards the typedefs of the
-        //   algorithm it is passed.
+        //   Verify that the struct hashes the proper 'typedef's.
         //
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
         //:   'size_t'.
+        //:
+        //: 2 'result_type' is 'size_t' even when the algorithm returns a
+        //:   'result_type' of a different size
+        //:
+        //: 3 'operator()' returns 'result_type'
+        //
         //
         // Plan:
-        //: 1 ASSERT the typedef accessibly aliases the correct type using
-        //:   'bslmf::IsSame'. (C-1)
+        //: 1 ASSERT the 'typedef' accessibly aliases the correct type using
+        //:   'bslmf::IsSame' for a number of algorithms of different result
+        //:   types. (C-1,2)
+        //:
+        //: 2 Declare the expected signature of 'operator()' and then assign to
+        //:   it. If it compiles, the test passes. (C-3)
         //
         // Testing:
         //   typedef result_type
@@ -394,11 +379,48 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"
                             "\n=========================\n");
 
-        if (verbose) printf("ASSERT the typedef accessibly aliases the correct"
-                            " type using 'bslmf::IsSame'. (C-1)\n");
+        if (verbose) printf("ASSERT the 'typedef' accessibly aliases the"
+                            " correct type using 'bslmf::IsSame' for a number"
+                            " of algorithms of different result types."
+                            " (C-1,2)\n");
         {
 
             ASSERT((bslmf::IsSame<size_t, Obj::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  SeededHash<SeedGen,
+                                             DefaultSeededHashAlgorithm>
+                                                      ::result_type >::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  SeededHash<SeedGen, SipHashAlgorithm>
+                                                       ::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  SeededHash<SeedGen, SpookyHashAlgorithm>
+                                                       ::result_type>::VALUE));
+        }
+
+        if (verbose) printf("Declare the expected signature of 'operator()'"
+                            " and then assign to it. If it compiles, the test"
+                            " passes. (C-3)\n");
+        {
+            int data = 0;
+            Obj::result_type (Obj::*expectedSignature) (const int&) const;
+
+            expectedSignature = &Obj::operator()<const int&>;
+            expectedSignature = &SeededHash<SeedGen,
+                                             DefaultSeededHashAlgorithm>
+                                                      ::operator()<const int&>;
+
+            SeededHash<SeedGen, SipHashAlgorithm>::result_type
+                   (SeededHash<SeedGen, SipHashAlgorithm>::*expectedSignature2)
+                                                            (const int&) const;
+            expectedSignature2 = &SeededHash<SeedGen, SipHashAlgorithm>
+                                                      ::operator()<const int&>;
+
+            SeededHash<SeedGen, SpookyHashAlgorithm>::result_type
+                (SeededHash<SeedGen, SpookyHashAlgorithm>::*expectedSignature3)
+                                                            (const int&) const;
+            expectedSignature3 = &SeededHash<SeedGen, SpookyHashAlgorithm>
+                                                      ::operator()<const int&>;
         }
 
       } break;
@@ -464,6 +486,9 @@ int main(int argc, char *argv[])
 
                 Obj hash = Obj();
                 LOOP_ASSERT(LINE, hash(VALUE) == HASH);
+
+                const Obj constHash = Obj();
+                LOOP_ASSERT(LINE, constHash(VALUE) == HASH);
             }
         }
 

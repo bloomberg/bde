@@ -176,9 +176,57 @@ template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM& hashAlg, const void *input);
+#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+template <class HASH_ALGORITHM, class RT, class ... ARGS>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(ARGS...));
+#else
+template <class HASH_ALGORITHM, class RT>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)());
+template <class HASH_ALGORITHM, class RT, class T0>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0));
+template <class HASH_ALGORITHM, class RT, class T0, class T1>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1));
+template <class HASH_ALGORITHM, class RT, class T0, class T1, class T2>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2));
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3) );
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3, T4));
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3, T4, T5));
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+void hashAppend(HASH_ALGORITHM& hashAlg,
+                RT (*input)(T0, T1, T2, T3, T4, T5, T6));
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7>
+void hashAppend(HASH_ALGORITHM& hashAlg,
+                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7));
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class T8>
+void hashAppend(HASH_ALGORITHM& hashAlg,
+                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7, T8));
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class T8, class T9>
+void hashAppend(HASH_ALGORITHM& hashAlg,
+                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9));
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
     // resulting hash value.
+#endif
 
 }  // close package namespace
 
@@ -207,9 +255,9 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, bool input)
     // hash. Any non-zero binary representation of 'input' can be 'true', so we
     // need to normalize 'input' to ensure that we do not pass two different
     // binary representations of 'true' true into our hashing algorithm.
-    input = input ? 1 : 0;
+    unsigned char normalizedData = input;
 
-    hashAlg(&input, sizeof(input));
+    hashAlg(&normalizedData, sizeof(normalizedData));
 }
 
 template <class HASH_ALGORITHM>
@@ -365,6 +413,105 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const void *input)
     hashAlg(&input, sizeof(input));
 }
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+
+template <class HASH_ALGORITHM, class RT, class ... ARGS>
+void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(ARGS...))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+#else
+
+template <class HASH_ALGORITHM, class RT>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)())
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM, class RT, class T0>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM, class RT, class T0, class T1>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM, class RT, class T0, class T1, class T2>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3) )
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3, T4))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
+                      RT (*input)(T0, T1, T2, T3, T4, T5))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5, class T6>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
+                RT (*input)(T0, T1, T2, T3, T4, T5, T6))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
+                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class T8>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
+                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7, T8))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM,
+          class RT,
+          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
+          class T7, class T8, class T9>
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
+                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9))
+{
+    hashAlg(&input, sizeof(input));
+}
+
+#endif
 
 // ============================================================================
 //                                TYPE TRAITS

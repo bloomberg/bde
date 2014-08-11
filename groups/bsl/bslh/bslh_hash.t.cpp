@@ -1,7 +1,9 @@
 // bslh_hash.t.cpp                                                    -*-C++-*-
 #include <bslh_hash.h>
 #include <bslh_defaulthashalgorithm.h>
+#include <bslh_defaultseededhashalgorithm.h>
 #include <bslh_siphashalgorithm.h>
+#include <bslh_spookyhashalgorithm.h>
 
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
@@ -53,6 +55,7 @@ using namespace bslh;
 // [ 3] void hashAppend(HASHALG& hashAlg, const char (&input)[N]);
 // [ 3] void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
 // [ 3] void hashAppend(HASHALG& hashAlg, const void *input);
+// [ 3] void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
@@ -153,13 +156,13 @@ class Point {
     Point (int x, int y);
         // Create a 'Point' having the specified 'x' and 'y' coordinates.
 
-    double distanceToOrigin();
+    double distanceToOrigin() const;
         // Return the distance from the origin (0, 0) to this point.
 
-    int getX();
+    int getX() const;
         // Return the x coordinate of this point.
 
-    int getY();
+    int getY() const;
         // Return the y coordinate of this point.
 };
 
@@ -173,18 +176,19 @@ Point::Point(int x, int y)
 }
 
 inline
-double Point::distanceToOrigin() {
+double Point::distanceToOrigin() const
+{
     return d_distToOrigin;
 }
 
 inline
-int getX()
+int Point::getX() const
 {
     return d_x;
 }
 
 inline
-int getY()
+int Point::getY() const
 {
     return d_y;
 }
@@ -196,9 +200,12 @@ int getY()
 // are salient to hashing tend to be the same as or a subset of the attributes
 // that are checked in 'operator=='.
 //..
-bool operator==(const Point &left, const Point &right)
+bool operator==(const Point &lhs, const Point &rhs)
+    // Return true if the specified 'lhs' and 'rhs' have the same value. Two
+    // 'Point' objects have the same value if they have the same x and y
+    // coordinates.
 {
-    return (left.getX() == right.getX()) && (left.getY() == right.getY());
+    return (lhs.getX() == rhs.getX()) && (lhs.getY() == rhs.getY());
 }
 
 //..
@@ -235,14 +242,14 @@ class Box {
         // Create a box having the specified 'length' and 'width', with its
         // upper left corner at the specified 'position'
 
-    int getLength();
+    int getLength() const;
         // Return the length of this box.
 
-    Point getPosition();
+    Point getPosition() const;
         // Return a 'Point' representing the upper left corner of this box on a
         // cartesian plane
 
-    int getWidth()
+    int getWidth() const;
         // Return the width of this box.
 };
 
@@ -252,17 +259,17 @@ Box::Box(Point position, int length, int width)
 , d_length(length)
 , d_width(width) { }
 
-int getLength()
+int Box::getLength() const
 {
     return d_length;
 }
 
-Point getPosition()
+Point Box::getPosition() const
 {
     return d_position;
 }
 
-int getWidth()
+int Box::getWidth() const
 {
     return d_width;
 }
@@ -272,6 +279,9 @@ int getWidth()
 // to equality.
 //..
 bool operator==(const Box &lhs, const Box &rhs)
+    // Return true if the specified 'lhs' and 'rhs' have the same value. Two
+    // 'Box' objects have the same value if they have the same length, width,
+    // and position.
 {
     return (lhs.getPosition() == rhs.getPosition()) &&
            (lhs.getLength()   == rhs.getLength()) &&
@@ -326,11 +336,11 @@ class HashTable {
     //..
     // and 'HASHER' shall have a publicly accessible default constructor and
     // destructor. Here we use 'bslh::Hash' as our default template argument.
-    // This allows us to hash any type for which 'hashAppend' has been implemented.
+    // This allows us to hash any type for which 'hashAppend' has been
+    // implemented.
     //
-    // Note that this hash table has numerous simplifications
-    // because we know the size of the array and never have to resize the
-    // table.
+    // Note that this hash table has numerous simplifications because we know
+    // the size of the array and never have to resize the table.
 
     // DATA
     const TYPE       *d_values;             // Array of values table is to hold
@@ -338,7 +348,6 @@ class HashTable {
     const TYPE      **d_bucketArray;        // Contains ptrs into 'd_values'
     unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
     HASHER            d_hasher;
-    bool              d_valid;              // Object was properly initialized.
 
   private:
     // PRIVATE ACCESSORS
@@ -346,10 +355,9 @@ class HashTable {
                 const TYPE&  value,
                 size_t       hashValue) const
         // Look up the specified 'value', having the specified 'hashValue', and
-        // load its index in 'd_bucketArray' into the specified 'idx'.
-        // If not found, return the vacant entry in 'd_bucketArray' where it
-        // should be inserted.  Return 'true' if 'value' is found and 'false'
-        // otherwise.
+        // load its index in 'd_bucketArray' into the specified 'idx'.  If not
+        // found, return the vacant entry in 'd_bucketArray' where it should be
+        // inserted.  Return 'true' if 'value' is found and 'false' otherwise.
     {
         const TYPE *ptr;
         for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
@@ -367,64 +375,43 @@ class HashTable {
     // CREATORS
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
-        // Create a hash table referring to the specified 'valuesArray'
-        // having length of the specified 'numValues'.
+        // Create a hash table referring to the specified 'valuesArray' having
+        // length of the specified 'numValues'. No value in 'valuesArray' shall
+        // have the same value as any of the other values in 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
-    , d_valid(true)
     {
         size_t bucketArrayLength = 4;
         while (bucketArrayLength < numValues * 4) {
             bucketArrayLength *= 2;
-            BSLS_ASSERT_OPT(bucketArrayLength);
+
         }
         d_bucketArrayMask = bucketArrayLength - 1;
         d_bucketArray = new const TYPE *[bucketArrayLength];
-
         memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 
         for (unsigned i = 0; i < numValues; ++i) {
             const TYPE& value = d_values[i];
             size_t idx;
-            if (lookup(&idx, value, d_hasher(value))) {
-                // Duplicate value.  Fail.
-
-                printf("Error: entries %u and %u have the same value\n",
-                       i,
-                       static_cast<unsigned>((d_bucketArray[idx] - d_values)));
-                d_valid = false;
-
-                // don't return, continue reporting other redundant entries.
-            }
-            else {
-                d_bucketArray[idx] = &d_values[i];
-            }
+            BSLS_ASSERT_OPT(!lookup(&idx, value, d_hasher(value)));
+            d_bucketArray[idx] = &d_values[i];
         }
     }
 
     ~HashTable()
-        // Free up memory used by this hash table.
+        // Free up memory used by this cross-reference.
     {
         delete [] d_bucketArray;
     }
 
     // ACCESSORS
-    int count(const TYPE& value) const
-        // Return 1 if the specified 'value' is found in the hash table and 0
+    bool contains(const TYPE& value) const
+        // Return true if the specified 'value' is found in the table and false
         // otherwise.
     {
-        BSLS_ASSERT_OPT(d_valid);
-
         size_t idx;
         return lookup(&idx, value, d_hasher(value));
-    }
-
-    bool isValid() const
-        // Return 'true' if this hash table was successfully constructed and
-        // 'false' otherwise.
-    {
-        return d_valid;
     }
 };
 
@@ -435,14 +422,16 @@ class HashTable {
 typedef bslh::Hash<> Obj;
 
 static bool binaryCompare(const char *first, const char *second, size_t size)
-    // Return the result of a binary comparison betweed the specified 'size'
-    // bytes of 'first' and 'second'.
+    // Return the result of a comparison of the binary representation of the
+    // specified 'size' number of bytes of the data pointed to by the specified
+    // 'first' and 'second'.
 {
-    bool equal = true;
     for (size_t i = 0; i < size; ++i) {
-        equal = equal && (first[i] == second[i]);
+        if(!(first[i] == second[i])) {
+            return false;                                             // RETURN
+        }
     }
-    return equal;
+    return true;
 }
 
 class MockHashingAlgorithm {
@@ -454,25 +443,39 @@ class MockHashingAlgorithm {
     size_t  d_length; // Length of the data we were asked to hash
 
   public:
+    MockHashingAlgorithm()
+    : d_length(0)
+        // Create a new 'MockHashingAlgorithm'
+    {
+        d_data = new char[0];
+    }
+
+    ~MockHashingAlgorithm()
+        // Destroy this object
+    {
+        delete [] d_data;
+    }
+
     void operator()(const void *voidPtr, size_t length)
         // Store the specified 'voidPtr' and 'length' for inspection later.
     {
         const char *ptr = reinterpret_cast<const char *>(voidPtr);
+        delete [] d_data;
         d_data = new char [length];
         memcpy(d_data, ptr, length);
         d_length = length;
     }
 
     const char *getData()
-        // Return the pointer stored by 'operator()'. Undefined if 'operator()'
-        // has not been called.
+        // Return the pointer stored by 'operator()'. The behaviour is
+        // undefined if 'operator()' has not been called.
     {
         return d_data;
     }
 
     size_t getLength()
-        // Return the length stored by 'operator()'. Undefined if 'operator()'
-        // has not been called.
+        // Return the length stored by 'operator()'. The behaviour is
+        // undefined if 'operator()' has not been called.
     {
         return d_length;
     }
@@ -517,15 +520,15 @@ class MockAccumulatingHashingAlgorithm {
     }
 
     const char *getData()
-        // Return the pointer stored by 'operator()'. Undefined if 'operator()'
-        // has not been called.
+        // Return the pointer stored by 'operator()'. The behaviour is
+        // undefined if 'operator()' has not been called.
     {
         return d_data;
     }
 
     size_t getLength()
-        // Return the length stored by 'operator()'. Undefined if 'operator()'
-        // has not been called.
+        // Return the length stored by 'operator()'. The behaviour is
+        // undefined if 'operator()' has not been called.
     {
         return d_length;
     }
@@ -535,14 +538,14 @@ template<class TYPE>
 class TestDriver {
     // This class implements a test driver that can run tests on any type.
 
-    char data[10];
+    char data[sizeof(TYPE)];
 
   public:
     TestDriver()
         // Construct a 'TestDriver'
     {
         srand(37);
-        for (int i = 0; i < 10; ++i) {
+        for (unsigned int i = 0; i < sizeof(TYPE); ++i) {
             data[i] = static_cast<char>(rand());
         }
     }
@@ -581,9 +584,27 @@ class TestDriver {
         for (size_t i = 0; i < sizeof(TYPE); ++i) {
             LOOP_ASSERT(line, output[i] == data[i]);
         }
-        ASSERT(alg.getLength() == sizeof(TYPE));
+        LOOP_ASSERT(line, alg.getLength() == sizeof(TYPE));
     }
 };
+
+int testFunction1()
+    // This function is used only for testing funciton pointers
+{
+    return 1;
+}
+
+int testFunction2()
+    // This function is used only for testing funciton pointers
+{
+    return 1;
+}
+
+int testFunction3()
+    // This function is used only for testing funciton pointers
+{
+    return 3;
+}
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -636,25 +657,23 @@ int main(int argc, char *argv[])
         enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
 
 //..
-// Then, we create our hash table and verify that it constructed properly.  We
-// pass we use the default functor which will pick up the 'hashAppend' function
-// we created:
+// Then, we create our hash table 'hashTable'.  We pass we use the default
+// functor which will pick up the 'hashAppend' function we created:
 //..
 
         HashTable<Box> hashTable(boxes, NUM_BOXES);
-        ASSERT(hashTable.isValid());
 
 // Now, we verify that each element in our array registers with count:
         for ( int i = 0; i < 6; ++i) {
-            ASSERT(1 == hashTable.count(boxes[i]));
+            ASSERT(hashTable.contains(boxes[i]));
         }
 
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
 
-        ASSERT(0 == hashTable.count(Box(Point(1, 1), 1, 1)));
-        ASSERT(0 == hashTable.count(Box(Point(0, 0), 0, 0)));
-        ASSERT(0 == hashTable.count(Box(Point(3, 3), 3, 3)));
+        ASSERT(!hashTable.contains(Box(Point(1, 1), 1, 1)));
+        ASSERT(!hashTable.contains(Box(Point(0, 0), 0, 0)));
+        ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
 
       } break;
       case 7: {
@@ -768,10 +787,20 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The typedef 'result_type' is publicly accessible and an alias for
         //:   'size_t'.
+        //:
+        //: 2 'result_type' is 'size_t' even when the algorithm returns a
+        //:   'result_type' of a different size
+        //:
+        //: 3 'operator()' returns 'result_type'
+        //
         //
         // Plan:
         //: 1 ASSERT the 'typedef' accessibly aliases the correct type using
-        //:   'bslmf::IsSame'. (C-1)
+        //:   'bslmf::IsSame' for a number of algorithms of different result
+        //:   types. (C-1,2)
+        //:
+        //: 2 Declare the expected signature of 'operator()' and then assign to
+        //:   it. If it compiles, the test passes. (C-3)
         //
         // Testing:
         //   typedef result_type
@@ -780,11 +809,39 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"
                             "\n=========================\n");
 
-        if (verbose) printf("ASSERT the typedef accessibly aliases the correct"
-                            " type using 'bslmf::IsSame'. (C-1)\n");
+        if (verbose) printf("ASSERT the 'typedef' accessibly aliases the"
+                            " correct type using 'bslmf::IsSame' for a number"
+                            " of algorithms of different result types."
+                            " (C-1,2)\n");
         {
 
             ASSERT((bslmf::IsSame<size_t, Hash<>::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  Hash<DefaultHashAlgorithm>
+                                                      ::result_type >::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  Hash<DefaultSeededHashAlgorithm>
+                                                       ::result_type>::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  Hash<SipHashAlgorithm>::result_type>
+                                                                     ::VALUE));
+            ASSERT((bslmf::IsSame<size_t,
+                                  Hash<SpookyHashAlgorithm>::result_type>
+                                                                     ::VALUE));
+        }
+
+        if (verbose) printf("Declare the expected signature of 'operator()'"
+                            " and then assign to it. If it compiles, the test"
+                            " passes. (C-3)\n");
+        {
+            Hash<>::result_type (Hash<>::*expectedSignature)(const int&) const;
+
+            expectedSignature = &Hash<>::operator()<const int&>;
+
+            Hash<SpookyHashAlgorithm>::result_type (Hash<SpookyHashAlgorithm>
+                                      ::*expectedSignature2)(const int&) const;
+            expectedSignature2 = &Hash<SpookyHashAlgorithm>
+                                                      ::operator()<const int&>;
         }
 
       } break;
@@ -850,6 +907,9 @@ int main(int argc, char *argv[])
 
                 Obj hash = Obj();
                 LOOP_ASSERT(LINE, hash(VALUE) == HASH);
+
+                const Obj constHash = Obj();
+                LOOP_ASSERT(LINE, constHash(VALUE) == HASH);
             }
         }
 
@@ -867,11 +927,12 @@ int main(int argc, char *argv[])
         //: 2 Floating point values -0.0 and +0.0 result in the same bytes
         //:   being passed into the hashing algorithm.
         //:
-        //: 3 'bool' values only result in one of two different binary states
-        //:   being passed into the algorithms (doesn't need to be 00000000 and
+        //: 3 'bool' values result in one of two different binary states being
+        //:   passed into the algorithms (doesn't need to be 00000000 and
         //:   00000001, but it does need to be consistent).
         //:
-        //: 4 Pointers are hashed as pointers, NOT the data they point to.
+        //: 4 Function pointers and object pointers are hashed as pointers, NOT
+        //:   the data they point to.
         //:
         //: 5 'hashAppend' passes the bytes it is given into the hashing
         //:   algorithm without truncation or appends for all types (with the
@@ -920,6 +981,7 @@ int main(int argc, char *argv[])
         //   void hashAppend(HASHALG& hashAlg, const char (&input)[N]);
         //   void hashAppend(HASHALG& hashAlg, const TYPE (&input)[N]);
         //   void hashAppend(HASHALG& hashAlg, const void *input);
+        //   void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING HASHAPPEND"
@@ -1006,6 +1068,51 @@ int main(int argc, char *argv[])
             const char *constPtr = constLiteral;
             MockHashingAlgorithm constPtrAlg;
             hashAppend(constPtrAlg, constPtr);
+
+            void (*fnptr10)(int, int, int, int, int, int, int, int, int, int) =
+                                                                             0;
+            MockHashingAlgorithm fnptrAlg10;
+            hashAppend(fnptrAlg10, fnptr10);
+
+            void (*fnptr9)(int, int, int, int, int, int, int, int, int) = 0;
+            MockHashingAlgorithm fnptrAlg9;
+            hashAppend(fnptrAlg9, fnptr9);
+
+            void (*fnptr8)(int, int, int, int, int, int, int, int) = 0;
+            MockHashingAlgorithm fnptrAlg8;
+            hashAppend(fnptrAlg8, fnptr8);
+
+            void (*fnptr7)(int, int, int, int, int, int, int) = 0;
+            MockHashingAlgorithm fnptrAlg7;
+            hashAppend(fnptrAlg7, fnptr7);
+
+            void (*fnptr6)(int, int, int, int, int, int) = 0;
+            MockHashingAlgorithm fnptrAlg6;
+            hashAppend(fnptrAlg6, fnptr6);
+
+            void (*fnptr5)(int, int, int, int, int) = 0;
+            MockHashingAlgorithm fnptrAlg5;
+            hashAppend(fnptrAlg5, fnptr5);
+
+            void (*fnptr4)(int, int, int, int) = 0;
+            MockHashingAlgorithm fnptrAlg4;
+            hashAppend(fnptrAlg4, fnptr4);
+
+            void (*fnptr3)(int, int, int) = 0;
+            MockHashingAlgorithm fnptrAlg3;
+            hashAppend(fnptrAlg3, fnptr3);
+
+            void (*fnptr2)(int, int) = 0;
+            MockHashingAlgorithm fnptrAlg2;
+            hashAppend(fnptrAlg2, fnptr2);
+
+            void (*fnptr1)(int) = 0;
+            MockHashingAlgorithm fnptrAlg1;
+            hashAppend(fnptrAlg1, fnptr1);
+
+            void (*fnptr0)() = 0;
+            MockHashingAlgorithm fnptrAlg0;
+            hashAppend(fnptrAlg0, fnptr0);
         }
 
         if (verbose) printf("Use a mock hashing algorithm to test that"
@@ -1042,12 +1149,6 @@ int main(int argc, char *argv[])
             MockHashingAlgorithm assignedAlg;
             hashAppend(assignedAlg, assignedBool);
 
-            bool memcpyBool;
-            char memcpyChar = 'Z';
-            memcpy(&memcpyBool, &memcpyChar, 1);
-            MockHashingAlgorithm memcpyAlg;
-            hashAppend(memcpyAlg, memcpyBool);
-
             // All various 'true's are the same
             ASSERT(binaryCompare(defaultAlg.getData(),
                                  incrementedAlg.getData(),
@@ -1055,10 +1156,6 @@ int main(int argc, char *argv[])
 
             ASSERT(binaryCompare(defaultAlg.getData(),
                                  assignedAlg.getData(),
-                                 sizeof(bool)));
-
-            ASSERT(binaryCompare(defaultAlg.getData(),
-                                 memcpyAlg.getData(),
                                  sizeof(bool)));
 
             MockHashingAlgorithm falseAlg;
@@ -1075,6 +1172,8 @@ int main(int argc, char *argv[])
                             " different locations, and the same location, and"
                             " verify all behave as expected. (C-4)\n");
         {
+            if (veryVerbose) printf("Testing object pointers\n");
+
             const char *ptr1Loc1Val1 = "asdf";
             const char *ptr2Loc1Val1 = ptr1Loc1Val1;
 
@@ -1118,6 +1217,47 @@ int main(int argc, char *argv[])
             ASSERT(!binaryCompare(ptr1Loc1Val1Alg.getData(),
                                   ptr4Loc3Val2Alg.getData(),
                                   sizeof(const char *)));
+
+            if (veryVerbose) printf("Testing function pointers\n");
+
+            int (*fnptr1Loc1Val1)() = testFunction1;
+            int (*fnptr2Loc1Val1)() = fnptr1Loc1Val1;
+            int (*fnptr3Loc2Val1)() = testFunction2;
+            int (*fnptr4Loc3Val2)() = testFunction3;
+
+            MockHashingAlgorithm fnptr1Loc1Val1Alg;
+            hashAppend(fnptr1Loc1Val1Alg, fnptr1Loc1Val1);
+
+            MockHashingAlgorithm fnptr2Loc1Val1Alg;
+            hashAppend(fnptr2Loc1Val1Alg, fnptr2Loc1Val1);
+
+            MockHashingAlgorithm fnptr3Loc2Val1Alg;
+            hashAppend(fnptr3Loc2Val1Alg, fnptr3Loc2Val1);
+
+            MockHashingAlgorithm fnptr4Loc3Val2Alg;
+            hashAppend(fnptr4Loc3Val2Alg, fnptr4Loc3Val2);
+
+            // Correct length passed into the algorithm
+            ASSERT(fnptr1Loc1Val1Alg.getLength() == sizeof(int (*)()));
+            ASSERT(fnptr2Loc1Val1Alg.getLength() == sizeof(int (*)()));
+            ASSERT(fnptr3Loc2Val1Alg.getLength() == sizeof(int (*)()));
+            ASSERT(fnptr4Loc3Val2Alg.getLength() == sizeof(int (*)()));
+
+            // Pointers to same location come out the same
+            ASSERT(binaryCompare(fnptr1Loc1Val1Alg.getData(),
+                                 fnptr2Loc1Val1Alg.getData(),
+                                 sizeof(int (*)())));
+
+            // Pointers to same value, different location come out different
+            ASSERT(!binaryCompare(fnptr1Loc1Val1Alg.getData(),
+                                  fnptr3Loc2Val1Alg.getData(),
+                                  sizeof(int (*)())));
+
+            // Pointers to different value and location come out different
+            ASSERT(!binaryCompare(fnptr1Loc1Val1Alg.getData(),
+                                  fnptr4Loc3Val2Alg.getData(),
+                                  sizeof(int (*)())));
+
         }
 
         if (verbose) printf("Copy a known bitsequece into each fundamental"
@@ -1127,7 +1267,7 @@ int main(int argc, char *argv[])
                             " input bitsequence. (C-5)\n");
         {
             // 'bool' has already been tested and we explicitly DO NOT want it
-            // to preserve it's bitwise representation.
+            // to preserve its bitwise representation.
 
             TestDriver<char> charDriver;
             charDriver.testHashAppendPassThrough(L_);
@@ -1186,8 +1326,9 @@ int main(int argc, char *argv[])
             hashAppend(carrayAlg, carray);
             const char *carrayOutput = carrayAlg.getData();
             for (size_t i = 0; i < strLen; ++i) {
-                if (veryVerbose) printf("Asserting %c == %c", carrayOutput[i],
-                                                                    carray[i]);
+                if (veryVerbose) printf("Asserting %hhu == %hhu\n",
+                                        carrayOutput[i],
+                                        carray[i]);
                 ASSERT(carrayOutput[i] == carray[i]);
             }
             ASSERT(carrayAlg.getLength() == strLen);
@@ -1198,7 +1339,7 @@ int main(int argc, char *argv[])
             hashAppend(constCarrayAlg, constCarray);
             const char *constCarrayOutput = constCarrayAlg.getData();
             for (size_t i = 0; i < strLen; ++i) {
-                if (veryVerbose) printf("Asserting %c == %c",
+                if (veryVerbose) printf("Asserting %hhu == %hhu\n",
                                        constCarrayOutput[i],
                                        constCarray[i]);
                 ASSERT(constCarrayOutput[i] == constCarray[i]);
@@ -1213,8 +1354,9 @@ int main(int argc, char *argv[])
             hashAppend(iarrayAlg, iarray);
             const char *iarrayOutput = iarrayAlg.getData();
             for (size_t i = 0; i < iarrayLen; ++i) {
-                if (veryVerbose) printf("Asserting %c == %c", iarrayOutput[i],
-                                                                charIarray[i]);
+                if (veryVerbose) printf("Asserting %hhu == %hhu\n",
+                                        iarrayOutput[i],
+                                         charIarray[i]);
                 ASSERT(iarrayOutput[i] == charIarray[i]);
             }
             ASSERT(iarrayAlg.getLength() == iarrayLen);
@@ -1227,7 +1369,7 @@ int main(int argc, char *argv[])
             hashAppend(constIarrayAlg, constIarray);
             const char *constIarrayOutput = constIarrayAlg.getData();
             for (size_t i = 0; i < constIarrayLen; ++i) {
-                if (veryVerbose) printf("Asserting %c == %c",
+                if (veryVerbose) printf("Asserting %hhu == %hhu\n",
                                        constIarrayOutput[i],
                                        constCharIarray[i]);
                 ASSERT(constIarrayOutput[i] == constCharIarray[i]);
@@ -1235,32 +1377,50 @@ int main(int argc, char *argv[])
             ASSERT(constIarrayAlg.getLength() == constIarrayLen);
 
             // hashAppend TYPE *
-            MockHashingAlgorithm ptrAlg;
-            char literal[] = "asdf";
-            char *ptr = literal;
-            char *ptrPtr = reinterpret_cast<char *>(&ptr);
-            hashAppend(ptrAlg, ptr);
-            const char *ptrOutput = ptrAlg.getData();
-            for (size_t i = 0; i < sizeof(char *); ++i) {
-                if (veryVerbose) printf("Asserting %c == %c", ptrOutput[i],
-                                                                    ptrPtr[i]);
-                ASSERT(ptrOutput[i] == ptrPtr[i]);
-            }
-            ASSERT(ptrAlg.getLength() == sizeof(char *));
+            TestDriver<char *> ptrDriver;
+            ptrDriver.testHashAppendPassThrough(L_);
 
-            MockHashingAlgorithm constPtrAlg;
-            const char *constPtr = "asdf";
-            const char *constPtrPtr =
-                                     reinterpret_cast<const char *>(&constPtr);
-            hashAppend(constPtrAlg, constPtr);
-            const char *constPtrOutput = constPtrAlg.getData();
-            for (size_t i = 0; i < sizeof(const char *); ++i) {
-                if (veryVerbose) printf("Asserting %c == %c",
-                                        constPtrOutput[i],
-                                        constPtrPtr[i]);
-                ASSERT(constPtrOutput[i] == constPtrPtr[i]);
-            }
-            ASSERT(constPtrAlg.getLength() == sizeof(const char *));
+            TestDriver<const char *> constPtrDriver;
+            constPtrDriver.testHashAppendPassThrough(L_);
+
+            // hashAppend function pointers
+
+            TestDriver<void (*)(int, int, int, int, int,
+                                int, int, int, int, int)> fnptr10Driver;
+            fnptr10Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int, int, int, int, int, int, int, int, int)>
+                                                                  fnptr9Driver;
+            fnptr9Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int, int, int, int, int, int, int, int)>
+                                                                  fnptr8Driver;
+            fnptr8Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int, int, int, int, int, int, int)>
+                                                                  fnptr7Driver;
+            fnptr7Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int, int, int, int, int, int)> fnptr6Driver;
+            fnptr6Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int, int, int, int, int)> fnptr5Driver;
+            fnptr5Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int, int, int, int)> fnptr4Driver;
+            fnptr4Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int, int, int)> fnptr3Driver;
+            fnptr3Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int, int)> fnptr2Driver;
+            fnptr2Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)(int)> fnptr1Driver;
+            fnptr1Driver.testHashAppendPassThrough(L_);
+
+            TestDriver<void (*)()> fnptr0Driver;
+            fnptr0Driver.testHashAppendPassThrough(L_);
         }
 
       } break;
@@ -1287,7 +1447,8 @@ int main(int argc, char *argv[])
         //: 6 Objects can be destroyed.
         //
         // Plan:
-        //: 1 Create a default constructed 'Hash'. (C-1)
+        //: 1 Create a default constructed 'Hash' and allow it to leave scope
+        //:   to be destroyed. (C-1,6)
         //:
         //: 2 Use the copy-initialization syntax to create a new instance of
         //:   'Hash' from an existing instance. (C-2,3)
@@ -1298,9 +1459,6 @@ int main(int argc, char *argv[])
         //: 4 Chain the assignment of the value of the one instance of 'Hash'
         //:   to a second instance of 'Hash', into a self-assignment of the
         //:   second object. (C-5)
-        //:
-        //: 5 Create an instance of 'Hash' and allow it to leave scope to be
-        //:   destroyed. (C-6)
         //
         // Testing:
         //   Hash()
@@ -1313,7 +1471,8 @@ int main(int argc, char *argv[])
             printf("\nTESTING IMPLICITLY DEFINED OPERATIONS"
                    "\n=====================================\n");
 
-        if (verbose) printf("Create a default constructed 'Hash'. (C-1)\n");
+        if (verbose) printf("Create a default constructed 'Hash' and allow it"
+                            " to leave scope to be destroyed. (C-1,6)\n");
         {
             Obj alg1;
         }
@@ -1322,7 +1481,7 @@ int main(int argc, char *argv[])
                             " new instance of 'Hash' from an existing"
                             " instance. (C-2,3)\n");
         {
-            Obj alg1;
+            const Obj alg1 = Obj();
             Obj alg2 = alg1;
         }
 
@@ -1338,15 +1497,9 @@ int main(int argc, char *argv[])
                             " 'Hash', into a self-assignment of the second"
                             " object. (C-5)\n");
         {
-            Obj alg1;
+            const Obj alg1 = Obj();
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
-        }
-
-        if (verbose) printf("Create an instance of 'Hash' and allow it to"
-                            " leave scope to be destroyed. (C-6)\n");
-        {
-            Obj alg1;
         }
 
       } break;
