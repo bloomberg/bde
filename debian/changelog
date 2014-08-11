@@ -1,5 +1,13 @@
-bsl-internal (2.22.0.0.icbeta) unstable; urgency=low
+bsl-internal (2.22.0.1.icbeta) unstable; urgency=low
 
+  * 99d59fd Merge branch 'remove-qdfp-for-beta-drqs-55430575' into bsl-shared_ptr-ic-beta
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 11 Aug 2014 12:51:50 -0400
+
+bsl-internal (2.22.0.0.icbeta) git; urgency=low
+
+  * 57058da bump version in changelog
+  * 58765a6 bump changelog
   * f1b9df2 bump version to 2.22.0
   * c9f7416 Merge remote-tracking branch 'origin/review/standard_headers_for_smart_pointer_review_drqs27411521' into bsl-shared_ptr-ic-beta
   * 9fb26bc Merge remote-tracking branch 'origin/review/standard_shared_ptr_update_for_review_drqs27411521' into bsl-shared_ptr-ic-beta
@@ -37,7 +45,7 @@ bsl-internal (2.22.0.0.icbeta) unstable; urgency=low
   * c9a58b6 [APPROVAL] pending/master/bdlb_bitutil to master
   * 0798a38 [APPROVAL] pending/master/correct_array_primitives_compiler_check_drqs51229610 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 6 Aug 2014 17:16:42 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 7 Aug 2014 13:37:59 -0400
 
 bsl-internal (2.20.2.2) git; urgency=low
 
