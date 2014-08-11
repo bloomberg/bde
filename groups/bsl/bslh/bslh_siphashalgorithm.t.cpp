@@ -702,7 +702,8 @@ int main(int argc, char *argv[])
         //: 1 Assert the algorithm does not have the is_default_constructable
         //:   trait. (C-1)
         //:
-        //: 2 Call the parameterized constructor using a seed. (C-2)
+        //: 2 Call the parameterized constructor using a seed and allow it to
+        //:   leave scope to be destroyed. (C-2,7)
         //:
         //: 3 Use the copy-initialization syntax to create a new instance of
         //:   'SipHashAlgorithm' from an existing instance. (C-3,4)
@@ -713,9 +714,6 @@ int main(int argc, char *argv[])
         //: 5 Chain the assignment of the value of the one instance of
         //:   'SipHashAlgorithm' to a second instance of 'SipHashAlgorithm',
         //:   into a self-assignment of the second object. (C-6)
-        //:
-        //: 6 Create an instance of 'SipHashAlgorithm' and allow it to leave
-        //:   scope to be destroyed. (C-7)
         //
         // Testing:
         //   explicit SipHashAlgorithm(const char *seed);
@@ -735,8 +733,9 @@ int main(int argc, char *argv[])
             //ASSERT(!std::is_default_constructible<SipHashAlgorithm>::value);
         }
 
-        if (verbose) printf("Call the parameterized constructor using a seed."
-                            " (C-2)\n");
+        if (verbose) printf("Call the parameterized constructor using a seed"
+                            " and allow it to leave scope to be destroyed."
+                            " (C-2,7)\n");
         {
             Obj alg1 = Obj(genericSeed);
         }
@@ -764,13 +763,6 @@ int main(int argc, char *argv[])
             Obj alg1 = Obj(genericSeed);
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
-        }
-
-        if (verbose) printf("Create an instance of 'SipHashAlgorithm' and"
-                            " allow it to leave scope to be destroyed. (C-7)"
-                            "\n");
-        {
-            Obj alg1 = Obj(genericSeed);
         }
 
       } break;

@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
         //   constructor are publicly callable.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
+        //: 1 Objects can be created using the parameterized constructor.
         //:
         //: 2 Objects can be created using the copy constructor.
         //:
@@ -619,7 +619,8 @@ int main(int argc, char *argv[])
         //: 6 Objects can be destroyed.
         //
         // Plan:
-        //: 1 Instantiate the algorithm using a default constructor. (C-1)
+        //: 1 Create a 'DefaultSeededHashAlgorithm' with the parameterized
+        //:   constructor and allow it to leave scope to be destroyed. (C-1,6)
         //:
         //: 2 Use the copy-initialization syntax to create a new instance of
         //:   'DefaultSeededHashAlgorithm' from an existing instance. (C-2,3)
@@ -631,9 +632,6 @@ int main(int argc, char *argv[])
         //:   'DefaultSeededHashAlgorithm' to a second instance of :
         //:   'DefaultSeededHashAlgorithm', into a self-assignment of the
         //:   second object. (C-5)
-        //:
-        //: 5 Create an instance of 'DefaultSeededHashAlgorithm' and allow it
-        //:   toleave scope to be destroyed. (C-6)
         //
         // Testing:
         //   DefaultSeededHashAlgorithm(const void *seed);
@@ -646,8 +644,9 @@ int main(int argc, char *argv[])
             printf("\nTESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR"
                    "\n==============================================\n");
 
-        if (verbose) printf("Instantiate the algorithm using a default"
-                            " constructor. (C-1)\n");
+        if (verbose) printf("Create a 'DefaultSeededHashAlgorithm' with the"
+                            " parameterized constructor and allow it to leave"
+                            " scope to be destroyed. (C-1,6)\n");
         {
             Obj alg1(globalSeed);
         }
@@ -677,13 +676,6 @@ int main(int argc, char *argv[])
             Obj alg1(globalSeed);
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
-        }
-
-        if (verbose) printf("Create an instance of"
-                            " 'DefaultSeededHashAlgorithm' and allow it to"
-                            " leave scope to be destroyed. (C-6)\n");
-        {
-            Obj alg1(globalSeed);
         }
 
       } break;

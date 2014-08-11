@@ -550,8 +550,8 @@ int main(int argc, char *argv[])
         //: 6 Objects can be destroyed.
         //
         // Plan:
-        //: 1 Instantiate the algorithm using the parameterized constructor.
-        //:   (C-1)
+        //: 1 Create a default constructed 'DefaultHashAlgorithm' and allow it
+        //:   to leave scope to be destroyed. (C-1,6)
         //:
         //: 2 Use the copy-initialization syntax to create a new instance of
         //:   'DefaultHashAlgorithm' from an existing instance. (C-2,3)
@@ -563,9 +563,6 @@ int main(int argc, char *argv[])
         //:   'DefaultHashAlgorithm' to a second instance of
         //:   'DefaultHashAlgorithm', into a self-assignment of the second
         //:   object. (C-5)
-        //:
-        //: 5 Create an instance of 'DefaultHashAlgorithm' and allow it to
-        //:   leave scope to be destroyed. (C-6)
         //
         // Testing:
         //   DefaultHashAlgorithm();
@@ -578,8 +575,9 @@ int main(int argc, char *argv[])
             printf("\nTESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR"
                    "\n==============================================\n");
 
-        if (verbose) printf("Instantiate the algorithm using a default"
-                            " constructor. (C-1)\n");
+        if (verbose) printf("Create a default constructed"
+                            " 'DefaultHashAlgorithm' and allow it to leave"
+                            " scope to be destroyed. (C-1,6)\n");
         {
             Obj alg1 = Obj();
         }
@@ -607,13 +605,6 @@ int main(int argc, char *argv[])
             Obj alg1 = Obj();
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
-        }
-
-        if (verbose) printf("Create an instance of 'DefaultHashAlgorithm' and"
-                            " allow it to leave scope to be destroyed. (C-6)"
-                            "\n");
-        {
-            Obj alg1 = Obj();
         }
 
       } break;

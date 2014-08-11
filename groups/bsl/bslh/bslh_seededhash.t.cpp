@@ -518,7 +518,8 @@ int main(int argc, char *argv[])
         //: 7 Objects can be destroyed.
         //
         // Plan:
-        //: 1 Create a default constructed 'SeededHash'. (C-1)
+        //: 1 Create a default constructed 'SeededHash' and allow it to leave
+        //:   scope to be destroyed. (C-1,7)
         //:
         //: 2 Construct a 'SeededHash' using the parameterized constructor.
         //:   (C-2)
@@ -532,9 +533,6 @@ int main(int argc, char *argv[])
         //: 5 Chain the assignment of the value of the one instance of
         //:   'SeededHash' to a second instance of 'SeededHash', into a
         //:   self-assignment of the second object. (C-6)
-        //:
-        //: 6 Create an instance of 'SeededHash' and allow it to leave scope to
-        //:   be destroyed. (C-7)
         //
         // Testing:
         //   SeededHash()
@@ -548,10 +546,11 @@ int main(int argc, char *argv[])
             printf("\nTESTING CREATORS"
                    "\n================\n");
 
-        if (verbose) printf("Create a default constructed 'SeededHash'."
-                            " (C-1)\n");
+        if (verbose) printf("Create a default constructed 'SeededHash' and"
+                            " allow it to leave scope to be destroyed."
+                            " (C-1,7)\n");
         {
-            Obj alg1;
+            Obj alg1 = Obj();
         }
 
         if (verbose) printf("Construct a 'SeededHash' using the parameterized"
@@ -584,12 +583,6 @@ int main(int argc, char *argv[])
             Obj alg1;
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
-        }
-
-        if (verbose) printf("Create an instance of 'SeededHash' and allow it"
-                            " to leave scope to be destroyed. (C-7)\n");
-        {
-            Obj alg1;
         }
 
       } break;

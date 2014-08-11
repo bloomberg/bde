@@ -690,7 +690,8 @@ int main(int argc, char *argv[])
         //: 7 Objects can be destroyed.
         //
         // Plan:
-        //: 1 Instantiate the algorithm using a default constructor. (C-1)
+        //: 1 Create a default constructed 'SpookyHashAlgorithm' and allow it
+        //:   to leave scope to be destroyed. (C-1,7)
         //:
         //: 2 Call the parameterized constructor with a seed. (C-2)
         //:
@@ -704,9 +705,6 @@ int main(int argc, char *argv[])
         //:   'SpookyHashAlgorithm' to a second instance of
         //:   'SpookyHashAlgorithm', into a self-assignment of the second
         //:   object. (C-6)
-        //:
-        //: 6 Create an instance of 'SpookyHashAlgorithm' and allow it to leave
-        //:   scope to be destroyed. (C-7)
         //
         // Testing:
         //   SpookyHashAlgorithm();
@@ -720,8 +718,9 @@ int main(int argc, char *argv[])
             printf("\nTESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR"
                    "\n==============================================\n");
 
-        if (verbose) printf("Instantiate the algorithm using a default"
-                            " constructor. (C-1)\n");
+        if (verbose) printf("Create a default constructed"
+                            " 'SpookyHashAlgorithm' and allow it to leave"
+                            " scope to be destroyed. (C-1,7)\n");
         {
             Obj alg1 = Obj();
         }
@@ -756,13 +755,6 @@ int main(int argc, char *argv[])
             Obj alg1 = Obj();
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
-        }
-
-        if (verbose) printf("Create an instance of 'SipHashAlgorithm' and"
-                            " allow it to leave scope to be destroyed. (C-7)"
-                            "\n");
-        {
-            Obj alg1 = Obj();
         }
 
       } break;

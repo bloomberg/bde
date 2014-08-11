@@ -569,8 +569,8 @@ int main(int argc, char *argv[])
         //: 6 Objects can be destroyed.
         //
         // Plan:
-        //: 1 Create a 'SeedGenerator' with the user defined default
-        //:   constructor. (C-1)
+        //: 1 Create a default constructed 'SeedGenerator' and allow it to
+        //:   leave scope to be destroyed. (C-1,6)
         //:
         //: 2 Create a 'SeedGenerator' with the user defined parameterized
         //:   constructor. (C-2)
@@ -580,9 +580,6 @@ int main(int argc, char *argv[])
         //:
         //: 4 Copy the value of the one (const) instance of 'SeedGenerator'
         //:   to a second non-const one. (C-5)
-        //:
-        //: 5 Create an instance of 'SeedGenerator' and allow it to leave scope
-        //:   to be destroyed. (C-6)
         //
         // Testing:
         //   SeedGenerator()
@@ -595,8 +592,9 @@ int main(int argc, char *argv[])
             printf("\nTESTING CREATORS"
                    "\n================\n");
 
-        if (verbose) printf("Create a 'SeedGenerator' with the user defined"
-                            " default constructor. (C-1)\n");
+        if (verbose) printf("Create a default constructed 'SeedGenerator' and"
+                            " allow it to leave scope to be destroyed."
+                            " (C-1,6)\n");
         {
             Obj generator = Obj();
         }
@@ -626,13 +624,6 @@ int main(int argc, char *argv[])
             const Obj generator1 = Obj(rng);
             Obj generator2(generator1);
             Obj generator3 = generator1;
-        }
-
-        if (verbose) printf("Create an instance of 'SeedGenerator' and allow"
-                            " it to leave scope to be destroyed. (C-6)\n");
-        {
-            MockRNG rng;
-            Obj generator(rng);
         }
 
       } break;

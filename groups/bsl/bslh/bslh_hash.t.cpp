@@ -1474,7 +1474,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Create a default constructed 'Hash' and allow it"
                             " to leave scope to be destroyed. (C-1,6)\n");
         {
-            Obj alg1;
+            Obj alg1 = Obj();
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"

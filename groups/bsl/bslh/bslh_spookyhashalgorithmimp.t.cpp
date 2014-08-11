@@ -808,7 +808,8 @@ int main(int argc, char *argv[])
         //: 6 Objects can be destroyed.
         //
         // Plan:
-        //: 1 Create a default constructed 'SpookyHashAlgorithmImp'. (C-1)
+        //: 1 Create a default constructed 'SpookyHashAlgorithmImp' and allow
+        //:   it to leave scope to be destroyed. (C-1,6)
         //:
         //: 2 Use the copy-initialization syntax to create a new instance of
         //:   'SpookyHashAlgorithmImp' from an existing instance. (C-2,3)
@@ -820,9 +821,6 @@ int main(int argc, char *argv[])
         //:   'SpookyHashAlgorithmImp' to a second instance of
         //:   'SpookyHashAlgorithmImp', into a self-assignment of the second
         //:   object. (C-5)
-        //:
-        //: 5 Create an instance of 'SpookyHashAlgorithmImp' and allow it to
-        //:   leave scope to be destroyed. (C-6)
         //
         // Testing:
         //   SpookyHashAlgorithmImp()
@@ -836,9 +834,10 @@ int main(int argc, char *argv[])
                    "\n=====================================\n");
 
         if (verbose) printf("Create a default constructed"
-                            " 'SpookyHashAlgorithmImp'. (C-1)\n");
+                            " 'SpookyHashAlgorithmImp' and allow it to leave"
+                            " scope to be destroyed. (C-1,6)\n");
         {
-            Obj alg1;
+            Obj alg1 = Obj();
         }
 
         if (verbose) printf("Use the copy-initialization syntax to create a"
@@ -864,13 +863,6 @@ int main(int argc, char *argv[])
             Obj alg1 = Obj();
             Obj alg2 = alg1;
             alg2 = alg2 = alg1;
-        }
-
-        if (verbose) printf("Create an instance of 'SpookyHashAlgorithmImp'"
-                            " and allow it to leave scope to be destroyed."
-                            " (C-6)\n");
-        {
-            Obj alg1;
         }
 
       } break;
