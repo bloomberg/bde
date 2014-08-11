@@ -609,13 +609,19 @@ struct EmptyFunctor : FunctorBase
     void operator()(const char*) { }
 
     int value() const { return 0; }
-
-    friend bool operator==(const EmptyFunctor&, const EmptyFunctor&)
-        { return true; }
-
-    friend bool operator!=(const EmptyFunctor&, const EmptyFunctor&)
-        { return false; }
 };
+
+inline
+bool operator==(const EmptyFunctor&, const EmptyFunctor&)
+{
+    return true;
+}
+
+inline
+bool operator!=(const EmptyFunctor&, const EmptyFunctor&)
+{
+    return false;
+}
 
 class SmallFunctor : public FunctorBase
 {
@@ -666,13 +672,19 @@ public:
     void operator()(const char* s) { d_value = std::atoi(s); }
 
     int value() const { return d_value; }
-
-    friend bool operator==(const SmallFunctor& a, const SmallFunctor& b)
-        { return a.value() == b.value(); }
-
-    friend bool operator!=(const SmallFunctor& a, const SmallFunctor& b)
-        { return a.value() != b.value(); }
 };
+
+inline
+bool operator==(const SmallFunctor& a, const SmallFunctor& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const SmallFunctor& a, const SmallFunctor& b)
+{
+    return a.value() != b.value();
+}
 
 class MediumFunctor : public SmallFunctor
 {
@@ -697,13 +709,19 @@ public:
 #endif
 
     ~MediumFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
-
-    friend bool operator==(const MediumFunctor& a, const MediumFunctor& b)
-        { return a.value() == b.value(); }
-
-    friend bool operator!=(const MediumFunctor& a, const MediumFunctor& b)
-        { return a.value() != b.value(); }
 };
+
+inline
+bool operator==(const MediumFunctor& a, const MediumFunctor& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const MediumFunctor& a, const MediumFunctor& b)
+{
+    return a.value() != b.value();
+}
 
 class LargeFunctor : public SmallFunctor
 {
@@ -728,13 +746,19 @@ public:
 #endif
 
     ~LargeFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
-
-    friend bool operator==(const LargeFunctor& a, const LargeFunctor& b)
-        { return a.value() == b.value(); }
-
-    friend bool operator!=(const LargeFunctor& a, const LargeFunctor& b)
-        { return a.value() != b.value(); }
 };
+
+inline
+bool operator==(const LargeFunctor& a, const LargeFunctor& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const LargeFunctor& a, const LargeFunctor& b)
+{
+    return a.value() != b.value();
+}
 
 class NothrowSmallFunctor
 {
@@ -781,15 +805,19 @@ public:
     }
 
     int value() const { return d_encodedValue ^ encodeSelf(); }
-
-    friend bool operator==(const NothrowSmallFunctor& a,
-                           const NothrowSmallFunctor& b)
-        { return a.value() == b.value(); }
-
-    friend bool operator!=(const NothrowSmallFunctor& a,
-                           const NothrowSmallFunctor& b)
-        { return a.value() != b.value(); }
 };
+
+inline
+bool operator==(const NothrowSmallFunctor& a, const NothrowSmallFunctor& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const NothrowSmallFunctor& a, const NothrowSmallFunctor& b)
+{
+    return a.value() != b.value();
+}
 
 class ThrowingSmallFunctor : public FunctorBase
 {
@@ -823,15 +851,19 @@ public:
     }
 
     int value() const { return d_encodedValue ^ encodeSelf(); }
-
-    friend bool operator==(const ThrowingSmallFunctor& a,
-                           const ThrowingSmallFunctor& b)
-        { return a.value() == b.value(); }
-
-    friend bool operator!=(const ThrowingSmallFunctor& a,
-                           const ThrowingSmallFunctor& b)
-        { return a.value() != b.value(); }
 };
+
+inline
+bool operator==(const ThrowingSmallFunctor& a, const ThrowingSmallFunctor& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const ThrowingSmallFunctor& a, const ThrowingSmallFunctor& b)
+{
+    return a.value() != b.value();
+}
 
 class ThrowingEmptyFunctor : public EmptyFunctor
 {
@@ -847,15 +879,120 @@ public:
         : EmptyFunctor(other) { --moveLimit; }
 
     ~ThrowingEmptyFunctor() { std::memset(this, 0xbb, sizeof(*this)); }
-
-    friend bool operator==(const ThrowingEmptyFunctor&,
-                           const ThrowingEmptyFunctor&)
-        { return true; }
-
-    friend bool operator!=(const ThrowingEmptyFunctor&,
-                           const ThrowingEmptyFunctor&)
-        { return false; }
 };
+
+inline
+bool operator==(const ThrowingEmptyFunctor&, const ThrowingEmptyFunctor&)
+{
+    return true;
+}
+
+inline
+bool operator!=(const ThrowingEmptyFunctor&, const ThrowingEmptyFunctor&)
+{
+    return false;
+}
+
+class SmallFunctorWithAlloc : public SmallFunctor
+{
+    // Small functor with allocator.
+
+    bslma::Allocator *d_alloc_p;
+
+public:
+    BSLMF_NESTED_TRAIT_DECLARATION(SmallFunctorWithAlloc,
+                                   bslma::UsesBslmaAllocator);
+
+    // BITWISE MOVEABLE
+    BSLMF_NESTED_TRAIT_DECLARATION(SmallFunctorWithAlloc,
+                                   bslmf::IsBitwiseMoveable);
+
+    enum { IS_STATELESS = false };
+
+    SmallFunctorWithAlloc(int v, bslma::Allocator *alloc)
+        : SmallFunctor(v), d_alloc_p(alloc) { }
+
+    SmallFunctorWithAlloc(const SmallFunctorWithAlloc&  other,
+                          bslma::Allocator             *alloc = 0)
+        : SmallFunctor(other), d_alloc_p(bslma::Default::allocator(alloc)) { }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Move constructor propagates allocator
+    SmallFunctorWithAlloc(SmallFunctorWithAlloc&& other)
+        : SmallFunctor(std::move(other)), d_alloc_p(other.d_alloc_p) { }
+    SmallFunctorWithAlloc(SmallFunctorWithAlloc&&  other,
+                          bslma::Allocator        *alloc)
+        : SmallFunctor(std::move(other)), d_alloc_p(alloc) { }
+#endif
+
+    ~SmallFunctorWithAlloc()
+        { std::memset(this, 0xbb, sizeof(*this)); }
+
+    bslma::Allocator *allocator() const { return d_alloc_p; }
+};
+
+inline
+bool operator==(const SmallFunctorWithAlloc& a, const SmallFunctorWithAlloc& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const SmallFunctorWithAlloc& a, const SmallFunctorWithAlloc& b)
+{
+    return a.value() != b.value();
+}
+
+class LargeFunctorWithAlloc : public SmallFunctorWithAlloc
+{
+    // Functor with allocator that is barely too large to fit into the small
+    // object buffer.
+
+    char d_padding[sizeof(SmallObjectBuffer)-sizeof(SmallFunctorWithAlloc)+1];
+    
+public:
+    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
+                                   bslma::UsesBslmaAllocator);
+
+    // BITWISE MOVEABLE
+    BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
+                                   bslmf::IsBitwiseMoveable);
+
+    LargeFunctorWithAlloc(int v, bslma::Allocator *alloc)
+        : SmallFunctorWithAlloc(v, alloc)
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+
+    LargeFunctorWithAlloc(const LargeFunctorWithAlloc&  other,
+                          bslma::Allocator             *alloc = 0)
+      : SmallFunctorWithAlloc(other, alloc)
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Move constructor propagates allocator
+    LargeFunctorWithAlloc(LargeFunctorWithAlloc&& other)
+      : SmallFunctorWithAlloc(std::move(other))
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+    LargeFunctorWithAlloc(LargeFunctorWithAlloc&&  other,
+                          bslma::Allocator        *alloc)
+      : SmallFunctorWithAlloc(std::move(other), alloc)
+        { std::memset(d_padding, 0xee, sizeof(d_padding)); }
+#endif
+
+    ~LargeFunctorWithAlloc()
+        { std::memset(this, 0xbb, sizeof(*this)); }
+};
+
+inline
+bool operator==(const LargeFunctorWithAlloc& a, const LargeFunctorWithAlloc& b)
+{
+    return a.value() == b.value();
+}
+
+inline
+bool operator!=(const LargeFunctorWithAlloc& a, const LargeFunctorWithAlloc& b)
+{
+    return a.value() != b.value();
+}
 
 // Common function type used in most tests
 typedef bsl::function<int(const IntWrapper&, int)> Obj;
@@ -1458,6 +1595,36 @@ bool areEqualAlloc(const ALLOC1& a, class bsl::allocator<TP>& b)
     return CheckAlloc<ALLOC1>(a).areEqualAlloc(b.mechanism());
 }
 
+template <class FUNC>
+bool isPropagatedAllocatorImp(const FUNC& f, bslma::Allocator *alloc,
+                              bsl::true_type /* usesBslmaAlloc */)
+    // Return true if 'f.allocator()' for the specified 'f' functor returns
+    // the specified 'alloc'; otherwise return false.  Note that
+    // 'bslma::UsesBslmaAllocator<FUNC>' must derive from 'true_type'.
+{
+    return f.allocator() == alloc;
+}
+
+template <class FUNC>
+bool isPropagatedAllocatorImp(const FUNC&, bslma::Allocator *,
+                              bsl::false_type /* usesBslmaAlloc */)
+    // Return false.  Note that 'bslma::UsesBslmaAllocator<FUNC>' is expected
+    // to derive from 'false_type', meaning that 'FUNC' does not use an
+    // allocator.
+{
+    return true;
+}
+
+template <class FUNC>
+bool isPropagatedAllocator(const FUNC& f, bslma::Allocator *alloc)
+    // Return true if 'f.allocator()' for the specified 'f' functor returns
+    // the specified 'alloc' or if 'f' does not use a 'bslma::Allocator*' at
+    // all; otherwise return false.
+{
+    return isPropagatedAllocatorImp(f, alloc,
+                                    bslma::UsesBslmaAllocator<FUNC>());
+}
+
 enum WhatIsInplace {
     e_INPLACE_BOTH,      // Both function and allocator are in place
     e_INPLACE_FUNC_ONLY, // Function is in place, allocator is out of place
@@ -1465,10 +1632,8 @@ enum WhatIsInplace {
 };
 
 template <class ALLOC, class FUNC>
-void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
+void testFuncWithAlloc(int line, FUNC func, WhatIsInplace inplace)
 {
-    if (veryVeryVerbose) printf("\tALLOC is %s\n", allocName);
-
     typedef bsl::function<int(IntWrapper,int)> Obj;
 
     const std::size_t inplaceFuncSize = (bsl::is_empty<FUNC>::value ? 0 :
@@ -1483,15 +1648,17 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
     
     switch (inplace) {
       case e_INPLACE_BOTH: {
-        ASSERT(inplaceFuncSize + allocSize <= sizeof(SmallObjectBuffer));
+        LOOP_ASSERT(line,
+                    inplaceFuncSize + allocSize <= sizeof(SmallObjectBuffer));
         numBlocksUsed = 0;
         minBytesUsed = 0;
         maxBytesUsed = 0;
       } break;
 
       case e_INPLACE_FUNC_ONLY: {
-        ASSERT(inplaceFuncSize <= sizeof(SmallObjectBuffer));
-        ASSERT(inplaceFuncSize + allocSize > sizeof(SmallObjectBuffer));
+        LOOP_ASSERT(line, inplaceFuncSize <= sizeof(SmallObjectBuffer));
+        LOOP_ASSERT(line,
+                    inplaceFuncSize + allocSize > sizeof(SmallObjectBuffer));
         numBlocksUsed = 1;
         minBytesUsed = allocSize;
         maxBytesUsed = minBytesUsed + maxOverhead;
@@ -1512,27 +1679,32 @@ void testFuncWithAlloc(FUNC func, WhatIsInplace inplace, const char *allocName)
             funcMonitor.reset(L_);
             ALLOC alloc(&ta);
             Obj f(bsl::allocator_arg, alloc, func);
-            ASSERT(isNullPtr(func) == !f);
-            ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(alloc, f.allocator()));
+            LOOP_ASSERT(line, isNullPtr(func) == !f);
+            LOOP_ASSERT(line,
+                        CheckAlloc<ALLOC>::areEqualAlloc(alloc,f.allocator()));
             if (f) {
-                ASSERT(typeid(func) == f.target_type());
-                ASSERT(f.target<FUNC>());
-                ASSERT(f.target<FUNC>() && func == *f.target<FUNC>());
-                ASSERT(0x4005 == f(IntWrapper(0x4000), 5));
+                LOOP_ASSERT(line, typeid(func) == f.target_type());
+                FUNC *target_p = f.target<FUNC>();
+                LOOP_ASSERT(line, target_p);
+                if (target_p) {
+                    LOOP_ASSERT(line, func == *target_p);
+                    LOOP_ASSERT(line, isPropagatedAllocator(*target_p, &ta));
+                    LOOP_ASSERT(line, 0x4005 == f(IntWrapper(0x4000), 5));
+                }
             }
-            ASSERT(numBlocksUsed == ta.numBlocksInUse());
-            ASSERT(minBytesUsed <= ta.numBytesInUse() &&
-                   ta.numBytesInUse() <= maxBytesUsed);
-            ASSERT(globalAllocMonitor.isInUseSame());
+            LOOP_ASSERT(line, numBlocksUsed == ta.numBlocksInUse());
+            LOOP_ASSERT(line, minBytesUsed <= ta.numBytesInUse() &&
+                        ta.numBytesInUse() <= maxBytesUsed);
+            LOOP_ASSERT(line, globalAllocMonitor.isInUseSame());
         } EXCEPTION_TEST_CATCH {
             // Exception neutral: All memory has been released.
-            ASSERT(0 == ta.numBlocksInUse());
-            ASSERT(globalAllocMonitor.isInUseSame());
-            ASSERT(funcMonitor.isSameCount());
+            LOOP_ASSERT(line, 0 == ta.numBlocksInUse());
+            LOOP_ASSERT(line, globalAllocMonitor.isInUseSame());
+            LOOP_ASSERT(line, funcMonitor.isSameCount());
         } EXCEPTION_TEST_ENDTRY;
     } EXCEPTION_TEST_END;
-    ASSERT(0 == ta.numBlocksInUse());
-    ASSERT(globalAllocMonitor.isInUseSame());
+    LOOP_ASSERT(line, 0 == ta.numBlocksInUse());
+    LOOP_ASSERT(line, globalAllocMonitor.isInUseSame());
 }
 
 template <class ALLOC, class FUNC>
@@ -3697,7 +3869,7 @@ int main(int argc, char *argv[])
         //:   constructed succesfully.  It is not necessary to thoroughly test
         //:   all argument-list combinations.
         //: 3 The 'target_type()' accessor will return 'type_id(FUNC)' and the
-        //:   'target<FUNC>()' accessor will return a pointer to a function
+        //:   'target<FUNC>()' accessor will return a pointer to a functor
         //:   that compares equal to 'func'.
         //: 4 If 'alloc' is a pointer to a 'bslma::Allocator' object, then the
         //:   'allocator' accessor will return that pointer.
@@ -3724,17 +3896,19 @@ int main(int argc, char *argv[])
         //:   adaptor and 'FUNC' do not both fit within the small object
         //:   buffer, then one block of memory is allocated from 'alloc'
         //:   itself.
-        //: 12 In step 11, if 'FUNC' by itself is elibible for the small object
+        //: 12 In step 11, if 'FUNC' by itself is eligible for the small object
         //:   optimization, then the allocated memory is only large enough to
         //:   hold the allocator adaptor.
-        //: 13 In step 11, if 'FUNC' by itself is not elibible for the small
+        //: 13 In step 11, if 'FUNC' by itself is not eligible for the small
         //:   object optimization, then the allocated memory is large enough
         //:   to hold both 'func' and the allocator adaptor.
         //: 14 If memory is allocated, the destructor frees it.
-        //: 15 The above concerns apply to 'func' arguments of type pointer to
+        //: 15 If 'FUNC' takes a 'bslma::Allocator*', then the 'function'
+        //:   allocator is propagated to the wrapped functor.
+        //: 16 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
         //:   various sizes, with or without throwing move constructors.
-        //: 16 If memory allocation fails with an exception, then no resources
+        //: 17 If memory allocation fails with an exception, then no resources
         //:   are leaked.
         //
         // Plan:
@@ -3767,11 +3941,11 @@ int main(int argc, char *argv[])
         //:   allocator and that the allocator wrapped by the adaptor is equal
         //:   to the original STL-style allocator.
         //: 8 For concern 8, test the results of steps 2-4 to verify that when
-        //:   'func' is elibible for the small object optimization, no memory
+        //:   'func' is eligible for the small object optimization, no memory
         //:   is allocated either from the global allocator or from the
         //:   allocator used to construct the 'function' object.
         //: 9 For concern 9, test the results of steps 2-4 to verify that when
-        //:   'func' is not elibible the small object optimization, one block
+        //:   'func' is not eligible the small object optimization, one block
         //:   of memory of sufficient size to hold 'FUNC' is allocated from
         //:   the allocator.
         //: 10 For concern 10, perform step 7 using alloctors of various sizes
@@ -3785,24 +3959,29 @@ int main(int argc, char *argv[])
         //:   from the allocator used to construct the 'function' and that no
         //:   memory was allocated from the global allocator.
         //: 12 For concern 12, look at the memory allocation from step 11 and
-        //:   verify that, when 'FUNC' is elibible for the small object
+        //:   verify that, when 'FUNC' is eligible for the small object
         //:   optimization, that the allocated memory is only large enough to
         //:   hold the allocator adaptor.
         //: 13 For concern 13, look at the memory allocation from step 11 and
-        //:   verify that, when 'FUNC' is not elibible for the small object
+        //:   verify that, when 'FUNC' is not eligible for the small object
         //:   optimization, that the allocated memory is large enough to hold
         //:   both 'FUNC' and the allocator adaptor.
         //: 14 For concern 14, check at the end of each step, when the
         //:   'function' object is destroyed, that all memory is returned to
         //:   the allocator.
-        //: 15 For concern 15, wrap the common parts of the above steps into a
+        //: 15 For concern 15, perform the above steps using a small and a
+        //:   large 'FUNC' type that take a 'bslma::Allocator*' as well as
+        //:   with functors that don't take a 'bslma::Allocator*.  After
+        //:   construction, verify that the wrapped functor uses the same
+        //:   allocator as the 'function' object in the former case.
+        //: 16 For concern 16, wrap the common parts of the above steps into a
         //:   function template, 'testFuncWithAlloc', which takes 'ALLOC' and
         //:   'FUNC' template parameters.  Instantiate this template with each
         //:   of the allocator types described in the previous step in
         //:   combination with each of the following invokable types: pointer
         //:   to function, pointer to member function, and functor types of
         //:   of all varieties.
-        //: 16 For concern 16, construct the 'function' within the exception
+        //: 17 For concern 17, construct the 'function' within the exception
         //:   test framework.  On exception, verify that any allocated memory
         //:   has been released and that no 'FUNC' objects have been leaked.
         //
@@ -3819,7 +3998,9 @@ int main(int argc, char *argv[])
         int (*nullFuncPtr)(IntWrapper, int) = 0;
         int (IntWrapper::*nullMemFuncPtr)(int) const = 0;
 
-#define TEST(A, f, E) testFuncWithAlloc<A>(f, E, #A)
+#define TEST(A, f, E)                                           \
+    if (veryVeryVerbose) printf("\tALLOC is %s\n", #A);         \
+    testFuncWithAlloc<A>(L_, f, E)
 
         if (veryVerbose) std::printf("FUNC is nullFuncPtr\n");
         TEST(bslma::TestAllocator *  , nullFuncPtr      , e_INPLACE_BOTH);
@@ -3926,6 +4107,31 @@ int main(int argc, char *argv[])
         TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor(0),
                                                             e_OUTOFPLACE_BOTH);
 
+        bslma::TestAllocator xa;
+
+        if (veryVerbose) std::printf("FUNC is SmallFunctorWithAlloc(0)\n");
+#define SmFnAlloc SmallFunctorWithAlloc
+        TEST(bslma::TestAllocator *  , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
+        TEST(MediumSTLAllocator<char>, SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
+        TEST(LargeSTLAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
+#undef SmFnAlloc
+
+        if (veryVerbose) std::printf("FUNC is LargeFunctorWithAlloc(0)\n");
+#define LgFnAlloc LargeFunctorWithAlloc
+        TEST(bslma::TestAllocator *  , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+        TEST(bsl::allocator<char>    , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+        TEST(TinySTLAllocator<char>  , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+        TEST(SmallSTLAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+        TEST(MediumSTLAllocator<char>, LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+        TEST(LargeSTLAllocator<char> , LgFnAlloc(0, &xa)  , e_OUTOFPLACE_BOTH);
+#undef LgFnAlloc
+
+
 #undef TEST
 
       } break;
@@ -3956,10 +4162,10 @@ int main(int argc, char *argv[])
         //:   the small object buffer, then one block of memory is allocated
         //:   from 'alloc' itself.
         //: 9 If memory is allocated, the destructor frees it.
-        //: 10 All of the above concerns also apply to the
+        //: 11 All of the above concerns also apply to the
         //:   'function(allocator_arg_t, const ALLOC&, nullptr_t)' constructor.
-        //: 11 If the allocator throws an exception, no resources are leaked
-        //:   (exception neutral).
+        //: 12 If the allocator throws an exception, no resources are leaked
+        //:   (i.e., it is exception neutral).
         //
         // Plan:
         //: 1 For concern 1 test each 'function' object constructed using this

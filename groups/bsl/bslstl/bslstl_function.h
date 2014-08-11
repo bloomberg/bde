@@ -50,6 +50,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_pair.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
+#endif
+
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
 #endif
@@ -1017,16 +1021,17 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
     // If wrapped function fits in 'd_objbuf', then it is inplace; otherwise,
     // its heap-allocated address is found in 'd_objbuf.d_object_p'.  There
     // is no need to computed this using metaprogramming; the compiler will
-    // optimize away the conditional test anyway.
-    void *wrappedFunc_p = (k_IS_INPLACE ?
-                           &rep->d_objbuf : rep->d_objbuf.d_object_p);
+    // optimize away the conditional test.
+    char *wrappedFuncBuf_p = static_cast<char*>(
+        k_IS_INPLACE ? &rep->d_objbuf : rep->d_objbuf.d_object_p);
+    FUNC *wrappedFunc_p = reinterpret_cast<FUNC*>(wrappedFuncBuf_p);
 
     char savedFuncByte;
     if (0 == k_SOO_FUNC_SIZE) {
         // We are allocating zero bytes for an empty functor.  Save the memory
         // contents of the (one-byte) functor footprint in case an operation
         // does something silly like zero the footprint or memcpy into it.
-        savedFuncByte = static_cast<char*>(wrappedFunc_p)[0];
+        savedFuncByte = wrappedFuncBuf_p[0];
     }
 
     switch (opCode) {
@@ -1042,13 +1047,15 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
           ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
 #else
-          ::new (wrappedFunc_p) FUNC(srcFunc);
+          bslalg::ScalarPrimitives::copyConstruct(wrappedFunc_p,
+                                                  srcFunc,
+                                                  rep->d_allocator_p);
 #endif
           if (0 == k_SOO_FUNC_SIZE) {
               // Restore the footprint of an empty functor in case the
               // constructor did something silly like zero it or memcpy into
               // it.
-              static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
+              wrappedFuncBuf_p[0] = savedFuncByte;
           }
           return wrappedFunc_p;
       } break;
@@ -1060,12 +1067,14 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           // trivially copyiable, then the copy operation below will do it
           // trivially.
           const FUNC &srcFunc = *static_cast<const FUNC*>(input.asPtr());
-          ::new (wrappedFunc_p) FUNC(srcFunc);
+          bslalg::ScalarPrimitives::copyConstruct(wrappedFunc_p,
+                                                  srcFunc,
+                                                  rep->d_allocator_p);
           if (0 == k_SOO_FUNC_SIZE) {
               // Restore the footprint of an empty functor in case the
               // constructor did something silly like zero it or memcpy into
               // it.
-              static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
+              wrappedFuncBuf_p[0] = savedFuncByte;
           }
           return wrappedFunc_p;
       } break;
@@ -1073,13 +1082,13 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
       case e_DESTROY: {
 
           // Call destructor for functor.
-          static_cast<FUNC*>(wrappedFunc_p)->~FUNC();
+          wrappedFunc_p->~FUNC();
 
           if (0 == k_SOO_FUNC_SIZE) {
               // Restore the footprint of an empty functor in case the
               // destructor did something silly like zero it or memcpy into
               // it.
-              static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
+              wrappedFuncBuf_p[0] = savedFuncByte;
           }
 
           // Return size of destroyed function object
@@ -1090,7 +1099,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
         void *input_p = input.asPtr();
         char savedSrcByte = static_cast<char*>(input_p)[0];
         if (bslmf::IsBitwiseMoveable<FUNC>::value) {
-            *static_cast<bsls::ObjectBuffer<FUNC>*>(wrappedFunc_p) =
+            *reinterpret_cast<bsls::ObjectBuffer<FUNC>*>(wrappedFunc_p) =
                 *static_cast<bsls::ObjectBuffer<FUNC>*>(input_p);
         }
         else {
@@ -1099,7 +1108,13 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
             ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
 #else
-            ::new (wrappedFunc_p) FUNC(srcFunc);
+            // We could use 'ScalarPrimitives::destructiveMove', but since
+            // 'ScalarPrimitives' does not yet support rvalue references,
+            // we've already had to do all of the dispatching of
+            // 'destructiveMove' and are better off, just doing a copy here.
+            bslalg::ScalarPrimitives::copyConstruct(wrappedFunc_p,
+                                                    srcFunc,
+                                                    rep->d_allocator_p);
 #endif
             srcFunc.~FUNC();
         }
@@ -1108,8 +1123,8 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
             // Restore the footprint of an empty functor in case the
             // constructor or destructor did something silly like zero it or
             // memcpy into it.
-            static_cast<char*>(wrappedFunc_p)[0] = savedFuncByte;
-            static_cast<char*>(input_p)[0]       = savedSrcByte;
+            wrappedFuncBuf_p[0]            = savedFuncByte;
+            static_cast<char*>(input_p)[0] = savedSrcByte;
         }
       } break;
 
