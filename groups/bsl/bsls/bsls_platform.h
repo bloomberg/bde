@@ -755,7 +755,7 @@ struct bsls_Platform_Assert;
 #endif
 
 // MSVC and Windows
-#elif defined(BSLS_PLATFORM_CMP_MSVC) && defined(BSLS_PLATFORM_OS_WINDOWS)
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
 #   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1
 #endif
 
