@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide facilities for identifying 'std::pair'-like classes.
+//@PURPOSE: Provide a trait to mark classes as similar to 'std::pair'.
 //
 //@DEPRECATED: Do not use.
 //
@@ -100,7 +100,7 @@ typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

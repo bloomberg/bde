@@ -234,6 +234,8 @@ const TYPE bsl::integral_constant<TYPE, VAL>::value;
 
 template <bool VAL>
 const bool bsl::integral_constant<bool, VAL>::value;
+template <bool VAL>
+const bool bsl::integral_constant<bool, VAL>::VALUE;
 
 // ACCESSORS
 template <class TYPE, TYPE VAL>
@@ -253,7 +255,7 @@ bsl::integral_constant<bool, VAL>::operator bool() const
 #endif // ! defined(INCLUDED_BSLMF_INTEGRALCONSTANT)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -161,7 +161,7 @@ void TestAllocator::deallocate(void *address)
 
         // Set up local writable copy of password in buffer.
 
-        int size = strlen(password) + 1;
+        size_t size = strlen(password) + 1;
         char *buffer = (char *)allocator->allocate(size);
         memcpy(buffer, password, size);
 
@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

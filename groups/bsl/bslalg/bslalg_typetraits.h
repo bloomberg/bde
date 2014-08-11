@@ -7,9 +7,9 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide facilities for associating types with compile-time traits.
+//@PURPOSE: Provide compile-time traits that can be associated with types.
 //
-//@DEPRECATED: See bslmf_nestedtraitdeclaration.
+//@DEPRECATED: See 'bslmf_nestedtraitdeclaration'.
 //
 //@CLASSES:
 //  bslalg::TypeTraitNil: nil type trait (no traits)
@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //  bslalg::TypeTraitPair: for 'std::pair'-like classes
 //  bslalg::TypeTraitUsesBslmaAllocator: uses 'bslma' allocators
-//  bslalg::TypeTraitsGroupStlSequence: for STL sequence containers
-//  bslalg::TypeTraitsGroupStlOrdered: for STL ordered containers
-//  bslalg::TypeTraitsGroupStlUnordered: for STL unordered containers
-//  bslalg_TypeTraits: default trait computation
 //
 //@MACROS:
 //  BSLALG_DECLARE_NESTED_TRAITS: declares a trait in a nested fashion
@@ -31,10 +27,8 @@ BSLS_IDENT("$Id: $")
 //  BSLALG_DECLARE_NESTED_TRAITS3: declares three traits in a nested fashion
 //  BSLALG_DECLARE_NESTED_TRAITS4: declares four traits in a nested fashion
 //  BSLALG_DECLARE_NESTED_TRAITS5: declares five traits in a nested fashion
-//  BSLALG_IMPLIES_TRAIT: computes a trait by introspection
-//  BSLALG_CHECK_IMPLIED_TRAIT: detects a trait by introspection
 //
-//@SEE_ALSO: bslmf_typetraits, bslalg_constructorproxy, bslalg_scalarprimitives
+//@SEE_ALSO: bslalg_constructorproxy, bslalg_scalarprimitives
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
@@ -211,7 +205,10 @@ BSLS_IDENT("$Id: $")
 //          // 'bslalg::TypeTraitUsesBslmaAllocator'.
 //      {
 //          copyConstruct(location, value, allocator,
-//                        bslalg_TypeTraits<TYPE>());
+//              typename bslmf::If<HasTrait<TYPE,
+//                            bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+//                        bslalg::TypeTraitUsesBslmaAllocator,
+//                        bslalg::TypeTraitNil>::Type());
 //      }
 //
 //  };
@@ -529,7 +526,7 @@ namespace BloombergLP {
 #endif // INCLUDED_BSLALG_TYPETRAITS
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -511,7 +511,7 @@ void emptyNVerifyStack(stack<typename CONTAINER::value_type,
         return;                                                       // RETURN
     }
 
-    for (int i = expectedSize - 1; i >= 0; --i) {
+    for (int i = static_cast<int>(expectedSize) - 1; i >= 0; --i) {
         if (expectedValues[i] != pmX->top()) P_(cont);
         ASSERTV(val, i, LINE, expectedValues[i], pmX->top(),
                                               expectedValues[i] == pmX->top());
@@ -972,7 +972,7 @@ void TestDriver<CONTAINER>::emptyAndVerify(Obj               *obj,
 {
     ASSERTV(LINE, numTestValues, obj->size(), numTestValues == obj->size());
 
-    for (int ti = numTestValues - 1; ti >= 0; --ti) {
+    for (int ti = static_cast<int>(numTestValues) - 1; ti >= 0; --ti) {
         ASSERTV(LINE, testValues[ti], obj->top(),testValues[ti] == obj->top());
         obj->pop();
     }
@@ -2319,7 +2319,7 @@ void TestDriver<CONTAINER>::testCase4()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
-            const int         LENGTH = strlen(DATA[ti].d_results);
+            const size_t      LENGTH = strlen(DATA[ti].d_results);
             const TestValues  EXP(DATA[ti].d_results);
 
             if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
@@ -2364,7 +2364,7 @@ void TestDriver<CONTAINER>::testCase4()
                 // Verify basic accessors
 
 //              ASSERTV(LINE, SPEC, CONFIG, &oa == X.get_allocator());
-                ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
+                ASSERTV(LINE, SPEC, CONFIG, LENGTH == X.size());
                 if (LENGTH > 0) {
                     ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] == mX.top());
                     ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] ==  X.top());
@@ -2537,13 +2537,13 @@ void TestDriver<CONTAINER>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         INDEX  = DATA[ti].d_index;
-            const size_t      LENGTH = strlen(SPEC);
+            const int         LENGTH = static_cast<int>(strlen(SPEC));
 
             Obj mX(&oa);
 
-            if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
-                 ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
+            if (LENGTH != oldLen) {
+                if (verbose) printf("\tof length %d:\n", LENGTH);
+                 ASSERTV(LINE, oldLen <= LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 
@@ -2969,7 +2969,7 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
 
         ASSERTV(X.size() == numValues);
 
-        for (int i = numValues - 1; i >= 0; --i) {
+        for (int i = static_cast<int>(numValues) - 1; i >= 0; --i) {
             testValues[i] = X.top();
             x.pop();
         }
@@ -3000,8 +3000,8 @@ void TestDriver<CONTAINER>::testCase1_NoAlloc(int    *testValues,
                         CONTAINER yy;
                         const CONTAINER& YY = yy;
                         for (size_t k = 0; k < j; ++k) {
-                            int xIndex = (i + length) % numValues;
-                            int yIndex = (j + length) % numValues;
+                            size_t xIndex = (i + length) % numValues;
+                            size_t yIndex = (j + length) % numValues;
 
                             x.push(      testValues[xIndex]);
                             xx.push_back(testValues[xIndex]);
@@ -3196,7 +3196,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         ASSERTV(0 != objectAllocator.numBytesInUse());
         ASSERTV(0 == defaultAllocator.numBytesInUse());
 
-        for (int i = numValues - 1; i >= 0; --i) {
+        for (int i = static_cast<int>(numValues) - 1; i >= 0; --i) {
             testValues[i] = (int) X.top();
             x.pop();
         }
@@ -3228,8 +3228,8 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
                         CONTAINER yy(&objectAllocator);
                         const CONTAINER& YY = yy;
                         for (size_t k = 0; k < j; ++k) {
-                            int xIndex = (i + length) % numValues;
-                            int yIndex = (j + length) % numValues;
+                            size_t xIndex = (i + length) % numValues;
+                            size_t yIndex = (j + length) % numValues;
 
                             x.push(      testValues[xIndex]);
                             xx.push_back(testValues[xIndex]);
@@ -3385,15 +3385,15 @@ int main(int argc, char *argv[])
             ASSERT(i - 6 == (int) mX.size());  ASSERT(i - 6 == (int) X.size());
             ASSERT(i == X.top());
 
-            mX.top() = X.size();            // 'top()' returns a ref to
-                                            // modifiable
+            mX.top() = static_cast<int>(X.size());  // 'top()' returns a ref to
+                                                    // modifiable
             ASSERT((int) X.size() == X.top());
         }
 
-        for (int i = X.size(); i > 0; --i, mX.pop()) {
+        for (size_t i = X.size(); i > 0; --i, mX.pop()) {
             ASSERT(! mX.empty());             ASSERT(! X.empty());
-            ASSERT(i == (int) X.size());
-            ASSERT(X.top() == i);
+            ASSERT(i == X.size());
+            ASSERT(X.top() == static_cast<int>(i));
         }
 
         ASSERT(mX.empty());         ASSERT(X.empty());
@@ -3701,7 +3701,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

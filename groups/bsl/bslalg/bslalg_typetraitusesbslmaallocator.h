@@ -7,12 +7,12 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive trait for types that use 'bslma' allocators.
+//@PURPOSE: Provide a trait to mark types that use 'bslma' allocators.
 //
 //@CLASSES:
 //  bslalg::TypeTraitUsesBslmaAllocator: uses 'bslma' allocators
 //
-//@SEE_ALSO: bslmf_typetraits, bslalg_constructorproxy
+//@SEE_ALSO: bslalg_constructorproxy
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
@@ -112,7 +112,7 @@ typedef bslalg::TypeTraitUsesBslmaAllocator bslalg_TypeTraitUsesBslmaAllocator;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

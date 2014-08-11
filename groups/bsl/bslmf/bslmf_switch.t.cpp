@@ -112,8 +112,12 @@ char f(bslmf::Nil) { return '0'; }
         void store(short data) { d_data = data | 0Xdead0000; }
         void store(int   data) { d_data = data; }
 
-        void retrieve(char  *data) { *data = d_data & 0x000000ff; }
-        void retrieve(short *data) { *data = d_data & 0x0000ffff; }
+        void retrieve(char  *data) {
+            *data = static_cast<char>(d_data & 0x000000ff);
+        }
+        void retrieve(short *data) {
+            *data = static_cast<short>(d_data & 0x0000ffff);
+        }
         void retrieve(int   *data) { *data = d_data; }
     };
 //..
@@ -516,7 +520,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

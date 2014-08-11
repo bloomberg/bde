@@ -210,7 +210,7 @@ BSLS_IDENT("$Id: $")
 //      char **tmpSrc = srcArray.d_array_p;
 //      if (this == &srcArray) {
 //          // self-alias
-//          int size = srcLength * sizeof(char *);
+//          size_t size = srcLength * sizeof(char *);
 //          tmpSrc = (char **) d_allocator_p->allocate(size);
 //          memcpy(tmpSrc, d_array_p, size);
 //      }
@@ -285,7 +285,7 @@ BSLS_IDENT("$Id: $")
 //      char **tmpSrc = srcArray.d_array_p;
 //      if (this == &srcArray) {
 //          // self-alias
-//          int size = srcLength * sizeof(char *);
+//          size_t size = srcLength * sizeof(char *);
 //          tmpSrc = (char **) d_allocator_p->allocate(size);
 //          memcpy(tmpSrc, d_array_p, size);
 //      }
@@ -649,7 +649,7 @@ int AutoDeallocator<ALLOCATOR>::length() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

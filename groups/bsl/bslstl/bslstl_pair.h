@@ -45,8 +45,8 @@ BSLS_IDENT("$Id: $")
 // a type that uses 'bslma::Allocator' for memory allocation, then each
 // constructor also has an optional 'bslma::Allocator' pointer argument.
 // Whether or not a type uses 'bslma::Allocator' is determined by querying the
-// 'bslma::UsesBslmaAllocator' trait for that type.  This component
-// also defines a full set of equality and relational operators which can be
+// 'bslma::UsesBslmaAllocator' trait for that type.  This component also
+// defines a full set of equality and relational operators which can be
 // instantiated if 'T1' and 'T2' both provide those operators.
 //
 // A 'bsl::pair' declares a set of associated type traits which are computed
@@ -60,8 +60,8 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_trivially_default_constructible
 //..
 // In addition, a 'bsl::pair' specialization has the
-// 'bslma::UsesBslmaAllocator' trait if *either* 'T1' or 'T2' have
-// that trait, or both.
+// 'bslma::UsesBslmaAllocator' trait if *either* 'T1' or 'T2' have that trait,
+// or both.
 //
 ///Usage
 ///-----
@@ -87,8 +87,8 @@ BSLS_IDENT("$Id: $")
 //  class my_String {
 //      // Simple string class that uses a 'bslma::Allocator' allocator.
 //
-//      bslma::Allocator *d_allocator;
-//      char            *d_data;
+//      bslma::Allocator *d_allocator_p;
+//      char             *d_data;
 //
 //    public:
 //      BSLMF_NESTED_TRAIT_DECLARATION(my_String, bslma::UsesBslmaAllocator);
@@ -156,34 +156,34 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  my_String::my_String(bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup("", d_allocator);
+//      d_data = myStrDup("", d_allocator_p);
 //  }
 //
 //  my_String::my_String(const char *s, bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup(s, d_allocator);
+//      d_data = myStrDup(s, d_allocator_p);
 //  }
 //
 //  my_String::my_String(const my_String&  rhs,
 //                       bslma::Allocator *basicAllocator)
-//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
-//      d_data = myStrDup(rhs.d_data, d_allocator);
+//      d_data = myStrDup(rhs.d_data, d_allocator_p);
 //  }
 //
 //  my_String::~my_String()
 //  {
-//      d_allocator->deallocate(d_data);
+//      d_allocator_p->deallocate(d_data);
 //  }
 //
 //  my_String& my_String::operator=(const my_String& rhs)
 //  {
 //      if (this != &rhs) {
-//          d_allocator->deallocate(d_data);
-//          d_data = myStrDup(rhs.d_data, d_allocator);
+//          d_allocator_p->deallocate(d_data);
+//          d_data = myStrDup(rhs.d_data, d_allocator_p);
 //      }
 //      return *this;
 //  }
@@ -195,7 +195,7 @@ BSLS_IDENT("$Id: $")
 //
 //  bslma::Allocator *my_String::allocator() const
 //  {
-//      return d_allocator;
+//      return d_allocator_p;
 //  }
 //..
 // Our main program creates a mapping from strings to integers.  Each node of
@@ -266,24 +266,24 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISPAIR
-#include <bslmf_ispair.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
-#include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
-#include <bslmf_istriviallycopyable.h>
+#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
+#include <bslmf_isbitwiseequalitycomparable.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
-#include <bslmf_isbitwiseequalitycomparable.h>
+#ifndef INCLUDED_BSLMF_ISPAIR
+#include <bslmf_ispair.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
+#include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -498,12 +498,12 @@ class pair : public Pair_Imp<T1, T2,
 
     pair(const pair& original);
     pair(const pair& original, BloombergLP::bslma::Allocator *basicAllocator);
-        // Construct a pair from the specified 'original' value.  Copy-construct
-        // 'first' from 'rhs.first' and 'second' from 'rhs.second'.  Optionally
-        // specify a 'basicAllocator' used to supply memory for the
-        // constructor(s) of which ever data member(s) accept an allocator.
-        // Attempted use of of either version of this constructor will not
-        // compile unless 'T1' and 'T2' both supply copy constructors.
+        // Construct a pair from the specified 'original' value.
+        // Copy-construct 'first' from 'rhs.first' and 'second' from
+        // 'rhs.second'.  Optionally specify a 'basicAllocator' used to supply
+        // memory for the constructor(s) of which ever data member(s) accept an
+        // allocator.  Attempted use of of either version of this constructor
+        // will not compile unless 'T1' and 'T2' both supply copy constructors.
         // Attempted use of the allocator version will not compile unless one
         // or both of 'T1' and 'T2' accept an allocator.
 
@@ -639,9 +639,9 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
 
 namespace bsl {
@@ -983,9 +983,9 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 
 }  // close namespace bsl
 
-// ===========================================================================
+// ============================================================================
 //                                TYPE TRAITS
-// ===========================================================================
+// ============================================================================
 
 namespace bsl {
 
@@ -1044,7 +1044,7 @@ struct UsesBslmaAllocator<bsl::pair<T1, T2> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

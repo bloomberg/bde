@@ -689,7 +689,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CPU_X86)
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40700
+    //  GCC 4.7+
+#   include <bsls_atomicoperations_all_all_gccintrinsics.h>
+
+#elif defined(BSLS_PLATFORM_CPU_X86)
 
 #   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #       include <bsls_atomicoperations_x86_all_gcc.h>
@@ -731,6 +735,13 @@ BSLS_IDENT("$Id: $")
 #   include <bsls_atomicoperations_sparc64_sun_cc.h>
 #elif defined(BSLS_PLATFORM_CPU_IA64) && defined(BSLS_PLATFORM_OS_HPUX)
 #   include <bsls_atomicoperations_ia64_hp_acc.h>
+
+#elif defined(BSLS_PLATFORM_CPU_ARM)
+#   if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#       include <bsls_atomicoperations_arm_all_gcc.h>
+#   else
+#       define BSLS_ATOMICOPERATIONS_ERROR
+#   endif
 
 #else
 #   define BSLS_ATOMICOPERATIONS_ERROR
@@ -1506,7 +1517,7 @@ void *AtomicOperations::testAndSwapPtrAcqRel(
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

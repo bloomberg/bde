@@ -520,7 +520,14 @@ int main(int argc, char *argv[])
             ASSERT(9 == ix);
 
             if (veryVerbose) printf("\t\t1.12 Comma operator\n");
-            bool bx = (true, bt);
+
+            // Note that gcc will give a warning if the left-hand side of a
+            // comma operator is an expression with no effect.  The expression
+            // '(tmp == true)', used instead of 'true' below, is sufficiently
+            // complex to avoid the warning.
+
+            bool tmp = true;
+            bool bx = ((tmp == true), bt);
             ASSERT(!bx);
 
         }
@@ -716,7 +723,13 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\t6.12 Comma operator\n");
 
-            bool bx = (true, babel);
+            // Note that gcc will give a warning if the left-hand side of a
+            // comma operator is an expression with no effect.  The expression
+            // '(tmp == true)', used instead of 'true' below, is sufficiently
+            // complex to avoid the warning.
+
+            bool tmp = true;
+            bool bx = ((tmp == true), babel);
             ASSERT(!bx);
         }
       } break;
@@ -765,7 +778,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

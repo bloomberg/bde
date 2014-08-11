@@ -1850,7 +1850,7 @@ void TestDriver::testCase3(OutputRedirector                   *output,
                    expectedSize < BUFFER_SIZE);
             EXPECTED = s_expectedOutput;
         } else {
-            expectedSize = strlen(EXPECTED);
+            expectedSize = static_cast<int>(strlen(EXPECTED));
         }
 
         if (veryVerbose) {
@@ -1870,6 +1870,78 @@ void TestDriver::testCase3(OutputRedirector                   *output,
                           0 == output->compare(EXPECTED, expectedSize));
     }
 }
+
+// Test case -1 checks the strategy used in test case 9 to detect stack
+// corruption by intentionally providing incorrect format strings to 'printf'.
+// This generates warnings that must be suppressed with a GCC pragma.  Some
+// versions of the gcc compiler do not allow pragmas inside function bodies
+// (i.e. inside 'main'), so the test has been factored out into a separate
+// function.
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+#endif
+
+void checkStackCorruptionTest()
+{
+    int           TARGET_ONES   = ~((int) 0);
+    unsigned char SENTINEL_ONES = ~((unsigned char) 0);
+
+    struct {
+        int           target;
+        unsigned char sentinel;
+        long long     prophylactic;
+    } data;
+    data.target       = TARGET_ONES;
+    data.sentinel     = SENTINEL_ONES;
+    data.prophylactic = 0;
+
+    const char *INPUT = "0";
+
+    // Simulate test case 9, with a format specifier too small for 'int'.
+
+    ASSERT(data.target   == TARGET_ONES);
+    ASSERT(data.sentinel == SENTINEL_ONES);
+
+    // The format specifier mismatches the actual variable type.
+    // The warning of '-Wformat' type is caused by such attempt.
+    // Suppressing the warning as the format mismatch is a part of the
+    // test logic.
+
+    sscanf(INPUT, "%c", &data.target);
+
+    // Test case 9 asserts 'data.target == 0', so here we assert the
+    // opposite.
+
+    ASSERT(data.target   != 0);
+    ASSERT(data.sentinel == SENTINEL_ONES);
+
+    // Simulate test case 9, with a format specifier too large for 'int'.
+
+    data.target       = TARGET_ONES;
+    data.sentinel     = SENTINEL_ONES;
+
+    ASSERT(data.target   == TARGET_ONES);
+    ASSERT(data.sentinel == SENTINEL_ONES);
+
+    // The format specifier mismatches the actual variable type.
+    // The warning of '-Wformat' type is caused by such attempt.
+    // Suppressing the warning as the format mismatch is a part of the
+    // test logic.
+
+    sscanf(INPUT, "%lld", &data.target);
+
+    // Test case 9 asserts 'data.sentinel == SENTINEL_ONES', so here we
+    // assert the opposite.
+
+    ASSERT(data.target   == 0);
+    ASSERT(data.sentinel != SENTINEL_ONES);
+}
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 
 // ============================================================================
 //                                MAIN PROGRAM
@@ -3974,7 +4046,7 @@ int main(int argc, char *argv[])
             const char *testString = "This is good output";
 
             output.reset();
-            int stringLength = strlen(testString);
+            size_t stringLength = strlen(testString);
             for (int idx = 0; idx * stringLength < OUTPUT_BUFFER_SIZE; ++idx) {
                 printf("%s", testString);
             }
@@ -4275,49 +4347,7 @@ int main(int argc, char *argv[])
         if (verbose) fprintf(stderr,
                           "\tCONCERN: 'printf' stack corruption test works\n");
 
-        int           TARGET_ONES   = ~((int) 0);
-        unsigned char SENTINEL_ONES = ~((unsigned char) 0);
-
-        struct {
-            int           target;
-            unsigned char sentinel;
-            long long     prophylactic;
-        } data;
-        data.target       = TARGET_ONES;
-        data.sentinel     = SENTINEL_ONES;
-        data.prophylactic = 0;
-
-        const char *INPUT = "0";
-
-        // Simulate test case 9, with a format specifier too small for 'int'.
-
-        ASSERT(data.target   == TARGET_ONES);
-        ASSERT(data.sentinel == SENTINEL_ONES);
-
-        sscanf(INPUT, "%c", &data.target);
-
-        // Test case 9 asserts 'data.target == 0', so here we assert the
-        // opposite.
-
-        ASSERT(data.target   != 0);
-        ASSERT(data.sentinel == SENTINEL_ONES);
-
-        // Simulate test case 9, with a format specifier too large for 'int'.
-
-        data.target       = TARGET_ONES;
-        data.sentinel     = SENTINEL_ONES;
-
-        ASSERT(data.target   == TARGET_ONES);
-        ASSERT(data.sentinel == SENTINEL_ONES);
-
-        sscanf(INPUT, "%lld", &data.target);
-
-        // Test case 9 asserts 'data.sentinel == SENTINEL_ONES', so here we
-        // assert the opposite.
-
-        ASSERT(data.target   == 0);
-        ASSERT(data.sentinel != SENTINEL_ONES);
-
+            checkStackCorruptionTest();
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -4333,7 +4363,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

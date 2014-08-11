@@ -117,7 +117,7 @@ static int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(InfrequentDeleteBlock) - 1;
+        numBytes += static_cast<int>(sizeof(InfrequentDeleteBlock)) - 1;
         numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
@@ -223,7 +223,7 @@ my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
 my_StrPool::~my_StrPool()
 {
     ASSERT(INITIAL_SIZE <= d_blockSize);
-    ASSERT(d_block_p || 0 <= d_cursor && d_cursor <= d_blockSize);
+    ASSERT(d_block_p || (0 <= d_cursor && d_cursor <= d_blockSize));
 }
 
 //=============================================================================
@@ -300,16 +300,16 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta(veryVeryVerbose);
         bslma::InfrequentDeleteBlockList sa(&ta);
 
-        int lastNumBytesInUse = ta.numBytesInUse();
+        bsls::Types::Int64 lastNumBytesInUse = ta.numBytesInUse();
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];
             void *p = sa.allocate(SIZE);
-            const int numBytesInUse = ta.numBytesInUse();
+            const bsls::Types::Int64 numBytesInUse = ta.numBytesInUse();
             sa.deallocate(p);
             LOOP_ASSERT(i, numBytesInUse == ta.numBytesInUse());
             LOOP_ASSERT(i, lastNumBytesInUse <= ta.numBytesInUse());
-            const int numBytesInUse2 = ta.numBytesInUse();
+            const bsls::Types::Int64 numBytesInUse2 = ta.numBytesInUse();
             sa.deallocate(0);
             LOOP_ASSERT(i, numBytesInUse2 == ta.numBytesInUse());
             lastNumBytesInUse = ta.numBytesInUse();
@@ -444,7 +444,7 @@ int main(int argc, char *argv[])
             const void *EXP_P = p ? (char *) a.lastAllocatedAddress() + BLKSZ
                                   : 0;
 
-            int numBytes = a.lastAllocatedNumBytes();
+            bsls::Types::Int64 numBytes = a.lastAllocatedNumBytes();
             if (veryVerbose) {
                  T_ P_(SIZE) P_(numBytes) P_(EXP_SZ) P_(p) P_(EXP_P) P(offset);
             }

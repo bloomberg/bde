@@ -202,10 +202,6 @@ class MyAllocTestDeleter {
     void             *d_someMemory;
 
   public:
-//    BSLALG_DECLARE_NESTED_TRAITS(MyAllocTestDeleter,
-//                                 bslalg::TypeTraitUsesBslmaAllocator);
-
-  public:
     // CREATORS
     explicit MyAllocTestDeleter(bslma::Allocator *deleter,
                        bslma::Allocator *basicAllocator = 0);
@@ -786,7 +782,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

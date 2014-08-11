@@ -1,7 +1,25 @@
 // bsls_protocoltest.t.cpp                                            -*-C++-*-
 
-#include <bsls_protocoltest.h>
+// Test case 4 of this test driver calls the 'testVirtualDestructor' method on
+// a 'bsls::ProtocolTest' object instantiation that has no virtual destructor.
+// This call generates expected compiler warnings that can be silenced only by
+// surrounding the '#include' directive for 'bsls_protocoltest.h' with
+// diagnostic pragmas.  The diagnostic pragmas are platform-dependent, so
+// 'bsls_platform.h' must be included before the component header, contrary to
+// the usual requirements of the BDE coding standards.
+
 #include <bsls_platform.h>
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdelete-non-virtual-dtor"
+#endif
+
+#include <bsls_protocoltest.h>
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+#pragma GCC diagnostic pop
+#endif
 
 #include <new>
 #include <stdio.h>
@@ -81,7 +99,7 @@ void aSsErT(int c, const char *s, int i) {
 
 }
 
-#define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (0,0)
+#define ASSERT(X) do { aSsErT(!(X), #X, __LINE__); } while (0)
 
 namespace {
 
@@ -714,7 +732,7 @@ int main(int argc, char *argv[])
                 void * vptr            = bsls::ProtocolTest_MethodReturnType();
                 void const * const_vptr
                                        = bsls::ProtocolTest_MethodReturnType();
-                
+
                 (void) val;
                 (void) const_ref;
                 (void) const_ptr;
@@ -773,8 +791,9 @@ int main(int argc, char *argv[])
                     dtorTest.markEnter();
                 }
 
-                // if dtorTest destructor called 'markDone' than the test
+                // if dtorTest destructor called 'markDone' then the test
                 // succeeded
+
                 ASSERT(status.failures() == 0);
                 ASSERT(status.last());
 
@@ -801,7 +820,8 @@ int main(int argc, char *argv[])
                     dtorTest->MyInterfaceTest::~MyInterfaceTest();
                 }
 
-                // dtorTest destructor is not called, test 'failed'
+                // dtorTest destructor is not called, the test 'failed'
+
                 ASSERT(status.failures() == 1);
                 ASSERT(!status.last());
 #endif
@@ -909,6 +929,12 @@ int main(int argc, char *argv[])
 
             {
                 bsls::ProtocolTest<NoVirtualDestructorTest> t;
+
+                // Note that the following call to 'testVirtualDestructor'
+                // generates an expected "-Wdelete-non-virtual-dtor" warning on
+                // gcc.  The warning is supressed using a diagnostic pragma
+                // around the '#include' directive for 'bsls_protocoltest.h'
+
                 ASSERT(!t.testVirtualDestructor());
                 ASSERT(t.failures() == 1);
                 ASSERT(!t.lastStatus());
@@ -1024,7 +1050,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

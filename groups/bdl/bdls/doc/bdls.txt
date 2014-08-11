@@ -1,0 +1,17 @@
+ bdls.txt
+
+@PURPOSE: Provide system-level utilities for BDL
+
+@MNEMONIC: Basic Development Library System-level utilities (bdls)
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdls' package currently has 1 component.
+..
+  1. bdls_testutil
+..
+
+/Component Synopsis
+/------------------
+: 'bdls_testutil':
+:      Provide test utilities for components in 'bdl' and above.

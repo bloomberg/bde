@@ -88,15 +88,15 @@ static void aSsErT(bool b, const char *s, int i) {
 //                          GLOBALS FOR TESTING
 //-----------------------------------------------------------------------------
 
-static  int  globalVeryVeryVerbose            = 0;
+static    int  globalVeryVeryVerbose            = 0;
 
-static  int  globalNewCalledCount             = 0;
-static  int  globalNewCalledCountIsEnabled    = 0;
-static  int  globalNewCalledLastArg           = 0;
+static    int  globalNewCalledCount             = 0;
+static    int  globalNewCalledCountIsEnabled    = 0;
+static size_t  globalNewCalledLastArg           = 0;
 
-static  int  globalDeleteCalledCount          = 0;
-static  int  globalDeleteCalledCountIsEnabled = 0;
-static void *globalDeleteCalledLastArg        = 0;
+static    int  globalDeleteCalledCount          = 0;
+static    int  globalDeleteCalledCountIsEnabled = 0;
+static   void *globalDeleteCalledLastArg        = 0;
 
 //==========================================================================
 //                 REDEFINED GLOBAL OPERATOR NEW AND DELETE
@@ -519,7 +519,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

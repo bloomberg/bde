@@ -7,12 +7,12 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a primitive type trait for class with trivial default ctor.
+//@PURPOSE: Provide a trait to mark classes as having a trivial default ctor.
 //
 //@CLASSES:
 //  bslalg::TypeTraitHasTrivialDefaultConstructor: has trivial default ctor
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO:
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
@@ -79,7 +79,7 @@ typedef bslalg::TypeTraitHasTrivialDefaultConstructor
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

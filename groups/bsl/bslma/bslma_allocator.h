@@ -408,16 +408,20 @@ class Allocator {
 
   public:
     // PUBLIC TYPES
-    typedef bsls::Types::size_type size_type;  // TBD change to unsigned?
+    typedef bsls::Types::size_type size_type;
         // Alias for a signed integral type capable of representing the number
         // of bytes in this platform's virtual address space.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // CLASS METHODS
-    static void throwBadAlloc();  // TBD does this belong here?
+    static void throwBadAlloc();
+        // !DEPRECATED!: Use 'bsls::BslExceptionUtil::throwBadAlloc' instead.
+        //
         // Throw 'std::bad_alloc' if exceptions are enabled or abort the
         // program otherwise.  Derived classes and helper functions will
         // typically call this function when they are unable to satisfy an
         // allocation request.  This function never returns.
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CREATORS
     virtual ~Allocator();
@@ -621,7 +625,7 @@ void operator delete(void                           *address,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

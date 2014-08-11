@@ -463,7 +463,8 @@ int main(int argc, char *argv[])
             array.append(my_AllocatingClass(&allocator));
             array.append(my_AllocatingClass(&allocator));
 
-            int numBytes = Z.numBytesInUse();  const int& NUMBYTES = numBytes;
+            bsls::Types::Int64 numBytes = Z.numBytesInUse();
+            const bsls::Types::Int64& NUMBYTES = numBytes;
 
             // Force the reallocation in the array to fail.
             allocator.setAllocationLimit(1);
@@ -797,7 +798,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

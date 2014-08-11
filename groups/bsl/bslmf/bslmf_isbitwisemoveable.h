@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION:This component provides a single trait metafunction,
+//@DESCRIPTION: This component provides a single trait metafunction,
 // 'bslmf::IsBitwiseMoveable<TYPE>', which allows generic code to determine
 // whether 'TYPE' can be destructively moved using 'memcpy'.  Given a pointer,
 // 'p1', to an object of 'TYPE', and a pointer 'p2' of the same type pointing
@@ -147,7 +147,7 @@ struct IsBitwiseMoveable
 #endif // ! defined(INCLUDED_BSLMF_ISBITWISEMOVEABLE)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

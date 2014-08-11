@@ -50,7 +50,7 @@ void StdTestAllocatorConfiguration::setDelegateAllocatorRaw(
 
 unsigned int StdTestAllocator_CommonUtil::maxSize(size_t elementSize)
 {
-    return UINT_MAX  / elementSize;
+    return static_cast<unsigned int>(UINT_MAX  / elementSize);
 }
 
                         // ----------------------
@@ -62,7 +62,7 @@ unsigned int StdTestAllocator_CommonUtil::maxSize(size_t elementSize)
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

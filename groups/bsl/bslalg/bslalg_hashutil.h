@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      memset(buckets, 0, sizeof(buckets));
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          unsigned int hash = bslalg::HashUtil::computeHash(i);
+//          native_std::size_t hash = bslalg::HashUtil::computeHash(i);
 //
 //          ++buckets[hash & 63];
 //      }
@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      memset(buckets, 0, sizeof(buckets));
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          unsigned int hash = bslalg::HashUtil::computeHash(4 * i);
+//          native_std::size_t hash = bslalg::HashUtil::computeHash(4 * i);
 //
 //          ++buckets[hash & 63];
 //      }
@@ -87,7 +87,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      memset(buckets, 0, sizeof(buckets));
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          unsigned int hash = bslalg::HashUtil::computeHash(i);
+//          native_std::size_t hash = bslalg::HashUtil::computeHash(i);
 //          hash = hash ^ (hash >> 6) ^ (hash >> 12) ^ (hash >> 18) ^
 //                        (hash >> 24);
 //
@@ -113,9 +113,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  {
 //      memset(buckets, 0, sizeof(buckets));
-//      unsigned int prev = 0;
+//      native_std::size_t prev = 0;
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          unsigned int hash = bslalg::HashUtil::computeHash(i);
+//          native_std::size_t hash = bslalg::HashUtil::computeHash(i);
 //
 //          ++buckets[(hash - prev) & 63];
 //          prev = hash;
@@ -138,9 +138,9 @@ BSLS_IDENT("$Id: $")
 //..
 //  {
 //      memset(buckets, 0, sizeof(buckets));
-//      unsigned int prev = 0;
+//      native_std::size_t prev = 0;
 //      for (int i = 0; i < (1 << 15); ++i) {
-//          unsigned int hash = bslalg::HashUtil::computeHash(i);
+//          native_std::size_t hash = bslalg::HashUtil::computeHash(i);
 //
 //          ++buckets[(hash ^ prev) & 63];
 //          prev = hash;
@@ -269,7 +269,7 @@ struct HashUtil {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

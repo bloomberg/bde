@@ -365,7 +365,7 @@ bool PtrHashSet::checkInvariants() const
 {
     bool ok;
 
-    unsigned numNodes = 0;
+    size_t numNodes = 0;
     Node *prev = 0;
     for (Node *node = (Node *) listRootAddress(); node;
                                prev = node, node = (Node *) node->nextLink()) {
@@ -396,7 +396,8 @@ bool PtrHashSet::find(Node **node, Bucket **bucket, const void *ptr) const
     if (!bucket) bucket = &dummyBucketPtr;
 
     Node *& nodePtrRef = *node;
-    unsigned index = (UintPtr) ptr % bucketArraySize();
+    native_std::size_t index = reinterpret_cast<UintPtr>(ptr)
+                                                            % bucketArraySize();
     Bucket& bucketRef = bucketArrayAddress()[index];
     *bucket = &bucketRef;
     if (bucketRef.first()) {
@@ -496,7 +497,8 @@ bool PtrHashSet::insert(void *ptr)
         return false;                                                 // RETURN
     }
 
-    if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
+    if (static_cast<double>(bucketArraySize()) * d_maxLoadFactor <
+                                                               d_numNodes + 1) {
         grow();
         bool found = find(&insertionPoint, &bucket, ptr);
         (void) found; // Supress unused variable warnings in non-safe builds.
@@ -1344,7 +1346,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

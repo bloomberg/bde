@@ -265,7 +265,7 @@ class BidirectionalNodePool {
         // memory used by the nodes of the type 'BidirectionalNode<VALUE>' in
         // the pool.  Any memory allocated for the nodes' 'value' attribute of
         // the (template parameter) type 'VALUE' will be leaked unless the
-        // nodes are explictly destroyed via the 'destroyNode' method.
+        // nodes are explicitly destroyed via the 'destroyNode' method.
 
     // MANIPULATORS
     AllocatorType& allocator();
@@ -370,9 +370,9 @@ struct IsBitwiseMoveable<bslstl::BidirectionalNodePool<VALUE, ALLOCATOR> >
 
 }  // close namespace bslmf
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 namespace bslstl {
 
@@ -521,7 +521,7 @@ void bslstl::swap(bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& a,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

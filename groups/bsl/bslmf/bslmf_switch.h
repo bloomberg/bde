@@ -71,8 +71,12 @@ BSLS_IDENT("$Id: $")
 //       void store(short data) { d_data = data | 0Xdead0000; }
 //       void store(int   data) { d_data = data; }
 //
-//       void retrieve(char  *data) { *data = d_data & 0x000000ff; }
-//       void retrieve(short *data) { *data = d_data & 0x0000ffff; }
+//       void retrieve(char  *data) {
+//          *data = static_cast<char>(d_data & 0x000000ff);
+//       }
+//       void retrieve(short *data) {
+//          *data = static_cast<short>(d_data & 0x0000ffff);
+//       }
 //       void retrieve(int   *data) { *data = d_data; }
 //  };
 //..
@@ -928,7 +932,7 @@ struct Switch9<8, T0, T1, T2, T3, T4, T5, T6, T7, T8> {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

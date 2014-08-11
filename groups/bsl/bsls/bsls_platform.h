@@ -599,6 +599,22 @@ struct bsls_Platform_Assert;
         #else
             #define BSLS_PLATFORM_CPU_SPARC_32 1
         #endif
+    #elif defined(__arm__)
+        #define BSLS_PLATFORM_CPU_ARM 1
+        #if defined(__ARM_ARCH_5T__)        \
+            || defined(__ARM_ARCH_5TE__)    \
+            || defined(__ARM_ARCH_5TEJ__)
+            #define BSLS_PLATFORM_CPU_ARM_V5
+        #elif defined(__ARM_ARCH_6__) || defined (__ARM_ARCH_6ZK__)
+            #define BSLS_PLATFORM_CPU_ARM_V6
+        #elif defined(__ARM_ARCH_7__)       \
+            || defined(__ARM_ARCH_7A__)     \
+            || defined(__ARM_ARCH_7M__)     \
+            || defined(__ARM_ARCH_7R__)
+            #define BSLS_PLATFORM_CPU_ARM_V7
+        #else
+            #error "Unsupported ARM platform."
+        #endif
     #else
         #if defined(__GNUC__)
             #error "Unable to determine on which CPU GNU compiler is running."
@@ -803,7 +819,8 @@ struct bsls_Platform_Assert;
                                  // Validation
 
 // Unix flag must be set by the compiler if Unix detected (except for AIX).
-#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX)
+#if defined(BSLS_PLATFORM_OS_UNIX) && !defined(BSLS_PLATFORM_OS_AIX) && \
+                                      !defined(BSLS_PLATFORM_OS_DARWIN)
     #if !defined(unix) && !defined(__unix__) && !defined(__unix)
         #error "Unix platform assumed, but unix flag not set by compiler"
         BSLS_PLATFORM_COMPILER_ERROR;
@@ -857,7 +874,8 @@ struct bsls_Platform_Assert;
   + BSLS_PLATFORM_CPU_X86_64  \
   + BSLS_PLATFORM_CPU_MIPS    \
   + BSLS_PLATFORM_CPU_POWERPC \
-  + BSLS_PLATFORM_CPU_SPARC != 1
+  + BSLS_PLATFORM_CPU_SPARC   \
+  + BSLS_PLATFORM_CPU_ARM != 1
     #error "Exactly one processor must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
 #endif
@@ -955,6 +973,11 @@ struct Platform {
     struct CpuArch_Pwr2   : CpuPowerpc {};
     struct CpuArch_Pwr2s  : CpuPowerpc {};
 
+    struct CpuArm   : CpuAny {};
+    struct CpuArmv5 : CpuArm {};
+    struct CpuArmv6 : CpuArm {};
+    struct CpuArmv7 : CpuArm {};
+
                               // PLATFORM TRAITS
 
     // OS TRAIT
@@ -1020,6 +1043,15 @@ struct Platform {
     #endif
     #if defined(BSLS_PLATFORM_CPU_SPARC_V9)
         typedef CpuSparc_V9   Cpu;
+    #endif
+    #if defined(BSLS_PLATFORM_CPU_ARM_V5)
+        typedef CpuArmv5 Cpu;
+    #endif
+    #if defined(BSLS_PLATFORM_CPU_ARM_V6)
+        typedef CpuArmv6 Cpu;
+    #endif
+    #if defined(BSLS_PLATFORM_CPU_ARM_V7)
+        typedef CpuArmv7 Cpu;
     #endif
 
 };
@@ -1297,7 +1329,7 @@ typedef bsls::Platform bsls_Platform;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

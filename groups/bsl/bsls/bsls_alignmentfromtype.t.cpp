@@ -200,7 +200,7 @@ class string {
 
     // DATA
     char            *d_value_p;      // 0 terminated character array
-    int              d_size;         // length of d_value_p
+    std::size_t      d_size;         // length of d_value_p
 
      // PRIVATE CLASS CONSTANTS
     static const char *EMPTY_STRING;
@@ -259,7 +259,7 @@ class string {
     }
 
     // ACCESSORS
-    int size() const
+    std::size_t size() const
     {
         return d_size;
     }
@@ -739,27 +739,37 @@ int main(int argc, char *argv[])
             ASSERT(sameType(bsls::AlignmentFromType<double>::Type(), long()));
             ASSERT(sameType(bsls::AlignmentFromType<long double>::Type(), LD));
     #else
-            #if defined(BSLS_PLATFORM_OS_CYGWIN)
+        #if defined(BSLS_PLATFORM_CPU_ARM)
+            ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
+                            LL));
+            ASSERT(sameType(bsls::AlignmentFromType<double>::Type(),
+                            LL));
+        #elif defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
                             _8BAT));
             ASSERT(sameType(bsls::AlignmentFromType<double>::Type(),
                             _8BAT));
+        #else
+            ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
+                            int()));
+            ASSERT(sameType(bsls::AlignmentFromType<double>::Type(),
+                            int()));
+        #endif
+        #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
+            #if defined(BSLS_PLATFORM_CPU_ARM)
+            ASSERT(
+                  sameType(bsls::AlignmentFromType<long double>::Type(),
+                           LL));
             #else
-            ASSERT(sameType(bsls::AlignmentFromType<long long>::Type(),
-                            int()));
-            ASSERT(sameType(bsls::AlignmentFromType<double>::Type(),
-                            int()));
-            #endif
-            #if defined(BSLS_PLATFORM_OS_LINUX) \
-             || defined(BSLS_PLATFORM_OS_CYGWIN)
             ASSERT(
                   sameType(bsls::AlignmentFromType<long double>::Type(),
                            int()));
-            #else
+            #endif
+        #else
             ASSERT(
                   sameType(bsls::AlignmentFromType<long double>::Type(),
                            LD));
-            #endif
+        #endif
     #endif
 #elif defined(BSLS_PLATFORM_OS_AIX)
     #if defined(BSLS_PLATFORM_CPU_64_BIT)
@@ -845,7 +855,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

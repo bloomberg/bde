@@ -2323,6 +2323,7 @@ ScalarPrimitives_Imp::construct(
 
         ::new (address) TARGET_TYPE(a1);
     } else {
+        BSLMF_ASSERT(sizeof (TARGET_TYPE) == sizeof(a1));
         std::memcpy(address, BSLS_UTIL_ADDRESSOF(a1), sizeof a1); // no overlap
     }
 }
@@ -3002,7 +3003,7 @@ typedef bslalg::ScalarPrimitives bslalg_ScalarPrimitives;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

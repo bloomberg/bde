@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // Suppose we want to keep a set of a small number of elements, and the only
 // comparison operation we have on the type of the elements is an equality
 // operator.  We can keep a singly-linked list of the elements, and
-// exhausitively use the comparison operator to see if a given value exists in
+// exhaustively use the comparison operator to see if a given value exists in
 // the list, forming a primitive set.
 //
 // First, we define our 'ListSet' template class:
@@ -357,7 +357,7 @@ struct is_trivially_copyable<equal_to<VALUE_TYPE> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

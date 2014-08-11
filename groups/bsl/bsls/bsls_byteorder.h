@@ -120,7 +120,7 @@ BSLS_IDENT("$Id: $")
 //..
 // For example, to use the little-endian/big-endian to host-endian macros:
 //..
-//  short              x = 0xabcd;
+//  short              x = static_cast<short>(0xabcd);
 //  int                y = 0xabcdef12;
 //  bsls::Types::Int64 z = 0xabcdef1234567890LL;
 //
@@ -747,7 +747,7 @@ ByteOrder_Util::generic_swap_64(Types::Uint64 x)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

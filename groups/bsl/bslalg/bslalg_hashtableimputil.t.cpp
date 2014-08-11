@@ -581,7 +581,8 @@ bool HashSet<KEY, HASHER, EQUAL>::insert(const KEY& key)
         return false;                                                 // RETURN
     }
 
-    if (bucketArraySize() * d_maxLoadFactor < d_numNodes + 1) {
+    if (static_cast<double>(bucketArraySize()) * d_maxLoadFactor <
+                                                               d_numNodes + 1) {
         grow();
     }
 
@@ -2849,7 +2850,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting usage example without exception.\n");
         {
             my_Array<my_AllocatingClass> array(INIT_SIZE, &ta);
-            const int INITBYTES = TA.numBytesInUse();
+            const bsls::Types::Int64 INITBYTES = TA.numBytesInUse();
 
             // First initialize the array to be the same as the usage example.
 
@@ -585,7 +585,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting usage example with exception.\n");
         {
             my_Array<my_AllocatingClass> array(INIT_SIZE, &ta);
-            const int INITBYTES = TA.numBytesInUse();
+            const bsls::Types::Int64 INITBYTES = TA.numBytesInUse();
 
             // First initialize the array to be the same as the usage example.
 
@@ -1413,7 +1413,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

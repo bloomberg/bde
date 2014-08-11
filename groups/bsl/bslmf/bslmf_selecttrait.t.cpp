@@ -230,16 +230,16 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     struct Imp {
 
         // Counters for counting overload calls
-        static int d_noTraitsCounter;
-        static int d_usesBslmaAllocatorCounter;
-        static int d_isPairCounter;
-        static int d_isBitwiseCopyableCounter;
+        static int s_noTraitsCounter;
+        static int s_usesBslmaAllocatorCounter;
+        static int s_isPairCounter;
+        static int s_isBitwiseCopyableCounter;
 
         static void clearCounters() {
-            d_noTraitsCounter = 0;
-            d_usesBslmaAllocatorCounter = 0;
-            d_isPairCounter = 0;
-            d_isBitwiseCopyableCounter = 0;
+            s_noTraitsCounter = 0;
+            s_usesBslmaAllocatorCounter = 0;
+            s_isPairCounter = 0;
+            s_isBitwiseCopyableCounter = 0;
         }
 
         template <class TARGET_TYPE>
@@ -250,7 +250,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                       bslmf::SelectTraitCase<UsesBslmaAllocator>)
         {
             new (address) TARGET_TYPE(original, allocator);
-            ++d_usesBslmaAllocatorCounter;
+            ++s_usesBslmaAllocatorCounter;
         }
 
         template <class TARGET_TYPE>
@@ -264,7 +264,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                                             allocator);
             ScalarPrimitives::copyConstruct(&address->second, original.second,
                                             allocator);
-            ++d_isPairCounter;
+            ++s_isPairCounter;
         }
 
         template <class TARGET_TYPE>
@@ -275,7 +275,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                       bslmf::SelectTraitCase<IsBitwiseCopyable>)
         {
             memcpy(address, &original, sizeof(original));
-            ++d_isBitwiseCopyableCounter;
+            ++s_isBitwiseCopyableCounter;
         }
 
         template <class TARGET_TYPE>
@@ -286,14 +286,14 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
                       bslmf::SelectTraitCase<>)
         {
             new (address) TARGET_TYPE(original);
-            ++d_noTraitsCounter;
+            ++s_noTraitsCounter;
         }
     };
 
-    int Imp::d_noTraitsCounter = 0;
-    int Imp::d_usesBslmaAllocatorCounter = 0;
-    int Imp::d_isPairCounter = 0;
-    int Imp::d_isBitwiseCopyableCounter = 0;
+    int Imp::s_noTraitsCounter = 0;
+    int Imp::s_usesBslmaAllocatorCounter = 0;
+    int Imp::s_isPairCounter = 0;
+    int Imp::s_isBitwiseCopyableCounter = 0;
 //..
 // Then, we implement 'ScalarPrimitives::copyConstruct':
 //..
@@ -415,7 +415,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         TypeWithAllocator  twa(1, a1);
         TypeWithAllocator *twaptr = (TypeWithAllocator*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(twaptr, twa, a2);
-        ASSERT(1 == Imp::d_usesBslmaAllocatorCounter);
+        ASSERT(1 == Imp::s_usesBslmaAllocatorCounter);
         ASSERT(1 == twaptr->value());
         ASSERT(a2 == twaptr->allocator());
         twaptr->~TypeWithAllocator();
@@ -428,7 +428,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         BitwiseCopyableType  bct(2);
         BitwiseCopyableType *bctptr = (BitwiseCopyableType*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(bctptr, bct, a2);
-        ASSERT(1 == Imp::d_isBitwiseCopyableCounter);
+        ASSERT(1 == Imp::s_isBitwiseCopyableCounter);
         ASSERT(2 == bctptr->value());
         bctptr->~BitwiseCopyableType();
 //..
@@ -442,9 +442,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         PairType  pt(3, 4);
         PairType *ptptr = (PairType*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(ptptr, pt, a2);
-        ASSERT(1 == Imp::d_isPairCounter);
-        ASSERT(1 == Imp::d_usesBslmaAllocatorCounter);
-        ASSERT(1 == Imp::d_usesBslmaAllocatorCounter);
+        ASSERT(1 == Imp::s_isPairCounter);
+        ASSERT(1 == Imp::s_usesBslmaAllocatorCounter);
+        ASSERT(1 == Imp::s_usesBslmaAllocatorCounter);
         ASSERT(3 == ptptr->first.value());
         ASSERT(a2 == ptptr->first.allocator());
         ASSERT(4 == ptptr->second.value());
@@ -462,8 +462,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         BitwiseCopyablePairType *bcptbcptr = (BitwiseCopyablePairType*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(bcptbcptr, bcpt, a2);
         // Prefer IsBitwiseCopyable over IsPair trait
-        ASSERT(1 == Imp::d_isBitwiseCopyableCounter);
-        ASSERT(0 == Imp::d_isPairCounter);
+        ASSERT(1 == Imp::s_isBitwiseCopyableCounter);
+        ASSERT(0 == Imp::s_isPairCounter);
         ASSERT(5 == bcptbcptr->first.value());
         ASSERT(6 == bcptbcptr->second.value());
         bcptbcptr->~BitwiseCopyablePairType();
@@ -476,7 +476,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
         TypeWithNoTraits  twnt(7);
         TypeWithNoTraits *twntptr = (TypeWithNoTraits*) buffer;
         bslalg::ScalarPrimitives::copyConstruct(twntptr, twnt, a2);
-        ASSERT(1 == Imp::d_noTraitsCounter);
+        ASSERT(1 == Imp::s_noTraitsCounter);
         ASSERT(7 == twntptr->value());
         twntptr->~TypeWithNoTraits();
 
@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

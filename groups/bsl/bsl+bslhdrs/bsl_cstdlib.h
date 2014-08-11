@@ -28,43 +28,47 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::div_t;
-    using native_std::ldiv_t;
-    using native_std::size_t;
+
     using native_std::abort;
+    using native_std::abs;
     using native_std::atexit;
-    using native_std::exit;
-    using native_std::getenv;
-    using native_std::calloc;
-    using native_std::free;
-    using native_std::malloc;
-    using native_std::realloc;
     using native_std::atof;
     using native_std::atoi;
     using native_std::atol;
+    using native_std::bsearch;
+    using native_std::calloc;
+    using native_std::div;
+    using native_std::div_t;
+    using native_std::exit;
+    using native_std::free;
+    using native_std::getenv;
+    using native_std::labs;
+    using native_std::ldiv;
+    using native_std::ldiv_t;
+    using native_std::malloc;
     using native_std::mblen;
     using native_std::mbstowcs;
     using native_std::mbtowc;
+    using native_std::qsort;
+    using native_std::rand;
+    using native_std::realloc;
+    using native_std::srand;
     using native_std::strtod;
     using native_std::strtol;
     using native_std::strtoul;
     using native_std::system;
     using native_std::wcstombs;
     using native_std::wctomb;
-    using native_std::bsearch;
-    using native_std::qsort;
-    using native_std::abs;
-    using native_std::div;
-    using native_std::labs;
-    using native_std::ldiv;
-    using native_std::rand;
-    using native_std::srand;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    using native_std::size_t;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

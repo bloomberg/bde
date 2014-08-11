@@ -397,6 +397,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
@@ -405,6 +409,7 @@ BSL_OVERRIDES_STD mode"
 #include <cstddef>  // for 'std::size_t'
 #define INCLUDED_CSTDDEF
 #endif
+
 
 namespace bsl {
 
@@ -1043,36 +1048,36 @@ std::size_t hash<bool>::operator()(bool x) const
 inline
 std::size_t hash<char>::operator()(char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<signed char>::operator()(signed char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<unsigned char>::operator()(unsigned char x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<wchar_t>::operator()(wchar_t x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 inline
-std::size_t hash<char>::operator()(char16_t x) const
+std::size_t hash<char16_t>::operator()(char16_t x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
 }
 
 inline
-std::size_t hash<char>::operator()(char32_t x) const
+std::size_t hash<char32_t>::operator()(char32_t x) const
 {
     return ::BloombergLP::bslalg::HashUtil::computeHash(x);
 }
@@ -1081,50 +1086,89 @@ std::size_t hash<char>::operator()(char32_t x) const
 inline
 std::size_t hash<short>::operator()(short x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<unsigned short>::operator()(unsigned short x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<int>::operator()(int x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<unsigned int>::operator()(unsigned int x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<long>::operator()(long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
 inline
 std::size_t hash<unsigned long>::operator()(unsigned long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    return x;
 }
 
+
+#ifdef BSLS_PLATFORM_CPU_64_BIT
 inline
 std::size_t hash<long long>::operator()(long long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    BSLMF_ASSERT(sizeof (long long) == sizeof (std::size_t));
+    return x;
 }
 
 inline
 std::size_t hash<unsigned long long>::operator()(unsigned long long x) const
 {
-    return ::BloombergLP::bslalg::HashUtil::computeHash(x);
+    BSLMF_ASSERT(sizeof (long long) == sizeof (std::size_t));
+    return x;
 }
+
+#else // BSLS_PLATFORM_CPU_32_BIT
+
+inline
+std::size_t hash<long long>::operator()(long long x) const
+{
+    BSLMF_ASSERT(sizeof (long long) > sizeof (std::size_t));
+
+    // The mangling algorithm won't work unless these conditions hold:
+
+    BSLMF_ASSERT(sizeof (std::size_t) * 8 == 32);
+    BSLMF_ASSERT(sizeof (long long) * 8 == 64);
+
+    // Return a simple mangling of the 64-bits of 'x' to generate a 32-bit hash
+    // value (xor the high and low 32 bits together).
+
+    return static_cast<std::size_t>((x ^ (x >> 32)) & 0xFFFFFFFF);
+}
+
+inline
+std::size_t hash<unsigned long long>::operator()(unsigned long long x) const
+{
+    BSLMF_ASSERT(sizeof (long long) > sizeof (std::size_t));
+
+    // The mangling algorithm won't work unless these conditions hold:
+
+    BSLMF_ASSERT(sizeof (std::size_t) * 8 == 32);
+    BSLMF_ASSERT(sizeof (unsigned long long) * 8 == 64);
+
+    // Return a simple mangling of the 64-bits of 'x' to generate a 32-bit hash
+    // value (xor the high and low 32 bits together).
+
+    return static_cast<std::size_t>((x ^ (x >> 32)) & 0xFFFFFFFF);
+}
+#endif
 
 inline
 std::size_t hash<float>::operator()(float x) const
@@ -1168,7 +1212,7 @@ struct is_trivially_copyable<hash<TYPE> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

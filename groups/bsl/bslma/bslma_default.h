@@ -516,14 +516,15 @@ BSLS_IDENT("$Id: $")
 //      // of the global allocator.
 //
 //      // CLASS DATA
-//      static my_Singleton *d_singleton_p;  // pointer to singleton object
+//      static my_Singleton *s_singleton_p;  // pointer to singleton object
 //
-//      // DATA
+//      // PRIVATE DATA
 //      my_Id d_id;  // allocating
 //
 //      // NOT IMPLEMENTED
-//      my_Singleton(const my_Singleton&, bslma::Allocator * = 0);
-//      my_Singleton& operator=(const my_Singleton&);
+//      my_Singleton(const my_Singleton&  original,
+//                   bslma::Allocator    *basicAllocator = 0);
+//      my_Singleton& operator=(const my_Singleton& rhs);
 //
 //    private:
 //      // PRIVATE CREATORS
@@ -560,12 +561,12 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  const my_Singleton& my_Singleton::singleton()
 //  {
-//      return *d_singleton_p;
+//      return *s_singleton_p;
 //  }
 //
-//  // PRIVATE CREATORS
+//  // CREATORS
 //  inline
-//  my_Singleton::my_Singleton(const char       *id,
+//  my_Singleton::my_Singleton(const char *id,
 //                             bslma::Allocator *basicAllocator)
 //  : d_id(id, bslma::Default::globalAllocator(basicAllocator))
 //  {
@@ -590,26 +591,24 @@ BSLS_IDENT("$Id: $")
 //  #include <my_singleton.h>
 //  #include <bsls_alignedbuffer.h>
 //
-//  my_Singleton *my_Singleton::d_singleton_p;
+//  my_Singleton *my_Singleton::s_singleton_p;
 //
 //  // CLASS METHODS
 //  void my_Singleton::initSingleton(const char       *id,
 //                                   bslma::Allocator *basicAllocator)
 //  {
 //      static bsls::AlignedBuffer<sizeof(my_Singleton)> singleton;
-//      d_singleton_p = new (singleton.buffer()) my_Singleton(id,
+//      s_singleton_p = new (singleton.buffer()) my_Singleton(id,
 //                                                            basicAllocator);
 //  }
 //..
 // In the following, the default and global allocators are set to distinct
-// objects of type 'my_CountingAllocator'.  Note that the default allocator is
-// set and locked identically to what was done in the previous two usage
-// examples:
+// instances of 'my_CountingAllocator'.  Note that the default allocator is set
+// and locked identically to what was done in the previous two usage examples:
 //..
 //  static my_CountingAllocator defaultCountingAllocator;
 //
-//  int status =
-//              bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
+//  int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
 //  assert(0 == status);
 //  bslma::Default::lockDefaultAllocator();
 //  assert(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
@@ -836,7 +835,7 @@ typedef bslma::Default bslma_Default;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

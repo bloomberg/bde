@@ -176,7 +176,7 @@ static void shortDelay(double           delayTime,
 {
     const double frac = delayTime * 4.7;
     const Int64 t0 = rawTimerFunction();
-    const Int64 tEnd = t0 + delayTime * 1e9;
+    const Int64 tEnd = t0 + static_cast<Int64>(delayTime * 1e9);
 
     while ((*rawTimerFunction)() < tEnd) {
         double x = delayTime / frac;    // expensive operation
@@ -979,7 +979,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

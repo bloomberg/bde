@@ -23,37 +23,36 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
-
 #include <ostream>
 
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+
+    using native_std::basic_ostream;
+    using native_std::endl;
+    using native_std::ends;
+    using native_std::flush;
+    using native_std::ostream;
+    using native_std::wostream;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
     using native_std::basic_ios;
-    using native_std::basic_ostream;
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
     using native_std::ctype;
     using native_std::ctype_base;
     using native_std::ctype_byname;
-    using native_std::endl;
-    using native_std::ends;
     using native_std::exception;
-    using native_std::flush;
     using native_std::forward_iterator_tag;
     using native_std::input_iterator_tag;
     using native_std::ios_base;
     using native_std::istreambuf_iterator;
     using native_std::iterator;
     using native_std::locale;
-    using native_std::num_get;
     using native_std::numpunct;
     using native_std::numpunct_byname;
-    using native_std::ostream;
     using native_std::ostreambuf_iterator;
     using native_std::output_iterator_tag;
     using native_std::random_access_iterator_tag;
@@ -66,13 +65,13 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
-    using native_std::wostream;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

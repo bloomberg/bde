@@ -283,9 +283,9 @@ static int globalVeryVerbose = 0;
 // and fails to save relevant statics to RAM.  Declare these to be 'volatile'
 // to ensure the compiler saves their values to RAM.
 
-static volatile int   globalNewCalledCount = 0;
-static volatile int   globalNewCalledCountIsEnabled = 0;
-static volatile int   globalNewCalledLastArg = 0;
+static volatile int    globalNewCalledCount = 0;
+static volatile int    globalNewCalledCountIsEnabled = 0;
+static volatile size_t globalNewCalledLastArg = 0;
 
 static volatile int   globalDeleteCalledCount = 0;
 static volatile int   globalDeleteCalledCountIsEnabled = 0;
@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -179,7 +179,7 @@ static int blockSize(int numBytes)
     ASSERT(0 <= numBytes);
 
     if (numBytes) {
-        numBytes += sizeof(InfrequentDeleteBlock) - 1;
+        numBytes += static_cast<int>(sizeof(InfrequentDeleteBlock)) - 1;
         numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
@@ -590,6 +590,7 @@ int main(int argc, char *argv[])
             bslma::BufferAllocator::AlignmentStrategy strategy =
                                      bslma::BufferAllocator::NATURAL_ALIGNMENT;
             char *cBuffer;
+            (void) cBuffer; // suppress set but not used compiler warning
 
             const int NA = 32, NB = 1, NC = 0, ND = -1, NE = -32, NF = -128;
             const int MA = 64, MB = 8;
@@ -613,16 +614,16 @@ int main(int argc, char *argv[])
                 int sizeB(NB);
                 bslma::SequentialPool mA(sizeB, strategy, &ta2);
                 cBuffer = (char *)mA.allocate(i);
-                ASSERT(ta2.numBytesInUse() == 1 == i
-                                           ?  blockSize(i)
-                                           :  2 * blockSize(i));
+                ASSERT(ta2.numBytesInUse() == (1 == i
+                                               ?  blockSize(i)
+                                               :  2 * blockSize(i)));
                 mA.release();
 
                 bslma::SequentialPool mB(sizeB, sizeB * 2, strategy, &ta2);
                 cBuffer = (char *)mB.allocate(i);
-                ASSERT(ta2.numBytesInUse() == 1 == i
-                                           ?  blockSize(i)
-                                           :  2 * blockSize(i));
+                ASSERT(ta2.numBytesInUse() == (1 == i
+                                               ?  blockSize(i)
+                                               :  2 * blockSize(i)));
                 mA.release();
             }
 
@@ -808,7 +809,6 @@ int main(int argc, char *argv[])
             char *                             buffer;
             int                                bufferSize = STATIC_BUFFER_SIZE;
             char *                             cBuffer;
-            int                                initialSize(32);
             bslma::BufferAllocator::AlignmentStrategy strategy =
                                      bslma::BufferAllocator::NATURAL_ALIGNMENT;
 
@@ -938,8 +938,8 @@ int main(int argc, char *argv[])
                     ASSERT((cBuffer <= buffer) || (cBuffer >= buffer + 64));
                     ASSERT(blockSize(bufferSize) == ta.numBytesInUse());
 
-                    int   bytesUsed  = ta.numBytesInUse();
-                    char *tBuffer    = cBuffer;
+                    bsls::Types::Int64  bytesUsed  = ta.numBytesInUse();
+                    char               *tBuffer    = cBuffer;
 
                     cBuffer        = (char *)mX.allocate(1);
                     ASSERT((cBuffer   <= buffer) || (cBuffer  >= buffer + 64));
@@ -1208,6 +1208,7 @@ int main(int argc, char *argv[])
                                                   strategy, &ta);
                     char * nBuffer = (char *)seqPool.allocate(NB);
                     nBuffer = (char *)seqPool.allocate(NC);
+                    (void) nBuffer;     // suppress set but not used  warning
                     ASSERT(NA + blockSize(NC) == ta.numBytesInUse());
                 }
                 ASSERT(NA == ta.numBytesInUse());
@@ -1296,9 +1297,9 @@ int main(int argc, char *argv[])
                 // Keep track of the sequence of allocations from the test
                 // allocator.
 
-                int numBlocksInUse[MAXNUMREQ];
-                int numBytesInUse[MAXNUMREQ];
-                int offsetInBlock[MAXNUMREQ];
+                bsls::Types::Int64 numBlocksInUse[MAXNUMREQ];
+                bsls::Types::Int64 numBytesInUse[MAXNUMREQ];
+                ptrdiff_t          offsetInBlock[MAXNUMREQ];
 
                 bslma::TestAllocator ta(veryVeryVerbose);
                 // Since there is no way to set the initial capacity except at
@@ -1321,8 +1322,8 @@ int main(int argc, char *argv[])
 
                     numBlocksInUse[reqNum] = ta.numBlocksInUse();
                     numBytesInUse[reqNum] = ta.numBytesInUse();
-                    int offset = ((char *) returnAddr -
-                                  (char *) ta.lastAllocatedAddress());
+                    ptrdiff_t offset = ((char *) returnAddr -
+                                        (char *) ta.lastAllocatedAddress());
                     offsetInBlock[reqNum] = offset;
 
                     if (veryVerbose) {
@@ -1353,8 +1354,8 @@ int main(int argc, char *argv[])
                     LOOP4_ASSERT(LINE, reqNum,
                                  numBytesInUse[reqNum], ta.numBytesInUse(),
                                  numBytesInUse[reqNum] == ta.numBytesInUse());
-                    int offset = ((char *) returnAddr -
-                                  (char *) ta.lastAllocatedAddress());
+                    ptrdiff_t offset = ((char *) returnAddr -
+                                        (char *) ta.lastAllocatedAddress());
                     LOOP4_ASSERT(LINE, reqNum,
                                  offsetInBlock[reqNum], offset,
                                  offsetInBlock[reqNum] == offset);
@@ -1489,9 +1490,9 @@ int main(int argc, char *argv[])
                     Obj mY(INITIAL_SIZE, MAXIMUM_ALIGNMENT, &tb);
                     Obj mZ(INITIAL_SIZE, NATURAL_ALIGNMENT, &tc);
 
-                    const int NA = ta.numBytesInUse();
-                    const int NB = tb.numBytesInUse();
-                    const int NC = tc.numBytesInUse();
+                    const bsls::Types::Int64 NA = ta.numBytesInUse();
+                    const bsls::Types::Int64 NB = tb.numBytesInUse();
+                    const bsls::Types::Int64 NC = tc.numBytesInUse();
 
                     mX.allocate(SIZE);
                     mY.allocate(SIZE);
@@ -1580,9 +1581,9 @@ int main(int argc, char *argv[])
                         Obj mZ(INITIAL_SIZE, MAX_SIZE,
                                NATURAL_ALIGNMENT, &tc);
 
-                        const int NA = ta.numBytesInUse();
-                        const int NB = tb.numBytesInUse();
-                        const int NC = tc.numBytesInUse();
+                        const bsls::Types::Int64 NA = ta.numBytesInUse();
+                        const bsls::Types::Int64 NB = tb.numBytesInUse();
+                        const bsls::Types::Int64 NC = tc.numBytesInUse();
 
                         mX.allocate(SIZE);
                         mY.allocate(SIZE);
@@ -1890,8 +1891,8 @@ int main(int argc, char *argv[])
                         continue;
                     }
 
-                    const int EXP = pB - buffer;
-                    int offset = pX - HEAD;
+                    const ptrdiff_t EXP = pB - buffer;
+                    ptrdiff_t offset = pX - HEAD;
                     if (veryVerbose) { T_ P_(offset); T_ P(EXP); T_ P(SIZE); }
 
                     // Ensure memory offset from the pool's 'allocate' is
@@ -1937,7 +1938,8 @@ int main(int argc, char *argv[])
             // if the first 'SIZE' is 0, the allocator's 'allocate' is never
             // called, thus, 'lastAllocatedSize' will return -1 instead of 0.
 
-            const int EXP = i || SIZE ? a.lastAllocatedNumBytes() : 0;
+            const int EXP = i || SIZE
+                            ? static_cast<int>(a.lastAllocatedNumBytes()) : 0;
 
             if (veryVerbose) { T_ P_(SIZE); T_ P_(blkSize); T_ P(EXP); }
             LOOP_ASSERT(i, EXP == blkSize);

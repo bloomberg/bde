@@ -101,7 +101,8 @@ BSLS_IDENT("$Id: $")
 //  #ifdef BSLS_PLATFORMUTIL_IS_BIG_ENDIAN
 //      return input;
 //  #else
-//      return ((input >> 8) & 0xFF) | ((input & 0xFF) << 8);
+//      return static_cast<short>(
+//                              ((input >> 8) & 0xFF) | ((input & 0xFF) << 8));
 //  #endif
 //  }
 //..

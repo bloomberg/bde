@@ -75,6 +75,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -84,11 +88,9 @@ BSL_OVERRIDES_STD mode"
                              must be a macro scoped locally to this header file
 #endif
 
-// Note that a portable syntax for 'noreturn' will be available once we have
-// access to conforming C++0x compilers.
-//# define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
+#   define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN __declspec(noreturn)
 #else
 #   define BSLSTL_STDEXCEPTUTIL_NORETURN
@@ -171,7 +173,7 @@ typedef bslstl::StdExceptUtil bslstl_StdExceptUtil;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -23,15 +23,20 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
-
 #include <iomanip>
 
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+
+    using native_std::resetiosflags;
+    using native_std::setbase;
+    using native_std::setfill;
+    using native_std::setiosflags;
+    using native_std::setprecision;
+    using native_std::setw;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
@@ -55,14 +60,8 @@ namespace bsl
     using native_std::ostreambuf_iterator;
     using native_std::output_iterator_tag;
     using native_std::random_access_iterator_tag;
-    using native_std::resetiosflags;
-    using native_std::setbase;
-    using native_std::setfill;
-    using native_std::setiosflags;
-    using native_std::setprecision;
     using native_std::set_terminate;
     using native_std::set_unexpected;
-    using native_std::setw;
     using native_std::swap;
     using native_std::terminate;
     using native_std::terminate_handler;
@@ -70,12 +69,13 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

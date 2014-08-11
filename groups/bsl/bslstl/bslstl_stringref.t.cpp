@@ -2,8 +2,11 @@
 
 #include <bslstl_stringref.h>
 
+#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nativestd.h>
+
+#include <bsltf_templatetestfacility.h>
 
 #include <algorithm>
 #include <iostream>
@@ -33,6 +36,7 @@ using namespace bsl;  // automatically added by script
 // [ 2] bslstl::StringRef(const bsl::string& begin);
 // [ 2] bslstl::StringRef(const native_std::string& begin);
 // [ 2] bslstl::StringRef(const bslstl::StringRef& original);
+// [ 9] bslstl::StringRefImp(const StringRefImp& , int, int)
 // [ 2] ~bslstl::StringRef();
 //
 // MANIPULATORS
@@ -107,55 +111,84 @@ using namespace bsl;  // automatically added by script
 // [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
 //--------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+// [10] USAGE
+
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
+
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
-        std::cout << "Error " << __FILE__ << "(" << i << "): " << s
-                  << "    (failed)" << std::endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+    if (b) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) {                                                    \
-   if (!(X)) { std::cout << #I << ": " << I << "\n";                          \
-               aSsErT(1, #X, __LINE__); }}                                    \
-
-#define LOOP2_ASSERT(I,J,X) {                                                 \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": "             \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) {                                               \
-   if (!(X)) { std::cout << #I << ": " << I << "\t" << #J << ": " << J        \
-               << "\t" << #K << ": " << K << "\n";                            \
-               aSsErT(1, #X, __LINE__); } }
+}  // close unnamed namespace
 
 //=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-#define P(X) std::cout << #X " = " << (X) << std::endl;
-                                                 // Print identifier and value.
-#define Q(X) std::cout << "<| " #X " |>" << std::endl;
-                                                 // Quote identifier literally.
-#define P_(X) std::cout << #X " = " << (X) << ", "<< std::flush;
-                                                 // P(X) without '\n'
-#define L_ __LINE__                              // current Line number
-#define T_()  std::cout << "\t" << std::flush;   // Print tab w/o newline
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+
+#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
+#define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
+#define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
+#define ASSERT_PASS_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
+#define ASSERT_FAIL_RAW(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
+#define ASSERT_OPT_PASS_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
+#define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
 //                  PRINTF FORMAT MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+
+// ============================================================================
+//                       GLOBAL TEST VALUES
+// ----------------------------------------------------------------------------
+
+static bool             verbose;
+static bool         veryVerbose;
+static bool     veryVeryVerbose;
+static bool veryVeryVeryVerbose;
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -198,6 +231,236 @@ wchar_t const * TestData<wchar_t>::stringValue2 = L"abcfg";
 
 char const * EMPTY_STRING     = TestData<char>::emptyString;
 char const * NON_EMPTY_STRING = TestData<char>::nonEmptyString;
+
+// ============================================================================
+//                     GLOBAL TEST DRIVER
+// ----------------------------------------------------------------------------
+
+void copyStringValue(char    *result, const char *asciiInput);
+void copyStringValue(wchar_t *result, const char *asciiInput);
+    // Load 'result' with the specified 'asciiInput', where each input
+    // character value is converted to the (template parameter) type
+    // 'CHAR_TYPE'.  The behavior is undefined unless 'asciiInput' is a valid
+    // null terminated ascii string.
+
+void copyStringValue(char *result, const char *asciiInput)
+{
+    strcpy(result, asciiInput);
+}
+
+void copyStringValue(wchar_t *result, const char *asciiInput)
+{
+    do {
+        *result = *asciiInput;
+        ++result;
+        ++asciiInput;
+    } while (*asciiInput);
+}
+
+
+template <class CHAR_TYPE>
+class TestDriver {
+    // TYPES
+    typedef bslstl::StringRefImp<CHAR_TYPE> Obj;
+        // Type under testing.
+
+  public:
+
+    static CHAR_TYPE charValue(char c);
+
+    static void testCase9();
+        // Testing 'StringRefImp(const StringRefImp& , int, int)'
+};
+
+template <class CHAR_TYPE>
+void TestDriver<CHAR_TYPE>::testCase9()
+{
+    // --------------------------------------------------------------------
+    // TESTING: StringRefImp(const StringRefImp& , int, int)
+    //
+    // Concerns:
+    //
+    //: 1 Supplying an empty string ref, and 'startIndex' 0, 'numCharacters'
+    //:   0, results in an empty string ref.
+    //:
+    //: 2 For a non empty string ref, the resulting string ref's 'begin'
+    //:   iterator is at the same address as the 'startIndex' character of the
+    //:   original string ref.
+    //:
+    //: 3 If 'numCharacters' does next extend beyond the end of the original
+    //:   string ref, the resulting string ref is 'numCharacters' in length.
+    //:
+    //: 4 If 'numCharacters' extends beyond the end of the original string
+    //:   ref the resulting string ref is the tail of the original string ref.
+    //:
+    //: 5 QoI: Asserted precondition violations are detected when enabled.
+    //
+    // Plan:
+    //
+    //: 1 Test with an empty string ref as input. (C-1)
+    //:
+    //: 2 Test a non-empty input through all possible start indices. (C-2)
+    //:
+    //: 3 Test a non-empty input through all possible lengths of the input and
+    //:   beyond the end of the input range. (C-3,4)
+    //:
+    //: 4 Test a non-empty input through possibly start indices and lengths (a
+    //:   cross product of tests 2 & 3). (C-2..4)
+    //:
+    //: 5 Test the asserted preconditions using the 'BSLS_ASSERTTEST_*'
+    //:   macros. (C-5)
+    //
+    // Testing:
+    //   StringRefImp(const StringRefImp& , int, int)
+    // --------------------------------------------------------------------
+
+
+    if (verbose) printf("\tTest empty string\n");
+    {
+        Obj x;              const Obj& X = x;
+        Obj y(X, 0, 0);     const Obj& Y = y;
+        Obj z(X, 0, 32768); const Obj& Z = z;
+
+        ASSERT(Y.isEmpty());
+        ASSERT(Z.isEmpty());
+    }
+
+    if (verbose) printf("\tTest various values for 'startIndex'\n");
+    {
+        const char value[] = "abcdefg";
+        CHAR_TYPE  input[sizeof(value)];
+        copyStringValue(input, value);
+
+        const native_std::size_t LENGTH = sizeof(value);
+
+        Obj original(input, LENGTH); const Obj& ORIGINAL = original;
+        for (native_std::size_t i = 0; i <= LENGTH; ++i) {
+            Obj x(ORIGINAL, i, INT_MAX); const Obj& X = x;
+
+            ASSERT(ORIGINAL.begin() + i == X.begin());
+            ASSERT(ORIGINAL.end()       == X.end());
+
+            if (veryVerbose && i!= LENGTH) {
+                P_(i); P_(ORIGINAL[i]); P(*X.begin());
+            }
+            else if (veryVerbose) {
+                P(i);
+            }
+        }
+    }
+
+    if (verbose) printf("\tTest various values for 'numCharacters'\n");
+    {
+        const char value[] = "abcdefg";
+        CHAR_TYPE  input[sizeof(value)];
+        copyStringValue(input, value);
+
+        const native_std::size_t LENGTH = sizeof(value);
+
+        Obj original(input, LENGTH); const Obj& ORIGINAL = original;
+        for (native_std::size_t i = 0; i < LENGTH; ++i) {
+            Obj x(ORIGINAL, 0, i); const Obj& X = x;
+
+            ASSERT(ORIGINAL.begin() == X.begin());
+            ASSERT(ORIGINAL.end()   == X.end() + (ORIGINAL.length() - i));
+
+            if (veryVerbose) {
+                P_(i); P_(ORIGINAL.length()); P(X.length())
+            }
+        }
+        for (native_std::size_t i = LENGTH; i < LENGTH + 10; ++i) {
+            Obj x(ORIGINAL, 0, i); const Obj& X = x;
+
+            ASSERT(ORIGINAL.begin() == X.begin());
+            ASSERT(ORIGINAL.end()   == X.end());
+
+            if (veryVerbose) {
+                P_(i); P_(ORIGINAL.length()); P(X.length())
+            }
+
+        }
+        {
+            // Test INT_MAX
+            Obj x(ORIGINAL, 0, INT_MAX); const Obj& X = x;
+
+            ASSERT(ORIGINAL.begin() == X.begin());
+            ASSERT(ORIGINAL.end()   == X.end());
+
+            if (veryVerbose) {
+                P_(ORIGINAL.length()); P(X.length())
+            }
+
+        }
+    }
+
+    if (verbose) printf("\tTest both 'startIndex' and 'numCharacters'\n");
+    {
+        const char value[] = "abcdefg";
+        CHAR_TYPE  input[sizeof(value)];
+        copyStringValue(input, value);
+
+        const native_std::size_t LENGTH = sizeof(value);
+        Obj original(input, LENGTH); const Obj& ORIGINAL = original;
+
+        for (native_std::size_t startIdx = 0; startIdx <= LENGTH; ++startIdx) {
+            for (native_std::size_t length = 0; length < LENGTH + 1; ++length){
+
+                Obj x(ORIGINAL, startIdx, length); const Obj& X = x;
+
+                ASSERT(ORIGINAL.begin() + startIdx == X.begin());
+                if (startIdx + length < LENGTH) {
+                    ASSERT(ORIGINAL.end() ==
+                           X.end() + LENGTH - (length + startIdx));
+                }
+                else {
+                    ASSERT(ORIGINAL.end() == X.end());
+                }
+
+                if (veryVerbose && startIdx != LENGTH) {
+                    P_(startIdx); P_(length);
+                    P_(ORIGINAL[startIdx]); P_(*X.begin()); P(X.length())
+                }
+                else if (veryVerbose) {
+                    P_(startIdx); P_(length); P(X.length())
+
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\tNegative Testing.\n");
+    {
+        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+
+        const char value[] = "abcdefg";
+        CHAR_TYPE  input[sizeof(value)];
+        copyStringValue(input, value);
+        const native_std::size_t LENGTH = sizeof(value);
+
+        Obj original(input, LENGTH); const Obj& ORIGINAL = original;
+
+        if (verbose) printf("\tNegative testing '0 <= startIndex'.\n");
+        {
+            ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, 0, 0));
+            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, -1, 0));
+            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, INT_MIN, 0));
+        }
+
+        if (verbose) printf("\tNegative testing 'startIndex <= or.length'.\n");
+        {
+            ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, ORIGINAL.length(), 0));
+            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, ORIGINAL.length() + 1, 0));
+        }
+
+        if (verbose) printf("\tNegative testing '0 <= numCharacters'.\n");
+        {
+            ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, 0, 0));
+            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, 0, -1));
+            ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, 0, INT_MIN));
+        }
+    }
+}
+
 
 //=============================================================================
 //                 HELPER FUNCTIONS FOR TESTING USAGE EXAMPLE
@@ -253,7 +516,7 @@ void testBasicAccessors(bool verbose)
         // EMPTY STRING
         bslstl::StringRefImp<CHAR> es(TestData<CHAR>::emptyString);
         const bslstl::StringRefImp<CHAR>& ES = es;
-  
+
         ASSERT(ES.begin()   == TestData<CHAR>::emptyString);
         ASSERT(ES.data()    == TestData<CHAR>::emptyString);
         ASSERT(ES.data()    == ES.begin());
@@ -261,29 +524,29 @@ void testBasicAccessors(bool verbose)
         ASSERT(ES.length()  ==
            native_std::char_traits<CHAR>::length(TestData<CHAR>::emptyString));
         ASSERT(ES.isEmpty());
-  
+
         bsl::basic_string<CHAR> EString(TestData<CHAR>::emptyString);
         ASSERT(EString  == static_cast<bsl::basic_string<CHAR> >(ES));
-  
+
         native_std::basic_string<CHAR> EString2(TestData<CHAR>::emptyString);
         ASSERT(EString2 == static_cast<native_std::basic_string<CHAR> >(ES));
-  
+
         // NON-EMPTY STRING
-        bslstl::StringRefImp<CHAR> nes(TestData<CHAR>::nonEmptyString);  
+        bslstl::StringRefImp<CHAR> nes(TestData<CHAR>::nonEmptyString);
         const bslstl::StringRefImp<CHAR>& NES = nes;
         std::size_t LEN = native_std::char_traits<CHAR>::length(
                                                TestData<CHAR>::nonEmptyString);
-  
+
         ASSERT(NES.begin()   == TestData<CHAR>::nonEmptyString);
         ASSERT(NES.data()    == TestData<CHAR>::nonEmptyString);
         ASSERT(NES.data()    == NES.begin());
         ASSERT(NES.end()     == TestData<CHAR>::nonEmptyString + LEN);
         ASSERT(NES.length()  == LEN);
         ASSERT(!NES.isEmpty());
-  
+
         bsl::basic_string<CHAR> NEString(TestData<CHAR>::nonEmptyString);
         ASSERT(NEString  == static_cast<bsl::basic_string<CHAR> >(NES));
-  
+
         native_std::basic_string<CHAR>
             NEString2(TestData<CHAR>::nonEmptyString);
         ASSERT(NEString2 == static_cast<native_std::basic_string<CHAR> >(NES));
@@ -317,17 +580,16 @@ void testBasicAccessors(bool verbose)
     {
         bslstl::StringRefImp<CHAR> x2(TestData<CHAR>::nonEmptyString);
         const bslstl::StringRefImp<CHAR>& X2 = x2;
-  
+
         // NON-EMPTY STRING
-        int Len = native_std::char_traits<CHAR>::length(
-                                               TestData<CHAR>::nonEmptyString);
+        int Len = static_cast<int>(native_std::char_traits<CHAR>::length(
+                                              TestData<CHAR>::nonEmptyString));
         for (int idx = 0; idx < Len; ++idx) {
             LOOP_ASSERT(idx, X2[idx] == TestData<CHAR>::nonEmptyString[idx]);
         }
     }
 }
 
-}  // close anonymous namespace
 
 //=============================================================================
 //                             MAIN PROGRAM
@@ -336,13 +598,16 @@ void testBasicAccessors(bool verbose)
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
 
     switch (test) { case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -454,6 +719,22 @@ int main(int argc, char *argv[])
     numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
 //..
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // StringRefImp(const StringRefImp& , int, int)
+        //
+        // --------------------------------------------------------------------
+
+        //  See 'TestDriver::testCase9' for concerns and plan.
+
+        if (verbose) printf("\nTesting: StringRefImp(StringRefImp&, int, int)"
+                            "\n=============================================="
+                            "\n");
+
+
+        RUN_EACH_TYPE(TestDriver, testCase9, char, wchar_t);
+
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1979,7 +2260,8 @@ int main(int argc, char *argv[])
           ASSERT(X1.begin()   == EMPTY_STRING);
           ASSERT(X1.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));
 
-          x1.assign(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
+          x1.assign(NON_EMPTY_STRING,
+                    static_cast<int>(std::strlen(NON_EMPTY_STRING)));
 
           ASSERT(!X1.isEmpty());
           ASSERT(X1.length()  != 0);
@@ -2353,7 +2635,7 @@ int main(int argc, char *argv[])
                                << "\n= = = = = = = = = = = = = = = ="
                                << std::endl;
         {
-          const int SIZE = 1000;        // max length of output string
+          const size_t SIZE = 1000;     // max length of output string
           const char XX = (char) 0xFF;  // value representing an unset 'char'
           char mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
 
@@ -2366,7 +2648,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
                                      << out.str() << std::endl;
 
-          const int ESSZ = ES.length() + 1;
+          const Obj::size_type ESSZ = ES.length() + 1;
           ASSERT(ESSZ < SIZE);           // Check buffer is large enough.
           ASSERT(out.str() == ES);
           ASSERT(out.good());
@@ -2381,7 +2663,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
                                      << out1.str() << std::endl;
 
-          const int ESSZ1 = ES1.length() + 1;
+          const Obj::size_type ESSZ1 = ES1.length() + 1;
           ASSERT(ESSZ1 < SIZE);           // Check buffer is large enough.
           ASSERT(out1.str() == ES1);
           ASSERT(out1.good());
@@ -2394,7 +2676,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
                                      << nesOut.str() << std::endl;
 
-          const int NESSZ = NES.length() + 1;
+          const Obj::size_type NESSZ = NES.length() + 1;
           ASSERT(NESSZ < SIZE);           // Check buffer is large enough.
           ASSERT(nesOut.str() == NES);
           ASSERT(nesOut.good());
@@ -2409,7 +2691,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
                                      << nessOut.str() << std::endl;
 
-          const int NESSSZ = NESS.length() + 1;
+          const Obj::size_type NESSSZ = NESS.length() + 1;
           ASSERT(NESSSZ < SIZE);          // Check buffer is large enough.
           ASSERT(nessOut.str() == NESS);
           ASSERT(nessOut.good());
@@ -2448,14 +2730,14 @@ int main(int argc, char *argv[])
           fmtOut.str(bsl::string());
           fmtOut << std::left
                  << std::setfill(' ')
-                 << std::setw(NES.length() + 10)
+                 << std::setw(static_cast<int>(NES.length() + 10))
                  << NES;
           ASSERT(fmtOut.str() == NES + bsl::string(10, ' '));
 
           fmtOut.str(bsl::string());
           fmtOut << std::right
                  << std::setfill('?')
-                 << std::setw(NES.length() + 10)
+                 << std::setw(static_cast<int>(NES.length() + 10))
                  << NES;
           ASSERT(fmtOut.str() == bsl::string(10, '?') + NES);
         }
@@ -2564,7 +2846,8 @@ int main(int argc, char *argv[])
 
         {
           // Empty string
-          Obj x1(EMPTY_STRING, std::strlen(EMPTY_STRING));  const Obj& X1 = x1;
+          Obj x1(EMPTY_STRING, static_cast<int>(std::strlen(EMPTY_STRING)));
+          const Obj& X1 = x1;
           ASSERT(X1.isEmpty());
           ASSERT(X1.length()  == 0);
           ASSERT(X1.begin()   == X1.end());
@@ -2572,7 +2855,8 @@ int main(int argc, char *argv[])
           ASSERT(X1.end()     == EMPTY_STRING + std::strlen(EMPTY_STRING));
 
           // Non-empty string
-          Obj x2(NON_EMPTY_STRING, std::strlen(NON_EMPTY_STRING));
+          Obj x2(NON_EMPTY_STRING,
+                 static_cast<int>(std::strlen(NON_EMPTY_STRING)));
           const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
           ASSERT(X2.length()  == 30);
@@ -2805,10 +3089,10 @@ int main(int argc, char *argv[])
             ASSERT(X1 != X3);
 
             bsl::string sx1 = (bsl::string) X1;
-            if (verbose) P(sx1);
+            if (verbose) P(sx1.c_str());
             ASSERT(3 == sx1.size());
 
-            if (verbose) { P_(X1);  P(X2); }
+            if (verbose) { P_(X1.begin());  P(X2.begin()); }
 
             bsl::string sx1x2 = X1 + X2;
             ASSERT(s1 == sx1x2);
@@ -2817,14 +3101,14 @@ int main(int argc, char *argv[])
 
         {
             Obj x1;  const Obj& X1 = x1;
-            if (verbose) { P(X1); }
+            if (verbose) { P(X1.begin()); }
             ASSERT(0 == X1.length());
 
             bsl::string s1 = X1;
-            if (verbose) { P_(s1);  P(X1); }
+            if (verbose) { P_(s1.c_str());  P(X1.begin()); }
 
             Obj x2(cs2, cs2 + 3);  const Obj& X2 = x2;
-            if (verbose) { P(X2); }
+            if (verbose) { P(X2.begin()); }
 
             ASSERT(X2 != X1);
             x2.reset();
@@ -2857,7 +3141,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

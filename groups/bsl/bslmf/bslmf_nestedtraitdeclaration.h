@@ -69,13 +69,19 @@ class NestedTraitDeclaration {
         return BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT>();    \
     }                                                                        \
 
+#ifdef __CDT_PARSER__
+// Work around an Eclise CDT bug where it fails to parse the conditional trait
+// declaration.  See internal DRQS 47839133.
+#define BSLMF_NESTED_TRAIT_DECLARATION_IF(TYPE, TRAIT, COND)
+#else
 #define BSLMF_NESTED_TRAIT_DECLARATION_IF(TYPE, TRAIT, COND)                 \
     operator BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT,         \
                                                         COND >() const       \
     {                                                                        \
         return                                                               \
             BloombergLP::bslmf::NestedTraitDeclaration<TYPE, TRAIT, COND >();\
-    }                                                                        \
+    }
+#endif
 
 }  // close package namespace
 
@@ -84,7 +90,7 @@ class NestedTraitDeclaration {
 #endif // ! defined(INCLUDED_BSLMF_NESTEDTRAITDECLARATION)
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

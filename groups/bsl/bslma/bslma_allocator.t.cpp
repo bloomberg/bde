@@ -96,7 +96,7 @@ class my_Allocator : public bslma::Allocator {
                 //   + 1 allocate
                 //   + 2 deallocate
 
-    int d_arg;  // holds argument from alloc
+    size_type d_arg;  // holds argument from alloc
 
     char d_storage[32];  // space to allow for "large" allocations
 
@@ -122,7 +122,7 @@ class my_Allocator : public bslma::Allocator {
     int fun() const { return d_fun; }
         // Return descriptive code for the function called.
 
-    int arg() const { return d_arg; }
+    size_type arg() const { return d_arg; }
         // Return last argument value for allocate.
 
     int allocateCount() const { return d_allocateCount; }
@@ -919,7 +919,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

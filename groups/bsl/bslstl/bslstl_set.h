@@ -495,10 +495,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_treenodepool.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
 #endif
@@ -513,6 +509,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLALG_RBTREEUTIL
 #include <bslalg_rbtreeutil.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
@@ -578,9 +578,9 @@ class set {
         NodeFactory d_pool;  // pool of 'Node' objects
 
         explicit DataWrapper(const COMPARATOR&  comparator,
-                             const ALLOCATOR&   allocator);
+                             const ALLOCATOR&   basicAllocator);
             // Create a 'DataWrapper' object with the specified 'comparator'
-            // and 'allocator'.
+            // and 'basicAllocator'.
     };
 
     // DATA
@@ -618,17 +618,17 @@ class set {
   private:
     // PRIVATE MANIPULATORS
     NodeFactory& nodeFactory();
-        // Return a reference providing modifiable access to the
-        // node-allocator for this tree.
+        // Return a reference providing modifiable access to the node-allocator
+        // for this tree.
 
     Comparator& comparator();
-        // Return a reference providing modifiable access to the
-        // comparator for this tree.
+        // Return a reference providing modifiable access to the comparator for
+        // this tree.
 
     void quickSwap(set& other);
         // Efficiently exchange the value and comparator of this object with
-        // the value of the specified 'other' object.  This method provides
-        // the no-throw exception-safety guarantee.  The behavior is undefined
+        // the value of the specified 'other' object.  This method provides the
+        // no-throw exception-safety guarantee.  The behavior is undefined
         // unless this object was created with the same allocator as 'other'.
 
     // PRIVATE ACCESSORS
@@ -637,26 +637,26 @@ class set {
         // node-allocator for this tree.
 
     const Comparator& comparator() const;
-        // Return a reference providing non-modifiable access to the
-        // comparator for this tree.
+        // Return a reference providing non-modifiable access to the comparator
+        // for this tree.
 
   public:
     // CREATORS
     explicit set(const COMPARATOR& comparator = COMPARATOR(),
-                 const ALLOCATOR&  allocator  = ALLOCATOR())
+                 const ALLOCATOR&  basicAllocator  = ALLOCATOR())
         // Construct an empty set.  Optionally specify a 'comparator' used to
         // order keys contained in this object.  If 'comparator' is not
         // supplied, a default-constructed object of the (template parameter)
-        // type 'COMPARATOR' is used.  Optionally specify an 'allocator' used
-        // to supply memory.  If 'allocator' is not supplied, a
+        // type 'COMPARATOR' is used.  Optionally specify the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'ALLOCATOR' is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
-        // argument is of type 'bsl::allocator' and 'allocator' is not
-        // supplied, the currently installed default allocator will be used
-        // to supply memory.
-    : d_compAndAlloc(comparator, allocator)
+        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
+        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
+    : d_compAndAlloc(comparator, basicAllocator)
     , d_tree()
     {
         // The implementation is placed here in the class definition to
@@ -666,13 +666,13 @@ class set {
         // container and the comparator is defined after the new class.
     }
 
-    explicit set(const ALLOCATOR& allocator);
-        // Construct an empty set that will use the specified 'allocator' to
-        // supply memory.  Use a default-constructed object of the (template
+    explicit set(const ALLOCATOR& basicAllocator);
+        // Construct an empty set that will use the specified 'basicAllocator'
+        // to supply memory.  Use a default-constructed object of the (template
         // parameter) type 'COMPARATOR' to order the keys contained in this
         // set.  If the template parameter 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default) then 'allocator' shall be convertible
-        // to 'bslma::Allocator *'.
+        // 'bsl::allocator' (the default) then 'basicAllocator' shall be
+        // convertible to 'bslma::Allocator *'.
 
     set(const set& original);
         // Construct a set having the same value as the specified 'original'.
@@ -680,53 +680,53 @@ class set {
         // this set.  Use the allocator returned by
         // 'bsl::allocator_traits<ALLOCATOR>::
         // select_on_container_copy_construction(original.allocator())' to
-        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is
-        // of type 'bsl::allocator' (the default), the currently installed
-        // default allocator will be used to supply memory.  This method
-        // requires that the (template parameter) type 'KEY' be
-        // "copy-constructible" (see {Requirements on 'KEY'}).
+        // allocate memory.  If the (template parameter) type 'ALLOCATOR' is of
+        // type 'bsl::allocator' (the default), the currently installed default
+        // allocator will be used to supply memory.  This method requires that
+        // the (template parameter) type 'KEY' be "copy-constructible" (see
+        // {Requirements on 'KEY'}).
 
-    set(const set& original, const ALLOCATOR& allocator);
+    set(const set& original, const ALLOCATOR& basicAllocator);
         // Construct a set having the same value as that of the specified
-        // 'original' that will use the specified 'allocator' to supply memory.
-        // Use a copy of 'original.key_comp()' to order the keys contained in
-        // this set.  If the template parameter 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default) then 'allocator' shall be convertible
-        // to 'bslma::Allocator *'.  This method requires that the (template
-        // parameter) type 'KEY' be "copy-constructible" (see {Requirements on
-        // 'KEY'}).
+        // 'original' that will use the specified 'basicAllocator' to supply
+        // memory.  Use a copy of 'original.key_comp()' to order the keys
+        // contained in this set.  If the template parameter 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' (the default) then
+        // 'basicAllocator' shall be convertible to 'bslma::Allocator *'.  This
+        // method requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     template <class INPUT_ITERATOR>
     set(INPUT_ITERATOR    first,
         INPUT_ITERATOR    last,
         const COMPARATOR& comparator = COMPARATOR(),
-        const ALLOCATOR&  allocator  = ALLOCATOR());
+        const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Construct a set, and insert each 'value_type' object in the sequence
         // starting at the specified 'first' element, and ending immediately
         // before the specified 'last' element, ignoring those keys that
         // appears earlier in the sequence.  Optionally specify a 'comparator'
         // used to order keys contained in this object.  If 'comparator' is not
         // supplied, a default-constructed object of the (template parameter)
-        // type 'COMPARATOR' is used.  Optionally specify a 'allocator' used to
-        // supply memory.  If 'allocator' is not supplied, a
+        // type 'COMPARATOR' is used.  Optionally specify the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) type
         // 'ALLOCATOR' is used.  If the template parameter 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' (the default) then 'allocator', if
+        // is of type 'bsl::allocator' (the default) then 'basicAllocator', if
         // supplied, shall be convertible to 'bslma::Allocator *'.  If the
         // template parameter 'ALLOCATOR' argument is of type 'bsl::allocator'
-        // and 'allocator' is not supplied, the currently installed default
-        // allocator will be used to supply memory.  If the sequence 'first'
-        // and 'last' is ordered according to the identified 'comparator' then
-        // this operation will have O[N] complexity, where N is the number of
-        // elements between 'first' and 'last', otherwise this operation will
-        // have O[N * log(N)] complexity.  The (template parameter) type
-        // 'INPUT_ITERATOR' shall meet the requirements of an input iterator
-        // defined in the C++11 standard [24.2.3] providing access to values of
-        // a type convertible to 'value_type'.  The behavior is undefined
-        // unless 'first' and 'last' refer to a sequence of valid values where
-        // 'first' is at a position at or before 'last'.  This method requires
-        // that the (template parameter) type 'KEY' be "copy-constructible"
-        // (see {Requirements on 'KEY'}).
+        // and 'basicAllocator' is not supplied, the currently installed
+        // default allocator will be used to supply memory.  If the sequence
+        // 'first' and 'last' is ordered according to the identified
+        // 'comparator' then this operation will have O[N] complexity, where N
+        // is the number of elements between 'first' and 'last', otherwise this
+        // operation will have O[N * log(N)] complexity.  The (template
+        // parameter) type 'INPUT_ITERATOR' shall meet the requirements of an
+        // input iterator defined in the C++11 standard [24.2.3] providing
+        // access to values of a type convertible to 'value_type'.  The
+        // behavior is undefined unless 'first' and 'last' refer to a sequence
+        // of valid values where 'first' is at a position at or before 'last'.
+        // This method requires that the (template parameter) type 'KEY' be
+        // "copy-constructible" (see {Requirements on 'KEY'}).
 
     ~set();
         // Destroy this object.
@@ -1092,9 +1092,9 @@ void swap(set<KEY, COMPARATOR, ALLOCATOR>& a,
     // behavior is undefined is unless either this object was created with the
     // same allocator as 'other' or 'propagate_on_container_swap' is 'true'.
 
-// ===========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                              // -----------------
                              // class DataWrapper
@@ -1104,10 +1104,10 @@ void swap(set<KEY, COMPARATOR, ALLOCATOR>& a,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::DataWrapper::DataWrapper(
-                                                  const COMPARATOR& comparator,
-                                                  const ALLOCATOR&  allocator)
+                                              const COMPARATOR& comparator,
+                                              const ALLOCATOR&  basicAllocator)
 : ::bsl::set<KEY, COMPARATOR, ALLOCATOR>::Comparator(comparator)
-, d_pool(allocator)
+, d_pool(basicAllocator)
 {
 }
 
@@ -1171,8 +1171,8 @@ inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
                                      INPUT_ITERATOR    last,
                                      const COMPARATOR& comparator,
-                                     const ALLOCATOR&  allocator)
-: d_compAndAlloc(comparator, allocator)
+                                     const ALLOCATOR&  basicAllocator)
+: d_compAndAlloc(comparator, basicAllocator)
 , d_tree()
 {
     if (first != last) {
@@ -1183,7 +1183,7 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
         // The following loop guarantees amortized linear time to insert an
         // ordered sequence of values (as required by the standard).   If the
         // values are in sorted order, we are guaranteed the next node can be
-        // inseted as the right child of the previous node, and can call
+        // inserted as the right child of the previous node, and can call
         // 'insertAt' without 'findUniqueInsertLocation'.
 
         insert(*first);
@@ -1232,8 +1232,8 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(const set& original)
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& allocator)
-: d_compAndAlloc(COMPARATOR(), allocator)
+set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& basicAllocator)
+: d_compAndAlloc(COMPARATOR(), basicAllocator)
 , d_tree()
 {
 }
@@ -1241,8 +1241,8 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(const ALLOCATOR& allocator)
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 set<KEY, COMPARATOR, ALLOCATOR>::set(const set&       original,
-                                     const ALLOCATOR& allocator)
-: d_compAndAlloc(original.comparator().keyComparator(), allocator)
+                                     const ALLOCATOR& basicAllocator)
+: d_compAndAlloc(original.comparator().keyComparator(), basicAllocator)
 , d_tree()
 {
     if (0 < original.size()) {
@@ -1785,7 +1785,7 @@ struct UsesBslmaAllocator<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

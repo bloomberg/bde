@@ -8,15 +8,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_atomic.h>         // for testing only
 #include <bsls_bsltestutil.h>    // for testing only
 
-// Include 'windows.h' here to check that our declarations of Windows API
-// functions and types do not conflict with 'windows.h'.
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#endif
-
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

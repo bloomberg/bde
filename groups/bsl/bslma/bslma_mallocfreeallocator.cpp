@@ -4,7 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_objectbuffer.h>
 
 #include <new>
@@ -100,12 +102,26 @@ MallocFreeAllocator& MallocFreeAllocator::singleton()
                                           &g_mallocFreeAllocatorSingleton_p)));
 }
 
+// MANIPULATORS
+void *MallocFreeAllocator::allocate(size_type size)
+{
+    if (!size) {
+        return 0;
+    }
+
+    void *result = std::malloc(size);
+    if (!result) {
+        bsls::BslExceptionUtil::throwBadAlloc();
+    }
+
+    return result;
+}
 }  // close package namespace
 
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

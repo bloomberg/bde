@@ -379,7 +379,7 @@ int TestAllocator::numOutstandingAllocations() const
         char **tmpSrc = srcArray.d_array_p;
         if (this == &srcArray) {
             // self-alias
-            int size = srcLength * sizeof(char *);
+            size_t size = srcLength * sizeof(char *);
             tmpSrc = (char **) d_allocator_p->allocate(size);
             memcpy(tmpSrc, d_array_p, size);
         }
@@ -455,7 +455,7 @@ int TestAllocator::numOutstandingAllocations() const
         char **tmpSrc = srcArray.d_array_p;
         if (this == &srcArray) {
             // self-alias
-            int size = srcLength * sizeof(char *);
+            size_t size = srcLength * sizeof(char *);
             tmpSrc = (char **) d_allocator_p->allocate(size);
             memcpy(tmpSrc, d_array_p, size);
         }
@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting with exceptions\n");
 #endif
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_StrArray<bslma::Allocator> arrayA(&testAllocator);
 
             arrayA.append("Hello");
@@ -644,11 +644,11 @@ int main(int argc, char *argv[])
             ASSERT(arrayB.length() == 2);
             ASSERT(!strcmp(arrayB[0], "BDE"));
             ASSERT(!strcmp(arrayB[1], "101"));
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         ASSERT(0 == TA.numBytesInUse());
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_StrArray<bslma::Allocator> arrayA(&testAllocator);
 
             arrayA.append("Hello");
@@ -676,11 +676,11 @@ int main(int argc, char *argv[])
             ASSERT(2 == arrayB.length());
             ASSERT(!strcmp(arrayB[0], "BDE"));
             ASSERT(!strcmp(arrayB[1], "101"));
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         ASSERT(0 == TA.numBytesInUse());
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_StrArray<bslma::Allocator> arrayA(&testAllocator);
 
             arrayA.append("Hello");
@@ -703,11 +703,11 @@ int main(int argc, char *argv[])
             ASSERT(!strcmp(arrayA[7], "berg"));
             ASSERT(!strcmp(arrayA[8], "LP"));
             ASSERT(!strcmp(arrayA[9], "LP"));
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         ASSERT(0 == TA.numBytesInUse());
 
-        BEGIN_BSLMA_EXCEPTION_TEST {
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_StrArray<bslma::Allocator> arrayA(&testAllocator);
 
             arrayA.append("Hello");
@@ -730,7 +730,7 @@ int main(int argc, char *argv[])
             ASSERT(!strcmp(arrayA[7], "berg"));
             ASSERT(!strcmp(arrayA[8], "LP"));
             ASSERT(!strcmp(arrayA[9], "LP"));
-        } END_BSLMA_EXCEPTION_TEST
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         ASSERT(0 == TA.numBytesInUse());
       } break;
@@ -818,9 +818,9 @@ int main(int argc, char *argv[])
         //
         //   For concern 2, allocate a sequence of memory blocks of various
         //   lengths using a 'TestAllocator'.  Then, initialize a
-        //   'bslma::AutoDeallocator' object with the sequence of memory blocks.
-        //   Verify that 'length' returns the number of memory blocks currently
-        //   protected by the range proctor.
+        //   'bslma::AutoDeallocator' object with the sequence of memory
+        //   blocks.  Verify that 'length' returns the number of memory blocks
+        //   currently protected by the range proctor.
         //
         // Testing:
         //   void setLength(length);
@@ -1009,10 +1009,10 @@ int main(int argc, char *argv[])
         // Plan:
         //   Allocate two array of memory blocks of equal length using
         //   'bslma::TestAllocator'.  Next initialize two
-        //   'bslma::AutoDeallocator' proctors, one with the first array and the
-        //   other with the second.  Call 'release' on the first proctor before
-        //   it goes out of scope.  Verify that only the memory blocks managed
-        //   by the second proctor are deallocated.
+        //   'bslma::AutoDeallocator' proctors, one with the first array and
+        //   the other with the second.  Call 'release' on the first proctor
+        //   before it goes out of scope.  Verify that only the memory blocks
+        //   managed by the second proctor are deallocated.
         //
         // Testing:
         //   void release();
@@ -1088,8 +1088,8 @@ int main(int argc, char *argv[])
         //      sequence of memory blocks of the provided length (positive).
         //   2) That the 'bslma::AutoDeallocator' automatically guards a
         //      sequence of memory blocks of the provided length (negative).
-        //   3) That the 'bslma::AutoDeallocator' guards nothing when supplied a
-        //      zero length at construction.
+        //   3) That the 'bslma::AutoDeallocator' guards nothing when supplied
+        //      a zero length at construction.
         //   4) That we can construct a 'bslma::AutoDeallocator' with zero
         //      length and a null pointer.
         //   5) That when an allocator (or pool) not inherited from
@@ -1520,7 +1520,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

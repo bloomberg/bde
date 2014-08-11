@@ -671,9 +671,9 @@ class TestDriver {
         // 'spec'.
 
     template <class VALUES>
-    static int verify_object(Obj&          object,
-                             const VALUES& expectedValues,
-                             size_t        expectedSize);
+    static size_t verify_object(Obj&          object,
+                                const VALUES& expectedValues,
+                                size_t        expectedSize);
 
     static bool use_same_allocator(Obj&                 object,
                                    int                  TYPE_ALLOC,
@@ -748,7 +748,7 @@ class TestDriver {
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class VALUES>
-int TestDriver<VALUE, CONTAINER, COMPARATOR>::verify_object(
+size_t TestDriver<VALUE, CONTAINER, COMPARATOR>::verify_object(
                                                   Obj&          object,
                                                   const VALUES& expectedValues,
                                                   size_t        expectedSize)
@@ -760,7 +760,7 @@ int TestDriver<VALUE, CONTAINER, COMPARATOR>::verify_object(
     ASSERTV(expectedSize, object.size(), expectedSize == object.size());
 
     if(expectedSize != object.size()) {
-        return -1;                                                    // RETURN
+        return static_cast<size_t>(-1);                               // RETURN
     }
 
     for (size_t i = 0; i < expectedSize; ++i) {
@@ -1966,7 +1966,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
                     ASSERTV(SPEC,  B <=  A);
                 }
                 else {
-                    const int TYPE_ALLOCS = TYPE_ALLOC * X.size();
+                    const int TYPE_ALLOCS = TYPE_ALLOC
+                                            * static_cast<int>(X.size());
                     ASSERTV(SPEC, BB + 1 + TYPE_ALLOCS <= AA);
                     ASSERTV(SPEC,  B + 1 + TYPE_ALLOCS <=  A);
                 }
@@ -2042,7 +2043,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase4()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const TestValues  EXP(DATA[ti].d_results);
-            const int         LENGTH = strlen(DATA[ti].d_results);
+            const size_t      LENGTH = strlen(DATA[ti].d_results);
 
             if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
 
@@ -2094,7 +2095,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase4()
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
-                ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
+                ASSERTV(LINE, SPEC, CONFIG, LENGTH == X.size());
                 if (LENGTH) {
                     ASSERTV(LINE, SPEC, CONFIG, EXP[0] == X.top());
                 }
@@ -2247,13 +2248,13 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const int         EXPR   = DATA[ti].d_return;
-            const size_t      LENGTH = strlen(SPEC);
+            const int         LENGTH = static_cast<int>(strlen(SPEC));
 
             Obj mX(&oa);
 
-            if ((int)LENGTH != oldLen) {
-                if (verbose) printf("\tof length " ZU ":\n", LENGTH);
-                 ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
+            if (LENGTH != oldLen) {
+                if (verbose) printf("\tof length %d:\n", LENGTH);
+                ASSERTV(LINE, oldLen <= LENGTH);  // non-decreasing
                 oldLen = LENGTH;
             }
 
@@ -3309,7 +3310,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -111,12 +111,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stringbuf.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include <bslalg_typetraitusesbslmaallocator.h>
+#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_usesbslmaallocator.h>
 #endif
 
 #ifndef INCLUDED_IOS
@@ -128,6 +124,16 @@ BSL_OVERRIDES_STD mode"
 #include <ostream>
 #define INCLUDED_OSTREAM
 #endif
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bsl {
 
@@ -168,16 +174,16 @@ class basic_ostringstream
 
     // CREATORS
     explicit
-    basic_ostringstream(const allocator_type& allocator = allocator_type());
+    basic_ostringstream(const allocator_type& basicAllocator=allocator_type());
     explicit
     basic_ostringstream(ios_base::openmode    modeBitMask,
-                        const allocator_type& allocator = allocator_type());
+                        const allocator_type& basicAllocator=allocator_type());
     explicit
     basic_ostringstream(const StringType&     initialString,
-                        const allocator_type& allocator = allocator_type());
+                        const allocator_type& basicAllocator=allocator_type());
     basic_ostringstream(const StringType&     initialString,
                         ios_base::openmode    modeBitMask,
-                        const allocator_type& allocator = allocator_type());
+                        const allocator_type& basicAllocator=allocator_type());
         // Create a 'basic_ostringstream' object.  Optionally specify a
         // 'modeBitMask' indicating whether the underlying stream-buffer may
         // also be read from ('rdbuf' is created using
@@ -186,14 +192,15 @@ class basic_ostringstream
         // an 'initialString' indicating the value that will be returned by a
         // call to 'str' prior to any streaming operations performed on this
         // object.  If 'initialString' is not supplied, 'str' will initially
-        // return an empty string.  Optionally specify an 'allocator' used to
-        // supply memory.  If 'allocator' is not supplied, a
+        // return an empty string.  Optionally specify the 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is not supplied, a
         // default-constructed object of the (template parameter) 'ALLOCATOR'
         // type is used.  If the 'ALLOCATOR' argument is of type
-        // 'bsl::allocator' (the default), then 'allocator', if supplied, shall
-        // be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR' argument
-        // is of type 'bsl::allocator' and 'allocator' is not supplied, the
-        // currently installed default allocator will be used to supply memory.
+        // 'bsl::allocator' (the default), then 'basicAllocator', if supplied,
+        // shall be convertible to 'bslma::Allocator *'.  If the 'ALLOCATOR'
+        // argument is of type 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator will be used to
+        // supply memory.
 
     //! ~basic_ostringstream() = default;
         // Destroy this object.
@@ -237,7 +244,7 @@ struct UsesBslmaAllocator<
 
 namespace bsl {
 
-// ==========================================================================
+// ============================================================================
 //                       TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
@@ -249,8 +256,8 @@ namespace bsl {
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
-basic_ostringstream(const allocator_type& allocator)
-: BaseType(ios_base::out, allocator)
+basic_ostringstream(const allocator_type& basicAllocator)
+: BaseType(ios_base::out, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -259,8 +266,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_ostringstream(ios_base::openmode    modeBitMask,
-                    const allocator_type& allocator)
-: BaseType(modeBitMask | ios_base::out, allocator)
+                    const allocator_type& basicAllocator)
+: BaseType(modeBitMask | ios_base::out, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -269,8 +276,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_ostringstream(const StringType&     initialString,
-                    const allocator_type& allocator)
-: BaseType(initialString, ios_base::out, allocator)
+                    const allocator_type& basicAllocator)
+: BaseType(initialString, ios_base::out, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -280,8 +287,8 @@ inline
 basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 basic_ostringstream(const StringType&     initialString,
                     ios_base::openmode    modeBitMask,
-                    const allocator_type& allocator)
-: BaseType(initialString, modeBitMask | ios_base::out, allocator)
+                    const allocator_type& basicAllocator)
+: BaseType(initialString, modeBitMask | ios_base::out, basicAllocator)
 , BaseStream(BaseType::rdbuf())
 {
 }
@@ -318,7 +325,7 @@ basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::rdbuf() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

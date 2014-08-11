@@ -23,19 +23,23 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
-
 #include <istream>
 
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::bad_exception;
-    using native_std::basic_ios;
+
     using native_std::basic_iostream;
     using native_std::basic_istream;
+    using native_std::iostream;
+    using native_std::istream;
+    using native_std::wiostream;
+    using native_std::wistream;
+    using native_std::ws;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    using native_std::bad_exception;
+    using native_std::basic_ios;
     using native_std::basic_ostream;
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
@@ -49,7 +53,6 @@ namespace bsl
     using native_std::forward_iterator_tag;
     using native_std::input_iterator_tag;
     using native_std::ios_base;
-    using native_std::istream;
     using native_std::istreambuf_iterator;
     using native_std::iterator;
     using native_std::locale;
@@ -67,14 +70,13 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
-    using native_std::wistream;
-    using native_std::ws;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

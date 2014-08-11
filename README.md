@@ -1,19 +1,64 @@
-Basic Standard Library (BSL)
-============================
+BDE Libraries
+=============
 
-This is the Basic Standard Library, part of Bloomberg's Basic Development Environment (BDE). For more information about BSL and BDE,
-follow the links below:
+This repository contains the BDE libraries, currently BSL (BDE Standard Library) and BDL (BDE Development Library).  For more information about BSL, BDL, and BDE, follow the links below:
 
-* [BSL wiki](http://github.com/bloomberg/bsl/wiki)
-* [Quick-Start Guide](http://github.com/bloomberg/bsl/wiki/Getting-Started)
-* [Online Library Documentation](http://bloomberg.github.com/bsl)
-* [BDE Mission Statement](http://github.com/bloomberg/bsl/wiki/Mission-Statement)
+* [BDE wiki](http://github.com/bloomberg/bde/wiki)
+* [Quick-Start Guide](http://github.com/bloomberg/bde/wiki/Getting-Started)
+* [Online Library Documentation](http://bloomberg.github.com/bde)
+* [BDE Mission Statement](http://github.com/bloomberg/bde/wiki/Mission-Statement)
+
+Basic Build Instructions
+========================
+
+BDE uses a build system based on [waf](http://code.google.com/p/waf), which is
+located in the [BDE Tools](https://github.com/bloomberg/bde-tools/)
+repository. This build system must be set up before being used:
+
+1. Make sure that python 2.6 - 2.7 are installed on the system.
+2. Download [BDE Tools](https://github.com/bloomberg/bde-tools/) and add the
+   path `<bde_tools_repo_root>/bin` to the system `PATH` environment
+   variable. Make sure the first `waf` command found in `PATH` is a script from that path.
+
+Once the waf based build system has been set up. The following commands can be
+used to configure and build the BDE repository:
+
+1. From the root of this source repository, run:
+
+   ```shell
+   waf configure
+   ```
+
+2. To build the libraries, but not the test drivers, run:
+
+   ```shell
+   waf build
+   ```
+
+   To also build the test drivers, run:
+
+   ```shell
+   waf build --test build
+   ```
+
+   To build and run the test drivers, run:
+
+   ```shell
+   waf build --test run
+   ```
+
+For more details on building the BDE repository, please see the
+[Quick Start Guide](http://github.com/bloomberg/bde/wiki/Getting-Started).
+
+For more details on the waf-based build system for building BDE-style
+repositories, please see
+[its wiki page](https://github.com/bloomberg/bde-tools/wiki/Waf-Build).
 
 License
 -------
-BSL is distributed under a simple MIT-style license; see the LICENSE file at the top of the source tree for more information.
+The BDE libraries are distributed under a simple MIT-style license; see the LICENSE file at the top of the source tree for more information.
 
 Question, Comments and Feedback
 ===============================
-If you have questions, comments, suggestions for improvement or any other inquiries regarding BSL, feel free to open an issue
-in the [issue tracker](https://github.com/bloomberg/bsl/issues).
+If you have questions, comments, suggestions for improvement or any other inquiries regarding BDE, feel free to open an issue
+in the [issue tracker](https://github.com/bloomberg/bde/issues).

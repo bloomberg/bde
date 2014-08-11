@@ -120,10 +120,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ASSERT
-#include <bsls_assert.h>
-#endif
-
 #ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // 'std::malloc', 'std::free'
 #define INCLUDED_CSTDLIB
@@ -213,12 +209,6 @@ MallocFreeAllocator::~MallocFreeAllocator()
 
 // MANIPULATORS
 inline
-void *MallocFreeAllocator::allocate(size_type size)
-{
-    return size == 0 ? 0 : std::malloc(size);
-}
-
-inline
 void MallocFreeAllocator::deallocate(void *address)
 {
     // While the C and C++ standard guarantees that calling free(0) is safe
@@ -247,7 +237,7 @@ typedef bslma::MallocFreeAllocator bslma_MallocFreeAllocator;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

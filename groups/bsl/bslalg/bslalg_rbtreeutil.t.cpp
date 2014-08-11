@@ -1466,7 +1466,7 @@ class TestNodeFactory {
         ASSERT(&d_nodes[0] <= nodeValue);
         ASSERT(nodeValue   <  &d_nodes[d_nodes.size()]);
 
-        const int offset = nodeValue - &d_nodes[0];
+        const int offset = static_cast<int>(nodeValue - &d_nodes[0]);
 
         ASSERT(0             <= offset);
         ASSERT(STATE_CREATED == d_nodeState[offset]);
@@ -6577,10 +6577,10 @@ int main(int argc, char *argv[])
 
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE            = VALUES[i].d_line;
-                const char *SPEC            = VALUES[i].d_spec;
-                const char *EXPECTED_ORDER  = VALUES[i].d_expectedOrderSpec;
-                const int   EXPECTED_LENGTH = strlen(EXPECTED_ORDER);
+                const int     LINE            = VALUES[i].d_line;
+                const char   *SPEC            = VALUES[i].d_spec;
+                const char   *EXPECTED_ORDER  = VALUES[i].d_expectedOrderSpec;
+                const size_t  EXPECTED_LENGTH = strlen(EXPECTED_ORDER);
 
                 if (veryVeryVerbose) {
                     P_(SPEC); P(EXPECTED_ORDER);
@@ -6592,7 +6592,7 @@ int main(int argc, char *argv[])
 
                 gg(&tree, &nodes, SPEC, &assignIntNodeValue);
 
-                for (int j = 1; j < EXPECTED_LENGTH; ++j) {
+                for (size_t j = 1; j < EXPECTED_LENGTH; ++j) {
                     int currentIndex = EXPECTED_ORDER[j]-'0';
                     int previousIndex = EXPECTED_ORDER[j-1]-'0';
 
@@ -6705,10 +6705,10 @@ int main(int argc, char *argv[])
 
             const int NUM_VALUES = sizeof(VALUES) / sizeof(*VALUES);
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const int   LINE            = VALUES[i].d_line;
-                const char *SPEC            = VALUES[i].d_spec;
-                const char *EXPECTED_ORDER  = VALUES[i].d_expectedOrderSpec;
-                const int   EXPECTED_LENGTH = strlen(EXPECTED_ORDER);
+                const int     LINE            = VALUES[i].d_line;
+                const char   *SPEC            = VALUES[i].d_spec;
+                const char   *EXPECTED_ORDER  = VALUES[i].d_expectedOrderSpec;
+                const size_t  EXPECTED_LENGTH = strlen(EXPECTED_ORDER);
 
                 if (veryVeryVerbose) {
                     P_(SPEC); P(EXPECTED_ORDER);
@@ -6720,7 +6720,7 @@ int main(int argc, char *argv[])
 
                 gg(&tree, &nodes, SPEC, &assignIntNodeValue);
 
-                for (int j = 0; j < EXPECTED_LENGTH - 1; ++j) {
+                for (size_t j = 0; j < EXPECTED_LENGTH - 1; ++j) {
                     int currentIndex = EXPECTED_ORDER[j]-'0';
                     int nextIndex    = EXPECTED_ORDER[j + 1]-'0';
 
@@ -8232,7 +8232,7 @@ int main(int argc, char *argv[])
           if (veryVerbose) {
               printf("\tcreate random 10-15 nodes with duplicates\n");
           }
-          srand(time(0));
+          srand(static_cast<unsigned int>(time(0)));
           for (int length = 10; length < 15; ++length) {
               int *values = new int[length];
 
@@ -8274,7 +8274,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

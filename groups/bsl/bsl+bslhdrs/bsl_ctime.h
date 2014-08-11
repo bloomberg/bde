@@ -28,25 +28,26 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::size_t;
-    using native_std::clock_t;
-    using native_std::time_t;
-    using native_std::tm;
-    using native_std::clock;
+
     using native_std::asctime;
+    using native_std::clock;
+    using native_std::clock_t;
     using native_std::ctime;
-    using native_std::gmtime;
     using native_std::difftime;
-    using native_std::mktime;
+    using native_std::gmtime;
     using native_std::localtime;
+    using native_std::mktime;
+    using native_std::size_t;
     using native_std::strftime;
     using native_std::time;
+    using native_std::time_t;
+    using native_std::tm;
 }
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

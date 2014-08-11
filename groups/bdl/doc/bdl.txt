@@ -1,0 +1,42 @@
+ bdl.txt
+
+@PURPOSE: Provide vocabulary types, messaging, containers, and parsers.
+
+@MNEMONIC: Basic Development Library (bdl)
+
+@DESCRIPTION: The 'bdl' ("Basic Development Library") package group currently
+ contains system-level utilities and concrete allocators derived from the
+ 'bdlma::Allocator' protocol.  In the future, this package group will also
+ provide fundation-level services, vocabulary types, and containers.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdl' package group currently has 5 packages having 4 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the packages.
+..
+  4. bdldfp
+
+  3. bdlma
+     bdl+decnumber
+
+  2. bdls
+
+  1. bdlscm
+..
+
+/Package Synopsis
+/----------------
+: 'bdl+decnumber':
+:      Provide third-party decimal floating point library (IBM decNumber).
+:
+: 'bdldfp':
+:      Provide Decimal Floating point types and associated utilities.
+:
+: 'bdlma':
+:      Provide allocators, pools, and other memory-management tools.
+:
+: 'bdls':
+:      Provide system-level utilities for BDL
+:
+: 'bdlscm':
+:      Provide versioning information for BDL library components.

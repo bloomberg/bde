@@ -139,8 +139,8 @@ class ContainerBase_BslmaBase {
 
     // CREATORS
     explicit
-    ContainerBase_BslmaBase(const ALLOCATOR& allocator);
-        // Construct this object using the specified 'allocator' of the
+    ContainerBase_BslmaBase(const ALLOCATOR& basicAllocator);
+        // Construct this object using the specified 'basicAllocator' of the
         // 'ALLOCATOR' parameterized type.
 
     ContainerBase_BslmaBase(const ContainerBase_BslmaBase& original);
@@ -204,8 +204,8 @@ class ContainerBase_NonBslmaBase : public ALLOCATOR {
         // components.)
 
     // CREATORS
-    ContainerBase_NonBslmaBase(const ALLOCATOR& allocator);
-        // Construct this object using the specified 'allocator' or the
+    ContainerBase_NonBslmaBase(const ALLOCATOR& basicAllocator);
+        // Construct this object using the specified 'basicAllocator' or the
         // parameterized 'ALLOCATOR' type.
 
     ContainerBase_NonBslmaBase(const ContainerBase_NonBslmaBase& rhs);
@@ -288,8 +288,8 @@ class ContainerBase : public
         // interface.)
 
     // CREATORS
-    ContainerBase(const ALLOCATOR& allocator);
-        // Construct this object using the specified 'allocator' of the
+    ContainerBase(const ALLOCATOR& basicAllocator);
+        // Construct this object using the specified 'basicAllocator' of the
         // parameterized 'ALLOCATOR' type.
 
     ContainerBase(const ContainerBase& rhs);
@@ -361,8 +361,8 @@ class ContainerBase : public
 template <class ALLOCATOR>
 inline
 ContainerBase_BslmaBase<ALLOCATOR>::
-ContainerBase_BslmaBase(const ALLOCATOR& allocator)
-: d_allocator(allocator)
+ContainerBase_BslmaBase(const ALLOCATOR& basicAllocator)
+: d_allocator(basicAllocator)
 {
 }
 
@@ -412,8 +412,8 @@ ContainerBase_BslmaBase<ALLOCATOR>::bslmaAllocator() const
 template <class ALLOCATOR>
 inline
 ContainerBase_NonBslmaBase<ALLOCATOR>::
-ContainerBase_NonBslmaBase(const ALLOCATOR& allocator)
-: ALLOCATOR(allocator)
+ContainerBase_NonBslmaBase(const ALLOCATOR& basicAllocator)
+: ALLOCATOR(basicAllocator)
 {
 }
 
@@ -464,8 +464,8 @@ ContainerBase_NonBslmaBase<ALLOCATOR>::bslmaAllocator() const
 template <class ALLOCATOR>
 inline
 ContainerBase<ALLOCATOR>::
-ContainerBase(const ALLOCATOR& allocator)
-: Base(allocator)
+ContainerBase(const ALLOCATOR& basicAllocator)
+: Base(basicAllocator)
 {
 }
 
@@ -553,7 +553,7 @@ bool ContainerBase<ALLOCATOR>::equalAllocator(const ContainerBase& rhs) const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a configuration class to use a whole object as its own key.
 //
 //@CLASSES:
-//   bslstl::UnorderedSetKeyConfiguration: trivial identity tranformation
+//   bslstl::UnorderedSetKeyConfiguration: trivial identity transformation
 //
 //@SEE_ALSO: bslstl_unorderedmapkeyconfiguration, bslalg_hashtableimputil
 //
@@ -271,7 +271,7 @@ UnorderedSetKeyConfiguration<VALUE_TYPE>::extractKey(const VALUE_TYPE& object)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

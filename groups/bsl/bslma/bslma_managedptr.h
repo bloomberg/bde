@@ -393,7 +393,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  class CountedFactory {
 //      // DATA
 //      int               d_count;
-//      bslma::Allocator *d_allocator;
+//      bslma::Allocator *d_allocator_p;
 //
 //      // NOT IMPLEMENTED
 //      CountedFactory(const CountedFactory&);
@@ -438,7 +438,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  CountedFactory::CountedFactory(bslma::Allocator *alloc)
 //  : d_count(0)
-//  , d_allocator(bslma::Default::allocator(alloc))
+//  , d_allocator_p(bslma::Default::allocator(alloc))
 //  {
 //  }
 //
@@ -450,7 +450,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  template <class TYPE>
 //  TYPE *CountedFactory::createObject()
 //  {
-//      TYPE *result = new(*d_allocator)TYPE;
+//      TYPE *result = new(*d_allocator_p)TYPE;
 //      ++d_count;
 //      return result;
 //  }
@@ -458,7 +458,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  template <class TYPE>
 //  void CountedFactory::deleteObject(const TYPE *object)
 //  {
-//      d_allocator->deleteObject(object);
+//      d_allocator_p->deleteObject(object);
 //      --d_count;
 //  }
 //
@@ -1946,7 +1946,7 @@ struct IsBitwiseMoveable<bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type {};
 
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

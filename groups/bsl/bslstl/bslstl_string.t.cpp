@@ -886,14 +886,14 @@ struct TestDriver {
         // string is not important, only the string length and the fact that
         // two different 'seeds' produce two different results.
 
-    static void stretch(Obj *object, int size, const TYPE& value = TYPE());
+    static void stretch(Obj *object, size_t size, const TYPE& value = TYPE());
         // Using only primary manipulators, extend the length of the specified
         // 'object' by the specified size by adding copies of the specified
         // 'value'.  The resulting value is not specified.  The behavior is
         // undefined unless 0 <= size.
 
     static void stretchRemoveAll(Obj         *object,
-                                 int          size,
+                                 size_t       size,
                                  const TYPE&  value = TYPE());
         // Using only primary manipulators, extend the capacity of the
         // specified 'object' to (at least) the specified size by adding copies
@@ -1136,24 +1136,22 @@ TestDriver<TYPE,TRAITS,ALLOC>::g(size_t len, TYPE seed)
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::stretch(Obj         *object,
-                                            int          size,
+                                            size_t       size,
                                             const TYPE&  value)
 {
     ASSERT(object);
-    ASSERT(0 <= size);
-    for (int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         object->push_back(value);
     }
-    ASSERT(object->size() >= (size_t)size);
+    ASSERT(object->size() >= size);
 }
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
-                                                     int          size,
+                                                     size_t       size,
                                                      const TYPE&  value)
 {
     ASSERT(object);
-    ASSERT(0 <= size);
     stretch(object, size, value);
     object->clear();
     ASSERT(0 == object->size());
@@ -1166,7 +1164,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
 {
     // As per C++ standard, chapter 21, clause 21.3.7.9.
 
-    int rlen = std::min(X.length(), Y.length());
+    typename Obj::size_type rlen = std::min(X.length(), Y.length());
     int ret = TRAITS::compare(X.data(), Y.data(), rlen);
     if (ret) {
         ASSERT(ret == result);
@@ -2294,7 +2292,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             try {
                 Obj mX(PADDING, DEFAULT_VALUE, a);
 
-                const int LENGTH = DATA[i] - PADDING;
+                const size_t LENGTH = DATA[i] - PADDING;
                 switch (insertMethod) {
                     case 5: {
                                 mX.insert((size_t)0, LENGTH, DEFAULT_VALUE);
@@ -2354,7 +2352,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase25()
             try {
                 Obj mX(3 * PADDING, DEFAULT_VALUE);
 
-                const int LENGTH = DATA[i] - PADDING;
+                const size_t LENGTH = DATA[i] - PADDING;
                 switch (replaceMethod) {
                     case 5: {
                                 mX.replace(PADDING, PADDING,
@@ -3100,7 +3098,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                     }
                     ASSERT(npos == EXP[j] || (EXP[j] < LENGTH &&
                                               C == X[EXP[j]]));
-                    for (int k = lastJ; k >= 0; --k) {
+                    for (int k = static_cast<int>(lastJ); k >= 0; --k) {
                         if (TRAITS::eq(C, X[k])) {
                             rExp[j] = k; break;
                         }
@@ -3386,7 +3384,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                     ASSERT(npos == EXP[j] || (j <= EXP[j] &&
                                               EXP[j] < LENGTH &&
                                               C != X[EXP[j]]));
-                    for (int k = lastJ; k >= 0; --k) {
+                    for (int k = static_cast<int>(lastJ); k >= 0; --k) {
                         if (!TRAITS::eq(C, X[k])) {
                             rExp[j] = k; break;
                         }
@@ -3463,7 +3461,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                     }
                     ASSERT(npos == EXP[j] || (j <= EXP[j] && EXP[j] < LENGTH &&
                                                     Y[EXP_N[j]] == X[EXP[j]]));
-                    for (int k = lastJ; k >= 0 && REXP[j] == npos; --k) {
+                    for (int k = static_cast<int>(lastJ);
+                         k >= 0 && REXP[j] == npos;
+                         --k) {
                         for (size_t m = 0; m < N; ++m) {
                             if (TRAITS::eq(Y[m], X[k])) {
                                 rExp[j] = k; rExpN[j] = m; break;
@@ -3534,7 +3534,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
                         }
                     }
                     ASSERT(npos == EXP[j] || (j <= EXP[j] && EXP[j] < LENGTH));
-                    for (int k = lastJ; k >= 0; --k) {
+                    for (int k = static_cast<int>(lastJ); k >= 0; --k) {
                         size_t m;
                         for (m = 0; m < N; ++m) {
                             if (TRAITS::eq(Y[m], X[k])) {
@@ -3787,9 +3787,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase21()
         ASSERT(bslma::Default::defaultAllocator() == str1.get_allocator());
         ASSERT(&testAlloc2 == str2.get_allocator());
 
-        const int numAlloc2 = testAlloc2.numAllocations();
-        const int numDealloc2 = testAlloc2.numDeallocations();
-        const int inUse2 = testAlloc2.numBytesInUse();
+        const Int64 numAlloc2 = testAlloc2.numAllocations();
+        const Int64 numDealloc2 = testAlloc2.numDeallocations();
+        const Int64 inUse2 = testAlloc2.numBytesInUse();
 
         if (verbose) printf("Swap strings with equal allocators.\n");
 
@@ -4026,8 +4026,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
                             printf("using "); P_(NUM_ELEMENTS); P(VALUE);
                         }
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -4056,8 +4056,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
                             ASSERT(0);
                         };
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -4125,7 +4125,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20()
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                            const int AL = testAllocator.allocationLimit();
+                            const Int64 AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
                             Obj mX(INIT_LENGTH,
@@ -4319,7 +4319,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
 
@@ -4359,8 +4359,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                         mExp.erase(mExp.begin() + BEGIN, mExp.begin() + END);
                         mExp.insert(BEGIN, Y);
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -4423,8 +4423,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                             ASSERT(0);
                         };
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -4492,7 +4492,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                         const size_t END   = min(b + s, INIT_LENGTH);
                         const size_t POS2 = k;
 
-                        const int    NUM_ELEMENTS_INS = NUM_ELEMENTS - POS2;
+                        const size_t NUM_ELEMENTS_INS = NUM_ELEMENTS - POS2;
                         const size_t LENGTH = INIT_LENGTH + NUM_ELEMENTS_INS -
                                                                  (END - BEGIN);
 
@@ -4523,8 +4523,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                             printf("starting at "); P(POS2);
                         }
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -4536,8 +4536,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                                  Y, POS2, NUM_ELEMENTS);
                         ASSERT(&result == &mX);
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -4600,7 +4600,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
 
@@ -4617,7 +4617,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                            const int AL = testAllocator.allocationLimit();
+                            const Int64 AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
                             Obj mX(INIT_LENGTH,
@@ -5239,8 +5239,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                     mX[k] =  VALUES[k % NUM_VALUES];
                 }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\tBefore: "); P_(BB); P(B);
@@ -5248,8 +5248,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
 
                 mX.pop_back();
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     printf("\t\tAfter : "); P_(AA); P(A);
@@ -5326,7 +5326,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                     const size_t BEGIN_POS    = j;
                     const size_t END_POS      = k >= INIT_LENGTH
                                               ? INIT_LENGTH : k;
-                    const int    NUM_ELEMENTS = k - BEGIN_POS;
+                    const size_t NUM_ELEMENTS = k - BEGIN_POS;
                     const size_t LENGTH       = INIT_LENGTH -
                                                          (END_POS - BEGIN_POS);
 
@@ -5348,8 +5348,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
 
                     const size_t CAPACITY = X.capacity();
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\tBefore:"); P_(BB); P(B);
@@ -5358,8 +5358,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                     Obj *result = &mX.erase(BEGIN_POS, NUM_ELEMENTS);
                                                              // test erase here
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -5414,7 +5414,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                     const size_t BEGIN_POS    = j;
                     const size_t END_POS      = k >= INIT_LENGTH
                                               ? INIT_LENGTH : k;
-                    const int    NUM_ELEMENTS = k - BEGIN_POS;
+                    const size_t NUM_ELEMENTS = k - BEGIN_POS;
                     const size_t LENGTH       = INIT_LENGTH -
                                                          (END_POS - BEGIN_POS);
 
@@ -5424,7 +5424,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                     }
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH,
@@ -5498,8 +5498,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
 
                     const size_t CAPACITY = X.capacity();
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\tBefore: "); P_(BB); P(B);
@@ -5507,8 +5507,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
 
                     typename Obj::iterator result = mX.erase(mX.begin() + POS);
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\tAfter : "); P_(AA); P(A);
@@ -5561,7 +5561,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                     const size_t POS = j;
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH,
@@ -5616,7 +5616,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                 for (size_t k = j; k <= INIT_LENGTH; ++k) {
                     const size_t BEGIN_POS    = j;
                     const size_t END_POS      = k;
-                    const int    NUM_ELEMENTS = END_POS - BEGIN_POS;
+                    const size_t NUM_ELEMENTS = END_POS - BEGIN_POS;
                     const size_t LENGTH       = INIT_LENGTH - NUM_ELEMENTS;
 
                     Obj mX(INIT_LENGTH, DEFAULT_VALUE,
@@ -5637,8 +5637,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
 
                     const size_t CAPACITY = X.capacity();
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\tBefore:"); P_(BB); P(B);
@@ -5648,8 +5648,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                                                         mX.begin() + BEGIN_POS,
                                                         mX.begin() + END_POS);
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -5704,7 +5704,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                 for (size_t k = j; k <= INIT_LENGTH; ++k) {
                     const size_t BEGIN_POS    = j;
                     const size_t END_POS      = k;
-                    const int    NUM_ELEMENTS = END_POS - BEGIN_POS;
+                    const size_t NUM_ELEMENTS = END_POS - BEGIN_POS;
                     const size_t LENGTH       = INIT_LENGTH - NUM_ELEMENTS;
 
                     if (veryVerbose) {
@@ -5713,7 +5713,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase19()
                     }
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH,
@@ -5972,8 +5972,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
                         printf(" using "); P(VALUE);
                     }
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -5991,8 +5991,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
                         ASSERT(0);
                     };
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -6081,8 +6081,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
                             printf("using "); P(VALUE);
                         }
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -6103,8 +6103,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
                             ASSERT(0);
                         };
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -6181,7 +6181,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18()
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                            const int AL = testAllocator.allocationLimit();
+                            const Int64 AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
                             Obj mX(INIT_LENGTH,
@@ -6416,7 +6416,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS = strlen(SPEC);
+                    const size_t  NUM_ELEMENTS = strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
                     Obj mY(g(SPEC));  const Obj& Y = mY;
@@ -6449,8 +6449,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             printf("using "); P(SPEC);
                         }
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -6489,8 +6489,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             ASSERT(0);
                         };
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -6593,8 +6593,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             printf("starting at "); P(POS2);
                         }
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -6605,8 +6605,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                         Obj &result = mX.insert(POS, Y, POS2, NUM_ELEMENTS);
                         ASSERT(&result == &mX);
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -6689,7 +6689,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
 
                         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                            const int AL = testAllocator.allocationLimit();
+                            const Int64 AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
 
                             Obj mX(INIT_LENGTH,
@@ -7163,8 +7163,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
                         printf("using "); P(VALUE);
                     }
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -7174,8 +7174,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
                     Obj &result = mX.append(NUM_ELEMENTS, VALUE);
                     LOOP2_ASSERT(INIT_LINE, i, &X == &result);
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -7233,7 +7233,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17()
                     const size_t LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH,
@@ -7408,7 +7408,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 for (int ti = 0; ti < NUM_U_DATA; ++ti) {
                     const int     LINE         = U_DATA[ti].d_lineNum;
                     const char   *SPEC         = U_DATA[ti].d_spec;
-                    const int     NUM_ELEMENTS =
+                    const size_t  NUM_ELEMENTS =
                       (APPEND_CSTRING_NULL_0 == appendMode) ? 0 : strlen(SPEC);
                     const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
 
@@ -7437,8 +7437,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         printf("using "); P(SPEC);
                     }
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -7481,8 +7481,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         ASSERT(0);
                     };
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -7574,8 +7574,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             printf("starting at "); P(POS2);
                         }
 
-                        const int BB = testAllocator.numBlocksTotal();
-                        const int  B = testAllocator.numBlocksInUse();
+                        const Int64 BB = testAllocator.numBlocksTotal();
+                        const Int64  B = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore:"); P_(BB); P(B);
@@ -7586,8 +7586,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         Obj &result = mX.append(Y, POS2, NUM_ELEMENTS);
                         ASSERT(&result == &mX);
 
-                        const int AA = testAllocator.numBlocksTotal();
-                        const int  A = testAllocator.numBlocksInUse();
+                        const Int64 AA = testAllocator.numBlocksTotal();
+                        const Int64  A = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tAfter :"); P_(AA); P(A);
@@ -7660,7 +7660,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH,
@@ -8093,9 +8093,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase16()
                         " and 'const' variants.\n");
     {
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int     LINE   = DATA[ti].d_lineNum;
-            const char   *SPEC   = DATA[ti].d_spec;
-            const size_t  LENGTH = strlen(SPEC);
+            const int   LINE   = DATA[ti].d_lineNum;
+            const char *SPEC   = DATA[ti].d_spec;
+            const int   LENGTH = static_cast<int>(strlen(SPEC));
 
             Obj mX(g(SPEC), AllocType(&testAllocator));  const Obj& X = mX;
 
@@ -8323,7 +8323,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase15Negative()
             Obj mX(g(SPEC));
             const Obj& X = mX;
 
-            const int numChars = X.size();
+            const int numChars = static_cast<int>(X.size());
             for (int i = -numChars - 1; i < numChars * 2 + 2; ++i) {
                 if (i >= 0 && i <= numChars) {
                     ASSERT_SAFE_PASS(X[i]);
@@ -8436,7 +8436,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int AL = testAllocator.allocationLimit();
+              const Int64 AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               Obj mX(Z);  const Obj& X = mX;
@@ -8449,7 +8449,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
 
               testAllocator.setAllocationLimit(AL);
 
-              const int    NUM_ALLOC_BEFORE = testAllocator.numAllocations();
+              const Int64  NUM_ALLOC_BEFORE = testAllocator.numAllocations();
               const size_t CAPACITY         = X.capacity();
               {
                   ExceptionGuard<Obj> guard(&mX, X, L_);
@@ -8460,11 +8460,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
               }
               // Note: assert mX unchanged via the exception guard destructor.
 
-              const int NUM_ALLOC_AFTER = testAllocator.numAllocations();
+              const Int64 NUM_ALLOC_AFTER = testAllocator.numAllocations();
               LOOP_ASSERT(ti, NE > CAPACITY ||
                                           NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER);
 
-              const int AL2 = testAllocator.allocationLimit();
+              const Int64 AL2 = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               stretch(&mX, DELTA);
@@ -8490,7 +8490,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int AL = testAllocator.allocationLimit();
+              const Int64 AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               Obj mX(Z);  const Obj& X = mX;
@@ -8501,8 +8501,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
               LOOP_ASSERT(ti, CAP <= X.capacity());
 
               testAllocator.setAllocationLimit(AL);
-              const int NUM_ALLOC_BEFORE = testAllocator.numAllocations();
-              const size_t CAPACITY      = X.capacity();
+              const Int64 NUM_ALLOC_BEFORE = testAllocator.numAllocations();
+              const size_t CAPACITY        = X.capacity();
               {
                   ExceptionGuard<Obj> guard(&mX, X, L_);
 
@@ -8512,11 +8512,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
               }
               // Note: assert mX unchanged via the exception guard destructor.
 
-              const int NUM_ALLOC_AFTER = testAllocator.numAllocations();
+              const Int64 NUM_ALLOC_AFTER = testAllocator.numAllocations();
               LOOP_ASSERT(ti, NE > CAPACITY ||
                                           NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER);
 
-              const int AL2 = testAllocator.allocationLimit();
+              const Int64 AL2 = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               stretch(&mX, NE);
@@ -8545,7 +8545,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int AL = testAllocator.allocationLimit();
+              const Int64 AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               Obj mX(Z);  const Obj& X = mX;
@@ -8557,8 +8557,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
               LOOP_ASSERT(ti, !(bool)X.size() == X.empty());
 
               testAllocator.setAllocationLimit(AL);
-              const int NUM_ALLOC_BEFORE = testAllocator.numAllocations();
-              const size_t CAPACITY      = X.capacity();
+              const Int64 NUM_ALLOC_BEFORE = testAllocator.numAllocations();
+              const size_t CAPACITY        = X.capacity();
 
               ExceptionGuard<Obj> guard(&mX, X, L_);
 
@@ -8566,7 +8566,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
 
               LOOP_ASSERT(ti, NE == X.size());
               LOOP_ASSERT(ti, NE <= X.capacity());
-              const int NUM_ALLOC_AFTER = testAllocator.numAllocations();
+              const Int64 NUM_ALLOC_AFTER = testAllocator.numAllocations();
 
               LOOP_ASSERT(ti, NE > CAPACITY ||
                                           NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER);
@@ -8575,7 +8575,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
               }
               guard.release();
 
-              const int AL2 = testAllocator.allocationLimit();
+              const Int64 AL2 = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               stretch(&mX, DELTA);
@@ -8599,7 +8599,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
                 printf("LINE = %d, ti = %d, ei = %d\n", L_, ti, ei);
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-              const int AL = testAllocator.allocationLimit();
+              const Int64 AL = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               Obj mX(Z);  const Obj& X = mX;
@@ -8609,8 +8609,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
               LOOP_ASSERT(ti, 0   == X.size());
               LOOP_ASSERT(ti, CAP <= X.capacity());
 
-              const int NUM_ALLOC_BEFORE = testAllocator.numAllocations();
-              const size_t CAPACITY      = X.capacity();
+              const Int64 NUM_ALLOC_BEFORE = testAllocator.numAllocations();
+              const size_t CAPACITY        = X.capacity();
 
               ExceptionGuard<Obj> guard(&mX, X, L_);
 
@@ -8620,7 +8620,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
 
               LOOP_ASSERT(ti, NE == X.size());
               LOOP_ASSERT(ti, NE <= X.capacity());
-              const int NUM_ALLOC_AFTER = testAllocator.numAllocations();
+              const Int64 NUM_ALLOC_AFTER = testAllocator.numAllocations();
 
               LOOP_ASSERT(ti, NE > CAPACITY ||
                                           NUM_ALLOC_BEFORE == NUM_ALLOC_AFTER);
@@ -8629,7 +8629,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase14()
               }
               guard.release();
 
-              const int AL2 = testAllocator.allocationLimit();
+              const Int64 AL2 = testAllocator.allocationLimit();
               testAllocator.setAllocationLimit(-1);
 
               stretch(&mX, DELTA);
@@ -8790,7 +8790,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13()
                     }
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                        const int AL = testAllocator.allocationLimit();
+                        const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
 
                         Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);
@@ -9149,7 +9149,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                 Obj mY(g(SPEC)); const Obj& Y = mY;  // control
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     Obj mX(INIT_LENGTH, DEFAULT_VALUE, Z);  const Obj& X = mX;
@@ -9365,14 +9365,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                     printf("using "); P(VALUE);
                 }
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
 
                 Obj mX(LENGTH, VALUE, AllocType(&testAllocator));
                 const Obj& X = mX;
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     T_; T_; P_(X); P(X.capacity());
@@ -9455,14 +9455,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                 Obj mY(g(SPEC));  const Obj& Y = mY;  // get a valid const C*
 
                 {
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     Obj mX(&Y[0], LENGTH, AllocType(&testAllocator));
                     const Obj& X = mX;
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         T_; T_; T_; P_(X); P(X.capacity());
@@ -9483,14 +9483,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                     }
                 }
                 {
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     Obj mX(&Y[0], AllocType(&testAllocator));
                     const Obj& X = mX;
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         T_; T_; T_; P_(X); P(X.capacity());
@@ -9649,14 +9649,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
 
                 Obj mY(g(SPEC));  const Obj& Y = mY;
 
-                const int BB = testAllocator.numBlocksTotal();
-                const int  B = testAllocator.numBlocksInUse();
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
 
                 Obj mX(Y, 0, LENGTH, AllocType(&testAllocator));
                 const Obj& X = mX;
 
-                const int AA = testAllocator.numBlocksTotal();
-                const int  A = testAllocator.numBlocksInUse();
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     T_; T_; P_(X); P(X.capacity());
@@ -9784,7 +9784,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
             Obj mY(g(SPEC));  const Obj& Y = mY;
 
             for (int i = 0; i < 4; ++i) {
-                const int TB = defaultAllocator_p->numBytesInUse();
+                const Int64 TB = defaultAllocator_p->numBytesInUse();
                 ASSERT(0  == globalAllocator_p->numBytesInUse());
                 ASSERT(TB == defaultAllocator_p->numBytesInUse());
                 ASSERT(0  == objectAllocator_p->numBytesInUse());
@@ -9936,14 +9936,14 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
             CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
             Obj mY(g(SPEC));     const Obj& Y = mY;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int  B = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64  B = testAllocator.numBlocksInUse();
 
             Obj mX(U.begin(), U.end(), AllocType(&testAllocator));
             const Obj& X = mX;
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int  A = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64  A = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 T_; T_; P_(X); P(X.capacity());
@@ -9987,8 +9987,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
             CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
             Obj mY(g(SPEC));        const Obj& Y = mY;
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int  B = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64  B = testAllocator.numBlocksInUse();
 
             if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
 
@@ -10011,8 +10011,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int  A = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64  A = testAllocator.numBlocksInUse();
 
             if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
 
@@ -10239,7 +10239,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                 }
 
                 LOOP_ASSERT(U_SPEC, uOldLen < (int)uLen);
-                uOldLen = uLen;
+                uOldLen = static_cast<int>(uLen);
 
                 const Obj UU = g(U_SPEC);  // control
                 LOOP_ASSERT(ui, uLen == UU.size());   // same lengths
@@ -10356,7 +10356,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                 }
 
                 LOOP_ASSERT(U_SPEC, uOldLen < (int)uLen);
-                uOldLen = uLen;
+                uOldLen = static_cast<int>(uLen);
 
                 const Obj UU = g(U_SPEC);  // control
                 LOOP_ASSERT(ui, uLen == UU.size()); // same lengths
@@ -10384,7 +10384,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
                     //--------------^
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
                     Obj mU(Z);  const Obj& U = mU;
                     stretchRemoveAll(&mU, U_N, VALUES[0]);
@@ -10458,7 +10458,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
 
             for (int tj = 0; tj < NUM_EXTEND; ++tj) {
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     const int N = EXTEND[tj];
@@ -10611,11 +10611,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase8()
             printf("\t g = "); dbg_print(g(SPEC)); printf("\n");
             printf("\tgg = "); dbg_print(X); printf("\n");
         }
-        const int TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
-        const int IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
+        const Int64 TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
+        const Int64 IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
         LOOP_ASSERT(ti, X == g(SPEC));
-        const int TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
-        const int IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
+        const Int64 TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
+        const Int64 IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
         LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
         LOOP_ASSERT(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
     }
@@ -10762,7 +10762,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
             }
 
             LOOP_ASSERT(SPEC, oldLen < (int)LENGTH); // strictly increasing
-            oldLen = LENGTH;
+            oldLen = static_cast<int>(LENGTH);
 
             // Create control object w.
             Obj mW; gg(&mW, SPEC);
@@ -10856,8 +10856,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
                         printf("\t\t\tInsert into created obj, "
                                 "with test allocator:\n");
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
@@ -10865,8 +10865,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
 
                     Obj Y11(X, AllocType(&testAllocator));
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
@@ -10888,13 +10888,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
                         const size_t oldCap   = Y11.capacity();
                         const size_t initCap = DEFAULT_CAPACITY;
 
-                        const int CC = testAllocator.numBlocksTotal();
-                        const int  C = testAllocator.numBlocksInUse();
+                        const Int64 CC = testAllocator.numBlocksTotal();
+                        const Int64  C = testAllocator.numBlocksInUse();
 
                         stretch(&Y11, 1, VALUES[i % NUM_VALUES]);
 
-                        const int DD = testAllocator.numBlocksTotal();
-                        const int  D = testAllocator.numBlocksInUse();
+                        const Int64 DD = testAllocator.numBlocksTotal();
+                        const Int64  D = testAllocator.numBlocksInUse();
 
                         if (veryVerbose) {
                             printf("\t\t\t\tBefore Append: ");  P_(DD); P(D);
@@ -10929,8 +10929,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
                 }
                 {   // Exception checking.
 
-                    const int BB = testAllocator.numBlocksTotal();
-                    const int  B = testAllocator.numBlocksInUse();
+                    const Int64 BB = testAllocator.numBlocksTotal();
+                    const Int64  B = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tBefore Creation: "); P_(BB); P(B);
@@ -10948,8 +10948,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase7()
                                      Y2.get_allocator() == X.get_allocator());
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    const int AA = testAllocator.numBlocksTotal();
-                    const int  A = testAllocator.numBlocksInUse();
+                    const Int64 AA = testAllocator.numBlocksTotal();
+                    const Int64  A = testAllocator.numBlocksInUse();
 
                     if (veryVerbose) {
                         printf("\t\t\t\tAfter Creation: "); P_(AA); P(A);
@@ -11082,16 +11082,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
             for (int ai = 0; ai < NUM_AllocType; ++ai) {
 
                 const char *const U_SPEC = SPECS[si];
-                const size_t    LENGTH = strlen(U_SPEC);
+                const int         LENGTH = static_cast<int>(strlen(U_SPEC));
 
                 Obj mU(*AllocType[ai]); const Obj& U = gg(&mU, U_SPEC);
-                LOOP2_ASSERT(si, ai, LENGTH == U.size()); // same lengths
+                LOOP2_ASSERT(si, ai, LENGTH == static_cast<int>(U.size()));
+                                                                // same lengths
 
-                if ((int)LENGTH != oldLen) {
+                if (LENGTH != oldLen) {
                     if (verbose)
-                        printf( "\tUsing lhs objects of length " ZU ".\n",
-                                LENGTH);
-                    LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);//non-decreasing
+                        printf( "\tUsing lhs objects of length %d.\n", LENGTH);
+                    LOOP_ASSERT(U_SPEC, oldLen <= LENGTH);//non-decreasing
                     oldLen = LENGTH;
                 }
 
@@ -11154,7 +11154,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6()
                         printf( "\tUsing lhs objects of length " ZU ".\n",
                                 LENGTH);
                     LOOP_ASSERT(U_SPEC, oldLen <= (int)LENGTH);
-                    oldLen = LENGTH;
+                    oldLen = static_cast<int>(LENGTH);
                 }
 
                 if (veryVerbose) { P_(si); P_(U_SPEC); P(U); }
@@ -11421,7 +11421,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
                 if ((int)LENGTH != oldLen) {
                     LOOP2_ASSERT(LINE, ai, oldLen <= (int)LENGTH);
                           // non-decreasing
-                    oldLen = LENGTH;
+                    oldLen = static_cast<int>(LENGTH);
                 }
 
                 if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
@@ -11509,7 +11509,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase4()
                 if ((int)LENGTH != oldLen) {
                     LOOP2_ASSERT(LINE, ai, oldLen <= (int)LENGTH);
                           // non-decreasing
-                    oldLen = LENGTH;
+                    oldLen = static_cast<int>(LENGTH);
                 }
 
                 if (veryVerbose) printf( "\t\tSpec = \"%s\"\n", SPEC);
@@ -11788,7 +11788,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase3()
             if ((int)LENGTH != oldLen) {
                 if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                 // LOOP_ASSERT(LINE, oldLen <= (int)LENGTH);  // non-decreasing
-                oldLen = LENGTH;
+                oldLen = static_cast<int>(LENGTH);
             }
 
             if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
@@ -11907,13 +11907,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
     if (verbose) printf("\t\tPassing in an allocator.\n");
     {
-        const int AA = testAllocator.numBlocksTotal();
-        const int A  = testAllocator.numBlocksInUse();
+        const Int64 AA = testAllocator.numBlocksTotal();
+        const Int64 A  = testAllocator.numBlocksInUse();
 
         const Obj X(Z);
 
-        const int BB = testAllocator.numBlocksTotal();
-        const int B  = testAllocator.numBlocksInUse();
+        const Int64 BB = testAllocator.numBlocksTotal();
+        const Int64 B  = testAllocator.numBlocksInUse();
 
         if (veryVerbose) { T_; T_; P(X); }
         ASSERT(0 == X.size());
@@ -11996,8 +11996,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tBEFORE: ");
@@ -12006,8 +12006,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
             mX.push_back(VALUES[li % NUM_VALUES]);
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\t AFTER: ");
@@ -12089,18 +12089,19 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int BB = testAllocator.numBlocksTotal();
-            const int B  = testAllocator.numBlocksInUse();
+            const Int64 BB = testAllocator.numBlocksTotal();
+            const Int64 B  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tBEFORE: ");
-                P_(BB); P_(B); int Cap = X.capacity();P_(Cap);P(X);
+                P_(BB); P_(B);
+                typename Obj::size_type Cap = X.capacity();P_(Cap);P(X);
             }
 
             mX.clear();
 
-            const int AA = testAllocator.numBlocksTotal();
-            const int A  = testAllocator.numBlocksInUse();
+            const Int64 AA = testAllocator.numBlocksTotal();
+            const Int64 A  = testAllocator.numBlocksInUse();
 
             if (veryVerbose) {
                 printf("\t\t\tAFTER: ");
@@ -12113,8 +12114,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase2()
 
             LOOP_ASSERT(li, li == X.size());
 
-            const int CC = testAllocator.numBlocksTotal();
-            const int C  = testAllocator.numBlocksInUse();
+            const Int64 CC = testAllocator.numBlocksTotal();
+            const Int64 C  = testAllocator.numBlocksInUse();
 
             if(veryVerbose){
                 printf("\t\t\tAFTER SECOND INSERT: ");
@@ -12290,7 +12291,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase1()
     ASSERT(0 == X1.size());
 
     if(veryVerbose){
-        int capacity = X1.capacity();
+        typename Obj::size_type capacity = X1.capacity();
         T_; T_;
         P(capacity);
     }
@@ -15143,7 +15144,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -1,12 +1,19 @@
 // bslalg_selecttrait.t.cpp                                           -*-C++-*-
-
 #include <bslalg_selecttrait.h>
 
-#include <bslalg_typetraitbitwisemoveable.h>
-#include <bslalg_typetraits.h>
-#include <bslalg_typetraitusesbslmaallocator.h>
+#include <bslalg_typetraitbitwisecopyable.h>               // for testing only
+#include <bslalg_typetraitbitwiseequalitycomparable.h>     // for testing only
+#include <bslalg_typetraitbitwisemoveable.h>               // for testing only
+#include <bslalg_typetraithasstliterators.h>               // for testing only
+#include <bslalg_typetraithastrivialdefaultconstructor.h>  // for testing only
+#include <bslalg_typetraitpair.h>                          // for testing only
+#include <bslalg_typetraitusesbslmaallocator.h>            // for testing only
 
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_platform.h>
 
@@ -22,7 +29,7 @@ using namespace std;
 //                             Overview
 //                             --------
 // There is a very good infrastructure for testing, computing the traits of a
-// type as a bit-field from the test driver of 'bslalg_TypeTraits', which can
+// type as a bit-field from the test driver of 'bslalg_typetraits', which can
 // be reused systematically.
 //
 // 'bslalg::SelectTrait' is used to select a particular trait from a list of
@@ -170,19 +177,20 @@ struct my_NilTraitClass {
 };
 
 struct my_BitwiseMoveableClass {
-    BSLALG_DECLARE_NESTED_TRAITS(my_BitwiseMoveableClass,
-                                 bslalg::TypeTraitBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_BitwiseMoveableClass,
+                                   bslmf::IsBitwiseMoveable);
 };
 
 struct my_UsesBslmaAllocatorClass {
-    BSLALG_DECLARE_NESTED_TRAITS(my_UsesBslmaAllocatorClass,
-                                 bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_UsesBslmaAllocatorClass,
+                                   bslma::UsesBslmaAllocator);
 };
 
 struct my_BothTraitsClass {
-    BSLALG_DECLARE_NESTED_TRAITS2(my_BothTraitsClass,
-                                  bslalg::TypeTraitBitwiseMoveable,
-                                  bslalg::TypeTraitUsesBslmaAllocator);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_BothTraitsClass,
+                                   bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(my_BothTraitsClass,
+                                   bslma::UsesBslmaAllocator);
 };
 
 //=============================================================================
@@ -338,7 +346,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

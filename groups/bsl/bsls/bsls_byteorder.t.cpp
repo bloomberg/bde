@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 
 // For example, to use the little-endian / big-endian to host-endian macros:
 //..
-    short x = 0xabcd;
+    short x = static_cast<short>(0xabcd);
     int   y = 0xabcdef12;
     Int64 z = 0xabcdef1234567890LL;
 
@@ -242,28 +242,28 @@ int main(int argc, char *argv[])
             "namespace BloombergLP" << std::endl;
 
         // Input values
-        const short INPUT16 = 0xabcd;
+        const short INPUT16 = static_cast<short>(0xabcd);
         const int   INPUT32 = 0xabcdef12;
         const Int64 INPUT64 = 0xabcdef1234567890LL;
 
 #if BSLS_PLATFORM_IS_BIG_ENDIAN
         // Big Endian to host expected results
-        const short BEEXP16 = 0xabcd;
+        const short BEEXP16 = static_cast<short>(0xabcd);
         const int   BEEXP32 = 0xabcdef12;
         const Int64 BEEXP64 = 0xabcdef1234567890LL;
 
         // Little Endian to host expected results
-        const short LEEXP16 = 0xcdab;
+        const short LEEXP16 = static_cast<short>(0xcdab);
         const int   LEEXP32 = 0x12efcdab;
         const Int64 LEEXP64 = 0x9078563412efcdabLL;
 #else
         // Big Endian to host expected results
-        const short BEEXP16 = 0xcdab;
+        const short BEEXP16 = static_cast<short>(0xcdab);
         const int   BEEXP32 = 0x12efcdab;
         const Int64 BEEXP64 = 0x9078563412efcdabLL;
 
         // Little Endian to host expected results
-        const short LEEXP16 = 0xabcd;
+        const short LEEXP16 = static_cast<short>(0xabcd);
         const int   LEEXP32 = 0xabcdef12;
         const Int64 LEEXP64 = 0xabcdef1234567890LL;
 #endif
@@ -1015,7 +1015,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

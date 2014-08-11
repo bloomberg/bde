@@ -20,8 +20,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // all templates in a non-templated utility class), the 'swap' methods is
 // implemented below since its definition does not care about the value type.
 
-#include <bslstl_iterator.h>   // for testing only
 #include <bsls_assert.h>
+
+#include <bslstl_forwarditerator.h>   // for testing only
+#include <bslstl_iterator.h>          // for testing only
+#include <bslstl_list.h>              // for testing only
 
 namespace bsl {
 
@@ -143,7 +146,7 @@ template class bsl::vector<void *>;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

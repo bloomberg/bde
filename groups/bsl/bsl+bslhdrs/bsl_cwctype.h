@@ -28,16 +28,11 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::wctype_t;
-    using native_std::wint_t;
-    using native_std::wctrans_t;
-    using native_std::towctrans;
-    using native_std::wctrans;
-    using native_std::wctype;
-    using native_std::iswctype;
+
     using native_std::iswalnum;
     using native_std::iswalpha;
     using native_std::iswcntrl;
+    using native_std::iswctype;
     using native_std::iswdigit;
     using native_std::iswgraph;
     using native_std::iswlower;
@@ -46,14 +41,20 @@ namespace bsl
     using native_std::iswspace;
     using native_std::iswupper;
     using native_std::iswxdigit;
+    using native_std::towctrans;
     using native_std::towlower;
     using native_std::towupper;
+    using native_std::wctrans;
+    using native_std::wctrans_t;
+    using native_std::wctype;
+    using native_std::wctype_t;
+    using native_std::wint_t;
 }
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

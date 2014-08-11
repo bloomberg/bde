@@ -39,13 +39,13 @@ BSLS_IDENT("$Id: $")
 ///-----------------
 // The type supplied as 'ALLOCATOR' template parameter in some of 'queue'
 // constructors determines how the held container (of parameterized
-// 'CONTAINER') will allocate memory.  A 'queue' supports
-// allocators meeting the requirements of the C++11 standard [17.6.3.5] as long
-// as the held container does.  In addition it supports scoped-allocators
-// derived from the 'bslma_Allocator' memory allocation protocol.  Clients
-// intending to use 'bslma' style allocators should use 'bsl::allocator' as the
-// 'ALLOCATOR' template parameter, providing a C++11 standard-compatible
-// adapter for a 'bslma_Allocator' object.
+// 'CONTAINER') will allocate memory.  A 'queue' supports allocators meeting
+// the requirements of the C++11 standard [17.6.3.5] as long as the held
+// container does.  In addition it supports scoped-allocators derived from the
+// 'bslma_Allocator' memory allocation protocol.  Clients intending to use
+// 'bslma' style allocators should use 'bsl::allocator' as the 'ALLOCATOR'
+// template parameter, providing a C++11 standard-compatible adapter for a
+// 'bslma_Allocator' object.
 //
 ///Operations
 ///----------
@@ -171,6 +171,10 @@ BSLS_IDENT("$Id: $")
 // the same order in which they were pushed, due to the first-in-first-out
 // property of the queue.
 
+#ifndef INCLUDED_BSLSCM_VERSION
+#include <bslscm_version.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
 #endif
@@ -284,42 +288,43 @@ class queue
 
     template <class ALLOCATOR>
     explicit
-    queue(const ALLOCATOR& allocator,
+    queue(const ALLOCATOR& basicAllocator,
           typename enable_if<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty queue that holds a default-constructed container
         // of the parameterized 'CONTAINER' type, and will use the specified
-        // 'allocator' to supply memory.  Note that the 'ALLOCATOR' parameter
-        // type has to be convertible to the allocator of the 'CONTAINER'
-        // parameter type, 'CONTAINER::allocator_type'.  Otherwise this
-        // constructor is disabled.
+        // 'basicAllocator' to supply memory.  Note that the 'ALLOCATOR'
+        // parameter type has to be convertible to the allocator of the
+        // 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.  Otherwise
+        // this constructor is disabled.
 
     template <class ALLOCATOR>
     queue(const CONTAINER& container,
-          const ALLOCATOR& allocator,
+          const ALLOCATOR& basicAllocator,
           typename enable_if<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct an empty queue that holds the specified 'container', and
-        // will use the specified 'allocator' to supply memory.  Note that the
-        // 'ALLOCATOR' parameter type has to be convertible to the allocator of
-        // the 'CONTAINER' parameter type, 'CONTAINER::allocator_type'.
-        // Otherwise this constructor is disabled.
+        // will use the specified 'basicAllocator' to supply memory.  Note that
+        // the 'ALLOCATOR' parameter type has to be convertible to the
+        // allocator of the 'CONTAINER' parameter type,
+        // 'CONTAINER::allocator_type'.  Otherwise this constructor is
+        // disabled.
 
     template <class ALLOCATOR>
     queue(const queue& original,
-          const ALLOCATOR& allocator,
+          const ALLOCATOR& basicAllocator,
           typename enable_if<
               BloombergLP::bslstl::Queue_HasAllocatorType<
                            CONTAINER,
                            ALLOCATOR>::VALUE>::type * = 0);
         // Construct a queue having the same value as that of the specified
-        // 'original' that will use the specified 'allocator' to supply memory.
-        // Note that the 'ALLOCATOR' parameter type has to be convertible to
-        // the allocator of the 'CONTAINER' parameter type,
+        // 'original' that will use the specified 'basicAllocator' to supply
+        // memory.  Note that the 'ALLOCATOR' parameter type has to be
+        // convertible to the allocator of the 'CONTAINER' parameter type,
         // 'CONTAINER::allocator_type'.  Otherwise this constructor is
         // disabled.
 
@@ -428,9 +433,9 @@ void swap(queue<VALUE, CONTAINER>& lhs,
     // Swap the value of the specified 'lhs' queue with the value of the
     // specified 'rhs' queue.
 
-// ==========================================================================
+// ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
                               // -----------
                               // class queue
@@ -460,12 +465,12 @@ queue<VALUE, CONTAINER>::queue(const queue& original)
 template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE, CONTAINER>::queue(const ALLOCATOR& allocator,
+queue<VALUE, CONTAINER>::queue(const ALLOCATOR& basicAllocator,
                                typename enable_if<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
-: c(allocator)
+: c(basicAllocator)
 {
 }
 
@@ -473,12 +478,12 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const CONTAINER& container,
-                               const ALLOCATOR& allocator,
+                               const ALLOCATOR& basicAllocator,
                                typename enable_if<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
-: c(container, allocator)
+: c(container, basicAllocator)
 {
 }
 
@@ -486,12 +491,12 @@ template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
 queue<VALUE, CONTAINER>::queue(const queue&     queue,
-                               const ALLOCATOR& allocator,
+                               const ALLOCATOR& basicAllocator,
                                typename enable_if<
                                    BloombergLP::bslstl::Queue_HasAllocatorType<
                                                     CONTAINER,
                                                     ALLOCATOR>::VALUE>::type *)
-: c(queue.c, allocator)
+: c(queue.c, basicAllocator)
 {
 }
 
@@ -627,7 +632,7 @@ void swap(queue<VALUE, CONTAINER>& lhs,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

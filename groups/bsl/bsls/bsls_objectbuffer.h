@@ -157,7 +157,9 @@ BSLS_IDENT("$Id: $")
 //
 //      int asInt() const {
 //          return INT == d_type ?
-//              d_int : strtol(d_string.object().c_str(), 0, 0); }
+//                          d_int : static_cast<int>(
+//                                    strtol(d_string.object().c_str(), 0, 0));
+//  }
 //
 //      my_String asString() const {
 //          if (INT == d_type) {
@@ -338,7 +340,7 @@ const char *ObjectBuffer<TYPE>::buffer() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

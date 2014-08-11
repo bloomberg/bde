@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
 
         // Then, we record the number of outstanding blocks in the allocator:
 
-        const int N = ta.numBlocksInUse();
+        const bsls::Types::Int64 N = ta.numBlocksInUse();
 
         // Next, we enter an 'exception test' block, which will repetetively
         // enter a block of code, catching exceptions throw by the test
@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

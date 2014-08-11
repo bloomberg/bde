@@ -145,7 +145,7 @@ static int veryVerbose = 0;
     class my_String {
         // Simple string class that uses a 'bslma::Allocator' allocator.
 
-        bslma::Allocator *d_allocator;
+        bslma::Allocator *d_allocator_p;
         char             *d_data;
 
       public:
@@ -214,33 +214,33 @@ static int veryVerbose = 0;
     }
 
     my_String::my_String(bslma::Allocator *alloc)
-    : d_allocator(bslma::Default::allocator(alloc)), d_data(0)
+    : d_allocator_p(bslma::Default::allocator(alloc)), d_data(0)
     {
-        d_data = myStrDup("", d_allocator);
+        d_data = myStrDup("", d_allocator_p);
     }
 
     my_String::my_String(const char *s, bslma::Allocator *alloc)
-    : d_allocator(bslma::Default::allocator(alloc)), d_data(0)
+    : d_allocator_p(bslma::Default::allocator(alloc)), d_data(0)
     {
-        d_data = myStrDup(s, d_allocator);
+        d_data = myStrDup(s, d_allocator_p);
     }
 
     my_String::my_String(const my_String& rhs, bslma::Allocator *alloc)
-    : d_allocator(bslma::Default::allocator(alloc)), d_data(0)
+    : d_allocator_p(bslma::Default::allocator(alloc)), d_data(0)
     {
-        d_data = myStrDup(rhs.d_data, d_allocator);
+        d_data = myStrDup(rhs.d_data, d_allocator_p);
     }
 
     my_String::~my_String()
     {
-        d_allocator->deallocate(d_data);
+        d_allocator_p->deallocate(d_data);
     }
 
     my_String& my_String::operator=(const my_String& rhs)
     {
         if (this != &rhs) {
-            d_allocator->deallocate(d_data);
-            d_data = myStrDup(rhs.d_data, d_allocator);
+            d_allocator_p->deallocate(d_data);
+            d_data = myStrDup(rhs.d_data, d_allocator_p);
         }
         return *this;
     }
@@ -252,7 +252,7 @@ static int veryVerbose = 0;
 
     bslma::Allocator *my_String::allocator() const
     {
-        return d_allocator;
+        return d_allocator_p;
     }
 //..
 // Our main program creates a mapping from strings to integers.  Each node of
@@ -1754,7 +1754,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
         int counter = 0;
 
         {
-            int numBytesUsed = 0;
+            bsls::Types::Int64 numBytesUsed = 0;
 
             // Initialize the list with some objects
             my_List<my_Class> list(&z);
@@ -806,7 +806,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

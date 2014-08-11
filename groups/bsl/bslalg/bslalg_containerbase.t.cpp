@@ -1,7 +1,6 @@
 // bslalg_containerbase.t.cpp                                         -*-C++-*-
-
 #include <bslalg_containerbase.h>
-#include <bslalg_typetraits.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
@@ -643,7 +642,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

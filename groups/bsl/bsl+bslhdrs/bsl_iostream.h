@@ -19,19 +19,42 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSL_IOS
+#include <bsl_ios.h>
+#endif
+
+#ifndef INCLUDED_BSL_ISTREAM
+#include <bsl_istream.h>
+#endif
+
+#ifndef INCLUDED_BSL_OSTREAM
+#include <bsl_ostream.h>
+#endif
+
+#ifndef INCLUDED_BSL_STREAMBUF
+#include <bsl_streambuf.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
-
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
 
 #include <iostream>
 
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+
+    using native_std::cerr;
+    using native_std::cin;
+    using native_std::clog;
+    using native_std::cout;
+    using native_std::wcerr;
+    using native_std::wcin;
+    using native_std::wclog;
+    using native_std::wcout;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
@@ -39,10 +62,6 @@ namespace bsl
     using native_std::basic_ostream;
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
-    using native_std::cerr;
-    using native_std::cin;
-    using native_std::clog;
-    using native_std::cout;
     using native_std::ctype;
     using native_std::ctype_base;
     using native_std::ctype_byname;
@@ -74,17 +93,14 @@ namespace bsl
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
-    using native_std::wcerr;
-    using native_std::wcin;
-    using native_std::wclog;
-    using native_std::wcout;
     using native_std::ws;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -142,21 +142,21 @@ void my_CountingAllocator::deallocate(void *address)
 
 class my_Container
 {
-    bslma::Allocator *d_allocator;
-    int             *d_intArray;
+    bslma::Allocator *d_allocator_p;
+    int              *d_intArray;
   public:
     my_Container(bslma::Allocator* alloc = 0);
 
     // Containers don't typically have a function to return their
     // allocators, but this is useful for exposition:
-    bslma::Allocator *allocator() const { return d_allocator; }
+    bslma::Allocator *allocator() const { return d_allocator_p; }
 };
 
 // Constructor
 my_Container::my_Container(bslma::Allocator* alloc)
-: d_allocator(bslma::Default::allocator(alloc))
+: d_allocator_p(bslma::Default::allocator(alloc))
 {
-    d_intArray = (int*) d_allocator->allocate(10 * sizeof(int));
+    d_intArray = (int*) d_allocator_p->allocate(10 * sizeof(int));
 }
 
 //=============================================================================
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

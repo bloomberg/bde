@@ -1,6 +1,8 @@
 // bslstl_sharedptr.t.cpp                                             -*-C++-*-
 #include <bslstl_sharedptr.h>
 
+#include <bslalg_hastrait.h>
+#include <bslalg_typetraitusesbslmaallocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_managedptr.h>
 #include <bslma_newdeleteallocator.h>
@@ -538,7 +540,8 @@ namespace NAMESPACE_USAGE_EXAMPLE_2 {
 // The 'systemUser' class method returns the same 'MyUser' object and should
 // not be destroyed by its users:
 //..
-    MyUser *MyTransactionManager::systemUser(bslma::Allocator *basicAllocator)
+    MyUser *MyTransactionManager::systemUser(
+                                        bslma::Allocator* /* basicAllocator */)
     {
         static MyUser *systemUserSingleton;
         if (!systemUserSingleton) {
@@ -1196,9 +1199,9 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
 //..
     ;
 
-    void search(bsl::vector<SearchResult>       *results,
+    void search(bsl::vector<SearchResult>       */* results */,
                 const PeerCache&                 peerCache,
-                const bsl::vector<bsl::string>&  keywords)
+                const bsl::vector<bsl::string>&  /* keywords */)
     {
         for (PeerCache::PeerConstIter iter = peerCache.begin();
              iter != peerCache.end();
@@ -1812,7 +1815,7 @@ MyTestObjectFactory::MyTestObjectFactory()
 {
 }
 
-MyTestObjectFactory::MyTestObjectFactory(bslma::Allocator *basicAllocator)
+MyTestObjectFactory::MyTestObjectFactory(bslma::Allocator* /*basicAllocator*/)
 : d_allocator_p(bslma::Default::allocator(d_allocator_p))
 {
 }
@@ -2706,6 +2709,7 @@ int main(int argc, char *argv[])
           {
               const bsl::hash<Obj> hashX = {};
               bsl::hash<Obj> hashY = hashX;
+              (void) hashY;  // Suppress 'unused variable' warning
 
               Obj x;
               const bsl::size_t hashValueNull = bsl::hash<Obj>()(x);
@@ -3567,6 +3571,7 @@ int main(int argc, char *argv[])
           MyTestObject *PTR = REP.ptr();
           {
               ObjWP mY; const ObjWP& Y = mY;
+              (void) Y;  // Suppress 'unused variable' warning
               {
                   ObjSP mS(PTR, &rep); const ObjSP& S = mS;
                   LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
@@ -3577,6 +3582,7 @@ int main(int argc, char *argv[])
 
                   {
                       ObjWP mX(S); const ObjWP& X = mX;
+                      (void) X;  // Suppress 'unused variable' warning
                       LOOP_ASSERT(REP.numReferences(),
                                                    1 == REP.numReferences());
                       LOOP_ASSERT(REP.disposeRepCount(),
@@ -4016,7 +4022,6 @@ int main(int argc, char *argv[])
             bslma::Allocator     *da = bslma::Default::allocator();
             bslma::TestAllocator *t  = 0;
             int *x                  = new(*da) int(0);
-            int count               = 0;
 
             typedef bslma::SharedPtrOutofplaceRep<int, bslma::TestAllocator *>
                                                                 RepTypeForTest;
@@ -4189,7 +4194,6 @@ int main(int argc, char *argv[])
         {
             typedef bsl::vector<MyTestObject2> V;
             bslma::TestAllocator ta(veryVeryVerbose);
-            bsls::Types::Int64 numDeletes1 = 0;
             V *v1 = new (ta) V(&ta);
             bsl::shared_ptr<V> x1(v1,&ta);
             v1->resize(2);
@@ -4933,7 +4937,8 @@ int main(int argc, char *argv[])
                               0 == alignmentOffset);
 
                 void* repAddr = ta.lastAllocatedAddress();
-                int repAllocSize = ta.lastAllocatedNumBytes();
+                bslma::TestAllocator::size_type repAllocSize =
+                                                    ta.lastAllocatedNumBytes();
                 LOOP4_ASSERT(repAddr, repAllocSize, (void*) X.ptr(), size,
                              (char*) repAddr + repAllocSize >= X.ptr() + size);
 
@@ -6441,6 +6446,7 @@ int main(int argc, char *argv[])
             ASSERT(numAllocations == ta.numAllocations());
 
             Obj y2(makeAuto(), &ta); const Obj& Y2 = y2;
+            (void) Y2;  // Suppress 'unused variable' warning
             ASSERT(0 == Y.ptr());
             ASSERT(0 == Y.numReferences());
             ASSERT(numAllocations == ta.numAllocations());
@@ -7024,6 +7030,7 @@ int main(int argc, char *argv[])
 
             Obj x1(obj); const Obj& X1=x1;
             Obj x2; const Obj& X2=x2;
+            (void) X2;  // Suppress 'unused variable' warning
             ASSERT(0 == numDeletes);
             ASSERT(obj == X1.ptr());
             ASSERT(obj == X1.get());
@@ -7076,6 +7083,7 @@ int main(int argc, char *argv[])
 
             Obj x1(p, &myTestDeleterFunction, (bslma::Allocator *)0);
             const Obj &X1 = x1;
+            (void) X1;  // Suppress 'unused variable' warning.
 
         }
         ASSERT(1 == numDeletes);
@@ -7211,7 +7219,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

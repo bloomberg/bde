@@ -28,25 +28,35 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::new_handler;
+
+    // These are declared in bslstl_iosfwd.h (so cannot be using declarations):
+    //..
+    //  using native_std::allocator;
+    //..
+
     using native_std::advance;
     using native_std::auto_ptr;
+    using native_std::get_temporary_buffer;
+    using native_std::raw_storage_iterator;
+    using native_std::return_temporary_buffer;
+    using native_std::uninitialized_copy;
+    using native_std::uninitialized_fill;
+    using native_std::uninitialized_fill_n;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     using native_std::bad_alloc;
     using native_std::bidirectional_iterator_tag;
     using native_std::forward_iterator_tag;
-    using native_std::get_temporary_buffer;
     using native_std::input_iterator_tag;
     using native_std::iterator;
+    using native_std::new_handler;
     using native_std::nothrow;
     using native_std::nothrow_t;
     using native_std::output_iterator_tag;
     using native_std::random_access_iterator_tag;
-    using native_std::raw_storage_iterator;
-    using native_std::return_temporary_buffer;
     using native_std::set_new_handler;
-    using native_std::uninitialized_copy;
-    using native_std::uninitialized_fill;
-    using native_std::uninitialized_fill_n;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
 }
 
 // Include Bloomberg's implementation, unless compilation is configured to
@@ -63,7 +73,7 @@ namespace bsl
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

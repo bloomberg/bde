@@ -1,6 +1,7 @@
 // bslmf_isbitwisemoveable.t.cpp                                      -*-C++-*-
-
 #include <bslmf_isbitwisemoveable.h>
+
+#include <bslmf_nestedtraitdeclaration.h>    // for testing only
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -375,7 +376,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //..
 // Fourth, we define 'MoveableTemplate3', which is bit-wise moveable iff its
 // 'TYPE' template parameter is bit-wise moveable.  There is no way to get
-// this effect using 'BSLMF_NESTED_TRAITS_DECLARATION', so we use partial
+// this effect using 'BSLMF_NESTED_TRAIT_DECLARATION', so we use partial
 // specialization combined with inheritance to "inherit" the trait from
 // 'TYPE':
 //..
@@ -539,7 +540,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

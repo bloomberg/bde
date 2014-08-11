@@ -10,6 +10,8 @@ bsls_asserttest
 bsls_asserttestexception
 bsls_atomic
 bsls_atomicoperations
+bsls_atomicoperations_all_all_gccintrinsics
+bsls_atomicoperations_arm_all_gcc
 bsls_atomicoperations_default
 bsls_atomicoperations_ia64_hp_acc
 bsls_atomicoperations_powerpc32_aix_xlc
@@ -24,6 +26,7 @@ bsls_atomicoperations_x64_win_msvc
 bsls_atomicoperations_x86_all_gcc
 bsls_atomicoperations_x86_win_msvc
 bsls_blockgrowth
+bsls_bslexceptionutil
 bsls_bsllock
 bsls_bsltestutil
 bsls_buildtarget
@@ -32,6 +35,7 @@ bsls_compilerfeatures
 bsls_exceptionutil
 bsls_ident
 bsls_int64
+bsls_linkcoercion
 bsls_macroincrement
 bsls_macrorepeat
 bsls_nativestd

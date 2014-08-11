@@ -363,7 +363,7 @@ class CleanupGuard {
     const char  *d_spec_p;
     TYPE       **d_endPtr_p;
     TYPE        *d_initialEndPtr_p;
-    int          d_length;
+    size_t       d_length;
 
   public:
     // CREATORS
@@ -378,7 +378,7 @@ class CleanupGuard {
 
     ~CleanupGuard()
     {
-        for (int i = 0; d_spec_p[i] && i < d_length; ++i) {
+        for (int i = 0; d_spec_p[i] && i < static_cast<int>(d_length); ++i) {
             char c = d_spec_p[i];
             if (isalpha(c)) {
                 if (d_endPtr_p && *d_endPtr_p - d_array_p <= i &&
@@ -394,7 +394,7 @@ class CleanupGuard {
     }
 
     // MANIPULATORS
-    void setLength(int length)
+    void setLength(size_t length)
     {
         d_length = length;
     }
@@ -448,7 +448,7 @@ void fillWithJunk(void *buf, int size)
     char *p = reinterpret_cast<char*>(buf);
 
     for (int i = 0; i < size; ++i) {
-        p[i] = (i % MAX_VALUE) + 1;
+        p[i] = static_cast<char>((i % MAX_VALUE) + 1);
     }
 }
 
@@ -571,7 +571,7 @@ const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
 template <typename TYPE>
 void testDestroy(bool bitwiseCopyableFlag)
 {
-    const int MAX_SIZE = 16;
+    const size_t MAX_SIZE = 16;
     static union {
         char                                d_raw[MAX_SIZE * sizeof(T)];
         bsls::AlignmentUtil::MaxAlignedType d_align;
@@ -584,7 +584,7 @@ void testDestroy(bool bitwiseCopyableFlag)
         const int         BEGIN = DATA_2[ti].d_begin;
         const int         NE    = DATA_2[ti].d_ne;
         const char *const EXP   = DATA_2[ti].d_expected;
-        const int         SIZE  = strlen(SPEC);
+        const size_t      SIZE  = strlen(SPEC);
         ASSERT(SIZE <= MAX_SIZE);
 
         if (veryVerbose) {
@@ -848,7 +848,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

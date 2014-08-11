@@ -329,7 +329,7 @@ void debugprint(const bsl::multiset<KEY, COMP, ALLOC>& s)
 
 namespace {
 
-bool expectToAllocate(int n)
+bool expectToAllocate(size_t n)
     // Return 'true' if the container is expected to allocate memory on the
     // specified 'n'th element, and 'false' otherwise.
 {
@@ -361,7 +361,7 @@ int verifyContainer(const CONTAINER&  container,
 
         if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[i])
             != bsltf::TemplateTestFacility::getIdentifier(*it)) {
-            return i + 1;                                             // RETURN
+            return static_cast<int>(i + 1);                           // RETURN
         }
         ++it;
     }
@@ -2147,7 +2147,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase18()
                 for(size_t i = 0; i < tk; ++i) {
                     ++LAST;
                 }
-                const int NUM_ELEMENTS = tk - tj;
+                const size_t NUM_ELEMENTS = tk - tj;
 
                 CIter AFTER  = LAST;
                 CIter BEFORE = FIRST;
@@ -2935,19 +2935,19 @@ void TestDriver<KEY, COMP, ALLOC>::testCase14()
 
             if (verbose) { P_(LINE); P(SPEC); }
 
-            int i = LENGTH - 1;
+            int i = static_cast<int>(LENGTH) - 1;
             for (RIter riter = mX.rbegin(); riter != mX.rend(); ++riter, --i) {
                 ASSERTV(LINE, VALUES[i] == *riter);
             }
             ASSERTV(LINE, -1 == i);
 
-            i = LENGTH - 1;
+            i = static_cast<int>(LENGTH) - 1;
             for (CRIter riter = X.rbegin(); riter != X.rend(); ++riter, --i) {
                 ASSERTV(LINE, VALUES[i] == *riter);
             }
             ASSERTV(LINE, -1 == i);
 
-            i = LENGTH - 1;
+            i = static_cast<int>(LENGTH) - 1;
             for (CRIter riter = mX.crbegin(); riter != mX.crend();
                                                                 ++riter, --i) {
                 ASSERTV(LINE, VALUES[i] == *riter);
@@ -4662,7 +4662,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
                     ASSERTV(SPEC,  B + 0 ==  A);
                 }
                 else {
-                    const int TYPE_ALLOCS = TYPE_ALLOC * X.size();
+                    const int TYPE_ALLOCS = TYPE_ALLOC
+                                            * static_cast<int>(X.size());
                     ASSERTV(SPEC, BB + 1 + TYPE_ALLOCS == AA);
                     ASSERTV(SPEC,  B + 1 + TYPE_ALLOCS ==  A);
                 }
@@ -4722,7 +4723,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
                 }
                 else {
                     const int TYPE_ALLOCS = TYPE_ALLOC *
-                        (LENGTH + LENGTH * (1 + LENGTH) / 2);
+                        static_cast<int>(LENGTH + LENGTH * (1 + LENGTH) / 2);
                     ASSERTV(SPEC, BB, AA, BB + 1 + TYPE_ALLOCS == AA);
                     ASSERTV(SPEC, B + 0 == A);
                 }
@@ -4988,7 +4989,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
-            const int         LENGTH = strlen(DATA[ti].d_results);
+            const size_t      LENGTH = strlen(DATA[ti].d_results);
             const TestValues  EXP(DATA[ti].d_results);
 
             if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
@@ -5042,9 +5043,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 ASSERTV(LINE, SPEC, CONFIG, &oa == X.get_allocator());
-                ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
+                ASSERTV(LINE, SPEC, CONFIG, LENGTH == X.size());
 
-                int i = 0;
+                size_t i = 0;
                 for (CIter iter = X.cbegin(); iter != X.cend(); ++iter, ++i) {
                     ASSERTV(LINE, SPEC, CONFIG, EXP[i] == *iter);
                 }
@@ -5225,7 +5226,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase3()
             if ((int)LENGTH != oldLen) {
                 if (verbose) printf("\tof length " ZU ":\n", LENGTH);
                  ASSERTV(LINE, oldLen <= (int)LENGTH);  // non-decreasing
-                oldLen = LENGTH;
+                oldLen = static_cast<int>(LENGTH);
             }
 
             if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
@@ -5823,7 +5824,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
             x.insert(value);
         }
 
-        int totalRemoved = 0;
+        size_t totalRemoved = 0;
         for (size_t i = 0; i < numValues; ++i) {
             size_t count = bsl::distance(X.lower_bound(testKeys[i]),
                                          X.upper_bound(testKeys[i]));
@@ -5859,7 +5860,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
                 KEY max = *b;
                 ASSERTV(!comparator(max, min)); // min <= max
 
-                int numElements = bsl::distance(a, b);
+                typename Obj::difference_type numElements =
+                                                           bsl::distance(a, b);
                 iterator endPoint = x.erase(a, b);
 
                 ASSERTV(numValues - numElements == X.size());
@@ -5889,7 +5891,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
             const_iterator a = X.find(testKeys[i]);
             const_iterator b = X.end();
-            int numElements = bsl::distance(a, b);
+            typename Obj::difference_type numElements = bsl::distance(a, b);
             iterator endPoint = x.erase(a, b);
 
             ASSERTV(numValues - numElements - 1 == X.size());
@@ -5914,7 +5916,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
             for (size_t length = 0; length <= numValues - i; ++length) {
                 Obj x(comparator, &objectAllocator); const Obj& X = x;
                 for (size_t k = 0; k < length; ++k) {
-                    int index = i + k;
+                    size_t index = i + k;
                     x.insert(myValues[index]);
                 }
                 Obj y(comparator, &objectAllocator); const Obj& Y = y;
@@ -5999,8 +6001,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
                     Obj x(comparator, &objectAllocator); const Obj& X = x;
                     Obj y(comparator, &objectAllocator); const Obj& Y = y;
                     for (size_t k = 0; k < j; ++k) {
-                        int xIndex = (i + length) % numValues;
-                        int yIndex = (j + length) % numValues;
+                        size_t xIndex = (i + length) % numValues;
+                        size_t yIndex = (j + length) % numValues;
 
                         Value xValue(testKeys[xIndex]);
                         x.insert(xValue);
@@ -6742,7 +6744,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

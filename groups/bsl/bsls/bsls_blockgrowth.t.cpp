@@ -235,19 +235,20 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting enumerator value and 'toAscii'."
                           << endl;
 
+        int invalidEnumValues[] = { 2, -1, 10 };
         static const struct {
             int         d_line;   // line number
             Enum        d_enum;   // enumerator
             const char *d_ascii;  // ascii representation
             int         d_value;  // expected value
         } DATA[] = {
-           // LINE    ENUMERATOR              ASCII              VALUE
-           // ----    ----------              -----              -----
-            { L_,     Class::BSLS_GEOMETRIC,  "GEOMETRIC",        0  },
-            { L_,     Class::BSLS_CONSTANT,   "CONSTANT",         1  },
-            { L_,     (Enum) 2,               "(* UNKNOWN *)",   -1  },
-            { L_,     (Enum) -1,              "(* UNKNOWN *)",   -1  },
-            { L_,     (Enum) 10,              "(* UNKNOWN *)",   -1  },
+           // LINE    ENUMERATOR                  ASCII              VALUE
+           // ----    ----------                  -----              -----
+            { L_,     Class::BSLS_GEOMETRIC,      "GEOMETRIC",        0  },
+            { L_,     Class::BSLS_CONSTANT,       "CONSTANT",         1  },
+            { L_,     (Enum)invalidEnumValues[0], "(* UNKNOWN *)",   -1  },
+            { L_,     (Enum)invalidEnumValues[1], "(* UNKNOWN *)",   -1  },
+            { L_,     (Enum)invalidEnumValues[2], "(* UNKNOWN *)",   -1  },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -283,7 +284,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

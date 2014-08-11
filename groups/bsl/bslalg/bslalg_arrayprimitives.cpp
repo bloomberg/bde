@@ -6,8 +6,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 // IMPLEMENTATION NOTE: cases where 'value == 0' are common enough that it is
 // worth avoiding the overhead of the generic bit-wise copyable implementation
-// (exponential memcopy, see 'bitwiseFillN' below).  Same note applies for
-// other fundamental types below, except that cases in which using memset is
+// (exponential 'memcpy', see 'bitwiseFillN' below).  Same note applies for
+// other fundamental types below, except that cases in which using 'memset' is
 // possible are limited (mostly 0 for fundamental types, -1 for integral
 // types).
 //
@@ -124,6 +124,213 @@ namespace BloombergLP {
 namespace bslalg {
 
 // CLASS METHODS
+void ArrayPrimitives_Imp::uninitializedFillN(
+                      short                                       *begin,
+                      short                                        value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+    BSLMF_ASSERT(2 == sizeof(short));
+
+    const char *valueBuffer = reinterpret_cast<const char *>(&value);
+    if (valueBuffer[0] == valueBuffer[1]) {  // 0, but also -1, 257, etc.
+        std::memset(begin, value, numElements * sizeof value);
+    }
+    else {
+        *begin = value;
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
+    }
+}
+
+void ArrayPrimitives_Imp::uninitializedFillN(
+                      int                                         *begin,
+                      int                                          value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+    const char  *valueCharBuffer  = reinterpret_cast<const char *>(&value);
+    const short *valueShortBuffer = static_cast<const short *>(
+                                   static_cast<const void *>(valueCharBuffer));
+    if (valueCharBuffer[0]  == valueCharBuffer[1] &&
+        valueShortBuffer[0] == valueShortBuffer[1]) {
+        // The two tests above make sure all four bytes of value are identical.
+
+        std::memset(begin, value, numElements * sizeof value);
+    }
+    else {
+        *begin = value;
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
+    }
+}
+
+void ArrayPrimitives_Imp::uninitializedFillN(
+                      bsls::Types::Int64                          *begin,
+                      bsls::Types::Int64                           value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+    const char  *valueCharBuffer  = reinterpret_cast<const char *>(&value);
+    const short *valueShortBuffer = static_cast<const short *>(
+                                   static_cast<const void *>(valueCharBuffer));
+    const int   *valueIntBuffer   = static_cast<const int *>(
+                                   static_cast<const void *>(valueCharBuffer));
+    if (valueCharBuffer[0]  == valueCharBuffer[1] &&
+        valueShortBuffer[0] == valueShortBuffer[1] &&
+        valueIntBuffer[0]   == valueIntBuffer[1]) {
+        // The three tests above make sure all eight bytes of value are
+        // identical.
+
+        std::memset(begin,
+                    static_cast<int>(value),
+                    numElements * sizeof value);
+    }
+    else {
+        *begin = value;
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
+    }
+}
+
+void ArrayPrimitives_Imp::uninitializedFillN(
+                      float                                       *begin,
+                      float                                        value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+    if (0 == value) {
+        std::memset(begin, 0, numElements * sizeof value);
+    }
+    else {
+        *begin = value;
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
+    }
+}
+
+void ArrayPrimitives_Imp::uninitializedFillN(
+                      double                                      *begin,
+                      double                                       value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+    if (0 == value) {
+        std::memset(begin, 0, numElements * sizeof value);
+    }
+    else {
+        *begin = value;
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
+    }
+}
+
+void ArrayPrimitives_Imp::uninitializedFillN(
+                      long double                                 *begin,
+                      long double                                  value,
+                      size_type                                    numElements,
+                      void                                        *,
+                      bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER> *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+    if (0 == value) {
+        std::memset(begin, 0, numElements * sizeof value);
+    }
+    else {
+        *begin = value;
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
+    }
+}
+
+void ArrayPrimitives_Imp::uninitializedFillN(
+                     void                                        **begin,
+                     void                                         *value,
+                     size_type                                     numElements,
+                     void                                         *,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+    if (0 == value) {
+        std::memset(begin, 0, numElements * sizeof value);
+    }
+    else {
+        *begin = value;
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
+    }
+}
+
+void ArrayPrimitives_Imp::uninitializedFillN(
+                     const void                                  **begin,
+                     const void                                   *value,
+                     size_type                                     numElements,
+                     void                                         *,
+                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
+{
+    BSLS_ASSERT_SAFE(begin || 0 == numElements);
+
+    if (0 == numElements) {
+        return;                                                       // RETURN
+    }
+    if (0 == value) {
+        std::memset(begin, 0, numElements * sizeof value);
+    }
+    else {
+        *begin = value;
+        bitwiseFillN(reinterpret_cast<char *>(begin),
+                     sizeof value,
+                     numElements * sizeof value);
+    }
+}
+
+// 'bitwise' METHODS
+
 void ArrayPrimitives_Imp::bitwiseFillN(char      *begin,
                                        size_type  numBytesInitialized,
                                        size_type  numBytes)
@@ -147,283 +354,6 @@ void ArrayPrimitives_Imp::bitwiseFillN(char      *begin,
     }
 }
 
-void ArrayPrimitives_Imp::uninitializedFillN(
-                        short                                     *begin,
-                        short                                      value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                      // RETURN
-    }
-    BSLMF_ASSERT(2 == sizeof(short));
-
-    const char *valueBuffer = (const char *) &value;
-    if (valueBuffer[0] == valueBuffer[1]) {  // 0, but also -1, 257, etc.
-        std::memset(begin, value, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
-    }
-}
-
-void ArrayPrimitives_Imp::uninitializedFillN(
-                        int                                       *begin,
-                        int                                        value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-     if (0 == numElements) {
-        return;                                                      // RETURN
-    }
-    const char  *valueCharBuffer  = (const char *) &value;
-    const short *valueShortBuffer = static_cast<const short *>(
-                                   static_cast<const void *>(valueCharBuffer));
-    if (valueCharBuffer[0]  == valueCharBuffer[1] &&
-        valueShortBuffer[0] == valueShortBuffer[1]) {
-        // The two tests above make sure all four bytes of value are identical.
-
-        std::memset(begin, value, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
-    }
-}
-
-void ArrayPrimitives_Imp::uninitializedFillN(
-                        bsls::Types::Int64                        *begin,
-                        bsls::Types::Int64                         value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                      // RETURN
-    }
-    const char  *valueCharBuffer  = (const char *) &value;
-    const short *valueShortBuffer = static_cast<const short *>(
-                                   static_cast<const void *>(valueCharBuffer));
-    const int   *valueIntBuffer   = static_cast<const int *>(
-                                   static_cast<const void *>(valueCharBuffer));
-    if (valueCharBuffer[0]  == valueCharBuffer[1] &&
-        valueShortBuffer[0] == valueShortBuffer[1] &&
-        valueIntBuffer[0]   == valueIntBuffer[1]) {
-        // The three tests above make sure all eight bytes of value are
-        // identical.
-
-        std::memset(begin,
-                    static_cast<int>(value),
-                    numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
-    }
-}
-
-void ArrayPrimitives_Imp::uninitializedFillN(
-                        float                                     *begin,
-                        float                                      value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                      // RETURN
-    }
-    if (0 == value) {
-        std::memset(begin, 0, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
-    }
-}
-
-void ArrayPrimitives_Imp::uninitializedFillN(
-                        double                                    *begin,
-                        double                                     value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                      // RETURN
-    }
-    if (0 == value) {
-        std::memset(begin, 0, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
-    }
-}
-
-void ArrayPrimitives_Imp::uninitializedFillN(
-                        long double                               *begin,
-                        long double                                value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                      // RETURN
-    }
-    if (0 == value) {
-        std::memset(begin, 0, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
-    }
-}
-
-void ArrayPrimitives_Imp::uninitializedFillN(
-                       void                                      **begin,
-                       void                                       *value,
-                       size_type                                   numElements,
-                       void                                       *,
-                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                      // RETURN
-    }
-    if (0 == value) {
-        std::memset(begin, 0, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
-    }
-}
-
-void ArrayPrimitives_Imp::uninitializedFillN(
-                       const void                                **begin,
-                       const void                                 *value,
-                       size_type                                   numElements,
-                       void                                       *,
-                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                      // RETURN
-    }
-    if (0 == value) {
-        std::memset(begin, 0, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN((char *)begin, sizeof value, numElements * sizeof value);
-    }
-}
-
-                         // *** bitwiseSwapRanges: ***
-
-void ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
-                                            char *middle,
-                                            char *end)
-{
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
-
-    std::ptrdiff_t numBytes = static_cast<int>(middle - begin);
-    BSLS_ASSERT(numBytes == end - middle);
-
-    (void) end;
-
-    union {
-        char                                d_buffer[INPLACE_BUFFER_SIZE];
-        bsls::AlignmentUtil::MaxAlignedType d_align;
-    } arena;
-
-    for (; INPLACE_BUFFER_SIZE <= numBytes; numBytes -= INPLACE_BUFFER_SIZE,
-                                            begin    += INPLACE_BUFFER_SIZE,
-                                            middle   += INPLACE_BUFFER_SIZE) {
-        std::memcpy(arena.d_buffer, middle, INPLACE_BUFFER_SIZE);
-        std::memmove(middle, begin, INPLACE_BUFFER_SIZE);
-        std::memcpy(begin, arena.d_buffer, INPLACE_BUFFER_SIZE);
-    }
-
-    if (0 < numBytes) {
-        std::memcpy(arena.d_buffer, middle, numBytes);
-        std::memmove(middle, begin, numBytes);
-        std::memcpy(begin, arena.d_buffer, numBytes);
-    }
-}
-
-                       // *** bitwiseRotateBackward: ***
-
-void ArrayPrimitives_Imp::bitwiseRotateBackward(char *begin,
-                                                char *middle,
-                                                char *end)
-{
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
-
-     union {
-        char                                d_buffer[INPLACE_BUFFER_SIZE];
-        bsls::AlignmentUtil::MaxAlignedType d_align;
-    } arena;
-
-    const std::size_t numBytes = middle - begin;
-    const std::size_t remBytes = end - middle;
-
-    BSLS_ASSERT(numBytes <= INPLACE_BUFFER_SIZE);
-
-    std::memcpy(arena.d_buffer, begin, numBytes);
-    std::memmove(begin, middle, remBytes);
-    std::memcpy(end - numBytes, arena.d_buffer, numBytes);
-}
-
-                       // *** bitwiseRotateForward: ***
-
-void ArrayPrimitives_Imp::bitwiseRotateForward(char *begin,
-                                               char *middle,
-                                               char *end)
-{
-    BSLS_ASSERT_SAFE(!begin  == !middle);
-    BSLS_ASSERT_SAFE(!middle == !end);
-    BSLS_ASSERT_SAFE(begin  <= middle);
-    BSLS_ASSERT_SAFE(middle <= end);
-
-    union {
-        char                                d_buffer[INPLACE_BUFFER_SIZE];
-        bsls::AlignmentUtil::MaxAlignedType d_align;
-    } arena;
-
-    const std::size_t numBytes = middle - begin;
-    const std::size_t remBytes = end - middle;
-
-    BSLS_ASSERT(remBytes <= INPLACE_BUFFER_SIZE);
-
-    std::memcpy(arena.d_buffer, middle, remBytes);
-    std::memmove(end - numBytes, begin, numBytes);
-    std::memcpy(begin, arena.d_buffer, remBytes);
-}
-
                            // *** bitwiseRotate: ***
 
 void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
@@ -442,7 +372,7 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
         // This test changes into O(1) what would otherwise be O(N): do not
         // remove!
 
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
 
     const std::size_t numElements = middle - begin;
@@ -450,20 +380,20 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
 
     if (numElements == remElements) {
         bitwiseSwapRanges(begin, middle, end);
-        return;
+        return;                                                       // RETURN
     }
 
     // These cases are only interesting for bitwise moveable types, and if we
     // assume a modest amount of memory on the stack (here assumed to be
-    // 'INPLACE_BUFFER_SIZE').
+    // 'k_INPLACE_BUFFER_SIZE').
 
-    if (numElements <= INPLACE_BUFFER_SIZE) {
+    if (numElements <= k_INPLACE_BUFFER_SIZE) {
         bitwiseRotateBackward(begin, middle, end);
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
-    if (remElements <= INPLACE_BUFFER_SIZE) {
+    if (remElements <= k_INPLACE_BUFFER_SIZE) {
         bitwiseRotateForward(begin, middle, end);
-        return;                                                      // RETURN
+        return;                                                       // RETURN
     }
 
     // This algorithm proceeds exactly like the template version, char-by-char.
@@ -479,29 +409,29 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
     }
 
     // However, this version proceeds by executing the 'numCycles' in parallel
-    // (as much as possible) by moving 'min(numCycles, INPLACE_BUFFER_SIZE)'
+    // (as much as possible) by moving 'min(numCycles, k_INPLACE_BUFFER_SIZE)'
     // characters at the same time.
 
     union {
-        char                                d_buffer[INPLACE_BUFFER_SIZE];
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
         bsls::AlignmentUtil::MaxAlignedType d_align;
     } arena;
 
-    for (std::size_t i = 0; i < numCycles; i += INPLACE_BUFFER_SIZE) {
+    for (std::size_t i = 0; i < numCycles; i += k_INPLACE_BUFFER_SIZE) {
         // Let the current cycle be initially 'A__B__C__D__' (note that its
         // stride is 'length / numCycles'), and let (*) denote the current
         // position of 'ptr'.  Within this loop, we will do:
         //..
-        //  numBytes = min(numCycles, INPLACE_BUFFER_SIZE)
+        //  numBytes = min(numCycles, k_INPLACE_BUFFER_SIZE)
         //..
         // rotations in parallel; it is most easy to think of it in terms of a
         // synthetic value type whose size is 'numBytes', which fits in the
         // 'arena.d_buffer'.  Thus in the diagrams, "A .. E" represent such a
         // value.
 
-        std::size_t numBytes = numCycles - i < INPLACE_BUFFER_SIZE
+        std::size_t numBytes = numCycles - i < k_INPLACE_BUFFER_SIZE
                              ? numCycles - i
-                             : static_cast<std::size_t>(INPLACE_BUFFER_SIZE);
+                             : static_cast<std::size_t>(k_INPLACE_BUFFER_SIZE);
 
         char *ptr = begin;
 
@@ -592,12 +522,101 @@ void ArrayPrimitives_Imp::bitwiseRotate(char *begin,
     }
 }
 
+                       // *** bitwiseRotateBackward: ***
+
+void ArrayPrimitives_Imp::bitwiseRotateBackward(char *begin,
+                                                char *middle,
+                                                char *end)
+{
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
+    union {
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } arena;
+
+    const std::size_t numBytes = middle - begin;
+    const std::size_t remBytes = end - middle;
+
+    BSLS_ASSERT(numBytes <= k_INPLACE_BUFFER_SIZE);
+
+    std::memcpy(arena.d_buffer, begin, numBytes);
+    std::memmove(begin, middle, remBytes);
+    std::memcpy(end - numBytes, arena.d_buffer, numBytes);
+}
+
+                       // *** bitwiseRotateForward: ***
+
+void ArrayPrimitives_Imp::bitwiseRotateForward(char *begin,
+                                               char *middle,
+                                               char *end)
+{
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
+    union {
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } arena;
+
+    const std::size_t numBytes = middle - begin;
+    const std::size_t remBytes = end - middle;
+
+    BSLS_ASSERT(remBytes <= k_INPLACE_BUFFER_SIZE);
+
+    std::memcpy(arena.d_buffer, middle, remBytes);
+    std::memmove(end - numBytes, begin, numBytes);
+    std::memcpy(begin, arena.d_buffer, remBytes);
+}
+
+                         // *** bitwiseSwapRanges: ***
+
+void ArrayPrimitives_Imp::bitwiseSwapRanges(char *begin,
+                                            char *middle,
+                                            char *end)
+{
+    BSLS_ASSERT_SAFE(!begin  == !middle);
+    BSLS_ASSERT_SAFE(!middle == !end);
+    BSLS_ASSERT_SAFE(begin  <= middle);
+    BSLS_ASSERT_SAFE(middle <= end);
+
+    std::ptrdiff_t numBytes = static_cast<int>(middle - begin);
+    BSLS_ASSERT(numBytes == end - middle);
+
+    (void) end;
+
+    union {
+        char                                d_buffer[k_INPLACE_BUFFER_SIZE];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
+    } arena;
+
+    for (; k_INPLACE_BUFFER_SIZE <= numBytes;
+                                           numBytes -= k_INPLACE_BUFFER_SIZE,
+                                           begin    += k_INPLACE_BUFFER_SIZE,
+                                           middle   += k_INPLACE_BUFFER_SIZE) {
+        std::memcpy(arena.d_buffer, middle, k_INPLACE_BUFFER_SIZE);
+        std::memmove(middle, begin, k_INPLACE_BUFFER_SIZE);
+        std::memcpy(begin, arena.d_buffer, k_INPLACE_BUFFER_SIZE);
+    }
+
+    if (0 < numBytes) {
+        std::memcpy(arena.d_buffer, middle, numBytes);
+        std::memmove(middle, begin, numBytes);
+        std::memcpy(begin, arena.d_buffer, numBytes);
+    }
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

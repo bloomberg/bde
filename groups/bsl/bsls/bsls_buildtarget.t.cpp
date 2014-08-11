@@ -3,6 +3,7 @@
 // N.B. This test driver must manipulate the definitions of the macros
 // referenced by the component *before* the component header has a chance to
 // act on the macros.
+
 #ifdef BDE_BUILDTARGET_TEST_EXC
 #  if defined(BDE_BUILD_TARGET_EXC)
 #    undef BDE_BUILD_TARGET_EXC
@@ -29,37 +30,45 @@
 
 #include <bsls_buildtarget.h>
 
-#include <bsls_bsltestutil.h>
+#include <bsls_bsltestutil.h>  // for testing only
 
-#include <stdio.h>   // printf
-#include <stdlib.h>  // atoi
+#include <stdio.h>   // 'printf', 'fprintf', 'setbuf'
+#include <stdlib.h>  // 'atoi'
 
 using namespace BloombergLP;
 
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// The component under test defines two macros, 'BDE_BUILD_TARGET_EXC' and
-// 'BDE_BUILD_TARGET_MT', that enforce uniform settings for exception support
-// and multi-threading support across all translation units in a program.
-// These macros operate by sabotaging the link phase of the build process
-// unless the macros are defined identically in all translation units.
+// The component under test defines two type names, 'bsls::BuildTargetExc' and
+// 'bsls::BuildTargetMt', that are used to enforce uniform settings for
+// exception support and multi-threading support across all translation units
+// in a program.  In each translation unit (TU), 'bsls::BuildTargetExc' is
+// associated with a certain symbol having external linkage according to
+// whether the TU was built with at most one of '-DBDE_BUILD_TARGET_EXC' and
+// '-DBDE_BUILD_TARGET_NO_EXC' (perhaps neither).  'bsls::BuildTargetMt' is
+// similarly associated with another symbol having external linkage according
+// to whether a given TU was built with at most one of '-DBDE_BUILD_TARGET_MT'
+// and '-DBDE_BUILD_TARGET_NO_MT' (perhaps neither).  The various
+// 'DBDE_BUILD_TARGET*' macros operate by sabotaging the link phase of the
+// build process unless the macros are defined identically for the compile
+// phase of all translation units.
 //
 // In order to test this component properly, we would have to arrange to link
 // the test driver from two object files, each with a different setting for one
 // of the macros.  Then we would have to observe that the linker fails.
-// Neither action is in the scope of a test driver...it requires a
+// Neither action is in the scope of a test driver; it requires a
 // meta-test-driver test facility that can observe the compilation process.
 //
 // The solution (a la 'bslstl_map' by Chen He) is to build a test driver that
 // *does* link properly if the two macros match the settings with which
-// 'bsls_buildtarget.cpp' were built and then ask the user to manually modify
-// the code so that the test driver compiles with different settings from
+// 'bsls_buildtarget.cpp' was built.  Then ask the user to manually modify
+// the code so that the test driver is compiled with different settings from
 // 'bsls_buildtarget.cpp', and observe that the test driver fails to link.
 //
 // This mechanism can be enforced by creating above-the-line test cases for
-// each macro which always fail if the corresponding BDE_BUILDTARGET_TEST_*
-// macro is defined.  Therefore there are two possible states if one of the
+// each macro which always fail if the corresponding 'BDE_BUILDTARGET_TEST_*'
+// macro is defined.  Therefore, there are two possible states if one of the
 // macros is defined: the test fails to build (good), or the test builds and
 // fails (bad).
 //-----------------------------------------------------------------------------
@@ -128,7 +137,7 @@ int main(int argc, char *argv[])
     // int veryVerbose = argc > 3;
     // int veryVeryVerbose = argc > 4;
 
-    setbuf(stdout, 0);    // Use unbuffered output
+    setbuf(stdout, 0);    // Use unbuffered output.
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -160,28 +169,28 @@ int main(int argc, char *argv[])
         // MACRO BDE_BUILD_TARGET_MT
         //
         // Concerns:
-        //  1 A program should not link when 'BDE_BUILD_TARGET_MT' is defined
-        //    in one translation unit and not defined in another.
-        //
-        //  2 A program should link when 'BDE_BUILD_TARGET_MT' is defined in
-        //    all translation units or not defined in all translation units.
+        //: 1 A program should not link when 'BDE_BUILD_TARGET_MT' is defined
+        //:   in one translation unit and not defined in another.
+        //:
+        //: 2 A program should link when 'BDE_BUILD_TARGET_MT' is defined in
+        //:   all translation units or not defined in all translation units.
         //
         // Plan:
-        //  1 Define a macro, 'BDE_BUILDTARGET_TEST_MT' that, when defined,
-        //    will invert the definitions of 'BDE_BUILD_TARGET_MT' and
-        //    'BDE_BUILD_TARGET_NO_MT' in this translation unit.  Build with
-        //    '-D BDE_BUILD_TARGET_NO_MT' specified on the command line and
-        //    observe that 'bsls_buildtarget.t.cpp' fails to link.  Perform a
-        //    negative test of this condition by forcing an assertion failure
-        //    if 'BDE_BUILD_TARGET_NO_MT' is defined, and allowing the test to
-        //    pass otherwise. (C-1, C-2)
+        //: 1 Define a macro, 'BDE_BUILDTARGET_TEST_MT', that when defined,
+        //:   will invert the definitions of 'BDE_BUILD_TARGET_MT' and
+        //:   'BDE_BUILD_TARGET_NO_MT' in this translation unit.  Build with
+        //:   '-D BDE_BUILD_TARGET_NO_MT' specified on the command line and
+        //:   observe that 'bsls_buildtarget.t.cpp' fails to link.  Perform a
+        //:   negative test of this condition by forcing an assertion failure
+        //:   if 'BDE_BUILD_TARGET_NO_MT' is defined, and allowing the test to
+        //:   pass otherwise. (C-1..2)
         //
         // Testing:
-        //   BDE_BUILDTARGET_TEST_MT
+        //   BDE_BUILD_TARGET_MT
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting BDE_BUILD_TARGET_MT"
-                            "\n===========================\n");
+        if (verbose) printf("\nMACRO BDE_BUILD_TARGET_MT"
+                            "\n=========================\n");
 
 #ifdef BDE_BUILDTARGET_TEST_MT
         ASSERT(0 == "bsls_buildtarget.t.cpp should not build "
@@ -194,28 +203,28 @@ int main(int argc, char *argv[])
         // MACRO BDE_BUILD_TARGET_EXC
         //
         // Concerns:
-        //  1 A program should not link when 'BDE_BUILD_TARGET_EXC' is
-        //    defined in one translation unit and not defined in another.
-        //
-        //  2 A program should link when 'BDE_BUILD_TARGET_EXC' is defined in
-        //    all translation units or not defined in all translation units.
+        //: 1 A program should not link when 'BDE_BUILD_TARGET_EXC' is
+        //:   defined in one translation unit and not defined in another.
+        //:
+        //: 2 A program should link when 'BDE_BUILD_TARGET_EXC' is defined in
+        //:   all translation units or not defined in all translation units.
         //
         // Plan:
-        //  1 Define a macro, 'BDE_BUILDTARGET_TEST_EXC' that, when defined,
-        //    will invert the definitions of 'BDE_BUILD_TARGET_EXC' and
-        //    'BDE_BUILD_TARGET_NO_EXC' in this translation unit.  Build with
-        //    '-D BDE_BUILD_TARGET_NO_EXC' specified on the command line and
-        //    observe that 'bsls_buildtarget.t.cpp' fails to link.  Perform a
-        //    negative test of this condition by forcing an assertion failure
-        //    if 'BDE_BUILD_TARGET_NO_EXC' is defined, and allowing the test to
-        //    pass otherwise. (C-1, C-2)
+        //: 1 Define a macro, 'BDE_BUILDTARGET_TEST_EXC', that when defined,
+        //:   will invert the definitions of 'BDE_BUILD_TARGET_EXC' and
+        //:   'BDE_BUILD_TARGET_NO_EXC' in this translation unit.  Build with
+        //:   '-D BDE_BUILD_TARGET_NO_EXC' specified on the command line and
+        //:   observe that 'bsls_buildtarget.t.cpp' fails to link.  Perform a
+        //:   negative test of this condition by forcing an assertion failure
+        //:   if 'BDE_BUILD_TARGET_NO_EXC' is defined, and allowing the test to
+        //:   pass otherwise. (C-1..2)
         //
         // Testing:
-        //   BDE_BUILDTARGET_TEST_EXC
+        //   BDE_BUILD_TARGET_EXC
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting BDE_BUILD_TARGET_EXC"
-                            "\n============================\n");
+        if (verbose) printf("\nMACRO BDE_BUILD_TARGET_EXC"
+                            "\n==========================\n");
 
 #ifdef BDE_BUILDTARGET_TEST_EXC
         ASSERT(0 == "bsls_buildtarget.t.cpp should not build "
@@ -225,25 +234,25 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // DATA MEMBER BuildTargetMt::s_isBuildTargetMt
+        // DATA MEMBER 'bsls::BuildTargetMt::s_isBuildTargetMt'
         //
         // Concerns:
-        //  1 'bsls::BuildTargetMt::s_isBuildTargetMt' should be defined.
-        //
-        //  2 'bsls::BuildTargetMt::s_isBuildTargetMt == 1' if and only if
-        //    'BDE_BUILD_TARGET_MT' is defined.
+        //: 1 'bsls::BuildTargetMt::s_isBuildTargetMt' should be defined.
+        //:
+        //: 2 'bsls::BuildTargetMt::s_isBuildTargetMt == 1' if and only if
+        //:   'BDE_BUILD_TARGET_MT' is defined.
         //
         // Plan:
-        //  1 Manually test the value of
-        //    'bsls::BuildTargetMt::s_isBuildTargetMt'. (C-1, C-2)
+        //: 1 Manually test the value of
+        //:   'bsls::BuildTargetMt::s_isBuildTargetMt'. (C-1..2)
         //
         // Testing:
         //   bsls::BuildTargetMt::s_isBuildTargetMt
         // --------------------------------------------------------------------
 
         if (verbose)
-                  printf("\nTesting bsls::BuildTargetMt::s_isBuildTargetMt"
-                         "\n==============================================\n");
+            printf("\nDATA MEMBER 'bsls::BuildTargetMt::s_isBuildTargetMt'"
+                   "\n====================================================\n");
 
 #ifdef BDE_BUILD_TARGET_MT
         ASSERT(1 == bsls::BuildTargetMt::s_isBuildTargetMt);
@@ -254,25 +263,25 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // DATA MEMBER BuildTargetMt::s_isBuildTargetExc
+        // DATA MEMBER 'bsls::BuildTargetExc::s_isBuildTargetExc'
         //
         // Concerns:
-        //  1 'bsls::BuildTargetMt::s_isBuildTargetExc' should be defined.
-        //
-        //  2 'bsls::BuildTargetMt::s_isBuildTargetExc == 1' if and only if
-        //    'BDE_BUILD_TARGET_EXC' is defined.
+        //: 1 'bsls::BuildTargetExc::s_isBuildTargetExc' should be defined.
+        //:
+        //: 2 'bsls::BuildTargetExc::s_isBuildTargetExc == 1' if and only if
+        //:   'BDE_BUILD_TARGET_EXC' is defined.
         //
         // Plan:
-        //  1 Manually test the value of
-        //    'bsls::BuildTargetMt::s_isBuildTargetExc'. (C-1, C-2)
+        //: 1 Manually test the value of
+        //:   'bsls::BuildTargetExc::s_isBuildTargetExc'. (C-1..2)
         //
         // Testing:
         //   bsls::BuildTargetExc::s_isBuildTargetExc
         // --------------------------------------------------------------------
 
         if (verbose)
-                 printf("\nTesting bsls::BuildTargetMt::s_isBuildTargetExc"
-                        "\n===============================================\n");
+          printf("\nDATA MEMBER 'bsls::BuildTargetExc::s_isBuildTargetExc'"
+                 "\n======================================================\n");
 
 #ifdef BDE_BUILD_TARGET_EXC
         ASSERT(1 == bsls::BuildTargetExc::s_isBuildTargetExc);
@@ -295,7 +304,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

@@ -7,12 +7,12 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide facilities for checking compile-time trait.
+//@PURPOSE: Provide a meta function to identify if a type has a given trait.
 //
 //@CLASSES:
 //  bslalg::HasTrait: trait detection mechanism
 //
-//@SEE_ALSO: bslmf_typetraits
+//@SEE_ALSO:
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
@@ -66,9 +66,7 @@ template <typename TYPE, typename TRAIT>
 struct HasTrait {
     // This meta-function evaluates to 'bslmf::MetaInt<1>' if the parameterized
     // type 'TYPE' has the parameterized 'TRAIT', and to 'bslmf::MetaInt<0>'
-    // otherwise.  Note that 'TYPE' "has" the 'TRAIT' if
-    // 'bslalg_TypeTraits<TYPE>' directly includes 'TRAIT' or else includes a
-    // trait that implies 'TRAIT'.
+    // otherwise.
 
   public:
     enum {
@@ -98,7 +96,7 @@ struct HasTrait {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

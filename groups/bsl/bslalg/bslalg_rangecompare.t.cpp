@@ -11,6 +11,7 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_bsltestutil.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -104,6 +105,12 @@ void aSsErT(int c, const char *s, int i)
 #define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
 #define L_ __LINE__                        // current Line number
 #define T_ putchar('\t');                  // Print a tab (w/o newline).
+
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -920,6 +927,7 @@ void usageTestInt()
 //-----------------------------------------------------------------------------
 
 typedef bsls::Types::Uint64    Uint64;
+typedef bsls::Types::Int64     Int64;
 
 typedef bslalg::RangeCompare   Obj;
 
@@ -1313,24 +1321,24 @@ void testLexicographical(bool verboseFlag, bslma::TestAllocator& testAllocator)
     TYPE *strings[NUM_DATA_CASE4];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
-    const int NUM_BYTES = testAllocator.numBytesInUse();
+    const Int64 NUM_BYTES = testAllocator.numBytesInUse();
 
     for (int i = 0; i < NUM_DATA_CASE4; ++i) {
-        const char *STRING = DATA_CASE4[i].d_string_p;
-        const int   LEN    = std::strlen(STRING);
+        const char   *STRING = DATA_CASE4[i].d_string_p;
+        const size_t  LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         gg(strings[i], STRING);
     }
 
     for (int i = 0; i < NUM_DATA_CASE4; ++i) {
-        const int   LINE1   = DATA_CASE4[i].d_lineNum;
-        const char *STRING1 = DATA_CASE4[i].d_string_p;
-        const int   LEN1    = std::strlen(STRING1);
+        const int     LINE1   = DATA_CASE4[i].d_lineNum;
+        const char   *STRING1 = DATA_CASE4[i].d_string_p;
+        const size_t  LEN1    = std::strlen(STRING1);
 
         for (int j = 0; j < NUM_DATA_CASE4; ++j) {
-            const int   LINE2   = DATA_CASE4[j].d_lineNum;
-            const char *STRING2 = DATA_CASE4[j].d_string_p;
-            const int   LEN2    = std::strlen(STRING2);
+            const int     LINE2   = DATA_CASE4[j].d_lineNum;
+            const char   *STRING2 = DATA_CASE4[j].d_string_p;
+            const size_t  LEN2    = std::strlen(STRING2);
 
             const TYPE *LHS_BEGIN = STRINGS[i];
             const TYPE *LHS_END   = STRINGS[i] + LEN1;
@@ -1345,8 +1353,8 @@ void testLexicographical(bool verboseFlag, bslma::TestAllocator& testAllocator)
             if (verboseFlag) {
                 int result = Obj::lexicographical(LHS_BEGIN, LHS_END, LHS_LEN,
                                                   RHS_BEGIN, RHS_END, RHS_LEN);
-                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = %d, "
-                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = %d\n",
+                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = " ZU ", "
+                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = " ZU "\n",
                        LINE1, STRING1, LEN1, LINE2, STRING2, LEN2);
                 printf("EXP = %d, result = %d\n", EXP, result);
             }
@@ -1410,36 +1418,37 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
     TYPE *strings[NUM_DATA_CASE4];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
-    const int NUM_BYTES = testAllocator.numBytesInUse();
+    const Int64 NUM_BYTES = testAllocator.numBytesInUse();
 
     for (int i = 0; i < NUM_DATA_CASE4; ++i) {
-        const char *STRING = DATA_CASE4[i].d_string_p;
-        const int   LEN    = std::strlen(STRING);
+        const char   *STRING = DATA_CASE4[i].d_string_p;
+        const size_t  LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
-        for (int j = 0; j < LEN; ++j) {
+        for (int j = 0; j < static_cast<int>(LEN); ++j) {
             strings[i][j] = generator(i, j);
         }
     }
 
     for (int i = 0; i < NUM_DATA_CASE4; ++i) {
-        const int   LINE1   = DATA_CASE4[i].d_lineNum;
-        const char *STRING1 = DATA_CASE4[i].d_string_p;
-        const int   LEN1    = std::strlen(STRING1);
+        const int     LINE1   = DATA_CASE4[i].d_lineNum;
+        const char   *STRING1 = DATA_CASE4[i].d_string_p;
+        const size_t  LEN1    = std::strlen(STRING1);
 
         for (int j = 0; j < NUM_DATA_CASE4; ++j) {
-            const int   LINE2   = DATA_CASE4[j].d_lineNum;
-            const char *STRING2 = DATA_CASE4[j].d_string_p;
-            const int   LEN2    = std::strlen(STRING2);
+            const int     LINE2   = DATA_CASE4[j].d_lineNum;
+            const char   *STRING2 = DATA_CASE4[j].d_string_p;
+            const size_t  LEN2    = std::strlen(STRING2);
 
-            const TYPE *LHS_BEGIN = STRINGS[i];
-            const TYPE *LHS_END   = STRINGS[i] + LEN1;
-            const int   LHS_LEN   = LEN1;
+            const TYPE   *LHS_BEGIN = STRINGS[i];
+            const TYPE   *LHS_END   = STRINGS[i] + LEN1;
+            const size_t  LHS_LEN   = LEN1;
 
-            const TYPE *RHS_BEGIN = STRINGS[j];
-            const TYPE *RHS_END   = STRINGS[j] + LEN2;
-            const int   RHS_LEN   = LEN2;
+            const TYPE   *RHS_BEGIN = STRINGS[j];
+            const TYPE   *RHS_END   = STRINGS[j] + LEN2;
+            const size_t  RHS_LEN   = LEN2;
 
-            int exp = 0, k = 0;
+            int    exp = 0;
+            size_t k   = 0;
             for (k = 0; !exp && k < LHS_LEN && k < RHS_LEN; ++k) {
                 if (LHS_BEGIN[k] < RHS_BEGIN[k]) {
                     exp = -1;
@@ -1461,8 +1470,8 @@ void testLexicographicalBuiltin(bool                    verboseFlag,
             if (verboseFlag) {
                 int result = Obj::lexicographical(LHS_BEGIN, LHS_END, LHS_LEN,
                                                   RHS_BEGIN, RHS_END, RHS_LEN);
-                printf("LINE1 = %d, LEN1 = %d, "
-                       "LINE2 = %d, LEN2 = %d\n",
+                printf("LINE1 = %d, LEN1 = " ZU ", "
+                       "LINE2 = %d, LEN2 = " ZU "\n",
                        LINE1, LEN1, LINE2, LEN2);
                 printf("LHS = [ ");
                 for (k = 0; k < LHS_LEN; ++k) {
@@ -1506,40 +1515,40 @@ void testLexicographicalNonBitwise(bool                  verboseFlag,
     TYPE *strings[NUM_DATA_CASE4];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
-    const int NUM_BYTES = testAllocator.numBytesInUse();
+    const Int64 NUM_BYTES = testAllocator.numBytesInUse();
 
     for (int i = 0; i < NUM_DATA_CASE4; ++i) {
-        const char *STRING = DATA_CASE4[i].d_string_p;
-        const int   LEN    = std::strlen(STRING);
+        const char   *STRING = DATA_CASE4[i].d_string_p;
+        const size_t  LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         gg(strings[i], STRING);
     }
 
     for (int i = 0; i < NUM_DATA_CASE4; ++i) {
-        const int   LINE1   = DATA_CASE4[i].d_lineNum;
-        const char *STRING1 = DATA_CASE4[i].d_string_p;
-        const int   LEN1    = std::strlen(STRING1);
+        const int     LINE1   = DATA_CASE4[i].d_lineNum;
+        const char   *STRING1 = DATA_CASE4[i].d_string_p;
+        const size_t  LEN1    = std::strlen(STRING1);
 
         for (int j = 0; j < NUM_DATA_CASE4; ++j) {
-            const int   LINE2   = DATA_CASE4[j].d_lineNum;
-            const char *STRING2 = DATA_CASE4[j].d_string_p;
-            const int   LEN2    = std::strlen(STRING2);
+            const int     LINE2   = DATA_CASE4[j].d_lineNum;
+            const char   *STRING2 = DATA_CASE4[j].d_string_p;
+            const size_t  LEN2    = std::strlen(STRING2);
 
-            const TYPE *LHS_BEGIN = STRINGS[i];
-            const TYPE *LHS_END   = STRINGS[i] + LEN1;
-            const int   LHS_LEN   = LEN1;
+            const TYPE   *LHS_BEGIN = STRINGS[i];
+            const TYPE   *LHS_END   = STRINGS[i] + LEN1;
+            const size_t  LHS_LEN   = LEN1;
 
-            const TYPE *RHS_BEGIN = STRINGS[j];
-            const TYPE *RHS_END   = STRINGS[j] + LEN2;
-            const int   RHS_LEN   = LEN2;
+            const TYPE   *RHS_BEGIN = STRINGS[j];
+            const TYPE   *RHS_END   = STRINGS[j] + LEN2;
+            const size_t  RHS_LEN   = LEN2;
 
             const int EXP = (i == j) ? 0 : ((i < j) ? -1 : 1);
 
             if (verboseFlag) {
                 int result = Obj::lexicographical(LHS_BEGIN, LHS_END, LHS_LEN,
                                                   RHS_BEGIN, RHS_END, RHS_LEN);
-                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = %d, "
-                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = %d\n",
+                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = " ZU ", "
+                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = " ZU "\n",
                        LINE1, STRING1, LEN1, LINE2, STRING2, LEN2);
                 printf("EXP = %d, result = %d\n", EXP, result);
             }
@@ -1593,22 +1602,22 @@ void testGenericEqual(bool verboseFlag)
     // four arguments) if and only if they are equal.
 {
     for (int i = 0; i < NUM_DATA_CASE3; ++i) {
-        const int   LINE1   = DATA_CASE3[i].d_lineNum;
-        const char *STRING1 = DATA_CASE3[i].d_string_p;
-        const int   LEN1    = std::strlen(STRING1);
+        const int     LINE1   = DATA_CASE3[i].d_lineNum;
+        const char   *STRING1 = DATA_CASE3[i].d_string_p;
+        const size_t  LEN1    = std::strlen(STRING1);
 
         for (int j = 0; j < NUM_DATA_CASE3; ++j) {
-            const int   LINE2   = DATA_CASE3[j].d_lineNum;
-            const char *STRING2 = DATA_CASE3[j].d_string_p;
-            const int   LEN2    = std::strlen(STRING2);
+            const int     LINE2   = DATA_CASE3[j].d_lineNum;
+            const char   *STRING2 = DATA_CASE3[j].d_string_p;
+            const size_t  LEN2    = std::strlen(STRING2);
 
             const bool EXP = (i == j);
 
             if (verboseFlag) {
                 bool result = Obj::equal(STRING1, STRING1 + LEN1,
                                          STRING2, STRING2 + LEN2);
-                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = %d, "
-                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = %d\n",
+                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = " ZU ", "
+                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = " ZU "\n",
                        LINE1, STRING1, LEN1, LINE2, STRING2, LEN2);
                 printf("EXP = %d, result = %d\n", EXP, result);
             }
@@ -1632,40 +1641,40 @@ void testEqual(bool verboseFlag, bslma::TestAllocator& testAllocator)
     TYPE *strings[NUM_DATA_CASE3];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
-    const int NUM_BYTES = testAllocator.numBytesInUse();
+    const Int64 NUM_BYTES = testAllocator.numBytesInUse();
 
     for (int i = 0; i < NUM_DATA_CASE3; ++i) {
-        const char *STRING = DATA_CASE3[i].d_string_p;
-        const int   LEN    = std::strlen(STRING);
+        const char   *STRING = DATA_CASE3[i].d_string_p;
+        const size_t  LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         gg(strings[i], STRING);
     }
 
     for (int i = 0; i < NUM_DATA_CASE3; ++i) {
-        const int   LINE1   = DATA_CASE3[i].d_lineNum;
-        const char *STRING1 = DATA_CASE3[i].d_string_p;
-        const int   LEN1    = std::strlen(STRING1);
+        const int     LINE1   = DATA_CASE3[i].d_lineNum;
+        const char   *STRING1 = DATA_CASE3[i].d_string_p;
+        const size_t  LEN1    = std::strlen(STRING1);
 
         for (int j = 0; j < NUM_DATA_CASE3; ++j) {
-            const int   LINE2   = DATA_CASE3[j].d_lineNum;
-            const char *STRING2 = DATA_CASE3[j].d_string_p;
-            const int   LEN2    = std::strlen(STRING2);
+            const int     LINE2   = DATA_CASE3[j].d_lineNum;
+            const char   *STRING2 = DATA_CASE3[j].d_string_p;
+            const size_t  LEN2    = std::strlen(STRING2);
 
-            const TYPE *LHS_BEGIN = STRINGS[i];
-            const TYPE *LHS_END   = STRINGS[i] + LEN1;
-            const int   LHS_LEN   = LEN1;
+            const TYPE   *LHS_BEGIN = STRINGS[i];
+            const TYPE   *LHS_END   = STRINGS[i] + LEN1;
+            const size_t  LHS_LEN   = LEN1;
 
-            const TYPE *RHS_BEGIN = STRINGS[j];
-            const TYPE *RHS_END   = STRINGS[j] + LEN2;
-            const int   RHS_LEN   = LEN2;
+            const TYPE   *RHS_BEGIN = STRINGS[j];
+            const TYPE   *RHS_END   = STRINGS[j] + LEN2;
+            const size_t  RHS_LEN   = LEN2;
 
             const bool EXP = (i == j);
 
             if (verboseFlag) {
                 bool result = Obj::equal(LHS_BEGIN, LHS_END, LHS_LEN,
                                          RHS_BEGIN, RHS_END, RHS_LEN);
-                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = %d, "
-                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = %d\n",
+                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = " ZU ", "
+                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = " ZU "\n",
                        LINE1, STRING1, LEN1, LINE2, STRING2, LEN2);
                 printf("EXP = %d, result = %d\n", EXP, result);
             }
@@ -1696,40 +1705,40 @@ void testEqualNonBitwise(bool verboseFlag, bslma::TestAllocator& testAllocator)
     TYPE *strings[NUM_DATA_CASE3];
     const TYPE **STRINGS = const_cast<const TYPE **>(strings);
 
-    const int NUM_BYTES = testAllocator.numBytesInUse();
+    const Int64 NUM_BYTES = testAllocator.numBytesInUse();
 
     for (int i = 0; i < NUM_DATA_CASE3; ++i) {
-        const char *STRING = DATA_CASE3[i].d_string_p;
-        const int   LEN    = std::strlen(STRING);
+        const char   *STRING = DATA_CASE3[i].d_string_p;
+        const size_t  LEN    = std::strlen(STRING);
         strings[i] = (TYPE *) testAllocator.allocate(LEN * sizeof(TYPE));
         gg(strings[i], STRING);
     }
 
     for (int i = 0; i < NUM_DATA_CASE3; ++i) {
-        const int   LINE1   = DATA_CASE3[i].d_lineNum;
-        const char *STRING1 = DATA_CASE3[i].d_string_p;
-        const int   LEN1    = std::strlen(STRING1);
+        const int     LINE1   = DATA_CASE3[i].d_lineNum;
+        const char   *STRING1 = DATA_CASE3[i].d_string_p;
+        const size_t  LEN1    = std::strlen(STRING1);
 
         for (int j = 0; j < NUM_DATA_CASE3; ++j) {
-            const int   LINE2   = DATA_CASE3[j].d_lineNum;
-            const char *STRING2 = DATA_CASE3[j].d_string_p;
-            const int   LEN2    = std::strlen(STRING2);
+            const int     LINE2   = DATA_CASE3[j].d_lineNum;
+            const char   *STRING2 = DATA_CASE3[j].d_string_p;
+            const size_t  LEN2    = std::strlen(STRING2);
 
-            const TYPE *LHS_BEGIN = STRINGS[i];
-            const TYPE *LHS_END   = STRINGS[i] + LEN1;
-            const int   LHS_LEN   = LEN1;
+            const TYPE   *LHS_BEGIN = STRINGS[i];
+            const TYPE   *LHS_END   = STRINGS[i] + LEN1;
+            const size_t  LHS_LEN   = LEN1;
 
-            const TYPE *RHS_BEGIN = STRINGS[j];
-            const TYPE *RHS_END   = STRINGS[j] + LEN2;
-            const int   RHS_LEN   = LEN2;
+            const TYPE   *RHS_BEGIN = STRINGS[j];
+            const TYPE   *RHS_END   = STRINGS[j] + LEN2;
+            const size_t  RHS_LEN   = LEN2;
 
             const bool EXP = (i == j);
 
             if (verboseFlag) {
                 bool result = Obj::equal(LHS_BEGIN, LHS_END, LHS_LEN,
                                          RHS_BEGIN, RHS_END, RHS_LEN);
-                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = %d, "
-                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = %d\n",
+                printf("LINE1 = %d, STRING1 = \"%s\", LEN1 = " ZU ", "
+                       "LINE2 = %d, STRING2 = \"%s\", LEN2 = " ZU "\n",
                        LINE1, STRING1, LEN1, LINE2, STRING2, LEN2);
                 printf("EXP = %d, result = %d\n", EXP, result);
             }
@@ -1926,7 +1935,7 @@ bool operator>(const TestPairType& lhs, const TestPairType& rhs)
 template <class TYPE>
 void generateNonNullValue(TYPE *value, int j)
 {
-    *value = j * j;
+    *value = static_cast<TYPE>(j * j);
 }
 
 void generateNonNullValue(void **value, int j)
@@ -1948,18 +1957,18 @@ void timeEqualAlgorithm(const char *typeName,
 {
     printf("\n\tcompare with '%s'\n", typeName);
     {
-        const int bufferSize = rawBufferSize / sizeof(TYPE);
+        const size_t bufferSize = rawBufferSize / sizeof(TYPE);
         TYPE *buffer1 = (TYPE*)rawBuffer1;
         TYPE *buffer2 = (TYPE*)rawBuffer2;
 
-        for (int j = 0; j < bufferSize; ++j) {
+        for (size_t j = 0; j < bufferSize; ++j) {
             buffer1[j] = buffer2[j] = TYPE();
         }
 
         bsls::Stopwatch timer;
         timer.start();
         for (int i = 0; i < numIter; ++i) {
-            int j = 0;
+            size_t j = 0;
             for (; j < bufferSize; ++j) {
                 if (buffer1[j] != buffer2[j]) {
                     break;
@@ -1981,15 +1990,15 @@ void timeEqualAlgorithm(const char *typeName,
         printf("equal<%s>(0) - bslalg      : %f\n", typeName,
                timer.elapsedTime());
 
-        for (int j = 0; j < bufferSize; ++j) {
-            generateNonNullValue(buffer1 + j, j);
-            generateNonNullValue(buffer2 + j, j);
+        for (size_t j = 0; j < bufferSize; ++j) {
+            generateNonNullValue(buffer1 + j, static_cast<int>(j));
+            generateNonNullValue(buffer2 + j, static_cast<int>(j));
         }
 
         timer.reset();
         timer.start();
         for (int i = 0; i < numIter; ++i) {
-            int j = 0;
+            size_t j = 0;
             for (; j < bufferSize; ++j) {
                 if (buffer1[j] != buffer2[j]) {
                     break;
@@ -2022,18 +2031,18 @@ void timeLexicographicalAlgorithm(const char *typeName,
 {
     printf("\n\tcompare with '%s'\n", typeName);
     {
-        const int bufferSize = rawBufferSize / sizeof(TYPE);
+        const size_t bufferSize = rawBufferSize / sizeof(TYPE);
         TYPE *buffer1 = (TYPE*)rawBuffer1;
         TYPE *buffer2 = (TYPE*)rawBuffer2;
 
-        for (int j = 0; j < bufferSize; ++j) {
+        for (size_t j = 0; j < bufferSize; ++j) {
             buffer1[j] = buffer2[j] = TYPE();
         }
 
         bsls::Stopwatch timer;
         timer.start();
         for (int i = 0; i < numIter; ++i) {
-            int j = 0;
+            size_t j = 0;
             for (; j < bufferSize; ++j) {
                 if (buffer1[j] < buffer2[j]) {
                     break;
@@ -2059,15 +2068,15 @@ void timeLexicographicalAlgorithm(const char *typeName,
         printf("lexicographical<%s>(0) - bslalg      : %f\n", typeName,
                timer.elapsedTime());
 
-        for (int j = 0; j < bufferSize; ++j) {
-            generateNonNullValue(buffer1 + j, j);
-            generateNonNullValue(buffer2 + j, j);
+        for (size_t j = 0; j < bufferSize; ++j) {
+            generateNonNullValue(buffer1 + j, static_cast<int>(j));
+            generateNonNullValue(buffer2 + j, static_cast<int>(j));
         }
 
         timer.reset();
         timer.start();
         for (int i = 0; i < numIter; ++i) {
-            int j = 0;
+            size_t j = 0;
             for (; j < bufferSize; ++j) {
                 if (buffer1[j] < buffer2[j]) {
                     break;
@@ -2418,8 +2427,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\n\tTesting 'equal'...");
         {
-            const char *X = "This is a string";
-            const int  X_LEN = strlen(X);
+            const char   *X = "This is a string";
+            const size_t  X_LEN = strlen(X);
 
             const char *Y = "This is a string also";
             const size_t Y_LEN = strlen(Y);
@@ -2457,8 +2466,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\n\tTesting 'lexicographical'...");
         {
-            const char *X = "This is a string";
-            const int  X_LEN = strlen(X);
+            const char   *X = "This is a string";
+            const size_t  X_LEN = strlen(X);
 
             const char *Y = "This is a string also";
             const size_t Y_LEN = strlen(Y);
@@ -2637,7 +2646,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

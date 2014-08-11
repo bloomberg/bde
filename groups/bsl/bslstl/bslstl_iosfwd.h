@@ -36,11 +36,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-namespace std {
-
-template <class CHAR_TYPE> struct char_traits;
-
-}  // close namespace std
+#include <iosfwd>
 
 namespace bsl {
 
@@ -92,7 +88,7 @@ typedef basic_stringstream <wchar_t, char_traits<wchar_t>,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2013 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
