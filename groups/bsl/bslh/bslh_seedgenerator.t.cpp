@@ -6,7 +6,6 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <algorithm>
 #include <math.h>
 #include <wchar.h>
 #include <stdio.h>
@@ -95,32 +94,52 @@ class MockRNG {
     // in testing.
 
   public:
+    // PUBLIC TYPES
     typedef unsigned int result_type;
         // The type of the random data that 'operator()' will return.
 
   private:
-    unsigned int counter;
+    // DATA
+    unsigned int d_counter;
         // Counter that provides some variance in the random numbers returned.
 
   public:
+    // CREATORS
     MockRNG();
         // Create a 'MockRNG' that will return predictable "random" values.
+
+    //! MockRNG(const MockRNG& original) = default;
+        // Create a 'MockRNG' object with a copy of 'd_counter' from the
+        // specified 'original'.
+
+    //! ~MockRNG() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! MockRNG& operator=(const MockRNG& rhs) = default;
+        // Assign to this object the value of 'd_counter' from the the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.
 
     result_type operator()();
         // Return a predictable "random" number of 'result_type'.
 
+    // ACCESSORS
     result_type numberOfCalls() const;
         // Return the number of times that 'operator()' has been called
 };
 
-MockRNG::MockRNG() : counter(0) { }
+// CREATORS
+MockRNG::MockRNG() : d_counter(0) { }
 
+// MANIPULATORS
 MockRNG::result_type MockRNG::operator()() {
-    return ++counter;
+    return ++d_counter;
 }
 
+// ACCESSORS
 MockRNG::result_type MockRNG::numberOfCalls() const {
-    return counter;
+    return d_counter;
 }
 
 void verifyResultMatchesRNG(const char *result, size_t length)
@@ -140,8 +159,10 @@ void verifyResultMatchesRNG(const char *result, size_t length)
     }
 }
 
-unsigned int someSeededHash(const char *seed, size_t seedLength,
-                                               const char *data, size_t length)
+unsigned int someSeededHash(const char *seed,
+                            size_t seedLength,
+                            const char *data,
+                            size_t length)
     // Hash the specified 'length' bytes of 'data' using the specified
     // 'seedLength' bytes of 'seed' to seed the hash. This is not a real hash
     // function. DO NOT USE FOR ACTUAL HASHING
@@ -157,6 +178,16 @@ unsigned int someSeededHash(const char *seed, size_t seedLength,
         hash *= data[i];
     }
     return hash;
+}
+
+void fill(char *data, size_t length, char repeatingElement)
+    // Load the specified 'repeatingElement' into each byte of the specified
+    // length bytes long 'data'. The behaviour is undefined if 'data' does not
+    // point to at least 'length' bytes of writable memory.
+{
+    for(size_t i = 0; i != length; ++i) {
+        data[i] = repeatingElement; 
+    }
 }
 
 typedef bslh::SeedGenerator<MockRNG> Obj;
@@ -405,7 +436,7 @@ int main(int argc, char *argv[])
         //   returns the expected values.
         //
         // Concerns:
-        //: 1 The method exists and is callable with a pointer and a length.
+        //: 1 The method is publicly callable with a pointer and a length.
         //:
         //: 2 The supplied RNG is used to fill memory.
         //:
@@ -465,7 +496,8 @@ int main(int argc, char *argv[])
             Obj generator(rng);
 
             char seed[8];
-            std::fill_n(seed, 8, 255);
+            const char maxChar = static_cast<char>(255);
+            fill(seed, 8, maxChar);
 
             generator.generateSeed(seed, 8);
 
@@ -482,7 +514,8 @@ int main(int argc, char *argv[])
 
             char seed[24];
             const char maxChar = static_cast<char>(255);
-            std::fill_n(seed, 24, maxChar);
+
+            fill(seed, 24, maxChar);
 
             generator.generateSeed(&seed[8], 8);
 
@@ -514,7 +547,7 @@ int main(int argc, char *argv[])
 
             char seed[8];
             const char maxChar = static_cast<char>(255);
-            std::fill_n(seed, 8, maxChar);
+            fill(seed, 8, maxChar);
 
             generator.generateSeed(&seed[4], 0);
 
@@ -535,7 +568,7 @@ int main(int argc, char *argv[])
         {
             char seed[24];
             const char maxChar = static_cast<char>(255);
-            std::fill_n(seed, 24, maxChar);
+            fill(seed, 24, maxChar);
 
             for (int i = 0; i < 24; ++i) {
                 if (veryVerbose) printf("Testing seeds of length %i\n", i);

@@ -66,6 +66,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHM
 #include <bslh_spookyhashalgorithm.h>
 #endif
@@ -122,7 +126,9 @@ class DefaultHashAlgorithm {
         // hash will be produced regardless of whether a sequence of bytes is
         // passed in all at once or through multiple calls to this member
         // function. Input where 'length' == 0 will have no effect on the
-        // internal state of the algorithm.
+        // internal state of the algorithm. The behaviour is undefined unless
+        // 'data' points to at least 'length' bytes of initialized memory.
+
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
@@ -144,6 +150,7 @@ DefaultHashAlgorithm::DefaultHashAlgorithm()
 inline
 void DefaultHashAlgorithm::operator()(const void *data, size_t length)
 {
+    BSLS_ASSERT(data);
     d_state(data, length);
 }
 

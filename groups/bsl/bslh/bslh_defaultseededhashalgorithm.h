@@ -65,6 +65,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHM
 #include <bslh_spookyhashalgorithm.h>
 #endif
@@ -118,8 +122,8 @@ class DefaultSeededHashAlgorithm {
         // Create an instance of 'DefaultSeededHashAlgorithm' seeded with a
         // 128-bit ('k_SEED_LENGTH' bytes) seed pointed to by the specified
         // 'seed'.  Each bit of the supplied seed will contribute to the final
-        // hash produced by 'computeHash()'.  The behavior is undefined unless
-        // 'seed' points to an array of at least 16 'char's.
+        // hash produced by 'computeHash()'.  The behaviour is undefined unless
+        // 'seed' points to at least 16 bytes of initialized memory.
 
     //! ~DefaultSeededHashAlgorithm() = default;
         // Destroy this object.
@@ -133,7 +137,8 @@ class DefaultSeededHashAlgorithm {
         // hash will be produced regardless of whether a sequence of bytes is
         // passed in all at once or through multiple calls to this member
         // function. Input where 'length' == 0 will have no effect on the
-        // internal state of the algorithm.
+        // internal state of the algorithm. The behaviour is undefined unless
+        // 'data' points to at least 'length' bytes of initialized memory.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
@@ -141,7 +146,7 @@ class DefaultSeededHashAlgorithm {
         // 'computeHash' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
         // the algorithm. Also note that a value will be returned, even if data
-        // has not been passed into 'operator()'
+        // has not been passed into 'operator()'.
 };
 
 // CREATORS
@@ -149,12 +154,14 @@ inline
 DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed)
 : d_state(seed)
 {
+    BSLS_ASSERT(seed);        
 }
 
 // MANIPULATORS
 inline
 void DefaultSeededHashAlgorithm::operator()(const void *data, size_t length)
 {
+    BSLS_ASSERT(data);
     d_state(data, length);
 }
 

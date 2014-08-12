@@ -222,10 +222,10 @@ class SipHashAlgorithm {
         // Create an instance of 'SipHashAlgorithm' seeded with a 128-bit
         // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
         // Each bit of the supplied seed will contribute to the final hash
-        // produced by 'computeHash()'. The behavior is undefined unless 'seed'
-        // points to an array of at least 16 'char's. Note that if data in
-        // 'seed' is not random, all guarantees of security and denial of
-        // service protection are void.
+        // produced by 'computeHash()'. The behaviour is undefined unless
+        // 'seed' points to at least 16 bytes of initialized memory. Note that
+        // if data in 'seed' is not random, all guarantees of security and
+        // denial of service protection are void.
 
     //! ~SipHashAlgorithm() = default;
         // Destroy this object.
@@ -239,7 +239,8 @@ class SipHashAlgorithm {
         // hash will be produced regardless of whether a sequence of bytes is
         // passed in all at once or through multiple calls to this member
         // function. Input where 'length' == 0 will have no effect on the
-        // internal state of the algorithm.
+        // internal state of the algorithm. The behaviour is undefined unless
+        // 'data' points to at least 'length' bytes of initialized memory.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.

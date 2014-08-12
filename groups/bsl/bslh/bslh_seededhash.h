@@ -61,6 +61,31 @@ BSLS_IDENT("$Id: $")
 // More information is availible at:
 // https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
 // Using+Modular+Hashing&spaceKey=bde
+//
+///Requirements on (template parameter) Type 'SEED_GENERATOR'
+///----------------------------------------------------------
+// Users are free to write their own seed generator, which can be supplied to
+// bslh::SeededHash.  The seed generator must conform to the interface shown
+// here:
+//..
+// class YourSeedGenerator
+// {
+//     // ACCESSORS
+//     void generateSeed(char *seedLocation, size_t seedLength);
+// };
+//..
+// The only mandatory piece of the seed generator interface is the generateSeed
+// method which accepts a char pointer to memory to be written and a size_t
+// length in bytes. The generateSeed method must fill the size_t bytes of the
+// memory pointed to by the char pointer with a seed. The seed generator must
+// be either:
+//
+//: 1 Default constructible
+//:
+//: 2 Construcible with a parameterized constructor and copy constructible
+//
+// Option 1 is prefered because it allows 'bslh::SeededHash' to be defualt
+// constructible.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -109,12 +134,14 @@ struct SeededHash {
         // Create a 'bslh::SeededHash' which will default construct the
         // parameterized 'SEED_GENERATOR' to initialize the seed that will be
         // passed to the (template parameter) type 'HASH_ALGORITHM' when it is
-        // used.
+        // used. 'SEED_GENERATOR' must be default constructible to use this
+        // constructor.
 
     explicit SeededHash(SEED_GENERATOR& seedGenerator);
         // Create a 'bslh::SeededHash' which will use the specified
         // 'seedGenerator' to initialize the seed that will be passed to the
         // (template parameter) type 'HASH_ALGORITHM' when it is used.
+        // 'SEED_GENERATOR' must be copy-constructible to use this constructor.
 
     //! SeededHash(const SeededHash& original) = default;
         // Create a 'SeededHash' object having the same internal state as the

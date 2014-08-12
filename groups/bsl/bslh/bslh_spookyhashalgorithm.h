@@ -79,6 +79,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -136,8 +140,8 @@ class SpookyHashAlgorithm {
         // Create an instance of 'SpookyHashAlgorithm' seeded with a 128-bit
         // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
         // Each bit of the supplied seed will contribute to the final hash
-        // produced by 'computeHash()'. The behavior is undefined unless 'seed'
-        // points to an array of at least 16 'char's.
+        // produced by 'computeHash()'. The behaviour is undefined unless
+        // 'seed' points to at least 16 bytes of initialized memory.
 
     //! ~SpookyHashAlgorithm() = default;
         // Destroy this object.
@@ -147,11 +151,12 @@ class SpookyHashAlgorithm {
         // Incorporate the specified 'length' bytes of 'data' into the internal
         // state of the hashing algorithm. Every bit of data incorporated into
         // the internal state of the algorithm will contribute to the final
-        // hash produced by 'computeHash()'. The same hash value will be produced
-        // regardless of whether a sequence of bytes is passed in all at once
-        // or through multiple calls to this member function. Input where
-        // 'length' == 0 will have no effect on the internal state of the
-        // algorithm.
+        // hash produced by 'computeHash()'. The same hash value will be
+        // produced regardless of whether a sequence of bytes is passed in all
+        // at once or through multiple calls to this member function. Input
+        // where 'length' == 0 will have no effect on the internal state of the
+        // algorithm. The behaviour is undefined unless 'data' points to at
+        // least 'length' bytes of initialized memory.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
@@ -180,6 +185,8 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 inline
 void SpookyHashAlgorithm::operator()(const void *data, size_t length)
 {
+    BSLS_ASSERT(data);
+
     d_state.update(data, length);
 }
 

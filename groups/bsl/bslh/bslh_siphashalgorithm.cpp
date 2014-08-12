@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_assert.h>
 #include <bsls_types.h>
 #include <bsls_platform.h>
 
@@ -16,24 +17,26 @@ BSLS_IDENT("$Id$ $CSID$")
 // until the Bloomberg LP copyright banner below. Changes made to the original
 // code include:
 //
-//: 1 Adding BloombergLP and bslh namespaces
+//: 1  Adding BloombergLP and bslh namespaces
 //:
-//: 2 Renaming 'siphash' to 'SipHashAlgorithm'
+//: 2  Renaming 'siphash' to 'SipHashAlgorithm'
 //:
-//: 3 White space to meet BDE standards.
+//: 3  White space to meet BDE standards.
 //:
-//: 4 Added initializer list to handle class member initializers removed from
-//:   the header
+//: 4  Added initializer list to handle class member initializers removed from
+//:    the header
 //:
-//: 5 Added 'computeHash' to handle explicit conversion removed from header.
+//: 5  Added 'computeHash' to handle explicit conversion removed from header.
 //:
-//: 6 Changed the constructor to accept a 'const char *'
+//: 6  Changed the constructor to accept a 'const char *'
 //:
-//: 7 Changed endianness check to use BDE-defined check
+//: 7  Changed endianness check to use BDE-defined check
 //:
-//: 8 Removed unnamed namespace in favour of 'static'
+//: 8  Removed unnamed namespace in favour of 'static'
 //:
-//: 9 Added function contracts
+//: 9  Added function contracts
+//:
+//: 10 Added asserts to check passed pointers
 //
 ///Third Party Doc
 ///---------------
@@ -105,8 +108,10 @@ static void sipround(u64& v0, u64& v1, u64& v2, u64& v3)
 inline
 static u64 u8to64_le(const u8* p)
     // Return the 64-bit integer representation of the specified 'p' taking
-    // into account endianness.
+    // into account endianness. Undefined unless 'p' points to at least one
+    // byte of initialized memory.
 {
+    BSLS_ASSERT(p);
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
     return *static_cast<u64 const*>(static_cast<void const*>(p));
 #else
@@ -126,6 +131,8 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
 , d_bufSize(0)
 , d_totalLength(0)
 {
+    BSLS_ASSERT(seed);
+
     const u64 *seedPtr = reinterpret_cast<const u64 *>(seed);
     d_v3 ^= seedPtr[1];
     d_v2 ^= seedPtr[0];
@@ -136,6 +143,8 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
 void
 SipHashAlgorithm::operator()(const void *data, size_t length)
 {
+    BSLS_ASSERT(data);
+
     u8 const* in = static_cast<const u8*>(data);
 
     d_totalLength += length;

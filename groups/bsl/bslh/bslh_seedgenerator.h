@@ -19,22 +19,26 @@ BSLS_IDENT("$Id: $")
 // length seeds.  The quality of the seeds will only be as good as the quality
 // of the supplied RNG.  A cryptographically secure RNG must be supplied in
 // order for 'SeedGenerator' to produce seeds suitable for a cryptographically
-// secure hashing algorithm.
+// secure algorithm.
+//
+///Requirements on RNG
+///-------------------
+// The (template parameter) type 'RNG' shall be a class exposing 'operator()'
+// which returns a result of type 'result_type', which will also be and
+// publicly accessible in 'RNG'. The value returned by 'operator()' shall be
+// random bits, the quality of which can be defined by 'RNG'. 'RNG' shall also
+// be default and copy constructible.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHMIMP
-#include <bslh_spookyhashalgorithmimp.h>
-#endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
-#include <bslscm_version.h>
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_CSTRING
-#include <cstring>  // for 'memcpy'
+#include <string.h>  // for 'memcpy'
 #define INCLUDED_CSTRING
 #endif
 
@@ -51,7 +55,7 @@ namespace bslh {
                         // class bslh::SeedGenerator
                         // =========================
 template<class RNG>
-class SeedGenerator
+class SeedGenerator : private RNG
 {
     // This class template implements a seed generator which takes a user
     // supplied random number generator and uses it to generate an arbitrary
@@ -64,8 +68,8 @@ class SeedGenerator
         // 'operator()' on the (template parameter) type 'RNG'.
 
     // DATA
-    RNG          d_randomNumberGenerator; // User provided RNG.
-    const size_t k_RNGOUTPUTSIZE;         // Size in bytes of the rng's output.
+    enum { k_RNGOUTPUTSIZE =  sizeof(typename RNG::result_type)};
+        // Size in bytes of the rng's output.
 
   public:
     // CREATORS
@@ -73,7 +77,7 @@ class SeedGenerator
         // Create a 'bslh::SeedGenerator' that will default construct the
         // parameterized 'RNG' and use it to generate its seeds.
 
-    explicit SeedGenerator(RNG randomNumberGenerator);
+    explicit SeedGenerator(const RNG &randomNumberGenerator);
         // Create a 'bslh::SeedGenerator' that will use the specified
         // 'randomNumberGenerator' to generate its seeds.
 
@@ -85,48 +89,52 @@ class SeedGenerator
         // Destroy this object.
 
     // MANIPULATORS
+    //! SeedGenerator& operator=(const SeedGenerator& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
     void generateSeed(char *seedLocation, size_t seedLength);
         // Generate a seed of the specified 'seedLength' bytes and store it at
         // the specified 'seedLocation'. The seed will be generated with bytes
         // from the random number generator supplied at construction. All of
         // the returned bytes will come from the RNG, meaning if the requested
         // seed is larger than the return type of the RNG, the RNG will be
-        // called multiple times.
+        // called multiple times. The behaviour is undefined unless the memory
+        // at 'seedLocation' can store 'seedLength' bytes.
 };
 
 // CREATORS
 template<class RNG>
 inline
 SeedGenerator<RNG>::SeedGenerator()
-: d_randomNumberGenerator()
-, k_RNGOUTPUTSIZE(sizeof(typename RNG::result_type))
+: RNG()
 {
 }
 
 template<class RNG>
 inline
-SeedGenerator<RNG>::SeedGenerator(RNG randomNumberGenerator)
-: d_randomNumberGenerator(randomNumberGenerator)
-, k_RNGOUTPUTSIZE(sizeof(typename RNG::result_type))
+SeedGenerator<RNG>::SeedGenerator(const RNG &randomNumberGenerator)
+: RNG(randomNumberGenerator)
 {
 }
 
-// ACCESSORS
+// MANIPULATORS
 template<class RNG>
 inline
 void SeedGenerator<RNG>::generateSeed(char *seedLocation, size_t seedLength)
 {
+    BSLS_ASSERT(seedLocation || !seedLength);
+
     size_t numChunks = seedLength / k_RNGOUTPUTSIZE;
     size_t remainder = seedLength % k_RNGOUTPUTSIZE;
     char  *chunkEnd  = seedLocation + numChunks * k_RNGOUTPUTSIZE;
 
     for (; seedLocation != chunkEnd; seedLocation += k_RNGOUTPUTSIZE) {
-        *(reinterpret_cast<result_type *>(seedLocation)) =
-                                                     d_randomNumberGenerator();
+        *(reinterpret_cast<result_type *>(seedLocation)) = RNG::operator()();
     }
 
     if (remainder) {
-        result_type randomBytes = d_randomNumberGenerator();
+        result_type randomBytes = RNG::operator()();
         memcpy(seedLocation, &randomBytes, remainder);
     }
 }
