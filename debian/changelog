@@ -1,8 +1,15 @@
-bsl-internal (2.22.0.1.icbeta) unstable; urgency=low
+bsl-internal (2.22.0.2.icbeta) unstable; urgency=low
 
+  * 76b75d8 guard #pragma bde_verify in headers with #ifdefs
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 12 Aug 2014 09:34:21 -0400
+
+bsl-internal (2.22.0.1.icbeta) git; urgency=low
+
+  * db7b47f bump debian/changelog
   * 99d59fd Merge branch 'remove-qdfp-for-beta-drqs-55430575' into bsl-shared_ptr-ic-beta
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 11 Aug 2014 12:51:50 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 11 Aug 2014 12:54:18 -0400
 
 bsl-internal (2.22.0.0.icbeta) git; urgency=low
 
