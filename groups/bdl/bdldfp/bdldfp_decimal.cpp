@@ -47,8 +47,6 @@ BSLS_IDENT("$Id$")
 #include <stdio.h>
 #endif
 
-#include <bdldfp_bufferbuf.h>
-
 namespace BloombergLP {
 namespace bdldfp {
 

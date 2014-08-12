@@ -3923,71 +3923,75 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
 namespace BloombergLP {
 namespace bdldfp {
 
-inline Decimal_Type32::Decimal_Type32() : d_value() {}
+inline
+Decimal_Type32::Decimal_Type32()
+: d_value()
+{
+}
 
 inline
 Decimal_Type32::Decimal_Type32(DecimalImpUtil::ValueType32 value)
-    : d_value(value)
+: d_value(value)
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(Decimal_Type64 other)
-    : d_value(DecimalImpUtil::convertToDecimal32(*other.data()))
+: d_value(DecimalImpUtil::convertToDecimal32(*other.data()))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(float other)
-    : d_value(DecimalImpUtil::binaryToDecimal32(other))
+: d_value(DecimalImpUtil::binaryToDecimal32(other))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(double other)
-    : d_value(DecimalImpUtil::binaryToDecimal32(other))
+: d_value(DecimalImpUtil::binaryToDecimal32(other))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(long double other)
-    : d_value(DecimalImpUtil::binaryToDecimal32(other))
+: d_value(DecimalImpUtil::binaryToDecimal32(other))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(int other)
-    : d_value(DecimalImpUtil::int32ToDecimal32(other))
+: d_value(DecimalImpUtil::int32ToDecimal32(other))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(unsigned int other)
-    : d_value(DecimalImpUtil::uint32ToDecimal32(other))
+: d_value(DecimalImpUtil::uint32ToDecimal32(other))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(long int other)
-    : d_value(DecimalImpUtil::int64ToDecimal32(other))
+: d_value(DecimalImpUtil::int64ToDecimal32(other))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(unsigned long int other)
-    : d_value(DecimalImpUtil::uint64ToDecimal32(other))
+: d_value(DecimalImpUtil::uint64ToDecimal32(other))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(long long other)
-    : d_value(DecimalImpUtil::int64ToDecimal32(other))
+: d_value(DecimalImpUtil::int64ToDecimal32(other))
 {
 }
 
 inline
 Decimal_Type32::Decimal_Type32(unsigned long long other)
-    : d_value(DecimalImpUtil::uint64ToDecimal32(other))
+: d_value(DecimalImpUtil::uint64ToDecimal32(other))
 {
 }
 
@@ -4070,23 +4074,27 @@ bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
 namespace bdldfp {
 
 // CREATORS
-inline Decimal_Type64::Decimal_Type64() : d_value() {}
+inline
+Decimal_Type64::Decimal_Type64()
+: d_value()
+{
+}
 
 inline
 Decimal_Type64::Decimal_Type64(DecimalImpUtil::ValueType64 value)
-    : d_value(value)
+: d_value(value)
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(Decimal32 other)
-    : d_value(DecimalImpUtil::convertToDecimal64(*other.data()))
+: d_value(DecimalImpUtil::convertToDecimal64(*other.data()))
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(Decimal128 other)
-    : d_value(DecimalImpUtil::convertToDecimal64(*other.data()))
+: d_value(DecimalImpUtil::convertToDecimal64(*other.data()))
 {
 }
 
@@ -4094,19 +4102,19 @@ Decimal_Type64::Decimal_Type64(Decimal128 other)
 
 inline
 Decimal_Type64::Decimal_Type64(float other)
-    : d_value(DecimalImpUtil::binaryToDecimal64(other))
+: d_value(DecimalImpUtil::binaryToDecimal64(other))
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(double other)
-    : d_value(DecimalImpUtil::binaryToDecimal64(other))
+: d_value(DecimalImpUtil::binaryToDecimal64(other))
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(long double other)
-    : d_value(DecimalImpUtil::binaryToDecimal64(other))
+: d_value(DecimalImpUtil::binaryToDecimal64(other))
 {
 }
 
@@ -4114,37 +4122,37 @@ Decimal_Type64::Decimal_Type64(long double other)
 
 inline
 Decimal_Type64::Decimal_Type64(int other)
-    : d_value(DecimalImpUtil::int32ToDecimal64(other))
+: d_value(DecimalImpUtil::int32ToDecimal64(other))
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(unsigned int other)
-    : d_value(DecimalImpUtil::uint32ToDecimal64(other))
+: d_value(DecimalImpUtil::uint32ToDecimal64(other))
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(long other)
-    : d_value(DecimalImpUtil::int64ToDecimal64(other))
+: d_value(DecimalImpUtil::int64ToDecimal64(other))
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(unsigned long other)
-    : d_value(DecimalImpUtil::uint64ToDecimal64(other))
+: d_value(DecimalImpUtil::uint64ToDecimal64(other))
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(long long other)
-    : d_value(DecimalImpUtil::int64ToDecimal64(other))
+: d_value(DecimalImpUtil::int64ToDecimal64(other))
 {
 }
 
 inline
 Decimal_Type64::Decimal_Type64(unsigned long long other)
-    : d_value(DecimalImpUtil::uint64ToDecimal64(other))
+: d_value(DecimalImpUtil::uint64ToDecimal64(other))
 {
 }
 
@@ -4907,72 +4915,76 @@ inline bool bdldfp::operator>=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
 
 namespace bdldfp {
 
-inline Decimal_Type128::Decimal_Type128() : d_value() {}
+inline
+Decimal_Type128::Decimal_Type128()
+: d_value()
+{
+}
 
 inline
 Decimal_Type128::Decimal_Type128(DecimalImpUtil::ValueType128 value)
-    : d_value(value)
+: d_value(value)
 {
 }
 
 inline
 Decimal_Type128::Decimal_Type128(Decimal32 value)
-    : d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
+: d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
 {
 }
 
 inline
 Decimal_Type128::Decimal_Type128(Decimal64 value)
-    : d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
+: d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
 {
 }
 
 inline
 Decimal_Type128::Decimal_Type128(float value)
-    : d_value(DecimalImpUtil::binaryToDecimal128(value))
+: d_value(DecimalImpUtil::binaryToDecimal128(value))
 {
 }
 
 inline
 Decimal_Type128::Decimal_Type128(double value)
-    : d_value(DecimalImpUtil::binaryToDecimal128(value))
+: d_value(DecimalImpUtil::binaryToDecimal128(value))
 {
 }
 
 inline
 Decimal_Type128::Decimal_Type128(long double value)
-    : d_value(DecimalImpUtil::binaryToDecimal128(value))
+: d_value(DecimalImpUtil::binaryToDecimal128(value))
 {
 }
 
 inline
 Decimal_Type128::Decimal_Type128(int value)
-    : d_value(DecimalImpUtil::int32ToDecimal128(value))
+: d_value(DecimalImpUtil::int32ToDecimal128(value))
 {
 }
 
 inline Decimal_Type128::Decimal_Type128(unsigned int value)
-    : d_value(DecimalImpUtil::uint32ToDecimal128(value))
+: d_value(DecimalImpUtil::uint32ToDecimal128(value))
 {
 }
 
 inline Decimal_Type128::Decimal_Type128(long value)
-    : d_value(DecimalImpUtil::int64ToDecimal128(value))
+: d_value(DecimalImpUtil::int64ToDecimal128(value))
 {
 }
 
 inline Decimal_Type128::Decimal_Type128(unsigned long value)
-    : d_value(DecimalImpUtil::uint64ToDecimal128(value))
+: d_value(DecimalImpUtil::uint64ToDecimal128(value))
 {
 }
 
 inline Decimal_Type128::Decimal_Type128(long long value)
-    : d_value(DecimalImpUtil::int64ToDecimal128(value))
+: d_value(DecimalImpUtil::int64ToDecimal128(value))
 {
 }
 
 inline Decimal_Type128::Decimal_Type128(unsigned long long value)
-    : d_value(DecimalImpUtil::uint64ToDecimal128(value))
+: d_value(DecimalImpUtil::uint64ToDecimal128(value))
 {
 }
 

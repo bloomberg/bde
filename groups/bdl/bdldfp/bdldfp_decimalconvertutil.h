@@ -381,10 +381,13 @@ struct DecimalConvertUtil {
                                           Decimal64      decimal);
     static void decimalToDenselyPacked(   unsigned char *buffer,
                                           Decimal128     decimal);
-        // Store the specified 'decimal', in DPD format, into the specified
-        // 'buffer' and return the address one past the last byte written into
-        // the 'buffer'.  The DPD format is the densely packed base-10
-        // significand encoding.
+        // Populate the specified 'buffer' with the Densely Packed Decimal
+        // (DPD) representation of the specified 'decimal' value.  The DPD
+        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
+        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
+        // unless 'buffer' points to a contiguous sequence of at least
+        // 'sizeof(decimal)' bytes.  Note that the DPD representation is
+        // defined in section 3.5 of IEEE 754-2008.
 
                         // decimalFromDenselyPacked functions
 
@@ -397,12 +400,18 @@ struct DecimalConvertUtil {
         // undefined unless 'buffer' points to a memory area at least
         // 'sizeof(decimal)' in size containing a value in DPD format.
 
-    static void decimalFromDenselyPacked(Decimal32           *decimal,
-                                         const unsigned char *buffer);
-    static void decimalFromDenselyPacked(Decimal64           *decimal,
-                                         const unsigned char *buffer);
-    static void decimalFromDenselyPacked(Decimal128          *decimal,
-                                         const unsigned char *buffer);
+    static void decimalFromDenselyPacked(   Decimal32           *decimal,
+                                            const unsigned char *buffer);
+    static void decimalFromDenselyPacked(   Decimal64           *decimal,
+                                            const unsigned char *buffer);
+    static void decimalFromDenselyPacked(   Decimal128          *decimal,
+                                            const unsigned char *buffer);
+    static void decimal32FromDenselyPacked( Decimal32           *decimal,
+                                            const unsigned char *buffer);
+    static void decimal64FromDenselyPacked( Decimal64           *decimal,
+                                            const unsigned char *buffer);
+    static void decimal128FromDenselyPacked(Decimal128          *decimal,
+                                            const unsigned char *buffer);
         // Store, into the specified 'decimal', the native implmentation
         // representation of the value of the same size base-10 floating point
         // value represented in Densely Packed Decimal format, at the specified
