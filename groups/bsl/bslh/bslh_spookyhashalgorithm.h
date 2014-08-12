@@ -165,31 +165,29 @@ class SpookyHashAlgorithm {
 // CREATORS
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm()
-: d_state()
+: d_state(1, 2)
 {
-    d_state.Init(1, 2);
 }
 
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
-: d_state()
+: d_state(reinterpret_cast<const Uint64 *>(seed)[0],
+          reinterpret_cast<const Uint64 *>(seed)[1])
 {
-    const Uint64 *seedPtr = reinterpret_cast<const Uint64 *>(seed);
-    d_state.Init(seedPtr[0], seedPtr[1]);
 }
 
 // MANIPULATORS
 inline
 void SpookyHashAlgorithm::operator()(const void *data, size_t length)
 {
-    d_state.Update(data, length);
+    d_state.update(data, length);
 }
 
 inline
 SpookyHashAlgorithm::result_type SpookyHashAlgorithm::computeHash()
 {
     bsls::Types::Uint64 h1, h2;
-    d_state.Final(&h1, &h2);
+    d_state.finalize(&h1, &h2);
     return h1;
 }
 

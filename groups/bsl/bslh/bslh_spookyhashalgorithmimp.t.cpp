@@ -19,21 +19,18 @@ using namespace bslh;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 5] static void Hash128(*msg, len, *h1, *h2);
-// [ 6] static Uint64 Hash64(*message, length, seed);
-// [ 6] static Uint32 Hash32(*message, length, seed);
+// [ 5] static void hash128(*msg, len, *h1, *h2);
+// [ 6] static Uint64 hash64(*message, length, seed);
+// [ 6] static Uint32 hash32(*message, length, seed);
 //
 // CREATORS
-// [ 2] SpookyHashAlgorithmImp()
-// [ 2] SpookyHashAlgorithmImp(const SpookyHashAlgorithmImp)
+// [ 3] SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2);
 // [ 2] ~SpookyHashAlgorithmImp()
 //
 // MANIPULATORS
-// [ 2] SpookyHashAlgorithmImp& operator=(const SpookyHashAlgorithmImp&)
-// [ 3] void Init(Uint64 seed1, Uint64 seed2);
-// [ 4] void Update(const void *message, size_t length);
-// [ 3] void Final(Uint64 *hash1, Uint64 *hash2);
-
+// [ 4] void update(const void *message, size_t length);
+// [ 3] void finalize(Uint64 *hash1, Uint64 *hash2);
+//
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE
@@ -162,9 +159,9 @@ const int NUM_DATA = sizeof DATA / sizeof *DATA;
 ///Example: Creating 128-bit checksums
 ///- - - - - - - - - - - - - - - - - -
 // Suppose we have a library of 4 billion pieces of data and we want to store
-// checksums for this data. For a 64-bit hash, there is a 35% chance of two of
+// checksums for this data.  For a 64-bit hash, there is a 35% chance of two of
 // these checksums colliding (according to the approximation found here:
-// http://en.wikipedia.org/wiki/Birthday_problem). We want to avoid checksum
+// http://en.wikipedia.org/wiki/Birthday_problem).  We want to avoid checksum
 // collision, so we will use the 128-bit hashing functionality provided by
 // 'SpookyHashAlgorithmImp'.
 //
@@ -176,7 +173,10 @@ class CheckedData {
     // This class holds a pointer to data and provides a way of verifying that
     // the data has not changed.
 
+    // TYPES
     typedef bsls::Types::Uint64 Uint64;
+
+    // DATA
     size_t      d_length;
     const char *d_data;
     Uint64      d_checksum1;
@@ -186,18 +186,19 @@ class CheckedData {
     CheckedData(const char *data, size_t length);
         // Creates an instance of this class having the specified 'length'
         // bytes of 'data'. Note that only a pointer to the data will be
-        // maintained, it will not be copied.
+        // maintained, it will not be copied. The behaviour is undefined unless
+        // 'data' is initialized with at least 'length' bytes.
 
-    const char *GetData();
+    const char *getData();
         // Return a pointer to the data being tracked by this class.
 
-    bool IsDataValid();
-        // Return true of the data stored in this class matches the stored
-        // checksum and is considered valid.
+    bool isDataValid();
+        // Return 'true' if the data stored in this class matches the stored
+        // checksum, and 'false' otherwise.
 };
 
 //..
-// Then, we will define the 'CheckedData' constructor. Here we will use
+// Then, we define the 'CheckedData' constructor.  Here we will use
 // 'SpookyHashImp' to calculate a 128-bit checksum.
 //..
 
@@ -207,31 +208,33 @@ CheckedData::CheckedData(const char *data, size_t length)
 , d_checksum1(0)
 , d_checksum2(0)
 {
-    SpookyHashAlgorithmImp hashAlg;
+    BSLS_ASSERT(data);
 
-    hashAlg.Hash128(d_data, d_length, &d_checksum1, &d_checksum2);
+    SpookyHashAlgorithmImp hashAlg(1, 2);
+
+    hashAlg.hash128(d_data, d_length, &d_checksum1, &d_checksum2);
 }
 
-const char *CheckedData::GetData() {
+const char *CheckedData::getData() {
     return d_data;
 }
 
 //..
-// Next, we define 'IsDataValid'. We will generate a checksum from the
+// Next, we define 'IsDataValid'.  We will generate a checksum from the
 // contained data and then compare it to the checksum we generated when the
-// class was created. If the two hashes match, then we can be reasonable
+// class was created.  If the two hashes match, then we can be reasonable
 // certian that the data is still in a valid state (the chance of an accidental
-// collision is very low). If the checksums do not match, we know that the data
-// has been corrupted. We will not be able to restore it, but we will know not
-// to trust it.
+// collision is very low).  If the checksums do not match, we know that the
+// data has been corrupted. We will not be able to restore it, but we will know
+// not to trust it.
 //..
 
-bool CheckedData::IsDataValid() {
-    SpookyHashAlgorithmImp hashAlg;
+bool CheckedData::isDataValid() {
+    SpookyHashAlgorithmImp hashAlg(1, 2);
     Uint64 checksum1 = 0;
     Uint64 checksum2 = 0;
 
-    hashAlg.Hash128(d_data, d_length, &checksum1, &checksum2);
+    hashAlg.hash128(d_data, d_length, &checksum1, &checksum2);
 
     return (d_checksum1 == checksum1) && (d_checksum2 == checksum2);
 }
@@ -316,41 +319,46 @@ int main(int argc, char *argv[])
 // Now, we check that the 'CheckedData' recognizes that it is still valid.
 //..
 
-        ASSERT(checkedData.IsDataValid());
+        ASSERT(checkedData.isDataValid());
 
 //..
 // Finally, we tamper with the data and check that our 'CheckedData' class can
 // detect this.
 //..
         data[34] = 'z';
-        ASSERT(!checkedData.IsDataValid());
+        ASSERT(!checkedData.isDataValid());
 
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING HASH64 AND HASH32
-        //   Verify that the class offers the ability to invoke 'Hash64' and
-        //   'Hash32' with some bytes and a length. Verify that the values
+        // TESTING 'hash64' AND 'hash32'
+        //   Verify that the class offers the ability to invoke 'hash64' and
+        //   'hash32' with some bytes and a length. Verify that the values
         //   returned matches the hash specified by the canonical SpookyHash
         //   implementation.
         //
         // Concerns:
-        //: 1 The functions exists and take a pointer and a length.
+        //: 1 The functions is publically callable and take a pointer and a
+        //:   length.
         //:
         //: 2 Hashes returned match the data produced by the canonical
         //:   implementation of SpookyHash.
+        //:
+        //: 3 Both function do a BSLS_ASSERT_SAFE for null pointers.
         //
         // Plan:
         //: 1 Check the values returned against the expected results from a
         //:   known good version of the algorithm. (C-1,2)
+        //:
+        //: 2 Call 'hash64' and 'hash32' with a null pointer. (C-3)
         //
         // Testing:
-        //   static Uint64 Hash64(*message, length, seed);
-        //   static Uint32 Hash32(*message, length, seed);
+        //   static Uint64 hash64(*message, length, seed);
+        //   static Uint32 hash32(*message, length, seed);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING HASH64 AND HASH32"
-                            "\n=========================\n");
+        if (verbose) printf("\nTESTING 'hash64' AND 'hash32'"
+                            "\n============================\n");
 
         static const struct {
             int        d_line;
@@ -416,40 +424,59 @@ int main(int argc, char *argv[])
                                         VALUE,
                                         HASH);
 
-                Obj hash;
-
-                unsigned int hash32 = hash.Hash32(VALUE, strlen(VALUE), 1);
+                unsigned int hash32 = Obj::hash32(VALUE, strlen(VALUE), 1);
                 LOOP_ASSERT(LINE, hash32 == (unsigned int)HASH);
 
-                Uint64 hash64 = hash.Hash64(VALUE, strlen(VALUE), 1);
+                Uint64 hash64 = Obj::hash64(VALUE, strlen(VALUE), 1);
                 LOOP_ASSERT(LINE, hash64 == HASH);
             }
+        }
+
+        if (verbose) printf("Call 'hash64' and 'hash32' with null pointers."
+                            " (C-3)\n");
+        {
+            const char data[5] = {'a', 'b', 'c', 'd', 'e'};
+            Uint64       h64 = 1ULL;
+            unsigned int h32 = 2ULL;
+
+            bsls::AssertFailureHandlerGuard
+                                           g(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(Obj::hash64(   0, 5, h64));
+            ASSERT_PASS(Obj::hash64(data, 5, h64));
+            ASSERT_FAIL(Obj::hash32(   0, 5, h32));
+            ASSERT_PASS(Obj::hash32(data, 5, h32));
         }
 
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING HASH128
+        // TESTING 'hash128'
         //   Verify that the class offers the ability to invoke 'Hash128' with
         //   some bytes and a length. Verify that the values returned matches
         //   the hash specified by the canonical SpookyHash implementation.
         //
         // Concerns:
-        //: 1 The function exists and takes a pointer and a length.
+        //: 1 The function is publically callabel and takes a pointer and a
+        //:   length.
         //:
         //: 2 Hashes returned via 'h1' and 'h2' match the data produced by the
         //:   canonical implementation of SpookyHash.
+        //:
+        //: 3 'hash128' does a BSLS_ASSERT_SAFE for null pointers.
         //
         // Plan:
         //: 1 Check the values returned in 'h1' and 'h2' against the expected
         //:   results from a known good version of the algorithm. (C-1,2)
+        //:
+        //: 2 Call 'hash128' with a null pointer. (C-3)
         //
         // Testing:
-        //   static void Hash128(*msg, len, *h1, *h2);
+        //   static void hash128(*msg, len, *h1, *h2);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING HASH128"
-                            "\n===============\n");
+        if (verbose) printf("\nTESTING 'hash128'"
+                            "\n================\n");
 
         if (verbose) printf("Check the values returned in 'h1' and 'h2'"
                             " against the expected results from a known good"
@@ -466,64 +493,83 @@ int main(int argc, char *argv[])
                                         HASH1,
                                         HASH2);
 
-                Obj hash;
-
                 Uint64 h1 = 1ULL;
                 Uint64 h2 = 2ULL;
-                hash.Hash128(VALUE, strlen(VALUE), &h1, &h2);
+                Obj::hash128(VALUE, strlen(VALUE), &h1, &h2);
 
                 LOOP_ASSERT(LINE, h1 == HASH1);
                 LOOP_ASSERT(LINE, h2 == HASH2);
             }
         }
 
+        if (verbose) printf("Call 'hash128' with null pointers. (C-3)\n");
+        {
+            const char data[5] = {'a', 'b', 'c', 'd', 'e'};
+            Uint64 h1 = 1ULL;
+            Uint64 h2 = 2ULL;
+
+            bsls::AssertFailureHandlerGuard
+                                           g(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(Obj::hash128(   0, 5, &h1, &h2));
+            ASSERT_FAIL(Obj::hash128(data, 5,   0, &h2));
+            ASSERT_FAIL(Obj::hash128(data, 5, &h1,   0));
+            ASSERT_PASS(Obj::hash128(data, 5, &h1, &h2));
+        }
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING UPDATE
-        //   Verify that the class offers the ability to invoke 'Update' with
-        //   some bytes and a length. Verify that calling 'Update' will permute
+        // TESTING 'update'
+        //   Verify that the class offers the ability to invoke 'update' with
+        //   some bytes and a length. Verify that calling 'update' will permute
         //   the algorithm's internal state as specified by SpookyHash
-        //   (verified by checking 'Final'). Verify that calling 'Update' with
-        //   messages incrementally or all at once will return the hash
+        //   (verified by checking 'finalize'). Verify that calling 'Update'
+        //   with messages incrementally or all at once will return the hash
         //   specified by the canonical SpookyHash implementation.
         //
         // Concerns:
-        //: 1 The function exists and takes a pointer and a length.
+        //: 1 The function is publically callable and takes a pointer and a
+        //:   length.
         //:
         //: 2 Given the same bytes, the function will permute the
         //:   internal state of the algorithm in the same way, regardless of
         //:   whether the bytes are passed in all at once or in pieces.
         //:
-        //: 3 'Update' can continue to be used after 'Final' has been called,
-        //:   and produces the same values as if 'Final' had never been called.
+        //: 3 'Update' can continue to be used after 'finalize' has been
+        //:   called, and produces the same values as if 'finalize' had never
+        //:   been called.
         //:
-        //: 4 Hashes produced by inserting data via 'Update' and calling
-        //:  'Final' matches the data produced by the canonical implementation
-        //:   of SpookyHash.
+        //: 4 Hashes produced by inserting data via 'update' and calling
+        //:  'finalize' matches the data produced by the canonical
+        //:  implementation of SpookyHash.
+        //:
+        //: 5 'update' does a BSLS_ASSERT_SAFE for null pointers.
         //
         // Plan:
         //: 1 Insert various lengths of c-strings into the algorithm both all
-        //:   at once, char by char, and in chunks using 'Update'. Call 'Final'
-        //:   periodically between updates. Assert that the algorithm produces
-        //:   the same result in all cases. (C-1,2,3)
+        //:   at once, char by char, and in chunks using 'Update'. Call
+        //:   'finalize' periodically between updates. Assert that the
+        //:   algorithm produces the same result in all cases. (C-1,2,3)
         //:
-        //: 2 Check the output of 'Update' followed by 'Final' against the
+        //: 2 Check the output of 'update' followed by 'finalize' against the
         //:   expected results from a known good version of the algorithm.
         //:   (C-4)
+        //:
+        //: 3 Call 'update' with a null pointer. (C-5)
         //
         // Testing:
-        //   void Update(const void *message, size_t length);
+        //   void update(const void *message, size_t length);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING UPDATE"
-                            "\n==============\n");
+        if (verbose) printf("\nTESTING 'update'"
+                            "\n================\n");
 
         if (verbose) printf("Insert various lengths of c-strings into the"
                             " algorithm both all at once, char by char, and in"
-                            " chunks using 'Update'. Call 'Final' periodically"
-                            " between updates. Assert that the algorithm"
-                            " produces the same result in all cases."
+                            " chunks using 'update'. Call 'finalize'"
+                            " periodically between updates. Assert that the"
+                            " algorithm produces the same result in all cases."
                             " (C-1,2,3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
@@ -532,54 +578,50 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n", VALUE);
 
-                Obj contiguousHash;
-                Obj charHash;
-                Obj chunkHash;
+                Obj contiguousHash(1, 2);
+                Obj charHash(1, 2);
+                Obj chunkHash(1, 2);
 
-                contiguousHash.Init(1, 2);
-                charHash.Init(1, 2);
-                chunkHash.Init(1, 2);
-
-                contiguousHash.Update(VALUE, strlen(VALUE));
+                contiguousHash.update(VALUE, strlen(VALUE));
 
                 for (unsigned int j = 0; j < strlen(VALUE); ++j){
                     if (veryVeryVerbose) printf("Hashing by char: %c\n",
                                                                      VALUE[j]);
-                    charHash.Update(&VALUE[j], sizeof(char));
+                    charHash.update(&VALUE[j], sizeof(char));
 
                     Uint64 h1;
                     Uint64 h2;
-                    charHash.Final(&h1, &h2);
+                    charHash.finalize(&h1, &h2);
                 }
 
                 for (unsigned int j = 0; j < strlen(VALUE); j+=2){
                     if (strlen(VALUE) - j == 1) {
                         if (veryVeryVerbose) printf("Hashing by chunk: %c\n",
                                                                      VALUE[j]);
-                        chunkHash.Update(&VALUE[j], sizeof(char));
+                        chunkHash.update(&VALUE[j], sizeof(char));
                     } else {
 
                         if (veryVeryVerbose) printf("Hashing by chunk: %c%c\n",
                                                                    VALUE[j],
                                                                    VALUE[j+1]);
-                        chunkHash.Update(&VALUE[j], sizeof(char)*2);
+                        chunkHash.update(&VALUE[j], sizeof(char)*2);
                     }
                 }
 
                 Uint64 charH1, charH2, chunkH1, chunkH2, contigH1, contigH2;
 
-                charHash.Final(&charH1, &charH2);
-                chunkHash.Final(&chunkH1, &chunkH2);
-                contiguousHash.Final(&contigH1, &contigH2);
+                charHash.finalize(&charH1, &charH2);
+                chunkHash.finalize(&chunkH1, &chunkH2);
+                contiguousHash.finalize(&contigH1, &contigH2);
 
                 LOOP_ASSERT(LINE, charH1 == chunkH1 && chunkH1 == contigH1);
                 LOOP_ASSERT(LINE, charH2 == chunkH2 && chunkH2 == contigH2);
             }
         }
 
-        if (verbose) printf("Check the output of 'Update' followed by 'Final'"
-                            " against the expected results from a known good"
-                            " version of the algorithm. (C-4)\n");
+        if (verbose) printf("Check the output of 'update' followed by"
+                            " 'finalize' against the expected results from a"
+                            " known good version of the algorithm. (C-4)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int                LINE   = DATA[i].d_line;
@@ -592,18 +634,30 @@ int main(int argc, char *argv[])
                                         HASH1,
                                         HASH2);
 
-                Obj hash;
-                hash.Init(1, 2);
+                Obj hash(1, 2);
 
-                hash.Update(VALUE, strlen(VALUE));
+                hash.update(VALUE, strlen(VALUE));
 
                 Uint64 h1;
                 Uint64 h2;
-                hash.Final(&h1, &h2);
+                hash.finalize(&h1, &h2);
 
                 LOOP_ASSERT(LINE, h1 == HASH1);
                 LOOP_ASSERT(LINE, h2 == HASH2);
             }
+        }
+
+        if (verbose) printf("Call 'update' with a null pointer. (C-5)\n");
+        {
+            const char data[5] = {'a', 'b', 'c', 'd', 'e'};
+            Obj hash(0, 1);
+
+            bsls::AssertFailureHandlerGuard
+                                           g(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(hash.update(0, 5));
+            ASSERT_PASS(hash.update(data, 5));
+
         }
 
       } break;
@@ -611,15 +665,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING INITIALIZATION AND FINALIZATION
         //   Verify that the class offers the ability to initialize and
-        //   finalize via 'Init' and 'Final' respectively. Verify that calling
-        //   'operator()' will permute the algorithm's internal state as these
-        //   operators together produces a result that matches the canonical
-        //   implementation.  Note that these operators must be tested together
-        //   because 'Final' is the only way to access the internal state, and
-        //   'Init' must be called for behavior to be defined.
+        //   finalize via the parameterized constructor and 'finalize()'
+        //   respectively. Verify that calling the constructor with different
+        //   seed will produce different results. Verify that the constructor
+        //   and 'finalize' together produces a result that matches the
+        //   canonical implementation.  Note that these operators must be
+        //   tested together because 'final' is the only way to access the
+        //   internal state and the constructor is required to create an object
+        //   in the first place.
         //
         // Concerns:
-        //: 1 Both functions exist.
+        //: 1 The parameterized constructor and 'finalize' are publicly
+        //:   callable.
         //:
         //: 2 Changing the seed used in initialization will change the output
         //:   of the finalization.
@@ -627,8 +684,10 @@ int main(int argc, char *argv[])
         //: 3 Initializing and finalizing with known values will yeild results
         //:   that match the canonical implementation.
         //:
-        //: 4 'Final' can be called multiple times and does not modify the
+        //: 4 'finalize' can be called multiple times and does not modify the
         //:   state of the algorithm or return different results.
+        //:
+        //: 5 'update' does a BSLS_ASSERT_SAFE for null pointers.
         //
         // Plan:
         //: 1 Initialize the algorithm with various seeds test that permuting
@@ -637,12 +696,14 @@ int main(int argc, char *argv[])
         //: 2 Use a table of value to check that known seeds will produce
         //:   output that matches the canonical implementation. (C-3)
         //:
-        //: 3 Call 'Final' multiple times in a row and test that the result
+        //: 3 Call 'finalize' multiple times in a row and test that the result
         //:   that is returned is always the same. (C-4)
+        //:
+        //: 4 Call 'finalize' with null pointers. (C-5)
         //
         // Testing:
-        //   void Init(Uint64 seed1, Uint64 seed2);
-        //   void Final(Uint64 *hash1, Uint64 *hash2);
+        //   SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2);
+        //   void finalize(Uint64 *hash1, Uint64 *hash2);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING INITIALIZATION AND FINALIZATION"
@@ -692,10 +753,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i != 10; ++i) {
                 if (veryVerbose) printf("Testing with seeds: %i, %i\n", i, 0);
 
-                Obj hash;
-
-                hash.Init(i, 0);
-                hash.Final(&h1, &h2);
+                Obj hash(i, 0);
+                hash.finalize(&h1, &h2);
 
                 ASSERT(h1 != previousH1);
                 ASSERT(h2 != previousH2);
@@ -707,10 +766,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i != 10; ++i) {
                 if (veryVerbose) printf("Testing with seeds: %i, %i\n", 0, i);
 
-                Obj hash;
-
-                hash.Init(0, i);
-                hash.Final(&h1, &h2);
+                Obj hash(0, i);
+                hash.finalize(&h1, &h2);
 
                 ASSERT(h1 != previousH1);
                 ASSERT(h2 != previousH2);
@@ -722,10 +779,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i != 10; ++i) {
                 if (veryVerbose) printf("Testing with seeds: %i, %i\n", i, i);
 
-                Obj hash;
-
-                hash.Init(i, i);
-                hash.Final(&h1, &h2);
+                Obj hash(i, i);
+                hash.finalize(&h1, &h2);
 
                 ASSERT(h1 != previousH1);
                 ASSERT(h2 != previousH2);
@@ -753,18 +808,17 @@ int main(int argc, char *argv[])
                                         HASH1,
                                         HASH2);
 
-                Obj hash;
-                hash.Init(SEED1, SEED2);
+                Obj hash(SEED1, SEED2);
 
                 Uint64 h1;
                 Uint64 h2;
-                hash.Final(&h1, &h2);
+                hash.finalize(&h1, &h2);
                 LOOP_ASSERT(LINE, HASH1 == h1);
                 LOOP_ASSERT(LINE, HASH2 == h2);
             }
         }
 
-        if (verbose) printf("Call 'Final' multiple times in a row and test"
+        if (verbose) printf("Call 'finalize' multiple times in a row and test"
                             " that the result that is returned is always the"
                             " same. (C-4)\n");
         {
@@ -772,16 +826,14 @@ int main(int argc, char *argv[])
             Uint64 previousH2 = 0;
             Uint64 h1;
             Uint64 h2;
-            Obj hash;
-
-            hash.Init(8467435, 2435748);
-            hash.Final(&previousH1, &previousH2);
+            Obj hash(8467435, 2435748);
+            hash.finalize(&previousH1, &previousH2);
 
             for (int i = 0; i != 10; ++i) {
                 if (veryVerbose) printf("Iteration %i, asserting hashes are"
                                         " equal.\n", i);
 
-                hash.Final(&h1, &h2);
+                hash.finalize(&h1, &h2);
 
                 ASSERT(h1 == previousH1);
                 ASSERT(h2 == previousH2);
@@ -791,84 +843,49 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) printf("Call 'finalize' with null pointers. (C-5)\n");
+        {
+            Uint64 h1;
+            Uint64 h2;
+            Obj hash(0, 1);
+
+            bsls::AssertFailureHandlerGuard
+                                           g(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(hash.finalize(0, &h2));
+            ASSERT_FAIL(hash.finalize(&h1, 0));
+            ASSERT_PASS(hash.finalize(&h1, &h2));
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING IMPLICITLY DEFINED OPERATIONS
-        //   Ensure that the four implicitly declared and defined special
-        //   member functions are publicly callable.  As there is no observable
-        //   state to inspect, there is little to verify other than that the
-        //   expected expressions all compile, and
+        // TESTING CREATORS
+        //   Ensure that the implicitly defined destructor and the explicitly
+        //   defined parameterized constructor exist and are callable.
         //
         // Concerns:
-        //: 1 Objects can be created using the default constructor.
+        //: 1 Objects can be created using the parameterized constructor.
         //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
+        //: 2 Objects can be destroyed.
         //
         // Plan:
-        //: 1 Create a default constructed 'SpookyHashAlgorithmImp' and allow
-        //:   it to leave scope to be destroyed. (C-1,6)
-        //:
-        //: 2 Use the copy-initialization syntax to create a new instance of
-        //:   'SpookyHashAlgorithmImp' from an existing instance. (C-2,3)
-        //:
-        //: 3 Assign the value of the one (const) instance of
-        //:   'SpookyHashAlgorithmImp' to a second. (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the one instance of
-        //:   'SpookyHashAlgorithmImp' to a second instance of
-        //:   'SpookyHashAlgorithmImp', into a self-assignment of the second
-        //:   object. (C-5)
+        //: 1 Create an object of type 'SpookyHashAlgorithmImp' and allow it to
+        //:   leave scope to be destroyed. (C-1,2)
         //
         // Testing:
-        //   SpookyHashAlgorithmImp()
-        //   SpookyHashAlgorithmImp(const SpookyHashAlgorithmImp)
         //   ~SpookyHashAlgorithmImp()
-        //   SpookyHashAlgorithmImp& operator=(const SpookyHashAlgorithmImp&)
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING IMPLICITLY DEFINED OPERATIONS"
-                   "\n=====================================\n");
+            printf("\nTESTING CREATORS"
+                   "\n================\n");
 
-        if (verbose) printf("Create a default constructed"
-                            " 'SpookyHashAlgorithmImp' and allow it to leave"
-                            " scope to be destroyed. (C-1,6)\n");
+        if (verbose) printf("Create an object of type 'SpookyHashAlgorithmImp'"
+                            " and allow it to leave scope to be destroyed."
+                            " (C-1,6)\n");
         {
-            Obj alg1 = Obj();
-        }
-
-        if (verbose) printf("Use the copy-initialization syntax to create a"
-                            " new instance of 'SpookyHashAlgorithmImp' from an"
-                            " existing instance. (C-2,3)\n");
-        {
-            Obj alg1 = Obj();
-            Obj alg2 = alg1;
-        }
-
-        if (verbose) printf("Assign the value of the one (const) instance of"
-                            " 'SpookyHashAlgorithmImp' to a second. (C-4)\n");
-        {
-            const Obj alg1 = Obj();
-            Obj alg2 = alg1;
-        }
-
-        if (verbose) printf("Chain the assignment of the value of the one"
-                            " instance of 'SpookyHashAlgorithmImp' to a second"
-                            " instance of 'SpookyHashAlgorithmImp', into a"
-                            " self-assignment of the second object. (C-5)\n");
-        {
-            Obj alg1 = Obj();
-            Obj alg2 = alg1;
-            alg2 = alg2 = alg1;
+            Obj alg1(0, 0);
         }
 
       } break;
@@ -898,27 +915,26 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Instantiate 'SpookyHashAlgorithmImp'\n");
         {
-            Obj spookyImp;
+            Obj spookyImp(1, 2);
         }
 
         if (verbose) printf("Verify different hashes are produced for"
                             " different c-strings. (C-1)\n");
         {
-            Obj spookyImp;
             const char *str1 = "123456";
             const char *str2 = "654321";
-            ASSERT(spookyImp.Hash32(str1, sizeof(char)*6, 0) !=
-                   spookyImp.Hash32(str2, sizeof(char)*6, 0));
+            ASSERT(Obj::hash32(str1, sizeof(char)*6, 0) !=
+                   Obj::hash32(str2, sizeof(char)*6, 0));
 
-            ASSERT(spookyImp.Hash64(str1, sizeof(char)*6, 0) !=
-                   spookyImp.Hash64(str2, sizeof(char)*6, 0));
+            ASSERT(Obj::hash64(str1, sizeof(char)*6, 0) !=
+                   Obj::hash64(str2, sizeof(char)*6, 0));
 
             Uint64 hash1a = 0ULL;
             Uint64 hash1b = 0ULL;
-            spookyImp.Hash128(str1, sizeof(char)*6, &hash1a, &hash1b);
+            Obj::hash128(str1, sizeof(char)*6, &hash1a, &hash1b);
             Uint64 hash2a = 0ULL;
             Uint64 hash2b = 0ULL;
-            spookyImp.Hash128(str2, sizeof(char)*6, &hash2a, &hash2b);
+            Obj::hash128(str2, sizeof(char)*6, &hash2a, &hash2b);
 
             ASSERT(hash1a != 0ULL && hash1b != 0ULL);
             ASSERT(hash1a != hash2a);
@@ -928,21 +944,20 @@ int main(int argc, char *argv[])
         if (verbose) printf("Verify the same hashes are produced for the same"
                             " c-strings. (C-1)\n");
         {
-            Obj spookyImp;
             const char *str1 = "123456";
             const char *str2 = "123456";
-            ASSERT(spookyImp.Hash32(str1, sizeof(char)*6, 0) ==
-                   spookyImp.Hash32(str2, sizeof(char)*6, 0));
+            ASSERT(Obj::hash32(str1, sizeof(char)*6, 0) ==
+                   Obj::hash32(str2, sizeof(char)*6, 0));
 
-            ASSERT(spookyImp.Hash64(str1, sizeof(char)*6, 0) ==
-                   spookyImp.Hash64(str2, sizeof(char)*6, 0));
+            ASSERT(Obj::hash64(str1, sizeof(char)*6, 0) ==
+                   Obj::hash64(str2, sizeof(char)*6, 0));
 
             Uint64 hash1a = 0ULL;
             Uint64 hash1b = 0ULL;
-            spookyImp.Hash128(str1, sizeof(char)*6, &hash1a, &hash1b);
+            Obj::hash128(str1, sizeof(char)*6, &hash1a, &hash1b);
             Uint64 hash2a = 0ULL;
             Uint64 hash2b = 0ULL;
-            spookyImp.Hash128(str2, sizeof(char)*6, &hash2a, &hash2b);
+            Obj::hash128(str2, sizeof(char)*6, &hash2a, &hash2b);
 
             ASSERT(hash1a != 0ULL && hash1b != 0ULL);
             ASSERT(hash1a == hash2a);
