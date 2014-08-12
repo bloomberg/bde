@@ -1664,10 +1664,12 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 
+#ifdef BDE_VERIFY
 // The 'bde_verify' tool needs to be aware of contractual use of a few terms
 // that happen to match function parameter names.
 #pragma bde_verify push
 #pragma bde_verify set ok_unquoted deleter object
+#endif // BDE_VERIFY
 
 namespace bsl {
 
@@ -3789,7 +3791,9 @@ class SharedPtr_RepProctor {
 }  // close package namespace
 }  // close enterprise namespace
 
+#ifdef BDE_VERIFY
 #pragma bde_verify pop  // set_okunquoted
+#endif // BDE_VERIFY
 
 // ============================================================================
 //              INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
