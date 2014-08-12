@@ -420,6 +420,10 @@ BSLS_IDENT("$Id: $")
 #include <bslma_testallocator.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bslma {
