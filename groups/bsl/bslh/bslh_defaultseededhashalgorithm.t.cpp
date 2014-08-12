@@ -31,15 +31,13 @@ using namespace bslh;
 // CONSTANTS
 // [ 5] enum { k_SEED_LENGTH = InternalHashAlgorithm::k_SEED_LENGTH };
 //
-// EXPLICIT CONSTRUCTORS
+// CREATORS
 // [ 2] DefaultSeededHashAlgorithm(const void *seed);
-//
-// IMPLICIT CONSTRUCTORS
 // [ 2] DefaultSeededHashAlgorithm(const DefaultSeededHashAlgorithm);
 // [ 2] ~DefaultSeededHashAlgorithm();
-// [ 2] DfltSeedHashAlgorithm& operator=(const DfltSeedHashAlgorithm&);
 //
 // MANIPULATORS
+// [ 2] DfltSeedHashAlgorithm& operator=(const DfltSeedHashAlgorithm&);
 // [ 3] void operator()(void const* key, size_t len);
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------

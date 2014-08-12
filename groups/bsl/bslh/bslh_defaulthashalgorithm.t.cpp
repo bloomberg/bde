@@ -26,15 +26,13 @@ using namespace bslh;
 // TYPES
 // [ 4] typedef InternalHashAlgorithm::result_type result_type;
 //
-// EXPLICIT CONSTRUCTORS
+// CREATORS
 // [ 2] DefaultHashAlgorithm();
-//
-// IMPLICIT CONSTRUCTORS
 // [ 2] DefaultHashAlgorithm(const DefaultHashAlgorithm);
 // [ 2] ~DefaultHashAlgorithm();
-// [ 2] DefaultHashAlgorithm& operator=(const DefaultHashAlgorithm&);
 //
 // MANIPULATORS
+// [ 2] DefaultHashAlgorithm& operator=(const DefaultHashAlgorithm&);
 // [ 3] void operator()(void const* key, size_t len);
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------

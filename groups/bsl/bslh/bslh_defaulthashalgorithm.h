@@ -116,7 +116,7 @@ class DefaultHashAlgorithm {
 
 
     void operator()(const void *data, size_t length);
-        // Incorporates the specified 'length' bytes of 'data' into the
+        // Incorporate the specified 'length' bytes of 'data' into the
         // internal state of the hashing algorithm. Every bit of data
         // incorporated into the internal state of the algorithm will
         // contribute to the final hash produced by 'computeHash()'. The same
@@ -130,7 +130,8 @@ class DefaultHashAlgorithm {
         // Note that this changes the internal state of the object, so calling
         // 'computeHash' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
-        // the algorithm.
+        // the algorithm. Also note that a value will be returned, even if data
+        // has not been passed into 'operator()'
 };
 
 // CREATORS

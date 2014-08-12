@@ -29,11 +29,21 @@ using namespace bslh;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-// [ 4] operator()(const T&) const
+// TYPEDEF
+// [ 5] typedef size_t result_type;
+//
+// CREATORS
 // [ 2] Hash()
 // [ 2] Hash(const Hash)
 // [ 2] ~Hash()
+//
+// MANIPULATORS
 // [ 2] Hash& operator=(const Hash&)
+//
+// ACCESSORS
+// [ 4] operator()(const T&) const
+//
+// FREE FUNCTIONS
 // [ 3] void hashAppend(HASHALG& hashAlg, bool input);
 // [ 3] void hashAppend(HASHALG& hashAlg, char input);
 // [ 3] void hashAppend(HASHALG& hashAlg, signed char input);
@@ -59,7 +69,6 @@ using namespace bslh;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
-// [ 5] typedef result_type
 // [ 6] IsBitwiseMovable trait
 // [ 6] is_trivially_copyable trait
 // [ 6] is_trivially_default_constructible trait
@@ -803,7 +812,7 @@ int main(int argc, char *argv[])
         //:   it. If it compiles, the test passes. (C-3)
         //
         // Testing:
-        //   typedef result_type
+        //   typedef size_t result_type;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"

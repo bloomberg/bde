@@ -31,16 +31,14 @@ using namespace bslh;
 // CONSTANTS
 // [ 5] enum { k_SEED_LENGTH = 8 };
 //
-// EXPLICIT CONSTRUCTORS
+// CREATORS
 // [ 2] SpookyHashAlgorithm();
 // [ 2] SpookyHashAlgorithm(const char *seed);
-//
-// IMPLICIT CONSTRUCTORS
 // [ 2] SpookyHashAlgorithm(const SpookyHashAlgorithm);
 // [ 2] ~SpookyHashAlgorithm();
-// [ 2] SpookyHashAlgorithm& operator=(const SpookyHashAlgorithm&);
 //
 // MANIPULATORS
+// [ 2] SpookyHashAlgorithm& operator=(const SpookyHashAlgorithm&);
 // [ 3] void operator()(void const* key, size_t len);
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------
@@ -300,10 +298,7 @@ bool operator!=(const Future& lhs, const Future& rhs)
 // 'SpookyHashAlgorithm' because it is a fast, general purpose hashing
 // algorithm that will provide an easy way to combine the attributes of
 // 'Future' objects that are salient to hashing into one reasonable hash that
-// will distribute the items evenly throughout the hash table. Moreover, when a
-// new hashing algorithm is discovered to be a better default, we can be
-// automatically be upgraded to use it as soon as 'bslh::SpookyHashAlgorithm'
-// is updated.
+// will distribute the items evenly throughout the hash table.
 
 struct HashFuture {
     // This struct is a  functor that will apply the SpookyHashAlgorithm to

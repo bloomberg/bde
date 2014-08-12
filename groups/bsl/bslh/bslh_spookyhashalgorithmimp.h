@@ -239,9 +239,10 @@ class SpookyHashAlgorithmImp {
         // Load the finalized hash into the specified 'hash1' and 'hash2'.
         // 'hash1' will contain the higher order bits of the hash and 'hash2'
         // will contain the lower order bits. The internal state of the
-        // algorithm will not be modified, meaning 'Final' can be called
-        // multiple times. The returned hash will be the same as if 'Hash128'
-        // had been called will all of the accumulated data in one block.
+        // algorithm will be modified, meaning that calling final multiple
+        // times will result in different hash values being returned. The
+        // returned hash will be the same as if 'Hash128' had been called will
+        // all of the accumulated data in one block.
 };
 
 // PUBLIC CLASS METHODS

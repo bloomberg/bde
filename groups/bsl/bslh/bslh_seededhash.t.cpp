@@ -25,16 +25,21 @@ using namespace bslh;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+// TYPEDEF
+// [ 4] typedef size_t result_type;
+//
+// CREATORS
 // [ 3] operator()(const T&) const
 // [ 2] SeededHash()
 // [ 2] SeededHash(SEED_GENERATOR seedGenerator)
 // [ 2] SeededHash(const SeededHash)
 // [ 2] ~SeededHash()
+//
+// MANIPULATORS
 // [ 2] SeededHash& operator=(const SeededHash&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] USAGE EXAMPLE
-// [ 4] typedef result_type
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -373,7 +378,7 @@ int main(int argc, char *argv[])
         //:   it. If it compiles, the test passes. (C-3)
         //
         // Testing:
-        //   typedef result_type
+        //   typedef size_t result_type;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING STANDARD TYPEDEFS"

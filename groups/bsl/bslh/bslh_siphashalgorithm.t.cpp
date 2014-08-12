@@ -33,15 +33,13 @@ using namespace bslh;
 // CONSTANTS
 // [ 5] enum { k_SEED_LENGTH = 16 };
 //
-// EXPLICIT CONSTRUCTORS
+// CREATORS
 // [ 2] explicit SipHashAlgorithm(const char *seed);
-//
-// IMPLICIT CONSTRUCTORS
 // [ 2] SipHashAlgorithm(const SipHashAlgorithm);
 // [ 2] ~SipHashAlgorithm();
-// [ 2] SipHashAlgorithm& operator=(const SipHashAlgorithm&);
 //
-// MANIPULATOR
+// MANIPULATORS
+// [ 2] SipHashAlgorithm& operator=(const SipHashAlgorithm&);
 // [ 3] void operator()(void const* key, size_t len);
 //
 // ACCESSOR

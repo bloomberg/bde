@@ -21,10 +21,13 @@ using namespace bslh;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+// CREATORS
 // [ 2] SeedGenerator()
 // [ 2] SeedGenerator(RNG& randomNumberGenerator)
 // [ 2] SeedGenerator(const SeedGenerator)
 // [ 2] ~SeedGenerator()
+//
+// MANIPULATORS
 // [ 3] void generateSeed(char *seedLocation, size_t seedLength)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST

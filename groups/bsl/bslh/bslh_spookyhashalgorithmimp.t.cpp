@@ -18,16 +18,22 @@ using namespace bslh;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+// CLASS METHODS
 // [ 5] static void Hash128(*msg, len, *h1, *h2);
 // [ 6] static Uint64 Hash64(*message, length, seed);
 // [ 6] static Uint32 Hash32(*message, length, seed);
-// [ 3] void Init(Uint64 seed1, Uint64 seed2);
-// [ 4] void Update(const void *message, size_t length);
-// [ 3] void Final(Uint64 *hash1, Uint64 *hash2);
+//
+// CREATORS
 // [ 2] SpookyHashAlgorithmImp()
 // [ 2] SpookyHashAlgorithmImp(const SpookyHashAlgorithmImp)
 // [ 2] ~SpookyHashAlgorithmImp()
+//
+// MANIPULATORS
 // [ 2] SpookyHashAlgorithmImp& operator=(const SpookyHashAlgorithmImp&)
+// [ 3] void Init(Uint64 seed1, Uint64 seed2);
+// [ 4] void Update(const void *message, size_t length);
+// [ 3] void Final(Uint64 *hash1, Uint64 *hash2);
+
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] USAGE EXAMPLE

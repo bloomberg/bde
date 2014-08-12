@@ -85,12 +85,6 @@ class SeedGenerator
         // Destroy this object.
 
     // MANIPULATORS
-    //! SeedGenerator& operator=(const SeedGenerator& rhs) = default;
-        // Assign to this object the random number generator used by the
-        // specified 'rhs' object, and return a reference providing modifiable
-        // access to this object.
-
-    // ACCESSORS
     void generateSeed(char *seedLocation, size_t seedLength);
         // Generate a seed of the specified 'seedLength' bytes and store it at
         // the specified 'seedLocation'. The seed will be generated with bytes
