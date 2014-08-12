@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a templated struct, 'bslh::SeededHash',
 // which provides hashing functionality. This struct is a drop in replacement
 // for 'bsl::hash'.  It is similar to 'bslh::Hash', however, it is meant for
-// hashes that require a seed. It takes a seed generator and uses that to
+// hashes that require a seed.  It takes a seed generator and uses that to
 // create seeds to give the the hashing algorithm.  'bslh::SeededHash' is a
 // wrapper which adapts hashing algorithms from 'bslh' to match the interface
 // of 'bsl::hash'.  'bslh::SeededHash' is a universal hashing functor that will
@@ -30,9 +30,37 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - -
 // 'bslh::SeededHash' is substantially similar to 'bslh::Hash'.
 // 'bslh::SeededHash' presents a similar interface to that of 'bslh::Hash',
-// however, it adds a constructor that accepts a seed generator. Because of the
-// use of seeds, 'bslh::SeededHash' stores data and therefor does not allow the
-// empty base optimization like 'bslh::Hash' does.
+// however, it adds a constructor that accepts a seed generator.  Because of
+// the use of seeds, 'bslh::SeededHash' stores data and therefor does not allow
+// the empty base optimization like 'bslh::Hash' does.
+//
+///Requirements for Seeded 'bslh' Hashing Algorithms
+///-------------------------------------------------
+// Users of this modular hashing system are free write their own hashing
+// algorithms.  In order to plug into 'bslh::SeededHash', the user-implemented
+// algorithms must meet the requirements for regular 'bslh' hashing algorithms
+// defined in bslh_hash.h, with the exception that a default constructor is not
+// required.  The user-implemented algorithm must also implement the interface
+// shown here:
+//..
+// class SomeHashAlgorithm
+// {
+//   public:
+// //     // CONSTANTS
+//     enum { k_SEED_LENGTH = XXX };
+//  
+//     // CREATORS
+//     explicit SomeHashAlgorithm(const void *seed);
+// };
+//..
+// The 'k_SEED_LENGTH' enum must be in the public interface, and 'XXX' must be
+// replaced with an integer literal indicating the number of bytes of seed the
+// algorithm requires.  The parameterized constructor must accept a 'const void
+// *'. This pointer will point to a seed of 'XXX' bytes in size.
+//
+// More information is availible at:
+// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
+// Using+Modular+Hashing&spaceKey=bde
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -87,6 +115,18 @@ struct SeededHash {
         // Create a 'bslh::SeededHash' which will use the specified
         // 'seedGenerator' to initialize the seed that will be passed to the
         // (template parameter) type 'HASH_ALGORITHM' when it is used.
+
+    //! SeededHash(const SeededHash& original) = default;
+        // Create a 'SeededHash' object having the same internal state as the
+        // specified 'original'.
+
+    //! ~SeededHash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! SeededHash& operator=(const SeededHash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
     // ACCESSORS
     template <class TYPE>

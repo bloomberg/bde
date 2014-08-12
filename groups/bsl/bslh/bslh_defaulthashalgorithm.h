@@ -10,51 +10,55 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a reasonable hashing algorithm for default use.
 //
 //@CLASSES:
-// bslh::DefaultHashAlgorithm: A default hashing algorithm.
+//  bslh::DefaultHashAlgorithm: A default hashing algorithm.
 //
 //@SEE_ALSO: bslh_hash, bslh_securehashalgorithm,
 // bslh_defaultseededhashalgorithm
 //
 //@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides an unspecified default
-// hashing algorithm. The supplied algorithm is suitable for general purpose
-// use in a hash table. The underlying algorithm is subject to change in future
-// releases.
+// hashing algorithm.  The supplied algorithm is suitable for general purpose
+// use in a hash table.  The underlying algorithm is subject to change in
+// future releases.
 //
-///Properties
-///----------
-// The extent to which different properties can be expected from a default
-// hashing algorithm are described as follows:
+// This class satisfies the requirements for regular 'bslh' hashing algorithms,
+// defined in bslh_hash.h.  More information about these requirements can also
+// be found here:
+// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
+// Using+Modular+Hashing&spaceKey=bde
 //
 ///Security
-/// - - - -
+///--------
 // In this context "security" refers to the ability of the algorithm to produce
-// hashes that are not predictable by an attacker. Security is a concern when
+// hashes that are not predictable by an attacker.  Security is a concern when
 // an attacker may be able to provide malicious input into a hash table,
 // thereby causing hashes to collide to buckets, which degrades performance.
-// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm'. If
-// security is required, look at 'bslh::SipHashAlgorithm'.
+// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm'.  If
+// security is required, an algorithm that documents better secure properties
+// should be used, such as 'bslh_siphashalgorithm'.
 //
 ///Speed
-///- - -
-// The default hash algorithm will compute the hash on the order of O(n) where
-// n is the length of the input data. Note that the default hash algorithm will
-// produce hashes fast enough to be used for keying a hash table.
+///-----
+// The default hash algorithm will compute a hash on the order of O(n) where
+// 'n' is the length of the input data.  Note that this algorithm will produce
+// hashes fast enough to be used to hash keys in a hash table.  The chosen
+// algorithm will be quicker than specialized algorithms such as SipHash, but
+// not as fast as hashing using the identity function.
 //
 ///Hash Distribution
-///- - - - - - - - -
+///-----------------
 // The default hash algorithm will distribute hashes in a pseudorandom
-// distribution across the key space. The hash function will exhibit avalanche
+// distribution across the key space.  The hash function will exhibit avalanche
 // behavior, meaning changing one bit of input will result in a 50% chance of
-// each output bit changing. Avalanche behavior is enough to guarantee good key
-// distribution, even when values are consecutive.
+// each output bit changing.  Avalanche behavior is enough to guarantee good
+// key distribution, even when values are consecutive.
 //
 ///Hash Consistency
-/// - - - - - - - -
+///----------------
 // The default hash algorithm guarantees only that hashes will remain
 // consistent within a single process, meaning different hashes may be produced
 // on machines of different endianness or even between runs on the same
-// machine. Therefor it is not recommended to send hashes from
-// 'bslh::DefaultHashAlgorithm' over a network. It is also not recommended to
+// machine.  Therefor it is not recommended to send hashes from
+// 'bslh::DefaultHashAlgorithm' over a network.  It is also not recommended to
 // write hashes from 'bslh::DefaultHashAlgorithm' to any memory accessible by
 // multiple machines.
 
@@ -73,7 +77,9 @@ namespace bslh {
 class DefaultHashAlgorithm {
     // This class wraps an unspecified default hashing algorithm that is
     // appropriate for general purpose use such as generating hashes for a hash
-    // table.
+    // table. This class implements an interface usable in the modular hashing
+    // system in 'bslh' (see
+    // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing)
 
     // PRIVATE TYPES
     typedef bslh::SpookyHashAlgorithm InternalHashAlgorithm;
@@ -95,7 +101,20 @@ class DefaultHashAlgorithm {
         // Create a 'bslh::DefaultHashAlgorithm', default constructing the
         // algorithm being used internally.
 
+    //! DefaultHashAlgorithm(const DefaultHashAlgorithm& original) = default;
+        // Create a 'DefaultHashAlgorithm' object having the same internal
+        // state as the specified 'original'.
+
+    //! ~DefaultHashAlgorithm() = default;
+        // Destroy this object.
+
     // MANIPULATORS
+    //! DefaultHashAlgorithm& operator=(const DefaultHashAlgorithm& rhs) =
+    //!                                                                default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+
     void operator()(const void *data, size_t length);
         // Incorporates the specified 'length' bytes of 'data' into the
         // internal state of the hashing algorithm. Every bit of data

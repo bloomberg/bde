@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an implementation of the SipHash algorithm.
 //
 //@CLASSES:
-// bslh::SipHashAlgorithm: SipHash algorithm functor
+//  bslh::SipHashAlgorithm: Functor implementing the SipHash algorithm
 //
 //@SEE_ALSO: bslh_hash
 //
@@ -26,9 +26,15 @@ BSLS_IDENT("$Id: $")
 // as much of the original code as possible, including comment headers, has
 // been preserved.
 //
-///Security Guarantees
-///-------------------
-// SipHash is NOT a cryptographically secure hash. In the paper linked above,
+// This class satisfies the requirements for seeded 'bslh' hashing algorithms,
+// defined in bslh_seededhash.h.  More information about these requirements can
+// also be found here:
+// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
+// Using+Modular+Hashing&spaceKey=bde
+//
+///Security
+///--------
+// SipHash is NOT a cryptographically secure hash.  In the paper linked above,
 // the creators of this hash function describe it as "Cryptographically
 // Strong", but explicitly avoid calling it cryptographically secure.  In order
 // to be cryptographically secure, and algorithm must, among other things,
@@ -39,13 +45,13 @@ BSLS_IDENT("$Id: $")
 // by brute force, making the algorithm not cryptographically secure.
 //
 // SipHash IS, however, a cryptographically strong PRF (pseudorandom function).
-// This means that, assuming a properly random seed is given, the output of
-// this algorithm will be indistinguishable from a uniform random distribution.
+// This means, assuming a properly random seed is given, the output of this
+// algorithm will be indistinguishable from a uniform random distribution.
 // This property is enough for the algorithm to be able to protect a hash table
 // from malicious DOS attacks
 //
 ///Denial of Service Protection
-///----------------------------
+/// - - - - - - - - - - - - - -
 // Given a cryptographically secure seed, this algorithm will produce hashes
 // with a distribution that is indistinguishable from random.  This
 // distribution means that there is no way for an attacker to predict which
@@ -60,25 +66,32 @@ BSLS_IDENT("$Id: $")
 ///Speed
 ///-----
 // This algorithm is designed to be fast in comparison to other algorithms
-// making similar guarantees. It is still slower than other commonly accepted
-// and used hashes such as SpookyHash. This algorithm should only be used when
-// protection from malicious input is required. Otherwise,
-// 'bslh::DefaultHashAlgorithm' should be used to obtain a faster, generally
-// applicable, hashing algorithm.
+// making similar guarantees.  It is still slower than other commonly accepted
+// and used hashes such as SpookyHash.  This algorithm should only be used when
+// protection from malicious input is required.  Otherwise, an algorithm that
+// documents better performance properties should be used, such as
+// 'bslh_spookyhashalgorithm'.
 //
-///Endianness
-///----------
-// This hash is endian-specific. The algorithm will run on big and little
-// endian machines and the above guarantees apply on both architectures,
-// however, the hashes produced will be different. Therefor it is not
-// recommended to send hashes from 'bslh::SipHashAlgorithm' over a network. It
+///Hash Distribution
+///-----------------
+// Output hashes will be well distributed and will avalanche, which means
+// changing one bit of the input will change approximately 50% of the output
+// bits.  This will prevent similar values from funneling to the same hash or
+// bucket.
+//
+///Hash Consistency
+///----------------
+// This hash algorithm is endian-specific.  The algorithm will run on big and
+// little endian machines and the above guarantees apply on both architectures,
+// however, the hashes produced will be different.  Therefor it is not
+// recommended to send hashes from 'bslh::SipHashAlgorithm' over a network.  It
 // is also not recommended to write hashes from 'bslh::SipHashAlgorithm' to any
 // memory accessible by multiple machines.
 //
 ///Changes
 ///-------
 // The third party code begins with the "siphash.h" header below, and continues
-// until the TYPE TRAITS banner below. Changes made to the original code
+// until the TYPE TRAITS banner below.  Changes made to the original code
 // include:
 //
 //: 1 Adding BloombergLP and bslh namespaces
@@ -90,10 +103,10 @@ BSLS_IDENT("$Id: $")
 //: 4 Added comments
 //:
 //: 5 Removed C++11 features including class member initializer, 'noexcept',
-//:   'std::uint64_t', explicit conversion operator, and an '= default'
+//:   'std::Uint64_t', explicit conversion operator, and an '= default'
 //:   constructor.
 //:
-//: 6 Added typedef to replace removed 'std::uint64_t'
+//: 6 Added typedef to replace removed 'std::Uint64_t'
 //:
 //: 7 Added 'computeHash' to replace the removed explicit conversion
 //:
@@ -159,18 +172,18 @@ namespace bslh {
 class SipHashAlgorithm {
     // This class wraps an implementation of the "SipHash" algorithm in an
     // interface that is usable in the modular hashing system in 'bslh' (see
-    // https://131002.net/siphash/).
+    // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing).
 
   private:
     // PRIVATE TYPES
-    typedef bsls::Types::Uint64 uint64;
+    typedef bsls::Types::Uint64 Uint64;
         // Typedef for a 64-bit integer type used in the hashing algorithm.
 
     // DATA
-    uint64 d_v0;
-    uint64 d_v1;
-    uint64 d_v2;
-    uint64 d_v3;
+    Uint64 d_v0;
+    Uint64 d_v1;
+    Uint64 d_v2;
+    Uint64 d_v3;
         // Stores the intermediate state of the algorithm as values are
         // accumulated
 
@@ -187,7 +200,7 @@ class SipHashAlgorithm {
 
   public:
     // TYPES
-    typedef uint64 result_type;
+    typedef Uint64 result_type;
         // Typedef indicating the value type returned by this algorithm.
 
     // CONSTANTS
@@ -198,9 +211,26 @@ class SipHashAlgorithm {
         // Create an instance of 'SipHashAlgorithm' seeded with a 128-bit
         // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
         // Each bit of the supplied seed will contribute to the final hash
-        // produced by 'computeHash()'. Note that if data in 'seed' is not
-        // random, all guarantees of security and denial of service protection
-        // are void.
+        // produced by 'computeHash()'. The behavior is undefined unless 'seed'
+        // points to an array of at least 16 'char's. Note that if data in
+        // 'seed' is not random, all guarantees of security and denial of
+        // service protection are void.
+
+    //! SipHashAlgorithm() = delete;
+        // Do not allow default construction. This class must be constructed
+        // with a seed.
+
+    //! SipHashAlgorithm(const SipHashAlgorithm& original) = default;
+        // Create a 'SipHashAlgorithm' object having the same internal state as
+        // the specified 'original'.
+
+    //! ~SipHashAlgorithm() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! SipHashAlgorithm& operator=(const SipHashAlgorithm& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
     // MANIPULATORS
     void operator()(const void *data, size_t length);

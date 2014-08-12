@@ -52,7 +52,7 @@
 :      Provide an implementation of the SipHash algorithm.
 :
 : 'bslh_spookyhashalgorithm':
-:      Provide and implementation of the SpookyHash algorithm.
+:      Provide an implementation of the SpookyHash algorithm.
 :
 : 'bslh_spookyhashalgorithmimp':
 :      Provide BDE style wrapping around a spooky hash implementation.

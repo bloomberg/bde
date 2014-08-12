@@ -47,16 +47,16 @@ BSLS_IDENT("$Id: $")
 // Other 'hashAppend' implementations are possible, such as for the special
 // case of c-strings where the data contained in the string must be passed
 // directly into the algorithm, rather than calling 'hashAppend' on the
-// pointer. This special case exists becuase calling 'hashAppend' on a pointer
+// pointer.  This special case exists becuase calling 'hashAppend' on a pointer
 // will hash the pointer rather than the data that is pointed to.
 //
 // Within this component, 'hashAppend' has been implemented for all of the
 // fundamental types. When 'hashAppend is reached on a fundamental type, the
 // hashing algorithm is no longer propagated, and instead a pointer to the
 // beginning of the type in memory is passed to the algorithm, along with the
-// length of the type. There are special cases with floating point numbers and
+// length of the type.  There are special cases with floating point numbers and
 // bools where the data is tweaked before hashing to ensure that values that
-// compare equal will be hashed with the same bit-wise representation. The
+// compare equal will be hashed with the same bit-wise representation.  The
 // algorithm will then incorporate the type into its internal state and return
 // a finalized hash when requested.
 //
@@ -65,14 +65,52 @@ BSLS_IDENT("$Id: $")
 // There are algorithms implemented in the 'bslh' package that can be passed in
 // and used as template parameters for 'bslh::Hash' or other structs like it.
 // Some of these algorithms, such as 'bslh::SpookyHashAlgorithm', are named for
-// the algorithm they implement. These named algorithms are intended for use by
-// those who want a specific algorithm. There are other algorithms, such as
+// the algorithm they implement.  These named algorithms are intended for use
+// by those who want a specific algorithm.  There are other algorithms, such as
 // 'bslh::DefaultHashAlgorithm', which wrap an unspecified algorithm and
-// describe the properties of the wrapped algorithm. The descriptive algorithms
-// are intended for use by those who need specific properties and want to be
-// updated to a new algorithm when one is published with improvements to the
-// desired properties. 'bslh::DefaultHashAlgorithm' has the property of being a
-// good default algorithm, specifically for use in a hash table.
+// describe the properties of the wrapped algorithm.  The descriptive
+// algorithms are intended for use by those who need specific properties and
+// want to be updated to a new algorithm when one is published with
+// improvements to the desired properties.  'bslh::DefaultHashAlgorithm' has
+// the property of being a good default algorithm, specifically for use in a
+// hash table.
+//
+///Requirements for Regular 'bslh' Hashing Algorithms
+///--------------------------------------------------
+// Users of this modular hashing system are free write their own hashing
+// algorithms.  In order to plug into 'bslh::Hash', the user-implemented
+// algorithms must implement the interface shown here:
+//..
+// class SomeHashAlgorithm
+// {
+//   public:
+//     // TYPES
+//     typedef Uint64 result_type;
+//  
+//     // CREATORS
+//     SomeHashAlgorithm();
+//  
+//     // MANIPULATORS
+//     void operator()(const void * key, size_t len);
+//  
+//     result_type computeHash();
+// };
+//..
+// The 'result_type' 'typedef' must define the return type of this particular
+// algorithm.  A default constructor (either implicit or explicit) must be
+// supplied that creates an algorithm functor that is in a usable state.  An
+// 'operator()' must be supplied that takes a 'const void *' to the data to be
+// hashed and a 'size_t' length of bytes to be hashed.  This operator must
+// operate on all data uniformly, meaning that regardless of whether data is
+// passed in all at once, or one byte at a time, the result returned by
+// 'computeHash()' will be the same.  'computeHash()' will return the final
+// result of the hashing algorithm, as type 'result_type'.  'computeHash()' is
+// allowed to modify the internal state of the algorithm, meaning calling
+// 'computeHash()' more than once may not return the correct value.
+//
+// More information is availible at:
+// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
+// Using+Modular+Hashing&spaceKey=bde
 
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -121,6 +159,24 @@ struct Hash {
     typedef size_t result_type;
         // The type of the hash value that will be returned by the
         // function-call operator.
+
+    // CREATORS
+    //! Hash() = default;
+        // Create a 'Hash' object.
+
+    //! Hash(const Hash& original) = default;
+        // Create a 'Hash' object.  Note that as 'Hash' is an empty (stateless)
+        // type, this operation will have no observable effect.
+
+    //! ~Hash() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! Hash& operator=(const Hash& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.  Note
+        // that as 'Hash' is an empty (stateless) type, this operation will
+        // have no observable effect.
 
     // ACCESSORS
     template <class TYPE>

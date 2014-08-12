@@ -10,19 +10,19 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide BDE style wrapping around a spooky hash implementation.
 //
 //@CLASSES:
-// bslh::SpookyHashAlgorithmImp: 3rd party spooky hash algorithm wrapper
+//  bslh::SpookyHashAlgorithmImp: 3rd party spooky hash algorithm wrapper
 //
 //@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithm
 //
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithmImp' provides BDE style wrapping
-// around Bob Jenkins spooky hash implementation. SpookyHash provides a way to
-// hash contiguous data all at once, or discontiguous data in pieces. More
+// around Bob Jenkins spooky hash implementation.  SpookyHash provides a way to
+// hash contiguous data all at once, or discontiguous data in pieces.  More
 // information is available at: http://burtleburtle.net/bob/hash/spooky.html
 //
 ///Changes
 ///-------
 // The third party code begins with the "SpookyHash" header below, and
-// continues until the BloombergLP copyright notice. Changes made to the
+// continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
 //: 1 Adding BloombergLP and bslh namespaces
@@ -99,10 +99,10 @@ class SpookyHashAlgorithmImp {
     // http://burtleburtle.net/bob/hash/spooky.html .
 
   public:
-    typedef  ::BloombergLP::bsls::Types::Uint64  uint64;
-    typedef  unsigned int                        uint32;
-    typedef  unsigned short                      uint16;
-    typedef  unsigned char                       uint8;
+    typedef  ::BloombergLP::bsls::Types::Uint64  Uint64;
+    typedef  unsigned int                        Uint32;
+    typedef  unsigned short                      Uint16;
+    typedef  unsigned char                       Uint8;
 
   private:
     // DATA
@@ -115,97 +115,114 @@ class SpookyHashAlgorithmImp {
     static const size_t sc_bufSize = 2*sc_blockSize;
         // Size of buffer of unhashed data, in bytes.
 
-    static const uint64 sc_const = 0xdeadbeefdeadbeefLL;
+    static const Uint64 sc_const = 0xdeadbeefdeadbeefLL;
         // A non-zero, odd, constant that has an irregular distribution of 1's
         // and 0's to be used in hashing calculations.
 
-    uint64 m_data[2*sc_numVars]; // Unhashed data, for partial messages
-    uint64 m_state[sc_numVars];  // Internal state of the hash
+    Uint64 m_data[2*sc_numVars]; // Unhashed data, for partial messages
+    Uint64 m_state[sc_numVars];  // Internal state of the hash
     size_t m_length;             // Total length of the input so far
-    uint8  m_remainder;          // Length of unhashed data stashed in m_data
+    Uint8  m_remainder;          // Length of unhashed data stashed in m_data
 
     // PRIVATE CLASS METHODS
     static inline void End(
-        const uint64 *data,
-        uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3,
-        uint64 &h4, uint64 &h5, uint64 &h6, uint64 &h7,
-        uint64 &h8, uint64 &h9, uint64 &h10,uint64 &h11);
+        const Uint64 *data,
+        Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
+        Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
+        Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
         // Incorporate the first 12 bytes of the specified 'data' into 'h0',
         // 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', and
         // 'h11', and then mix the inputs together so that 'h0' and 'h1' are a
         // hash of all the inputs.
 
     static inline void EndPartial(
-        uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3,
-        uint64 &h4, uint64 &h5, uint64 &h6, uint64 &h7,
-        uint64 &h8, uint64 &h9, uint64 &h10,uint64 &h11);
+        Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
+        Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
+        Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
         // Combine the specified 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
         // will be a hash of all the inputs.
 
-    static inline void Mix(const uint64 *data, uint64 &s0, uint64 &s1,
-                           uint64 &s2,  uint64 &s3, uint64 &s4, uint64 &s5,
-                           uint64 &s6,  uint64 &s7, uint64 &s8, uint64 &s9,
-                           uint64 &s10, uint64 &s11);
+    static inline void Mix(const Uint64 *data, Uint64 &s0, Uint64 &s1,
+                           Uint64 &s2,  Uint64 &s3, Uint64 &s4, Uint64 &s5,
+                           Uint64 &s6,  Uint64 &s7, Uint64 &s8, Uint64 &s9,
+                           Uint64 &s10, Uint64 &s11);
         // Thoroughly mix the first 12 bytes of the specified 'data' into 's0',
         // 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', and
         // 's1'. This method should be used when the input is 96 bytes or
         // longer to prevent the loss of entropy, because the internal state of
         // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes.
 
-    static inline uint64 Rot64(uint64 x, int k);
+    static inline Uint64 Rot64(Uint64 x, int k);
         // Return the specified 'x' left rotated by 'k' bits.
 
     static void Short(const void *message,
                       size_t length,
-                      uint64 *hash1,
-                      uint64 *hash2);
+                      Uint64 *hash1,
+                      Uint64 *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
         // 'hash2' as seeds. Load the higher order bits of the resulting
         // 128-bit into 'hash1' and the lower order bits in 'hash2'. This
         // method is meant to be used for messages less than 192 bytes in
         // length because of it's lower startup cost.
 
-    static inline void ShortEnd(uint64 &h0,
-                                uint64 &h1,
-                                uint64 &h2,
-                                uint64 &h3);
+    static inline void ShortEnd(Uint64 &h0,
+                                Uint64 &h1,
+                                Uint64 &h2,
+                                Uint64 &h3);
         // Combine the specified 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
         // will be a hash of all the inputs.
 
-    static inline void ShortMix(uint64 &h0,
-                                uint64 &h1,
-                                uint64 &h2,
-                                uint64 &h3);
+    static inline void ShortMix(Uint64 &h0,
+                                Uint64 &h1,
+                                Uint64 &h2,
+                                Uint64 &h3);
         // Thoroughly mix the specified 'h0', 'h1', 'h2', and 'h3' so that each
         // bit of input contributes entropy to every bit of the final states of
         // 'h0', 'h1', 'h2', and 'h3'.
 
   public:
     // PUBLIC CLASS METHODS
-    static inline uint32 Hash32(const void *message,
+    static inline Uint32 Hash32(const void *message,
                                 size_t length,
-                                uint32 seed);
+                                Uint32 seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed. Return the resulting 32-bit hash.
 
-    static inline uint64 Hash64(const void *message,
+    static inline Uint64 Hash64(const void *message,
                                 size_t length,
-                                uint64 seed);
+                                Uint64 seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed. Return the resulting 64-bit hash.
 
     static void Hash128(const void *message,
                         size_t length,
-                        uint64 *hash1,
-                        uint64 *hash2);
+                        Uint64 *hash1,
+                        Uint64 *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
         // 'hash2' as seeds. Load the higher order bits of the resulting
         // 128-bit into 'hash1' and the lower order bits in 'hash2'.
 
+    // CREATORS
+    //! SpookyHashAlgorithmImp() = default;
+        // Create a 'SpookyHashAlgorithmImp', leaving it uninitialized.
+
+    //! SpookyHashAlgorithmImp(const SpookyHashAlgorithmImp& original) =
+    //!                                                                default;
+        // Create a 'SpookyHashAlgorithmImp' object having the same internal
+        // state as the specified 'original'.
+
+    //! ~SpookyHashAlgorithmImp() = default;
+        // Destroy this object.
+
     // MANIPULATORS
-    void Init(uint64 seed1, uint64 seed2);
+    //! SpookyHashAlgorithmImp& operator=(const SpookyHashAlgorithmImp& rhs) =
+    //!                                                                default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    void Init(Uint64 seed1, Uint64 seed2);
         // Initialize the internal state of the object using the specified
         // 'seed1' and 'seed2' as seeds for the algorithm. This method must be
         // called before calling 'Update' or 'Final' Note that this does not
@@ -218,7 +235,7 @@ class SpookyHashAlgorithmImp {
         // 'HashXX' static methods.
 
     //ACCESSORS
-    void Final(uint64 *hash1, uint64 *hash2);
+    void Final(Uint64 *hash1, Uint64 *hash2);
         // Load the finalized hash into the specified 'hash1' and 'hash2'.
         // 'hash1' will contain the higher order bits of the hash and 'hash2'
         // will contain the lower order bits. The internal state of the
@@ -229,23 +246,23 @@ class SpookyHashAlgorithmImp {
 
 // PUBLIC CLASS METHODS
 inline
-SpookyHashAlgorithmImp::uint32 SpookyHashAlgorithmImp::Hash32(
+SpookyHashAlgorithmImp::Uint32 SpookyHashAlgorithmImp::Hash32(
                                                            const void *message,
                                                            size_t      length,
-                                                           uint32      seed)
+                                                           Uint32      seed)
 {
-    uint64 hash1 = seed, hash2 = seed;
+    Uint64 hash1 = seed, hash2 = seed;
     Hash128(message, length, &hash1, &hash2);
-    return static_cast<uint32>(hash1);
+    return static_cast<Uint32>(hash1);
 }
 
 inline
-SpookyHashAlgorithmImp::uint64 SpookyHashAlgorithmImp::Hash64(
+SpookyHashAlgorithmImp::Uint64 SpookyHashAlgorithmImp::Hash64(
                                                            const void *message,
                                                            size_t      length,
-                                                           uint64      seed)
+                                                           Uint64      seed)
 {
-    uint64 hash1 = seed;
+    Uint64 hash1 = seed;
     Hash128(message, length, &hash1, &seed);
     return hash1;
 }
@@ -253,10 +270,10 @@ SpookyHashAlgorithmImp::uint64 SpookyHashAlgorithmImp::Hash64(
 // PRIVATE CLASS METHODS
 inline
 void SpookyHashAlgorithmImp::End(
-    const uint64 *data,
-    uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3,
-    uint64 &h4, uint64 &h5, uint64 &h6, uint64 &h7,
-    uint64 &h8, uint64 &h9, uint64 &h10,uint64 &h11)
+    const Uint64 *data,
+    Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
+    Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
+    Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11)
 {
     h0 += data[0];   h1 += data[1];   h2 += data[2];   h3 += data[3];
     h4 += data[4];   h5 += data[5];   h6 += data[6];   h7 += data[7];
@@ -268,9 +285,9 @@ void SpookyHashAlgorithmImp::End(
 
 inline
 void SpookyHashAlgorithmImp::EndPartial(
-    uint64 &h0, uint64 &h1, uint64 &h2, uint64 &h3,
-    uint64 &h4, uint64 &h5, uint64 &h6, uint64 &h7,
-    uint64 &h8, uint64 &h9, uint64 &h10,uint64 &h11)
+    Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
+    Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
+    Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11)
 {
     h11+= h1;    h2 ^= h11;   h1 = Rot64(h1,44);
     h0 += h2;    h3 ^= h0;    h2 = Rot64(h2,15);
@@ -288,10 +305,10 @@ void SpookyHashAlgorithmImp::EndPartial(
 
 inline
 void SpookyHashAlgorithmImp::Mix(
-    const uint64 *data,
-    uint64 &s0, uint64 &s1, uint64 &s2, uint64 &s3,
-    uint64 &s4, uint64 &s5, uint64 &s6, uint64 &s7,
-    uint64 &s8, uint64 &s9, uint64 &s10,uint64 &s11)
+    const Uint64 *data,
+    Uint64 &s0, Uint64 &s1, Uint64 &s2, Uint64 &s3,
+    Uint64 &s4, Uint64 &s5, Uint64 &s6, Uint64 &s7,
+    Uint64 &s8, Uint64 &s9, Uint64 &s10,Uint64 &s11)
 {
     s0 += data[0];   s2  ^= s10; s11 ^= s0;  s0  = Rot64(s0,11);  s11 += s1;
     s1 += data[1];   s3  ^= s11; s0  ^= s1;  s1  = Rot64(s1,32);  s0  += s2;
@@ -308,16 +325,16 @@ void SpookyHashAlgorithmImp::Mix(
 }
 
 inline
-SpookyHashAlgorithmImp::uint64 SpookyHashAlgorithmImp::Rot64(uint64 x, int k)
+SpookyHashAlgorithmImp::Uint64 SpookyHashAlgorithmImp::Rot64(Uint64 x, int k)
 {
     return (x << k) | (x >> (64 - k));
 }
 
 inline
-void SpookyHashAlgorithmImp::ShortEnd(uint64 &h0,
-                                      uint64 &h1,
-                                      uint64 &h2,
-                                      uint64 &h3)
+void SpookyHashAlgorithmImp::ShortEnd(Uint64 &h0,
+                                      Uint64 &h1,
+                                      Uint64 &h2,
+                                      Uint64 &h3)
 {
     h3 ^= h2;  h2 = Rot64(h2,15);  h3 += h2;
     h0 ^= h3;  h3 = Rot64(h3,52);  h0 += h3;
@@ -333,10 +350,10 @@ void SpookyHashAlgorithmImp::ShortEnd(uint64 &h0,
 }
 
 inline
-void SpookyHashAlgorithmImp::ShortMix(uint64 &h0,
-                                      uint64 &h1,
-                                      uint64 &h2,
-                                      uint64 &h3)
+void SpookyHashAlgorithmImp::ShortMix(Uint64 &h0,
+                                      Uint64 &h1,
+                                      Uint64 &h2,
+                                      Uint64 &h3)
 {
     h2 = Rot64(h2,50);  h2 += h3;  h0 ^= h2;
     h3 = Rot64(h3,52);  h3 += h0;  h1 ^= h3;

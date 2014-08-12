@@ -19,11 +19,11 @@ using namespace bslh;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // [ 5] static void Hash128(*msg, len, *h1, *h2);
-// [ 6] static uint64 Hash64(*message, length, seed);
-// [ 6] static uint32 Hash32(*message, length, seed);
-// [ 3] void Init(uint64 seed1, uint64 seed2);
+// [ 6] static Uint64 Hash64(*message, length, seed);
+// [ 6] static Uint32 Hash32(*message, length, seed);
+// [ 3] void Init(Uint64 seed1, Uint64 seed2);
 // [ 4] void Update(const void *message, size_t length);
-// [ 3] void Final(uint64 *hash1, uint64 *hash2);
+// [ 3] void Final(Uint64 *hash1, Uint64 *hash2);
 // [ 2] SpookyHashAlgorithmImp()
 // [ 2] SpookyHashAlgorithmImp(const SpookyHashAlgorithmImp)
 // [ 2] ~SpookyHashAlgorithmImp()
@@ -90,7 +90,7 @@ void aSsErT(bool b, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 typedef SpookyHashAlgorithmImp Obj;
-typedef SpookyHashAlgorithmImp::uint64 uint64;
+typedef SpookyHashAlgorithmImp::Uint64 Uint64;
 
 static const struct {
     int                  d_line;
@@ -170,11 +170,11 @@ class CheckedData {
     // This class holds a pointer to data and provides a way of verifying that
     // the data has not changed.
 
-    typedef bsls::Types::Uint64 uint64;
+    typedef bsls::Types::Uint64 Uint64;
     size_t      d_length;
     const char *d_data;
-    uint64      d_checksum1;
-    uint64      d_checksum2;
+    Uint64      d_checksum1;
+    Uint64      d_checksum2;
 
   public:
     CheckedData(const char *data, size_t length);
@@ -222,8 +222,8 @@ const char *CheckedData::GetData() {
 
 bool CheckedData::IsDataValid() {
     SpookyHashAlgorithmImp hashAlg;
-    uint64 checksum1 = 0;
-    uint64 checksum2 = 0;
+    Uint64 checksum1 = 0;
+    Uint64 checksum2 = 0;
 
     hashAlg.Hash128(d_data, d_length, &checksum1, &checksum2);
 
@@ -339,8 +339,8 @@ int main(int argc, char *argv[])
         //:   known good version of the algorithm. (C-1,2)
         //
         // Testing:
-        //   static uint64 Hash64(*message, length, seed);
-        //   static uint32 Hash32(*message, length, seed);
+        //   static Uint64 Hash64(*message, length, seed);
+        //   static Uint32 Hash32(*message, length, seed);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING HASH64 AND HASH32"
@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
         static const struct {
             int        d_line;
             const char d_value [21];
-            uint64     d_hash;
+            Uint64     d_hash;
         } SMALLDATA[] = {
 #ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
        //LINE           VALUE                  HASH
@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
                 unsigned int hash32 = hash.Hash32(VALUE, strlen(VALUE), 1);
                 LOOP_ASSERT(LINE, hash32 == (unsigned int)HASH);
 
-                uint64 hash64 = hash.Hash64(VALUE, strlen(VALUE), 1);
+                Uint64 hash64 = hash.Hash64(VALUE, strlen(VALUE), 1);
                 LOOP_ASSERT(LINE, hash64 == HASH);
             }
         }
@@ -462,8 +462,8 @@ int main(int argc, char *argv[])
 
                 Obj hash;
 
-                uint64 h1 = 1ULL;
-                uint64 h2 = 2ULL;
+                Uint64 h1 = 1ULL;
+                Uint64 h2 = 2ULL;
                 hash.Hash128(VALUE, strlen(VALUE), &h1, &h2);
 
                 LOOP_ASSERT(LINE, h1 == HASH1);
@@ -541,8 +541,8 @@ int main(int argc, char *argv[])
                                                                      VALUE[j]);
                     charHash.Update(&VALUE[j], sizeof(char));
 
-                    uint64 h1;
-                    uint64 h2;
+                    Uint64 h1;
+                    Uint64 h2;
                     charHash.Final(&h1, &h2);
                 }
 
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                uint64 charH1, charH2, chunkH1, chunkH2, contigH1, contigH2;
+                Uint64 charH1, charH2, chunkH1, chunkH2, contigH1, contigH2;
 
                 charHash.Final(&charH1, &charH2);
                 chunkHash.Final(&chunkH1, &chunkH2);
@@ -591,8 +591,8 @@ int main(int argc, char *argv[])
 
                 hash.Update(VALUE, strlen(VALUE));
 
-                uint64 h1;
-                uint64 h2;
+                Uint64 h1;
+                Uint64 h2;
                 hash.Final(&h1, &h2);
 
                 LOOP_ASSERT(LINE, h1 == HASH1);
@@ -635,8 +635,8 @@ int main(int argc, char *argv[])
         //:   that is returned is always the same. (C-4)
         //
         // Testing:
-        //   void Init(uint64 seed1, uint64 seed2);
-        //   void Final(uint64 *hash1, uint64 *hash2);
+        //   void Init(Uint64 seed1, Uint64 seed2);
+        //   void Final(Uint64 *hash1, Uint64 *hash2);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING INITIALIZATION AND FINALIZATION"
@@ -644,10 +644,10 @@ int main(int argc, char *argv[])
 
         static const struct {
             int    d_line;
-            uint64 d_seed1;
-            uint64 d_seed2;
-            uint64 d_hash1;
-            uint64 d_hash2;
+            Uint64 d_seed1;
+            Uint64 d_seed2;
+            Uint64 d_hash1;
+            Uint64 d_hash2;
         } DATA[] = {
        //LINE  SEED1        SEED2          HASH1                HASH2
      {L_,0x1ea510b7, 0x616d1a49, 0xd5ba52d10c82bac7LL, 0x1c4cfb86447fd4d7LL, },
@@ -678,10 +678,10 @@ int main(int argc, char *argv[])
                             " that permuting the seed permutes the output."
                             " (C-2)\n");
         {
-            uint64 previousH1 = 0;
-            uint64 previousH2 = 0;
-            uint64 h1;
-            uint64 h2;
+            Uint64 previousH1 = 0;
+            Uint64 previousH2 = 0;
+            Uint64 h1;
+            Uint64 h2;
 
             for (int i = 0; i != 10; ++i) {
                 if (veryVerbose) printf("Testing with seeds: %i, %i\n", i, 0);
@@ -735,10 +735,10 @@ int main(int argc, char *argv[])
         {
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int    LINE  = DATA[i].d_line;
-                const uint64 SEED1 = DATA[i].d_seed1;
-                const uint64 SEED2 = DATA[i].d_seed2;
-                const uint64 HASH1 = DATA[i].d_hash1;
-                const uint64 HASH2 = DATA[i].d_hash2;
+                const Uint64 SEED1 = DATA[i].d_seed1;
+                const Uint64 SEED2 = DATA[i].d_seed2;
+                const Uint64 HASH1 = DATA[i].d_hash1;
+                const Uint64 HASH2 = DATA[i].d_hash2;
 
                 if (veryVerbose) printf("Seeds: %llu, %llu, Expecting: %llu,"
                                         " %llu\n",
@@ -750,8 +750,8 @@ int main(int argc, char *argv[])
                 Obj hash;
                 hash.Init(SEED1, SEED2);
 
-                uint64 h1;
-                uint64 h2;
+                Uint64 h1;
+                Uint64 h2;
                 hash.Final(&h1, &h2);
                 LOOP_ASSERT(LINE, HASH1 == h1);
                 LOOP_ASSERT(LINE, HASH2 == h2);
@@ -762,10 +762,10 @@ int main(int argc, char *argv[])
                             " that the result that is returned is always the"
                             " same. (C-4)\n");
         {
-            uint64 previousH1 = 0;
-            uint64 previousH2 = 0;
-            uint64 h1;
-            uint64 h2;
+            Uint64 previousH1 = 0;
+            Uint64 previousH2 = 0;
+            Uint64 h1;
+            Uint64 h2;
             Obj hash;
 
             hash.Init(8467435, 2435748);
@@ -907,11 +907,11 @@ int main(int argc, char *argv[])
             ASSERT(spookyImp.Hash64(str1, sizeof(char)*6, 0) !=
                    spookyImp.Hash64(str2, sizeof(char)*6, 0));
 
-            uint64 hash1a = 0ULL;
-            uint64 hash1b = 0ULL;
+            Uint64 hash1a = 0ULL;
+            Uint64 hash1b = 0ULL;
             spookyImp.Hash128(str1, sizeof(char)*6, &hash1a, &hash1b);
-            uint64 hash2a = 0ULL;
-            uint64 hash2b = 0ULL;
+            Uint64 hash2a = 0ULL;
+            Uint64 hash2b = 0ULL;
             spookyImp.Hash128(str2, sizeof(char)*6, &hash2a, &hash2b);
 
             ASSERT(hash1a != 0ULL && hash1b != 0ULL);
@@ -931,11 +931,11 @@ int main(int argc, char *argv[])
             ASSERT(spookyImp.Hash64(str1, sizeof(char)*6, 0) ==
                    spookyImp.Hash64(str2, sizeof(char)*6, 0));
 
-            uint64 hash1a = 0ULL;
-            uint64 hash1b = 0ULL;
+            Uint64 hash1a = 0ULL;
+            Uint64 hash1b = 0ULL;
             spookyImp.Hash128(str1, sizeof(char)*6, &hash1a, &hash1b);
-            uint64 hash2a = 0ULL;
-            uint64 hash2b = 0ULL;
+            Uint64 hash2a = 0ULL;
+            Uint64 hash2b = 0ULL;
             spookyImp.Hash128(str2, sizeof(char)*6, &hash2a, &hash2b);
 
             ASSERT(hash1a != 0ULL && hash1b != 0ULL);

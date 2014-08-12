@@ -10,16 +10,16 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a class to generate arbitrary length seeds for algorithms.
 //
 //@CLASSES:
-//  bslh::SeedGenerator: Arbitrary length seed generator
+//  bslh::SeedGenerator: Generator for arbitrary length seeds
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a class, 'bslh::SeedGenerator', which
-//  utilizes a user-supplied random number generator (RNG) to generate
-//  arbitrary length seeds. The quality of the seeds will only be as good as
-//  the quality of the supplied RNG. A cryptographically secure RNG must be
-//  supplied in order for 'SeedGenerator' to produce seeds suitable for a
-//  cryptographically secure hashing algorithm.
+// utilizes a user-supplied random number generator (RNG) to generate arbitrary
+// length seeds.  The quality of the seeds will only be as good as the quality
+// of the supplied RNG.  A cryptographically secure RNG must be supplied in
+// order for 'SeedGenerator' to produce seeds suitable for a cryptographically
+// secure hashing algorithm.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -76,6 +76,19 @@ class SeedGenerator
     explicit SeedGenerator(RNG randomNumberGenerator);
         // Create a 'bslh::SeedGenerator' that will use the specified
         // 'randomNumberGenerator' to generate its seeds.
+
+    //! SeedGenerator(const SeedGenerator& original) = default;
+        // Create a 'SeedGenerator' object with a copy of the random number
+        // generator used by the specified 'original'.
+
+    //! ~SeedGenerator() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    //! SeedGenerator& operator=(const SeedGenerator& rhs) = default;
+        // Assign to this object the random number generator used by the
+        // specified 'rhs' object, and return a reference providing modifiable
+        // access to this object.
 
     // ACCESSORS
     void generateSeed(char *seedLocation, size_t seedLength);

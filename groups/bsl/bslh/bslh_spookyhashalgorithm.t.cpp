@@ -330,7 +330,7 @@ struct HashFuture {
 //-----------------------------------------------------------------------------
 
 typedef SpookyHashAlgorithm Obj;
-typedef BloombergLP::bsls::Types::Uint64 uint64;
+typedef BloombergLP::bsls::Types::Uint64 Uint64;
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -728,7 +728,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Call the parameterized constructor with a seed."
                             " (C-2)\n");
         {
-            uint64 array[2] = {0,0};
+            Uint64 array[2] = {0,0};
             Obj alg1 = Obj(reinterpret_cast<const char *>(array));
         }
 
