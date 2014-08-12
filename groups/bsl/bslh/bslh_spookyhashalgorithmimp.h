@@ -7,17 +7,18 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide BDE style wrapping around a spooky hash implementation.
+//@PURPOSE: Provide BDE style encapsulation of 3rd party SpookyHash code.
 //
 //@CLASSES:
-//  bslh::SpookyHashAlgorithmImp: 3rd party spooky hash algorithm wrapper
+//  bslh::SpookyHashAlgorithmImp: Encapsulatoin of 3rd party SpookyHash code.
 //
 //@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithm
 //
-//@DESCRIPTION: 'bslh::SpookyHashAlgorithmImp' provides BDE style wrapping
-// around Bob Jenkins spooky hash implementation.  SpookyHash provides a way to
-// hash contiguous data all at once, or discontiguous data in pieces.  More
-// information is available at: http://burtleburtle.net/bob/hash/spooky.html
+//@DESCRIPTION: 'bslh::SpookyHashAlgorithmImp' provides BDE style encapsulation
+// around Bob Jenkins cannonical SpookyHash implementation.  SpookyHash
+// provides a way to hash contiguous data all at once, or discontiguous data in
+// pieces.  More information is available at:
+// http://burtleburtle.net/bob/hash/spooky.html
 //
 ///Changes
 ///-------
@@ -25,25 +26,35 @@ BSLS_IDENT("$Id: $")
 // continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
-//: 1 Adding BloombergLP and bslh namespaces
+//: 1  Added BloombergLP and bslh namespaces
 //:
-//: 2 Renamed 'SpookyHash' to 'SpookyHashAlgorithmImp'
+//: 2  Renamed 'SpookyHash' to 'SpookyHashAlgorithmImp'
 //:
-//: 3 Removed usage of 'stdint.h' and updated associated typedefs
+//: 3  Removed usage of 'stdint.h' which might not be availible on all platforms
+//:    and updated associated typedefs
 //:
-//: 4 Moved includes
+//: 4  Added include guards
 //:
-//: 5 Made some methods private
+//: 5  Made some methods private
 //:
-//: 6 Re-wrote comments, indenting, etc in BDE style
+//: 6  Reformatted comments and added comments
 //:
-//: 7 Moved typedefs within class
+//: 7  Updated indenting to BDE style
 //:
-//: 8 Changed c style casts to static_casts
+//: 7  Moved typedefs within class
 //:
-//: 9 Reordered methods according to BDE style
+//: 8  Changed c style casts to static_casts
+//:
+//: 9  Reordered methods according to BDE style
 //:
 //: 10 Added inline to 'Hash32' and 'Hash64'
+//:
+//: 11 Changed static constants to 'enum's to avoid storage overhead
+//:
+//: 12 Added constructor in place of init
+//:
+//: 13 Made function names lower case (had to change 'Final' to 'finalize' to
+//:    avoid using a keyword)
 //
 ///Third Party Doc
 ///---------------
@@ -106,107 +117,116 @@ class SpookyHashAlgorithmImp {
 
   private:
     // DATA
-    static const size_t sc_numVars = 12;
+    enum { k_NUM_VARS = 12 };
         // Number of 64-bit integers used in the internal state.
 
-    static const size_t sc_blockSize = sc_numVars*8;
+    enum { k_BLOCK_SIZE = k_NUM_VARS * 8 };
         // Size of the internal state, in bytes.
 
-    static const size_t sc_bufSize = 2*sc_blockSize;
+    enum { k_BUFFER_SIZE = k_BLOCK_SIZE * 2 };
         // Size of buffer of unhashed data, in bytes.
 
     static const Uint64 sc_const = 0xdeadbeefdeadbeefLL;
         // A non-zero, odd, constant that has an irregular distribution of 1's
         // and 0's to be used in hashing calculations.
 
-    Uint64 m_data[2*sc_numVars]; // Unhashed data, for partial messages
-    Uint64 m_state[sc_numVars];  // Internal state of the hash
-    size_t m_length;             // Total length of the input so far
-    Uint8  m_remainder;          // Length of unhashed data stashed in m_data
+    Uint64 m_data[2 * k_NUM_VARS]; // Unhashed data, for partial messages
+    Uint64 m_state[k_NUM_VARS];    // Internal state of the hash
+    size_t m_length;               // Total length of the input so far
+    Uint8  m_remainder;            // Length of unhashed data stashed in m_data
 
     // PRIVATE CLASS METHODS
-    static inline void End(
-        const Uint64 *data,
-        Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
-        Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
-        Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
+    static void end(const Uint64 *data,
+                    Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
+                    Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
+                    Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
         // Incorporate the first 12 bytes of the specified 'data' into 'h0',
         // 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', and
         // 'h11', and then mix the inputs together so that 'h0' and 'h1' are a
-        // hash of all the inputs.
+        // hash of all the inputs. Note that non-BDE-standard passing by
+        // non-const reference is used here to remain consistent with the
+        // cannonical implementation.
 
-    static inline void EndPartial(
-        Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
-        Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
-        Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
+    static void endPartial(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
+                           Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
+                           Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
         // Combine the specified 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
-        // will be a hash of all the inputs.
+        // will be a hash of all the inputs. Note that non-BDE-standard passing
+        // by non-const reference is used here to remain consistent with the
+        // cannonical implementation.
 
-    static inline void Mix(const Uint64 *data, Uint64 &s0, Uint64 &s1,
-                           Uint64 &s2,  Uint64 &s3, Uint64 &s4, Uint64 &s5,
-                           Uint64 &s6,  Uint64 &s7, Uint64 &s8, Uint64 &s9,
-                           Uint64 &s10, Uint64 &s11);
+    static void mix(const Uint64 *data,
+                    Uint64 &s0, Uint64 &s1, Uint64 &s2,  Uint64 &s3,
+                    Uint64 &s4, Uint64 &s5, Uint64 &s6,  Uint64 &s7,
+                    Uint64 &s8, Uint64 &s9, Uint64 &s10, Uint64 &s11);
         // Thoroughly mix the first 12 bytes of the specified 'data' into 's0',
         // 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', and
         // 's1'. This method should be used when the input is 96 bytes or
         // longer to prevent the loss of entropy, because the internal state of
-        // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes.
+        // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes. Note that
+        // non-BDE-standard passing by non-const reference is used here to
+        // remain consistent with the cannonical implementation.
 
-    static inline Uint64 Rot64(Uint64 x, int k);
+    static Uint64 rot64(Uint64 x, int k);
         // Return the specified 'x' left rotated by 'k' bits.
 
-    static void Short(const void *message,
-                      size_t length,
-                      Uint64 *hash1,
-                      Uint64 *hash2);
+    static void short(const void *message,
+                      size_t      length,
+                      Uint64     *hash1,
+                      Uint64     *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
         // 'hash2' as seeds. Load the higher order bits of the resulting
         // 128-bit into 'hash1' and the lower order bits in 'hash2'. This
         // method is meant to be used for messages less than 192 bytes in
         // length because of it's lower startup cost.
 
-    static inline void ShortEnd(Uint64 &h0,
+    static void shortend(Uint64 &h0,
                                 Uint64 &h1,
                                 Uint64 &h2,
                                 Uint64 &h3);
-        // Combine the specified 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
-        // will be a hash of all the inputs.
+        // Combine the specified 'h0', 'h1', 'h2', and 'h3' together so that
+        // 'h0' and 'h1' will be a hash of all the inputs. Note that
+        // non-BDE-standard passing by non-const reference is used here to
+        // remain consistent with the cannonical implementation.
 
-    static inline void ShortMix(Uint64 &h0,
+    static void shortMix(Uint64 &h0,
                                 Uint64 &h1,
                                 Uint64 &h2,
                                 Uint64 &h3);
         // Thoroughly mix the specified 'h0', 'h1', 'h2', and 'h3' so that each
         // bit of input contributes entropy to every bit of the final states of
-        // 'h0', 'h1', 'h2', and 'h3'.
+        // 'h0', 'h1', 'h2', and 'h3'. Note that non-BDE-standard passing by
+        // non-const reference is used here to remain consistent with the
+        // cannonical implementation.
 
   public:
     // PUBLIC CLASS METHODS
-    static inline Uint32 Hash32(const void *message,
-                                size_t length,
-                                Uint32 seed);
+    static Uint32 hash32(const void *message,
+                         size_t      length,
+                         Uint32      seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed. Return the resulting 32-bit hash.
 
-    static inline Uint64 Hash64(const void *message,
-                                size_t length,
-                                Uint64 seed);
+    static Uint64 hash64(const void *message,
+                         size_t      length,
+                         Uint64      seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed. Return the resulting 64-bit hash.
 
-    static void Hash128(const void *message,
-                        size_t length,
-                        Uint64 *hash1,
-                        Uint64 *hash2);
+    static void hash128(const void *message,
+                        size_t      length,
+                        Uint64     *hash1,
+                        Uint64     *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
         // 'hash2' as seeds. Load the higher order bits of the resulting
         // 128-bit into 'hash1' and the lower order bits in 'hash2'.
 
     // CREATORS
-    //! SpookyHashAlgorithmImp() = default;
-        // Create a 'SpookyHashAlgorithmImp', leaving it uninitialized.
+    SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2);
+        // Create an object of type 'SpookyHashAlgorithmImp', initializing the
+        // internal state of the object using the specified 'seed1' and 'seed2'
+        // as seeds for the algorithm..
 
     //! SpookyHashAlgorithmImp(const SpookyHashAlgorithmImp& original) =
     //!                                                                default;
@@ -222,32 +242,28 @@ class SpookyHashAlgorithmImp {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void Init(Uint64 seed1, Uint64 seed2);
-        // Initialize the internal state of the object using the specified
-        // 'seed1' and 'seed2' as seeds for the algorithm. This method must be
-        // called before calling 'Update' or 'Final' Note that this does not
-        // need to be called to use the static 'HashXX' methods.
-
-    void Update(const void *message, size_t length);
+    void update(const void *message, size_t length);
         // Accumulate the specified 'length' bytes of 'message' into the
         // internal state of the algorithm. Accumulating bytes through 'Update'
         // will produce the same result as hashing them all at once through the
-        // 'HashXX' static methods.
+        // 'HashXX' static methods. The behavior is undefined unles 'message'
+        // points at least 'length' bytes of initialized memory.
 
     //ACCESSORS
-    void Final(Uint64 *hash1, Uint64 *hash2);
+    void finalize(Uint64 *hash1, Uint64 *hash2);
         // Load the finalized hash into the specified 'hash1' and 'hash2'.
         // 'hash1' will contain the higher order bits of the hash and 'hash2'
         // will contain the lower order bits. The internal state of the
         // algorithm will be modified, meaning that calling final multiple
         // times will result in different hash values being returned. The
         // returned hash will be the same as if 'Hash128' had been called will
-        // all of the accumulated data in one block.
+        // all of the accumulated data in one block. Note that a value will be
+        // returned even if 'update' has not been called.
 };
 
 // PUBLIC CLASS METHODS
 inline
-SpookyHashAlgorithmImp::Uint32 SpookyHashAlgorithmImp::Hash32(
+SpookyHashAlgorithmImp::Uint32 SpookyHashAlgorithmImp::hash32(
                                                            const void *message,
                                                            size_t      length,
                                                            Uint32      seed)
@@ -268,9 +284,19 @@ SpookyHashAlgorithmImp::Uint64 SpookyHashAlgorithmImp::Hash64(
     return hash1;
 }
 
+// CREATORS
+inline
+SpookyHashAlgorithmImp::SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2)
+: m_length(0)
+, m_remainder(0)
+{
+    m_state[0] = seed1;
+    m_state[1] = seed2;
+}
+
 // PRIVATE CLASS METHODS
 inline
-void SpookyHashAlgorithmImp::End(
+void SpookyHashAlgorithmImp::end(
     const Uint64 *data,
     Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
     Uint64 &h4, Uint64 &h5, Uint64 &h6, Uint64 &h7,
@@ -332,7 +358,7 @@ SpookyHashAlgorithmImp::Uint64 SpookyHashAlgorithmImp::Rot64(Uint64 x, int k)
 }
 
 inline
-void SpookyHashAlgorithmImp::ShortEnd(Uint64 &h0,
+void SpookyHashAlgorithmImp::Shortend(Uint64 &h0,
                                       Uint64 &h1,
                                       Uint64 &h2,
                                       Uint64 &h3)

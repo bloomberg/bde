@@ -46,7 +46,7 @@ namespace bslh {
 void SpookyHashAlgorithmImp::Final(Uint64 *hash1, Uint64 *hash2)
 {
     // init the variables
-    if (m_length < sc_bufSize)
+    if (m_length < k_BUFFER_SIZE)
     {
         *hash1 = m_state[0];
         *hash2 = m_state[1];
@@ -70,22 +70,22 @@ void SpookyHashAlgorithmImp::Final(Uint64 *hash1, Uint64 *hash2)
     Uint64 h10 = m_state[10];
     Uint64 h11 = m_state[11];
 
-    if (remainder >= sc_blockSize)
+    if (remainder >= k_BLOCK_SIZE)
     {
         // m_data can contain two blocks; handle any whole first block
         Mix(data, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
-        data += sc_numVars;
-        remainder -= sc_blockSize;
+        data += k_NUM_VARS;
+        remainder -= k_BLOCK_SIZE;
     }
 
-    // mix in the last partial block, and the length mod sc_blockSize
+    // mix in the last partial block, and the length mod k_BLOCK_SIZE
     memset(&(reinterpret_cast<Uint8 *>(data))[remainder], 0,
-                                                   (sc_blockSize - remainder));
+                                                   (k_BLOCK_SIZE - remainder));
 
-    (reinterpret_cast<Uint8 *>(data))[sc_blockSize - 1] = remainder;
+    (reinterpret_cast<Uint8 *>(data))[k_BLOCK_SIZE - 1] = remainder;
 
     // do some final mixing
-    End(data, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
+    end(data, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
 
     *hash1 = h0;
     *hash2 = h1;
@@ -98,14 +98,14 @@ void SpookyHashAlgorithmImp::Hash128(
     Uint64 *hash1,
     Uint64 *hash2)
 {
-    if (length < sc_bufSize)
+    if (length < k_BUFFER_SIZE)
     {
         Short(message, length, hash1, hash2);
         return;                                                       // RETURN
     }
 
     Uint64 h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11;
-    Uint64 buf[sc_numVars];
+    Uint64 buf[k_NUM_VARS];
     Uint64 *end;
     union
     {
@@ -120,37 +120,37 @@ void SpookyHashAlgorithmImp::Hash128(
     h2=h5=h8=h11 = sc_const;
 
     u.p8 = static_cast<const Uint8 *>(message);
-    end = u.p64 + (length/sc_blockSize)*sc_numVars;
+    end = u.p64 + (length/k_BLOCK_SIZE)*k_NUM_VARS;
 
-    // handle all whole sc_blockSize blocks of bytes
+    // handle all whole k_BLOCK_SIZE blocks of bytes
     if (ALLOW_UNALIGNED_READS || ((u.i & 0x7) == 0))
     {
         while (u.p64 < end)
         {
             Mix(u.p64, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
-            u.p64 += sc_numVars;
+            u.p64 += k_NUM_VARS;
         }
     }
     else
     {
         while (u.p64 < end)
         {
-            memcpy(buf, u.p64, sc_blockSize);
+            memcpy(buf, u.p64, k_BLOCK_SIZE);
             Mix(buf, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
-            u.p64 += sc_numVars;
+            u.p64 += k_NUM_VARS;
         }
     }
 
-    // handle the last partial block of sc_blockSize bytes
+    // handle the last partial block of k_BLOCK_SIZE bytes
     remainder = (length - (reinterpret_cast<const Uint8 *>(end) -
                            static_cast<const Uint8 *>(message)));
     memcpy(buf, end, remainder);
     memset((reinterpret_cast<Uint8 *>(buf)) + remainder, 0,
-                                                       sc_blockSize-remainder);
-    (reinterpret_cast<Uint8 *>(buf))[sc_blockSize-1] = remainder;
+                                                       k_BLOCK_SIZE-remainder);
+    (reinterpret_cast<Uint8 *>(buf))[k_BLOCK_SIZE-1] = remainder;
 
     // do some final mixing
-    End(buf, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
+    end(buf, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
     *hash1 = h0;
     *hash2 = h1;
 }
@@ -176,7 +176,7 @@ void SpookyHashAlgorithmImp::Short(
     Uint64 *hash1,
     Uint64 *hash2)
 {
-    Uint64 buf[2*sc_numVars];
+    Uint64 buf[2*k_NUM_VARS];
     union
     {
         const Uint8 *p8;
@@ -267,7 +267,7 @@ void SpookyHashAlgorithmImp::Short(
         c += sc_const;
         d += sc_const;
     }
-    ShortEnd(a,b,c,d);
+    Shortend(a,b,c,d);
     *hash1 = a;
     *hash2 = b;
 }
@@ -287,7 +287,7 @@ void SpookyHashAlgorithmImp::Update(const void *message, size_t length)
     const Uint64 *end;
 
     // Is this message fragment too short?  If it is, stuff it away.
-    if (newLength < sc_bufSize)
+    if (newLength < k_BUFFER_SIZE)
     {
         memcpy(&(reinterpret_cast<Uint8 *>(m_data))[m_remainder], message,
                                                                        length);
@@ -297,7 +297,7 @@ void SpookyHashAlgorithmImp::Update(const void *message, size_t length)
     }
 
     // init the variables
-    if (m_length < sc_bufSize)
+    if (m_length < k_BUFFER_SIZE)
     {
         h0=h3=h6=h9  = m_state[0];
         h1=h4=h7=h10 = m_state[1];
@@ -323,12 +323,12 @@ void SpookyHashAlgorithmImp::Update(const void *message, size_t length)
     // if we've got anything stuffed away, use it now
     if (m_remainder)
     {
-        Uint8 prefix = sc_bufSize-m_remainder;
+        Uint8 prefix = k_BUFFER_SIZE-m_remainder;
         memcpy(&((reinterpret_cast<Uint8 *>(m_data))[m_remainder]), message,
                                                                        prefix);
         u.p64 = m_data;
         Mix(u.p64, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
-        Mix(&u.p64[sc_numVars], h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
+        Mix(&u.p64[k_NUM_VARS], h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
         u.p8 = (static_cast<const Uint8 *>(message)) + prefix;
         length -= prefix;
     }
@@ -337,8 +337,8 @@ void SpookyHashAlgorithmImp::Update(const void *message, size_t length)
         u.p8 = static_cast<const Uint8 *>(message);
     }
 
-    // handle all whole blocks of sc_blockSize bytes
-    end = u.p64 + (length/sc_blockSize)*sc_numVars;
+    // handle all whole blocks of k_BLOCK_SIZE bytes
+    end = u.p64 + (length/k_BLOCK_SIZE)*k_NUM_VARS;
     remainder = static_cast<Uint8>(length -
                                   (reinterpret_cast<const Uint8 *>(end)-u.p8));
     if (ALLOW_UNALIGNED_READS || (u.i & 0x7) == 0)
@@ -346,16 +346,16 @@ void SpookyHashAlgorithmImp::Update(const void *message, size_t length)
         while (u.p64 < end)
         {
             Mix(u.p64, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
-            u.p64 += sc_numVars;
+            u.p64 += k_NUM_VARS;
         }
     }
     else
     {
         while (u.p64 < end)
         {
-            memcpy(m_data, u.p8, sc_blockSize);
+            memcpy(m_data, u.p8, k_BLOCK_SIZE);
             Mix(m_data, h0,h1,h2,h3,h4,h5,h6,h7,h8,h9,h10,h11);
-            u.p64 += sc_numVars;
+            u.p64 += k_NUM_VARS;
         }
     }
 
