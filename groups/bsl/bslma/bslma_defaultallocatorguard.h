@@ -157,6 +157,7 @@ class DefaultAllocatorGuard {
 
   public:
     // CREATORS
+    explicit
     DefaultAllocatorGuard(Allocator *temporary);
         // Create a scoped guard that installs the specified 'temporary'
         // allocator as the default allocator.  Note that the default allocator
@@ -169,9 +170,9 @@ class DefaultAllocatorGuard {
 
 }  // close package namespace
 
-// ===========================================================================
+// ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 
 }  // close enterprise namespace
