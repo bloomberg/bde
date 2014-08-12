@@ -119,15 +119,20 @@ BSLS_IDENT("$Id$")
 #  define DECIMAL_CALL_BY_REFERENCE      0
 #  define DECIMAL_GLOBAL_ROUNDING        1
 #  define DECIMAL_GLOBAL_EXCEPTION_FLAGS 1
-#  ifndef LINUX
+
+#  ifndef __GNUC__
 #    define LINUX
 #    define BDLDFP_DECIMALIMPUTIL_INTELDFP_FAKE_DEFINE_LINUX
+#    define __thread
+#    define __QNX__
 #  endif
 
 // in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
 // about this.
 
 #  define _WCHAR_T_DEFINED
+
+
 
    extern "C" {
 #   include <bid_conf.h>
@@ -137,11 +142,17 @@ BSLS_IDENT("$Id$")
 #  undef DECIMAL_CALL_BY_REFERENCE
 #  undef DECIMAL_GLOBAL_ROUNDING
 #  undef DECIMAL_GLOBAL_EXCEPTION_FLAGS
-#  undef _WCHAR_T_DEFINED
 
+#if 0
 #  ifdef BDLDFP_DECIMALIMPUTIL_INTELDFP_FAKE_DEFINE_LINUX
 #    undef LINUX
+#    undef BDLDFP_DECIMALIMPUTIL_INTELDFP_FAKE_DEFINE_LINUX
+#    undef __thread
+#    undef __QNX__
 #  endif
+#endif
+
+#  undef _WCHAR_T_DEFINED
 
 #  define INCLUDED_BID_CONF
 #  define INCLUDED_BID_FUNCTIONS
