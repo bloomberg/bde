@@ -31,6 +31,8 @@ bsls_bsllock
 bsls_bsltestutil
 bsls_buildtarget
 bsls_byteorder
+bsls_byteorderutil
+bsls_byteorderutil_impl
 bsls_compilerfeatures
 bsls_exceptionutil
 bsls_ident
