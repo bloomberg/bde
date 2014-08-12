@@ -35,11 +35,9 @@ using namespace bslh;
 //
 // CREATORS
 // [ 2] explicit SipHashAlgorithm(const char *seed);
-// [ 2] SipHashAlgorithm(const SipHashAlgorithm);
 // [ 2] ~SipHashAlgorithm();
 //
 // MANIPULATORS
-// [ 2] SipHashAlgorithm& operator=(const SipHashAlgorithm&);
 // [ 3] void operator()(void const* key, size_t len);
 //
 // ACCESSOR
@@ -351,7 +349,7 @@ struct HashFuture {
 
         SipHashAlgorithm hash(seed);
 
-        hash(future.getName(),  strlen(future.getName())*sizeof(char));
+        hash(future.getName(),  strlen(future.getName()));
         hash(future.getMonth(), sizeof(char));
         hash(future.getYear(),  sizeof(short));
 
@@ -402,8 +400,7 @@ int main(int argc, char *argv[])
                              Future("British Pound", 'M', 2015),
                              Future("Deutsche Mark", 'X', 2016),
                              Future("Eurodollar", 'Q', 2017)};
-        enum { NUM_FUTURES =
-                              sizeof futures / sizeof *futures };
+        enum { NUM_FUTURES = sizeof futures / sizeof *futures };
 
 // Next, we create our HashTable 'hashTable'.  We pass the functor that we
 // defined above as the second argument:
@@ -460,7 +457,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'k_SEED_LENGTH' is publicly accessible.
         //:
-        //: 2 'k_SEED_LENGTH' has the correct value.
+        //: 2 'k_SEED_LENGTH' is set to 16.
         //
         // Plan:
         //: 1 Access 'k_SEED_LENGTH' and ASSERT it is equal to the expected
@@ -476,7 +473,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
                             " the expected value. (C-1,2)\n");
         {
-            ASSERT(SipHashAlgorithm::k_SEED_LENGTH == 16);
+            ASSERT(16 == SipHashAlgorithm::k_SEED_LENGTH);
         }
 
       } break;
@@ -526,14 +523,14 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING FUNCTION CALL OPERATOR AND COMPUTEHASH
-        //   Verify that the class offers the ability to invoke it via
-        //   'operator()' with some bytes and a length. Verify that calling
-        //   'operator()' will permute the algorithm's internal state as
-        //   specified by SipHash. Verify that 'computeHash' returns the final
-        //   value by SipHash specifications.
+        //   Verify the class provides an overload for the function call
+        //   operator that can be called with some bytes and a length. Verify
+        //   that calling 'operator()' will permute the algorithm's internal
+        //   state as specified by SipHash. Verify that 'computeHash' returns
+        //   the final value by SipHash specifications.
         //
         // Concerns:
-        //: 1 The function call operator exists.
+        //: 1 The function call operator is callable.
         //:
         //: 2 Given the same bytes, the function call operator will permute the
         //:   internal state of the algorithm in the same way, regardless of
@@ -607,8 +604,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n", VALUE);
 
-                Obj contiguousHash = Obj(genericSeed);
-                Obj dispirateHash  = Obj(genericSeed);
+                Obj contiguousHash(genericSeed);
+                Obj dispirateHash(genericSeed);
 
                 contiguousHash(VALUE, strlen(VALUE));
                 for (unsigned int j = 0; j < strlen(VALUE); ++j){
@@ -633,8 +630,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n", VALUE);
 
-                Obj contiguousHash = Obj(genericSeed);
-                Obj dispirateHash  = Obj(genericSeed);
+                Obj contiguousHash(genericSeed);
+                Obj dispirateHash(genericSeed);
 
                 contiguousHash(VALUE, strlen(VALUE));
                 for (unsigned int j = 0; j < strlen(VALUE); ++j){
@@ -658,7 +655,7 @@ int main(int argc, char *argv[])
                 const char               *VALUE = DATA[i].d_value;
                 const bsls::Types::Uint64 HASH  = DATA[i].d_hash;
 
-                Obj hash = Obj(genericSeed);
+                Obj hash(genericSeed);
                 hash(VALUE, strlen(VALUE));
                 bsls::Types::Uint64  hashResult = hash.computeHash();
 
@@ -675,7 +672,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR
+        // TESTING CREATORS
         //   Ensure that the three implicitly declared and defined special
         //   member functions and the one explicitly defined constructor are
         //   publicly callable.  Verify that the algorithm does not have a
@@ -686,43 +683,23 @@ int main(int argc, char *argv[])
         //:
         //: 2 Objects can be created using the parameterized constructor.
         //:
-        //: 3 Objects can be created using the copy constructor.
-        //:
-        //: 4 The copy constructor is not declared as explicit.
-        //:
-        //: 5 Objects can be assigned to from constant objects.
-        //:
-        //: 6 Assignments operations can be chained.
-        //:
-        //: 7 Objects can be destroyed.
+        //: 3 Objects can be destroyed.
         //
         // Plan:
         //: 1 Assert the algorithm does not have the is_default_constructable
         //:   trait. (C-1)
         //:
         //: 2 Call the parameterized constructor using a seed and allow it to
-        //:   leave scope to be destroyed. (C-2,7)
-        //:
-        //: 3 Use the copy-initialization syntax to create a new instance of
-        //:   'SipHashAlgorithm' from an existing instance. (C-3,4)
-        //:
-        //: 4 Assign the value of the one (const) instance of
-        //:   'SipHashAlgorithm' to a second. (C-5)
-        //:
-        //: 5 Chain the assignment of the value of the one instance of
-        //:   'SipHashAlgorithm' to a second instance of 'SipHashAlgorithm',
-        //:   into a self-assignment of the second object. (C-6)
+        //:   leave scope to be destroyed. (C-2,3)
         //
         // Testing:
         //   explicit SipHashAlgorithm(const char *seed);
-        //   SipHashAlgorithm(const SipHashAlgorithm);
         //   ~SipHashAlgorithm();
-        //   SipHashAlgorithm& operator=(const SipHashAlgorithm&);
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR"
-                   "\n==============================================\n");
+            printf("\nTESTING CREATORS"
+                   "\n================\n");
 
         if (verbose) printf("Assert the algorithm does not have the"
                             " is_default_constructable trait. (C-1)\n");
@@ -733,34 +710,9 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Call the parameterized constructor using a seed"
                             " and allow it to leave scope to be destroyed."
-                            " (C-2,7)\n");
+                            " (C-2,3)\n");
         {
-            Obj alg1 = Obj(genericSeed);
-        }
-
-        if (verbose) printf("Use the copy-initialization syntax to create a"
-                            " new instance of 'SipHashAlgorithm' from an"
-                            " existing instance. (C-3,4)\n");
-        {
-            Obj alg1 = Obj(genericSeed);
-            Obj alg2 = alg1;
-        }
-
-        if (verbose) printf("Assign the value of the one (const) instance of"
-                            " 'SipHashAlgorithm' to a second. (C-5)\n");
-        {
-            const Obj alg1 = Obj(genericSeed);
-            Obj alg2 = alg1;
-        }
-
-        if (verbose) printf("Chain the assignment of the value of the one"
-                            " instance of 'SipHashAlgorithm' to a second"
-                            " instance of 'SipHashAlgorithm', into a"
-                            " self-assignment of the second object. (C-6)\n");
-        {
-            Obj alg1 = Obj(genericSeed);
-            Obj alg2 = alg1;
-            alg2 = alg2 = alg1;
+            Obj alg1(genericSeed);
         }
 
       } break;

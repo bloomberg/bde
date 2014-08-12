@@ -198,6 +198,17 @@ class SipHashAlgorithm {
         // The total length of all data that has been passed into the
         // algorithm.
 
+    // NOT IMPLEMENTED
+    SipHashAlgorithm(); // = delete;
+        // Do not allow default construction. This class must be constructed
+        // with a seed.
+
+    SipHashAlgorithm(const SipHashAlgorithm& original); // = delete;
+        // Do not allow copy construction.
+
+    SipHashAlgorithm& operator=(const SipHashAlgorithm& rhs); // = delete;
+        // Do not allow assignment.
+
   public:
     // TYPES
     typedef Uint64 result_type;
@@ -216,21 +227,8 @@ class SipHashAlgorithm {
         // 'seed' is not random, all guarantees of security and denial of
         // service protection are void.
 
-    //! SipHashAlgorithm() = delete;
-        // Do not allow default construction. This class must be constructed
-        // with a seed.
-
-    //! SipHashAlgorithm(const SipHashAlgorithm& original) = default;
-        // Create a 'SipHashAlgorithm' object having the same internal state as
-        // the specified 'original'.
-
     //! ~SipHashAlgorithm() = default;
         // Destroy this object.
-
-    // MANIPULATORS
-    //! SipHashAlgorithm& operator=(const SipHashAlgorithm& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
 
     // MANIPULATORS
     void operator()(const void *data, size_t length);

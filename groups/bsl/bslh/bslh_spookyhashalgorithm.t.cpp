@@ -29,16 +29,14 @@ using namespace bslh;
 // [ 4] typedef bsls::Types::Uint64 result_type;
 //
 // CONSTANTS
-// [ 5] enum { k_SEED_LENGTH = 8 };
+// [ 5] enum { k_SEED_LENGTH = 16 };
 //
 // CREATORS
 // [ 2] SpookyHashAlgorithm();
 // [ 2] SpookyHashAlgorithm(const char *seed);
-// [ 2] SpookyHashAlgorithm(const SpookyHashAlgorithm);
 // [ 2] ~SpookyHashAlgorithm();
 //
 // MANIPULATORS
-// [ 2] SpookyHashAlgorithm& operator=(const SpookyHashAlgorithm&);
 // [ 3] void operator()(void const* key, size_t len);
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------
@@ -312,7 +310,7 @@ struct HashFuture {
     {
         SpookyHashAlgorithm hash;
 
-        hash(future.getName(),  strlen(future.getName())*sizeof(char));
+        hash(future.getName(),  strlen(future.getName()));
         hash(future.getMonth(), sizeof(char));
         hash(future.getYear(),  sizeof(short));
 
@@ -370,8 +368,7 @@ int main(int argc, char *argv[])
                              Future("British Pound", 'M', 2015),
                              Future("Deutsche Mark", 'X', 2016),
                              Future("Eurodollar", 'Q', 2017)};
-        enum { NUM_FUTURES =
-                              sizeof futures / sizeof *futures };
+        enum { NUM_FUTURES = sizeof futures / sizeof *futures };
 
 // Next, we create our HashTable 'hashTable'.  We pass the functor that we
 // defined above as the second argument:
@@ -427,14 +424,14 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'k_SEED_LENGTH' is publicly accessible.
         //:
-        //: 2 'k_SEED_LENGTH' has the correct value.
+        //: 2 'k_SEED_LENGTH' is set to 16.
         //
         // Plan:
         //: 1 Access 'k_SEED_LENGTH' and ASSERT it is equal to the expected
         //:   value. (C-1,2)
         //
         // Testing:
-        //   enum { k_SEED_LENGTH = 8 };
+        //   enum { k_SEED_LENGTH = 16 };
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING K_SEED_LENGTH"
@@ -443,7 +440,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
                             " the expected value. (C-1,2)\n");
         {
-            ASSERT(SpookyHashAlgorithm::k_SEED_LENGTH == 16);
+            ASSERT(16 == SpookyHashAlgorithm::k_SEED_LENGTH);
         }
 
       } break;
@@ -493,15 +490,15 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING FUNCTION CALL OPERATOR AND 'COMPUTEHASH'
-        //   Verify that the class offers the ability to invoke it via
-        //   'operator()' with some bytes and a length. Verify that calling
-        //   'operator()' will permute the algorithm's internal state as
-        //   specified by SpookyHash. Verify that 'computeHash' returns the
-        //   final value specified by the canonical spooky hash
+        //   Verify the class provides an overload for the function call
+        //   operator that can be called with some bytes and a length. Verify
+        //   that calling 'operator()' will permute the algorithm's internal
+        //   state as specified by SpookyHash. Verify that 'computeHash'
+        //   returns the final value specified by the canonical spooky hash
         //   implementation.
         //
         // Concerns:
-        //: 1 The function call operator exists.
+        //: 1 The function call operator is callable.
         //:
         //: 2 Given the same bytes, the function call operator will permute the
         //:   internal state of the algorithm in the same way, regardless of
@@ -510,7 +507,7 @@ int main(int argc, char *argv[])
         //: 3 Byte sequences passed in to 'operator()' with a length of 0 will
         //:   not contribute to the final hash
         //:
-        //: 4 'computeHash()' exists and returns the appropriate value
+        //: 4 'computeHash()' and returns the appropriate value
         //:   according to the SpookyHash specification.
         //
         // Plan:
@@ -599,8 +596,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n", VALUE);
 
-                Obj contiguousHash = Obj();
-                Obj dispirateHash  = Obj();
+                Obj contiguousHash;
+                Obj dispirateHash;
 
                 contiguousHash(VALUE, strlen(VALUE));
                 for (unsigned int j = 0; j < strlen(VALUE); ++j){
@@ -625,8 +622,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) printf("Hashing: %s\n", VALUE);
 
-                Obj contiguousHash = Obj();
-                Obj dispirateHash  = Obj();
+                Obj contiguousHash;
+                Obj dispirateHash;
 
                 contiguousHash(VALUE, strlen(VALUE));
                 for (unsigned int j = 0; j < strlen(VALUE); ++j){
@@ -654,7 +651,7 @@ int main(int argc, char *argv[])
                                         VALUE,
                                         HASH);
 
-                Obj hash = Obj();
+                Obj hash;
                 hash(VALUE, strlen(VALUE));
                 LOOP_ASSERT(LINE, hash.computeHash() == HASH);
             }
@@ -663,93 +660,47 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR
-        //   Ensure that the implicit copy constructor, destructor, and
-        //   assignment operator as well as the explicit default and
-        //   parameterized constructors are publicly callable.  Verify that the
-        //   algorithm can be instantiated with or without a seed.
+        // TESTING CREATORS
+        //   Ensure that the implicit destructor as well as the explicit
+        //   default and parameterized constructors are publicly callable.
+        //   Verify that the algorithm can be instantiated with or without a
+        //   seed.
         //
         // Concerns:
         //: 1 Objects can be created using the default constructor.
         //:
         //: 2 Objects can be created using the parameterized constructor.
         //:
-        //: 3 Objects can be created using the copy constructor.
-        //:
-        //: 4 The copy constructor is not declared as explicit.
-        //:
-        //: 5 Objects can be assigned to from constant objects.
-        //:
-        //: 6 Assignments operations can be chained.
-        //:
-        //: 7 Objects can be destroyed.
+        //: 3 Objects can be destroyed.
         //
         // Plan:
         //: 1 Create a default constructed 'SpookyHashAlgorithm' and allow it
-        //:   to leave scope to be destroyed. (C-1,7)
+        //:   to leave scope to be destroyed. (C-1,3)
         //:
         //: 2 Call the parameterized constructor with a seed. (C-2)
-        //:
-        //: 3 Use the copy-initialization syntax to create a new instance of
-        //:   'SpookyHashAlgorithm' from an existing instance. (C-3,4)
-        //:
-        //: 4 Assign the value of the one (const) instance of
-        //:   'SpookyHashAlgorithm' to a second. (C-5)
-        //:
-        //: 5 Chain the assignment of the value of the one instance of
-        //:   'SpookyHashAlgorithm' to a second instance of
-        //:   'SpookyHashAlgorithm', into a self-assignment of the second
-        //:   object. (C-6)
         //
         // Testing:
         //   SpookyHashAlgorithm();
         //   SpookyHashAlgorithm(const char *seed);
-        //   SpookyHashAlgorithm(const SpookyHashAlgorithm);
         //   ~SpookyHashAlgorithm();
-        //   SpookyHashAlgorithm& operator=(const SpookyHashAlgorithm&);
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR"
-                   "\n==============================================\n");
+            printf("\nTESTING CREATORS"
+                   "\n================\n");
 
         if (verbose) printf("Create a default constructed"
                             " 'SpookyHashAlgorithm' and allow it to leave"
-                            " scope to be destroyed. (C-1,7)\n");
+                            " scope to be destroyed. (C-1,3)\n");
         {
-            Obj alg1 = Obj();
+            Obj alg1;
         }
 
         if (verbose) printf("Call the parameterized constructor with a seed."
                             " (C-2)\n");
         {
             Uint64 array[2] = {0,0};
-            Obj alg1 = Obj(reinterpret_cast<const char *>(array));
-        }
-
-        if (verbose) printf("Use the copy-initialization syntax to create a"
-                            " new instance of 'SipHashAlgorithm' from an"
-                            " existing instance. (C-3,4)\n");
-        {
-            Obj alg1 = Obj();
-            Obj alg2 = alg1;
-        }
-
-        if (verbose) printf("Assign the value of the one (const) instance of"
-                            " 'SipHashAlgorithm' to a second. (C-5)\n");
-        {
-            const Obj alg1 = Obj();
-            Obj alg2 = alg1;
-        }
-
-        if (verbose) printf("Chain the assignment of the value of the one"
-                            " instance of 'SipHashAlgorithm' to a second"
-                            " instance of 'SipHashAlgorithm', into a"
-                            " self-assignment of the second object. (C-6)\n");
-        {
-            Obj alg1 = Obj();
-            Obj alg2 = alg1;
-            alg2 = alg2 = alg1;
+            Obj alg1(reinterpret_cast<const char *>(array));
         }
 
       } break;

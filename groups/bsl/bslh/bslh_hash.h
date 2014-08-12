@@ -297,7 +297,7 @@ inline
 typename bslh::Hash<HASH_ALGORITHM>::result_type
 bslh::Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
 {
-    HASH_ALGORITHM hashAlg = HASH_ALGORITHM();
+    HASH_ALGORITHM hashAlg;
     hashAppend(hashAlg, key);
     return static_cast<result_type>(hashAlg.computeHash());
 }

@@ -80,6 +80,7 @@ class DefaultSeededHashAlgorithm {
     // the modular hashing system in 'bslh' (see
     // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing)
 
+  private:
     // PRIVATE TYPES
     typedef bslh::SpookyHashAlgorithm InternalHashAlgorithm;
         // Typedef indicating the algorithm currently being used by
@@ -89,6 +90,19 @@ class DefaultSeededHashAlgorithm {
     // DATA
     InternalHashAlgorithm d_state;
         // Object storing the state of the chosen 'InternalHashAlgorithm'.
+
+    // NOT IMPLEMENTED
+    DefaultSeededHashAlgorithm(); // = delete;
+        // Do not allow default construction. This class must be constructed
+        // with a seed.
+
+    DefaultSeededHashAlgorithm(const DefaultSeededHashAlgorithm& original);
+                                                                   // = delete;
+        // Do not allow copy construction.
+
+    DefaultSeededHashAlgorithm& operator=(
+                           const DefaultSeededHashAlgorithm& rhs); // = delete;
+        // Do not allow assignment.
 
   public:
     // TYPES
@@ -107,24 +121,10 @@ class DefaultSeededHashAlgorithm {
         // hash produced by 'computeHash()'.  The behavior is undefined unless
         // 'seed' points to an array of at least 16 'char's.
 
-    //! DefaultSeededHashAlgorithm() = delete;
-        // Do not allow default construction. This class must be constructed
-        // with a seed.
-
-    //! DefaultSeededHashAlgorithm(const DefaultSeededHashAlgorithm& original)
-    //!                                                              = default;
-        // Create a 'DefaultSeededHashAlgorithm' object having the same
-        // internal state as the specified 'original'.
-
     //! ~DefaultSeededHashAlgorithm() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    //! DefaultSeededHashAlgorithm& operator=(
-    //!                       const DefaultSeededHashAlgorithm& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
-
     void operator()(const void *data, size_t length);
         // Incorporate the specified 'length' bytes of 'data' into the
         // internal state of the hashing algorithm. Every bit of data

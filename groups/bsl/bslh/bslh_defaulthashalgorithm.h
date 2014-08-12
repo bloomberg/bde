@@ -81,6 +81,7 @@ class DefaultHashAlgorithm {
     // system in 'bslh' (see
     // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing)
 
+  private:
     // PRIVATE TYPES
     typedef bslh::SpookyHashAlgorithm InternalHashAlgorithm;
         // Typedef indicating the algorithm currently being used by
@@ -90,6 +91,14 @@ class DefaultHashAlgorithm {
     // DATA
     InternalHashAlgorithm d_state;
         // Object storing the state of the chosen 'InternalHashAlgorithm'.
+
+    // NOT IMPLEMENTED
+    DefaultHashAlgorithm(const DefaultHashAlgorithm& original); // = delete;
+        // Do not allow copy construction.
+
+    DefaultHashAlgorithm& operator=(const DefaultHashAlgorithm& rhs);
+                                                                   // = delete;
+        // Do not allow assignment.
 
   public:
     // TYPES
@@ -101,20 +110,10 @@ class DefaultHashAlgorithm {
         // Create a 'bslh::DefaultHashAlgorithm', default constructing the
         // algorithm being used internally.
 
-    //! DefaultHashAlgorithm(const DefaultHashAlgorithm& original) = default;
-        // Create a 'DefaultHashAlgorithm' object having the same internal
-        // state as the specified 'original'.
-
     //! ~DefaultHashAlgorithm() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    //! DefaultHashAlgorithm& operator=(const DefaultHashAlgorithm& rhs) =
-    //!                                                                default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
-
-
     void operator()(const void *data, size_t length);
         // Incorporate the specified 'length' bytes of 'data' into the
         // internal state of the hashing algorithm. Every bit of data

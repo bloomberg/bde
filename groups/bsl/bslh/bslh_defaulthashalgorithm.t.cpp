@@ -28,11 +28,9 @@ using namespace bslh;
 //
 // CREATORS
 // [ 2] DefaultHashAlgorithm();
-// [ 2] DefaultHashAlgorithm(const DefaultHashAlgorithm);
 // [ 2] ~DefaultHashAlgorithm();
 //
 // MANIPULATORS
-// [ 2] DefaultHashAlgorithm& operator=(const DefaultHashAlgorithm&);
 // [ 3] void operator()(void const* key, size_t len);
 // [ 3] result_type computeHash();
 // ----------------------------------------------------------------------------
@@ -308,7 +306,7 @@ struct HashFuture {
     {
         DefaultHashAlgorithm hash;
 
-        hash(future.getName(),  strlen(future.getName())*sizeof(char));
+        hash(future.getName(),  strlen(future.getName()));
         hash(future.getMonth(), sizeof(char));
         hash(future.getYear(),  sizeof(short));
 
@@ -367,8 +365,7 @@ int main(int argc, char *argv[])
                              Future("British Pound", 'M', 2015),
                              Future("Deutsche Mark", 'X', 2016),
                              Future("Eurodollar", 'Q', 2017)};
-        enum { NUM_FUTURES =
-                              sizeof futures / sizeof *futures };
+        enum { NUM_FUTURES = sizeof futures / sizeof *futures };
 
 // Next, we create our HashTable 'hashTable'.  We pass the functor that we
 // defined above as the second argument:
@@ -434,18 +431,18 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING FUNCTION CALL OPERATOR AND 'COMPUTEHASH'
-        //   Verify that the class offers the ability to invoke it via
-        //   'operator()' with some bytes and a length. Verify that calling
-        //   'operator()' will permute the algorithm's internal state as
-        //   specified by the underlying hashing algorithm
+        //   Verify the class provides an overload for the function call
+        //   operator that can be called with some bytes and a length. Verify
+        //   that calling 'operator()' will permute the algorithm's internal
+        //   state as specified by the underlying hashing algorithm
         //   (bslh::SpookyHashAlgorithm). Verify that 'computeHash' returns the
         //   final value specified by the canonical implementation of the
         //   underlying hashing algorithm.
         //
         // Concerns:
-        //: 1 The function call operator exists and is callable.
+        //: 1 The function call operator is callable.
         //:
-        //: 2 The 'computeHash' function exists and is callable.
+        //: 2 The 'computeHash' function is callable.
         //:
         //: 3 The output of calling 'operator()' and then 'computeHash()'
         //:   matches the output of the underlying hashing algorithm.
@@ -529,44 +526,22 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR
-        //   Ensure that the implicit copy constructor, destructor, and
-        //   assignment operator as well as the explicit default constructor
-        //   are publicly callable.
+        // TESTING CREATORS
+        //   Ensure that the implicit destructor and the explicit default
+        //   constructor are publicly callable.
         //
         // Concerns:
         //: 1 Objects can be created using the parameterized constructor.
         //:
-        //: 2 Objects can be created using the copy constructor.
-        //:
-        //: 3 The copy constructor is not declared as explicit.
-        //:
-        //: 4 Objects can be assigned to from constant objects.
-        //:
-        //: 5 Assignments operations can be chained.
-        //:
-        //: 6 Objects can be destroyed.
+        //: 2 Objects can be destroyed.
         //
         // Plan:
         //: 1 Create a default constructed 'DefaultHashAlgorithm' and allow it
-        //:   to leave scope to be destroyed. (C-1,6)
-        //:
-        //: 2 Use the copy-initialization syntax to create a new instance of
-        //:   'DefaultHashAlgorithm' from an existing instance. (C-2,3)
-        //:
-        //: 3 Assign the value of the one (const) instance of
-        //:   'DefaultHashAlgorithm' to a second. (C-4)
-        //:
-        //: 4 Chain the assignment of the value of the one instance of
-        //:   'DefaultHashAlgorithm' to a second instance of
-        //:   'DefaultHashAlgorithm', into a self-assignment of the second
-        //:   object. (C-5)
+        //:   to leave scope to be destroyed. (C-1,2)
         //
         // Testing:
         //   DefaultHashAlgorithm();
-        //   DefaultHashAlgorithm(const DefaultHashAlgorithm);
         //   ~DefaultHashAlgorithm();
-        //   DefaultHashAlgorithm& operator=(const DefaultHashAlgorithm&);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -575,34 +550,9 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Create a default constructed"
                             " 'DefaultHashAlgorithm' and allow it to leave"
-                            " scope to be destroyed. (C-1,6)\n");
+                            " scope to be destroyed. (C-1,2)\n");
         {
-            Obj alg1 = Obj();
-        }
-
-        if (verbose) printf("Use the copy-initialization syntax to create a"
-                            " new instance of 'DefaultHashAlgorithm' from an"
-                            " existing instance. (C-2,3)\n");
-        {
-            Obj alg1 = Obj();
-            Obj alg2 = alg1;
-        }
-
-        if (verbose) printf("Assign the value of the one (const) instance of"
-                            " 'DefaultHashAlgorithm' to a second. (C-4)\n");
-        {
-            const Obj alg1 = Obj();
-            Obj alg2 = alg1;
-        }
-
-        if (verbose) printf("Chain the assignment of the value of the one"
-                            " instance of 'DefaultHashAlgorithm' to a second"
-                            " instance of 'DefaultHashAlgorithm', into a"
-                            " self-assignment of the second object. (C-5)\n");
-        {
-            Obj alg1 = Obj();
-            Obj alg2 = alg1;
-            alg2 = alg2 = alg1;
+            Obj alg1;
         }
 
       } break;

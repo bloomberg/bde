@@ -102,6 +102,7 @@ class SpookyHashAlgorithm {
     // an interface that is usable in the modular hashing system in 'bslh' (see
     // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing).
 
+  private:
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 Uint64;
         // Typedef for a 64-bit integer type used in the hashing algorithm.
@@ -110,6 +111,13 @@ class SpookyHashAlgorithm {
     SpookyHashAlgorithmImp d_state;
         // Object that contains the actual implementation of the SpookHash
         // algorithm.
+
+    // NOT IMPLEMENTED
+    SpookyHashAlgorithm(const SpookyHashAlgorithm& original); // = delete;
+        // Do not allow copy construction.
+
+    SpookyHashAlgorithm& operator=(const SpookyHashAlgorithm& rhs);// = delete;
+        // Do not allow assignment.
 
   public:
     // TYPES
@@ -131,19 +139,10 @@ class SpookyHashAlgorithm {
         // produced by 'computeHash()'. The behavior is undefined unless 'seed'
         // points to an array of at least 16 'char's.
 
-
-    //! SpookyHashAlgorithm(const SpookyHashAlgorithm& original) = default;
-        // Create a 'SpookyHashAlgorithm' object having the same internal state
-        // as the specified 'original'.
-
     //! ~SpookyHashAlgorithm() = default;
         // Destroy this object.
 
     // MANIPULATORS
-    //! SpookyHashAlgorithm& operator=(const SpookyHashAlgorithm& rhs) = default;
-        // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
-
     void operator()(const void *data, size_t length);
         // Incorporate the specified 'length' bytes of 'data' into the internal
         // state of the hashing algorithm. Every bit of data incorporated into
