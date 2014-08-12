@@ -628,29 +628,6 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 
                              // Quantum functions
 
-Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
-{
-    BSLS_ASSERT(-1999999997 <= exponent);
-    BSLS_ASSERT(               exponent <= 99999999);
-
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-    return scalblnd64(*value.data(), exponent);
-#elif defined(BDLDFP_DECIMALPLATFORM_DPD)
-    long long longLongExponent = exponent;
-    Decimal64 result = value;
-    decDoubleScaleB(result.data(),
-                    value.data(),
-                    makeDecimal64(longLongExponent, 0).data(),
-                    DecimalImpUtil_decNumber::getDecNumberContext());
-    return result;
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    value.data()->d_raw = __bid64_scalbn(value.data()->d_raw, exponent);
-    return value;
-#else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
-#endif
-}
-
 Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
 {
     BSLS_ASSERT_SAFE(
@@ -669,30 +646,6 @@ Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, Decimal64 exponent)
     return result;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     value.data()->d_raw = __bid64_scalbn(value.data()->d_raw, __bid64_to_int32_int(exponent.data()->d_raw));
-    return value;
-#else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
-#endif
-}
-
-Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
-{
-    BSLS_ASSERT(-1999999997 <= exponent);
-    BSLS_ASSERT(               exponent <= 99999999);
-
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-    return scalblnd128(*value.data(), exponent);
-#elif defined(BDLDFP_DECIMALPLATFORM_DPD)
-    Decimal128 result = value;
-    DecimalImpUtil::ValueType128 scale =
-                                DecimalImpUtil::makeDecimalRaw128(exponent, 0);
-    decQuadScaleB(result.data(),
-                  value.data(),
-                  &scale,
-                  DecimalImpUtil_decNumber::getDecNumberContext());
-    return result;
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    value.data()->d_raw = __bid128_scalbn(value.data()->d_raw, exponent);
     return value;
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
