@@ -615,6 +615,11 @@ int testFunction3()
     return 3;
 }
 
+class SomeType {
+
+};
+
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -845,12 +850,11 @@ int main(int argc, char *argv[])
         {
             Hash<>::result_type (Hash<>::*expectedSignature)(const int&) const;
 
-            expectedSignature = &Hash<>::operator()<const int&>;
+            expectedSignature = &Hash<>::operator();
 
             Hash<SpookyHashAlgorithm>::result_type (Hash<SpookyHashAlgorithm>
                                       ::*expectedSignature2)(const int&) const;
-            expectedSignature2 = &Hash<SpookyHashAlgorithm>
-                                                      ::operator()<const int&>;
+            expectedSignature2 = &Hash<SpookyHashAlgorithm>::operator();
         }
 
       } break;

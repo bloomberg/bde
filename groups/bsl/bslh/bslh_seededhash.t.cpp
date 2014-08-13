@@ -410,28 +410,28 @@ int main(int argc, char *argv[])
             int data = 0;
             Obj::result_type (Obj::*expectedSignature) (const int&) const;
 
-            expectedSignature = &Obj::operator()<const int&>;
+            expectedSignature = &Obj::operator();
             expectedSignature = &SeededHash<SeedGen,
                                              DefaultSeededHashAlgorithm>
-                                                      ::operator()<const int&>;
+                                                                  ::operator();
 
             SeededHash<SeedGen, SipHashAlgorithm>::result_type
                    (SeededHash<SeedGen, SipHashAlgorithm>::*expectedSignature2)
                                                             (const int&) const;
             expectedSignature2 = &SeededHash<SeedGen, SipHashAlgorithm>
-                                                      ::operator()<const int&>;
+                                                                  ::operator();
 
             SeededHash<SeedGen, SpookyHashAlgorithm>::result_type
                 (SeededHash<SeedGen, SpookyHashAlgorithm>::*expectedSignature3)
                                                             (const int&) const;
             expectedSignature3 = &SeededHash<SeedGen, SpookyHashAlgorithm>
-                                                      ::operator()<const int&>;
+                                                                  ::operator();
         }
 
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION CALL OPERATOR
+        // TESTING 'operator()'
         //   Verify that the struct offers the ability to invoke it with some
         //   bytes and a length, and that it return a hash.
         //
@@ -450,8 +450,8 @@ int main(int argc, char *argv[])
         //   operator()(const T&) const
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING FUNCTION CALL OPERATOR"
-                            "\n==============================\n");
+        if (verbose) printf("\nTESTING 'operator()'"
+                            "\n====================\n");
 
         static const struct {
             int                  d_line;
