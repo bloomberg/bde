@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, catch the exception and verify the indicated cause of the exception:
 //..
-//  } catch (bslx::TestInStreamException& e) {
+//  } catch (const bslx::TestInStreamException& e) {
 //      assert(bslx::TypeCode::e_UINT32 == e.dataType());
 //  }
 //..

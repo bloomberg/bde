@@ -1344,14 +1344,19 @@ int main(int argc, char *argv[]) {
                 }
             } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
 
+#if BDE_BUILD_TARGET_EXC
             // NOTE: sum(i) for i = 1 .. n == i * (i + 1) / 2 and for the above
             // we want i + sum(i)_1_n (the number of inputs for the successful
             // pass plus all the failure inputs)
 
-#if BDE_BUILD_TARGET_EXC
             LOOP_ASSERT(requiredInputs, totalInputs == (requiredInputs
                                                         * (requiredInputs + 3)
                                                         / 2));
+#else
+            // NOTE: without exceptions, totalInputs should be the same as
+            // required inputs
+
+            LOOP_ASSERT(requiredInputs, totalInputs == requiredInputs);
 #endif
         }
       } break;

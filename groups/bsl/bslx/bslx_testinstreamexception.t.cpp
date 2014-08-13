@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 //..
 // Then, catch the exception and verify the indicated cause of the exception:
 //..
-    } catch (bslx::TestInStreamException& e) {
+    } catch (const bslx::TestInStreamException& e) {
         ASSERT(bslx::TypeCode::e_UINT32 == e.dataType());
     }
 //..
