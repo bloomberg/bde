@@ -1196,7 +1196,7 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
 {
     // --------------------------------------------------------------------
-    // TESTING HASHAPPEND
+    // TESTING 'hashAppend'
     //   Verify that the hashAppend function works properly and is picked
     //   up by 'bslh::Hash'
     //
@@ -14215,7 +14215,7 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING HASHAPPEND
+        // TESTING 'hashAppend'
         //   Verify that the hashAppend function works properly and is picked
         //   up by 'bslh::Hash'
         //
@@ -14231,8 +14231,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING HASHAPPEND"
-                            "\n==================\n");
+        if (verbose) printf("\nTESTING 'hashAppend'"
+                            "\n====================\n");
 
         if (verbose) printf("\n... with 'char'.\n");
         TestDriver<char>::testCase29();

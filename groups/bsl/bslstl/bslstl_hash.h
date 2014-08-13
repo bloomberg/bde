@@ -838,7 +838,7 @@ struct hash<unsigned long long> {
 inline
 std::size_t hash<bool>::operator()(bool x) const
 {
-    return x ? 1 : 0;
+    return x;
 }
 
 inline
