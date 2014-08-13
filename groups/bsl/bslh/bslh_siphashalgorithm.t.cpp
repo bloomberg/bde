@@ -450,7 +450,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING K_SEED_LENGTH
+        // TESTING 'k_SEED_LENGTH'
         //   The class is a seeded algorithm and should expose a
         //   'k_SEED_LENGTH' enum.
         //
@@ -467,8 +467,8 @@ int main(int argc, char *argv[])
         //   enum { k_SEED_LENGTH = 16 };
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING K_SEED_LENGTH"
-                            "\n=====================\n");
+        if (verbose) printf("\nTESTING 'k_SEED_LENGTH'"
+                            "\n=======================\n");
 
         if (verbose) printf("Access 'k_SEED_LENGTH' and ASSERT it is equal to"
                             " the expected value. (C-1,2)\n");
@@ -479,7 +479,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING STANDARD TYPEDEF
+        // TESTING 'result_type' TYPEDEF
         //   Verify that the class offers the result_type typedef that needs to
         //   be exposed by all 'bslh' hashing algorithms
         //
@@ -500,8 +500,8 @@ int main(int argc, char *argv[])
         //   typedef bsls::Types::Uint64 result_type;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING STANDARD TYPEDEF"
-                            "\n========================\n");
+        if (verbose) printf("\nTESTING 'result_type' TYPEDEF"
+                            "\n=============================\n");
 
         if (verbose) printf("ASSERT the typedef is accessible and is the"
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
@@ -522,7 +522,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION CALL OPERATOR AND COMPUTEHASH
+        // TESTING TESTING 'operator()' AND 'computeHash'
         //   Verify the class provides an overload for the function call
         //   operator that can be called with some bytes and a length. Verify
         //   that calling 'operator()' will permute the algorithm's internal
@@ -541,6 +541,8 @@ int main(int argc, char *argv[])
         //:
         //: 4 'computeHash()' exists and returns the appropriate value
         //:   according to the SipHash specification.
+        //:
+        //: 5 'operator()' does a BSLS_ASSERT for null pointers.
         //
         // Plan:
         //: 1 Insert various lengths of c-strings into the algorithm both all
@@ -553,6 +555,8 @@ int main(int argc, char *argv[])
         //:
         //: 3 Check the output of 'computeHash()' against the expected results
         //:   from a known good version of the algorithm. (C-4)
+        //:
+        //: 4 Call 'operator()' with a null pointer. (C-5)
         //
         // Testing:
         //   void operator()(void const* key, size_t len);
@@ -560,7 +564,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                         "\nTESTING FUNCTION CALL OPERATOR AND COMPUTEHASH"
+                         "\nTESTING TESTING 'operator()' AND 'computeHash'"
                          "\n==============================================\n");
 
         static const struct {
@@ -669,6 +673,17 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) printf("Call 'operator()' with null pointers. (C-5)\n");
+        {
+            const char data[5] = {'a', 'b', 'c', 'd', 'e'};
+
+            bsls::AssertFailureHandlerGuard
+                                           g(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(Obj(genericSeed).operator()(   0, 5));
+            ASSERT_PASS(Obj(genericSeed).operator()(data, 5));
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -684,6 +699,9 @@ int main(int argc, char *argv[])
         //: 2 Objects can be created using the parameterized constructor.
         //:
         //: 3 Objects can be destroyed.
+        //:
+        //: 4 The parameterized constructor does a BSLS_ASSERT for null
+        //:   pointers.
         //
         // Plan:
         //: 1 Assert the algorithm does not have the is_default_constructable
@@ -691,6 +709,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 Call the parameterized constructor using a seed and allow it to
         //:   leave scope to be destroyed. (C-2,3)
+        //:
+        //: 3 Call the parameterized constructor with a null pointer. (C-4)
         //
         // Testing:
         //   explicit SipHashAlgorithm(const char *seed);
@@ -713,6 +733,16 @@ int main(int argc, char *argv[])
                             " (C-2,3)\n");
         {
             Obj alg1(genericSeed);
+        }
+
+        if (verbose) printf("Call the parameterized constructor with a null"
+                            " pointer. (C-4)\n");
+        {
+            bsls::AssertFailureHandlerGuard
+                                           g(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(Obj dummy(0));
+            ASSERT_PASS(Obj dummy(genericSeed));
         }
 
       } break;

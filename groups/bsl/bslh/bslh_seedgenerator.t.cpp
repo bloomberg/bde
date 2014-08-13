@@ -182,11 +182,11 @@ unsigned int someSeededHash(const char *seed,
 
 void fill(char *data, size_t length, char repeatingElement)
     // Load the specified 'repeatingElement' into each byte of the specified
-    // length bytes long 'data'. The behaviour is undefined if 'data' does not
-    // point to at least 'length' bytes of writable memory.
+    // 'length' bytes long 'data'. The behaviour is undefined if 'data' does
+    // not point to at least 'length' bytes of writable memory.
 {
     for(size_t i = 0; i != length; ++i) {
-        data[i] = repeatingElement; 
+        data[i] = repeatingElement;
     }
 }
 
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'GENERATESEED'
+        // TESTING 'generateSeed'
         //   Ensure that the 'generateSeed' method is publicly callable,
         //   returns the expected values.
         //
@@ -449,6 +449,9 @@ int main(int argc, char *argv[])
         //:
         //: 6 The method behaves as expected when input length is not a
         //:   multiple of the supplied RNG 'result_type'.
+        //:
+        //: 7 'generateSeed' does a BSLS_ASSERT to check for null pointers or
+        //:   zero length.
         //
         // Plan:
         //: 1 Create a 'SeedGenerator' with a predictable RNG and test that the
@@ -466,13 +469,16 @@ int main(int argc, char *argv[])
         //:
         //: 5 Call 'generateSeed' with lengths that are not multiples of the
         //:   size of 'MockRNG::result_type'. (C-6)
+        //:
+        //: 6 Call 'generateSeed' with combinations of a null pointer and a 0
+        //:   length. (C-7)
         //
         // Testing:
         //   void generateSeed(char *seedLocation, size_t seedLength)
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING 'GENERATESEED'"
+            printf("\nTESTING 'generateSeed'"
                    "\n======================\n");
 
         if (verbose) printf("Create a 'SeedGenerator' with a predictable RNG"
@@ -577,6 +583,20 @@ int main(int argc, char *argv[])
                 generator.generateSeed(seed, i);
                 verifyResultMatchesRNG(seed, i);
             }
+        }
+
+        if (verbose) printf("Call 'generateSeed' with combinations of a null"
+                            " pointer and a 0 length. (C-7)\n");
+        {
+            char data[5] = { };
+
+            bsls::AssertFailureHandlerGuard
+                                           g(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(Obj().generateSeed(   0, 5));
+            ASSERT_PASS(Obj().generateSeed(   0, 0));
+            ASSERT_PASS(Obj().generateSeed(data, 0));
+            ASSERT_PASS(Obj().generateSeed(data, 5));
         }
 
       } break;

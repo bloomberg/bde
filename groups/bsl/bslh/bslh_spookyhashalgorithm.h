@@ -167,6 +167,10 @@ class SpookyHashAlgorithm {
         // has not been passed into 'operator()'
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 // CREATORS
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm()

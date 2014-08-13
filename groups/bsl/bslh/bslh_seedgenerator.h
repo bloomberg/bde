@@ -37,9 +37,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_CSTRING
+#ifndef INCLUDED_STRING_H
 #include <string.h>  // for 'memcpy'
-#define INCLUDED_CSTRING
+#define INCLUDED_STRING_H
 #endif
 
 #ifndef INCLUDED_STDDEF_H
@@ -102,6 +102,10 @@ class SeedGenerator : private RNG
         // called multiple times. The behaviour is undefined unless the memory
         // at 'seedLocation' can store 'seedLength' bytes.
 };
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 // CREATORS
 template<class RNG>

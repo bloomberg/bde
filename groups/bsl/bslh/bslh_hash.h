@@ -86,13 +86,13 @@ BSLS_IDENT("$Id: $")
 //   public:
 //     // TYPES
 //     typedef Uint64 result_type;
-//  
+//
 //     // CREATORS
 //     SomeHashAlgorithm();
-//  
+//
 //     // MANIPULATORS
 //     void operator()(const void * key, size_t len);
-//  
+//
 //     result_type computeHash();
 // };
 //..
@@ -287,7 +287,7 @@ void hashAppend(HASH_ALGORITHM& hashAlg,
 }  // close package namespace
 
 // ============================================================================
-//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
+//                            INLINE DEFINITIONS
 // ============================================================================
 
 // ACCESSORS

@@ -790,7 +790,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING STANDARD TYPEDEFS
+        // TESTING 'result_type' TYPEDEF
         //   Verify that the struct hashes the proper 'typedef's.
         //
         // Concerns:
@@ -815,8 +815,8 @@ int main(int argc, char *argv[])
         //   typedef size_t result_type;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING STANDARD TYPEDEFS"
-                            "\n=========================\n");
+        if (verbose) printf("\nTESTING 'result_type' TYPEDEF"
+                            "\n=============================\n");
 
         if (verbose) printf("ASSERT the 'typedef' accessibly aliases the"
                             " correct type using 'bslmf::IsSame' for a number"
@@ -856,7 +856,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION CALL OPERATOR
+        // TESTING 'operator()'
         //   Verify that the struct offers the ability to invoke it with some
         //   bytes and a length, and that it return a hash.
         //
@@ -875,8 +875,8 @@ int main(int argc, char *argv[])
         //   operator()(const T&) const
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING FUNCTION CALL OPERATOR"
-                            "\n==============================\n");
+        if (verbose) printf("\nTESTING 'operator()'"
+                            "\n====================\n");
 
         static const struct {
             int                  d_line;
@@ -925,7 +925,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING HASHAPPEND
+        // TESTING 'hashAppend'
         //   Verify that the 'hashAppend' free functions have been implemented
         //   for all of the fundamental types and don't truncate or pass extra
         //   data into the algorithms.
@@ -993,8 +993,8 @@ int main(int argc, char *argv[])
         //   void hashAppend(HASHALG& hashAlg, RT (*input)(ARGS...));
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING HASHAPPEND"
-                            "\n==================\n");
+        if (verbose) printf("\nTESTING 'hashAppend'"
+                            "\n====================\n");
 
         if (verbose) printf("Call 'hashAppend' with each fundamental type to"
                             " ensure the function exists. (C-1)\n");

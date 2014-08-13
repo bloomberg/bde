@@ -387,7 +387,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING STANDARD TYPEDEF
+        // TESTING 'result_type' TYPEDEF
         //   Verify that the class offers the result_type typedef that needs to
         //   be exposed by all 'bslh' hashing algorithms
         //
@@ -408,8 +408,8 @@ int main(int argc, char *argv[])
         //   typedef InternalHashAlgorithm::result_type result_type;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING STANDARD TYPEDEF"
-                            "\n========================\n");
+        if (verbose) printf("\nTESTING 'result_type' TYPEDEF"
+                            "\n=============================\n");
 
         if (verbose) printf("ASSERT the typedef is accessible and is the"
                             " correct type using 'bslmf::IsSame'. (C-1)\n");
@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING FUNCTION CALL OPERATOR AND 'COMPUTEHASH'
+        // TESTING 'operator()' AND 'computeHash'
         //   Verify the class provides an overload for the function call
         //   operator that can be called with some bytes and a length. Verify
         //   that calling 'operator()' will permute the algorithm's internal
@@ -446,11 +446,15 @@ int main(int argc, char *argv[])
         //:
         //: 3 The output of calling 'operator()' and then 'computeHash()'
         //:   matches the output of the underlying hashing algorithm.
+        //:
+        //: 4 'operator()' does a BSLS_ASSERT for null pointers.
         //
         // Plan:
         //: 1 Hash a number of values with 'bslh::DefaultHashAlgorithm' and
         //:   'bslh::SpookyHashAlgorithm' and verify that the outputs match.
         //:   (C-1,2,3)
+        //:
+        //: 2 Call 'operator()' with a null pointer. (C-4)
         //
         // Testing:
         //   void operator()(void const* key, size_t len);
@@ -458,8 +462,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                       "\nTESTING FUNCTION CALL OPERATOR AND 'COMPUTEHASH'"
-                       "\n================================================\n");
+                       "\nTESTING 'operator()' AND 'computeHash'"
+                       "\n======================================\n");
 
         static const struct {
             int                  d_line;
@@ -523,6 +527,17 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) printf("Call 'operator()' with null pointers. (C-4)\n");
+        {
+            const char data[5] = {'a', 'b', 'c', 'd', 'e'};
+
+            bsls::AssertFailureHandlerGuard
+                                           g(bsls::AssertTest::failTestDriver);
+
+            ASSERT_FAIL(Obj()(   0, 5));
+            ASSERT_PASS(Obj()(data, 5));
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -545,8 +560,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING C'TORS, D'TOR, AND ASSIGNMENT OPERATOR"
-                   "\n==============================================\n");
+            printf("\nTESTING CREATORS"
+                   "\n================\n");
 
         if (verbose) printf("Create a default constructed"
                             " 'DefaultHashAlgorithm' and allow it to leave"

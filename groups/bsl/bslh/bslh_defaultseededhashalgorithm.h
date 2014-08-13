@@ -96,10 +96,6 @@ class DefaultSeededHashAlgorithm {
         // Object storing the state of the chosen 'InternalHashAlgorithm'.
 
     // NOT IMPLEMENTED
-    DefaultSeededHashAlgorithm(); // = delete;
-        // Do not allow default construction. This class must be constructed
-        // with a seed.
-
     DefaultSeededHashAlgorithm(const DefaultSeededHashAlgorithm& original);
                                                                    // = delete;
         // Do not allow copy construction.
@@ -149,12 +145,16 @@ class DefaultSeededHashAlgorithm {
         // has not been passed into 'operator()'.
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 // CREATORS
 inline
 DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed)
 : d_state(seed)
 {
-    BSLS_ASSERT(seed);        
+    BSLS_ASSERT(seed);
 }
 
 // MANIPULATORS

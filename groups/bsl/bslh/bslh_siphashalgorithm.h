@@ -199,10 +199,6 @@ class SipHashAlgorithm {
         // algorithm.
 
     // NOT IMPLEMENTED
-    SipHashAlgorithm(); // = delete;
-        // Do not allow default construction. This class must be constructed
-        // with a seed.
-
     SipHashAlgorithm(const SipHashAlgorithm& original); // = delete;
         // Do not allow copy construction.
 

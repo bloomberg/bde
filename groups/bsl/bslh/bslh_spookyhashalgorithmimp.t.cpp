@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
         //: 2 Hashes returned match the data produced by the canonical
         //:   implementation of SpookyHash.
         //:
-        //: 3 Both function do a BSLS_ASSERT_SAFE for null pointers.
+        //: 3 Both function do a BSLS_ASSERT for null pointers.
         //
         // Plan:
         //: 1 Check the values returned against the expected results from a
@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
         //: 2 Hashes returned via 'h1' and 'h2' match the data produced by the
         //:   canonical implementation of SpookyHash.
         //:
-        //: 3 'hash128' does a BSLS_ASSERT_SAFE for null pointers.
+        //: 3 'hash128' does a BSLS_ASSERT for null pointers.
         //
         // Plan:
         //: 1 Check the values returned in 'h1' and 'h2' against the expected
@@ -544,7 +544,7 @@ int main(int argc, char *argv[])
         //:  'finalize' matches the data produced by the canonical
         //:  implementation of SpookyHash.
         //:
-        //: 5 'update' does a BSLS_ASSERT_SAFE for null pointers.
+        //: 5 'update' does a BSLS_ASSERT for null pointers.
         //
         // Plan:
         //: 1 Insert various lengths of c-strings into the algorithm both all
@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
         //: 4 'finalize' can be called multiple times and does not modify the
         //:   state of the algorithm or return different results.
         //:
-        //: 5 'update' does a BSLS_ASSERT_SAFE for null pointers.
+        //: 5 'update' does a BSLS_ASSERT for null pointers.
         //
         // Plan:
         //: 1 Initialize the algorithm with various seeds test that permuting

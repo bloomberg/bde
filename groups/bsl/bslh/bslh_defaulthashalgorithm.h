@@ -139,6 +139,10 @@ class DefaultHashAlgorithm {
         // has not been passed into 'operator()'
 };
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
 // CREATORS
 inline
 DefaultHashAlgorithm::DefaultHashAlgorithm()

@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 //   public:
 // //     // CONSTANTS
 //     enum { k_SEED_LENGTH = XXX };
-//  
+//
 //     // CREATORS
 //     explicit SomeHashAlgorithm(const void *seed);
 // };
@@ -163,6 +163,10 @@ struct SeededHash {
         // 'HASH_ALGORITHM' is cast to 'size_t' before returning.
 
 };
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 // CREATORS
 template <class SEED_GENERATOR, class HASH_ALGORITHM>
