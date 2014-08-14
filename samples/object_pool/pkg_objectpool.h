@@ -18,9 +18,10 @@
 //
 ///Object Construction, Destruction, and Resetting
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-// This pool requires the templated type used to construct an 'ObjectPool' to
-// provide a default constructor, public destructor, and a 'reset' function
-// that changes the state of an object to its default-constructed object.
+// This pool requires that the template parameter type used to construct an
+// 'ObjectPool' provides a default constructor, public destructor, and a
+// 'reset' function that changes the state of an object to its
+// default-constructed object.
 //
 ///Usage
 ///-----
@@ -67,7 +68,7 @@
 //  };
 //
 //  // TRAITS
-//  namespace BloombergLP{
+//  namespace BloombergLP {
 //  namespace bslma {
 
 //  template <> struct UsesBslmaAllocator<DatabaseConnection>
@@ -140,20 +141,23 @@ class ObjectPool {
 
     // PRIVATE CLASS METHODS
     TYPE *createObject(bsl::false_type);
-        // Construct an object of the specified 'TYPE' that *does not* use the
-        // allocator passed to its constructor.
+        // Create and return an object of the template parameter type 'TYPE'.
+        // Note that the allocator held by this object is *not* passed to the
+        // new object's constructor.
 
     TYPE *createObject(bsl::true_type);
-        // Construct an object of the specified 'TYPE' that *does* use the
-        // allocator passed to its constructor.
+        // Create and return an object of the template parameter type 'TYPE'
+        // passing the allocator held by this object to the new object's
+        // constructor.
 
   public:
     // CREATORS
     explicit ObjectPool(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create an object pool that invokes the default constructor of the
-        // the parameterized 'TYPE' to construct objects.  Optionally specify
-        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the currently installed default allocator is used.
+        // the template parameter type 'TYPE' to construct objects.  Optionally
+        // specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
 
     ~ObjectPool();
         // Destroy this object pool.  All objects created by this pool are
@@ -163,9 +167,9 @@ class ObjectPool {
     // MANIPULATORS
     TYPE *getObject();
         // Return an address providing modifiable access to a
-        // default-constructed object of the parameterized 'TYPE'.  If this
-        // pool does not have any free objects then a default-constructed
-        // object is allocated and returned.
+        // default-constructed object of the template parameter type 'TYPE'.
+        // If this pool does not have any free objects, then a
+        // default-constructed object is allocated and returned.
 
     void releaseObject(TYPE *object);
         // Return the specified 'object' back to this object pool for
@@ -179,7 +183,7 @@ class ObjectPool {
 }  // close enterprise namespace
 
 // TRAITS
-namespace BloombergLP{
+namespace BloombergLP {
 namespace bslma {
 
 template <typename TYPE>

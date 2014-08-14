@@ -116,7 +116,7 @@ class Customer {
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
-    //:   o except for 'bslx' serialization
+    //:   o except for BDEX serialization
 
     // DATA
     bsl::string      d_firstName;       // first name
@@ -261,7 +261,7 @@ void swap(Customer& a, Customer& b);
 }  // close enterprise namespace
 
 // TRAITS
-namespace BloombergLP{
+namespace BloombergLP {
 namespace bslma {
 
 template <> struct UsesBslmaAllocator<Enterprise::pkg::Customer>

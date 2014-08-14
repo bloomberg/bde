@@ -18,7 +18,7 @@
 // currently installed default allocator is used.  For maximum efficiency,
 // individual deallocations of memory blocks within the user-supplied buffer
 // are no-ops and the deallocated memory is not reused in subsequent allocation
-// requests.  Memory blocks allocated from the user-supplied or the default
+// requests.  Memory blocks allocated from the user-supplied (or default)
 // allocator are individually deallocated:
 //..
 //   ,---------------------.
@@ -43,9 +43,9 @@
 //
 ///Example 1: Reading Data From a File
 ///- - - - - - - - - - - - - - - - - -
-// It is often required to create temporary container objects with known memory
-// requirements.  Since the these objects have a short lifetime, their memory
-// requirements can be satisfied from a static buffer instead of through
+// It is often necessary to create temporary container objects with known
+// memory requirements.  Since these objects have a short lifetime, their
+// memory needs can be satisfied from a static buffer instead of through
 // expensive heap allocations and deallocations.
 //
 // Consider the simplified function, 'readLines', that reads all of the lines
@@ -67,9 +67,9 @@
 //
 //..
 // Create a 'pkg::BufferAllocator' object constructed from 'buffer'.  We do not
-// supply an allocator to use after memory requests cannot be satisfied from
-// 'buffer'.  Instead, the constructed 'allocator' object will use the
-// currently installed default allocator when that happens.
+// supply an allocator to use for memory requests that cannot be satisfied from
+// 'buffer'.  Instead, the 'allocator' object will use the currently installed
+// default allocator when that happens.
 //..
 //      pkg::BufferAllocator     allocator(buffer, BUFFER_SIZE);
 //      bsl::vector<bsl::string> lines(&allocator);
@@ -109,8 +109,8 @@ class BufferAllocator : public BloombergLP::bslma::Allocator {
     // This 'class' provides a concrete buffer allocator that implements the
     // 'bslma::Allocator' interface, allocating memory blocks from a fixed-size
     // buffer that is supplied by the user at construction, or from an
-    // optionally-specified allocator or the default allocator once an
-    // allocation request exceeds the remaining space in the buffer.
+    // optionally-specified allocator or the default allocator for allocation
+    // requests that exceed the remaining space in the buffer.
 
     // DATA
     char                          *d_buffer_p;      // buffer to use for memory
@@ -123,7 +123,7 @@ class BufferAllocator : public BloombergLP::bslma::Allocator {
     int                            d_cursor;        // current cursor
 
     BloombergLP::bslma::Allocator *d_allocator_p;   // memory allocator to use
-                                                    // once an allocation
+                                                    // if an allocation
                                                     // request exceeds the
                                                     // remaining space in
                                                     // 'd_buffer_p' (held, not
@@ -140,8 +140,8 @@ class BufferAllocator : public BloombergLP::bslma::Allocator {
                     BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create a buffer allocator for allocating memory blocks from the
         // specified 'buffer' of the specified 'bufferSize' bytes.  Optionally
-        // specify a 'basicAllocator' used to supply memory once an allocation
-        // request exceeds the remaining space in 'buffer'.  If
+        // specify a 'basicAllocator' used to supply memory for allocation
+        // requests that exceed the remaining space in 'buffer'.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.  The behavior is undefined unless '0 <= bufferSize' and
         // 'buffer' refers to at least 'bufferSize' contiguous bytes in memory.
