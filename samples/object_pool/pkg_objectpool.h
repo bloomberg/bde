@@ -1,6 +1,6 @@
-// objectpool.h                                                       -*-C++-*-
-#ifndef INCLUDED_OBJECTPOOL
-#define INCLUDED_OBJECTPOOL
+// pkg_objectpool.h                                                   -*-C++-*-
+#ifndef INCLUDED_PKG_OBJECTPOOL
+#define INCLUDED_PKG_OBJECTPOOL
 
 //@PURPOSE: Provide a pool for efficient management of objects.
 //
@@ -9,23 +9,24 @@
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component provides a generic pool of objects using the
-// acquire-release idiom.  An object pool provides two main methods:
-// 'getObject', which returns an object from the pool, and 'releaseObject',
-// which returns an object to the pool for further reuse (thus avoiding the
-// overhead of object construction and destruction).
+//@DESCRIPTION: This component provides a mechanism, 'pkg::ObjectPool', for
+// managing a generic pool of objects using the acquire-release idiom.  An
+// object pool provides two main methods: 'getObject', which returns an object
+// from the pool, and 'releaseObject', which returns an object to the pool for
+// further reuse (thus avoiding the overhead of object construction and
+// destruction).
 //
-///Object construction, destruction, and resetting
+///Object Construction, Destruction, and Resetting
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This pool requires the templated type used to construct an 'ObjectPool' to
-// provide a default constructor, destructor, and a 'reset' function that
-// changes the state of an object to its default-constructed object.
+// provide a default constructor, public destructor, and a 'reset' function
+// that changes the state of an object to its default-constructed object.
 //
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Using an object pool of database connections
+///Example 1: Using an Object Pool of Database Connections
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // An object pool can be used to store objects that are expensive to create and
 // destroy.
@@ -40,6 +41,9 @@
 //      // This 'class' represents a database connection.
 //
 //      // DATA
+//
+//      // ..
+//
 //      bslma::Allocator d_allocator_p;   // memory allocator (held, not owned)
 //
 //    public:
@@ -49,7 +53,7 @@
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
 //
-//      ~DatabaseConnection(); 
+//      ~DatabaseConnection();
 //          // Destroy this 'DatabaseConnection' object.
 //
 //      // MANIPULATORS
@@ -66,31 +70,16 @@
 //  namespace BloombergLP{
 //  namespace bslma {
 
-//  template <> struct UsesBslmaAllocator<DatabaseConnection> 
+//  template <> struct UsesBslmaAllocator<DatabaseConnection>
 //                                                         : bsl::true_type {};
 
 //  }
 //  }
 //..
 // Then, we will provide the function definitions for this 'class'.  To keep
-// this example simple the constructor, destructor, and 'reset' methods of
-// this 'class' are no-ops:
+// this example simple, the constructor, destructor, and 'reset' methods of
+// this 'class' are no-ops and are therefore not shown below:
 //..
-//  // CREATORS
-//  DatabaseConnection::DatabaseConnection(bslma::Allocator *basicAllocator)
-//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
-//  {
-//  }
-//
-//  DatabaseConnection::~DatabaseConnection()
-//  {
-//  }
-//
-//  // MANIPULATORS
-//  void DatabaseConnection::reset()
-//  {
-//  }
-//
 //  int DatabaseConnection::executeQuery(QueryResult  *queryResult,
 //                                       const Query&  query)
 //  {
@@ -99,7 +88,9 @@
 //      return 0;
 //  }
 //..
-// Next, we will create an object pool representing a list of connections:
+// Next, we create an object pool representing a list of connections.  Since
+// we do not supply an allocator, 'pool' will use the default allocator to
+// supply memory:
 //..
 //  ObjectPool<DatabaseConnection> pool;
 //..
@@ -108,7 +99,7 @@
 //..
 //  DatabaseConnection *connection = pool.getObject();
 //
-//  // Use the 'connection'
+//  // Use the 'connection'.
 //
 //  pool.releaseObject(connection);
 //..
@@ -132,39 +123,37 @@
 namespace Enterprise {
 namespace pkg {
 
-using namespace BloombergLP;
-
                         // ================
                         // class ObjectPool
                         // ================
 
 template <typename TYPE>
 class ObjectPool {
-    // This 'class' provides a pool of reusable objects of the parameterized
-    // 'TYPE' and assumes that the parameterized 'TYPE' provides a default
-    // constructor, a destructor, and a 'reset' method.
+    // This 'class' provides a pool of reusable objects of template parameter
+    // type 'TYPE' and assumes that 'TYPE' provides a default constructor, a
+    // public destructor, and a 'reset' method.
 
     // DATA
-    bsl::list<TYPE *>  d_objects;      // list of managed objects
-    bslma::Allocator  *d_allocator_p;  // memory allocator (held, not owned)
+    bsl::list<TYPE *>               d_objects;      // list of managed objects
+    BloombergLP::bslma::Allocator  *d_allocator_p;  // memory allocator (held,
+                                                    // not owned)
 
     // PRIVATE CLASS METHODS
     TYPE *createObject(bsl::false_type);
-        // Construct an object of the specified 'TYPE' that *does not*
-        // require an allocator to be passed to its constructor.
+        // Construct an object of the specified 'TYPE' that *does not* use the
+        // allocator passed to its constructor.
 
     TYPE *createObject(bsl::true_type);
-        // Construct an object of the specified 'TYPE' that *requires* an
-        // allocator to be passed to its constructor.
+        // Construct an object of the specified 'TYPE' that *does* use the
+        // allocator passed to its constructor.
 
   public:
     // CREATORS
-    ObjectPool(bslma::Allocator *basicAllocator = 0);
+    explicit ObjectPool(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create an object pool that invokes the default constructor of the
-        // the parameterized 'TYPE' to construct objects.  The optionally
-        // specified 'basicAllocator' is used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // the parameterized 'TYPE' to construct objects.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     ~ObjectPool();
         // Destroy this object pool.  All objects created by this pool are
@@ -172,18 +161,36 @@ class ObjectPool {
         // reclaimed.
 
     // MANIPULATORS
-    TYPE* getObject();
+    TYPE *getObject();
         // Return an address providing modifiable access to a
         // default-constructed object of the parameterized 'TYPE'.  If this
         // pool does not have any free objects then a default-constructed
         // object is allocated and returned.
 
     void releaseObject(TYPE *object);
-        // Return the specified 'object' back to this object pool.  Invoke the
-        // 'reset' method on 'object'.
+        // Return the specified 'object' back to this object pool for
+        // subsequent reuse.  Invoke the 'reset' method on 'object'.  The
+        // behavior is undefined unless 'object' was constructed by this pool.
 
     // The rest of the interface is elided for brevity.
 };
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+namespace BloombergLP{
+namespace bslma {
+
+template <typename TYPE>
+struct UsesBslmaAllocator<Enterprise::pkg::ObjectPool<TYPE> >
+                                                           : bsl::true_type {};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace Enterprise {
+namespace pkg {
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -211,16 +218,16 @@ TYPE *ObjectPool<TYPE>::createObject(bsl::true_type)
 // CREATORS
 template <typename TYPE>
 inline
-ObjectPool<TYPE>::ObjectPool(bslma::Allocator *basicAllocator)
+ObjectPool<TYPE>::ObjectPool(BloombergLP::bslma::Allocator *basicAllocator)
 : d_objects(basicAllocator)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(BloombergLP::bslma::Default::allocator(basicAllocator))
 {
 }
 
 template <typename TYPE>
 ObjectPool<TYPE>::~ObjectPool()
 {
-    for (bsl::list<TYPE *>::iterator iter = d_objects.begin();
+    for (typename bsl::list<TYPE *>::iterator iter = d_objects.begin();
          iter != d_objects.end();
          ++iter) {
         d_allocator_p->deleteObject(*iter);
@@ -238,7 +245,7 @@ TYPE *ObjectPool<TYPE>::getObject()
         return object;                                                // RETURN
     }
 
-    return createObject(bslma::UsesBslmaAllocator<TYPE>());
+    return createObject(BloombergLP::bslma::UsesBslmaAllocator<TYPE>());
 }
 
 template <typename TYPE>

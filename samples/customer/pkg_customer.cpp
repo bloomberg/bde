@@ -1,5 +1,5 @@
-// customer.cpp                                                       -*-C++-*-
-#include <customer.h>
+// pkg_customer.cpp                                                   -*-C++-*-
+#include <pkg_customer.h>
 
 #include <bslim_printer.h>
 
@@ -13,15 +13,13 @@ namespace pkg {
                         // class Customer
                         // --------------
 
-// ACCESSORS
-
                                   // Aspects
 
 bsl::ostream& Customer::print(bsl::ostream& stream,
                               int           level,
                               int           spacesPerLevel) const
 {
-    bslim::Printer printer(&stream, level, spacesPerLevel);
+    BloombergLP::bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
     printer.printAttribute("firstName", d_firstName);
     printer.printAttribute("lastName",  d_lastName);
@@ -35,7 +33,7 @@ bsl::ostream& Customer::print(bsl::ostream& stream,
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, const Customer& object)
 {
-    bslim::Printer printer(&stream, 0, -1);
+    BloombergLP::bslim::Printer printer(&stream, 0, -1);
     printer.start();
     printer.printValue(object.firstName());
     printer.printValue(object.lastName());

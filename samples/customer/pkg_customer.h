@@ -1,6 +1,6 @@
-// customer.h                                                         -*-C++-*-
-#ifndef INCLUDED_CUSTOMER
-#define INCLUDED_CUSTOMER
+// pkg_customer.h                                                     -*-C++-*-
+#ifndef INCLUDED_PKG_CUSTOMER
+#define INCLUDED_PKG_CUSTOMER
 
 //@PURPOSE: Provide an attribute class for characterizing a bank's customers.
 //
@@ -14,12 +14,12 @@
 ///Attributes
 ///----------
 //..
-//  Name                Type              Default  Simple Constraints
-//  ------------------  -----------       -------  ------------------
-//  firstName           bsl::string       ""       none
-//  lastName            bsl::string       ""       none
-//  accounts            bsl::vector<int>  0        none
-//  id                  int               0        id > 0
+//  Name                Type              Default            Simple Constraints
+//  ------------------  -----------       -------            ------------------
+//  firstName           bsl::string       ""                 none
+//  lastName            bsl::string       ""                 none
+//  accounts            bsl::vector<int>  vector of length 0 none
+//  id                  int               0                  id >= 0
 //..
 //: o 'firstName': The first name of the customer.
 //:
@@ -59,8 +59,8 @@
 //  assert(accounts   == customer.accounts());
 //  assert(customerId == customer.id());
 //..
-// Then, we can store this customer object.  We assume that all the customers
-// are stored in memory in a 'vector' named 'allCustomers':
+// Then, we can store this customer object.  We assume that all of the
+// customers are stored in memory in a 'vector' named 'allCustomers':
 //..
 //  bsl::vector<Customer> allCustomers;
 //
@@ -68,7 +68,7 @@
 //
 //  allCustomers.push_back(customer);
 //..
-// Now, we display all customers to stdout:
+// Now, we display all customers to 'stdout':
 //..
 //  for (bsl::vector<Customer>::const_iterator iter = allCustomers.begin();
 //       iter != allCustomers.end();
@@ -97,13 +97,10 @@
 #include <bsl_vector.h>
 #endif
 
+namespace BloombergLP { namespace bslma { class Allocator; } }
+
 namespace Enterprise {
 namespace pkg {
-
-using namespace BloombergLP;
-
-// Forward declaration for 'bslma::Allocator'
-namespace BloombergLP { namespace bslma { class Allocator; } }
 
                         // ==============
                         // class Customer
@@ -120,9 +117,6 @@ class Customer {
     // This class:
     //: o supports a complete set of *value-semantic* operations
     //:   o except for 'bslx' serialization
-    //: o is *exception-neutral* (agnostic)
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
 
     // DATA
     bsl::string      d_firstName;       // first name
@@ -132,30 +126,31 @@ class Customer {
 
   public:
     // CREATORS
-    Customer(bslma::Allocator *basicAllocator = 0);
+    explicit Customer(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create a 'Customer' object having the (default) attribute values:
         //..
         //  firstName() == ""
         //  lastName()  == ""
-        //  accounts()  == 0
+        //  accounts()  == vector of length 0
         //  id()        == 0
         //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    Customer(const bslstl::StringRef&  firstName,
-             const bslstl::StringRef&  lastName,
-             const bsl::vector<int>&   accounts,
-             int                       id,
-             bslma::Allocator         *basicAllocator = 0);
+    Customer(const BloombergLP::bslstl::StringRef&  firstName,
+             const BloombergLP::bslstl::StringRef&  lastName,
+             const bsl::vector<int>&                accounts,
+             int                                    id,
+             BloombergLP::bslma::Allocator         *basicAllocator = 0);
         // Create a 'Customer' object having the specified 'firstName',
-        // 'lastName', 'accounts', and 'id'' attribute values.  Optionally
+        // 'lastName', 'accounts', and 'id' attribute values.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // used.  The behavior is undefined unless 'id >= 0'.
 
-    Customer(const Customer& original, bslma::Allocator *basicAllocator = 0);
+    Customer(const Customer&                original,
+             BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Create a 'Customer' object having the same value as the specified
         // 'original' object.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -169,21 +164,21 @@ class Customer {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
-    void setFirstName(const bslstl::StringRef& value);
-        // Set the 'firstName' attribute of this object to the specified
-        // 'value'.
-
-    void setLastName(const bslstl::StringRef& value);
-        // Set the 'lastName' attribute of this object to the specified
-        // 'value'.
-
     void setAccounts(const bsl::vector<int>& value);
         // Set the 'accounts' attribute of this object to the specified
         // 'value'.
 
+    void setFirstName(const BloombergLP::bslstl::StringRef& value);
+        // Set the 'firstName' attribute of this object to the specified
+        // 'value'.
+
     void setId(int value);
         // Set the 'id' attribute of this object to the specified 'value'.
-        // The behavior is undefined unless 'value > 0'.
+        // The behavior is undefined unless 'value >= 0'.
+
+    void setLastName(const BloombergLP::bslstl::StringRef& value);
+        // Set the 'lastName' attribute of this object to the specified
+        // 'value'.
 
                                   // Aspects
 
@@ -194,24 +189,24 @@ class Customer {
         // object was created with the same allocator as 'other'.
 
     // ACCESSORS
+    const bsl::vector<int>& accounts() const;
+        // Return a reference providing non-modifiable access to the
+        // 'accounts' attribute of this object.
+
     const bsl::string& firstName() const;
         // Return a reference providing non-modifiable access to the
         // 'firstName' attribute of this object.
+
+    int id() const;
+        // Return the value of the 'id' attribute of this object.
 
     const bsl::string& lastName() const;
         // Return a reference providing non-modifiable access to the
         // 'lastName' attribute of this object.
 
-    const bsl::vector<int>& accounts() const;
-        // Return a reference providing non-modifiable access to the
-        // 'accounts' attribute of this object.
-
-    int id() const;
-        // Return the value of the 'id' attribute of this object.
-
                                   // Aspects
 
-    bslma::Allocator *allocator() const;
+    BloombergLP::bslma::Allocator *allocator() const;
         // Return the allocator used by this object to supply memory.  Note
         // that if no allocator was supplied at construction the currently
         // installed default allocator is used.
@@ -219,18 +214,18 @@ class Customer {
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
-        // Write the value of this object to the specified output 'stream' in
-        // a human-readable format, and return a reference to 'stream'.
+        // Write the value of this object to the specified output 'stream' in a
+        // human-readable format, and return a reference to 'stream'.
         // Optionally specify an initial indentation 'level', whose absolute
         // value is incremented recursively for nested objects.  If 'level' is
-        // specified, optionally specify 'spacesPerLevel', whose absolute
-        // value indicates the number of spaces per indentation level for this
-        // and all of its nested objects.  If 'level' is negative, suppress
+        // specified, optionally specify 'spacesPerLevel', whose absolute value
+        // indicates the number of spaces per indentation level for this and
+        // all of its nested objects.  If 'level' is negative, suppress
         // indentation of the first line.  If 'spacesPerLevel' is negative,
         // format the entire output on one line, suppressing all but the
         // initial indentation (as governed by 'level').  If 'stream' is not
-        // valid on entry, this operation has no effect.  Note that the
-        // format is not fully specified, and can change without notice.
+        // valid on entry, this operation has no effect.  Note that the format
+        // is not fully specified, and can change without notice.
 };
 
 // FREE OPERATORS
@@ -247,13 +242,13 @@ bool operator!=(const Customer& lhs, const Customer& rhs);
     // 'lastName', 'accounts', or 'id' attributes are not the same.
 
 bsl::ostream& operator<<(bsl::ostream& stream, const Customer& object);
-    // Write the value of the specified 'object' to the specified
-    // output 'stream' in a single-line format, and return a reference
-    // providing modifiable access to 'stream'.  If 'stream' is not valid on
-    // entry, this operation has no effect.  Note that this human-readable
-    // format is not fully specified and can change without notice.  Also note
-    // that this method has the same behavior as 'object.print(stream, 0, -1)',
-    // but with the attribute names elided.
+    // Write the value of the specified 'object' to the specified output
+    // 'stream' in a single-line format, and return a reference providing
+    // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
+    // operation has no effect.  Note that this human-readable format is not
+    // fully specified and can change without notice.  Also note that this
+    // method has the same behavior as 'object.print(stream, 0, -1)', but with
+    // the attribute names elided.
 
 // FREE FUNCTIONS
 void swap(Customer& a, Customer& b);
@@ -272,8 +267,8 @@ namespace bslma {
 template <> struct UsesBslmaAllocator<Enterprise::pkg::Customer>
                                                            : bsl::true_type {};
 
-}
-}
+}  // close package namespace
+}  // close enterprise namespace
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -288,7 +283,7 @@ namespace pkg {
 
 // CREATORS
 inline
-Customer::Customer(bslma::Allocator *basicAllocator)
+Customer::Customer(BloombergLP::bslma::Allocator *basicAllocator)
 : d_firstName(basicAllocator)
 , d_lastName(basicAllocator)
 , d_accounts(basicAllocator)
@@ -297,22 +292,21 @@ Customer::Customer(bslma::Allocator *basicAllocator)
 }
 
 inline
-Customer::Customer(const bslstl::StringRef&  firstName,
-                   const bslstl::StringRef&  lastName,
-                   const bsl::vector<int>&   accounts,
-                   int                       id,
-                   bslma::Allocator         *basicAllocator)
+Customer::Customer(const BloombergLP::bslstl::StringRef&  firstName,
+                   const BloombergLP::bslstl::StringRef&  lastName,
+                   const bsl::vector<int>&                accounts,
+                   int                                    id,
+                   BloombergLP::bslma::Allocator         *basicAllocator)
 : d_firstName(firstName.begin(), firstName.end(), basicAllocator)
 , d_lastName(lastName.begin(), lastName.end(), basicAllocator)
 , d_accounts(accounts, basicAllocator)
 , d_id(id)
 {
-    BSLS_ASSERT_SAFE(!firstName.isEmpty());
-    BSLS_ASSERT_SAFE(!lastName.isEmpty());
 }
 
 inline
-Customer::Customer(const Customer& original, bslma::Allocator *basicAllocator)
+Customer::Customer(const Customer&                original,
+                   BloombergLP::bslma::Allocator *basicAllocator)
 : d_firstName(original.d_firstName, basicAllocator)
 , d_lastName(original.d_lastName, basicAllocator)
 , d_accounts(original.d_accounts, basicAllocator)
@@ -332,33 +326,29 @@ Customer& Customer::operator=(const Customer& rhs)
 }
 
 inline
-void Customer::setFirstName(const bslstl::StringRef& value)
-{
-    BSLS_ASSERT_SAFE(!value.isEmpty());
-
-    d_firstName.assign(value.begin(), value.end());
-}
-
-inline
-void Customer::setLastName(const bslstl::StringRef& value)
-{
-    BSLS_ASSERT_SAFE(!value.isEmpty());
-
-    d_lastName.assign(value.begin(), value.end());
-}
-
-inline
 void Customer::setAccounts(const bsl::vector<int>& value)
 {
     d_accounts = value;
 }
 
 inline
+void Customer::setFirstName(const BloombergLP::bslstl::StringRef& value)
+{
+    d_firstName.assign(value.begin(), value.end());
+}
+
+inline
 void Customer::setId(int value)
 {
-    BSLS_ASSERT_SAFE(value > 0);
+    BSLS_ASSERT_SAFE(value >= 0);
 
     d_id = value;
+}
+
+inline
+void Customer::setLastName(const BloombergLP::bslstl::StringRef& value)
+{
+    d_lastName.assign(value.begin(), value.end());
 }
 
                                   // Aspects
@@ -368,29 +358,23 @@ void Customer::swap(Customer& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bslalg::SwapUtil::swap(&d_firstName, &other.d_firstName);
-    bslalg::SwapUtil::swap(&d_lastName,  &other.d_lastName);
-    bslalg::SwapUtil::swap(&d_accounts,  &other.d_accounts);
-    bslalg::SwapUtil::swap(&d_id,        &other.d_id);
+    BloombergLP::bslalg::SwapUtil::swap(&d_firstName, &other.d_firstName);
+    BloombergLP::bslalg::SwapUtil::swap(&d_lastName,  &other.d_lastName);
+    BloombergLP::bslalg::SwapUtil::swap(&d_accounts,  &other.d_accounts);
+    BloombergLP::bslalg::SwapUtil::swap(&d_id,        &other.d_id);
 }
 
 // ACCESSORS
 inline
-const bsl::string& Customer::firstName() const
-{
-    return d_firstName;
-}
-
-inline
-const bsl::string& Customer::lastName() const
-{
-    return d_lastName;
-}
-
-inline
 const bsl::vector<int>& Customer::accounts() const
 {
     return d_accounts;
+}
+
+inline
+const bsl::string& Customer::firstName() const
+{
+    return d_firstName;
 }
 
 inline
@@ -399,10 +383,16 @@ int Customer::id() const
     return d_id;
 }
 
+inline
+const bsl::string& Customer::lastName() const
+{
+    return d_lastName;
+}
+
                                   // Aspects
 
 inline
-bslma::Allocator *Customer::allocator() const
+BloombergLP::bslma::Allocator *Customer::allocator() const
 {
     return d_firstName.get_allocator().mechanism();
 }
@@ -418,8 +408,7 @@ bool operator==(const Customer& lhs, const Customer& rhs)
 }
 
 inline
-bool operator!=(const Customer& lhs,
-                const Customer& rhs)
+bool operator!=(const Customer& lhs, const Customer& rhs)
 {
     return lhs.firstName() != rhs.firstName()
         || lhs.lastName()  != rhs.lastName()
