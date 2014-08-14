@@ -850,11 +850,21 @@ int main(int argc, char *argv[])
         {
             Hash<>::result_type (Hash<>::*expectedSignature)(const int&) const;
 
-            expectedSignature = &Hash<>::operator();
+
 
             Hash<SpookyHashAlgorithm>::result_type (Hash<SpookyHashAlgorithm>
                                       ::*expectedSignature2)(const int&) const;
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            expectedSignature = &Hash<>::operator()<const int&>;
+            expectedSignature2 = &Hash<SpookyHashAlgorithm>::operator()
+                                                                  <const int&>;
+#else
+            expectedSignature = &Hash<>::operator();
             expectedSignature2 = &Hash<SpookyHashAlgorithm>::operator();
+#endif
+
+
         }
 
       } break;

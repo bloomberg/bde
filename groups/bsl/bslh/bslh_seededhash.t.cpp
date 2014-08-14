@@ -410,22 +410,36 @@ int main(int argc, char *argv[])
             int data = 0;
             Obj::result_type (Obj::*expectedSignature) (const int&) const;
 
-            expectedSignature = &Obj::operator();
-            expectedSignature = &SeededHash<SeedGen,
-                                             DefaultSeededHashAlgorithm>
-                                                                  ::operator();
-
             SeededHash<SeedGen, SipHashAlgorithm>::result_type
                    (SeededHash<SeedGen, SipHashAlgorithm>::*expectedSignature2)
                                                             (const int&) const;
-            expectedSignature2 = &SeededHash<SeedGen, SipHashAlgorithm>
-                                                                  ::operator();
 
             SeededHash<SeedGen, SpookyHashAlgorithm>::result_type
                 (SeededHash<SeedGen, SpookyHashAlgorithm>::*expectedSignature3)
                                                             (const int&) const;
+
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            expectedSignature = &SeededHash<SeedGen,
+                                             DefaultSeededHashAlgorithm>
+                                                      ::operator()<const int&>;
+
+            expectedSignature2 = &SeededHash<SeedGen, SipHashAlgorithm>
+                                                      ::operator()<const int&>;
+
+            expectedSignature3 = &SeededHash<SeedGen, SpookyHashAlgorithm>
+                                                      ::operator()<const int&>;
+#else
+            expectedSignature = &SeededHash<SeedGen,
+                                             DefaultSeededHashAlgorithm>
+                                                                  ::operator();
+
+            expectedSignature2 = &SeededHash<SeedGen, SipHashAlgorithm>
+                                                                  ::operator();
+
             expectedSignature3 = &SeededHash<SeedGen, SpookyHashAlgorithm>
                                                                   ::operator();
+#endif
         }
 
       } break;
