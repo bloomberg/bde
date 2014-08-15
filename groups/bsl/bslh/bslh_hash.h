@@ -420,7 +420,7 @@ template <class HASH_ALGORITHM>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, float input)
 {
-    if (input == 0){
+    if (input == 0.0f){
         input = 0;
     }
     hashAlg(&input, sizeof(input));
@@ -430,7 +430,7 @@ template <class HASH_ALGORITHM>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, double input)
 {
-    if (input == 0){
+    if (input == 0.0){
         input = 0;
     }
     hashAlg(&input, sizeof(input));
@@ -440,7 +440,7 @@ template <class HASH_ALGORITHM>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
 {
-    if (input == 0){
+    if (input == 0.0l){
         input = 0;
     }
     hashAlg(&input, sizeof(input));

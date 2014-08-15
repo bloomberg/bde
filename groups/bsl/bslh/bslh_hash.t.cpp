@@ -585,32 +585,34 @@ class TestDriver {
         // 'LOOP_ASSERT'.
     {
         MockHashingAlgorithm alg;
-        TYPE input;
-        memcpy(&input, data, sizeof(TYPE));
+        const TYPE input = *reinterpret_cast<const TYPE *>(data);
+
         hashAppend(alg, input);
 
+        const char *inputPtr = reinterpret_cast<const char *>(&input);
         const char *output = alg.getData();
         for (size_t i = 0; i < sizeof(TYPE); ++i) {
-            LOOP_ASSERT(line, output[i] == data[i]);
+            ASSERTV(line, output[i], inputPtr[i], output[i] == inputPtr[i]);
         }
-        LOOP_ASSERT(line, alg.getLength() == sizeof(TYPE));
+        ASSERTV(line, alg.getLength(), sizeof(TYPE),
+                                              alg.getLength() == sizeof(TYPE));
     }
 };
 
 int testFunction1()
-    // This function is used only for testing funciton pointers
+    // This function is used only for testing function pointers
 {
     return 1;
 }
 
 int testFunction2()
-    // This function is used only for testing funciton pointers
+    // This function is used only for testing function pointers
 {
     return 1;
 }
 
 int testFunction3()
-    // This function is used only for testing funciton pointers
+    // This function is used only for testing function pointers
 {
     return 3;
 }
@@ -1287,7 +1289,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Copy a known bitsequece into each fundamental"
                             " type and pass it into 'hashAppend' with a mocked"
-                            " hashing algorith. Verify that the data inputted"
+                            " hashing algorithm. Verify that the data inputted"
                             " into the hashing algorithm matches the known"
                             " input bitsequence. (C-5)\n");
         {
