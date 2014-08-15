@@ -1226,10 +1226,13 @@ int main(int argc, char *argv[])
             ASSERT(ptr3Loc2Val1Alg.getLength() == sizeof(const char *));
             ASSERT(ptr4Loc3Val2Alg.getLength() == sizeof(const char *));
 
+#ifndef BSLS_PLATFORM_OS_WINDOWS            
             // Pointers to same location come out the same
             ASSERT(binaryCompare(ptr1Loc1Val1Alg.getData(),
                                  ptr2Loc1Val1Alg.getData(),
                                  sizeof(const char *)));
+            printf("\n\n\nNOT WINDOWS!\n\n\n");
+#endif
 
             // Pointers to same value, different location come out different
             ASSERT(!binaryCompare(ptr1Loc1Val1Alg.getData(),
