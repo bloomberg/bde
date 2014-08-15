@@ -378,7 +378,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      eventList.createInplace(0);  // Construct a shared pointer
 //                                   // to the event list containing
 //                                   // all of the events.
-//      getEvents(eventList.ptr());
+//      getEvents(eventList.get());
 //
 //      for (bsl::list<Event>::iterator it = eventList->begin();
 //           it != eventList->end();
@@ -473,12 +473,12 @@ BSLS_IDENT("$Id$ $CSID$")
 // following:
 //..
 //  shared_ptr<A> spa;
-//  shared_ptr<B> spb(spa, static_cast<B *>(spa.ptr()));
+//  shared_ptr<B> spb(spa, static_cast<B *>(spa.get()));
 //..
 // or even the less safe C-style cast:
 //..
 //  shared_ptr<A> spa;
-//  shared_ptr<B> spb(spa, (B *)(spa.ptr()));
+//  shared_ptr<B> spb(spa, (B *)(spa.get()));
 //..
 // For convenience, several utility functions are provided to perform common
 // C++ casts.  Dynamic casts, static casts, and 'const' casts are all provided.
@@ -508,7 +508,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // regardless of how it is cast.
 //
 ///Converting to and from 'BloombergLP::bslma::ManagedPtr'
-///-----------------------------------------
+///-------------------------------------------------------
 // A 'shared_ptr' can be converted to a 'BloombergLP::bslma::ManagedPtr' while
 // still retaining proper reference counting.  When a shared pointer is
 // converted to a 'BloombergLP::bslma::ManagedPtr', the number of references to
@@ -525,7 +525,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // references to that shared object are released.
 //
 ///Storing a 'shared_ptr' in an Invokable in a 'bdef_Function' object
-///-----------------------------------------------------------------------
+///------------------------------------------------------------------
 // In addition to the guarantees already made in the 'bdef_function' component,
 // 'bsl::shared_ptr' also guarantees that storing a shared pointer to an
 // invokable object in a 'bdef_Function' object will be "in-place", i.e., it
@@ -1061,7 +1061,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // Test to make sure that the pointer is non-null before using 'myhandle':
 //..
-//      if (!myhandle.ptr()) {
+//      if (!myhandle.get()) {
 //          return;                                                   // RETURN
 //      }
 //
@@ -1076,7 +1076,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      shared_ptr<my_Session> myhandle =
 //                       bslstl::SharedPtrUtil::staticCast<my_Session>(handle);
 //
-//      if (!myhandle.ptr()) {
+//      if (!myhandle.get()) {
 //          return bsl::string();
 //      } else {
 //          return myhandle->sessionName();
@@ -1664,12 +1664,10 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 
-#ifdef BDE_VERIFY
 // The 'bde_verify' tool needs to be aware of contractual use of a few terms
 // that happen to match function parameter names.
 #pragma bde_verify push
 #pragma bde_verify set ok_unquoted deleter object
-#endif // BDE_VERIFY
 
 namespace bsl {
 
@@ -1786,7 +1784,6 @@ class shared_ptr {
 
     // CREATORS
     shared_ptr();
-    shared_ptr(bsl::nullptr_t);                                     // IMPLICIT
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation, that does not refer to any object and has no
         // deleter.
@@ -1807,6 +1804,28 @@ class shared_ptr {
         // component-level documentation, to comply with C++ standard
         // specifications, future implementations of 'shared_ptr' may destroy
         // the shared object using '::operator delete'.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
+        // Create a shared pointer taking ownership of the specified 'rep'
+        // and pointing to the object stored in the specified 'rep'.  The
+        // behavior is undefined unless 'rep->originalPtr()' points to an
+        // object of type 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT*
+        // increment the number of references to 'rep'.
+        //
+        // DEPRECATED This constructor will be made inaccessible in the next
+        // BDE release, as the undefined behavior is too easily triggered and
+        // offers no simple way to guard against misuse.  Instead, call the
+        // constructor taking an additional 'ELEMENT_TYPE *' initial argument:
+        //..
+        //  shared_ptr(ELEMENT_TYPE *p, BloombergLP::bslma::SharedPtrRep *rep);
+        //..
+#else
+    shared_ptr(bsl::nullptr_t);                                     // IMPLICIT
+        // Create an empty shared pointer, i.e., a shared pointer with no
+        // representation, that does not refer to any object and has no
+        // deleter.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     template <class COMPATIBLE_TYPE>
     shared_ptr(COMPATIBLE_TYPE               *ptr,
@@ -1876,17 +1895,18 @@ class shared_ptr {
         //             BloombergLP::bslma::SharedPtrRep *rep);
         //..
         // If 'DELETER' does not derive from either 'bslma::allocator' or
-        // 'BloombergLP::bslma::SharedPtrRep', then 'deleter' is assumed to be
-        // a pointer to a factory object that exposes a member function that
-        // can be invoked as 'deleteObject(ptr)' that will be called to destroy
-        // the object at the 'ptr' address (i.e., 'deleter->deleteObject(ptr)'
-        // will be called to delete the shared object).  (See the "Deleters"
-        // section in the component-level documentation.)  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to
-        // 'ELEMENT_TYPE *' then a compiler diagnostic will be emitted
-        // indicating the error.  Also note that if 'ptr' is 0, then the null
-        // pointer will be reference counted, and the deleter will be called
-        // when the last reference is destroyed.
+        // 'BloombergLP::bslma::SharedPtrRep', then 'deleter' shall be a
+        // pointer to a factory object that exposes a member function that can
+        // be invoked as 'deleteObject(ptr)' that will be called to destroy the
+        // object at the 'ptr' address (i.e., 'deleter->deleteObject(ptr)' will
+        // be called to delete the shared object).  (See the "Deleters" section
+        // in the component-level documentation.)  If 'COMPATIBLE_TYPE *' is
+        // not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
+        // diagnostic will be emitted indicating the error.  If 'ptr' is 0,
+        // then the null pointer will be reference counted, and the deleter
+        // will be called when the last reference is destroyed.  Note that this
+        // method is a BDE extension and not part of the C++ standard
+        // interface.
 
     template <class COMPATIBLE_TYPE, class DELETER>
     shared_ptr(COMPATIBLE_TYPE               *ptr,
@@ -1897,18 +1917,18 @@ class shared_ptr {
         // specified '(ELEMENT_TYPE *)ptr', using the specified 'deleter' to
         // delete the shared object when all references have been released.
         // Optionally specify 'basicAllocator' to allocate and deallocate the
-        // internal representation of the shared pointer.  If 'basicAllocator'
-        // is 0, the currently installed default allocator is used.  If
-        // 'DELETER' is a reference type, then 'deleter' is assumed to be a
-        // function-like deleter that may be invoked to destroy the object
-        // referred to by a single argument of type 'COMPATIBLE_TYPE *' (i.e.,
-        // 'deleter(ptr)' will be called to destroy the shared object).  (See
-        // the "Deleters" section in the component- level documentation.)  If
-        // 'COMPATIBLE_TYPE *' is not implicitly convertible to 'ELEMENT_TYPE
-        // *' then a compiler diagnostic will be emitted indicating the error.
-        // Also note that if 'ptr' is 0, then the null pointer will be
-        // reference counted, and the deleter will be called when the last
-        // reference is destroyed.
+        // internal representation of the shared pointer (including a copy of
+        // 'deleter').  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  'DELETER' shall be either a function
+        // pointer or a function-like deleter that may be invoked to destroy
+        // the object referred to by a single argument of type
+        // 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)' will be called to destroy
+        // the shared object).  (See the "Deleters" section in the component-
+        // level documentation.)  If 'COMPATIBLE_TYPE *' is not implicitly
+        // convertible to 'ELEMENT_TYPE *' then a compiler diagnostic will be
+        // emitted indicating the error.  If 'ptr' is 0, then the null pointer
+        // will be reference counted, and the deleter will be called when the
+        // last reference is destroyed.
 
     template <class COMPATIBLE_TYPE, class DELETER, class ALLOCATOR>
     shared_ptr(COMPATIBLE_TYPE *ptr,
@@ -1921,20 +1941,20 @@ class shared_ptr {
         // 'ELEMENT_TYPE', using the specified 'deleter' to delete the shared
         // object when all references have been released and the specified
         // 'basicAllocator' to allocate and deallocate the internal
-        // representation of the shared pointer.  If 'DELETER' is a reference
-        // type, then 'deleter' is assumed to be a function-like deleter that
-        // may be invoked to destroy the object referred to by a single
-        // argument of type 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)' will be
-        // called to destroy the shared object).  (See the "Deleters" section
-        // in the component- level documentation.)  If 'COMPATIBLE_TYPE *' is
-        // not implicitly convertible to 'ELEMENT_TYPE *' then a compiler
-        // diagnostic will be emitted indicating the error.  Also note that if
+        // representation of the shared pointer (including a copy of the
+        // 'deleter').  'DELETER' shall be either a function pointer or a
+        // function-like deleter that may be invoked to destroy the object
+        // referred to by a single argument of type 'COMPATIBLE_TYPE *' (i.e.,
+        // 'deleter(ptr)' will be called to destroy the shared object).  (See
+        // the "Deleters" section in the component- level documentation.)  If
+        // 'COMPATIBLE_TYPE*' is not implicitly convertible to 'ELEMENT_TYPE*'
+        // then a compiler diagnostic will be emitted indicating the error.  If
         // 'ptr' is 0, then the null pointer will be reference counted, and the
-        // deleter will be called when the last reference is destroyed.
-        // Finally note that the final dummy parameter is a simple SFINAE check
-        // that the (template parameter) 'ALLOCATOR' type probably satisfies
-        // the standard allocator requirements.  In particular, it will not
-        // match pointer values, so any pointers to 'bslma::Allocator' derived
+        // deleter will be called when the last reference is destroyed.  Note
+        // that the final dummy parameter is a simple SFINAE check that the
+        // (template parameter) 'ALLOCATOR' type probably satisfies the
+        // standard allocator requirements.  In particular, it will not match
+        // pointer values, so any pointers to 'bslma::Allocator' derived
         // classes will dispatch to the constructor above this, and not be
         // greedily matched to a generic type parameter.
 
@@ -1950,24 +1970,29 @@ class shared_ptr {
     shared_ptr(nullptr_t                      nullPointerLiteral,
                DELETER                        deleter,
                BloombergLP::bslma::Allocator *basicAllocator = 0);
-        // Create an empty shared pointer.  The specified 'nullPointerLiteral',
-        // 'deleter' and optionally specified 'basicAllocator' are not used.
-        // Note that for conformance with the C++ Standard specification for
-        // 'shared_ptr', a future version of this component may reference count
-        // the 'deleter', and use the 'basicAllocator' to create the storage
-        // area for the reference counts and a copy of 'deleter'.
+        // Create a shared pointer that reference-counts the null pointer, and
+        // calls 'deleter((ELEMENT_TYPE *)0)' when the last shared reference
+        // is destroyed.  The specified 'nullPointerLiteral' is not used.
+        // Optionally specify 'basicAllocator' to allocate and deallocate the
+        // internal representation of the shared pointer (including a copy of
+        // 'deleter').  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined unless
+        // 'deleter' can be called with a null pointer.
 
     template <class DELETER, class ALLOCATOR>
     shared_ptr(nullptr_t nullPointerLiteral,
                DELETER   deleter,
                ALLOCATOR basicAllocator,
                typename ALLOCATOR::value_type * = 0);
-        // Create an empty shared pointer.  The specified 'nullPointerLiteral',
-        // 'deleter' and 'basicAllocator' are not used.  Note that for
-        // conformance with the C++ Standard specification for 'shared_ptr', a
-        // future version of this component may reference count the 'deleter',
-        // and use the 'basicAllocator' to create the storage area for the
-        // reference counts and a copy of 'deleter'.  Also note that the final
+        // Create a shared pointer that reference-counts the null pointer, and
+        // calls 'deleter((ELEMENT_TYPE *)0)' when the last shared reference
+        // is destroyed,  and the specified 'basicAllocator' to allocate and
+        // deallocate the internal representation of the shared pointer
+        // (including a copy of the 'deleter').  'DELETER' shall be either a
+        // function pointer or a function-like deleter (See the "Deleters"
+        // section in the component- level documentation).  The specified
+        // 'nullPointerLiteral' is not used.  The behavior is undefined unless
+        // 'deleter' can be called with a null pointer.  Note that the final
         // dummy parameter is a simple SFINAE check that the (template
         // parameter) 'ALLOCATOR' type probably satisfies the standard
         // allocator requirements.  In particular, it will not match pointer
@@ -2034,7 +2059,7 @@ class shared_ptr {
         // any) as the specified 'other' shared pointer to the (template
         // parameter) type 'COMPATIBLE_TYPE', using the same deleter as 'other'
         // to destroy the shared object, and that refers to
-        // '(ELEMENT_TYPE*)other.ptr()'.  If 'COMPATIBLE_TYPE *' is not
+        // '(ELEMENT_TYPE*)other.get()'.  If 'COMPATIBLE_TYPE *' is not
         // implicitly convertible to 'ELEMENT_TYPE *' then a compiler
         // diagnostic will be emitted indicating the error.  Note that if
         // 'other' is empty, then an empty shared pointer is created.
@@ -2077,7 +2102,7 @@ class shared_ptr {
         // Make this shared pointer refer to and manage the same modifiable
         // object as the specified 'rhs' shared pointer to the (template
         // parameter) type 'COMPATIBLE_TYPE', using the same deleter as 'rhs'
-        // and referring to '(ELEMENT_TYPE *)rhs.ptr()', and return a reference
+        // and referring to '(ELEMENT_TYPE *)rhs.get()', and return a reference
         // to this modifiable shared pointer.  If this shared pointer is
         // already managing a (possibly shared) object, then release the shared
         // reference to that object, and destroy it using its associated
@@ -2137,15 +2162,15 @@ class shared_ptr {
         // the deleter to destroy the shared object if this pointer is the last
         // reference.  If 'DELETER' is an object type, then 'deleter' is
         // assumed to be a function-like deleter that may be invoked to destroy
-        // the object referred to by a single argument of type
-        // 'COMPATIBLE_TYPE *' (i.e., 'deleter(ptr)' will be called to destroy
-        // the shared object).  If 'DELETER' is a pointer type that is not a
-        // function pointer, then 'deleter' is assumed to be a pointer to a
-        // factory object that exposes a member function that can be invoked as
-        // 'deleteObject(ptr)' that will be called to destroy the object at the
-        // 'ptr' address (i.e., 'deleter->deleteObject(ptr)' will be called to
-        // delete the shared object).  (See the "Deleters" section in the
-        // component-level documentation.)  If 'DELETER' is also a pointer to
+        // the object referred to by a single argument of type 'COMPATIBLE_TYPE
+        // *' (i.e., 'deleter(ptr)' will be called to destroy the shared
+        // object).  If 'DELETER' is a pointer type that is not a function
+        // pointer, then 'deleter' shall be a pointer to a factory object that
+        // exposes a member function that can be invoked as 'deleteObject(ptr)'
+        // that will be called to destroy the object at the 'ptr' address
+        // (i.e., 'deleter->deleteObject(ptr)' will be called to delete the
+        // shared object).  (See the "Deleters" section in the component-level
+        // documentation.)  If 'DELETER' is also a pointer to
         // 'bslma::Allocator' or to a class derived from 'bslma::Allocator'
         // then that allocator will also be used to allocate and destroy the
         // internal representation of this shared pointer  when all references
@@ -2159,10 +2184,10 @@ class shared_ptr {
         // 'COMPATIBLE_TYPE*' is not implicitly convertible to 'ELEMENT_TYPE*'
         // then a compiler diagnostic will be emitted indicating the error.
         // Note that, for factory deleters, 'deleter' must remain valid until
-        // all references to 'ptr' have been released.  Also note that if 'ptr'
-        // is 0, then an internal representation will still be allocated, this
-        // shared pointer will share ownership of a copy of 'deleter'.  Further
-        // note that this function is logically equivalent to:
+        // all references to 'ptr' have been released.  If 'ptr' is 0, then an
+        // internal representation will still be allocated, this shared pointer
+        // will share ownership of a copy of 'deleter'.  Further note that this
+        // function is logically equivalent to:
         //..
         //  *this = shared_ptr<ELEMENT_TYPE>(ptr, deleter);
         //..
@@ -2842,7 +2867,7 @@ template<class TO_TYPE, class FROM_TYPE>
 shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>& source);
     // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
     // object as the specified 'source' shared pointer to the parameterized
-    // 'FROM_TYPE', and referring to 'const_cast<TO_TYPE *>(source.ptr())'.
+    // 'FROM_TYPE', and referring to 'const_cast<TO_TYPE *>(source.get())'.
     // Note that if 'source' cannot be 'const'-cast to 'TO_TYPE *', then a
     // compiler diagnostic will be emitted indicating the error.
 
@@ -3543,12 +3568,6 @@ class weak_ptr {
         // state otherwise.  Note that the behavior of this method is the same
         // as that of 'acquireSharedPtr'.
 
-    int numReferences() const;
-        // Return a "snapshot" of the current number of shared pointers that
-        // share ownership of the object referred to by this weak pointer, or 0
-        // if this weak pointer is in the empty state.  Note that the behavior
-        // of this method is the same as that of 'use_count'.
-
     template <class ANY_TYPE>
     bool owner_before(const shared_ptr<ANY_TYPE>& other) const;
     template <class ANY_TYPE>
@@ -3564,8 +3583,16 @@ class weak_ptr {
     long use_count() const;
         // Return a "snapshot" of the current number of shared pointers that
         // share ownership of the object referred to by this weak pointer, or 0
+        // if this weak pointer is in the empty state.
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    // DEPRECATED BDE LEGACY ACCESSORS
+    int numReferences() const;
+        // Return a "snapshot" of the current number of shared pointers that
+        // share ownership of the object referred to by this weak pointer, or 0
         // if this weak pointer is in the empty state.  Note that the behavior
-        // of this method is the same as that of 'numReferences'.
+        // of this method is the same as that of 'use_count'.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 
 // FREE METHODS
@@ -3647,7 +3674,7 @@ struct SharedPtrUtil {
                    const bsl::shared_ptr<SOURCE>&  source);
         // Load into the specified 'target' shared pointer an alias of the
         // specified 'source' shared pointer referring to
-        // 'const_cast<TARGET *>(source.ptr())'.  The previous 'target' shared
+        // 'const_cast<TARGET *>(source.get())'.  The previous 'target' shared
         // pointer is destroyed (destroying the shared object if 'target' holds
         // the last reference to this object).  Note that if 'source' cannot be
         // statically cast to 'TARGET *', then a compiler diagnostic will be
@@ -3659,7 +3686,7 @@ struct SharedPtrUtil {
         // Return a 'bsl::shared_ptr<TARGET>' object sharing ownership of the
         // same object as the specified 'source' shared pointer to the
         // parameterized 'SOURCE' type, and referring to
-        // 'const_cast<TARGET *>(source.ptr())'.  Note that if 'source' cannot
+        // 'const_cast<TARGET *>(source.get())'.  Note that if 'source' cannot
         // be 'const'-cast to 'TARGET *', then a compiler diagnostic will be
         // emitted indicating the error.
 
@@ -3669,7 +3696,7 @@ struct SharedPtrUtil {
                      const bsl::shared_ptr<SOURCE>&  source);
         // Load into the specified 'target' shared pointer an alias of the
         // specified 'source' shared pointer referring to
-        // 'dynamic_cast<TARGET *>(source.ptr())'.  The previous 'target'
+        // 'dynamic_cast<TARGET *>(source.get())'.  The previous 'target'
         // shared pointer is destroyed (destroying the shared object if
         // 'target' holds the last reference to this object).  If 'source'
         // cannot be dynamically cast to 'TARGET *', 'target' will be reset to
@@ -3681,7 +3708,7 @@ struct SharedPtrUtil {
         // Return a 'bsl::shared_ptr<TARGET>' object sharing ownership of the
         // same object as the specified 'source' shared pointer to the
         // parameterized 'SOURCE' type, and referring to
-        // 'dynamic_cast<TARGET *>(source.ptr())'.  If 'source' cannot be
+        // 'dynamic_cast<TARGET *>(source.get())'.  If 'source' cannot be
         // dynamically cast to 'TARGET *', then an empty
         // 'bsl::shared_ptr<TARGET>' object is returned.
 
@@ -3691,7 +3718,7 @@ struct SharedPtrUtil {
                     const bsl::shared_ptr<SOURCE>&  source);
         // Load into the specified 'target' shared pointer an alias of the
         // specified 'source' shared pointer referring to
-        // 'static_cast<TARGET *>(source.ptr())'.  The previous 'target' shared
+        // 'static_cast<TARGET *>(source.get())'.  The previous 'target' shared
         // pointer is destroyed (destroying the shared object if 'target' holds
         // the last reference to this object).  Note that if 'source' cannot be
         // statically cast to 'TARGET *', then a compiler diagnostic will be
@@ -3703,7 +3730,7 @@ struct SharedPtrUtil {
         // Return a 'bsl::shared_ptr<TARGET>' object sharing ownership of the
         // same object as the specified 'source' shared pointer to the
         // parameterized 'SOURCE' type, and referring to
-        // 'static_cast<TARGET *>(source.ptr())'.  Note that if 'source' cannot
+        // 'static_cast<TARGET *>(source.get())'.  Note that if 'source' cannot
         // be statically cast to 'TARGET *', then a compiler diagnostic will be
         // emitted indicating the error.
 };
@@ -3791,9 +3818,7 @@ class SharedPtr_RepProctor {
 }  // close package namespace
 }  // close enterprise namespace
 
-#ifdef BDE_VERIFY
 #pragma bde_verify pop  // set_okunquoted
-#endif // BDE_VERIFY
 
 // ============================================================================
 //              INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
@@ -3860,14 +3885,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr()
 }
 
 template <class ELEMENT_TYPE>
-inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t)
-: d_ptr_p(0)
-, d_rep_p(0)
-{
-}
-
-template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
@@ -3879,6 +3896,25 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+template <class ELEMENT_TYPE>
+inline
+shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
+: d_ptr_p(rep ? reinterpret_cast<ELEMENT_TYPE *>(rep->originalPtr()) : 0)
+, d_rep_p(rep)
+{
+}
+#else
+template <class ELEMENT_TYPE>
+inline
+shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t)
+: d_ptr_p(0)
+, d_rep_p(0)
+{
+}
+
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
@@ -3970,12 +4006,24 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(nullptr_t,
 template <class ELEMENT_TYPE>
 template <class DELETER>
 inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(nullptr_t,
-                                     DELETER,
-                                     BloombergLP::bslma::Allocator *)
+shared_ptr<ELEMENT_TYPE>::shared_ptr(
+                                 nullptr_t,
+                                 DELETER                        deleter,
+                                 BloombergLP::bslma::Allocator *basicAllocator)
 : d_ptr_p(0)
-, d_rep_p(0)
 {
+    typedef BloombergLP::bslma::SharedPtrOutofplaceRep<ELEMENT_TYPE,
+                                                       DELETER> RepMaker;
+
+    if (bsl::is_convertible<DELETER, BloombergLP::bslma::Allocator *>::value &&
+        bsl::is_pointer<DELETER>::value) {
+        d_rep_p = 0;
+    }
+    else {       
+        d_rep_p = RepMaker::makeOutofplaceRep((ELEMENT_TYPE *)0,
+                                              deleter,
+                                              basicAllocator);
+    }
 }
 
 template <class ELEMENT_TYPE>
@@ -3986,8 +4034,26 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(nullptr_t,
                                      ALLOCATOR basicAllocator,
                                      typename ALLOCATOR::value_type *)
 : d_ptr_p(0)
-, d_rep_p(0)
 {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    // This is not quite C++11 'decay' as we do not need to worry about array
+    // types, and do not want to remove reference or cv-qualification from
+    // DELETER otherwise.
+    typedef typename bsl::conditional<bsl::is_function<DELETER>::value,
+                                      typename bsl::add_pointer<DELETER>::type,
+                                      DELETER>::type DeleterType;
+#else
+    typedef DELETER DeleterType;
+#endif
+
+    typedef
+    BloombergLP::bslstl::SharedPtrAllocateOutofplaceRep<ELEMENT_TYPE,
+                                                        DeleterType,
+                                                        ALLOCATOR> RepMaker;
+
+    d_rep_p = RepMaker::makeOutofplaceRep((ELEMENT_TYPE *)0,
+                                          deleter,
+                                          basicAllocator);
 }
 
 template <class ELEMENT_TYPE>
@@ -4199,7 +4265,6 @@ inline
 void shared_ptr<ELEMENT_TYPE>::reset(COMPATIBLE_TYPE *ptr,
                                      DELETER          deleter)
 {
-//    SelfType(ptr, deleter, 0).swap(*this);
     SelfType(ptr, deleter).swap(*this);
 }
 
@@ -4684,6 +4749,7 @@ void shared_ptr<ELEMENT_TYPE>::reset(const shared_ptr<ANY_TYPE>&  source,
     SelfType(source, ptr).swap(*this);
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // DEPRECATED BDE LEGACY MANIPULATORS
 template <class ELEMENT_TYPE>
 inline
@@ -4720,6 +4786,7 @@ shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE               *ptr,
 {
     SelfType(ptr, deleter, basicAllocator).swap(*this);
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // ACCESSORS
 template <class ELEMENT_TYPE>
@@ -4781,13 +4848,6 @@ shared_ptr<ELEMENT_TYPE>::managedPtr() const
 }
 
 template <class ELEMENT_TYPE>
-inline
-int shared_ptr<ELEMENT_TYPE>::numReferences() const
-{
-    return d_rep_p ? d_rep_p->numReferences() : 0;
-}
-
-template <class ELEMENT_TYPE>
 template<class ANY_TYPE>
 inline
 bool shared_ptr<ELEMENT_TYPE>::owner_before(
@@ -4809,13 +4869,6 @@ shared_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 
 template <class ELEMENT_TYPE>
 inline
-ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::ptr() const
-{
-    return d_ptr_p;
-}
-
-template <class ELEMENT_TYPE>
-inline
 BloombergLP::bslma::SharedPtrRep *shared_ptr<ELEMENT_TYPE>::rep() const
 {
     return d_rep_p;
@@ -4825,7 +4878,7 @@ template <class ELEMENT_TYPE>
 inline
 bool shared_ptr<ELEMENT_TYPE>::unique() const
 {
-    return 1 == numReferences();
+    return 1 == use_count();
 }
 
 template <class ELEMENT_TYPE>
@@ -4834,6 +4887,23 @@ long shared_ptr<ELEMENT_TYPE>::use_count() const
 {
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// DEPRECATED BDE LEGACY ACCESSORS
+template <class ELEMENT_TYPE>
+inline
+int shared_ptr<ELEMENT_TYPE>::numReferences() const
+{
+    return d_rep_p ? d_rep_p->numReferences() : 0;
+}
+
+template <class ELEMENT_TYPE>
+inline
+ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::ptr() const
+{
+    return d_ptr_p;
+}
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
                         // --------------
                         // class weak_ptr
@@ -4861,7 +4931,7 @@ weak_ptr<ELEMENT_TYPE>::weak_ptr(const weak_ptr<ELEMENT_TYPE>& original)
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 weak_ptr<ELEMENT_TYPE>::weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other)
-: d_ptr_p(other.ptr())
+: d_ptr_p(other.get())
 , d_rep_p(other.rep())
 {
     if (d_rep_p) {
@@ -4973,12 +5043,6 @@ shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::lock() const
     return shared_ptr<ELEMENT_TYPE>();
 }
 
-template <class ELEMENT_TYPE>
-inline
-int weak_ptr<ELEMENT_TYPE>::numReferences() const
-{
-    return d_rep_p ? d_rep_p->numReferences() : 0;
-}
 
 template <class ELEMENT_TYPE>
 template <class ANY_TYPE>
@@ -5012,8 +5076,18 @@ template <class ELEMENT_TYPE>
 inline
 long weak_ptr<ELEMENT_TYPE>::use_count() const
 {
-    return numReferences();
+    return d_rep_p ? d_rep_p->numReferences() : 0;
 }
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+// DEPRECATED BDE LEGACY ACCESSORS
+template <class ELEMENT_TYPE>
+inline
+int weak_ptr<ELEMENT_TYPE>::numReferences() const
+{
+    return d_rep_p ? d_rep_p->numReferences() : 0;
+}
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
                         // ---------------------------
                         // struct hash<shared_ptr<T> >
@@ -5043,7 +5117,7 @@ inline
 void SharedPtrUtil::constCast(bsl::shared_ptr<TARGET>        *target,
                               const bsl::shared_ptr<SOURCE>&  source)
 {
-    target->loadAlias(source, const_cast<TARGET *>(source.ptr()));
+    target->loadAlias(source, const_cast<TARGET *>(source.get()));
 }
 
 template <class TARGET, class SOURCE>
@@ -5052,14 +5126,14 @@ bsl::shared_ptr<TARGET>
 SharedPtrUtil::constCast(const bsl::shared_ptr<SOURCE>& source)
 {
     return bsl::shared_ptr<TARGET>(source,
-                                   const_cast<TARGET *>(source.ptr()));
+                                   const_cast<TARGET *>(source.get()));
 }
 
 template <class TARGET, class SOURCE>
 void SharedPtrUtil::dynamicCast(bsl::shared_ptr<TARGET>        *target,
                                 const bsl::shared_ptr<SOURCE>&  source)
 {
-    target->loadAlias(source, dynamic_cast<TARGET *>(source.ptr()));
+    target->loadAlias(source, dynamic_cast<TARGET *>(source.get()));
 }
 
 template <class TARGET, class SOURCE>
@@ -5068,7 +5142,7 @@ bsl::shared_ptr<TARGET>
 SharedPtrUtil::dynamicCast(const bsl::shared_ptr<SOURCE>& source)
 {
     return bsl::shared_ptr<TARGET>(source,
-                                   dynamic_cast<TARGET *>(source.ptr()));
+                                   dynamic_cast<TARGET *>(source.get()));
 }
 
 template <class TARGET, class SOURCE>
@@ -5076,7 +5150,7 @@ inline
 void SharedPtrUtil::staticCast(bsl::shared_ptr<TARGET>        *target,
                                const bsl::shared_ptr<SOURCE>&  source)
 {
-    target->loadAlias(source, static_cast<TARGET *>(source.ptr()));
+    target->loadAlias(source, static_cast<TARGET *>(source.get()));
 }
 
 template <class TARGET, class SOURCE>
@@ -5085,7 +5159,7 @@ bsl::shared_ptr<TARGET>
 SharedPtrUtil::staticCast(const bsl::shared_ptr<SOURCE>& source)
 {
     return bsl::shared_ptr<TARGET>(source,
-                                   static_cast<TARGET *>(source.ptr()));
+                                   static_cast<TARGET *>(source.get()));
 }
 
                       // ----------------------------------
@@ -5154,7 +5228,7 @@ inline
 bool bsl::operator==(const shared_ptr<LHS_TYPE>& lhs,
                      const shared_ptr<RHS_TYPE>& rhs)
 {
-    return rhs.ptr() == lhs.ptr();
+    return rhs.get() == lhs.get();
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -5170,7 +5244,7 @@ inline
 bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs,
                     const shared_ptr<RHS_TYPE>& rhs)
 {
-    return native_std::less<const void *>()(lhs.ptr(), rhs.ptr());
+    return native_std::less<const void *>()(lhs.get(), rhs.get());
 }
 
 template <class LHS_TYPE, class RHS_TYPE>
@@ -5229,56 +5303,56 @@ template <class LHS_TYPE>
 inline
 bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 {
-    return native_std::less<LHS_TYPE *>()(lhs.ptr(), 0);
+    return native_std::less<LHS_TYPE *>()(lhs.get(), 0);
 }
 
 template <class RHS_TYPE>
 inline
 bool bsl::operator<(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 {
-    return native_std::less<RHS_TYPE *>()(0, rhs.ptr());
+    return native_std::less<RHS_TYPE *>()(0, rhs.get());
 }
 
 template <class LHS_TYPE>
 inline
 bool bsl::operator<=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 {
-    return !native_std::less<LHS_TYPE *>()(0, lhs.ptr());
+    return !native_std::less<LHS_TYPE *>()(0, lhs.get());
 }
 
 template <class RHS_TYPE>
 inline
 bool bsl::operator<=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 {
-    return !native_std::less<RHS_TYPE *>()(rhs.ptr(), 0);
+    return !native_std::less<RHS_TYPE *>()(rhs.get(), 0);
 }
 
 template <class LHS_TYPE>
 inline
 bool bsl::operator>(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 {
-    return native_std::less<LHS_TYPE *>()(0, lhs.ptr());
+    return native_std::less<LHS_TYPE *>()(0, lhs.get());
 }
 
 template <class RHS_TYPE>
 inline
 bool bsl::operator>(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 {
-    return native_std::less<RHS_TYPE *>()(rhs.ptr(), 0);
+    return native_std::less<RHS_TYPE *>()(rhs.get(), 0);
 }
 
 template <class LHS_TYPE>
 inline
 bool bsl::operator>=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 {
-    return !native_std::less<LHS_TYPE *>()(lhs.ptr(), 0);
+    return !native_std::less<LHS_TYPE *>()(lhs.get(), 0);
 }
 
 template <class RHS_TYPE>
 inline
 bool bsl::operator>=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 {
-    return !native_std::less<RHS_TYPE *>()(0, rhs.ptr());
+    return !native_std::less<RHS_TYPE *>()(0, rhs.get());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ELEMENT_TYPE>
@@ -5287,7 +5361,7 @@ native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>&
 bsl::operator<<(native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
                 const shared_ptr<ELEMENT_TYPE>&                    rhs)
 {
-    return stream << rhs.ptr();
+    return stream << rhs.get();
 }
 
 // FREE METHODS
@@ -5318,21 +5392,21 @@ template<class TO_TYPE, class FROM_TYPE>
 bsl::shared_ptr<TO_TYPE>
 bsl::const_pointer_cast(const shared_ptr<FROM_TYPE>& source)
 {
-    return shared_ptr<TO_TYPE>(source, const_cast<TO_TYPE *>(source.ptr()));
+    return shared_ptr<TO_TYPE>(source, const_cast<TO_TYPE *>(source.get()));
 }
 
 template<class TO_TYPE, class FROM_TYPE>
 bsl::shared_ptr<TO_TYPE>
 bsl::dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source)
 {
-    return shared_ptr<TO_TYPE>(source, dynamic_cast<TO_TYPE *>(source.ptr()));
+    return shared_ptr<TO_TYPE>(source, dynamic_cast<TO_TYPE *>(source.get()));
 }
 
 template<class TO_TYPE, class FROM_TYPE>
 bsl::shared_ptr<TO_TYPE>
 bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
 {
-    return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.ptr()));
+    return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.get()));
 }
 
 // STANDARD FACTORY FUNCTIONS

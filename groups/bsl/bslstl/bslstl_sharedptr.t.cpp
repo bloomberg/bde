@@ -1006,7 +1006,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
 //..
 // Test to make sure that the pointer is non-null before using 'myhandle':
 //..
-        if (!myhandle.ptr()) {
+        if (!myhandle.get()) {
             return;                                                   // RETURN
         }
 
@@ -1021,7 +1021,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
         bsl::shared_ptr<my_Session> myhandle =
                          bslstl::SharedPtrUtil::staticCast<my_Session>(handle);
 
-        if (!myhandle.ptr()) {
+        if (!myhandle.get()) {
             return bsl::string();
         } else {
             return myhandle->sessionName();
@@ -3861,7 +3861,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -3876,7 +3876,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -3894,7 +3894,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -3912,7 +3912,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -3930,7 +3930,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -3948,7 +3948,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -3966,7 +3966,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -3985,7 +3985,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -4005,7 +4005,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -4025,7 +4025,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -4045,7 +4045,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -4065,7 +4065,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -4086,7 +4086,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -4107,7 +4107,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -4128,7 +4128,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
       } break;
@@ -4427,14 +4427,14 @@ int main(int argc, char *argv[])
           ASSERT(X.expired());
           ASSERT(0 == X.rep());
           ASSERT(!S1);
-          ASSERT(0 == S1.ptr());
+          ASSERT(0 == S1.get());
           ASSERT(0 == S1.rep());
 
           ObjSP S2 = Y.lock();
           ASSERT(Y.expired());
           ASSERT(0 == Y.rep());
           ASSERT(!S2);
-          ASSERT(0 == S2.ptr());
+          ASSERT(0 == S2.get());
           ASSERT(0 == S2.rep());
       }
 
@@ -4457,20 +4457,20 @@ int main(int argc, char *argv[])
 
               ObjSP SA = X.acquireSharedPtr();
               ASSERT(SA);
-              ASSERT(PTR  == SA.ptr());
+              ASSERT(PTR  == SA.get());
               ASSERT(&REP == SA.rep());
               LOOP_ASSERT(REP.numReferences(), 2 == REP.numReferences());
 
               ObjSP SB = Y.lock();
               ASSERT(SB);
-              ASSERT(PTR  == SB.ptr());
+              ASSERT(PTR  == SB.get());
               ASSERT(&REP == SB.rep());
 
               LOOP_ASSERT(REP.numReferences(),   3 == REP.numReferences());
 
               SC = X.acquireSharedPtr();
               LOOP_ASSERT(REP.numReferences(),   4 == REP.numReferences());
-              ASSERT(PTR  == SC.ptr());
+              ASSERT(PTR  == SC.get());
               ASSERT(&REP == SC.rep());
           }
 
@@ -4837,16 +4837,18 @@ int main(int argc, char *argv[])
       {
           ObjWP mX; const ObjWP& X = mX;
           ASSERT(X.expired());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
           ASSERT(0 == X.numReferences());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
           ASSERT(0 == X.use_count());
           ASSERT(0 == X.rep());
           ObjSP mS1 = mX.acquireSharedPtr(); const ObjSP& S1 = mS1;
           ObjSP mS2 = X.lock(); const ObjSP& S2 = mS2;
 
           ASSERT(!S1);
-          ASSERT(0 == S1.ptr());
+          ASSERT(0 == S1.get());
           ASSERT(!S2);
-          ASSERT(0 == S2.ptr());
+          ASSERT(0 == S2.get());
       }
 
       if (verbose) printf("\nTesting same TYPE constructors"
@@ -4873,7 +4875,9 @@ int main(int argc, char *argv[])
               ObjWP mX(S); const ObjWP& X = mX;
               ASSERT(!X.expired());
               ASSERT(&REP == X.rep());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(X.numReferences(),     1 == X.numReferences());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(X.use_count(),         1 == X.use_count());
               LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
               LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
@@ -4883,10 +4887,14 @@ int main(int argc, char *argv[])
               ObjWP mY(X); const ObjWP& Y = mY;
               ASSERT(!Y.expired());
               ASSERT(&REP == Y.rep());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(Y.numReferences(),     1 == Y.numReferences());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(Y.use_count(),         1 == Y.use_count());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(X.numReferences(),     1 == X.numReferences());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(X.use_count(),         1 == X.use_count());
 
               LOOP_ASSERT(REP.numReferences(), 1 == REP.numReferences());
@@ -4925,7 +4933,9 @@ int main(int argc, char *argv[])
               ObjWP mX(S); const ObjWP& X = mX;
               ASSERT(!X.expired());
               ASSERT(&REP == X.rep());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(X.numReferences(),     1 == X.numReferences());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(X.use_count(),         1 == X.use_count());
               LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
               LOOP_ASSERT(REP.disposeRepCount(), 0 == REP.disposeRepCount());
@@ -4936,10 +4946,14 @@ int main(int argc, char *argv[])
               ObjWP mY(Z); const ObjWP& Y = mY;
               ASSERT(!Y.expired());
               ASSERT(&REP == Y.rep());
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(Y.numReferences(),     1 == Y.numReferences());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(Y.use_count(),         1 == Y.use_count());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(X.numReferences(),     1 == X.numReferences());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
               LOOP_ASSERT(X.use_count(),         1 == X.use_count());
 
               LOOP_ASSERT(REP.numReferences(),   1 == REP.numReferences());
@@ -5074,7 +5088,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5092,7 +5106,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5110,7 +5124,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5128,7 +5142,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5146,7 +5160,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5164,7 +5178,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5182,7 +5196,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5200,7 +5214,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5219,7 +5233,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5238,7 +5252,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5257,7 +5271,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5276,7 +5290,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5296,7 +5310,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5316,7 +5330,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5337,7 +5351,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == ta.numDeallocations());
 
@@ -5392,10 +5406,10 @@ int main(int argc, char *argv[])
 
             bdef_Bind_TestSlotsAlloc::resetSlots(Z0);
             x->setSlots(); // should set slots to Z1, as this should be the
-                           // allocator used by data members of *(X.ptr())
+                           // allocator used by data members of *(X.get())
 
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
             ASSERT(bdef_Bind_TestSlotsAlloc::verifySlots(ALLOC_SLOTS,
                                                          verbose));
         }
@@ -5421,7 +5435,7 @@ int main(int argc, char *argv[])
 
             ASSERT(++numAllocations == defaultAllocator.numAllocations());
             ASSERT(X);
-            ASSERT(EXP == *(X.ptr()));
+            ASSERT(EXP == *(X.get()));
         }
         ASSERT(++numDeallocations == defaultAllocator.numDeallocations());
 
@@ -5577,7 +5591,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<SelfReference> mX;
             mX.createInplace();
             mX->setData(mX);
-            ptr = mX.ptr();
+            ptr = mX.get();
         }
 
         ptr->release();
@@ -5635,7 +5649,7 @@ int main(int argc, char *argv[])
             bslma::ManagedPtr<bsls::Types::Int64> mp1 (&obj1, &deleter);
 
             bsl::shared_ptr<bsls::Types::Int64> sp1 (mp1);
-            sp1.clear();
+            sp1.reset();
 
             // check non-aliased managed-ptr assignment
             ASSERT(&obj1 == deleter.providedObj());
@@ -5647,7 +5661,7 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<bsls::Types::Int64> sp2 (mp2);
             outerSp = sp2;
         }
-        outerSp.clear();
+        outerSp.reset();
         // check aliased managed-ptr assignment
         ASSERT(&obj2 == deleter.providedObj());
 
@@ -5699,8 +5713,8 @@ int main(int argc, char *argv[])
             Obj x(p,&ta, 0); const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(static_cast<MyTestObject*>(p) == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(static_cast<MyTestObject*>(p) == X.get());
+            ASSERT(1 == X.use_count());
 
             bsl::shared_ptr<MyTestDerivedObject> y;
             const bsl::shared_ptr<MyTestDerivedObject>& Y=y;
@@ -5708,17 +5722,17 @@ int main(int argc, char *argv[])
             {
                 // This inner block necessary against Sun CC bug, the lifetime
                 // of the temporary copied into y would otherwise pollute the
-                // Y.numReferences below.
+                // Y.use_count below.
                 y = ::bsl::dynamic_pointer_cast<MyTestDerivedObject>(X);
             }
             if (veryVerbose) {
-                P_(Y.ptr());
-                P_(X.numReferences());
-                P(Y.numReferences());
+                P_(Y.get());
+                P_(X.use_count());
+                P(Y.use_count());
             }
-            ASSERT(p == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(p == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -5737,14 +5751,14 @@ int main(int argc, char *argv[])
             const bsl::shared_ptr<MyTestDerivedObject>& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             Obj y(::bsl::static_pointer_cast<TObj>(X)); const Obj& Y=y;
 
-            ASSERT(static_cast<MyTestObject*>(p) == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(static_cast<MyTestObject*>(p) == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -5769,14 +5783,14 @@ int main(int argc, char *argv[])
             ConstObj x(p,&ta, 0); const ConstObj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             Obj y(::bsl::const_pointer_cast<TObj>(X)); const Obj& Y=y;
 
-            ASSERT(const_cast<TObj*>(p) == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(const_cast<TObj*>(p) == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -5881,7 +5895,7 @@ int main(int argc, char *argv[])
             ASSERT(p1 == r.first);
 
             Obj x2(r.first, r.second);
-            x2.clear();
+            x2.reset();
 
             ASSERT(1 == numDeletes1);
             ASSERT(2 == ta.numAllocations());
@@ -5905,7 +5919,7 @@ int main(int argc, char *argv[])
             ASSERT(r.first == r.second->originalPtr());
 
             Obj x2(r.first, r.second);
-            x2.clear();
+            x2.reset();
 
             ASSERT(1 == numDeletes1);
             ASSERT(1 == ta.numAllocations());
@@ -5932,7 +5946,7 @@ int main(int argc, char *argv[])
             ASSERT(v1 == r.second->originalPtr());
 
             r.second->releaseRef();
-            x1.clear();
+            x1.reset();
 
             ASSERT(0 == ta.numBytesInUse());
         }
@@ -6098,16 +6112,16 @@ int main(int argc, char *argv[])
             Obj x(p,&ta, 0); const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
             double dummy;
 
             y.reset(X, &dummy);
-            ASSERT(&dummy == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(&dummy == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6116,12 +6130,12 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<int> z;
             const bsl::shared_ptr<int>& Z=z;
             z.loadAlias(Y, &dummy2);
-            ASSERT(&dummy2 == Z.ptr());
-            ASSERT(3 == Z.numReferences());
-            ASSERT(3 == Y.numReferences());
-            ASSERT(&dummy == Y.ptr());
-            ASSERT(3 == X.numReferences());
-            ASSERT(p == X.ptr());
+            ASSERT(&dummy2 == Z.get());
+            ASSERT(3 == Z.use_count());
+            ASSERT(3 == Y.use_count());
+            ASSERT(&dummy == Y.get());
+            ASSERT(3 == X.use_count());
+            ASSERT(p == X.get());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6161,18 +6175,18 @@ int main(int argc, char *argv[])
 
             numAllocations = ta.numAllocations();
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
 
             double dummy;
             y.loadAlias(X, &dummy);
-            ASSERT(&dummy == Y.ptr());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(&dummy == Y.get());
+            ASSERT(2 == Y.use_count());
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(2 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(2 == X.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
         }
@@ -6185,16 +6199,16 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<MyTestObject2> x;
             const bsl::shared_ptr<MyTestObject2>& X=x;
 
-            ASSERT(0 == X.ptr());
-            ASSERT(0 == X.numReferences());
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
 
             bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
 
             double dummy;
             y.loadAlias(X, &dummy);
 
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(0 == Y.use_count());
         }
 
         if (verbose) printf("\nTesting 'loadAlias' (partially unset)"
@@ -6208,21 +6222,21 @@ int main(int argc, char *argv[])
 
             numAllocations = ta.numAllocations();
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             double dummy;
             bsl::shared_ptr<double> y(X, &dummy);
             const bsl::shared_ptr<double>& Y=y;
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
 
             y.loadAlias(X, static_cast<double *>(0));
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(0 == Y.use_count());
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
         }
@@ -6239,16 +6253,16 @@ int main(int argc, char *argv[])
             Obj x(p,&ta, 0); const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             bsl::shared_ptr<double> y; const bsl::shared_ptr<double>& Y=y;
             double dummy;
 
             y.loadAlias(X, &dummy);
-            ASSERT(&dummy == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(&dummy == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6257,12 +6271,12 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<int> z;
             const bsl::shared_ptr<int>& Z=z;
             z.loadAlias(Y, &dummy2);
-            ASSERT(&dummy2 == Z.ptr());
-            ASSERT(3 == Z.numReferences());
-            ASSERT(3 == Y.numReferences());
-            ASSERT(&dummy == Y.ptr());
-            ASSERT(3 == X.numReferences());
-            ASSERT(p == X.ptr());
+            ASSERT(&dummy2 == Z.get());
+            ASSERT(3 == Z.use_count());
+            ASSERT(3 == Y.use_count());
+            ASSERT(&dummy == Y.get());
+            ASSERT(3 == X.use_count());
+            ASSERT(p == X.get());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6286,8 +6300,6 @@ int main(int argc, char *argv[])
             printf("\nTESTING CONVERSION TO 'bslma::ManagedPtr'"
                    "\n=========================================\n");
 
-//        bslma::TestAllocator ta(veryVeryVerbose);
-
         bslma::ManagedPtr<MyPDTestObject> mp;
         bsl::shared_ptr<MyPDTestObject>  sp(mp);
 
@@ -6300,26 +6312,26 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
 
             if (veryVerbose) {
-                T_ T_ P_(numDeletes); P(X.numReferences());
+                T_ T_ P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             {
                 bslma::ManagedPtr<TObj> y(X.managedPtr());
                 const bslma::ManagedPtr<TObj>& Y=y;
 
                 ASSERT(0 == numDeletes);
-                ASSERT(p == X.ptr());
-                ASSERT(2 == X.numReferences());
+                ASSERT(p == X.get());
+                ASSERT(2 == X.use_count());
                 ASSERT(p == Y.ptr());
                 ASSERT(numAllocations == ta.numAllocations());
                 ASSERT(numDeallocations == ta.numDeallocations());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
         }
@@ -6335,23 +6347,23 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
 
             if (veryVerbose) {
-                T_ T_ P_(numDeletes); P(X.numReferences());
+                T_ T_ P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             bslma::ManagedPtr<TObj> y(X.managedPtr());
             const bslma::ManagedPtr<TObj>& Y=y;
 
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(2 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(2 == X.use_count());
             ASSERT(p == Y.ptr());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
 
-            x.load(static_cast<TObj *>(0));
+            x.reset(static_cast<TObj *>(0));
 
             ASSERT(0 == numDeletes);
             ASSERT(numAllocations == ta.numAllocations());
@@ -6380,8 +6392,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting \"alias\" constructor"
                             "\n---------------------------\n");
 
-//        bslma::TestAllocator ta(veryVeryVerbose);
-
         numDeallocations = ta.numDeallocations();
         {
             numDeletes = 0;
@@ -6389,16 +6399,16 @@ int main(int argc, char *argv[])
             Obj x(p,&ta, 0); const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             double dummy;
             bsl::shared_ptr<double> y(X, &dummy);
             const bsl::shared_ptr<double>& Y=y;
 
-            ASSERT(&dummy == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(&dummy == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations   == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6416,15 +6426,15 @@ int main(int argc, char *argv[])
             Obj x(p,&ta, 0); const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             bsl::shared_ptr<double> y(X, 0);
             const bsl::shared_ptr<double>& Y=y;
 
-            ASSERT(0 == Y.ptr());
-            ASSERT(1 == X.numReferences());
-            ASSERT(0 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(1 == X.use_count());
+            ASSERT(0 == Y.use_count());
             ASSERT(numAllocations   == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6441,16 +6451,16 @@ int main(int argc, char *argv[])
             Obj x; const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(0 == X.ptr());
-            ASSERT(0 == X.numReferences());
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
 
             double dummy;
             bsl::shared_ptr<double> y(X, &dummy);
             const bsl::shared_ptr<double>& Y=y;
 
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == X.numReferences());
-            ASSERT(0 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(0 == X.use_count());
+            ASSERT(0 == Y.use_count());
             ASSERT(numAllocations   == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6463,15 +6473,15 @@ int main(int argc, char *argv[])
             Obj x(new (ta) TObj(&numDeletes), &ta, 0); const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(0 != X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(0 != X.get());
+            ASSERT(1 == X.use_count());
 
             bsl::shared_ptr<double> y(X, static_cast<double *>(0));
             const bsl::shared_ptr<double>& Y=y;
 
-            ASSERT(0 == Y.ptr());
-            ASSERT(1 == X.numReferences());
-            ASSERT(0 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(1 == X.use_count());
+            ASSERT(0 == Y.use_count());
             ASSERT(numAllocations   == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6489,29 +6499,29 @@ int main(int argc, char *argv[])
             MyTestObject *p2 = new MyTestObject(&numDeletes1);
             Obj x(p1); const Obj &X = x;
 
-            ASSERT(p1 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p1 == X.get());
+            ASSERT(1 == X.use_count());
 
             ASSERT(0 == numDeletes);
             ASSERT(0 == numDeletes1);
             {
                 Obj y(p2); const Obj &Y = y;
-                ASSERT(p2 == Y.ptr());
-                ASSERT(1 == Y.numReferences());
+                ASSERT(p2 == Y.get());
+                ASSERT(1 == Y.use_count());
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == numDeletes1);
 
                 swap(x, y);
 
-                ASSERT(p2 == X.ptr());
-                ASSERT(p1 == Y.ptr());
+                ASSERT(p2 == X.get());
+                ASSERT(p1 == Y.get());
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == numDeletes1);
-                ASSERT(1 == X.numReferences());
-                ASSERT(1 == Y.numReferences());
+                ASSERT(1 == X.use_count());
+                ASSERT(1 == Y.use_count());
             }
-            ASSERT(p2 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p2 == X.get());
+            ASSERT(1 == X.use_count());
             ASSERT(1 == numDeletes);
             ASSERT(0 == numDeletes1);
         }
@@ -6540,8 +6550,6 @@ int main(int argc, char *argv[])
                             "\n==========================================\n");
 
         static const char EXP[] = "createInplaceUninitializedBuffer";
-
-//        bslma::TestAllocator ta(veryVeryVerbose);
 
         numAllocations = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
@@ -6608,7 +6616,7 @@ int main(int argc, char *argv[])
 
                 x = bslstl::SharedPtrUtil::createInplaceUninitializedBuffer(
                                                                     size, &ta);
-                strncpy(X.ptr(), EXP, size);
+                strncpy(X.get(), EXP, size);
 
                 static const size_t ALLOC_SIZE =
                     sizeof(bslma::SharedPtrInplaceRep<char>) + size - 1;
@@ -6616,13 +6624,13 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(size, ALLOC_SIZE <= ta.lastAllocatedNumBytes());
 
                 LOOP_ASSERT(size, X);
-                LOOP_ASSERT(size, 0 == strncmp(EXP, X.ptr(), size));
+                LOOP_ASSERT(size, 0 == strncmp(EXP, X.get(), size));
 
                 int alignment =
                          bsls::AlignmentUtil::calculateAlignmentFromSize(size);
                 int alignmentOffset =
                                  bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                           X.ptr(), alignment);
+                                                           X.get(), alignment);
                 LOOP3_ASSERT(size, alignment, alignmentOffset,
                               0 == alignmentOffset);
 
@@ -6631,17 +6639,17 @@ int main(int argc, char *argv[])
                                                     ta.lastAllocatedNumBytes();
                 LOOP4_ASSERT(repAddr,
                              repAllocSize,
-                             static_cast<void *>(X.ptr()),
+                             static_cast<void *>(X.get()),
                              size,
-                 static_cast<char*>(repAddr) + repAllocSize >= X.ptr() + size);
+                 static_cast<char*>(repAddr) + repAllocSize >= X.get() + size);
 
                 if (veryVerbose) {
                     P_(size);
                     P_(ta.numAllocations());
                     P(ta.lastAllocatedNumBytes());
                     P_(alignment);
-                    P((static_cast<void *>(X.ptr())));
-                    P(bsls::AlignmentUtil::calculateAlignmentOffset(X.ptr(),
+                    P((static_cast<void *>(X.get())));
+                    P(bsls::AlignmentUtil::calculateAlignmentOffset(X.get(),
                                                                alignment));
                 }
             }
@@ -6682,8 +6690,8 @@ int main(int argc, char *argv[])
             Obj x(p,&ta, 0); const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(static_cast<MyTestObject*>(p) == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(static_cast<MyTestObject*>(p) == X.get());
+            ASSERT(1 == X.use_count());
 
             bsl::shared_ptr<MyTestDerivedObject> y;
             const bsl::shared_ptr<MyTestDerivedObject>& Y=y;
@@ -6691,17 +6699,17 @@ int main(int argc, char *argv[])
             {
                 // This inner block necessary against Sun CC bug, the lifetime
                 // of the temporary copied into y would otherwise pollute the
-                // Y.numReferences below.
+                // Y.use_count below.
                 y = bslstl::SharedPtrUtil::dynamicCast<MyTestDerivedObject>(X);
             }
             if (veryVerbose) {
-                P_(Y.ptr());
-                P_(X.numReferences());
-                P(Y.numReferences());
+                P_(Y.get());
+                P_(X.use_count());
+                P(Y.use_count());
             }
-            ASSERT(p == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(p == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6720,14 +6728,14 @@ int main(int argc, char *argv[])
             const bsl::shared_ptr<MyTestDerivedObject>& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             Obj y(bslstl::SharedPtrUtil::staticCast<TObj>(X)); const Obj& Y=y;
 
-            ASSERT(static_cast<MyTestObject*>(p) == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(static_cast<MyTestObject*>(p) == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6752,14 +6760,14 @@ int main(int argc, char *argv[])
             ConstObj x(p,&ta, 0); const ConstObj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             Obj y(bslstl::SharedPtrUtil::constCast<TObj>(X)); const Obj& Y=y;
 
-            ASSERT(const_cast<TObj*>(p) == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(const_cast<TObj*>(p) == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6784,8 +6792,8 @@ int main(int argc, char *argv[])
             Obj x(p,&ta, 0); const Obj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(static_cast<MyTestObject*>(p) == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(static_cast<MyTestObject*>(p) == X.get());
+            ASSERT(1 == X.use_count());
 
             bsl::shared_ptr<MyTestDerivedObject> y;
             const bsl::shared_ptr<MyTestDerivedObject>& Y=y;
@@ -6793,17 +6801,17 @@ int main(int argc, char *argv[])
             {
                 // This inner block necessary against Sun CC bug, the lifetime
                 // of the temporary copied into y would otherwise pollute the
-                // Y.numReferences below.
+                // Y.use_count below.
                 bslstl::SharedPtrUtil::dynamicCast<MyTestDerivedObject>(&y, X);
             }
             if (veryVerbose) {
-                P_(Y.ptr());
-                P_(X.numReferences());
-                P(Y.numReferences());
+                P_(Y.get());
+                P_(X.use_count());
+                P(Y.use_count());
             }
-            ASSERT(p == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(p == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6822,15 +6830,15 @@ int main(int argc, char *argv[])
             const bsl::shared_ptr<MyTestDerivedObject>& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             Obj y; const Obj& Y=y;
             bslstl::SharedPtrUtil::staticCast<TObj>(&y, X);
 
-            ASSERT(static_cast<MyTestObject*>(p) == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(static_cast<MyTestObject*>(p) == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6855,15 +6863,15 @@ int main(int argc, char *argv[])
             ConstObj x(p,&ta, 0); const ConstObj& X = x;
 
             numAllocations = ta.numAllocations();
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             Obj y; const Obj& Y=y;
             bslstl::SharedPtrUtil::constCast<TObj>(&y, X);
 
-            ASSERT(const_cast<TObj*>(p) == Y.ptr());
-            ASSERT(2 == X.numReferences());
-            ASSERT(2 == Y.numReferences());
+            ASSERT(const_cast<TObj*>(p) == Y.get());
+            ASSERT(2 == X.use_count());
+            ASSERT(2 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(0 == numDeletes);
@@ -6894,8 +6902,8 @@ int main(int argc, char *argv[])
         {
             Obj x1;
             const Obj& X1 = x1;
-            ASSERT(0 == x1.ptr());
-            ASSERT(0 == x1.numReferences());
+            ASSERT(0 == x1.get());
+            ASSERT(0 == x1.use_count());
 
             numDeletes = 0;
             TObj *p = new TObj(&numDeletes);
@@ -6903,25 +6911,25 @@ int main(int argc, char *argv[])
             Obj x2(p); const Obj& X2=x2;
 
             if (veryVerbose) {
-                P_(numDeletes); P_(X1.numReferences());
-                P(X2.numReferences());
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X2.ptr());
-            ASSERT(1 == X2.numReferences());
+            ASSERT(p == X2.get());
+            ASSERT(1 == X2.use_count());
 
             x1 = X2;
 
             if (veryVerbose) {
-                P_(numDeletes); P_(X1.numReferences());
-                P(X2.numReferences());
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X2.ptr());
-            ASSERT(p == X1.ptr());
+            ASSERT(p == X2.get());
+            ASSERT(p == X1.get());
 
-            ASSERT(2 == X2.numReferences());
-            ASSERT(2 == X1.numReferences());
+            ASSERT(2 == X2.use_count());
+            ASSERT(2 == X1.use_count());
         }
         ASSERT(1 == numDeletes);
 
@@ -6930,8 +6938,8 @@ int main(int argc, char *argv[])
         {
             Obj x;
             const Obj& X = x;
-            ASSERT(0 == x.ptr());
-            ASSERT(0 == x.numReferences());
+            ASSERT(0 == x.get());
+            ASSERT(0 == x.use_count());
 
             numDeletes = 0;
             TObj *p = new TObj(&numDeletes);
@@ -6940,14 +6948,14 @@ int main(int argc, char *argv[])
             x = ap;
 
             if (veryVerbose) {
-                P_(numDeletes);        P_(X.numReferences());
+                P_(numDeletes);        P_(X.use_count());
                 P(ap.get());
             }
 
             ASSERT(0 == ap.get());
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         ASSERT(1 == numDeletes);
 
@@ -6956,21 +6964,21 @@ int main(int argc, char *argv[])
         {
             Obj x;
             const Obj& X = x;
-            ASSERT(0 == x.ptr());
-            ASSERT(0 == x.numReferences());
+            ASSERT(0 == x.get());
+            ASSERT(0 == x.use_count());
 
             numDeletes = 0;
 
             x = makeAuto(&numDeletes);
 
             if (veryVerbose) {
-                P_(numDeletes);        P_(X.numReferences());
+                P_(numDeletes);        P_(X.use_count());
                 P(X.get());
             }
 
             ASSERT(0 == numDeletes);
-            ASSERT(0 != X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(0 != X.get());
+            ASSERT(1 == X.use_count());
         }
         ASSERT(1 == numDeletes);
 
@@ -6983,29 +6991,29 @@ int main(int argc, char *argv[])
             Obj x1(p); const Obj& X1=x1;
 
             if (veryVerbose) {
-                P_(numDeletes); P_(X1.numReferences());
+                P_(numDeletes); P_(X1.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X1.ptr());
-            ASSERT(1 == X1.numReferences());
+            ASSERT(p == X1.get());
+            ASSERT(1 == X1.use_count());
 
             Obj x2;
             const Obj& X2 = x2;
-            ASSERT(0 == x2.ptr());
-            ASSERT(0 == x2.numReferences());
+            ASSERT(0 == x2.get());
+            ASSERT(0 == x2.use_count());
 
             x1 = X2;
 
             if (veryVerbose) {
-                P_(numDeletes); P_(X1.numReferences());
-                P(X2.numReferences());
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
             }
             ASSERT(1 == numDeletes);
-            ASSERT(0 == X2.ptr());
-            ASSERT(0 == X1.ptr());
+            ASSERT(0 == X2.get());
+            ASSERT(0 == X1.get());
 
-            ASSERT(0 == X2.numReferences());
-            ASSERT(0 == X1.numReferences());
+            ASSERT(0 == X2.use_count());
+            ASSERT(0 == X1.use_count());
         }
         ASSERT(1 == numDeletes);
 
@@ -7019,11 +7027,11 @@ int main(int argc, char *argv[])
             Obj x1(p1); const Obj& X1=x1;
 
             if (veryVerbose) {
-                P_(numDeletes1); P_(X1.numReferences());
+                P_(numDeletes1); P_(X1.use_count());
             }
             ASSERT(0 == numDeletes1);
-            ASSERT(p1 == X1.ptr());
-            ASSERT(1 == X1.numReferences());
+            ASSERT(p1 == X1.get());
+            ASSERT(1 == X1.use_count());
 
             numDeletes = 0;
             TObj *p2 = new TObj(&numDeletes);
@@ -7031,23 +7039,23 @@ int main(int argc, char *argv[])
             const Obj& X2 = x2;
 
             ASSERT(0 == numDeletes);
-            ASSERT(p2 == x2.ptr());
-            ASSERT(1 == x2.numReferences());
+            ASSERT(p2 == x2.get());
+            ASSERT(1 == x2.use_count());
 
             x1 = X2;
 
             if (veryVerbose) {
-                P_(numDeletes1); P_(numDeletes); P_(X1.numReferences());
-                P(X2.numReferences());
+                P_(numDeletes1); P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
             }
 
             ASSERT(1 == numDeletes1);
             ASSERT(0 == numDeletes);
-            ASSERT(p2 == X2.ptr());
-            ASSERT(p2 == X1.ptr());
+            ASSERT(p2 == X2.get());
+            ASSERT(p2 == X1.get());
 
-            ASSERT(2 == X2.numReferences());
-            ASSERT(2 == X1.numReferences());
+            ASSERT(2 == X2.use_count());
+            ASSERT(2 == X1.use_count());
         }
         ASSERT(1 == numDeletes);
 
@@ -7062,11 +7070,11 @@ int main(int argc, char *argv[])
             x1 = X1;
 
             if (veryVerbose) {
-                P_(numDeletes); P_(X1.numReferences());
+                P_(numDeletes); P_(X1.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X1.ptr());
-            ASSERT(1 == X1.numReferences());
+            ASSERT(p == X1.get());
+            ASSERT(1 == X1.use_count());
         }
 
       } break;
@@ -7085,8 +7093,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tWith default allocator.\n");
 
-//        bslma::TestAllocator ta(veryVeryVerbose);
-
         bsls::Types::Int64 numDeletes1 = 0;
         numDeletes = 0;
         {
@@ -7094,29 +7100,29 @@ int main(int argc, char *argv[])
             MyTestObject *p2 = new MyTestObject(&numDeletes1);
             Obj x(p1); const Obj &X = x;
 
-            ASSERT(p1 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p1 == X.get());
+            ASSERT(1 == X.use_count());
 
             ASSERT(0 == numDeletes);
             ASSERT(0 == numDeletes1);
             {
                 Obj y(p2); const Obj &Y = y;
-                ASSERT(p2 == Y.ptr());
-                ASSERT(1 == Y.numReferences());
+                ASSERT(p2 == Y.get());
+                ASSERT(1 == Y.use_count());
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == numDeletes1);
 
                 x.swap(y);
 
-                ASSERT(p2 == X.ptr());
-                ASSERT(p1 == Y.ptr());
+                ASSERT(p2 == X.get());
+                ASSERT(p1 == Y.get());
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == numDeletes1);
-                ASSERT(1 == X.numReferences());
-                ASSERT(1 == Y.numReferences());
+                ASSERT(1 == X.use_count());
+                ASSERT(1 == Y.use_count());
             }
-            ASSERT(p2 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p2 == X.get());
+            ASSERT(1 == X.use_count());
             ASSERT(1 == numDeletes);
             ASSERT(0 == numDeletes1);
         }
@@ -7142,29 +7148,29 @@ int main(int argc, char *argv[])
             MyTestObject *p2 = new(ta) MyTestObject(&numDeletes1);
             Obj x(p1, &da); const Obj &X = x;
 
-            ASSERT(p1 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p1 == X.get());
+            ASSERT(1 == X.use_count());
 
             ASSERT(0 == numDeletes);
             ASSERT(0 == numDeletes1);
             {
                 Obj y(p2, &ta); const Obj &Y = y;
-                ASSERT(p2 == Y.ptr());
-                ASSERT(1 == Y.numReferences());
+                ASSERT(p2 == Y.get());
+                ASSERT(1 == Y.use_count());
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == numDeletes1);
 
                 x.swap(y);
 
-                ASSERT(p2 == X.ptr());
-                ASSERT(p1 == Y.ptr());
+                ASSERT(p2 == X.get());
+                ASSERT(p1 == Y.get());
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == numDeletes1);
-                ASSERT(1 == X.numReferences());
-                ASSERT(1 == Y.numReferences());
+                ASSERT(1 == X.use_count());
+                ASSERT(1 == Y.use_count());
             }
-            ASSERT(p2 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p2 == X.get());
+            ASSERT(1 == X.use_count());
             ASSERT(1 == numDeletes);
             ASSERT(0 == numDeletes1);
         }
@@ -7181,29 +7187,29 @@ int main(int argc, char *argv[])
             MyTestDeleter deleter(&ta);
             Obj x(p1, &da); const Obj &X = x;
 
-            ASSERT(p1 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p1 == X.get());
+            ASSERT(1 == X.use_count());
 
             ASSERT(0 == numDeletes);
             ASSERT(0 == numDeletes1);
             {
                 Obj y(p2, deleter, &da); const Obj &Y = y;
-                ASSERT(p2 == Y.ptr());
-                ASSERT(1 == Y.numReferences());
+                ASSERT(p2 == Y.get());
+                ASSERT(1 == Y.use_count());
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == numDeletes1);
 
                 x.swap(y);
 
-                ASSERT(p2 == X.ptr());
-                ASSERT(p1 == Y.ptr());
+                ASSERT(p2 == X.get());
+                ASSERT(p1 == Y.get());
                 ASSERT(0 == numDeletes);
                 ASSERT(0 == numDeletes1);
-                ASSERT(1 == X.numReferences());
-                ASSERT(1 == Y.numReferences());
+                ASSERT(1 == X.use_count());
+                ASSERT(1 == Y.use_count());
             }
-            ASSERT(p2 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p2 == X.get());
+            ASSERT(1 == X.use_count());
             ASSERT(1 == numDeletes);
             ASSERT(0 == numDeletes1);
         }
@@ -7400,8 +7406,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING BASIC ACCESSORS"
                             "\n=======================\n");
 
-//        bslma::TestAllocator ta(veryVeryVerbose);
-
         if (verbose) printf("\nTesting default constructor"
                             "\n---------------------------\n");
         {
@@ -7436,7 +7440,7 @@ int main(int argc, char *argv[])
             Obj x(p); const Obj& X=x;
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
             ASSERT(p == X.get());
@@ -7468,7 +7472,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
 
             ASSERT(0 == numDeletes);
@@ -7538,24 +7542,22 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting null pointer literal constructors"
                             "\n-----------------------------------------\n");
 
-//        bslma::TestAllocator ta(veryVeryVerbose);
-
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
             Obj w(0); const Obj& W = w;
-            ASSERT(0 == W.ptr());
-            ASSERT(0 == W.numReferences());
+            ASSERT(0 == W.get());
+            ASSERT(0 == W.use_count());
             ASSERT(numAllocations == ta.numAllocations());
 
             Obj x(0, &ta); const Obj& X = x;
-            ASSERT(0 == X.ptr());
-            ASSERT(0 == X.numReferences());
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
             ASSERT(numAllocations == ta.numAllocations());
 
             Obj z(0, &ta, &ta); const Obj& Z = z;
-            ASSERT(0 == Z.ptr());
-            ASSERT(0 == Z.numReferences());
+            ASSERT(0 == Z.get());
+            ASSERT(0 == Z.use_count());
             ASSERT(numAllocations == ta.numAllocations());
         }
         ASSERT(numDeallocations == ta.numDeallocations());
@@ -7571,33 +7573,33 @@ int main(int argc, char *argv[])
         {
             Obj w(static_cast<TObj *>(0));  // Rep with default allocator
             const Obj& W = w;
-            ASSERT(0 == W.ptr());
-            ASSERT(1 == W.numReferences());
+            ASSERT(0 == W.get());
+            ASSERT(1 == W.use_count());
 
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(++numDefaultAllocations ==
                                             defaultAllocator.numAllocations());
 
             Obj x(static_cast<TObj *>(0), &ta); const Obj& X = x;
-            ASSERT(0 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(0 == X.get());
+            ASSERT(1 == X.use_count());
             ASSERT(++numAllocations == ta.numAllocations());
 
             std::auto_ptr<TObj> apY(0);
             Obj y(apY, &ta); const Obj& Y = y;
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(0 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
 
             Obj y2(makeAuto(), &ta); const Obj& Y2 = y2;
             (void) Y2;  // Suppress 'unused variable' warning
-            ASSERT(0 == Y.ptr());
-            ASSERT(0 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(0 == Y.use_count());
             ASSERT(numAllocations == ta.numAllocations());
 
             Obj z(static_cast<TObj *>(0), &ta, &ta); const Obj& Z = z;
-            ASSERT(0 == Z.ptr());
-            ASSERT(1 == Z.numReferences());
+            ASSERT(0 == Z.get());
+            ASSERT(1 == Z.use_count());
             ASSERT(++numAllocations == ta.numAllocations());
         }
 
@@ -7615,7 +7617,7 @@ int main(int argc, char *argv[])
             Obj x(p); const Obj& X=x;
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
             ASSERT(p == X.get());
@@ -7640,11 +7642,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7670,11 +7672,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7696,11 +7698,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(0 != X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(0 != X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7731,11 +7733,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7759,11 +7761,11 @@ int main(int argc, char *argv[])
             ASSERT(numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7787,11 +7789,11 @@ int main(int argc, char *argv[])
             ASSERT(numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7815,11 +7817,11 @@ int main(int argc, char *argv[])
             ASSERT(numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7844,11 +7846,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7872,11 +7874,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7902,11 +7904,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERTV(numDeletes, 0 == numDeletes);
-            ASSERTV(p, X.ptr(), p == X.ptr());
-            ASSERTV(X.numReferences(), 1 == X.numReferences());
+            ASSERTV(p, X.get(), p == X.get());
+            ASSERTV(X.use_count(), 1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7932,11 +7934,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7961,11 +7963,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -7989,11 +7991,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -8019,11 +8021,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -8048,11 +8050,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -8078,11 +8080,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -8106,11 +8108,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -8136,11 +8138,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -8165,11 +8167,11 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(&testObject == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(&testObject == X.get());
+            ASSERT(1 == X.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
@@ -8192,24 +8194,58 @@ int main(int argc, char *argv[])
             ASSERT(++numAllocations == ta.numAllocations());
 
             if (veryVerbose) {
-                P(X.numReferences());
+                P(X.use_count());
             }
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             bslma::SharedPtrRep *rep = x.rep();
             x.release();
 
             Obj xx(p, rep); const Obj& XX = xx;
-            ASSERT(p == XX.ptr());
+            ASSERT(p == XX.get());
             ASSERT(rep ==  XX.rep());
-            ASSERT(1 == XX.numReferences());
+            ASSERT(1 == XX.use_count());
         }
         if (veryVerbose) {
             P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
         }
         ASSERT((numDeallocations+2) == ta.numDeallocations());
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+        if (verbose) printf("\nTesting deprecated constructor (with rep)"
+                            "\n-----------------------------------------\n");
+
+        numDeallocations = ta.numDeallocations();
+        {
+            numDeletes = 0;
+            TObj *p = new (ta) TObj(&numDeletes);
+            numAllocations = ta.numAllocations();
+
+            Obj x(p, &ta); const Obj& X = x;
+            ASSERT(++numAllocations == ta.numAllocations());
+
+            if (veryVerbose) {
+                P(X.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
+
+            bslma::SharedPtrRep *rep = x.rep();
+            x.release();
+
+            Obj xx(rep); const Obj& XX = xx;
+            ASSERT(p == XX.get());
+            ASSERT(rep ==  XX.rep());
+            ASSERT(1 == XX.use_count());
+        }
+        if (veryVerbose) {
+            P_(numDeletes); P_(numDeallocations); P(ta.numDeallocations());
+        }
+        ASSERT((numDeallocations+2) == ta.numDeallocations());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
       } break;
       case 2: {
@@ -8415,7 +8451,7 @@ int main(int argc, char *argv[])
             x.reset(p);
 
             if (veryVerbose) {
-                T_ P_(numDeletes) P(X.numReferences())
+                T_ P_(numDeletes) P(X.use_count())
             }
             ASSERT(0 == numDeletes);
             ASSERT(p == X.get());
@@ -8454,7 +8490,7 @@ int main(int argc, char *argv[])
             x.reset(p);
 
             if (veryVerbose) {
-                T_ P_(numDeletes) P(X.numReferences())
+                T_ P_(numDeletes) P(X.use_count())
             }
             ASSERT(0 == numDeletes);
             ASSERT(p == X.get());
@@ -8499,20 +8535,20 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
 
             if (veryVerbose) {
-                T_ P_(numDeletes) P(X.numReferences())
+                T_ P_(numDeletes) P(X.use_count())
             }
 
             ASSERT(0 == numDeletes);
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
 
             x.reset();  // This is the operation under test.
 
             numDeallocations += 2;
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(1 == numDeletes);
-            ASSERT(0 == X.ptr());
-            ASSERT(0 == X.numReferences());
+            ASSERT(0 == X.get());
+            ASSERT(0 == X.use_count());
 
             ASSERT(0 == bsl::get_deleter<void(*)(void)>(x));
         }
@@ -8561,7 +8597,7 @@ int main(int argc, char *argv[])
             x.reset(p, deleter);  // This is the operation under test.
 
             if (veryVerbose) {
-                T_ P_(numDeletes) P(X.numReferences())
+                T_ P_(numDeletes) P(X.use_count())
             }
             ASSERT(0 == numDeletes);
             ASSERT(p == X.get());
@@ -8617,7 +8653,7 @@ int main(int argc, char *argv[])
             x.reset(p, &ta);  // This is the operation under test.
 
             if (veryVerbose) {
-                T_ P_(numDeletes) P(X.numReferences())
+                T_ P_(numDeletes) P(X.use_count())
             }
             ASSERT(0 == numDeletes);
             ASSERT(p == X.get());
@@ -8725,7 +8761,7 @@ int main(int argc, char *argv[])
             numAllocations = ta.numAllocations();
 
             if (veryVerbose) {
-                P_(numDeletes); P(X.numReferences());
+                P_(numDeletes); P(X.use_count());
             }
 
             ASSERT(0 == numDeletes);
@@ -8759,8 +8795,8 @@ int main(int argc, char *argv[])
         {
             Obj x; const Obj& X=x;
             x.load(static_cast<TObj *>(0));
-            ASSERT(0 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(0 == X.get());
+            ASSERT(1 == X.use_count());
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(++numDefaultAllocations ==
@@ -8770,8 +8806,8 @@ int main(int argc, char *argv[])
 
             Obj y; const Obj& Y=y;
             y.load(static_cast<TObj *>(0), &ta);
-            ASSERT(0 == Y.ptr());
-            ASSERT(1 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(1 == Y.use_count());
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
@@ -8780,8 +8816,8 @@ int main(int argc, char *argv[])
 
             Obj z; const Obj& Z=z;
             z.load(static_cast<TObj *>(0), &ta, &ta);
-            ASSERT(0 == Z.ptr());
-            ASSERT(1 == Z.numReferences());
+            ASSERT(0 == Z.get());
+            ASSERT(1 == Z.use_count());
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(numDeallocations == ta.numDeallocations());
             ASSERT(numDefaultAllocations == defaultAllocator.numAllocations());
@@ -8821,8 +8857,8 @@ int main(int argc, char *argv[])
                                             defaultAllocator.numAllocations());
             ASSERT(++numDefaultDeallocations ==
                                           defaultAllocator.numDeallocations());
-            ASSERT(0 == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(0 == X.get());
+            ASSERT(1 == X.use_count());
         }
         ASSERT(numAllocations == ta.numAllocations());
         ASSERT(numDeallocations == ta.numDeallocations());
@@ -8840,8 +8876,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(++numDeallocations == ta.numDeallocations());
-            ASSERT(0 == Y.ptr());
-            ASSERT(1 == Y.numReferences());
+            ASSERT(0 == Y.get());
+            ASSERT(1 == Y.use_count());
         }
         ASSERT(numAllocations == ta.numAllocations());
         ASSERT(++numDeallocations == ta.numDeallocations());
@@ -8856,8 +8892,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(++numDeallocations == ta.numDeallocations());
-            ASSERT(0 == Z.ptr());
-            ASSERT(1 == Z.numReferences());
+            ASSERT(0 == Z.get());
+            ASSERT(1 == Z.use_count());
         }
         ASSERT(numAllocations == ta.numAllocations());
         ASSERT(++numDeallocations == ta.numDeallocations());
@@ -8878,8 +8914,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
             ASSERT(numAllocations == ta.numAllocations());
             ASSERT(++numDeallocations == ta.numDeallocations());
-            ASSERT(p == X.ptr());
-            ASSERT(1 == X.numReferences());
+            ASSERT(p == X.get());
+            ASSERT(1 == X.use_count());
         }
         ASSERT(2 == numDeletes);
         ASSERT(numAllocations == ta.numAllocations());
@@ -8897,8 +8933,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(++numDeallocations == ta.numDeallocations());
-            ASSERT(p == Y.ptr());
-            ASSERT(1 == Y.numReferences());
+            ASSERT(p == Y.get());
+            ASSERT(1 == Y.use_count());
         }
         ASSERT(2 == numDeletes);
         ASSERT(numAllocations == ta.numAllocations());
@@ -8916,8 +8952,8 @@ int main(int argc, char *argv[])
             ASSERT(1 == numDeletes);
             ASSERT(++numAllocations == ta.numAllocations());
             ASSERT(++numDeallocations == ta.numDeallocations());
-            ASSERT(p == Z.ptr());
-            ASSERT(1 == Z.numReferences());
+            ASSERT(p == Z.get());
+            ASSERT(1 == Z.use_count());
             ASSERT(numAllocations == ta.numAllocations());
         }
         ASSERT(2 == numDeletes);
@@ -8951,7 +8987,6 @@ int main(int argc, char *argv[])
 
             Obj x(obj); const Obj& X=x;
             ASSERT(0 == numDeletes);
-            ASSERT(obj == X.ptr());
             ASSERT(obj == X.get());
             ASSERT(X);
         }
@@ -8967,7 +9002,6 @@ int main(int argc, char *argv[])
             Obj x(obj, &deleter, 0); const Obj& X = x;
 
             ASSERT(0 == numDeletes);
-            ASSERT(obj == X.ptr());
             ASSERT(obj == X.get());
             ASSERT(X);
         }
@@ -8982,7 +9016,6 @@ int main(int argc, char *argv[])
 
             Obj x(obj, deleter, 0); const Obj& X = x;
             ASSERT(0 == numDeletes);
-            ASSERT(obj == X.ptr());
             ASSERT(obj == X.get());
             ASSERT(X);
 
@@ -8997,7 +9030,6 @@ int main(int argc, char *argv[])
             Obj x2; const Obj& X2=x2;
             (void) X2;  // Suppress 'unused variable' warning
             ASSERT(0 == numDeletes);
-            ASSERT(obj == X1.ptr());
             ASSERT(obj == X1.get());
             ASSERT(X1);
         }
@@ -9015,7 +9047,7 @@ int main(int argc, char *argv[])
                 P(numDeletes);
             }
             ASSERT(0 == numDeletes);
-            ASSERT(X1.ptr() == X2.ptr());
+            ASSERT(X1.get() == X2.get());
             if (veryVeryVerbose) {
                 P(numDeletes);
             }
@@ -9032,10 +9064,10 @@ int main(int argc, char *argv[])
 
             Obj x1; const Obj &X1 = x1;
 
-            ASSERT(0 == X1.ptr());
+            ASSERT(0 == X1.get());
             x1.createInplace(0, obj);
 
-            ASSERT(0 != X1.ptr());
+            ASSERT(0 != X1.get());
             ASSERT(0 == numDeletes);
             ASSERT(0 == X1->copyCounter());
             ASSERT(&numDeletes == X1->deleteCounter());
@@ -9064,38 +9096,38 @@ int main(int argc, char *argv[])
             MyTestObject *obj = new MyTestObject(&numDeletes);
 
             ObjSP mS(obj); const ObjSP& S = mS;
-            ASSERT(1 == S.numReferences());
+            ASSERT(1 == S.use_count());
 
             ObjWP mX(S); const ObjWP& X = mX;
             ASSERT(!X.expired());
-            ASSERT(1 == X.numReferences());
+            ASSERT(1 == X.use_count());
 
             ObjWP mY(X); const ObjWP& Y = mY;
             ASSERT(!Y.expired());
-            ASSERT(1 == Y.numReferences());
+            ASSERT(1 == Y.use_count());
 
-            ASSERT(1 == X.numReferences());
+            ASSERT(1 == X.use_count());
 
             ObjWP mA; const ObjWP& A = mA;
 
             mA = S;
             ASSERT(!A.expired());
-            ASSERT(1 == A.numReferences());
+            ASSERT(1 == A.use_count());
 
             ObjWP mB; const ObjWP& B = mB;
 
             mB = X;
             ASSERT(!B.expired());
-            ASSERT(1 == B.numReferences());
+            ASSERT(1 == B.use_count());
 
             mA = Y;
             ASSERT(!A.expired());
-            ASSERT(1 == A.numReferences());
+            ASSERT(1 == A.use_count());
 
             ObjSP mT = mX.acquireSharedPtr(); const ObjSP& T = mT;
             ASSERT(mT);
             ASSERT(!X.expired());
-            ASSERT(2 == A.numReferences());
+            ASSERT(2 == A.use_count());
             ASSERT(S == T);
         }
 
@@ -9104,35 +9136,35 @@ int main(int argc, char *argv[])
             MyTestDerivedObject *obj = new MyTestDerivedObject(&numDeletes);
 
             DerivedSP mS(obj); const DerivedSP& S = mS;
-            ASSERT(1 == S.numReferences());
+            ASSERT(1 == S.use_count());
 
             ObjWP mX(S); const ObjWP& X = mX;
             ASSERT(!X.expired());
-            ASSERT(1 == X.numReferences());
+            ASSERT(1 == X.use_count());
 
             DerivedWP mY(S); const DerivedWP& Y = mY;
             ASSERT(!Y.expired());
-            ASSERT(1 == Y.numReferences());
+            ASSERT(1 == Y.use_count());
 
             ObjWP mZ(Y); const ObjWP& Z = mZ;
             ASSERT(!Z.expired());
-            ASSERT(1 == Z.numReferences());
+            ASSERT(1 == Z.use_count());
 
             ObjWP mA; const ObjWP& A = mA;
 
             mA = S;
             ASSERT(!A.expired());
-            ASSERT(1 == A.numReferences());
+            ASSERT(1 == A.use_count());
 
             ObjWP mB; const ObjWP& B = mB;
 
             mB = Y;
             ASSERT(!B.expired());
-            ASSERT(1 == B.numReferences());
+            ASSERT(1 == B.use_count());
 
             mA = Y;
             ASSERT(!A.expired());
-            ASSERT(1 == A.numReferences());
+            ASSERT(1 == A.use_count());
         }
       } break;
       case -1: {
