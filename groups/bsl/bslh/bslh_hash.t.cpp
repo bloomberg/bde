@@ -855,7 +855,7 @@ int main(int argc, char *argv[])
             Hash<SpookyHashAlgorithm>::result_type (Hash<SpookyHashAlgorithm>
                                       ::*expectedSignature2)(const int&) const;
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
             expectedSignature = &Hash<>::operator()<const int&>;
             expectedSignature2 = &Hash<SpookyHashAlgorithm>::operator()
                                                                   <const int&>;
@@ -1226,13 +1226,10 @@ int main(int argc, char *argv[])
             ASSERT(ptr3Loc2Val1Alg.getLength() == sizeof(const char *));
             ASSERT(ptr4Loc3Val2Alg.getLength() == sizeof(const char *));
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS            
             // Pointers to same location come out the same
             ASSERT(binaryCompare(ptr1Loc1Val1Alg.getData(),
                                  ptr2Loc1Val1Alg.getData(),
                                  sizeof(const char *)));
-            printf("\n\n\nNOT WINDOWS!\n\n\n");
-#endif
 
             // Pointers to same value, different location come out different
             ASSERT(!binaryCompare(ptr1Loc1Val1Alg.getData(),
@@ -1274,11 +1271,13 @@ int main(int argc, char *argv[])
                                  fnptr2Loc1Val1Alg.getData(),
                                  sizeof(int (*)())));
 
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)            
             // Pointers to same value, different location come out different
             ASSERT(!binaryCompare(fnptr1Loc1Val1Alg.getData(),
                                   fnptr3Loc2Val1Alg.getData(),
                                   sizeof(int (*)())));
-
+#endif
+            
             // Pointers to different value and location come out different
             ASSERT(!binaryCompare(fnptr1Loc1Val1Alg.getData(),
                                   fnptr4Loc3Val2Alg.getData(),
