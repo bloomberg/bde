@@ -855,7 +855,7 @@ int main(int argc, char *argv[])
             Hash<SpookyHashAlgorithm>::result_type (Hash<SpookyHashAlgorithm>
                                       ::*expectedSignature2)(const int&) const;
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
             expectedSignature = &Hash<>::operator()<const int&>;
             expectedSignature2 = &Hash<SpookyHashAlgorithm>::operator()
                                                                   <const int&>;
@@ -1226,7 +1226,7 @@ int main(int argc, char *argv[])
             ASSERT(ptr3Loc2Val1Alg.getLength() == sizeof(const char *));
             ASSERT(ptr4Loc3Val2Alg.getLength() == sizeof(const char *));
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS            
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
             // Pointers to same location come out the same
             ASSERT(binaryCompare(ptr1Loc1Val1Alg.getData(),
                                  ptr2Loc1Val1Alg.getData(),
