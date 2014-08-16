@@ -624,6 +624,29 @@ class SomeType {
 
 };
 
+template<class EXPECTED_TYPE>
+class TypeChecker {
+    // Provides a member function to determine if passed data is of the same
+    // type as the (template parameter) 'EXPECTED_TYPE' 
+  public:
+      static bool isCorrectType(EXPECTED_TYPE type);
+      template<class OTHER_TYPE>
+      static bool isCorrectType(OTHER_TYPE type);
+          // Return true if the specified 'type' is of the same type as the
+          // (template parameter) 'EXPECTED_TYPE'.
+};
+
+template<class EXPECTED_TYPE>
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE type) {
+    return true;
+}
+
+template<class EXPECTED_TYPE>
+template<class OTHER_TYPE>
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(OTHER_TYPE type) {
+    return false;
+}
+
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -818,8 +841,8 @@ int main(int argc, char *argv[])
         //:   'bslmf::IsSame' for a number of algorithms of different result
         //:   types. (C-1,2)
         //:
-        //: 2 Declare the expected signature of 'operator()' and then assign to
-        //:   it. If it compiles, the test passes. (C-3)
+        //: 2 Invoke 'operator()' and verify the return type is 'result_type'.
+        //:   (C-3)
         //
         // Testing:
         //   typedef size_t result_type;
@@ -849,27 +872,18 @@ int main(int argc, char *argv[])
                                                                      ::VALUE));
         }
 
-        if (verbose) printf("Declare the expected signature of 'operator()'"
-                            " and then assign to it. If it compiles, the test"
-                            " passes. (C-3)\n");
+        if (verbose) printf("Invoke 'operator()' and verify the return type is"
+                            " 'result_type'. (C-3)\n");
         {
-            Hash<>::result_type (Hash<>::*expectedSignature)(const int&) const;
 
+            ASSERT(TypeChecker<Hash<>::result_type>::isCorrectType(
+                                                                 Hash<>()(1)));
 
+            ASSERT(TypeChecker<Hash<DefaultHashAlgorithm>::result_type>::
+                               isCorrectType(Hash<DefaultHashAlgorithm>()(1)));
 
-            Hash<SpookyHashAlgorithm>::result_type (Hash<SpookyHashAlgorithm>
-                                      ::*expectedSignature2)(const int&) const;
-
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-            expectedSignature = &Hash<>::operator()<const int&>;
-            expectedSignature2 = &Hash<SpookyHashAlgorithm>::operator()
-                                                                  <const int&>;
-#else
-            expectedSignature = &Hash<>::operator();
-            expectedSignature2 = &Hash<SpookyHashAlgorithm>::operator();
-#endif
-
-
+            ASSERT(TypeChecker<Hash<SpookyHashAlgorithm>::result_type>::
+                                isCorrectType(Hash<SpookyHashAlgorithm>()(1)));
         }
 
       } break;

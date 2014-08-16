@@ -263,6 +263,29 @@ MockRNG::result_type MockRNG::operator()() {
     return ++counter;
 }
 
+template<class EXPECTED_TYPE>
+class TypeChecker {
+    // Provides a member function to determine if passed data is of the same
+    // type as the (template parameter) 'EXPECTED_TYPE' 
+  public:
+      static bool isCorrectType(EXPECTED_TYPE type);
+      template<class OTHER_TYPE>
+      static bool isCorrectType(OTHER_TYPE type);
+          // Return true if the specified 'type' is of the same type as the
+          // (template parameter) 'EXPECTED_TYPE'.
+};
+
+template<class EXPECTED_TYPE>
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(EXPECTED_TYPE type) {
+    return true;
+}
+
+template<class EXPECTED_TYPE>
+template<class OTHER_TYPE>
+bool TypeChecker<EXPECTED_TYPE>::isCorrectType(OTHER_TYPE type) {
+    return false;
+}
+
 typedef MockRNG CryptographicallySecureRNG;
     // Not actually cryptographically secure!
 
@@ -374,8 +397,8 @@ int main(int argc, char *argv[])
         //:   'bslmf::IsSame' for a number of algorithms of different result
         //:   types. (C-1,2)
         //:
-        //: 2 Declare the expected signature of 'operator()' and then assign to
-        //:   it. If it compiles, the test passes. (C-3)
+        //: 2 Invoke 'operator()' and verify the return type is 'result_type'.
+        //:   (C-3)
         //
         // Testing:
         //   typedef size_t result_type;
@@ -403,43 +426,18 @@ int main(int argc, char *argv[])
                                                        ::result_type>::VALUE));
         }
 
-        if (verbose) printf("Declare the expected signature of 'operator()'"
-                            " and then assign to it. If it compiles, the test"
-                            " passes. (C-3)\n");
+        if (verbose) printf("Invoke 'operator()' and verify the return type is"
+                            " 'result_type'. (C-3)\n");
         {
-            int data = 0;
-            Obj::result_type (Obj::*expectedSignature) (const int&) const;
+            typedef SeededHash<SeedGen, DefaultSeededHashAlgorithm> S1;
+            typedef SeededHash<SeedGen, SipHashAlgorithm>           S2;
+            typedef SeededHash<SeedGen, SpookyHashAlgorithm>        S3;
 
-            SeededHash<SeedGen, SipHashAlgorithm>::result_type
-                   (SeededHash<SeedGen, SipHashAlgorithm>::*expectedSignature2)
-                                                            (const int&) const;
+            ASSERT(TypeChecker<S1::result_type>::isCorrectType(S1()(1)));
 
-            SeededHash<SeedGen, SpookyHashAlgorithm>::result_type
-                (SeededHash<SeedGen, SpookyHashAlgorithm>::*expectedSignature3)
-                                                            (const int&) const;
+            ASSERT(TypeChecker<S1::result_type>::isCorrectType(S2()(1)));
 
-
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-            expectedSignature = &SeededHash<SeedGen,
-                                             DefaultSeededHashAlgorithm>
-                                                      ::operator()<const int&>;
-
-            expectedSignature2 = &SeededHash<SeedGen, SipHashAlgorithm>
-                                                      ::operator()<const int&>;
-
-            expectedSignature3 = &SeededHash<SeedGen, SpookyHashAlgorithm>
-                                                      ::operator()<const int&>;
-#else
-            expectedSignature = &SeededHash<SeedGen,
-                                             DefaultSeededHashAlgorithm>
-                                                                  ::operator();
-
-            expectedSignature2 = &SeededHash<SeedGen, SipHashAlgorithm>
-                                                                  ::operator();
-
-            expectedSignature3 = &SeededHash<SeedGen, SpookyHashAlgorithm>
-                                                                  ::operator();
-#endif
+            ASSERT(TypeChecker<S1::result_type>::isCorrectType(S3()(1)));
         }
 
       } break;
