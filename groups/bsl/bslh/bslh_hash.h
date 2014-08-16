@@ -472,7 +472,7 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const void *input)
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 template <class HASH_ALGORITHM, class RT, class ... ARGS>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(ARGS...))
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(ARGS...))
 {
     hashAlg(&input, sizeof(input));
 }
