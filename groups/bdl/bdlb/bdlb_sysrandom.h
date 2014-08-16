@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a universal interface to a system random number generator.
+//@PURPOSE: Provide a common interface to a system's random number generator.
 //
 //@CLASSES:
 //  bdlb::SysRandom: namespace for system specific random-number generators.
@@ -18,8 +18,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace, 'bdlb::SysRandom', for a
 // suite of functions used to generate random numbers from platform dependent
-// random number generators.  Two variants are provided one which blocks, but
-// which potentially sample from a stronger distribution.  The strength of
+// random number generators.  Two variants are provided: one which blocks, but
+// which potentially samples from a stronger distribution.  The strength of
 // these random numbers and the performance of these calls is strongly
 // dependent on the underlying system.
 //
@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 //
 //    // DATA
 //      CHOICE_TYPE *d_choices;  // the possibilities (used not owned)
-//      int          d_size;     // the number of elements to choose amongst
+//      int          d_size;     // the number of elements to choose among
 //
 //    public:
 //      // CREATORS
@@ -109,6 +109,7 @@ namespace bdlb {
 struct SysRandom {
     // This 'struct' provides a namespace for a suite of functions used for
     // acquiring random numbers from the system.
+
     //TYPES
     typedef bsls::Types::size_type size_t;       // for brevity of name
 
@@ -123,15 +124,14 @@ struct SysRandom {
                                          size_t         numBytes);
         // Read the the specified 'numBytes' from the system non-blocking
         // random number generator into the specified 'buffer'.  Returns 0 on
-        // success, non-zero otherwise.
+        // success, non-zero otherwise.  Note that on most platforms sampling
+        // from this pool does not produce cryptographically secure numbers.
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif
-
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2014

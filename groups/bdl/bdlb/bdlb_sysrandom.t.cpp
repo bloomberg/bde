@@ -59,7 +59,6 @@ static void aSsErT(int c, const char *s, int i)
 }
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
 // ============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 // ----------------------------------------------------------------------------
@@ -115,7 +114,7 @@ class RandomChoice {
 
   // DATA
     CHOICE_TYPE *d_choices;  // the possibilities (used not owned)
-    int          d_size;     // the number of elements to choose amongst
+    int          d_size;     // the number of elements to choose among
 
   public:
     // CREATORS
@@ -151,7 +150,7 @@ const CHOICE_TYPE& RandomChoice<CHOICE_TYPE>::choice() const
     int index;
     bdlb::SysRandom::getRandomBytesNonBlocking(
                                      reinterpret_cast<unsigned char *>(&index),
-                                     sizeof(index));
+                                     sizeof index);
     return d_choices[index % d_size];
 }
 
@@ -194,20 +193,20 @@ int main(int argc, char *argv[])
   // 'bdlb_SysRandom' object.
   //..
 //..
-// Initialize an array of colors to choose between.
+// First, we initialize an array of colors to choose between.
 //..
-    bsl::string colors[] = {"Red" , "Orange", "Yellow", "Green",
+        bsl::string colors[] = {"Red" , "Orange", "Yellow", "Green",
                        "Blue", "Indigo", "Violet"};
-    unsigned numColors = sizeof(colors)/sizeof(colors[0]);
+        unsigned numColors = sizeof colors/sizeof(colors[0]);
 //..
-// Request a random color.
+// Next, Request a random color.
 //..
-    RandomChoice<string> chooseColor(colors, numColors);
+        RandomChoice<string> chooseColor(colors, numColors);
 //..
-// Finally we stream the value of this color to 'stdout':
+// Finally, we stream the value of this color to 'stdout':
 //..
-if (verbose)
-    cout << chooseColor.choice() << endl;
+        if (verbose)
+            cout << chooseColor.choice() << endl;
 //..
       } break;
       case 2: {
@@ -231,12 +230,12 @@ if (verbose)
         int cnt = 0;
         unsigned char buffer [NUM_ITERATIONS * 4]      = {0};
         unsigned char prev_buffer [NUM_ITERATIONS * 4] = {0};
-        const unsigned NUM_BYTES = sizeof(buffer);
+        const unsigned NUM_BYTES = sizeof buffer;
 
         if (verbose)
-          cout << endl
-               << "'int getRandomBytesNonBlocking(buf, numB)' TEST" << endl
-               << "===============================================" << endl;
+            cout << endl
+                 << "'int getRandomBytesNonBlocking(buf, numB)' TEST" << endl
+                 << "===============================================" << endl;
 
         // 1) If a number is passed, that many bytes are set.
         if (veryVerbose) cout << "\nTesting the number of bytes set."
@@ -254,7 +253,7 @@ if (verbose)
                                                             prev_buffer[k]);
                 }
                 // copy the buffer
-                memcpy(prev_buffer, buffer, sizeof(buffer));
+                memcpy(prev_buffer, buffer, sizeof buffer);
                 if (veryVerbose) P(buffer[i])
             }
             int sum = 0;
@@ -267,7 +266,7 @@ if (verbose)
             if (i > 0) {
               LOOP_ASSERT(i, 0 != sum)
             }
-            //
+            // check that remaining bytes are still unset.
             for (; j < NUM_BYTES; ++j) {
                 if (veryVerbose) cout << "Random bytes: " << buffer[j] << endl;
                 LOOP2_ASSERT(i, j, 0 == buffer[j]);
@@ -282,7 +281,7 @@ if (verbose)
             int rand;
             ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(
                                       reinterpret_cast<unsigned char *>(&rand),
-                                      sizeof(rand)));
+                                      sizeof rand));
             numbers[i] = rand;
             if (veryVerbose) cout << "rand[" << i << "]: " << rand << endl;
             for (int j = 0; j < i; ++j) {
@@ -330,7 +329,7 @@ if (verbose)
         // fill buffer with random bytes
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
             unsigned char *p = reinterpret_cast<unsigned char *>(&rand);
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p, sizeof(rand)));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p, sizeof rand));
             numbers[i] = rand;
             if (veryVerbose) P(rand);
         }
@@ -340,7 +339,6 @@ if (verbose)
                 LOOP2_ASSERT(i, j, numbers[i] != numbers[j]);
             }
         }
-
       } break;
       case -1: {
         // --------------------------------------------------------------------
@@ -362,15 +360,18 @@ if (verbose)
         int cnt = 0;
         int numbers [NUM_ITERATIONS]      = {0};
         // int prev_numbers [NUM_ITERATIONS] = {0};
-        const unsigned NUM_BYTES = sizeof(numbers);
+        const unsigned NUM_BYTES = sizeof numbers;
 
         if (verbose)
-          cout << endl
-               << "'int getRandomBytes(void *buf, int numBytes) TEST'" << endl
-               << "==================================================" << endl;
+            cout << endl
+                 << "'int getRandomBytes(void *buf, int numBytes) TEST'" 
+                 << endl
+                 << "=================================================="
+                 << endl;
 
         if (veryVerbose) cout << "\nTesting the number of bytes set."
                               << endl;
+        
         // 2) If a number is passed, that many bytes are set.
         for (unsigned i = 0; i < 5; ++i) {
             unsigned j;
@@ -398,7 +399,7 @@ if (verbose)
             unsigned char *p1 = reinterpret_cast<unsigned char *>(rand_int);
             ASSERT(0 == bdlb::SysRandom::getRandomBytesNonBlocking(
                                                             p1,
-                                                            sizeof(rand_int)));
+                                                            sizeof rand_int));
             numbers[i] = rand_int;
             if (veryVerbose) cout << "rand[" << i << "]: " << rand_int << endl;
             for (int j = 0; j < i; ++j) {
@@ -466,33 +467,35 @@ if (verbose)
                  << "--------------" << endl << endl;
             s.reset();
         }
-    } break;
-    case -3: {
-      // ----------------------------------------------------------------------
-      // PERFORMANCE: 'getRandomBytesNonBlocking'
-      //
-      // Concerns:
-      //    Measure the effect of requesting larger random numbers per
-      //    request from the non-blocking random generator.
-      //
-      // Plan:
-      //      Request a large number of random numbers to consume the entropy
-      //      on process start-up. Next, request the same total number of
-      //      bytes, each time changing the size of the request, measure the
-      //      time to complete each request.
-      //
-      // Testing:
-      //   PERFORMANCE: 'getRandomBytesNonBlocking'
-      //---------------------------------------------------------------------
-        if (verbose) cout << endl
-                         << "PERFORMANCE: 'getRandomBytesNonBlocking'" << endl
-                         << "========================================" << endl;
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE: 'getRandomBytesNonBlocking'
+        //
+        // Concerns:
+        //    Measure the effect of requesting larger random numbers per
+        //    request from the non-blocking random generator.
+        //
+        // Plan:
+        //      Request a large number of random numbers to consume the entropy
+        //      on process start-up. Next, request the same total number of
+        //      bytes, each time changing the size of the request, measure the
+        //      time to complete each request.
+        //
+        // Testing:
+        //   PERFORMANCE: 'getRandomBytesNonBlocking'
+        //---------------------------------------------------------------------
+        if (verbose) {
+            cout << endl
+                 << "PERFORMANCE: 'getRandomBytesNonBlocking'" << endl
+                 << "========================================" << endl;
+        }
         int rand_int;
         for (int i = 0; i < 15; ++i) {
             ASSERT(0 ==
-                 bdlb::SysRandom::getRandomBytesNonBlocking(
+                   bdlb::SysRandom::getRandomBytesNonBlocking(
                                   reinterpret_cast<unsigned char *>(&rand_int),
-                                                            sizeof(rand_int)));
+                                                            sizeof rand_int));
         }
 
         enum { NUM_ITERATIONS = 4};
@@ -502,9 +505,10 @@ if (verbose)
         unsigned char buffer [MAX_GRANUALARITY] = {0};
         unsigned char prev_buffer[MAX_GRANUALARITY] = {0};
         int i, granularity;
+        
         for (granularity = 1;
              granularity < MAX_GRANUALARITY;
-             granularity <<= 1)
+             granularity <<= 1) 
         {
             memcpy(prev_buffer, buffer, MAX_GRANUALARITY);
             s.start(true);
@@ -526,74 +530,76 @@ if (verbose)
                                   << "-------------"  << endl << endl;
             s.reset();
         }
-    } break;
-    case -4: {
-      // ----------------------------------------------------------------------
-      // PERFORMANCE: 'getRandomBytes'
-      //
-      // Concerns:
-      //   Measure the amount of time necessary to wait between successive
-      //   request for random 'int'(s).
-      //
-      // Plan:
-      //   Request a large number of random numbers to empty out the entropy
-      //   source. Next request a random number and vary the delay before
-      //   requesting another random number, each time measuring the time
-      //   required to receive the next random number.
-      //
-      // Testing:
-      //   PERFORMANCE: 'getRandomBytes'
-      //---------------------------------------------------------------------
-      if (verbose) cout << "PERFORMANCE: 'getRandomBytes'"
-                        << "=============================" << endl;
-      bsls::Stopwatch s;
-
-      int rand_int;
-      unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
-      for (int i = 0; i < 15; ++i) {
-         ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
-                                                     sizeof(int)));
-      }
-      enum { MAX_SLEEP = 10};
-      for (unsigned curr_sleep = 0; curr_sleep <= MAX_SLEEP; ++curr_sleep) {
-          ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
-                                                      sizeof(int)));
-          ///sleep(curr_sleep);
-          s.start(true);
-          ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
-                                                      sizeof(int)));
-          s.stop();
-          double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
-                        s.accumulatedWallTime();
-          s.reset();
-      if (veryVerbose)
-          cout << "Current Delay             : " << curr_sleep
-                << " ms" << endl
-                <<  "Time to get next number: "  << time * 100
-                << " ms" << endl
-                << "-------------------------"   << endl  << endl;
-      }
-    } break;
-    case -5: {
-      // ----------------------------------------------------------------------
-      // PERFORMANCE: 'getRandomBytes'
-      //
-      // Concerns:
-      //   Measure the amount of time required to acquire 'NUM_ITERATIONS'
-      //   'int'(s).
-      //
-      // Plan:
-      //   Call 'SysRandom::getRandomBytes' 'NUM_ITERATIONS' times, each
-      //   time
-      //   requesting a 'int'.
-      //
-      // Testing:
-      //   PERFORMANCE: 'getRandomBytes'
-      // ----------------------------------------------------------------------
-      if (verbose)
-            cout << endl
-                 << "PERFORMANCE: 'getRandomBytes'" << endl
-                 << "=============================" << endl;
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE: 'getRandomBytes'
+        //
+        // Concerns:
+        //   Measure the amount of time necessary to wait between successive
+        //   request for random 'int'(s).
+        //
+        // Plan:
+        //   Request a large number of random numbers to empty out the entropy
+        //   source. Next request a random number and vary the delay before
+        //   requesting another random number, each time measuring the time
+        //   required to receive the next random number.
+        //
+        // Testing:
+        //   PERFORMANCE: 'getRandomBytes'
+        //---------------------------------------------------------------------
+        if (verbose) cout << "PERFORMANCE: 'getRandomBytes'"
+                          << "=============================" << endl;
+        bsls::Stopwatch s;
+        enum { MAX_SLEEP = 10};
+        int rand_int;
+        unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
+      
+        for (int i = 0; i < 15; ++i) {
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
+                                                        sizeof int));
+        }
+      
+        for (unsigned curr_sleep = 0; curr_sleep <= MAX_SLEEP; ++curr_sleep) {
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
+                                                        sizeof int));
+            sleep(curr_sleep);
+            s.start(true);
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
+                                                        sizeof int));
+            s.stop();
+            double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
+                          s.accumulatedWallTime();
+            s.reset();
+            if (veryVerbose)
+                cout << "Current Delay             : " << curr_sleep
+                     << " ms" << endl
+                    <<  "Time to get next number: "  << time * 100
+                    << " ms" << endl
+                    << "-------------------------"   << endl  << endl;
+        }
+      } break;
+      case -5: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE: 'getRandomBytes'
+        //
+        // Concerns:
+        //   Measure the amount of time required to acquire 'NUM_ITERATIONS'
+        //   'int'(s).
+        //
+        // Plan:
+        //   Call 'SysRandom::getRandomBytes' 'NUM_ITERATIONS' times, each
+        //   time
+        //   requesting a 'int'.
+        //
+        // Testing:
+        //   PERFORMANCE: 'getRandomBytes'
+        // --------------------------------------------------------------------
+        if (verbose) {
+          cout << endl
+               << "PERFORMANCE: 'getRandomBytes'" << endl
+               << "=============================" << endl;
+        }
         bsls::Stopwatch s;
         int rand_int;
         unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
@@ -601,8 +607,8 @@ if (verbose)
 
         s.start(true);
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
-                ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
-                                                      sizeof(int)));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
+                                                        sizeof int));
         }
         s.stop();
         double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
@@ -611,10 +617,10 @@ if (verbose)
         if (verbose)
             cout << "Time to aquire " << NUM_ITERATIONS <<  " random ints: "
                  << time << endl;
-    } break;
-    default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+      } break;
+      default: {
+          cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+          testStatus = -1;
       } break;
     }
     if (testStatus > 0) {

@@ -11,7 +11,7 @@ BSLS_IDENT_RCSID(bdlb_sysrandom_cpp,"$Id$ $CSID$")
  || defined(BSLS_PLATFORM_OS_SOLARIS)                                         \
  || defined(BSLS_PLATFORM_OS_DARWIN)                                          \
  || defined(BSLS_PLATFORM_OS_AIX)
-#define BDLB_USE_SYS_RAND
+#define BDLB_USE_DEV_RANDOM
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 #include <windows.h>
@@ -29,7 +29,8 @@ namespace BloombergLP {
 namespace bdlb {
 namespace {
 
-#ifdef BDLB_USE_SYS_RAND
+#ifdef BDLB_USE_DEV_RANDOM
+
 // STATIC HELPER FUNCTIONS
 static
 int readFile(unsigned char *buffer, size_t numBytes, const char *filename);
@@ -58,7 +59,8 @@ int readFile(unsigned char *buffer, size_t numBytes, const char *filename);
             // Create a 'HCRYPTPROV_Adapter'object passing each of its
             // optionally specified parameters to the underlying 'HCRYPTPROV'
             // object.  See the MSDN page for 'HCRYPTPROV' for more
-            // information.
+            // information.  If this class is unable to obtain a context, 
+            // the installed assert handler is called.
 
         ~HCRYPTPROV_Adapter();
             // Destroy this object.
@@ -70,7 +72,7 @@ int readFile(unsigned char *buffer, size_t numBytes, const char *filename);
     };
 
 #endif // BDLB_USE_WIN_CRYPT
-#endif // BDLB_USE_SYS_RAND
+#endif // BDLB_USE_DEV_RANDOM
 }  // close unnamed namespace
 
 namespace {
@@ -125,6 +127,7 @@ HCRYPTPROV_Adapter::~HCRYPTPROV_Adapter()
 {
     if (d_hCryptProv && !CryptReleaseContext(d_hCryptProv,0))
     {
+        // put a logging call here when lowLevelLogging done.
     }
 }
 
@@ -135,7 +138,7 @@ const HCRYPTPROV& HCRYPTPROV_Adapter::hCryptProv() const
 }
 
 #else
-#ifdef BDLB_USE_SYS_RAND
+#ifdef BDLB_USE_DEV_RANDOM
 static
 int readFile(unsigned char *buffer, size_t numBytes, const char *filename)
 {
@@ -176,7 +179,7 @@ int readFile(unsigned char *buffer, size_t numBytes, const char *filename)
     return rval;
 }
 
-#endif // BDLB_USE_SYS_RAND
+#endif // BDLB_USE_DEV_RANDOM
 #endif // BDLB_USE_WIN_CRYPT
 }  // close unnamed namespace
 
