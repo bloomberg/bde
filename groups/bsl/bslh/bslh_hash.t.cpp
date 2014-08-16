@@ -10,6 +10,7 @@
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
+#include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -546,8 +547,10 @@ class MockAccumulatingHashingAlgorithm {
 template<class TYPE>
 class TestDriver {
     // This class implements a test driver that can run tests on any type.
-
-    char data[sizeof(TYPE)];
+    union {
+        typename bsls::AlignmentFromType<TYPE>::Type d_align; //force alignment
+        char d_data[sizeof(TYPE)];                            // Arbitrary data
+    };
 
   public:
     TestDriver()
@@ -555,7 +558,7 @@ class TestDriver {
     {
         srand(37);
         for (unsigned int i = 0; i < sizeof(TYPE); ++i) {
-            data[i] = static_cast<char>(rand());
+            d_data[i] = static_cast<char>(rand());
         }
     }
 
@@ -585,7 +588,7 @@ class TestDriver {
         // 'LOOP_ASSERT'.
     {
         MockHashingAlgorithm alg;
-        const TYPE input = *reinterpret_cast<const TYPE *>(data);
+        const TYPE input = *reinterpret_cast<const TYPE *>(d_data);
 
         hashAppend(alg, input);
 

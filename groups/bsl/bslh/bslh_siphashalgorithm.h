@@ -187,9 +187,13 @@ class SipHashAlgorithm {
         // Stores the intermediate state of the algorithm as values are
         // accumulated
 
-    unsigned char d_buf [8];
-        // Used to buffer data until we have enough to do a full round of
-        // computation as specified by the algorithm.
+    union {
+        Uint64 d_alignment;
+            // Provides alignment
+        unsigned char d_buf [8]; 
+            // Used to buffer data until we have enough to do a full round of
+            // computation as specified by the algorithm.
+    };
 
     unsigned int d_bufSize;
         // The length of the data currently stored in the buffer.

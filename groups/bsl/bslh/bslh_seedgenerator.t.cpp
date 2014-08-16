@@ -100,7 +100,7 @@ class MockRNG {
 
   private:
     // DATA
-    unsigned int d_counter;
+    result_type d_counter;
         // Counter that provides some variance in the random numbers returned.
 
   public:
@@ -146,7 +146,7 @@ void verifyResultMatchesRNG(const char *result, size_t length)
     // Compare the specified 'length' bytes of 'result' to the expected output
     // of 'MockRNG' using 'ASSERT's
 {
-    MockRNG rng;
+    MockRNG rng = MockRNG();
     const size_t rngSize = sizeof(MockRNG::result_type);
     MockRNG::result_type rand;
     const char *randPtr = reinterpret_cast<const char *>(&rand);
@@ -573,8 +573,6 @@ int main(int argc, char *argv[])
                             " (C-6)\n");
         {
             char seed[24];
-            const char maxChar = static_cast<char>(255);
-            fill(seed, 24, maxChar);
 
             for (int i = 0; i < 24; ++i) {
                 if (veryVerbose) printf("Testing seeds of length %i\n", i);

@@ -243,7 +243,8 @@ class HashTable {
         for (unsigned i = 0; i < numValues; ++i) {
             const TYPE& value = d_values[i];
             size_t idx;
-            BSLS_ASSERT_OPT(!lookup(&idx, value, d_hasher(value)));
+            size_t hash = d_hasher(value);
+            BSLS_ASSERT_OPT(!lookup(&idx, value, hash));
             d_bucketArray[idx] = &d_values[i];
         }
     }

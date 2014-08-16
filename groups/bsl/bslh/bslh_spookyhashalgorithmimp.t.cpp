@@ -923,6 +923,7 @@ int main(int argc, char *argv[])
         {
             const char *str1 = "123456";
             const char *str2 = "654321";
+
             ASSERT(Obj::hash32(str1, sizeof(char)*6, 0) !=
                    Obj::hash32(str2, sizeof(char)*6, 0));
 

@@ -46,7 +46,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <string.h> // for 'memcpy' and 'memset'
 
-#define ALLOW_UNALIGNED_READS 1
+#define ALLOW_UNALIGNED_READS 0
 
 namespace BloombergLP {
 
