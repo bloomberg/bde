@@ -119,8 +119,8 @@ class RandomChoice {
   public:
     // CREATORS
     RandomChoice(CHOICE_TYPE choices[], int numChoices);
-        // Create an object to return a random one of the first specified
-        // 'numChoices' elements of the specified 'choices' array.
+        // Create an object with the specified 'choices' array with
+        // 'numChoices' elements.
 
     ~RandomChoice();
         // Delete this object
@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 //..
         bsl::string colors[] = {"Red" , "Orange", "Yellow", "Green",
                        "Blue", "Indigo", "Violet"};
-        unsigned numColors = sizeof colors/sizeof(colors[0]);
+        unsigned numColors = sizeof colors/sizeof colors[0];
 //..
 // Next, Request a random color.
 //..
@@ -300,7 +300,6 @@ int main(int argc, char *argv[])
         ASSERT(cnt < (expected * 1.2));
         ASSERT(cnt > (expected * 0.8));
       } break;
-
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -364,14 +363,14 @@ int main(int argc, char *argv[])
 
         if (verbose)
             cout << endl
-                 << "'int getRandomBytes(void *buf, int numBytes) TEST'" 
+                 << "'int getRandomBytes(void *buf, int numBytes) TEST'"
                  << endl
                  << "=================================================="
                  << endl;
 
         if (veryVerbose) cout << "\nTesting the number of bytes set."
                               << endl;
-        
+
         // 2) If a number is passed, that many bytes are set.
         for (unsigned i = 0; i < 5; ++i) {
             unsigned j;
@@ -505,10 +504,10 @@ int main(int argc, char *argv[])
         unsigned char buffer [MAX_GRANUALARITY] = {0};
         unsigned char prev_buffer[MAX_GRANUALARITY] = {0};
         int i, granularity;
-        
+
         for (granularity = 1;
              granularity < MAX_GRANUALARITY;
-             granularity <<= 1) 
+             granularity <<= 1)
         {
             memcpy(prev_buffer, buffer, MAX_GRANUALARITY);
             s.start(true);
@@ -554,19 +553,16 @@ int main(int argc, char *argv[])
         enum { MAX_SLEEP = 10};
         int rand_int;
         unsigned char *p1 = reinterpret_cast<unsigned char *>(&rand_int);
-      
+
         for (int i = 0; i < 15; ++i) {
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
-                                                        sizeof int));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1, sizeof rand_int));
         }
-      
+
         for (unsigned curr_sleep = 0; curr_sleep <= MAX_SLEEP; ++curr_sleep) {
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
-                                                        sizeof int));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1, sizeof rand_int ));
             sleep(curr_sleep);
             s.start(true);
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
-                                                        sizeof int));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1, sizeof rand_int));
             s.stop();
             double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +
                           s.accumulatedWallTime();
@@ -607,8 +603,7 @@ int main(int argc, char *argv[])
 
         s.start(true);
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
-            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1,
-                                                        sizeof int));
+            ASSERT(0 == bdlb::SysRandom::getRandomBytes(p1, sizeof rand_int));
         }
         s.stop();
         double time = s.accumulatedUserTime() + s.accumulatedSystemTime() +

@@ -59,7 +59,7 @@ int readFile(unsigned char *buffer, size_t numBytes, const char *filename);
             // Create a 'HCRYPTPROV_Adapter'object passing each of its
             // optionally specified parameters to the underlying 'HCRYPTPROV'
             // object.  See the MSDN page for 'HCRYPTPROV' for more
-            // information.  If this class is unable to obtain a context, 
+            // information.  If this class is unable to obtain a context,
             // the installed assert handler is called.
 
         ~HCRYPTPROV_Adapter();

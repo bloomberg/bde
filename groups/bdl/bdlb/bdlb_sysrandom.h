@@ -18,14 +18,18 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a namespace, 'bdlb::SysRandom', for a
 // suite of functions used to generate random numbers from platform dependent
-// random number generators.  Two variants are provided: one which blocks, but
-// which potentially samples from a stronger distribution.  The strength of
-// these random numbers and the performance of these calls is strongly
-// dependent on the underlying system.
+// random number generators.  Two variants are provided: one which may block,
+// but which potentially samples from a stronger distribution, and another does
+// not block, but which potentially should not be used for cryptography.  The
+// strength of these random numbers and the performance of these calls is
+// strongly dependent on the underlying system.  On UNIX-like platforms
+// 'genRandomBytes()' reads from '/dev/random' and
+// 'genRandonBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
+// methods use 'CrypGenRandom'.
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component
+// This section illustrates intended use of this component.
 //..
 //  template <class CHOICE_TYPE>
 //  class RandomChoice {
@@ -39,8 +43,8 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      RandomChoice(CHOICE_TYPE choices[], int numChoices);
-//          // Create an object to return a random one of the first specified
-//          // 'numChoices' elements of the specified 'choices' array.
+//          // Create an object with the specified 'choices' array with
+//          // 'numChoices' elements.
 //
 //      ~RandomChoice();
 //          // Delete this object
@@ -68,18 +72,18 @@ BSLS_IDENT("$Id: $")
 //  template <class CHOICE_TYPE>
 //  const CHOICE_TYPE& RandomChoice<CHOICE_TYPE>::choice() const
 //  {
-//      int index;
+//      size_t index;
 //      bdlb::SysRandom::getRandomBytesNonBlocking(
 //                                   reinterpret_cast<unsigned char *>(&index),
-//                                   sizeof(index));
+//                                   sizeof index);
 //      return d_choices[index % d_size];
 //  }
 //..
-//  Initialize an array of colors to choose between.
+// Initialize an array of colors to choose between.
 //..
 //      string colors[] = {"Red" , "Orange", "Yellow", "Green",
 //                         "Blue", "Indigo", "Violet"};
-//      unsigned numColors = sizeof(colors)/sizeof(colors[0]);
+//      unsigned numColors = sizeof colors/sizeof colors[0];
 //..
 // Request a random color.
 //..
@@ -110,7 +114,7 @@ struct SysRandom {
     // This 'struct' provides a namespace for a suite of functions used for
     // acquiring random numbers from the system.
 
-    //TYPES
+    // TYPES
     typedef bsls::Types::size_type size_t;       // for brevity of name
 
     // CLASS METHODS
