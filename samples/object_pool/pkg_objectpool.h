@@ -20,7 +20,7 @@
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This pool requires that the template parameter type used to construct an
 // 'ObjectPool' provides a default constructor, public destructor, and a
-// 'reset' function that restores an object to its default-constructed object.
+// 'reset' function that restores an object to its default-constructed state.
 //
 ///Usage
 ///-----
