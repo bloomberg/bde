@@ -652,10 +652,6 @@ int testFunction3()
     return 3;
 }
 
-class SomeType {
-
-};
-
 template<class EXPECTED_TYPE>
 class TypeChecker {
     // Provides a member function to determine if passed data is of the same

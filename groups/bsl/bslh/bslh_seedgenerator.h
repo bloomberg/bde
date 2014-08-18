@@ -132,6 +132,7 @@ void SeedGenerator<RNG>::generateSeed(char *seedLocation, size_t seedLength)
     size_t numChunks = seedLength / k_RNGOUTPUTSIZE;
     size_t remainder = seedLength % k_RNGOUTPUTSIZE;
 
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
     for (size_t i = 0; i != numChunks; ++i) {
         result_type rand = RNG::operator()();
         memcpy(seedLocation + i * sizeof(rand), &rand, sizeof(rand));
@@ -141,6 +142,18 @@ void SeedGenerator<RNG>::generateSeed(char *seedLocation, size_t seedLength)
         result_type rand = RNG::operator()();
         memcpy(seedLocation + numChunks * sizeof(rand), &rand, remainder);
     }
+#else
+    char  *chunkEnd  = seedLocation + numChunks * k_RNGOUTPUTSIZE;
+
+    for (; seedLocation != chunkEnd; seedLocation += k_RNGOUTPUTSIZE) {
+        *(reinterpret_cast<result_type *>(seedLocation)) = RNG::operator()();
+    }
+
+    if (remainder) {
+        result_type randomBytes = RNG::operator()();
+        memcpy(seedLocation, &randomBytes, remainder);
+    }
+#endif
 }
 
 }  // close package namespace

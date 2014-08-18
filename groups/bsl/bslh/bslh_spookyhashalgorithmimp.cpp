@@ -44,10 +44,15 @@ BSLS_IDENT("$Id$ $CSID$")
 //   August 5 2012: SpookyV2: d = should be d += in short hash, and remove
 //   extra mix from long hash
 
+#include <bsls_platform.h>
+
 #include <string.h> // for 'memcpy' and 'memset'
 
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
 #define ALLOW_UNALIGNED_READS 0
-
+#else
+#define ALLOW_UNALIGNED_READS 1
+#endif
 namespace BloombergLP {
 
 namespace bslh {

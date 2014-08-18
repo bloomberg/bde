@@ -87,6 +87,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_byteorder.h>
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
 #endif
@@ -185,7 +189,7 @@ SpookyHashAlgorithm::SpookyHashAlgorithm()
 inline
 SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 : d_state(
-      BSLS_BYTEORDER_HTONLL(
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
           static_cast<Uint64>(seed[0])  << 56 |
           static_cast<Uint64>(seed[1])  << 48 |
           static_cast<Uint64>(seed[2])  << 40 |
@@ -193,8 +197,7 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
           static_cast<Uint64>(seed[4])  << 24 |
           static_cast<Uint64>(seed[5])  << 16 |
           static_cast<Uint64>(seed[6])  << 8  |
-          static_cast<Uint64>(seed[7])),
-      BSLS_BYTEORDER_HTONLL(
+          static_cast<Uint64>(seed[7]),
           static_cast<Uint64>(seed[8])  << 56 |
           static_cast<Uint64>(seed[9])  << 48 |
           static_cast<Uint64>(seed[10]) << 40 |
@@ -202,11 +205,15 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
           static_cast<Uint64>(seed[12]) << 24 |
           static_cast<Uint64>(seed[13]) << 16 |
           static_cast<Uint64>(seed[14]) << 8  |
-          static_cast<Uint64>(seed[15]) ) )
+          static_cast<Uint64>(seed[15]) 
+#else
+          reinterpret_cast<const Uint64 *>(seed)[0],
+          reinterpret_cast<const Uint64 *>(seed)[1]
+#endif
+          ) 
 {
     // These static casts and bit shifts are to prevent unaligned reads, which
-    // will cause performance issues on some platforms, and runtime errors in
-    // optimized builds on Sun machines.
+    // will cause runtime errors on Sun machines.
 }
 
 // MANIPULATORS
