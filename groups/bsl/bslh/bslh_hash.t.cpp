@@ -437,20 +437,30 @@ class HashTable {
 
 typedef bslh::Hash<> Obj;
 
-static size_t findNumberOfIdenticalBytes(long double d1, long double d2)
+static void printAsHex(const char *data, size_t size)
+    // Print out the specified 'size' bytes of 'data' in hex encoded numbers.
+{
+    for (size_t i = 0; i < size; ++i) {
+        printf("%hhx\t", data[i]);
+    }
+    printf("\n");
+}
+
+static size_t findNumberOfBytesBeforePadding(long double d1, long double d2)
     // Return the number of bytes from the begining of the specified 'd1' and
-    // 'd2' until the byte at which they differ. Note that if 'd1' and 'd2' are
-    // equal, this function will return 'sizeof(long double)'.
+    // 'd2' until the first byte at which they differ or at which they are both
+    // 0.
 {
     size_t size = sizeof(long double);
     const char *c1 = reinterpret_cast<const char *>(&d1);
     const char *c2 = reinterpret_cast<const char *>(&d2);
 
     for (size_t i = 0; i < size; ++i) {
-        if (c1[i] != c2[i]) {
+        if (c1[i] != c2[i] || c1[i] == 0) {
             return i;                                                 // RETURN
         }
     }
+    
     return size;
 }
 
@@ -679,7 +689,7 @@ int main(int argc, char *argv[])
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
-//  bool     veryVeryVerbose = argc > 4;
+    bool     veryVeryVerbose = argc > 4;
 //  bool veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -1354,30 +1364,43 @@ int main(int argc, char *argv[])
             long double d8 = 32948578964783.23894756l;
             long double d9 = 32948578964783.23894756l;
 
-            size_t size = findNumberOfIdenticalBytes(d0, d1);
+            if (veryVeryVerbose) {
+                printAsHex(reinterpret_cast<const char *>(&d0), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d1), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d2), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d3), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d4), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d5), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d6), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d7), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d8), sizeof(d0));
+                printAsHex(reinterpret_cast<const char *>(&d9), sizeof(d0));
+            }
 
-            size_t newSize = findNumberOfIdenticalBytes(d0, d2);
+            size_t size = findNumberOfBytesBeforePadding(d0, d1);
+
+            size_t newSize = findNumberOfBytesBeforePadding(d0, d2);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfIdenticalBytes(d0, d3);
+            newSize = findNumberOfBytesBeforePadding(d0, d3);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfIdenticalBytes(d0, d4);
+            newSize = findNumberOfBytesBeforePadding(d0, d4);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfIdenticalBytes(d0, d5);
+            newSize = findNumberOfBytesBeforePadding(d0, d5);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfIdenticalBytes(d0, d6);
+            newSize = findNumberOfBytesBeforePadding(d0, d6);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfIdenticalBytes(d0, d7);
+            newSize = findNumberOfBytesBeforePadding(d0, d7);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfIdenticalBytes(d0, d8);
+            newSize = findNumberOfBytesBeforePadding(d0, d8);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfIdenticalBytes(d0, d9);
+            newSize = findNumberOfBytesBeforePadding(d0, d9);
             size = newSize < size ? newSize : size;
 
             MockHashingAlgorithm alg;

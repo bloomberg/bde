@@ -452,22 +452,62 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
         input = 0;
     }
 
-#if defined BSLS_PLATFORM_OS_LINUX   && defined BSLS_PLATFORM_CPU_X86_64 &&   \
+#if defined BSLS_PLATFORM_OS_LINUX   &&                                       \
     (defined BSLS_PLATFORM_CMP_GNU   || defined BSLS_PLATFORM_CMP_CLANG)
     // This needs to be done to work around issues when compiling with GCC and
-    // Clang on Linux with x86-64 hardware. In this case, 'sizeof(long double)'
-    // is advertised as 16 bytes, but only 10 bytes of precision is used. The
-    // remaining 6 bytes are padding. The final 2 bites are zeroed, but the 4
-    // bytes that proceed the final two appear to be garbage.
+    // Clang on Linux. On 64-bit hardware, 'sizeof(long double)' is advertised
+    // as 16 bytes, but only 10 bytes of precision is used. The remaining 6
+    // bytes are padding.
     //
-    //      Actual Data --+-----------------------------+
+    // For Clang, the final 2 bytes of the padding are zeroed, but the 4 bytes
+    // that proceed the final two appear to be garbage.
+    //
+    //      Actual Data --+*****************************+
     //                    |                             |
     // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8 5c 2b  0  0
     //                                                   |          ||   |
-    //      Garbage -------------------------------------+----------+|   |
-    //      Zeroed --------------------------------------------------+---+
+    //      Garbage -------------------------------------+**********+|   |
+    //      Zeroed --------------------------------------------------+***+
+    //
+    // For GCC, the first and last 2 bytes of the padding are zeroed, but the 2
+    // bytes in the middle appear to be garbage.
+    //
+    //      Garbage -------------------------------------------+****+
+    //      Actual Data --+*****************************+     |     |
+    //                    |                             |     |     |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40  0  0 5c 2b  0  0
+    //                                                   |    |      |    |
+    //      Zeroed --------------------------------------+****+------+****+
+    //
+    // On 32-bit hardware, 'sizeof(long double)' is advertised as 12 bytes, but
+    // again, only 10 bytes of precision is used. The remaining 2 bytes are
+    // padding.
+    //
+    // For Clang, the 2 bytes of the padding appear to be garbage.
+    //
+    //      Actual Data --+*****************************+
+    //                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8
+    //                                                   |    |
+    //      Garbage -------------------------------------+****+
+    //
+    // For GCC, the 2 bytes of the padding are zeroed.
+    //
+    //      Actual Data --+*****************************+
+    //                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40  0  0
+    //                                                   |    |
+    //      Zeroed --------------------------------------+****+
+    //
+    // To address all of these issues, we will pass in only 10 bytes for a
+    // 'long double' even if it is longer.
 
-#if !defined(BSLS_PLATFORM_CMP_CLANG)
+#if !defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CPU_64_BIT
+    // We cant just check 'defined(BSLS_PLATFORM_CMP_GNU)' because Clang
+    // masquerades as GCC. Since we know that to be in this block we must be
+    // using GCC or Clang, we can just check
+    // '!defined(BSLS_PLATFORM_CMP_CLANG)' to get the same result.
+
     if (bsl::is_same<long double, __float128>::value) {
         // We need to handle the posibility that somebody has set the GCC
         // compiler flag that makes 'long double' actually be 128-bit.
