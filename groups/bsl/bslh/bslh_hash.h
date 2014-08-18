@@ -125,6 +125,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -135,6 +139,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_STDDEF_H
@@ -443,7 +451,34 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
     if (input == 0.0l){
         input = 0;
     }
+
+#if defined BSLS_PLATFORM_OS_LINUX   && defined BSLS_PLATFORM_CPU_X86_64 &&   \
+    (defined BSLS_PLATFORM_CMP_GNU   || defined BSLS_PLATFORM_CMP_CLANG)
+    // This needs to be done to work around issues when compiling with GCC and
+    // Clang on Linux with x86-64 hardware. In this case, 'sizeof(long double)'
+    // is advertised as 16 bytes, but only 10 bytes of precision is used. The
+    // remaining 6 bytes are padding. The final 2 bites are zeroed, but the 4
+    // bytes that proceed the final two appear to be garbage.
+    //
+    //      Actual Data --+-----------------------------+
+    //                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8 5c 2b  0  0
+    //                                                   |          ||   |
+    //      Garbage -------------------------------------+----------+|   |
+    //      Zeroed --------------------------------------------------+---+
+
+#if !defined(BSLS_PLATFORM_CMP_CLANG)
+    if (bsl::is_same<long double, __float128>::value) {
+        // We need to handle the posibility that somebody has set the GCC
+        // compiler flag that makes 'long double' actually be 128-bit.
+        hashAlg(&input, sizeof(input));
+        return;                                                       // RETURN
+    }
+#endif
+    hashAlg(&input, sizeof(input) > 10 ? 10 : sizeof(input));
+#else
     hashAlg(&input, sizeof(input));
+#endif
 }
 
 template <class HASH_ALGORITHM, size_t N>

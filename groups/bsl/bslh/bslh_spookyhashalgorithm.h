@@ -204,6 +204,9 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
           static_cast<Uint64>(seed[14]) << 8  |
           static_cast<Uint64>(seed[15]) ) )
 {
+    // These static casts and bit shifts are to prevent unaligned reads, which
+    // will cause performance issues on some platforms, and runtime errors in
+    // optimized builds on Sun machines.
 }
 
 // MANIPULATORS

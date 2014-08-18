@@ -431,13 +431,30 @@ class HashTable {
 
 typedef bslh::Hash<> Obj;
 
+static size_t findNumberOfIdenticalBytes(long double d1, long double d2)
+    // Return the number of bytes from the begining of the specified 'd1' and
+    // 'd2' until the byte at which they differ. Note that if 'd1' and 'd2' are
+    // equal, this function will return 'sizeof(long double)'.
+{
+    size_t size = sizeof(long double);
+    const char *c1 = reinterpret_cast<const char *>(&d1);
+    const char *c2 = reinterpret_cast<const char *>(&d2);
+
+    for (size_t i = 0; i < size; ++i) {
+        if (c1[i] != c2[i]) {
+            return i;
+        }
+    }
+    return size;
+}
+
 static bool binaryCompare(const char *first, const char *second, size_t size)
     // Return the result of a comparison of the binary representation of the
     // specified 'size' number of bytes of the data pointed to by the specified
     // 'first' and 'second'.
 {
     for (size_t i = 0; i < size; ++i) {
-        if(!(first[i] == second[i])) {
+        if (!(first[i] == second[i])) {
             return false;                                             // RETURN
         }
     }
@@ -585,20 +602,19 @@ class TestDriver {
 
     void testHashAppendPassThrough(int line)
         // Test 'hashAppend' on 'TYPE', using the specified 'line' in a
-        // 'LOOP_ASSERT'.
+        // 'ASSERTV'.
     {
         MockHashingAlgorithm alg;
         const TYPE input = *reinterpret_cast<const TYPE *>(d_data);
 
         hashAppend(alg, input);
 
-        const char *inputPtr = reinterpret_cast<const char *>(&input);
-        const char *output = alg.getData();
-        for (size_t i = 0; i < sizeof(TYPE); ++i) {
-            ASSERTV(line, output[i], inputPtr[i], output[i] == inputPtr[i]);
-        }
         ASSERTV(line, alg.getLength(), sizeof(TYPE),
                                               alg.getLength() == sizeof(TYPE));
+
+        ASSERT(binaryCompare(reinterpret_cast<const char *>(&input),
+                             alg.getData(),
+                             sizeof(TYPE) ) );
     }
 };
 
@@ -976,7 +992,10 @@ int main(int argc, char *argv[])
         //: 4 Function pointers and object pointers are hashed as pointers, NOT
         //:   the data they point to.
         //:
-        //: 5 'hashAppend' passes the bytes it is given into the hashing
+        //: 5 'long double' is properly truncated on all platforms where there
+        //:   is garbage in the binary representation.
+        //:
+        //: 6 'hashAppend' passes the bytes it is given into the hashing
         //:   algorithm without truncation or appends for all types (with the
         //:   exceptions outlined above).
         //
@@ -996,10 +1015,14 @@ int main(int argc, char *argv[])
         //:   locations, the same data in different locations, and the same
         //:   location, and verify all behave as expected. (C-4)
         //:
-        //:5  Copy a known bitsequece into each fundamental type and pass it
+        //: 5 Check if there is garbage in the binary representation of 'long
+        //:   double' if there is, ASSERT that all data including and after the
+        //:   garbage is ignored by 'hashAppend'.
+        //:
+        //: 6 Copy a known bitsequece into each fundamental type and pass it
         //:   into 'hashAppend' with a mocked hashing algorith. Verify that the
         //:   data inputted into the hashing algorithm matches the known input
-        //:   bitsequence. (C-5)
+        //:   bitsequence. (C-6)
         //
         // Testing:
         //   void hashAppend(HASHALG& hashAlg, bool input);
@@ -1290,7 +1313,10 @@ int main(int argc, char *argv[])
                                  fnptr2Loc1Val1Alg.getData(),
                                  sizeof(int (*)())));
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)            
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+            // We cant test this on Windows, because the compiler will colapse
+            // two identical functions down to just one location in memory.
+
             // Pointers to same value, different location come out different
             ASSERT(!binaryCompare(fnptr1Loc1Val1Alg.getData(),
                                   fnptr3Loc2Val1Alg.getData(),
@@ -1304,11 +1330,61 @@ int main(int argc, char *argv[])
 
         }
 
+        if (verbose) printf("Check if there is garbage in the binary"
+                            " representation of 'long double' if there is,"
+                            " ASSERT that all data including and after the"
+                            " garbage is ignored by 'hashAppend'.\n");
+        {
+            // Test a number of equal 'long double's to find out if they
+            // contain any garbage bytes.
+            long double d0 = 32948578964783.23894756l;
+            long double d1 = 32948578964783.23894756l;
+            long double d2 = 32948578964783.23894756l;
+            long double d3 = 32948578964783.23894756l;
+            long double d4 = 32948578964783.23894756l;
+            long double d5 = 32948578964783.23894756l;
+            long double d6 = 32948578964783.23894756l;
+            long double d7 = 32948578964783.23894756l;
+            long double d8 = 32948578964783.23894756l;
+            long double d9 = 32948578964783.23894756l;
+
+            size_t size = findNumberOfIdenticalBytes(d0, d1);
+
+            size_t newSize = findNumberOfIdenticalBytes(d0, d2);
+            size = newSize < size ? newSize : size;
+
+            newSize = findNumberOfIdenticalBytes(d0, d3);
+            size = newSize < size ? newSize : size;
+
+            newSize = findNumberOfIdenticalBytes(d0, d4);
+            size = newSize < size ? newSize : size;
+
+            newSize = findNumberOfIdenticalBytes(d0, d5);
+            size = newSize < size ? newSize : size;
+
+            newSize = findNumberOfIdenticalBytes(d0, d6);
+            size = newSize < size ? newSize : size;
+
+            newSize = findNumberOfIdenticalBytes(d0, d7);
+            size = newSize < size ? newSize : size;
+
+            newSize = findNumberOfIdenticalBytes(d0, d8);
+            size = newSize < size ? newSize : size;
+
+            newSize = findNumberOfIdenticalBytes(d0, d9);
+            size = newSize < size ? newSize : size;
+
+            MockHashingAlgorithm alg;
+            const long double input = 34532453453247347.45343274578458l;
+            hashAppend(alg, input);
+            ASSERTV(L_, alg.getLength(), size, alg.getLength() == size);
+        }
+
         if (verbose) printf("Copy a known bitsequece into each fundamental"
                             " type and pass it into 'hashAppend' with a mocked"
                             " hashing algorithm. Verify that the data inputted"
                             " into the hashing algorithm matches the known"
-                            " input bitsequence. (C-5)\n");
+                            " input bitsequence. (C-6)\n");
         {
             // 'bool' has already been tested and we explicitly DO NOT want it
             // to preserve its bitwise representation.
@@ -1360,8 +1436,18 @@ int main(int argc, char *argv[])
             TestDriver<double> doubleDriver;
             doubleDriver.testHashAppendPassThrough(L_);
 
-            TestDriver<long double> longDoubleDriver;
-            longDoubleDriver.testHashAppendPassThrough(L_);
+            // Special Case for 'long double' because of hack required to get
+            // around how 'long double' is represented on Linux x86-64 in Clang
+            // and GCC.
+            MockHashingAlgorithm alg;
+            const long double input = 34532453453247347.45343274578458l;
+            hashAppend(alg, input);
+            ASSERTV(L_, alg.getLength(), sizeof(long double),
+                                       alg.getLength() <= sizeof(long double));
+
+            ASSERT(binaryCompare(reinterpret_cast<const char *>(&input),
+                                 alg.getData(),
+                                 alg.getLength() ) );
 
             // hashAppend char[]
             MockHashingAlgorithm carrayAlg;
