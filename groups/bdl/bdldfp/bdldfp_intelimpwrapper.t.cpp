@@ -1,8 +1,10 @@
-// bdldfp_decimalconvertutil_inteldfp.cpp                             -*-C++-*-
-#include <bdldfp_decimalconvertutil_inteldfp.h>
+// bdldfp_intelimpwrapper.cpp                                         -*-C++-*-
+#include <bdldfp_intelimpwrapper.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+int main()
+{
+    return -1;
+}
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.

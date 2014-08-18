@@ -29,6 +29,10 @@ struct Properties64
 
 } // close anonymous namespace
 
+                        // --------------------
+                        // class DecimalImpUtil
+                        // --------------------
+
 DecimalImpUtil::ValueType64 DecimalImpUtil::makeDecimal64(
                                                    unsigned long long mantissa,
                                                    int                exponent)

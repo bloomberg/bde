@@ -10,84 +10,24 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide decimal floating-point conversion functions for decNumber.
 //
 //@CLASSES:
-//  bdldfp::DecimalConvertUtil: Namespace for decNumber conversion functions
+//  bdldfp::DecimalConvertUtil_decNumber: decNumber conversion functions
 //
-//@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
+//@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION:
-// This component provides functions that are able to convert between the
-// native decimal types of the decNumber DFP implementation and various other
-// possible representations, such as binary floating-point, network format (big
-// endian, DPD encoded decimals).
+// This component provides conversion operations between the decimal types
+// supplied in this package ('Decimal32', 'Decimal64', 'Decimal128') and
+// various alternative representations.  Some of the alternative
+// representations that this component provides conversions for are IEEE-754
+// binary floating point (i.e., 'float' and 'double') and a network format
+// (big-endian, Densely Packed Decimal encoding).
 //
 ///Usage
 ///-----
 // This section shows the intended use of this component.
 //
-///Example 1: Sending Decimals As Octets Using Network Format
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose you have two communicating entities (programs) that talk to each
-// other using a binary (as opposed to text) protocol.  In such protocol it is
-// important to establish a so-called network format, and convert to and from
-// that format in the protocol layer.  The sender (suppose that it is an IBM
-// server that has just finished an expensive calculation involving millions
-// of numbers and needs to send the result to its client) will need to convert
-// the data to network format before sending:
-//..
-//  unsigned char   msgbuffer[256];
-//  BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
-//  unsigned char   expected[] = {
-//                            0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
-//
-//  unsigned char *next = msgbuffer;
-//  next = bdldfp::DecimalConvertUtil_decNumber::decimalToNetwork(next,
-//                                                                     number);
-//
-//  assert(memcmp(msgbuffer, expected, sizeof(number)) == 0);
-//..
-// The receiver/client shall then restore the number from network format:
-//..
-//  unsigned char   msgbuffer[] ={
-//                            0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
-//  BDEC::Decimal64 number;
-//  BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
-//
-//  unsigned char *next = msgbuffer;
-//  next = bdldfp::DecimalConvertUtil_decNumber::decimalFromNetwork(number,
-//                                                                  next);
-//
-//  assert(number == expected);
-//..
-//
-///Example 2: Storing/Sending Decimals In Binary Floating-Point
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose you have two communicating entities (programs) that talk to each
-// other using a legacy protocol that employs binary floating-point formats to
-// send/receive numbers.  So your application layer will have to store the
-// decimal into a binary FP variable, ensure that it can be restored (in other
-// words that it has "fit" into the binary type) when sending, and restore the
-// decimal number (from the binary type) when receiving:
-//..
-//  const BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.23456789012345e-42));
-//
-//  typedef bdldfp::DecimalConvertUtil_decNumber Util;
-//  double dbl = Util::decimalToDouble(number);
-//
-//  if (Util::decimal64FromDouble(dbl) != number) {
-//      // Do what is appropriate for the application
-//  }
-//..
-// Note that the above assert would probably be a lot more complicated if
-// statement in production code.  It may actually be acceptable to put the
-// decimal onto the wire with certain amount of imprecision.
-//
-// The receiver would then restore the number using the appropriate
-// 'decimal64FromDouble' function:
-//..
-//  BDEC::Decimal64 restored = Util::decimal64FromDouble(dbl);
-//
-//  assert(number == restored);
-//..
+///Example 1: None
+///- - - - - - - -
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -252,24 +192,27 @@ struct DecimalConvertUtil_decNumber {
         //:   initialization if this object.
 
 
-                        // decimalToNetwork functions
+                        // decimalToDenselyPacked functions
 
     static void decimal32ToDenselyPacked( unsigned char *buffer,
-                                          Decimal32  decimal);
+                                          Decimal32      decimal);
     static void decimal64ToDenselyPacked( unsigned char *buffer,
-                                          Decimal64  decimal);
+                                          Decimal64      decimal);
     static void decimal128ToDenselyPacked(unsigned char *buffer,
-                                          Decimal128 decimal);
+                                          Decimal128     decimal);
     static void decimalToDenselyPacked(   unsigned char *buffer,
-                                          Decimal32  decimal);
+                                          Decimal32      decimal);
     static void decimalToDenselyPacked(   unsigned char *buffer,
-                                          Decimal64  decimal);
+                                          Decimal64      decimal);
     static void decimalToDenselyPacked(   unsigned char *buffer,
-                                          Decimal128 decimal);
-        // Store the specified 'decimal', in DPD format, into the specified
-        // 'buffer' and return the address one past the last byte written into
-        // the 'buffer'.  The DPD format is the densely packed base-10
-        // significand encoding.
+                                          Decimal128     decimal);
+        // Populate the specified 'buffer' with the Densely Packed Decimal
+        // (DPD) representation of the specified 'decimal' value.  The DPD
+        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
+        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
+        // unless 'buffer' points to a contiguous sequence of at least
+        // 'sizeof(decimal)' bytes.  Note that the DPD representation is
+        // defined in section 3.5 of IEEE 754-2008.
 
                         // decimalFromDenselyPacked functions
 
@@ -304,9 +247,9 @@ typedef DecimalConvertUtil_decNumber DecimalConvertUtil_Platform;
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------------
-                        // class DecimalConvertUtil_IntelDFP
-                        // ---------------------------------
+                        // ----------------------------------
+                        // class DecimalConvertUtil_decNumber
+                        // ----------------------------------
 
                         // decimalToLongDouble functions
 

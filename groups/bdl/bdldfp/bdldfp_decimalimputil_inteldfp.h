@@ -10,97 +10,21 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide utility to implement decimal 'float's on the Intel library.
 //
 //@CLASSES:
-//  bdldfp::DecimalImpUtil_IntelDFP: Namespace for Intel decimal FP functions
+//  bdldfp::DecimalImpUtil_IntelDfp: Namespace for Intel decimal FP functions
 //
 //@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION:
-// This component, 'bdldfp::DecimalImpUtil_IntelDFP' is for internal use only
-// by the 'bdldfp_decimal*' components.  Direct use of any names declared in
-// this component by any other code invokes undefined behavior.  In other
-// words: this code may change, disappear, break, move without notice, and no
-// support whatsoever will ever be provided for it.  This component provides
-// implementations of core Decimal Floating Point functionality using the Intel
-// DFP library.
+//@DESCRIPTION: This component, 'bdldfp::DecimalImpUtil_IntelDfp' is for
+// internal use only by the 'bdldfp_decimal*' components.  Direct use of any
+// names declared in this component by any other code invokes undefined
+// behavior.  In other words: this code may change, disappear, break, move
+// without notice, and no support whatsoever will ever be provided for it.
+// This component provides implementations of core Decimal Floating Point
+// functionality using the Intel DFP library.
 //
 ///Usage
 ///-----
 // This section shows the intended use of this component.
-//
-///Example 1: Adding two intel-formatted Decimal Values
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Intel formatted Decimal Floating Point values are highly efficient for
-// arithmetic.  Often times it is necessary to sum up stock prices or other
-// securities.
-//
-// Suppose that we had a list of stock prices to total.  This list is a
-// sequence of 'DecimalImpUtil_IntelDFP::ValueType64' values.
-//
-// First, we write a function which totals security prices, and returns a
-// Decimal Floating Point number in Intel Format:
-//..
-//  bdldfp::DecimalImpUtil_IntelDFP::ValueType64
-//  totalSecurities(bdldfp::DecimalImpUtil_IntelDFP::ValueType64 *prices,
-//                  int                                           numPrices)
-//      // Return an Intel formatted Decimal Floating Point number representing
-//      // the arithmetic total of the values specified by 'prices' and
-//      // 'numPrices'.
-//  {
-//..
-// Then, we create a local variable to hold the total value, and set it to
-// zero:
-//..
-//      bdldfp::DecimalImpUtil_IntelDFP::ValueType64 total;
-//      total = bdldfp::DecimalImpUtil_IntelDFP::int32ToDecimal64(0);
-//..
-// Next, we loop over the values in 'prices':
-//..
-//      for (int i = 0; i < numPrices; ++i) {
-//..
-// Then, we add the price at each index in the array to the total:
-//..
-//          total = bdldfp::DecimalImpUtil_IntelDFP::add(total, prices[i]);
-//      }
-//..
-// Now, we return the computed total value of the securities:
-//..
-//      return total;
-//  }
-//..
-// Notice that, the computation is performed using a functional notation.  This
-// is because the 'bdldfp::DecimalImpUtil_IntelDFP' utility is intended to be
-// used in the implementation of operator overloads on a more full fledged
-// type.
-//
-// Finally, we call the function with some sample data, and check the result:
-//..
-//  bdldfp::DecimalImpUtil_IntelDFP::ValueType64 data[16];
-//
-//  for (int i = 0; i < 16; ++i) {
-//      data[i] = bdldfp::DecimalImpUtil_IntelDFP::int32ToDecimal64(i + 1);
-//  }
-//
-//  bdldfp::DecimalImpUtil_IntelDFP::ValueType64 result;
-//  result = totalSecurities(data, 16);
-//
-//  bdldfp::DecimalImpUtil_IntelDFP::ValueType64 expected;
-//
-//  expected = bdldfp::DecimalImpUtil_IntelDFP::int32ToDecimal64(16);
-//
-//  // Totals of values from 1 to 'x' are '(x * x + x) / 2':
-//
-//  expected = bdldfp::DecimalImpUtil_IntelDFP::add(
-//               bdldfp::DecimalImpUtil_IntelDFP::multiply(expected, expected),
-//               expected);
-//  expected = bdldfp::DecimalImpUtil_IntelDFP::divide(
-//                       expected,
-//                       bdldfp::DecimalImpUtil_IntelDFP::int32ToDecimal64(2));
-//
-//  assert(bdldfp::DecimalImpUtil_IntelDFP::equal(expected, result));
-//..
-// Notice that arithmetic is unwieldy and hard to visualize.  This is by
-// design, as the DecimalImpUtil and subordinate components are not intended
-// for public consumption, for decimal arithmetic.
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -110,43 +34,11 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-
-#if !defined(INCLUDED_BID_FUNCTIONS) && !defined(INCLUDED_BID_CONF)
-
-// Controlling macros for the intel library configuration
-
-#  define DECIMAL_CALL_BY_REFERENCE      0
-#  define DECIMAL_GLOBAL_ROUNDING        1
-#  define DECIMAL_GLOBAL_EXCEPTION_FLAGS 1
-#  ifndef LINUX
-#    define LINUX
-#    define BDLDFP_DECIMALIMPUTIL_INTELDFP_FAKE_DEFINE_LINUX
-#  endif
-
-// in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
-// about this.
-
-#  define _WCHAR_T_DEFINED
-
-   extern "C" {
-#   include <bid_conf.h>
-#   include <bid_functions.h>
-   }
-
-#  undef DECIMAL_CALL_BY_REFERENCE
-#  undef DECIMAL_GLOBAL_ROUNDING
-#  undef DECIMAL_GLOBAL_EXCEPTION_FLAGS
-#  undef _WCHAR_T_DEFINED
-
-#  ifdef BDLDFP_DECIMALIMPUTIL_INTELDFP_FAKE_DEFINE_LINUX
-#    undef LINUX
-#  endif
-
-#  define INCLUDED_BID_CONF
-#  define INCLUDED_BID_FUNCTIONS
+#ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
+#include <bdldfp_intelimpwrapper.h>
 #endif
 
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 
 #ifndef INCLUDED_BSL_LOCALE
 #include <bsl_locale.h>
@@ -157,10 +49,10 @@ namespace BloombergLP {
 namespace bdldfp {
 
                           // ==============================
-                          // class DecimalImplUtil_IntelDFP
+                          // class DecimalImplUtil_IntelDfp
                           // ==============================
 
-struct DecimalImpUtil_IntelDFP {
+struct DecimalImpUtil_IntelDfp {
     // This 'struct' provides a namespace for implementation functions that
     // work in terms of the underlying C-style decimal floating point
     // implementation, Intel's DFP library.
@@ -170,30 +62,7 @@ struct DecimalImpUtil_IntelDFP {
     struct ValueType64  { BID_UINT64  d_raw; };
     struct ValueType128 { BID_UINT128 d_raw; };
 
-    struct DecimalTriple {
-        bool               sign;  // 'true' if negative, 'false' if positive.
-        unsigned long long mantissa;
-        int                exponent;
-    };
-
     // CLASS METHODS
-
-                        // compose and decompose
-
-    static ValueType32  composeDecimal32 (DecimalTriple triple);
-    static ValueType64  composeDecimal64 (DecimalTriple triple);
-    static ValueType128 composeDecimal128(DecimalTriple triple);
-        // Return a 'ValueTypeXX' number having the value as specified by the
-        // salient attributes of the specified 'triple'.  The behavior is
-        // undefined if the 'mantissa' has too many decimal digits for
-        // 'ValueType', or the 'exponent' is too large for 'ValueType'
-
-    static DecimalTriple decomposeDecimal(ValueType32  value);
-    static DecimalTriple decomposeDecimal(ValueType64  value);
-    static DecimalTriple decomposeDecimal(ValueType128 value);
-        // Return a 'DecimalTriple' object representing the salient attributes
-        // of the specified 'value'.  The behavior is undefined, unless 'value'
-        // is neither 'NaN' nor 'Inf'.
 
                         // Integer construction (32-bit)
 
@@ -766,6 +635,18 @@ struct DecimalImpUtil_IntelDFP {
         // it.  Note that this method does not guarantee the behavior of
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
         // intrinsics return a signaling NaN.
+
+    static void format(ValueType32  value, char *buffer);
+    static void format(ValueType64  value, char *buffer);
+    static void format(ValueType128 value, char *buffer);
+        // Produce a string representation of the specified decimal 'value', in
+        // the specified 'buffer', which is at least
+        // 'BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE' bytes in length.  The
+        // string will be suitable for use with the 'strtod128' function in
+        // section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point
+        // Technical Report, except that it is unspecified whether the NaNs
+        // returned are quiet or signaling.  The behavior is undefined unless
+        // there are 'size' bytes available in 'buffer'.
 };
 
 
@@ -774,122 +655,120 @@ struct DecimalImpUtil_IntelDFP {
 // ============================================================================
 
                           // -----------------------------
-                          // class DecimalImpUtil_IntelDFP
+                          // class DecimalImpUtil_IntelDfp
                           // -----------------------------
-
-typedef DecimalImpUtil_IntelDFP DecimalImpUtil_Platform;
 
 // CLASS METHODS
 
                         // Integer construction
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::int32ToDecimal32(int value)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::int32ToDecimal32(int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 retval;
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
     retval.d_raw = __bid32_from_int32(value);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::int32ToDecimal64(int value)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::int32ToDecimal64(int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_from_int32(value);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::int32ToDecimal128(int value)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::int32ToDecimal128(int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_from_int32(value);
     return retval;
 }
 
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::uint32ToDecimal32(unsigned int value)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::uint32ToDecimal32(unsigned int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 retval;
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
     retval.d_raw = __bid32_from_uint32(value);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::uint32ToDecimal64(unsigned int value)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::uint32ToDecimal64(unsigned int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_from_uint32(value);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::uint32ToDecimal128(unsigned int value)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::uint32ToDecimal128(unsigned int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_from_uint32(value);
     return retval;
 }
 
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::int64ToDecimal32(long long int value)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::int64ToDecimal32(long long int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 retval;
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
     retval.d_raw = __bid32_from_int64(value);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::int64ToDecimal64(long long int value)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::int64ToDecimal64(long long int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_from_int64(value);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::int64ToDecimal128(long long int value)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::int64ToDecimal128(long long int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_from_int64(value);
     return retval;
 }
 
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::uint64ToDecimal32(unsigned long long int value)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::uint64ToDecimal32(unsigned long long int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 retval;
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
     retval.d_raw = __bid32_from_uint64(value);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::uint64ToDecimal64(unsigned long long int value)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::uint64ToDecimal64(unsigned long long int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_from_uint64(value);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::uint64ToDecimal128(unsigned long long int value)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::uint64ToDecimal128(unsigned long long int value)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_from_uint64(value);
     return retval;
 }
@@ -899,21 +778,21 @@ DecimalImpUtil_IntelDFP::uint64ToDecimal128(unsigned long long int value)
                         // Addition Functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::add(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                             DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::add(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                             DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_add(lhs.d_raw, rhs.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::add(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                             DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::add(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                             DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_add(lhs.d_raw, rhs.d_raw);
     return retval;
 }
@@ -921,21 +800,21 @@ DecimalImpUtil_IntelDFP::add(DecimalImpUtil_IntelDFP::ValueType128 lhs,
                         // Subtraction Functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::subtract(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                                  DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::subtract(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_sub(lhs.d_raw, rhs.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::subtract(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                                  DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::subtract(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_sub(lhs.d_raw, rhs.d_raw);
     return retval;
 }
@@ -943,21 +822,21 @@ DecimalImpUtil_IntelDFP::subtract(DecimalImpUtil_IntelDFP::ValueType128 lhs,
                         // Multiplication Functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::multiply(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                                  DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::multiply(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_mul(lhs.d_raw, rhs.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::multiply(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                                  DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::multiply(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_mul(lhs.d_raw, rhs.d_raw);
     return retval;
 }
@@ -965,21 +844,21 @@ DecimalImpUtil_IntelDFP::multiply(DecimalImpUtil_IntelDFP::ValueType128 lhs,
                         // Division Functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::divide(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                                DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::divide(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                                DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_div(lhs.d_raw, rhs.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::divide(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                                DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::divide(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                                DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_div(lhs.d_raw, rhs.d_raw);
     return retval;
 }
@@ -987,28 +866,28 @@ DecimalImpUtil_IntelDFP::divide(DecimalImpUtil_IntelDFP::ValueType128 lhs,
                         // Negation Functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::negate(DecimalImpUtil_IntelDFP::ValueType32 value)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::negate(DecimalImpUtil_IntelDfp::ValueType32 value)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 retval;
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
     retval.d_raw = __bid32_negate(value.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::negate(DecimalImpUtil_IntelDFP::ValueType64 value)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::negate(DecimalImpUtil_IntelDfp::ValueType64 value)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid64_negate(value.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::negate(DecimalImpUtil_IntelDFP::ValueType128 value)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::negate(DecimalImpUtil_IntelDfp::ValueType128 value)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid128_negate(value.d_raw);
     return retval;
 }
@@ -1019,24 +898,24 @@ DecimalImpUtil_IntelDFP::negate(DecimalImpUtil_IntelDFP::ValueType128 value)
 
 inline
 bool
-DecimalImpUtil_IntelDFP::less(DecimalImpUtil_IntelDFP::ValueType32 lhs,
-                              DecimalImpUtil_IntelDFP::ValueType32 rhs)
+DecimalImpUtil_IntelDfp::less(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                              DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     return __bid32_quiet_less(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::less(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                              DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::less(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                              DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     return __bid64_quiet_less(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::less(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                              DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::less(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                              DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     return __bid128_quiet_less(lhs.d_raw, rhs.d_raw);
 }
@@ -1045,23 +924,23 @@ DecimalImpUtil_IntelDFP::less(DecimalImpUtil_IntelDFP::ValueType128 lhs,
 
 inline
 bool
-DecimalImpUtil_IntelDFP::greater(DecimalImpUtil_IntelDFP::ValueType32 lhs,
-                                 DecimalImpUtil_IntelDFP::ValueType32 rhs)
+DecimalImpUtil_IntelDfp::greater(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                                 DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     return __bid32_quiet_greater(lhs.d_raw, rhs.d_raw);
 }
 
 inline
-bool DecimalImpUtil_IntelDFP::greater(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                                      DecimalImpUtil_IntelDFP::ValueType64 rhs)
+bool DecimalImpUtil_IntelDfp::greater(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                                      DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     return __bid64_quiet_greater(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::greater(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                                 DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::greater(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                                 DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     return __bid128_quiet_greater(lhs.d_raw, rhs.d_raw);
 }
@@ -1070,24 +949,24 @@ DecimalImpUtil_IntelDFP::greater(DecimalImpUtil_IntelDFP::ValueType128 lhs,
 
 inline
 bool
-DecimalImpUtil_IntelDFP::lessEqual(DecimalImpUtil_IntelDFP::ValueType32 lhs,
-                                   DecimalImpUtil_IntelDFP::ValueType32 rhs)
+DecimalImpUtil_IntelDfp::lessEqual(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                                   DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     return __bid32_quiet_less_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::lessEqual(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                                   DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::lessEqual(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                                   DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     return __bid64_quiet_less_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::lessEqual(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                                   DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::lessEqual(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                                   DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     return __bid128_quiet_less_equal(lhs.d_raw, rhs.d_raw);
 }
@@ -1096,25 +975,25 @@ DecimalImpUtil_IntelDFP::lessEqual(DecimalImpUtil_IntelDFP::ValueType128 lhs,
 
 inline
 bool
-DecimalImpUtil_IntelDFP::greaterEqual(DecimalImpUtil_IntelDFP::ValueType32 lhs,
-                                      DecimalImpUtil_IntelDFP::ValueType32 rhs)
+DecimalImpUtil_IntelDfp::greaterEqual(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                                      DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     return __bid32_quiet_greater_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::greaterEqual(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                                      DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::greaterEqual(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                                      DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     return __bid64_quiet_greater_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::greaterEqual(
-                                     DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                                     DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::greaterEqual(
+                                     DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                                     DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     return __bid128_quiet_greater_equal(lhs.d_raw, rhs.d_raw);
 }
@@ -1123,24 +1002,24 @@ DecimalImpUtil_IntelDFP::greaterEqual(
 
 inline
 bool
-DecimalImpUtil_IntelDFP::equal(DecimalImpUtil_IntelDFP::ValueType32 lhs,
-                               DecimalImpUtil_IntelDFP::ValueType32 rhs)
+DecimalImpUtil_IntelDfp::equal(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                               DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     return __bid32_quiet_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::equal(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                               DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::equal(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                               DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     return __bid64_quiet_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::equal(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                               DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::equal(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                               DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     return __bid128_quiet_equal(lhs.d_raw, rhs.d_raw);
 }
@@ -1149,24 +1028,24 @@ DecimalImpUtil_IntelDFP::equal(DecimalImpUtil_IntelDFP::ValueType128 lhs,
 
 inline
 bool
-DecimalImpUtil_IntelDFP::notEqual(DecimalImpUtil_IntelDFP::ValueType32 lhs,
-                                  DecimalImpUtil_IntelDFP::ValueType32 rhs)
+DecimalImpUtil_IntelDfp::notEqual(DecimalImpUtil_IntelDfp::ValueType32 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType32 rhs)
 {
     return __bid32_quiet_not_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::notEqual(DecimalImpUtil_IntelDFP::ValueType64 lhs,
-                                  DecimalImpUtil_IntelDFP::ValueType64 rhs)
+DecimalImpUtil_IntelDfp::notEqual(DecimalImpUtil_IntelDfp::ValueType64 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType64 rhs)
 {
     return __bid64_quiet_not_equal(lhs.d_raw, rhs.d_raw);
 }
 
 inline
 bool
-DecimalImpUtil_IntelDFP::notEqual(DecimalImpUtil_IntelDFP::ValueType128 lhs,
-                                  DecimalImpUtil_IntelDFP::ValueType128 rhs)
+DecimalImpUtil_IntelDfp::notEqual(DecimalImpUtil_IntelDfp::ValueType128 lhs,
+                                  DecimalImpUtil_IntelDfp::ValueType128 rhs)
 {
     return __bid128_quiet_not_equal(lhs.d_raw, rhs.d_raw);
 }
@@ -1174,51 +1053,51 @@ DecimalImpUtil_IntelDFP::notEqual(DecimalImpUtil_IntelDFP::ValueType128 lhs,
                         // Inter-type Conversion functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::convertToDecimal32(
-                             const DecimalImpUtil_IntelDFP::ValueType64& input)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::convertToDecimal32(
+                             const DecimalImpUtil_IntelDfp::ValueType64& input)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 retval;
+    DecimalImpUtil_IntelDfp::ValueType32 retval;
     retval.d_raw = __bid64_to_bid32(input.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::convertToDecimal64(
-                             const DecimalImpUtil_IntelDFP::ValueType32& input)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::convertToDecimal64(
+                             const DecimalImpUtil_IntelDfp::ValueType32& input)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid32_to_bid64(input.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::convertToDecimal64(
-                            const DecimalImpUtil_IntelDFP::ValueType128& input)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::convertToDecimal64(
+                            const DecimalImpUtil_IntelDfp::ValueType128& input)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 retval;
+    DecimalImpUtil_IntelDfp::ValueType64 retval;
     retval.d_raw = __bid128_to_bid64(input.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::convertToDecimal128(
-                             const DecimalImpUtil_IntelDFP::ValueType32& input)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::convertToDecimal128(
+                             const DecimalImpUtil_IntelDfp::ValueType32& input)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid32_to_bid128(input.d_raw);
     return retval;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::convertToDecimal128(
-                             const DecimalImpUtil_IntelDFP::ValueType64& input)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::convertToDecimal128(
+                             const DecimalImpUtil_IntelDfp::ValueType64& input)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 retval;
+    DecimalImpUtil_IntelDfp::ValueType128 retval;
     retval.d_raw = __bid64_to_bid128(input.d_raw);
     return retval;
 }
@@ -1226,8 +1105,8 @@ DecimalImpUtil_IntelDFP::convertToDecimal128(
                         // Binary floating point conversion functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::binaryToDecimal32(float value)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::binaryToDecimal32(float value)
 {
     ValueType32 result;
     result.d_raw = __binary32_to_bid32(value);
@@ -1235,8 +1114,8 @@ DecimalImpUtil_IntelDFP::binaryToDecimal32(float value)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::binaryToDecimal32(double value)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::binaryToDecimal32(double value)
 {
     ValueType32 result;
     result.d_raw = __binary64_to_bid32(value);
@@ -1244,8 +1123,8 @@ DecimalImpUtil_IntelDFP::binaryToDecimal32(double value)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::binaryToDecimal32(long double value)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::binaryToDecimal32(long double value)
 {
     ValueType32 result;
     result.d_raw = __binary80_to_bid32(value);
@@ -1253,8 +1132,8 @@ DecimalImpUtil_IntelDFP::binaryToDecimal32(long double value)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::binaryToDecimal64(float value)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::binaryToDecimal64(float value)
 {
     ValueType64 result;
     result.d_raw = __binary32_to_bid64(value);
@@ -1262,8 +1141,8 @@ DecimalImpUtil_IntelDFP::binaryToDecimal64(float value)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::binaryToDecimal64(double value)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::binaryToDecimal64(double value)
 {
     ValueType64 result;
     result.d_raw = __binary64_to_bid64(value);
@@ -1271,8 +1150,8 @@ DecimalImpUtil_IntelDFP::binaryToDecimal64(double value)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::binaryToDecimal64(long double value)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::binaryToDecimal64(long double value)
 {
     ValueType64 result;
     result.d_raw = __binary80_to_bid64(value);
@@ -1281,8 +1160,8 @@ DecimalImpUtil_IntelDFP::binaryToDecimal64(long double value)
 
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::binaryToDecimal128(float value)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::binaryToDecimal128(float value)
 {
     ValueType128 result;
     result.d_raw = __binary32_to_bid128(value);
@@ -1290,8 +1169,8 @@ DecimalImpUtil_IntelDFP::binaryToDecimal128(float value)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::binaryToDecimal128(double value)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::binaryToDecimal128(double value)
 {
     ValueType128 result;
     result.d_raw = __binary80_to_bid128(value);
@@ -1299,8 +1178,8 @@ DecimalImpUtil_IntelDFP::binaryToDecimal128(double value)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::binaryToDecimal128(long double value)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::binaryToDecimal128(long double value)
 {
     ValueType128 result;
     result.d_raw = __binary80_to_bid128(value);
@@ -1310,132 +1189,132 @@ DecimalImpUtil_IntelDFP::binaryToDecimal128(long double value)
                         // makeDecimalRaw Functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::makeDecimalRaw32(int mantissa,
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::makeDecimalRaw32(int mantissa,
                                           int exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 result;
-    result = DecimalImpUtil_IntelDFP::int32ToDecimal32(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType32 result;
+    result = DecimalImpUtil_IntelDfp::int32ToDecimal32(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::makeDecimalRaw64(unsigned long long mantissa,
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::makeDecimalRaw64(unsigned long long mantissa,
                                           int                exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 result;
-    result = DecimalImpUtil_IntelDFP::uint64ToDecimal64(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType64 result;
+    result = DecimalImpUtil_IntelDfp::uint64ToDecimal64(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::makeDecimalRaw64(long long mantissa,
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::makeDecimalRaw64(long long mantissa,
                                           int       exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 result;
-    result = DecimalImpUtil_IntelDFP::int64ToDecimal64(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType64 result;
+    result = DecimalImpUtil_IntelDfp::int64ToDecimal64(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::makeDecimalRaw64(unsigned int mantissa,
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::makeDecimalRaw64(unsigned int mantissa,
                                           int          exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 result;
-    result = DecimalImpUtil_IntelDFP::uint32ToDecimal64(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType64 result;
+    result = DecimalImpUtil_IntelDfp::uint32ToDecimal64(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::makeDecimalRaw64(int mantissa,
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::makeDecimalRaw64(int mantissa,
                                           int exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 result;
-    result = DecimalImpUtil_IntelDFP::int32ToDecimal64(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType64 result;
+    result = DecimalImpUtil_IntelDfp::int32ToDecimal64(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::makeDecimalRaw128(unsigned long long mantissa,
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::makeDecimalRaw128(unsigned long long mantissa,
                                            int                exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 result;
-    result = DecimalImpUtil_IntelDFP::uint64ToDecimal128(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType128 result;
+    result = DecimalImpUtil_IntelDfp::uint64ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::makeDecimalRaw128(long long mantissa,
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::makeDecimalRaw128(long long mantissa,
                                            int       exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 result;
-    result = DecimalImpUtil_IntelDFP::int64ToDecimal128(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType128 result;
+    result = DecimalImpUtil_IntelDfp::int64ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::makeDecimalRaw128(unsigned int mantissa,
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::makeDecimalRaw128(unsigned int mantissa,
                                            int          exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 result;
-    result = DecimalImpUtil_IntelDFP::uint32ToDecimal128(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType128 result;
+    result = DecimalImpUtil_IntelDfp::uint32ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::makeDecimalRaw128(int mantissa,
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::makeDecimalRaw128(int mantissa,
                                            int exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 result;
-    result = DecimalImpUtil_IntelDFP::uint32ToDecimal128(mantissa);
-    result = DecimalImpUtil_IntelDFP::scaleB(result, exponent);
+    DecimalImpUtil_IntelDfp::ValueType128 result;
+    result = DecimalImpUtil_IntelDfp::uint32ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
 
                         // IEEE Scale B Functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::scaleB(DecimalImpUtil_IntelDFP::ValueType32 value,
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::scaleB(DecimalImpUtil_IntelDfp::ValueType32 value,
                                 int                                  exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 result;
+    DecimalImpUtil_IntelDfp::ValueType32 result;
     result.d_raw = __bid32_scalbn(value.d_raw, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::scaleB(DecimalImpUtil_IntelDFP::ValueType64 value,
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::scaleB(DecimalImpUtil_IntelDfp::ValueType64 value,
                                 int                                  exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 result;
+    DecimalImpUtil_IntelDfp::ValueType64 result;
     result.d_raw = __bid64_scalbn(value.d_raw, exponent);
     return result;
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::scaleB(DecimalImpUtil_IntelDFP::ValueType128 value,
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::scaleB(DecimalImpUtil_IntelDfp::ValueType128 value,
                                 int                                   exponent)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 result;
+    DecimalImpUtil_IntelDfp::ValueType128 result;
     result.d_raw = __bid128_scalbn(value.d_raw, exponent);
     return result;
 }
@@ -1443,10 +1322,10 @@ DecimalImpUtil_IntelDFP::scaleB(DecimalImpUtil_IntelDFP::ValueType128 value,
                         // Parsing functions
 
 inline
-DecimalImpUtil_IntelDFP::ValueType32
-DecimalImpUtil_IntelDFP::parse32(const char *string)
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::parse32(const char *string)
 {
-    DecimalImpUtil_IntelDFP::ValueType32 result;
+    DecimalImpUtil_IntelDfp::ValueType32 result;
     // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
     // because the __bid* interfaces are C interfaces.
     result.d_raw = __bid32_from_string(const_cast<char *>(string));
@@ -1454,10 +1333,10 @@ DecimalImpUtil_IntelDFP::parse32(const char *string)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType64
-DecimalImpUtil_IntelDFP::parse64(const char *string)
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::parse64(const char *string)
 {
-    DecimalImpUtil_IntelDFP::ValueType64 result;
+    DecimalImpUtil_IntelDfp::ValueType64 result;
     // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
     // because the __bid* interfaces are C interfaces.
     result.d_raw = __bid64_from_string(const_cast<char *>(string));
@@ -1465,16 +1344,47 @@ DecimalImpUtil_IntelDFP::parse64(const char *string)
 }
 
 inline
-DecimalImpUtil_IntelDFP::ValueType128
-DecimalImpUtil_IntelDFP::parse128(const char *string)
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::parse128(const char *string)
 {
-    DecimalImpUtil_IntelDFP::ValueType128 result;
+    DecimalImpUtil_IntelDfp::ValueType128 result;
     // NOTE: It is probably safe to convert from a 'const char *' to a 'char *'
     // because the __bid* interfaces are C interfaces.
     result.d_raw = __bid128_from_string(const_cast<char *>(string));
     return result;
 }
 
+inline
+void
+DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType32  value,
+                                char                                 *buffer)
+{
+    BSLS_ASSERT(buffer);
+    DecimalImpUtil_IntelDfp::ValueType64 tmp;
+    tmp.d_raw = __bid32_to_bid64(value.d_raw);
+
+    return format(tmp, buffer);
+}
+
+inline
+void
+DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType64  value,
+                                char                                 *buffer)
+{
+    BSLS_ASSERT(buffer);
+
+    __bid64_to_string(buffer, value.d_raw);
+}
+
+inline
+void
+DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType128  value,
+                                char                                  *buffer)
+{
+    BSLS_ASSERT(buffer);
+
+    __bid128_to_string(buffer, value.d_raw);
+}
 
 }  // close package namespace
 }  // close enterprise namespace

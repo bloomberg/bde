@@ -242,6 +242,33 @@ static const DecBinTestCase DEC2BIN_DATA[] = {
 static const int DEC2BIN_DATA_COUNT =
                                 sizeof(DEC2BIN_DATA) / sizeof(DEC2BIN_DATA[0]);
 
+                        // Reverse Memory
+
+static void memrev(void *buffer, size_t count)
+    // Reverse the order of the first specified 'count' bytes, at the beginning
+    // of the specified 'buffer'.  'count % 2' must be zero.
+{
+    unsigned char *b = static_cast<unsigned char *>(buffer);
+    bsl::reverse(b, b + count);
+}
+
+                        // Mem copy with reversal functions
+
+unsigned char *memReverseIfNeeded(void *buffer, size_t count)
+    // Reverse the first specified 'count' bytes from the specified 'buffer`,
+    // if the host endian is different from network endian, and return the
+    // address computed from 'static_cast<unsigned char *>(buffer) + count'.
+{
+#ifdef BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
+//#error Should reverse, and we will
+    // little endian, needs to do some byte juggling
+    memrev(buffer, count);
+#else
+#error Should reverse, and we will not
+#endif
+    return static_cast<unsigned char*>(buffer) + count;
+}
+
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -577,7 +604,7 @@ int main(int argc, char* argv[])
 #undef D2B_ASSERT
         }
 
-        if (veryVerbose) bsl::cout << "Network format conversions"
+        if (veryVerbose) bsl::cout << "DPD, and Network format conversions"
                                    << bsl::endl;
 
         { // 32
@@ -591,6 +618,20 @@ int main(int argc, char* argv[])
 
             Util::decimalFromNetwork(&d32, buffer);
             LOOP2_ASSERT(d32, h_d32, d32 == h_d32);
+
+            Util::decimalToDenselyPacked(buffer, h_d32);
+            ASSERT(0 == memcmp(n_d32, buffer, sizeof(n_d32)));
+
+            Util::decimal32ToDenselyPacked(buffer, h_d32);
+            ASSERT(0 == memcmp(n_d32, buffer, sizeof(n_d32)));
+
+            ASSERT(Util::decimal32FromDenselyPacked(buffer) == h_d32);
+
+            Util::decimal32FromDenselyPacked(&d32, buffer);
+            ASSERT(d32 == h_d32);
+
+            Util::decimalFromDenselyPacked(&d32, buffer);
+            ASSERT(d32 == h_d32);
         }
 
         { // 64
@@ -605,6 +646,20 @@ int main(int argc, char* argv[])
 
             Util::decimalFromNetwork(&d64, buffer);
             LOOP2_ASSERT(d64, h_d64, d64 == h_d64);
+
+            Util::decimalToDenselyPacked(buffer, h_d64);
+            ASSERT(0 == memcmp(n_d64, buffer, sizeof(n_d64)));
+
+            Util::decimal64ToDenselyPacked(buffer, h_d64);
+            ASSERT(0 == memcmp(n_d64, buffer, sizeof(n_d64)));
+
+            ASSERT(Util::decimal64FromDenselyPacked(buffer) == h_d64);
+
+            Util::decimal64FromDenselyPacked(&d64, buffer);
+            ASSERT(d64 == h_d64);
+
+            Util::decimalFromDenselyPacked(&d64, buffer);
+            ASSERT(d64 == h_d64);
         }
 
         { // 128
@@ -631,6 +686,21 @@ int main(int argc, char* argv[])
             std::copy(reinterpret_cast<const unsigned char *>(&h_d128),
                       reinterpret_cast<const unsigned char *>(&h_d128) + 8,
                         std::ostream_iterator<unsigned int>(std::cout, " "));
+
+
+            Util::decimalToDenselyPacked(buffer, h_d128);
+            ASSERT(0 == memcmp(n_d128, buffer, sizeof(n_d128)));
+
+            Util::decimal128ToDenselyPacked(buffer, h_d128);
+            ASSERT(0 == memcmp(n_d128, buffer, sizeof(n_d128)));
+
+            ASSERT(Util::decimal128FromDenselyPacked(buffer) == h_d128);
+
+            Util::decimal128FromDenselyPacked(&d128, buffer);
+            ASSERT(d128 == h_d128);
+
+            Util::decimalFromDenselyPacked(&d128, buffer);
+            ASSERT(d128 == h_d128);
         }
 
         if (veryVerbose) bsl::cout << "Decimal-binary-decimal trip"

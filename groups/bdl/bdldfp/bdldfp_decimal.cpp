@@ -1,5 +1,7 @@
 // bdldfp_decimal.cpp                                                 -*-C++-*-
 
+#include <bdldfp_decimal.h>
+
 // TODO: Remove this #define and the generated bits...
 
 #define BDLDFP_DISABLE_COMPILE \
@@ -27,8 +29,6 @@ typedef char Unsupported_Platform[ -1 ];
 // assert to check that 24 is indeed enough.  Why don't we use the
 // numeric_limits<>::digits10?  Because it is "helpfully" broken on MS Visual
 // C++ 2008, reports 18 & not 19.
-
-#include <bdldfp_decimal.h>
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -83,155 +83,6 @@ NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 {
     return !this->d_ctype.is(bsl::ctype_base::space, character);
 }
-
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-
-#  ifndef  __STDC_WANT_DEC_FP__
-#    error __STDC_WANT_DEC_FP__ must be defined on the command line!
-     char die[sizeof(Decimal_Assert)];     // if '#error' unsupported
-#  endif
-
-
-        // Implementation when we have C DecFP support only (no C++)
-
-                   // C99 stream-output converters
-
-static
-char *format(const DecimalImpUtil::ValueType32 *value, char *buffer, int n)
-{
-    // TBD TODO - printf is locale dependent!!!
-
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-
-    snprintf(buffer, n, "%#.7HG", *value);
-    return buffer;
-}
-
-static
-char *format(const DecimalImpUtil::ValueType64 *value, char *buffer, int n)
-{
-    // TBD TODO - printf is locale dependent!!!
-
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-
-    snprintf(buffer, n, "%#.16DG", *value);
-    return buffer;
-}
-
-static
-char *format(const DecimalImpUtil::ValueType128 *value, char *buffer, int n)
-{
-    // TBD TODO - printf is locale dependent!!!
-
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-
-    snprintf(buffer, n, "%#.34DDG", *value);
-    return buffer;
-}
-
-#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
-
-     // Implementation based on the decNumber library (no C or C++ support)
-
-              // Implementation specific helper functions
-
-static
-char *format(const DecimalImpUtil::ValueType32 *value, char *buffer, int)
-{
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-
-    return decSingleToString(value, buffer);
-}
-
-static
-char *format(const DecimalImpUtil::ValueType64 *value, char *buffer, int)
-{
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-
-    return decDoubleToString(value, buffer);
-}
-
-static
-char *format(const DecimalImpUtil::ValueType128 *value, char *buffer, int)
-{
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-
-    return decQuadToString(value, buffer);
-}
-
-static decContext* getContext()
-    // Provides the decimal context required by the decNumber library functions
-{
-    static decContext context = { 0, 0, 0, DEC_ROUND_HALF_EVEN, 0, 0, 0 };
-    return &context;
-}
-
-#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-
-    // Implementation based upon the Intel DFP library (no C or C++ support)
-
-              // Implementation specific helper functions
-
-static char *format(const DecimalImpUtil::ValueType32  *value,
-                    char                               *buffer,
-                    int                                 size);
-static char *format(const DecimalImpUtil::ValueType64  *value,
-                    char                               *buffer,
-                    int                                 size);
-static char *format(const DecimalImpUtil::ValueType128 *value,
-                    char                               *buffer,
-                    int                                 size);
-    // Produce a string representation of the specified decimal 'value', in the
-    // specified 'buffer', which has at least as much space as specified by
-    // 'size'.
-
-static
-char *format(const DecimalImpUtil::ValueType32 *value, char *buffer, int size)
-{
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-    DecimalImpUtil::ValueType64 tmp;
-    tmp.d_raw = __bid32_to_bid64(value->d_raw);
-
-    return format(&tmp, buffer, size);
-}
-
-static
-char *format(const DecimalImpUtil::ValueType64 *value, char *buffer, int)
-{
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-
-    __bid64_to_string(buffer, value->d_raw);
-
-    return buffer;
-}
-
-static
-char *format(const DecimalImpUtil::ValueType128 *value, char *buffer, int)
-    // Produce a string representation of the specified decimal 'value', in the
-    // specified 'buffer', which has at least as much space as specified by
-    // 'size'.
-{
-    BSLS_ASSERT(value);
-    BSLS_ASSERT(buffer);
-
-    __bid128_to_string(buffer, value->d_raw);
-
-    return buffer;
-}
-
-#else
-
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
-
-#endif // elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
 
                          // Print helper function
 
@@ -797,7 +648,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal32      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    format(value.data(), buffer, sizeof(buffer));
+    DecimalImpUtil::format(value.data(), buffer, sizeof(buffer));
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
@@ -808,7 +659,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal64      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    format(value.data(), buffer, sizeof(buffer));
+    DecimalImpUtil::format(value.data(), buffer, sizeof(buffer));
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
@@ -819,7 +670,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal128     value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    format(value.data(), buffer, sizeof(buffer));
+    DecimalImpUtil::format(value.data(), buffer, sizeof(buffer));
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 
@@ -1427,7 +1278,6 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-
 // Microsoft has non-standard behavior
 
 #ifndef BSLS_PLATFORM_CMP_MSVC
@@ -1527,6 +1377,7 @@ const std::float_round_style
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::round_style;
 
 #endif // Microsoft is non-standard
+
 
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)
 #   define std bsl

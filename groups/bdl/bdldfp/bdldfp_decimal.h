@@ -4015,63 +4015,9 @@ DecimalImpUtil::ValueType32 Decimal_Type32::value() const
     return d_value;
 }
 
-}  // close package namespace
-
-
-// FREE OPERATORS
-inline
-bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 value)
-{
-    return value;
-}
-
-inline
-bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 value)
-{
-    return Decimal32(DecimalImpUtil::negate(value.value()));
-}
-
-inline
-bool bdldfp::operator==(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
-{
-    return DecimalImpUtil::equal(*lhs.data(), *rhs.data());
-}
-
-inline
-bool bdldfp::operator!=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
-{
-    return DecimalImpUtil::notEqual(*lhs.data(), *rhs.data());
-}
-
-inline
-bool bdldfp::operator<(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
-{
-    return DecimalImpUtil::less(*lhs.data(), *rhs.data());
-}
-
-inline
-bool bdldfp::operator<=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
-{
-    return DecimalImpUtil::lessEqual(*lhs.data(), *rhs.data());
-}
-
-inline
-bool bdldfp::operator>(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
-{
-    return DecimalImpUtil::greater(*lhs.data(), *rhs.data());
-}
-
-inline
-bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
-{
-    return DecimalImpUtil::greaterEqual(*lhs.data(), *rhs.data());
-}
-
-
                            // --------------------
                            // class Decimal_Type64
                            // --------------------
-namespace bdldfp {
 
 // CREATORS
 inline
@@ -4377,7 +4323,398 @@ inline DecimalImpUtil::ValueType64 Decimal_Type64::value() const
     return d_value;
 }
 
+                          // ---------------------
+                          // class Decimal_Type128
+                          // ---------------------
+
+inline
+Decimal_Type128::Decimal_Type128()
+: d_value()
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(DecimalImpUtil::ValueType128 value)
+: d_value(value)
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(Decimal32 value)
+: d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(Decimal64 value)
+: d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(float value)
+: d_value(DecimalImpUtil::binaryToDecimal128(value))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(double value)
+: d_value(DecimalImpUtil::binaryToDecimal128(value))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(long double value)
+: d_value(DecimalImpUtil::binaryToDecimal128(value))
+{
+}
+
+inline
+Decimal_Type128::Decimal_Type128(int value)
+: d_value(DecimalImpUtil::int32ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(unsigned int value)
+: d_value(DecimalImpUtil::uint32ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(long value)
+: d_value(DecimalImpUtil::int64ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(unsigned long value)
+: d_value(DecimalImpUtil::uint64ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(long long value)
+: d_value(DecimalImpUtil::int64ToDecimal128(value))
+{
+}
+
+inline Decimal_Type128::Decimal_Type128(unsigned long long value)
+: d_value(DecimalImpUtil::uint64ToDecimal128(value))
+{
+}
+
+
+inline
+Decimal_Type128& Decimal_Type128::operator++()
+{
+    return *this += Decimal128(1);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator--()
+{
+    return *this -= Decimal128(1);
+}
+
+                        // Addition
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(Decimal32 rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(Decimal64 rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(Decimal128 rhs)
+{
+    this->d_value = DecimalImpUtil::add(this->d_value, rhs.d_value);
+    return *this;
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(int rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(unsigned int rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(long rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(unsigned long rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(long long rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator+=(unsigned long long rhs)
+{
+    return *this += Decimal128(rhs);
+}
+
+                        // Subtraction
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(Decimal32 rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(Decimal64 rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(Decimal128 rhs)
+{
+    this->d_value = DecimalImpUtil::subtract(this->d_value, rhs.d_value);
+    return *this;
+}
+
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(int rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(unsigned int rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(long rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(unsigned long rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(long long rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator-=(unsigned long long rhs)
+{
+    return *this -= Decimal128(rhs);
+}
+
+                        // Multiplication
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(Decimal32 rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(Decimal64 rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(Decimal128 rhs)
+{
+    this->d_value = DecimalImpUtil::multiply(this->d_value, rhs.d_value);
+    return *this;
+}
+
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(int rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(unsigned int rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(long rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(unsigned long rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(long long rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator*=(unsigned long long rhs)
+{
+    return *this *= Decimal128(rhs);
+}
+
+                        // Division
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(Decimal32 rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(Decimal64 rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(Decimal128 rhs)
+{
+    this->d_value = DecimalImpUtil::divide(this->d_value, rhs.d_value);
+    return *this;
+}
+
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(int rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(unsigned int rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(long rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(unsigned long rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(long long rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+inline
+Decimal_Type128& Decimal_Type128::operator/=(unsigned long long rhs)
+{
+    return *this /= Decimal128(rhs);
+}
+
+                        // Internals Accessors
+
+inline
+DecimalImpUtil::ValueType128 *Decimal_Type128::data()
+{
+    return &d_value;
+}
+
+inline
+const DecimalImpUtil::ValueType128 *Decimal_Type128::data() const
+{
+    return &d_value;
+}
+
+inline
+DecimalImpUtil::ValueType128 Decimal_Type128::value() const
+{
+    return d_value;
+}
+
 }  // close package namespace
+
+// FREE OPERATORS
+
+inline
+bdldfp::Decimal32 bdldfp::operator+(bdldfp::Decimal32 value)
+{
+    return value;
+}
+
+inline
+bdldfp::Decimal32 bdldfp::operator-(bdldfp::Decimal32 value)
+{
+    return Decimal32(DecimalImpUtil::negate(value.value()));
+}
+
+inline
+bool bdldfp::operator==(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::equal(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator!=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::notEqual(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator<(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::less(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator<=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::lessEqual(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator>(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::greater(*lhs.data(), *rhs.data());
+}
+
+inline
+bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
+{
+    return DecimalImpUtil::greaterEqual(*lhs.data(), *rhs.data());
+}
 
 // FREE OPERATORS
 
@@ -4908,351 +5245,6 @@ inline bool bdldfp::operator>=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
 {
     return lhs >= Decimal64(rhs);
 }
-
-                          // ---------------------
-                          // class Decimal_Type128
-                          // ---------------------
-
-namespace bdldfp {
-
-inline
-Decimal_Type128::Decimal_Type128()
-: d_value()
-{
-}
-
-inline
-Decimal_Type128::Decimal_Type128(DecimalImpUtil::ValueType128 value)
-: d_value(value)
-{
-}
-
-inline
-Decimal_Type128::Decimal_Type128(Decimal32 value)
-: d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
-{
-}
-
-inline
-Decimal_Type128::Decimal_Type128(Decimal64 value)
-: d_value(DecimalImpUtil::convertToDecimal128(*value.data()))
-{
-}
-
-inline
-Decimal_Type128::Decimal_Type128(float value)
-: d_value(DecimalImpUtil::binaryToDecimal128(value))
-{
-}
-
-inline
-Decimal_Type128::Decimal_Type128(double value)
-: d_value(DecimalImpUtil::binaryToDecimal128(value))
-{
-}
-
-inline
-Decimal_Type128::Decimal_Type128(long double value)
-: d_value(DecimalImpUtil::binaryToDecimal128(value))
-{
-}
-
-inline
-Decimal_Type128::Decimal_Type128(int value)
-: d_value(DecimalImpUtil::int32ToDecimal128(value))
-{
-}
-
-inline Decimal_Type128::Decimal_Type128(unsigned int value)
-: d_value(DecimalImpUtil::uint32ToDecimal128(value))
-{
-}
-
-inline Decimal_Type128::Decimal_Type128(long value)
-: d_value(DecimalImpUtil::int64ToDecimal128(value))
-{
-}
-
-inline Decimal_Type128::Decimal_Type128(unsigned long value)
-: d_value(DecimalImpUtil::uint64ToDecimal128(value))
-{
-}
-
-inline Decimal_Type128::Decimal_Type128(long long value)
-: d_value(DecimalImpUtil::int64ToDecimal128(value))
-{
-}
-
-inline Decimal_Type128::Decimal_Type128(unsigned long long value)
-: d_value(DecimalImpUtil::uint64ToDecimal128(value))
-{
-}
-
-
-inline
-Decimal_Type128& Decimal_Type128::operator++()
-{
-    return *this += Decimal128(1);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator--()
-{
-    return *this -= Decimal128(1);
-}
-
-                        // Addition
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(Decimal32 rhs)
-{
-    return *this += Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(Decimal64 rhs)
-{
-    return *this += Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(Decimal128 rhs)
-{
-    this->d_value = DecimalImpUtil::add(this->d_value, rhs.d_value);
-    return *this;
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(int rhs)
-{
-    return *this += Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(unsigned int rhs)
-{
-    return *this += Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(long rhs)
-{
-    return *this += Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(unsigned long rhs)
-{
-    return *this += Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(long long rhs)
-{
-    return *this += Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator+=(unsigned long long rhs)
-{
-    return *this += Decimal128(rhs);
-}
-
-                        // Subtraction
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(Decimal32 rhs)
-{
-    return *this -= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(Decimal64 rhs)
-{
-    return *this -= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(Decimal128 rhs)
-{
-    this->d_value = DecimalImpUtil::subtract(this->d_value, rhs.d_value);
-    return *this;
-}
-
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(int rhs)
-{
-    return *this -= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(unsigned int rhs)
-{
-    return *this -= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(long rhs)
-{
-    return *this -= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(unsigned long rhs)
-{
-    return *this -= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(long long rhs)
-{
-    return *this -= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator-=(unsigned long long rhs)
-{
-    return *this -= Decimal128(rhs);
-}
-
-                        // Multiplication
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(Decimal32 rhs)
-{
-    return *this *= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(Decimal64 rhs)
-{
-    return *this *= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(Decimal128 rhs)
-{
-    this->d_value = DecimalImpUtil::multiply(this->d_value, rhs.d_value);
-    return *this;
-}
-
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(int rhs)
-{
-    return *this *= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(unsigned int rhs)
-{
-    return *this *= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(long rhs)
-{
-    return *this *= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(unsigned long rhs)
-{
-    return *this *= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(long long rhs)
-{
-    return *this *= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator*=(unsigned long long rhs)
-{
-    return *this *= Decimal128(rhs);
-}
-
-                        // Division
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(Decimal32 rhs)
-{
-    return *this /= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(Decimal64 rhs)
-{
-    return *this /= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(Decimal128 rhs)
-{
-    this->d_value = DecimalImpUtil::divide(this->d_value, rhs.d_value);
-    return *this;
-}
-
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(int rhs)
-{
-    return *this /= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(unsigned int rhs)
-{
-    return *this /= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(long rhs)
-{
-    return *this /= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(unsigned long rhs)
-{
-    return *this /= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(long long rhs)
-{
-    return *this /= Decimal128(rhs);
-}
-
-inline
-Decimal_Type128& Decimal_Type128::operator/=(unsigned long long rhs)
-{
-    return *this /= Decimal128(rhs);
-}
-
-                        // Internals Accessors
-
-inline
-DecimalImpUtil::ValueType128 *Decimal_Type128::data()
-{
-    return &d_value;
-}
-
-inline
-const DecimalImpUtil::ValueType128 *Decimal_Type128::data() const
-{
-    return &d_value;
-}
-
-inline
-DecimalImpUtil::ValueType128 Decimal_Type128::value() const
-{
-    return d_value;
-}
-
-}  // close package namespace
 
 // FREE OPERATORS
 

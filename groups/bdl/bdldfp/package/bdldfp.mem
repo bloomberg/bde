@@ -11,4 +11,5 @@ bdldfp_decimalimputil_ibmxlc
 bdldfp_decimalimputil_inteldfp
 bdldfp_decimalutil
 bdldfp_denselypackeddecimalimputil
+bdldfp_intelimpwrapper
 bdldfp_uint128

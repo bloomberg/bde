@@ -71,7 +71,7 @@ static void memrev(void *buffer, size_t count)
 
                         // Mem copy with reversal functions
 
-unsigned char *memRevIfNeeded(void *buffer, size_t count)
+unsigned char *memReverseIfNeeded(void *buffer, size_t count)
     // Reverse the first specified 'count' bytes from the specified 'buffer`,
     // if the host endian is different from network endian, and return the
     // address computed from 'static_cast<unsigned char *>(buffer) + count'.
@@ -97,7 +97,7 @@ unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
     // byte of 'decimal'.
 {
     bsl::memcpy(decimal, buffer, sizeof(DECIMAL_TYPE));
-    unsigned char *result = memRevIfNeeded(decimal, sizeof(DECIMAL_TYPE));
+    unsigned char *result = memReverseIfNeeded(decimal, sizeof(DECIMAL_TYPE));
 
     DecimalConvertUtil_Platform::decimalFromDenselyPacked(
                                    decimal,
@@ -115,7 +115,7 @@ unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
     // past the last written byte of the 'buffer'.
 {
     DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
-    return memRevIfNeeded(buffer, sizeof(DECIMAL_TYPE));
+    return memReverseIfNeeded(buffer, sizeof(DECIMAL_TYPE));
 }
 
                   // Helpers for Restoring Decimal from Binary

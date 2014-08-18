@@ -10,82 +10,24 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide decimal floating-point conversion functions.
 //
 //@CLASSES:
-//  bdldfp::DecimalConvertUtil: Namespace for decimal FP conversion functions
+//  bdldfp::DecimalConvertUtil_IbmXlc: IBM xlC conversion functions
 //
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION:
-// This component provides functions that are able to convert between the
-// native decimal types of the platform and various other possible
-// representations, such as binary floating-point, network format (big endian,
-// DPD encoded decimals).
+// This component provides conversion operations between the decimal types
+// supplied in this package ('Decimal32', 'Decimal64', 'Decimal128') and
+// various alternative representations.  Some of the alternative
+// representations that this component provides conversions for are IEEE-754
+// binary floating point (i.e., 'float' and 'double') and a network format
+// (big-endian, Densely Packed Decimal encoding).
 //
 ///Usage
 ///-----
 // This section shows the intended use of this component.
 //
-///Example 1: Sending Decimals As Octets Using Network Format
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose you have two communicating entities (programs) that talk to each
-// other using a binary (as opposed to text) protocol.  In such protocol it is
-// important to establish a so-called network format, and convert to and from
-// that format in the protocol layer.  The sender (suppose that it is an IBM
-// server that has just finished an expensive calculation involving millions
-// of numbers and needs to send the result to its client) will need to convert
-// the data to network format before sending:
-//..
-//  unsigned char   msgbuffer[256];
-//  BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
-//  unsigned char   expected[] = {
-//                            0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
-//
-//  unsigned char *next = msgbuffer;
-//  next = bdldfp::DecimalConvertUtil::decimalToNetwork(next, number);
-//
-//  assert(memcmp(msgbuffer, expected, sizeof(number)) == 0);
-//..
-// The receiver/client shall then restore the number from network format:
-//..
-//  unsigned char   msgbuffer[] ={
-//                            0x25, 0x55, 0x34, 0xb9, 0xc1, 0xe2, 0x8e, 0x56 };
-//  BDEC::Decimal64 number;
-//  BDEC::Decimal64 expected(BDLDFP_DECIMAL_DD(1.234567890123456e-42));
-//
-//  unsigned char *next = msgbuffer;
-//  next = bdldfp::DecimalConvertUtil::decimalFromNetwork(number, next);
-//
-//  assert(number == expected);
-//..
-//
-///Example 2: Storing/Sending Decimals In Binary Floating-Point
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose you have two communicating entities (programs) that talk to each
-// other using a legacy protocol that employs binary floating-point formats to
-// send/receive numbers.  So your application layer will have to store the
-// decimal into a binary FP variable, ensure that it can be restored (in other
-// words that it has "fit" into the binary type) when sending, and restore the
-// decimal number (from the binary type) when receiving:
-//..
-//  const BDEC::Decimal64 number(BDLDFP_DECIMAL_DD(1.23456789012345e-42));
-//
-//  typedef bdldfp::DecimalConvertUtil Util;
-//  double dbl = Util::decimalToDouble(number);
-//
-//  if (Util::decimal64FromDouble(dbl) != number) {
-//      // Do what is appropriate for the application
-//  }
-//..
-// Note that the above assert would probably be a lot more complicated if
-// statement in production code.  It may actually be acceptable to put the
-// decimal onto the wire with certain amount of imprecision.
-//
-// The receiver would then restore the number using the appropriate
-// 'decimal64FromDouble' function:
-//..
-//  BDEC::Decimal64 restored = Util::decimal64FromDouble(dbl);
-//
-//  assert(number == restored);
-//..
+///Example 1: None.
+/// - - - - - - - -
 
 #ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
@@ -103,13 +45,15 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+
 namespace BloombergLP {
 namespace bdldfp {
-                        // ========================
-                        // class DecimalConvertUtil
-                        // ========================
+                        // ===============================
+                        // class DecimalConvertUtil_IbmXlc
+                        // ===============================
 
-struct DecimalConvertUtil_IBMxlC {
+struct DecimalConvertUtil_IbmXlc {
     // This 'struct' provides a namespace for utility functions that convert
     // between the decimal floating-point types of 'bdldfp_decimal' and various
     // other formats.
@@ -373,10 +317,13 @@ struct DecimalConvertUtil_IBMxlC {
                                           Decimal64      decimal);
     static void decimalToDenselyPacked(   unsigned char *buffer,
                                           Decimal128     decimal);
-        // Store the specified 'decimal', in DPD format, into the specified
-        // 'buffer' and return the address one past the last byte written into
-        // the 'buffer'.  The DPD format is the densely packed base-10
-        // significand encoding.
+        // Populate the specified 'buffer' with the Densely Packed Decimal
+        // (DPD) representation of the specified 'decimal' value.  The DPD
+        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
+        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
+        // unless 'buffer' points to a contiguous sequence of at least
+        // 'sizeof(decimal)' bytes.  Note that the DPD representation is
+        // defined in section 3.5 of IEEE 754-2008.
 
                         // decimalFromDenselyPacked functions
 
@@ -401,64 +348,284 @@ struct DecimalConvertUtil_IBMxlC {
         // 'buffer' address.  The behavior is undefined unless 'buffer' points
         // to a memory area at least 'sizeof(decimal)' in size containing a
         // value in DPD format.
-
-                        // decimalToNetwork functions
-
-    static unsigned char *decimal32ToNetwork(unsigned char *buffer,
-                                             Decimal32      decimal);
-    static unsigned char *decimal64ToNetwork(unsigned char *buffer,
-                                             Decimal64      decimal);
-    static unsigned char *decimal128ToNetwork(unsigned char *buffer,
-                                              Decimal128     decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal32      decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal64      decimal);
-    static unsigned char *decimalToNetwork(unsigned char *buffer,
-                                           Decimal128     decimal);
-        // Store the specified 'decimal', in network format, into the specified
-        // 'buffer' and return the address one past the last byte written into
-        // the 'buffer'. The network format is defined as big endian byte order
-        // and densely packed base-10 significand encoding.  This corresponds
-        // to the way IBM hardware represents these numbers in memory. The
-        // behavior is undefined unless 'buffer' points to a memory area at
-        // least 'sizeof(decimal)' in size.  Note that these functions always
-        // return 'buffer + sizeof(decimal)' on the supported 8-bits-byte
-        // architectures.
-
-                        // decimalFromNetwork functions
-
-    static unsigned char *decimal32FromNetwork(Decimal32           *decimal,
-                                               const unsigned char *buffer);
-    static unsigned char *decimal64FromNetwork(Decimal64           *decimal,
-                                               const unsigned char *buffer);
-    static unsigned char *decimal128FromNetwork(Decimal128          *decimal,
-                                                const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal32           *decimal,
-                                             const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal64           *decimal,
-                                             const unsigned char *buffer);
-    static unsigned char *decimalFromNetwork(Decimal128          *decimal,
-                                             const unsigned char *buffer);
-        // Store into the specified 'decimal', the value of the same size
-        // base-10 floating-point value stored in network format at the
-        // specified 'buffer' address and return the address one past the last
-        // byte read from 'buffer'.  The network format is defined as big
-        // endian byte order and densely packed base-10 significand encoding.
-        // This corresponds to the way IBM hardware represents these numbers in
-        // memory.  The behavior is undefined unless 'buffer' points to a
-        // memory area at least 'sizeof(decimal)' in size.  Note that these
-        // functions always return 'buffer + sizeof(decimal)' on the supported
-        // 8-bits-byte architectures.
-
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                        // -------------------------------
+                        // class DecimalConvertUtil_IbmXlc
+                        // -------------------------------
+
+                        // decimalToLongDouble functions
+
+inline
+long double
+DecimalConvertUtil_IbmXlc::decimal32ToLongDouble(Decimal32 decimal)
+{
+    return decimalToLongDouble(decimal);
+}
+
+inline
+long double
+DecimalConvertUtil_IbmXlc::decimal64ToLongDouble(Decimal64 decimal)
+{
+    return decimalToLongDouble(decimal);
+}
+
+inline
+long double
+DecimalConvertUtil_IbmXlc::decimal128ToLongDouble(Decimal128 decimal)
+{
+    return decimalToLongDouble(decimal);
+}
+
+inline
+long double
+DecimalConvertUtil_IbmXlc::decimalToLongDouble(Decimal32 decimal)
+{
+    return decimal;
+}
+
+inline
+long double
+DecimalConvertUtil_IbmXlc::decimalToLongDouble(Decimal64 decimal)
+{
+    return decimal;
+}
+
+inline
+long double
+DecimalConvertUtil_IbmXlc::decimalToLongDouble(Decimal128 decimal)
+{
+    return decimal;
+}
+                        // decimalToDouble functions
+
+inline
+double
+DecimalConvertUtil_IbmXlc::decimal32ToDouble(Decimal32 decimal)
+{
+    return decimalToDouble(decimal);
+}
+
+inline
+double
+DecimalConvertUtil_IbmXlc::decimal64ToDouble(Decimal64 decimal)
+{
+    return decimalToDouble(decimal);
+}
+
+inline
+double
+DecimalConvertUtil_IbmXlc::decimal128ToDouble(Decimal128 decimal)
+{
+    return decimalToDouble(decimal);
+}
+
+inline
+double
+DecimalConvertUtil_IbmXlc::decimalToDouble(Decimal32 decimal)
+{
+    return decimal;
+}
+
+inline
+double
+DecimalConvertUtil_IbmXlc::decimalToDouble(Decimal64 decimal)
+{
+    return decimal;
+}
+
+inline
+double
+DecimalConvertUtil_IbmXlc::decimalToDouble(Decimal128 decimal)
+{
+    return decimal;
+}
+
+                        // decimalToFloat functions
+
+inline
+float
+DecimalConvertUtil_IbmXlc::decimal32ToFloat(Decimal32 decimal)
+{
+    return decimalToFloat(decimal);
+}
+
+inline float
+DecimalConvertUtil_IbmXlc::decimal64ToFloat(Decimal64 decimal)
+{
+    return decimalToFloat(decimal);
+}
+
+inline float
+DecimalConvertUtil_IbmXlc::decimal128ToFloat(Decimal128 decimal)
+{
+    return decimalToFloat(decimal);
+}
+
+inline
+float
+DecimalConvertUtil_IbmXlc::decimalToFloat(Decimal32 decimal)
+{
+    return decimal;
+}
+
+inline float
+DecimalConvertUtil_IbmXlc::decimalToFloat(Decimal64 decimal)
+{
+    return decimal;
+}
+
+inline float
+DecimalConvertUtil_IbmXlc::decimalToFloat(Decimal128 decimal)
+{
+    return decimal;
+}
+
+                        // decimalToNetwork functions
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimal32ToDenselyPacked(unsigned char *buffer,
+                                                       Decimal32      decimal)
+{
+    BSLS_ASSERT(buffer);
+
+    decimalToDenselyPacked(buffer, decimal);
+}
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimal64ToDenselyPacked(unsigned char *buffer,
+                                                       Decimal64      decimal)
+{
+    BSLS_ASSERT(buffer);
+
+    decimalToDenselyPacked(buffer, decimal);
+}
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimal128ToDenselyPacked(unsigned char *buffer,
+                                                        Decimal128     decimal)
+{
+    BSLS_ASSERT(buffer);
+
+    decimalToDenselyPacked(buffer, decimal);
+}
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
+                                                     Decimal32      decimal)
+{
+    BSLS_ASSERT(buffer);
+
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
+}
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
+                                                     Decimal64      decimal)
+{
+    BSLS_ASSERT(buffer);
+
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
+}
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimalToDenselyPacked(unsigned char *buffer,
+                                                     Decimal128     decimal)
+{
+    BSLS_ASSERT(buffer);
+
+    bsl::memcpy(buffer, &decimal, sizeof(decimal));
+}
+
+                        // decimalFromDenselyPacked functions
+
+inline
+Decimal32
+DecimalConvertUtil_IbmXlc::decimal32FromDenselyPacked(
+                                                   const unsigned char *buffer)
+{
+    BSLS_ASSERT(buffer);
+
+    Decimal32 result;
+    bsl::memcpy(&result, buffer, sizeof(result));
+    return result;
+}
+
+inline
+Decimal64
+DecimalConvertUtil_IbmXlc::decimal64FromDenselyPacked(
+                                                   const unsigned char *buffer)
+{
+    BSLS_ASSERT(buffer);
+
+    Decimal64 result;
+    bsl::memcpy(&result, buffer, sizeof(result));
+    return result;
+}
+
+inline
+Decimal128
+DecimalConvertUtil_IbmXlc::decimal128FromDenselyPacked(
+                                                   const unsigned char *buffer)
+{
+    BSLS_ASSERT(buffer);
+
+    Decimal128 result;
+    bsl::memcpy(&result, buffer, sizeof(result));
+    return result;
+}
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimalFromDenselyPacked(
+                                                  Decimal32           *decimal,
+                                                  const unsigned char *buffer)
+{
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal32FromDenselyPacked(buffer);
+}
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimalFromDenselyPacked(
+                                                  Decimal64           *decimal,
+                                                  const unsigned char *buffer)
+{
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal64FromDenselyPacked(buffer);
+}
+
+inline
+void
+DecimalConvertUtil_IbmXlc::decimalFromDenselyPacked(
+                                                  Decimal128          *decimal,
+                                                  const unsigned char *buffer)
+{
+    BSLS_ASSERT(decimal);
+    BSLS_ASSERT(buffer);
+
+    *decimal = decimal128FromDenselyPacked(buffer);
+}
+
+
 }  // close package namespace
 }  // close enterprise namespace
+
+#endif
 
 #endif
 

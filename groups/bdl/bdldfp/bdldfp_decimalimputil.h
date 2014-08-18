@@ -15,28 +15,38 @@ BSLS_IDENT("$Id$")
 //
 //@SEE ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalimputil_decnumber
 //
-//@DESCRIPTION: The 'bdldfp::DecimalImpUtil' component provides a unified
-// namespace for utility functions for the decimal floating-point operations
-// defined in lower level components.
+//@DESCRIPTION: This component provides a namespace, 'DecimalImpUtil',
+// containing primitive utilities used in the implementation of a decimal
+// floating point type (e.g., see 'bdldfp_decimal').
 //
 ///Usage
 ///-----
 // This section shows the intended use of this component.
 //
-///Example 1: Constructing a representation of a value in decimal
+///Example 1: Constructing a Representation of a Value in Decimal
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Floating-point numbers are built from a sign, a significand and an exponent.
-// All those 3 are integers (of various sizes), therefore it is possible to
-// build decimals from integers:
+// A common requirement for decimal floating point types is to be able to
+// create a value from independent "coefficient" and "exponent" values, where
+// the resulting decimal has the value 'coefficient * 10 ^ exponent'.  In the
+// following example we use such a 'coffecicient' and 'exponent' to create
+// 'Decimal32', 'Decimal64', and 'Decimal128' values.
+//
+// First we define values representing the 'coefficient' and 'exponent' (note
+// the result should be the value 4.2):
 //..
 //  long long coefficient = 42; // Yet another name for significand
 //  int exponent          = -1;
+//..
+// Then we call 'makeDecimal32', 'makeDecimal64', and 'makeDecimal128' to
+// construct a 'Decimal32', 'Decimal64', and 'Decimal128' respectively.
+//..
 //
-//  typedef bdldfp::DecimalImpUtil Util;
-//
-//  Util::ValueType32  d32  = Util::makeDecimal32( coefficient, exponent);
-//  Util::ValueType64  d64  = Util::makeDecimal64( coefficient, exponent);
-//  Util::ValueType128 d128 = Util::makeDecimal128(coefficient, exponent);
+//  bdldfp::DecimalImpUtil::ValueType32  d32
+//               = bdldfp::DecimalImpUtil::makeDecimal32( coefficient, exponent);
+//  bdldfp::DecimalImpUtil::ValueType64  d64
+//               = bdldfp::DecimalImpUtil::makeDecimal64( coefficient, exponent);
+//  bdldfp::DecimalImpUtil::ValueType128 d128
+//               = bdldfp::DecimalImpUtil::makeDecimal128(coefficient, exponent);
 //
 //  assert(Util::binaryToDecimal32( 4.2) == d32);
 //  assert(Util::binaryToDecimal64( 4.2) == d64);
@@ -45,14 +55,16 @@ BSLS_IDENT("$Id$")
 //
 ///Example 2: Adding two Decimal Floating Point Values
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
-// Decimal Floating Point values are highly efficient for arithmetic.  Often
-// times it is necessary to sum up stock prices or other securities.
+// Decimal floating point values are frequently used in arithmetic computations
+// where the precise representation of decimal values is of paramount
+// importance (for example, financial calculations, as currency is typically
+// denominated in base-10 decimal values).  In the following example we
+// demonstrate computing the sum of a sequence of security prices, where each
+// price is held in a 'DecimalImpUtil::ValueType64' value.
 //
-// Suppose that we had a list of stock prices to total.  This list is a
-// sequence of 'DecimalImpUtil::ValueType64' values.
-//
-// First, we write a function which totals security prices, and returns a
-// Decimal Floating Point number:
+// First, we we define the signature of a function that computes the sum of an
+// array of security prices, and returns that sum as a decimal floating point
+// value:
 //..
 //  bdldfp::DecimalImpUtil::ValueType64
 //  totalSecurities(bdldfp::DecimalImpUtil::ValueType64 *prices,
@@ -61,18 +73,16 @@ BSLS_IDENT("$Id$")
 //      // total of the values specified by 'prices' and 'numPrices'.
 //  {
 //..
-// Then, we create a local variable to hold the total value, and set it to
-// zero:
+// Then, we create a local variable to hold the intermediate sum, and set it to
+// 0:
 //..
 //      bdldfp::DecimalImpUtil::ValueType64 total;
 //      total = bdldfp::DecimalImpUtil::int32ToDecimal64(0);
 //..
-// Next, we loop over the values in 'prices':
+// Next, we loop over the array of 'prices' and add each price to the
+// intermediate 'total':
 //..
 //      for (int i = 0; i < numPrices; ++i) {
-//..
-// Then, we add the price at each index in the array to the total:
-//..
 //          total = bdldfp::DecimalImpUtil::add(total, prices[i]);
 //      }
 //..
@@ -81,9 +91,10 @@ BSLS_IDENT("$Id$")
 //      return total;
 //  }
 //..
-// Notice that the computation is performed using a functional notation.  This
-// is because the 'bdldfp::DecimalImpUtil' utility is intended to be used in
-// the implementation of operator overloads on a more full fledged type.
+// Notice that 'add' is called as a function, and is not an operator overload
+// for '+'; this is because the 'bdldfp::DecimalImpUtil' utility is intended to
+// be used in the implementation of operator overloads on a more full fledged
+// type.
 //
 // Finally, we call the function with some sample data, and check the result:
 //..
@@ -178,13 +189,27 @@ BSLS_IDENT("$Id$")
 namespace BloombergLP {
 namespace bdldfp {
 
-class DecimalImpUtil
-{
+                        // ====================
+                        // class DecimalImpUtil
+                        // ====================
+
+class DecimalImpUtil {
+  private:
+    #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
+    typedef DecimalImpUtil_decNumber Imp;
+    #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    typedef DecimalImpUtil_IntelDfp Imp;
+    #elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
+    typedef DecimalImpUtil_IbmXlc Imp;
+    #else
+    BSLMF_STATIC_ASSERT(false);
+    #endif
+
   public:
     // TYPES
-    typedef DecimalImpUtil_Platform::ValueType32  ValueType32;
-    typedef DecimalImpUtil_Platform::ValueType64  ValueType64;
-    typedef DecimalImpUtil_Platform::ValueType128 ValueType128;
+    typedef Imp::ValueType32  ValueType32;
+    typedef Imp::ValueType64  ValueType64;
+    typedef Imp::ValueType128 ValueType128;
 
     // CLASS METHODS
     static ValueType64 makeDecimal64(                   int mantissa,
@@ -197,16 +222,15 @@ class DecimalImpUtil
                                                         int exponent);
         // Return a 'Decimal64' object that has the specified 'mantissa' and
         // 'exponent', rounded according to the current decimal rounding mode,
-        // if necessary.  If an overflow condition occurs. store the value of
+        // if necessary.  If an overflow condition occurs, store the value of
         // the macro 'ERANGE' into 'errno' and return infinity with the
         // appropriate sign.
 
     static ValueType64 makeInfinity64(bool isNegative = false);
         // Return a 'ValueType64' representing an infinity.  Optionally specify
-        // whether the infinity 'isNegative'.  If 'isNegative' is not
-        // specified, the infinite value will be positive.  Note that if
-        // 'isNegative' is true, the infinite value will be negative, and
-        // positive otherwise.
+        // whether the infinity 'isNegative'.  If 'isNegative' is 'false' or is
+        // is not supplied, the returned value will be infinity, and negative
+        // infinity otherwise.
 
 #ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
 
@@ -469,10 +493,10 @@ class DecimalImpUtil
     static ValueType32  negate(ValueType32  value);
     static ValueType64  negate(ValueType64  value);
     static ValueType128 negate(ValueType128 value);
-        // Return the result of applying the unary - operator to the specified
-        // 'value' as described by IEEE-754.  Note that floating-point numbers
-        // have signed zero, therefore this operation is not the same as
-        // '0-value'.
+        // Return the result of applying the unary negation ('-') operator to
+        // the specified 'value' as described by IEEE-754.  Note that decimal
+        // floating point representations can encode signed zero values, thus
+        // negating 0 results in -0 and negating -0 results in 0.
 
                         // Comparison functions
 
@@ -764,6 +788,8 @@ class DecimalImpUtil
         // the sign given by 'mantissa'.  The behavior is undefined unless
         // '-6176 <= exponent <= 6111'.
 
+                        // ScaleB functions
+
     static ValueType32  scaleB(ValueType32  value, int exponent);
     static ValueType64  scaleB(ValueType64  value, int exponent);
     static ValueType128 scaleB(ValueType128 value, int exponent);
@@ -773,6 +799,7 @@ class DecimalImpUtil
         // unspecified if 'value' is NaN or infinity.  The behavior is
         // undefined unless '-1999999997 <= y <= 99999999'.
 
+                        // Parsing functions
 
     static ValueType32 parse32(const char *input);
         // Parse the specified 'input' string as a 32 bit decimal floating-
@@ -815,6 +842,20 @@ class DecimalImpUtil
         // it.  Note that this method does not guarantee the behavior of
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
         // intrinsics return a signaling NaN.
+
+                        // Formatting functions
+
+    static void format(ValueType32  value, char *buffer);
+    static void format(ValueType64  value, char *buffer);
+    static void format(ValueType128 value, char *buffer);
+        // Produce a string representation of the specified decimal 'value', in
+        // the specified 'buffer', which is at least
+        // 'BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE' bytes in length.  The
+        // string will be suitable for use with the 'strtod128' function in
+        // section 9.6 of the ISO/EIC TR 24732 C Decimal Floating-Point
+        // Technical Report, except that it is unspecified whether the NaNs
+        // returned are quiet or signaling.  The behavior is undefined unless
+        // there are 'size' bytes available in 'buffer'.
 };
 
 // ============================================================================
@@ -849,21 +890,21 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::int32ToDecimal32(int value)
 {
-    return DecimalImpUtil_Platform::int32ToDecimal32(value);
+    return Imp::int32ToDecimal32(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::int32ToDecimal64(int value)
 {
-    return DecimalImpUtil_Platform::int32ToDecimal64(value);
+    return Imp::int32ToDecimal64(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::int32ToDecimal128(int value)
 {
-    return DecimalImpUtil_Platform::int32ToDecimal128(value);
+    return Imp::int32ToDecimal128(value);
 }
 
 
@@ -871,21 +912,21 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::uint32ToDecimal32(unsigned int value)
 {
-    return DecimalImpUtil_Platform::uint32ToDecimal32(value);
+    return Imp::uint32ToDecimal32(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::uint32ToDecimal64(unsigned int value)
 {
-    return DecimalImpUtil_Platform::uint32ToDecimal64(value);
+    return Imp::uint32ToDecimal64(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::uint32ToDecimal128(unsigned int value)
 {
-    return DecimalImpUtil_Platform::uint32ToDecimal128(value);
+    return Imp::uint32ToDecimal128(value);
 }
 
 
@@ -893,21 +934,21 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::int64ToDecimal32(long long int value)
 {
-    return DecimalImpUtil_Platform::int64ToDecimal32(value);
+    return Imp::int64ToDecimal32(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::int64ToDecimal64(long long int value)
 {
-    return DecimalImpUtil_Platform::int64ToDecimal64(value);
+    return Imp::int64ToDecimal64(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::int64ToDecimal128(long long int value)
 {
-    return DecimalImpUtil_Platform::int64ToDecimal128(value);
+    return Imp::int64ToDecimal128(value);
 }
 
 
@@ -915,21 +956,21 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::uint64ToDecimal32(unsigned long long int value)
 {
-    return DecimalImpUtil_Platform::uint64ToDecimal32(value);
+    return Imp::uint64ToDecimal32(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::uint64ToDecimal64(unsigned long long int value)
 {
-    return DecimalImpUtil_Platform::uint64ToDecimal64(value);
+    return Imp::uint64ToDecimal64(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::uint64ToDecimal128(unsigned long long int value)
 {
-    return DecimalImpUtil_Platform::uint64ToDecimal128(value);
+    return Imp::uint64ToDecimal128(value);
 }
 
                         // Arithmetic
@@ -941,14 +982,14 @@ DecimalImpUtil::ValueType64
 DecimalImpUtil::add(DecimalImpUtil::ValueType64 lhs,
                     DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::add(lhs, rhs);
+    return Imp::add(lhs, rhs);
 }
 
 inline DecimalImpUtil::ValueType128
 DecimalImpUtil::add(DecimalImpUtil::ValueType128 lhs,
                     DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::add(lhs, rhs);
+    return Imp::add(lhs, rhs);
 }
 
                         // Subtraction Functions
@@ -958,7 +999,7 @@ DecimalImpUtil::ValueType64
 DecimalImpUtil::subtract(DecimalImpUtil::ValueType64 lhs,
                          DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::subtract(lhs, rhs);
+    return Imp::subtract(lhs, rhs);
 }
 
 inline
@@ -966,7 +1007,7 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::subtract(DecimalImpUtil::ValueType128 lhs,
                          DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::subtract(lhs, rhs);
+    return Imp::subtract(lhs, rhs);
 }
 
                         // Multiplication Functions
@@ -976,7 +1017,7 @@ DecimalImpUtil::ValueType64
 DecimalImpUtil::multiply(DecimalImpUtil::ValueType64 lhs,
                          DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::multiply(lhs, rhs);
+    return Imp::multiply(lhs, rhs);
 }
 
 inline
@@ -984,7 +1025,7 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::multiply(DecimalImpUtil::ValueType128 lhs,
                          DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::multiply(lhs, rhs);
+    return Imp::multiply(lhs, rhs);
 }
 
                         // Division Functions
@@ -994,7 +1035,7 @@ DecimalImpUtil::ValueType64
 DecimalImpUtil::divide(DecimalImpUtil::ValueType64 lhs,
                        DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::divide(lhs, rhs);
+    return Imp::divide(lhs, rhs);
 }
 
 inline
@@ -1002,7 +1043,7 @@ DecimalImpUtil::ValueType128
 DecimalImpUtil::divide(DecimalImpUtil::ValueType128 lhs,
                        DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::divide(lhs, rhs);
+    return Imp::divide(lhs, rhs);
 }
 
                         // Negation Functions
@@ -1011,21 +1052,21 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::negate(DecimalImpUtil::ValueType32 value)
 {
-    return DecimalImpUtil_Platform::negate(value);
+    return Imp::negate(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::negate(DecimalImpUtil::ValueType64 value)
 {
-    return DecimalImpUtil_Platform::negate(value);
+    return Imp::negate(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::negate(DecimalImpUtil::ValueType128 value)
 {
-    return DecimalImpUtil_Platform::negate(value);
+    return Imp::negate(value);
 }
 
                         // Comparison
@@ -1037,7 +1078,7 @@ bool
 DecimalImpUtil::less(DecimalImpUtil::ValueType32 lhs,
                      DecimalImpUtil::ValueType32 rhs)
 {
-    return DecimalImpUtil_Platform::less(lhs, rhs);
+    return Imp::less(lhs, rhs);
 }
 
 inline
@@ -1045,7 +1086,7 @@ bool
 DecimalImpUtil::less(DecimalImpUtil::ValueType64 lhs,
                      DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::less(lhs, rhs);
+    return Imp::less(lhs, rhs);
 }
 
 inline
@@ -1053,7 +1094,7 @@ bool
 DecimalImpUtil::less(DecimalImpUtil::ValueType128 lhs,
                      DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::less(lhs, rhs);
+    return Imp::less(lhs, rhs);
 }
 
                         // Greater Than Functions
@@ -1063,7 +1104,7 @@ bool
 DecimalImpUtil::greater(DecimalImpUtil::ValueType32 lhs,
                         DecimalImpUtil::ValueType32 rhs)
 {
-    return DecimalImpUtil_Platform::greater(lhs, rhs);
+    return Imp::greater(lhs, rhs);
 }
 
 inline
@@ -1071,7 +1112,7 @@ bool
 DecimalImpUtil::greater(DecimalImpUtil::ValueType64 lhs,
                         DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::greater(lhs, rhs);
+    return Imp::greater(lhs, rhs);
 }
 
 inline
@@ -1079,7 +1120,7 @@ bool
 DecimalImpUtil::greater(DecimalImpUtil::ValueType128 lhs,
                         DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::greater(lhs, rhs);
+    return Imp::greater(lhs, rhs);
 }
 
                         // Less Or Equal Functions
@@ -1089,7 +1130,7 @@ bool
 DecimalImpUtil::lessEqual(DecimalImpUtil::ValueType32 lhs,
                           DecimalImpUtil::ValueType32 rhs)
 {
-    return DecimalImpUtil_Platform::lessEqual(lhs, rhs);
+    return Imp::lessEqual(lhs, rhs);
 }
 
 inline
@@ -1097,7 +1138,7 @@ bool
 DecimalImpUtil::lessEqual(DecimalImpUtil::ValueType64 lhs,
                           DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::lessEqual(lhs, rhs);
+    return Imp::lessEqual(lhs, rhs);
 }
 
 inline
@@ -1105,7 +1146,7 @@ bool
 DecimalImpUtil::lessEqual(DecimalImpUtil::ValueType128 lhs,
                           DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::lessEqual(lhs, rhs);
+    return Imp::lessEqual(lhs, rhs);
 }
 
                         // Greater Or Equal Functions
@@ -1115,7 +1156,7 @@ bool
 DecimalImpUtil::greaterEqual(DecimalImpUtil::ValueType32 lhs,
                              DecimalImpUtil::ValueType32 rhs)
 {
-    return DecimalImpUtil_Platform::greaterEqual(lhs, rhs);
+    return Imp::greaterEqual(lhs, rhs);
 }
 
 inline
@@ -1123,7 +1164,7 @@ bool
 DecimalImpUtil::greaterEqual(DecimalImpUtil::ValueType64 lhs,
                              DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::greaterEqual(lhs, rhs);
+    return Imp::greaterEqual(lhs, rhs);
 }
 
 inline
@@ -1131,7 +1172,7 @@ bool
 DecimalImpUtil::greaterEqual(DecimalImpUtil::ValueType128 lhs,
                              DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::greaterEqual(lhs, rhs);
+    return Imp::greaterEqual(lhs, rhs);
 }
 
                         // Equality Functions
@@ -1141,7 +1182,7 @@ bool
 DecimalImpUtil::equal(DecimalImpUtil::ValueType32 lhs,
                       DecimalImpUtil::ValueType32 rhs)
 {
-    return DecimalImpUtil_Platform::equal(lhs, rhs);
+    return Imp::equal(lhs, rhs);
 }
 
 inline
@@ -1149,7 +1190,7 @@ bool
 DecimalImpUtil::equal(DecimalImpUtil::ValueType64 lhs,
                       DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::equal(lhs, rhs);
+    return Imp::equal(lhs, rhs);
 }
 
 inline
@@ -1157,7 +1198,7 @@ bool
 DecimalImpUtil::equal(DecimalImpUtil::ValueType128 lhs,
                       DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::equal(lhs, rhs);
+    return Imp::equal(lhs, rhs);
 }
 
                         // Inequality Functions
@@ -1167,7 +1208,7 @@ bool
 DecimalImpUtil::notEqual(DecimalImpUtil::ValueType32 lhs,
                          DecimalImpUtil::ValueType32 rhs)
 {
-    return DecimalImpUtil_Platform::notEqual(lhs, rhs);
+    return Imp::notEqual(lhs, rhs);
 }
 
 inline
@@ -1175,7 +1216,7 @@ bool
 DecimalImpUtil::notEqual(DecimalImpUtil::ValueType64 lhs,
                          DecimalImpUtil::ValueType64 rhs)
 {
-    return DecimalImpUtil_Platform::notEqual(lhs, rhs);
+    return Imp::notEqual(lhs, rhs);
 }
 
 inline
@@ -1183,7 +1224,7 @@ bool
 DecimalImpUtil::notEqual(DecimalImpUtil::ValueType128 lhs,
                          DecimalImpUtil::ValueType128 rhs)
 {
-    return DecimalImpUtil_Platform::notEqual(lhs, rhs);
+    return Imp::notEqual(lhs, rhs);
 }
 
                         // Inter-type Conversion functions
@@ -1192,35 +1233,35 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::convertToDecimal32(const DecimalImpUtil::ValueType64& input)
 {
-    return DecimalImpUtil_Platform::convertToDecimal32(input);
+    return Imp::convertToDecimal32(input);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::convertToDecimal64 (const DecimalImpUtil::ValueType32& input)
 {
-    return DecimalImpUtil_Platform::convertToDecimal64(input);
+    return Imp::convertToDecimal64(input);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::convertToDecimal64(const DecimalImpUtil::ValueType128& input)
 {
-    return DecimalImpUtil_Platform::convertToDecimal64(input);
+    return Imp::convertToDecimal64(input);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::convertToDecimal128(const DecimalImpUtil::ValueType32& input)
 {
-    return DecimalImpUtil_Platform::convertToDecimal128(input);
+    return Imp::convertToDecimal128(input);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::convertToDecimal128(const DecimalImpUtil::ValueType64& input)
 {
-    return DecimalImpUtil_Platform::convertToDecimal128(input);
+    return Imp::convertToDecimal128(input);
 }
 
                         // Binary floating point conversion functions
@@ -1229,21 +1270,21 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::binaryToDecimal32(float value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal32(value);
+    return Imp::binaryToDecimal32(value);
 }
 
 inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::binaryToDecimal32(double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal32(value);
+    return Imp::binaryToDecimal32(value);
 }
 
 inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::binaryToDecimal32(long double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal32(value);
+    return Imp::binaryToDecimal32(value);
 }
 
 
@@ -1251,21 +1292,21 @@ inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::binaryToDecimal64(float value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal64(value);
+    return Imp::binaryToDecimal64(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::binaryToDecimal64(double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal64(value);
+    return Imp::binaryToDecimal64(value);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::binaryToDecimal64(long double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal64(value);
+    return Imp::binaryToDecimal64(value);
 }
 
 
@@ -1273,21 +1314,21 @@ inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::binaryToDecimal128(float value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal128(value);
+    return Imp::binaryToDecimal128(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::binaryToDecimal128(double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal128(value);
+    return Imp::binaryToDecimal128(value);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::binaryToDecimal128(long double value)
 {
-    return DecimalImpUtil_Platform::binaryToDecimal128(value);
+    return Imp::binaryToDecimal128(value);
 }
 
                         // makeDecimalRaw Functions
@@ -1299,7 +1340,7 @@ DecimalImpUtil::makeDecimalRaw32(int mantissa, int exponent)
     BSLS_ASSERT(-101 <= exponent);
     BSLS_ASSERT(        exponent <= 90);
     BSLS_ASSERT(bsl::max(mantissa, -mantissa) <= 9999999);
-    return DecimalImpUtil_Platform::makeDecimalRaw32(mantissa, exponent);
+    return Imp::makeDecimalRaw32(mantissa, exponent);
 }
 
 
@@ -1311,7 +1352,7 @@ DecimalImpUtil::makeDecimalRaw64(unsigned long long mantissa, int exponent)
     BSLS_ASSERT(        exponent <= 369);
     BSLS_ASSERT(mantissa <= 9999999999999999LL);
 
-    return DecimalImpUtil_Platform::makeDecimalRaw64(mantissa, exponent);
+    return Imp::makeDecimalRaw64(mantissa, exponent);
 }
 
 inline
@@ -1322,7 +1363,7 @@ DecimalImpUtil::makeDecimalRaw64(long long mantissa, int exponent)
     BSLS_ASSERT(        exponent <= 369);
     BSLS_ASSERT(std::max(mantissa, -mantissa) <= 9999999999999999LL);
 
-    return DecimalImpUtil_Platform::makeDecimalRaw64(mantissa, exponent);
+    return Imp::makeDecimalRaw64(mantissa, exponent);
 }
 
 inline
@@ -1332,7 +1373,7 @@ DecimalImpUtil::makeDecimalRaw64(unsigned int mantissa, int exponent)
     BSLS_ASSERT(-398 <= exponent);
     BSLS_ASSERT(        exponent <= 369);
 
-    return DecimalImpUtil_Platform::makeDecimalRaw64(mantissa, exponent);
+    return Imp::makeDecimalRaw64(mantissa, exponent);
 }
 
 inline
@@ -1341,7 +1382,7 @@ DecimalImpUtil::makeDecimalRaw64(int mantissa, int exponent)
 {
     BSLS_ASSERT(-398 <= exponent);
     BSLS_ASSERT(        exponent <= 369);
-    return DecimalImpUtil_Platform::makeDecimalRaw64(mantissa, exponent);
+    return Imp::makeDecimalRaw64(mantissa, exponent);
 }
 
 
@@ -1352,7 +1393,7 @@ DecimalImpUtil::makeDecimalRaw128(unsigned long long mantissa, int exponent)
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
-    return DecimalImpUtil_Platform::makeDecimalRaw128(mantissa, exponent);
+    return Imp::makeDecimalRaw128(mantissa, exponent);
 }
 
 inline
@@ -1362,7 +1403,7 @@ DecimalImpUtil::makeDecimalRaw128(long long mantissa, int exponent)
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
-    return DecimalImpUtil_Platform::makeDecimalRaw128(mantissa, exponent);
+    return Imp::makeDecimalRaw128(mantissa, exponent);
 }
 
 inline
@@ -1372,7 +1413,7 @@ DecimalImpUtil::makeDecimalRaw128(unsigned int mantissa, int exponent)
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
-    return DecimalImpUtil_Platform::makeDecimalRaw128(mantissa, exponent);
+    return Imp::makeDecimalRaw128(mantissa, exponent);
 }
 
 inline
@@ -1382,7 +1423,7 @@ DecimalImpUtil::makeDecimalRaw128(int mantissa, int exponent)
     BSLS_ASSERT(-6176 <= exponent);
     BSLS_ASSERT(         exponent <= 6111);
 
-    return DecimalImpUtil_Platform::makeDecimalRaw128(mantissa, exponent);
+    return Imp::makeDecimalRaw128(mantissa, exponent);
 }
 
                         // IEEE Scale B Functions
@@ -1391,21 +1432,21 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType32 value, int exponent)
 {
-    return DecimalImpUtil_Platform::scaleB(value, exponent);
+    return Imp::scaleB(value, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType64 value, int exponent)
 {
-    return DecimalImpUtil_Platform::scaleB(value, exponent);
+    return Imp::scaleB(value, exponent);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::scaleB(DecimalImpUtil::ValueType128 value, int exponent)
 {
-    return DecimalImpUtil_Platform::scaleB(value, exponent);
+    return Imp::scaleB(value, exponent);
 }
 
                         // Parsing functions
@@ -1414,22 +1455,43 @@ inline
 DecimalImpUtil::ValueType32
 DecimalImpUtil::parse32(const char *input)
 {
-    return DecimalImpUtil_Platform::parse32(input);
+    return Imp::parse32(input);
 }
 
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::parse64(const char *input)
 {
-    return DecimalImpUtil_Platform::parse64(input);
+    return Imp::parse64(input);
 }
 
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::parse128(const char *input)
 {
-    return DecimalImpUtil_Platform::parse128(input);
+    return Imp::parse128(input);
 }
+
+                        // Format functions
+
+inline
+void DecimalImpUtil::format(DecimalImpUtil::ValueType32 value, char *buffer)
+{
+    return Imp::format(value, buffer);
+}
+
+inline
+void DecimalImpUtil::format(DecimalImpUtil::ValueType64 value, char *buffer)
+{
+    return Imp::format(value, buffer);
+}
+
+inline
+void DecimalImpUtil::format(DecimalImpUtil::ValueType128 value, char *buffer)
+{
+    return Imp::format(value, buffer);
+}
+
 
 }  // close package namespace
 }  // close enterprise namespace

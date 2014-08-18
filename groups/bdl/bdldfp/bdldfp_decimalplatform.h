@@ -150,6 +150,10 @@ BSLS_IDENT("$Id$")
 #  error Unsupported decimal floating point platform.
 #endif
 
+// The Decimal Platform macros for endian settings allow for the possibility of
+// future implementations which have divergent integer and decimal floating
+// point byte orders.
+
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
 #  define BDLDFP_DECIMALPLATFORM_BIG_ENDIAN    1
 #elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
@@ -177,8 +181,13 @@ struct Platform_Assert;
 #define BDLDFP_DECIMALPLATFORM_COMPILER_ERROR                                 \
     char die[sizeof(::BloombergLP::bdldfp::Platform_Assert)]
 
+                        // Validation
 
-// Exactly one Implementation class (Hardware or software)
+// The following checks are performed to guarantee the reasonable
+// initialization of the compile time features defined in this component.
+
+
+// Verify exactly one Implementation class (Hardware or software)
 
 #if BDLDFP_DECIMALPLATFORM_HARDWARE                                           \
   + BDLDFP_DECIMALPLATFORM_SOFTWARE != 1
@@ -186,7 +195,7 @@ struct Platform_Assert;
     BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
 #endif
 
-// Exactly one endian selection must be made
+// Verify exactly one endian selection must be made
 
 #if BDLDFP_DECIMALPLATFORM_BIG_ENDIAN                                         \
   + BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN != 1
@@ -194,7 +203,7 @@ struct Platform_Assert;
     BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
 #endif
 
-// Exactly one format selection must be made
+// Verify exactly one format selection must be made
 
 #if BDLDFP_DECIMALPLATFORM_DPD                                                \
   + BDLDFP_DECIMALPLATFORM_BININT != 1
@@ -202,7 +211,7 @@ struct Platform_Assert;
     BDLDFP_DECIMALPLATFORM_COMPILER_ERROR;
 #endif
 
-// Exactly one implementation library must be selected
+// Verify exactly one implementation library must be selected
 
 #if BDLDFP_DECIMALPLATFORM_INTELDFP                                           \
   + BDLDFP_DECIMALPLATFORM_C99_TR                                             \

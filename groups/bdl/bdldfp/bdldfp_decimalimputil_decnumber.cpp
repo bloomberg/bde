@@ -60,8 +60,8 @@ const char *BufferBuf<Size>::str()
 
 }  // close anonymous namespace
 
-DecimalImpUtil_decNumber::ValueType32
-DecimalImpUtil_decNumber::binaryToDecimal32(float value)
+DecimalImpUtil_DecNumber::ValueType32
+DecimalImpUtil_DecNumber::binaryToDecimal32(float value)
 {
     // TODO: TBD we should not convert through strings - it should be possible
     // to convert directly
@@ -75,8 +75,8 @@ DecimalImpUtil_decNumber::binaryToDecimal32(float value)
     return result;
 }
 
-DecimalImpUtil_decNumber::ValueType32
-DecimalImpUtil_decNumber::binaryToDecimal32(double value)
+DecimalImpUtil_DecNumber::ValueType32
+DecimalImpUtil_DecNumber::binaryToDecimal32(double value)
 {
     ValueType32 result;
     bdldfp::BufferBuf<48> bb;
@@ -88,8 +88,8 @@ DecimalImpUtil_decNumber::binaryToDecimal32(double value)
     return result;
 }
 
-DecimalImpUtil_decNumber::ValueType32
-DecimalImpUtil_decNumber::binaryToDecimal32(long double value)
+DecimalImpUtil_DecNumber::ValueType32
+DecimalImpUtil_DecNumber::binaryToDecimal32(long double value)
 {
     ValueType32 result;
     bdldfp::BufferBuf<48> bb;
@@ -101,8 +101,8 @@ DecimalImpUtil_decNumber::binaryToDecimal32(long double value)
     return result;
 }
 
-DecimalImpUtil_decNumber::ValueType64
-DecimalImpUtil_decNumber::binaryToDecimal64(float value)
+DecimalImpUtil_DecNumber::ValueType64
+DecimalImpUtil_DecNumber::binaryToDecimal64(float value)
 {
     ValueType64 result;
     bdldfp::BufferBuf<48> bb;
@@ -114,8 +114,8 @@ DecimalImpUtil_decNumber::binaryToDecimal64(float value)
     return result;
 }
 
-DecimalImpUtil_decNumber::ValueType64
-DecimalImpUtil_decNumber::binaryToDecimal64(double value)
+DecimalImpUtil_DecNumber::ValueType64
+DecimalImpUtil_DecNumber::binaryToDecimal64(double value)
 {
     ValueType64 result;
     bdldfp::BufferBuf<48> bb;
@@ -127,8 +127,8 @@ DecimalImpUtil_decNumber::binaryToDecimal64(double value)
     return result;
 }
 
-DecimalImpUtil_decNumber::ValueType64
-DecimalImpUtil_decNumber::binaryToDecimal64(long double value)
+DecimalImpUtil_DecNumber::ValueType64
+DecimalImpUtil_DecNumber::binaryToDecimal64(long double value)
 {
     ValueType64 result;
     bdldfp::BufferBuf<48> bb;
@@ -141,8 +141,8 @@ DecimalImpUtil_decNumber::binaryToDecimal64(long double value)
 }
 
 
-DecimalImpUtil_decNumber::ValueType128
-DecimalImpUtil_decNumber::binaryToDecimal128(float value)
+DecimalImpUtil_DecNumber::ValueType128
+DecimalImpUtil_DecNumber::binaryToDecimal128(float value)
 {
     ValueType128 result;
     bdldfp::BufferBuf<48> bb;
@@ -154,8 +154,8 @@ DecimalImpUtil_decNumber::binaryToDecimal128(float value)
     return result;
 }
 
-DecimalImpUtil_decNumber::ValueType128
-DecimalImpUtil_decNumber::binaryToDecimal128(double value)
+DecimalImpUtil_DecNumber::ValueType128
+DecimalImpUtil_DecNumber::binaryToDecimal128(double value)
 {
     ValueType128 result;
     bdldfp::BufferBuf<48> bb;
@@ -167,8 +167,8 @@ DecimalImpUtil_decNumber::binaryToDecimal128(double value)
     return result;
 }
 
-DecimalImpUtil_decNumber::ValueType128
-DecimalImpUtil_decNumber::binaryToDecimal128(long double value)
+DecimalImpUtil_DecNumber::ValueType128
+DecimalImpUtil_DecNumber::binaryToDecimal128(long double value)
 {
     ValueType128 result;
     bdldfp::BufferBuf<48> bb;

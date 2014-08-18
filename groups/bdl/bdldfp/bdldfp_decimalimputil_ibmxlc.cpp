@@ -1,6 +1,9 @@
 // bdldfp_decimalimputil_ibmxlc.cpp                                   -*-C++-*-
 #include <bdldfp_decimalimputil_ibmxlc.h>
 
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$")
+
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.
 //
