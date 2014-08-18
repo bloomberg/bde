@@ -94,26 +94,28 @@ BSLS_IDENT("$Id: $")
 // until the TYPE TRAITS banner below.  Changes made to the original code
 // include:
 //
-//: 1 Adding BloombergLP and bslh namespaces
+//: 1  Adding BloombergLP and bslh namespaces
 //:
-//: 2 Renaming 'siphash' to 'SipHashAlgorithm'
+//: 2  Renaming 'siphash' to 'SipHashAlgorithm'
 //:
-//: 3 Whitespace changes for formatting
+//: 3  Whitespace changes for formatting
 //:
-//: 4 Added comments
+//: 4  Added comments
 //:
-//: 5 Removed C++11 features including class member initializer, 'noexcept',
-//:   'std::Uint64_t', explicit conversion operator, and an '= default'
-//:   constructor.
+//: 5  Removed C++11 features including class member initializer, 'noexcept',
+//:    'std::Uint64_t', explicit conversion operator, and an '= default'
+//:    constructor.
 //:
-//: 6 Added typedef to replace removed 'std::Uint64_t'
+//: 6  Added typedef to replace removed 'std::Uint64_t'
 //:
-//: 7 Added 'computeHash' to replace the removed explicit conversion
+//: 7  Added 'computeHash' to replace the removed explicit conversion
 //:
-//: 8 Added 'k_SEED_LENGTH' and changed the constructor to accept a 'const char
-//:   *'
+//: 8  Added 'k_SEED_LENGTH' and changed the constructor to accept a 'const
+//:    char *'
 //:
-//: 9 Added includes and include guards
+//: 9  Added includes and include guards
+//:
+//: 10 Changed variables to use 'size_t' rather than 'unsigned int'
 //
 ///Third Party Doc
 ///---------------
@@ -195,10 +197,10 @@ class SipHashAlgorithm {
             // computation as specified by the algorithm.
     };
 
-    unsigned int d_bufSize;
+    size_t d_bufSize;
         // The length of the data currently stored in the buffer.
 
-    unsigned int d_totalLength;
+    size_t d_totalLength;
         // The total length of all data that has been passed into the
         // algorithm.
 

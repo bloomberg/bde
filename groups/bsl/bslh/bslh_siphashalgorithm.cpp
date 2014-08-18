@@ -171,7 +171,7 @@ SipHashAlgorithm::operator()(const void *data, size_t length)
     }
     if (d_bufSize > 0)
     {
-        unsigned int t = 8 - d_bufSize;
+        size_t t = 8 - d_bufSize;
         std::copy(in, in+t, d_buf + d_bufSize);
         u64 m = u8to64_le( d_buf );
         d_v3 ^= m;
