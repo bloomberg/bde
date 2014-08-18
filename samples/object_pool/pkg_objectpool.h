@@ -20,8 +20,7 @@
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // This pool requires that the template parameter type used to construct an
 // 'ObjectPool' provides a default constructor, public destructor, and a
-// 'reset' function that changes the state of an object to its
-// default-constructed object.
+// 'reset' function that restores an object to its default-constructed object.
 //
 ///Usage
 ///-----
@@ -132,7 +131,9 @@ template <typename TYPE>
 class ObjectPool {
     // This 'class' provides a pool of reusable objects of template parameter
     // type 'TYPE' and assumes that 'TYPE' provides a default constructor, a
-    // public destructor, and a 'reset' method.
+    // public destructor, and a 'reset' method.  This 'class' is not
+    // thread-safe and multiple threads operating on the same object must
+    // synchronize appropriately.
 
     // DATA
     bsl::list<TYPE *>               d_objects;      // list of managed objects
