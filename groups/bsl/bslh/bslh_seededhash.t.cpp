@@ -273,7 +273,7 @@ MockRNG::result_type MockRNG::operator()() {
 template<class EXPECTED_TYPE>
 class TypeChecker {
     // Provides a member function to determine if passed data is of the same
-    // type as the (template parameter) 'EXPECTED_TYPE' 
+    // type as the (template parameter) 'EXPECTED_TYPE'
   public:
       static bool isCorrectType(EXPECTED_TYPE type);
       template<class OTHER_TYPE>
@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
                 const int     VALUE = DATA[i].d_value;
                 const size_t  HASH  = static_cast<size_t>(DATA[i].d_hash);
 
-                if (veryVerbose) printf("Hashing: %i, Expecting: %lu\n",
+                if (veryVerbose) printf("Hashing: %i, Expecting: " ZU "\n",
                                         VALUE,
                                         HASH);
 

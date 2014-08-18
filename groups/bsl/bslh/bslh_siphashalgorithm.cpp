@@ -38,6 +38,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //: 9  Added function contracts
 //:
 //: 10 Added asserts to check passed pointers
+//:
+//: 11 Re-wrote unaligned reads to buffer data and then perform aligned reads
+//:    to prevent runtime errors in opt builds on Sun machines.
 //
 ///Third Party Doc
 ///---------------
@@ -147,7 +150,7 @@ SipHashAlgorithm::SipHashAlgorithm(const char *seed)
     d_v2 ^= d_alignment;
     d_v0 ^= d_alignment;
 
-    memcpy(&d_alignment, seed + 8, 8);    
+    memcpy(&d_alignment, seed + 8, 8);
     d_v3 ^= d_alignment;
     d_v1 ^= d_alignment;
 }

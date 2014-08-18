@@ -190,7 +190,7 @@ class SipHashAlgorithm {
     union {
         Uint64 d_alignment;
             // Provides alignment
-        unsigned char d_buf [8]; 
+        unsigned char d_buf [8];
             // Used to buffer data until we have enough to do a full round of
             // computation as specified by the algorithm.
     };

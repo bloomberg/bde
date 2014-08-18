@@ -448,7 +448,7 @@ static size_t findNumberOfIdenticalBytes(long double d1, long double d2)
 
     for (size_t i = 0; i < size; ++i) {
         if (c1[i] != c2[i]) {
-            return i;
+            return i;                                                 // RETURN
         }
     }
     return size;
@@ -649,7 +649,7 @@ class SomeType {
 template<class EXPECTED_TYPE>
 class TypeChecker {
     // Provides a member function to determine if passed data is of the same
-    // type as the (template parameter) 'EXPECTED_TYPE' 
+    // type as the (template parameter) 'EXPECTED_TYPE'
   public:
       static bool isCorrectType(EXPECTED_TYPE type);
       template<class OTHER_TYPE>
@@ -965,7 +965,7 @@ int main(int argc, char *argv[])
                 const int    VALUE = DATA[i].d_value;
                 const size_t HASH  = static_cast<size_t>(DATA[i].d_hash);
 
-                if (veryVerbose) printf("Hashing: %i, Expecting: %lu\n",
+                if (veryVerbose) printf("Hashing: %i, Expecting: " ZU "\n",
                                         VALUE,
                                         HASH);
 
@@ -1328,7 +1328,7 @@ int main(int argc, char *argv[])
                                   fnptr3Loc2Val1Alg.getData(),
                                   sizeof(int (*)())));
 #endif
-            
+
             // Pointers to different value and location come out different
             ASSERT(!binaryCompare(fnptr1Loc1Val1Alg.getData(),
                                   fnptr4Loc3Val2Alg.getData(),
