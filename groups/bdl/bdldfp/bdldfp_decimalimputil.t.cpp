@@ -51,6 +51,7 @@ using bsl::atoi;
 // TRAITS
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 3] TEST 'notEqual' FOR 'NaN' CORRECTNESS
 // [  ] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -150,7 +151,47 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING notEqual
+        //
+        // Concerns:
+        //:  1 notEqual should return false when there are two NaN arguments.
+        //
+        // Plan:
+        //:  1 Create 'NaN' values, and compare them as inequal.
+        // --------------------------------------------------------------------
+        {
+            Util::ValueType32  nan32  = Util::parse32( "NaN");
+            Util::ValueType64  nan64  = Util::parse64( "NaN");
+            Util::ValueType128 nan128 = Util::parse128("NaN");
 
+            ASSERT(Util::notEqual(nan32,  nan32));
+            ASSERT(Util::notEqual(nan64,  nan64));
+            ASSERT(Util::notEqual(nan128, nan128));
+        }
+
+        {
+            Util::ValueType32  nan32  = Util::parse32( "qNaN");
+            Util::ValueType64  nan64  = Util::parse64( "qNaN");
+            Util::ValueType128 nan128 = Util::parse128("qNaN");
+
+            ASSERT(Util::notEqual(nan32,  nan32));
+            ASSERT(Util::notEqual(nan64,  nan64));
+            ASSERT(Util::notEqual(nan128, nan128));
+        }
+
+        {
+            Util::ValueType32  nan32  = Util::parse32( "sNaN");
+            Util::ValueType64  nan64  = Util::parse64( "sNaN");
+            Util::ValueType128 nan128 = Util::parse128("sNaN");
+
+            ASSERT(Util::notEqual(nan32,  nan32));
+            ASSERT(Util::notEqual(nan64,  nan64));
+            ASSERT(Util::notEqual(nan128, nan128));
+        }
+      } break;
+      case 2: {} break;
       case 1: {
         // --------------------------------------------------------------------
         // TESTING makeDecimalRaw
