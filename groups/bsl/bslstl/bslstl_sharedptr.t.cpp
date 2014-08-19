@@ -434,9 +434,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -560,7 +560,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_1 {
 // Note that the shared pointer allocates both the reference count and the
 // 'MyUser' object in a single region of memory (which is the memory that will
 // eventually be deallocated), but refers to the 'MyUser' object only.
-}  // close namespace NAMESPACE_USAGE_EXAMPLE_1
+}  // close usage example namespace
 
 namespace NAMESPACE_USAGE_EXAMPLE_2 {
 using     NAMESPACE_USAGE_EXAMPLE_1::MyUser;
@@ -653,7 +653,7 @@ using     NAMESPACE_USAGE_EXAMPLE_1::MyUser;
         return enqueueTransaction(user, transaction);
     }
 //..
-}  // close namespace NAMESPACE_USAGE_EXAMPLE_2
+}  // close usage example namespace
 #if 0  // Note that usage example 3, 4 and 5 rely on both mutex and condition
        // variable objects that have not yet been ported down to 'bsl'.
 namespace NAMESPACE_USAGE_EXAMPLE_3 {
@@ -1028,7 +1028,7 @@ namespace NAMESPACE_USAGE_EXAMPLE_5 {
         }
     }
 //..
-}  // close namespace NAMESPACE_USAGE_EXAMPLE_5
+}  // close usage example namespace
 //..
 #endif
 
@@ -1044,7 +1044,7 @@ int MyTransactionManager::enqueueTransaction(bsl::shared_ptr<MyUser>,
     return 0;
 }
 
-}  // close namespace NAMESPACE_USAGE_EXAMPLE_2
+}  // close usage namespace
 //=============================================================================
 //                                USAGE EXAMPLE (weak_ptr)
 //-----------------------------------------------------------------------------
@@ -1385,7 +1385,7 @@ bsl::shared_ptr<int> ptrNilFun()
     return ptrNil;
 }
 
-}  // close namespace NAMESPACE_TEST_CASE_16
+}  // close test case namespace
 
                    // *** 'MyTestObject' CLASS HIERARCHY ***
 
@@ -2090,8 +2090,8 @@ template <class TYPE>
 struct UsesBslmaAllocator<TestSharedPtrRep<TYPE> >
      : bsl::true_type {};
 
-}  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close traits namespace
+}  // close enterprise namespace
 
 // ============================================================================
 //                      MEMBER- AND TEMPLATE-FUNCTION IMPLEMENTATIONS
@@ -2862,7 +2862,7 @@ template <class TYPE>
 void doNotDelete(TYPE *) {}
     // Do nothing
 
-}  // close namespace TestDriver
+}  // close 'TestDriver' namespace
 
 
 template <class ALLOCATOR>
@@ -7017,6 +7017,41 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
+        if (verbose) printf("\nTesting ASSIGNMENT of null pointer"
+                            "\n----------------------------------\n");
+        {
+            numDeletes = 0;
+            TObj *p = new TObj(&numDeletes);
+
+            Obj x1(p); const Obj& X1=x1;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+            }
+            ASSERT(0 == numDeletes);
+            ASSERT(p == X1.get());
+            ASSERT(1 == X1.use_count());
+
+            Obj x2;
+            const Obj& X2 = x2;
+            ASSERT(0 == x2.get());
+            ASSERT(0 == x2.use_count());
+
+            x1 = NULL;
+
+            if (veryVerbose) {
+                P_(numDeletes); P_(X1.use_count());
+                P(X2.use_count());
+            }
+            ASSERT(1 == numDeletes);
+            ASSERT(0 == X2.get());
+            ASSERT(0 == X1.get());
+
+            ASSERT(0 == X2.use_count());
+            ASSERT(0 == X1.use_count());
+        }
+        ASSERT(1 == numDeletes);
+
         if (verbose) printf("\nTesting ASSIGNMENT of loaded object"
                             "\n----------------------------------\n");
         {
@@ -7545,10 +7580,33 @@ int main(int argc, char *argv[])
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
+            Obj v = NULL; const Obj& V = v;
+            ASSERT(0 == V.get());
+            ASSERT(0 == V.use_count());
+            ASSERT(numAllocations == ta.numAllocations());
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+            // This test case is omitted as it raises an ambiguity with the
+            // deprecated-internal constructor taking a 'bslma::SharedPtrRep *'
+            // argument.  As that constructor is implicit, and commonly called
+            // with a pointer of the correct type, the only time the ambiguity
+            // occurs is literally using an explicit constructor syntax for a
+            // 'shared_ptr' and supplying a null-pointer literal.  This awkward
+            // case is not observed in our production code base, and the
+            // concern will be eliminated when this constructor is finally
+            // retired.  Disabling the constructor is greatly preferred to the
+            // house of cards that must otherwise be created to support this
+            // corner case, which involves adding a second SFINAEd parameter to
+            // the main 'shared_ptr' single-argument constructor taking a
+            // 'COMPATIBLE_TYPE *', in addition to wrapping the 'SharedPtrRep*'
+            // in another wrapper type to create a longer conversion sequence
+            // to disambiguate from the 'nullptr_t' form.
+#else
             Obj w(0); const Obj& W = w;
             ASSERT(0 == W.get());
             ASSERT(0 == W.use_count());
             ASSERT(numAllocations == ta.numAllocations());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             Obj x(0, &ta); const Obj& X = x;
             ASSERT(0 == X.get());
@@ -9219,7 +9277,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

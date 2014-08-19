@@ -61,14 +61,15 @@ using namespace BloombergLP;
 // [ 1] bool operator()(const weak_ptr<TYPE>&,   const shared_ptr<TYPE>&) const
 // [ 1] bool operator()(const weak_ptr<TYPE>&,   const weak_ptr<TYPE>&)   const
 
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -76,14 +77,13 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -215,7 +215,7 @@ class TestSharedPtrRep : public bslma::SharedPtrRep {
 };
 
 // ============================================================================
-//                      MEMBER- AND TEMPLATE-FUNCTION IMPLEMENTATIONS
+//                  MEMBER- AND FUNCTION-TEMPLATE IMPLEMENTATIONS
 // ============================================================================
 
                              // ------------------
@@ -485,7 +485,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

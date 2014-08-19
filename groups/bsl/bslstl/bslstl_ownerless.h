@@ -7,16 +7,19 @@
 #endif
 BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide a generic reference-counted shared pointer wrapper.
+//@PURPOSE: Provide an ordering for shared and weak pointers.
 //
 //@CLASSES:
-//  bsl::owner_less: comparator for 'shared_ptr' and 'weak_ptr'
+//  bsl::owner_less: ordering comparator for 'shared_ptr' and 'weak_ptr'
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@SEE_ALSO: bslstl_sharedptr
 //
-//@DESCRIPTION: This component ...
+//@DESCRIPTION: This component provides the C+11 standard binary comparison
+// functor, 'bsl::owner_less', that determines the order of two smart pointer
+// objects by the relative order of the address of their 'bslma::SharedPtrRep'
+// data.. Note that this class is an empty POD type.
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
@@ -35,18 +38,18 @@ BSL_OVERRIDES_STD mode"
 
 namespace bsl {
 
-template<class ELEMENT_TYPE>
+template <class POINTER_TYPE>
 struct owner_less;
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 struct owner_less<weak_ptr<ELEMENT_TYPE> >;
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 struct owner_less<weak_ptr<ELEMENT_TYPE> >;
 
-                        // C++0x Compatibility
+                        // C++11 Compatibility
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 struct owner_less<shared_ptr<ELEMENT_TYPE> > {
 
     // STANDARD TYPEDEFS
@@ -87,7 +90,7 @@ struct owner_less<shared_ptr<ELEMENT_TYPE> > {
         // otherwise.
 };
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 struct owner_less<weak_ptr<ELEMENT_TYPE> > {
 
     // STANDARD TYPEDEFS
@@ -130,14 +133,14 @@ struct owner_less<weak_ptr<ELEMENT_TYPE> > {
 
 
 // ============================================================================
-//              INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
-              // --------------------------------------------
-              // struct owner_less<shared_ptr<ELEMENT_TYPE> >
-              // --------------------------------------------
+                // --------------------------------------------
+                // struct owner_less<shared_ptr<ELEMENT_TYPE> >
+                // --------------------------------------------
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 inline
 bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
                                        const shared_ptr<ELEMENT_TYPE>& a,
@@ -146,7 +149,7 @@ bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
     return a.owner_before(b);
 }
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 inline
 bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
                                        const shared_ptr<ELEMENT_TYPE>& a,
@@ -155,7 +158,7 @@ bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
     return a.owner_before(b);
 }
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 inline
 bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
                                        const weak_ptr<ELEMENT_TYPE>&   a,
@@ -164,11 +167,11 @@ bool owner_less<shared_ptr<ELEMENT_TYPE> >::operator()(
     return a.owner_before(b);
 }
 
-              // ------------------------------------------
-              // struct owner_less<weak_ptr<ELEMENT_TYPE> >
-              // ------------------------------------------
+                // ------------------------------------------
+                // struct owner_less<weak_ptr<ELEMENT_TYPE> >
+                // ------------------------------------------
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 inline
 bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
                                         const weak_ptr<ELEMENT_TYPE>& a,
@@ -177,7 +180,7 @@ bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
     return a.owner_before(b);
 }
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 inline
 bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
                                        const shared_ptr<ELEMENT_TYPE>& a,
@@ -186,7 +189,7 @@ bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
     return a.owner_before(b);
 }
 
-template<class ELEMENT_TYPE>
+template <class ELEMENT_TYPE>
 inline
 bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
                                        const weak_ptr<ELEMENT_TYPE>&   a,
@@ -196,12 +199,30 @@ bool owner_less<weak_ptr<ELEMENT_TYPE> >::operator()(
 }
 
 
-}  // close namespace bsl
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
+// Type traits for 'equal_to'
+//: o 'equal_to' is a stateless POD, trivially constructible, copyable, and
+//:   moveable.
+
+template<class POINTER_TYPE>
+struct is_trivially_default_constructible<owner_less<POINTER_TYPE> >
+: bsl::true_type
+{};
+
+template<class POINTER_TYPE>
+struct is_trivially_copyable<owner_less<POINTER_TYPE> >
+: bsl::true_type
+{};
+
+}  // close 'bsl' namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

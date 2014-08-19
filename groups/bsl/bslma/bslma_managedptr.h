@@ -714,13 +714,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_unspecifiedbool.h>
 #endif
 
-#ifdef BDE_VERIFY
-// The 'bde_verify' tool needs to be aware of contractual use of a few terms
-// that happen to match function parameter names.
-#pragma bde_verify push
-#pragma bde_verify set ok_unquoted deleter factory
-#endif // BDE_VERIFY
-
 namespace BloombergLP {
 
 namespace bslma {
@@ -1373,10 +1366,6 @@ struct ManagedPtr_ImpUtil {
         // the current task was started, write a message to the console warning
         // about a pending change of behavior in the next BDE release.
 };
-
-#ifdef BDE_VERIFY
-#pragma bde_verify pop
-#endif // BDE_VERIFY
 
 // ============================================================================
 //              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS

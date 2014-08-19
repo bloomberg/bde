@@ -71,9 +71,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -1205,7 +1205,7 @@ int main(int argc, char *argv[])
 #endif
    case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' and 'releaseWeakRef'
+        // TESTING 'releaseRef' AND 'releaseWeakRef'
         //
         // Concerns:
         //   1) 'releaseRef' and 'releaseWeakRef' is decrementing the reference
@@ -1230,7 +1230,8 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTESTING 'releaseRef' and 'releaseWeakRef'"
+
+        if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
                             "\n=========================================\n");
 
 #if 0
@@ -1534,7 +1535,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

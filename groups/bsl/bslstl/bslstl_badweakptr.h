@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an exception class to indicate a weak_ptr has expired.
 //
 //@CLASSES:
-//   bslstl::BadWeakPtr: exception class derived from 'native_std' classes
-//    bsl::bad_weak_ptr: alias to an exception type thrown by the bsl library
+//  bslstl::BadWeakPtr: exception class derived from 'native_std' classes
+//  bsl::bad_weak_ptr: alias to an exception type thrown by the bsl library
 //
 //@SEE_ALSO: bslstl_sharedptr, bslstl_stdexceptionutil
 //
@@ -66,7 +66,7 @@ typedef native_std::bad_weak_ptr bad_weak_ptr;
 typedef ::BloombergLP::bslstl::BadWeakPtr bad_weak_ptr;
 #endif
 
-}  // close namespace bsl
+}  // close 'bsl' namespace
 
 
 namespace BloombergLP {
@@ -95,9 +95,9 @@ class BadWeakPtr : public native_std::exception {
         // in a build that may not recongnise exceptions.
 };
 
-// ===========================================================================
-//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
 
                        // ----------------
                        // class BadWeakPtr
@@ -115,8 +115,7 @@ const char *BadWeakPtr::what() const throw()
     return "bad_weak_ptr";
 }
 
-}  // close namespace bslalg
-
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

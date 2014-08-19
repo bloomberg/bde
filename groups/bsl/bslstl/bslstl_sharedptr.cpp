@@ -58,21 +58,21 @@ SharedPtrUtil::createInplaceUninitializedBuffer(
                                                                            Rep;
 
     enum {
-        ALIGNMENT_MASK = ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+        k_ALIGNMENT_MASK = ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
     };
 
-    bsl::size_t repSize = (sizeof(Rep) + bufferSize - 1) & ALIGNMENT_MASK;
+    bsl::size_t repSize = (sizeof(Rep) + bufferSize - 1) & k_ALIGNMENT_MASK;
 
     Rep *rep = new (basicAllocator->allocate(repSize)) Rep(basicAllocator);
 
     return bsl::shared_ptr<char>(reinterpret_cast<char *>(rep->ptr()), rep);
 }
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

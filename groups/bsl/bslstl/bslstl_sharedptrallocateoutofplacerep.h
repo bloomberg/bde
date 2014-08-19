@@ -346,7 +346,7 @@ struct SharedPtrAllocateOutofplaceRep_InitProctor {
 };
 
 // ============================================================================
-//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
                   // ------------------------------------
@@ -379,6 +379,7 @@ SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::makeOutofplaceRep(
 
 // CREATORS
 template <class TYPE, class DELETER, class ALLOCATOR>
+inline
 SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::
 SharedPtrAllocateOutofplaceRep(
                               TYPE             *ptr,
@@ -392,6 +393,7 @@ SharedPtrAllocateOutofplaceRep(
 
 
 template <class TYPE, class DELETER, class ALLOCATOR>
+inline
 SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::
 ~SharedPtrAllocateOutofplaceRep()
 {
@@ -497,13 +499,13 @@ void SharedPtrAllocateOutofplaceRep_InitProctor<TYPE, DELETER>::release()
     d_ptr_p = 0;
 }
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

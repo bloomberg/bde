@@ -153,7 +153,7 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
 
 
 // ============================================================================
-//              INLINE FUNCTION AND FUNCTION TEMPLATE DEFINITIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
                   // ---------------------------------
@@ -162,6 +162,7 @@ class SharedPtrAllocateInplaceRep : public BloombergLP::bslma::SharedPtrRep {
 
 // CLASS METHODS
 template <class TYPE, class ALLOCATOR>
+inline
 SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR> *
 SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::makeRep(
                                                ReboundAllocator basicAllocator)
@@ -193,6 +194,7 @@ SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::
 
 // MANIPULATORS
 template <class TYPE, class ALLOCATOR>
+inline
 void SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::disposeObject()
 {
     ReboundTraits::destroy(d_allocator, ptr());
@@ -232,13 +234,28 @@ SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::originalPtr() const
                          reinterpret_cast<const TYPE *>(d_instance.buffer())));
 }
 
-}  // close namespace bslstl
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ============================================================================
+//                              TYPE TRAITS
+// ============================================================================
+
+namespace bslma {
+
+template <class TYPE, class ALLOCATOR>
+struct UsesBslmaAllocator< bslstl::SharedPtrAllocateInplaceRep<TYPE,
+                                                               ALLOCATOR> >
+    : bsl::false_type
+{};
+
+}  // close traits namespace
+
+}  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to

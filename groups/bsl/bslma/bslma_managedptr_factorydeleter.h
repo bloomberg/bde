@@ -29,10 +29,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #endif
 
-#ifdef BDE_VERIFY
-#pragma bde_verify set ok_unquoted object
-#endif // BDE_VERIFY
-
 namespace BloombergLP {
 namespace bslma {
 

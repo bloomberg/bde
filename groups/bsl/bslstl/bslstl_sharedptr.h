@@ -1664,11 +1664,6 @@ BSL_OVERRIDES_STD mode"
 #endif
 
 
-// The 'bde_verify' tool needs to be aware of contractual use of a few terms
-// that happen to match function parameter names.
-#pragma bde_verify push
-#pragma bde_verify set ok_unquoted deleter object
-
 namespace bsl {
 
 using native_std::size_t;
@@ -1756,6 +1751,7 @@ class shared_ptr {
         // 'ptr' using the specified 'deleter', using the currently installed
         // default allocator to provide storage.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if 0
     explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
         // Create a shared pointer taking ownership of the specified 'rep' and
@@ -1772,6 +1768,7 @@ class shared_ptr {
         //  shared_ptr(TYPE *ptr, BloombergLP::bslma::SharedPtrRep *rep);
         //..
 #endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
   public:
     // TYPES
@@ -1784,6 +1781,11 @@ class shared_ptr {
 
     // CREATORS
     shared_ptr();
+        // Create an empty shared pointer, i.e., a shared pointer with no
+        // representation, that does not refer to any object and has no
+        // deleter.
+
+    shared_ptr(bsl::nullptr_t);                                     // IMPLICIT
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation, that does not refer to any object and has no
         // deleter.
@@ -1807,11 +1809,11 @@ class shared_ptr {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
-        // Create a shared pointer taking ownership of the specified 'rep'
-        // and pointing to the object stored in the specified 'rep'.  The
-        // behavior is undefined unless 'rep->originalPtr()' points to an
-        // object of type 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT*
-        // increment the number of references to 'rep'.
+        // Create a shared pointer taking ownership of the specified 'rep' and
+        // pointing to the object stored in the 'rep'.  The behavior is
+        // undefined unless 'rep->originalPtr()' points to an object of type
+        // 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT* increment the
+        // number of references to 'rep'.
         //
         // DEPRECATED This constructor will be made inaccessible in the next
         // BDE release, as the undefined behavior is too easily triggered and
@@ -1820,11 +1822,6 @@ class shared_ptr {
         //..
         //  shared_ptr(ELEMENT_TYPE *p, BloombergLP::bslma::SharedPtrRep *rep);
         //..
-#else
-    shared_ptr(bsl::nullptr_t);                                     // IMPLICIT
-        // Create an empty shared pointer, i.e., a shared pointer with no
-        // representation, that does not refer to any object and has no
-        // deleter.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     template <class COMPATIBLE_TYPE>
@@ -3645,7 +3642,7 @@ struct hash<shared_ptr<ELEMENT_TYPE> > {
         // the same pointer.
 };
 
-}  // close namespace bsl
+}  // close 'bsl' namespace
 
 namespace BloombergLP {
 namespace bslstl {
@@ -3818,10 +3815,8 @@ class SharedPtr_RepProctor {
 }  // close package namespace
 }  // close enterprise namespace
 
-#pragma bde_verify pop  // set_okunquoted
-
 // ============================================================================
-//              INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
 namespace bsl {
@@ -3885,6 +3880,14 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr()
 }
 
 template <class ELEMENT_TYPE>
+inline
+shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t)
+: d_ptr_p(0)
+, d_rep_p(0)
+{
+}
+
+template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
@@ -3905,15 +3908,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
 , d_rep_p(rep)
 {
 }
-#else
-template <class ELEMENT_TYPE>
-inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t)
-: d_ptr_p(0)
-, d_rep_p(0)
-{
-}
-
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class ELEMENT_TYPE>
@@ -4019,7 +4013,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(
         bsl::is_pointer<DELETER>::value) {
         d_rep_p = 0;
     }
-    else {       
+    else {
         d_rep_p = RepMaker::makeOutofplaceRep((ELEMENT_TYPE *)0,
                                               deleter,
                                               basicAllocator);
@@ -5101,7 +5095,7 @@ size_t hash<shared_ptr<ELEMENT_TYPE> >::operator()(
     return ::BloombergLP::bslalg::HashUtil::computeHash(x.get());
 }
 
-}  // close namespace bsl
+}  // close 'bsl' namespace
 
 
 namespace BloombergLP {
@@ -6722,7 +6716,7 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg Finance L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
