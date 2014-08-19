@@ -27,6 +27,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //: 7 Included 'cstring' rather than 'memory'
 //:
 //: 8 Reordered variable declarations to allow benefit from early returns
+//:
+//: 9 Added '#ifdef' to prevent unaligned reads on Solaris
 //
 ///Third Party Doc
 ///---------------

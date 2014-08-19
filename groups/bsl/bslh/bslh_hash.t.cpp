@@ -446,14 +446,14 @@ static void printAsHex(const char *data, size_t size)
     printf("\n");
 }
 
-static size_t findNumberOfBytesBeforePadding(long double d1, long double d2)
+static size_t findNumberOfBytesBeforePadding(long double *d1, long double *d2)
     // Return the number of bytes from the begining of the specified 'd1' and
     // 'd2' until the first byte at which they differ or at which they are both
     // 0.
 {
     size_t size = sizeof(long double);
-    const char *c1 = reinterpret_cast<const char *>(&d1);
-    const char *c2 = reinterpret_cast<const char *>(&d2);
+    const char *c1 = reinterpret_cast<const char *>(d1);
+    const char *c2 = reinterpret_cast<const char *>(d2);
 
     for (size_t i = 0; i < size; ++i) {
         if (c1[i] != c2[i] || c1[i] == 0) {
@@ -1373,30 +1373,30 @@ int main(int argc, char *argv[])
                 printAsHex(reinterpret_cast<const char *>(&d9), sizeof(d0));
             }
 
-            size_t size = findNumberOfBytesBeforePadding(d0, d1);
+            size_t size = findNumberOfBytesBeforePadding(&d0, &d1);
 
-            size_t newSize = findNumberOfBytesBeforePadding(d0, d2);
+            size_t newSize = findNumberOfBytesBeforePadding(&d0, &d2);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfBytesBeforePadding(d0, d3);
+            newSize = findNumberOfBytesBeforePadding(&d0, &d3);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfBytesBeforePadding(d0, d4);
+            newSize = findNumberOfBytesBeforePadding(&d0, &d4);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfBytesBeforePadding(d0, d5);
+            newSize = findNumberOfBytesBeforePadding(&d0, &d5);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfBytesBeforePadding(d0, d6);
+            newSize = findNumberOfBytesBeforePadding(&d0, &d6);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfBytesBeforePadding(d0, d7);
+            newSize = findNumberOfBytesBeforePadding(&d0, &d7);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfBytesBeforePadding(d0, d8);
+            newSize = findNumberOfBytesBeforePadding(&d0, &d8);
             size = newSize < size ? newSize : size;
 
-            newSize = findNumberOfBytesBeforePadding(d0, d9);
+            newSize = findNumberOfBytesBeforePadding(&d0, &d9);
             size = newSize < size ? newSize : size;
 
             MockHashingAlgorithm alg;
