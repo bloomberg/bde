@@ -126,15 +126,15 @@ struct DecimalConvertUtil {
     // other formats.
 
   private:
-    #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
+#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
     typedef DecimalConvertUtil_DecNumber Imp;
-    #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    typedef DecimalConvertUtil_IntelDfp Imp;
-    #elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
-    typedef DecimalConvertUtil_IbmXlc Imp;
-    #else
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    typedef DecimalConvertUtil_IntelDfp  Imp;
+#elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
+    typedef DecimalConvertUtil_IbmXlc    Imp;
+#else
     BSLMF_ASSERT(false);
-    #endif
+#endif
 
   public:
 

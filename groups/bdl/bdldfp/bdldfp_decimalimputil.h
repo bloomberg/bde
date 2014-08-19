@@ -202,15 +202,15 @@ class DecimalImpUtil {
     // core decimal floating-poing operations.
 
   private:
-    #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
+#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
     typedef DecimalImpUtil_DecNumber Imp;
-    #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
-    typedef DecimalImpUtil_IntelDfp Imp;
-    #elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
-    typedef DecimalImpUtil_IbmXlc Imp;
-    #else
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    typedef DecimalImpUtil_IntelDfp  Imp;
+#elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
+    typedef DecimalImpUtil_IbmXlc    Imp;
+#else
     BSLMF_ASSERT(false);
-    #endif
+#endif
 
   public:
     // TYPES
