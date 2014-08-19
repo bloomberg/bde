@@ -38,8 +38,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_intelimpwrapper.h>
 #endif
 
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-
 #ifndef INCLUDED_BSL_LOCALE
 #include <bsl_locale.h>
 #endif
@@ -1388,8 +1386,6 @@ DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType128  value,
 
 }  // close package namespace
 }  // close enterprise namespace
-
-#endif
 
 #endif
 

@@ -150,6 +150,10 @@ BSLS_IDENT("$Id$")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 #ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
 #endif
@@ -194,15 +198,18 @@ namespace bdldfp {
                         // ====================
 
 class DecimalImpUtil {
+    // This 'struct' provides a namespace for utility functions that implement
+    // core decimal floating-poing operations.
+
   private:
     #ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
-    typedef DecimalImpUtil_decNumber Imp;
+    typedef DecimalImpUtil_DecNumber Imp;
     #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     typedef DecimalImpUtil_IntelDfp Imp;
     #elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
     typedef DecimalImpUtil_IbmXlc Imp;
     #else
-    BSLMF_STATIC_ASSERT(false);
+    BSLMF_ASSERT(false);
     #endif
 
   public:

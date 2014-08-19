@@ -14,6 +14,8 @@
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
 
+#include <bslmf_assert.h>
+
 #include <typeinfo>
 
 using namespace BloombergLP;
@@ -619,11 +621,13 @@ int main(int argc, char* argv[])
             Util::decimalFromNetwork(&d32, buffer);
             LOOP2_ASSERT(d32, h_d32, d32 == h_d32);
 
+            unsigned int rawData = 0x2654D2E7;
+
             Util::decimalToDenselyPacked(buffer, h_d32);
-            ASSERT(0 == memcmp(n_d32, buffer, sizeof(n_d32)));
+            ASSERT(0 == memcmp(buffer, &rawData, sizeof(rawData)));
 
             Util::decimal32ToDenselyPacked(buffer, h_d32);
-            ASSERT(0 == memcmp(n_d32, buffer, sizeof(n_d32)));
+            ASSERT(0 == memcmp(buffer, &rawData, sizeof(rawData)));
 
             ASSERT(Util::decimal32FromDenselyPacked(buffer) == h_d32);
 
@@ -647,11 +651,13 @@ int main(int argc, char* argv[])
             Util::decimalFromNetwork(&d64, buffer);
             LOOP2_ASSERT(d64, h_d64, d64 == h_d64);
 
+            unsigned int rawData = 0x263934B9C1E28E56llu;
+
             Util::decimalToDenselyPacked(buffer, h_d64);
-            ASSERT(0 == memcmp(n_d64, buffer, sizeof(n_d64)));
+            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
 
             Util::decimal64ToDenselyPacked(buffer, h_d64);
-            ASSERT(0 == memcmp(n_d64, buffer, sizeof(n_d64)));
+            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
 
             ASSERT(Util::decimal64FromDenselyPacked(buffer) == h_d64);
 
@@ -677,22 +683,15 @@ int main(int argc, char* argv[])
 
             Util::decimalFromNetwork(&d128, buffer);
             LOOP2_ASSERT(d128, h_d128, d128 == h_d128);
-            std::cout << "d128: " << std::endl;
-            std::copy(reinterpret_cast<const unsigned char *>(&d128),
-                      reinterpret_cast<const unsigned char *>(&d128) + 8,
-                        std::ostream_iterator<unsigned int>(std::cout, " "));
 
-            std::cout << "h_d128: " << std::endl;
-            std::copy(reinterpret_cast<const unsigned char *>(&h_d128),
-                      reinterpret_cast<const unsigned char *>(&h_d128) + 8,
-                        std::ostream_iterator<unsigned int>(std::cout, " "));
-
+            bdldfp::Uint128 rawData(0x2608134B9C1E28E5llu,
+                                    0x6F3C127177823534llu);
 
             Util::decimalToDenselyPacked(buffer, h_d128);
-            ASSERT(0 == memcmp(n_d128, buffer, sizeof(n_d128)));
+            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
 
             Util::decimal128ToDenselyPacked(buffer, h_d128);
-            ASSERT(0 == memcmp(n_d128, buffer, sizeof(n_d128)));
+            ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
 
             ASSERT(Util::decimal128FromDenselyPacked(buffer) == h_d128);
 
@@ -929,7 +928,11 @@ int main(int argc, char* argv[])
                 bin_f   = Util::decimalToFloat(original);
 
                 restored = Util::decimal32FromLongDouble(bin_ld);
-                LOOP2_ASSERT(restored, bin_ld, restored != restored);
+                LOOP4_ASSERT(original,
+                             Util::decimalToLongDouble(original),
+                             restored,
+                             bin_ld,
+                             restored != restored);
 
                 restored = Util::decimal32FromDouble(bin_d);
                 LOOP2_ASSERT(restored, bin_d, restored != restored);

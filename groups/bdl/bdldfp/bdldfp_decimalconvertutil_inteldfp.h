@@ -14,13 +14,12 @@ BSLS_IDENT("$Id$")
 //
 //@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION:
-// This component provides conversion operations between the decimal types
-// supplied in this package ('Decimal32', 'Decimal64', 'Decimal128') and
-// various alternative representations.  Some of the alternative
-// representations that this component provides conversions for are IEEE-754
-// binary floating point (i.e., 'float' and 'double') and a network format
-// (big-endian, Densely Packed Decimal encoding).
+//@DESCRIPTION: This component provides conversion operations between the
+// decimal types supplied in this package ('Decimal32', 'Decimal64',
+// 'Decimal128') and various alternative representations.  Some of the
+// alternative representations that this component provides conversions for are
+// IEEE-754 binary floating point (i.e., 'float' and 'double') and a network
+// format (big-endian, Densely Packed Decimal encoding).
 //
 ///Usage
 ///-----
@@ -33,6 +32,12 @@ BSLS_IDENT("$Id$")
 #include <bdlscm_version.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
+#include <bdldfp_decimalplatform.h>
+#endif
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+
 #ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
 #endif
@@ -41,30 +46,8 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
-#include <bdldfp_decimalplatform.h>
-#endif
-
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-
-#ifndef INCLUDED_BID_FUNCTIONS
-
-// Controlling macros for the intel library configuration
-
-#  define DECIMAL_CALL_BY_REFERENCE      0
-#  define DECIMAL_GLOBAL_ROUNDING        1
-#  define DECIMAL_GLOBAL_EXCEPTION_FLAGS 1
-
-// in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
-// about this.
-
-#  define _WCHAR_T_DEFINED
-
-   extern "C" {
-#   include <bid_conf.h>
-#   include <bid_functions.h>
-   }
-#  define INCLUDED_BID_FUNCTIONS
+#ifndef INCLUDED_BDLDFP_INTELIMPWRAPPER
+#include <bdldfp_intelimpwrapper.h>
 #endif
 
 namespace BloombergLP {
@@ -264,8 +247,6 @@ struct DecimalConvertUtil_IntelDfp {
         // to a memory area at least 'sizeof(decimal)' in size containing a
         // value in DPD format.
 };
-
-typedef DecimalConvertUtil_IntelDfp DecimalConvertUtil_Platform;
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS

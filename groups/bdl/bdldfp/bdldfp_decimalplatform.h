@@ -102,6 +102,10 @@ BSLS_IDENT("$Id$")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 // C99 decimal support on xlC/Aix issues should be resolved (see 
 // DRQS 39471014).
 
@@ -148,6 +152,7 @@ BSLS_IDENT("$Id$")
 #  define BDLDFP_DECIMALPLATFORM_BININT 1
 #else
 #  error Unsupported decimal floating point platform.
+BSLMF_ASSERT(false);
 #endif
 
 // The Decimal Platform macros for endian settings allow for the possibility of
@@ -160,26 +165,10 @@ BSLS_IDENT("$Id$")
 #  define BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN 1
 #else
 #  error "Unsupported endianness"
-class UnsupportedEndinanness;
-UnsupportedEndinanness forceError[sizeof(UnsupportedEndinanness)];
+BSLMF_ASSERT(false);
 #endif
 
-namespace BloombergLP {
-namespace bdldfp {
-
-struct Platform_Assert;
-    // This 'struct' is declared but not defined.  It is used with the 'sizeof'
-    // operator to force a compile-time error on platforms that do not support
-    // '#error'.   For example:
-    //..
-    //  char die[sizeof(Platform_Assert)]; // if '#error' unsupported
-    //..
-
-}  // close package namespace
-}  // close enterprise namespaace
-
-#define BDLDFP_DECIMALPLATFORM_COMPILER_ERROR                                 \
-    char die[sizeof(::BloombergLP::bdldfp::Platform_Assert)]
+#define BDLDFP_DECIMALPLATFORM_COMPILER_ERROR BSLMF_ASSERT(false)
 
                         // Validation
 

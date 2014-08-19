@@ -1023,7 +1023,6 @@ int main(int argc, char *argv[])
             }
         }
 #endif
-#if 1
 
         if (veryVerbose) bsl::cout << "Test makeDecimalRaw32, "
                                    << "makeDecimalRaw64, and makeDecimal128."
@@ -1456,7 +1455,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        #endif
 
         // Test that 'makeDecimalRaw32' enforces undefined behavior in the
         // right build mode

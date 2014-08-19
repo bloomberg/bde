@@ -14,13 +14,12 @@ BSLS_IDENT("$Id$")
 //
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION:
-// This component provides conversion operations between the decimal types
-// supplied in this package ('Decimal32', 'Decimal64', 'Decimal128') and
-// various alternative representations.  Some of the alternative
-// representations that this component provides conversions for are IEEE-754
-// binary floating point (i.e., 'float' and 'double') and a network format
-// (big-endian, Densely Packed Decimal encoding).
+//@DESCRIPTION: This component provides conversion operations between the
+// decimal types supplied in this package ('Decimal32', 'Decimal64',
+// 'Decimal128') and various alternative representations.  Some of the
+// alternative representations that this component provides conversions for are
+// IEEE-754 binary floating point (i.e., 'float' and 'double') and a network
+// format (big-endian, Densely Packed Decimal encoding).
 //
 ///Usage
 ///-----

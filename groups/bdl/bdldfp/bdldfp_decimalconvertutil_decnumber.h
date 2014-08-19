@@ -10,17 +10,16 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide decimal floating-point conversion functions for decNumber.
 //
 //@CLASSES:
-//  bdldfp::DecimalConvertUtil_decNumber: decNumber conversion functions
+//  bdldfp::DecimalConvertUtil_DecNumber: decNumber conversion functions
 //
 //@SEE_ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION:
-// This component provides conversion operations between the decimal types
-// supplied in this package ('Decimal32', 'Decimal64', 'Decimal128') and
-// various alternative representations.  Some of the alternative
-// representations that this component provides conversions for are IEEE-754
-// binary floating point (i.e., 'float' and 'double') and a network format
-// (big-endian, Densely Packed Decimal encoding).
+//@DESCRIPTION: This component provides conversion operations between the
+// decimal types supplied in this package ('Decimal32', 'Decimal64',
+// 'Decimal128') and various alternative representations.  Some of the
+// alternative representations that this component provides conversions for are
+// IEEE-754 binary floating point (i.e., 'float' and 'double') and a network
+// format (big-endian, Densely Packed Decimal encoding).
 //
 ///Usage
 ///-----
@@ -44,10 +43,10 @@ BSLS_IDENT("$Id$")
 namespace BloombergLP {
 namespace bdldfp {
                         // ==================================
-                        // class DecimalConvertUtil_decNumber
+                        // class DecimalConvertUtil_DecNumber
                         // ==================================
 
-struct DecimalConvertUtil_decNumber {
+struct DecimalConvertUtil_DecNumber {
     // This 'struct' provides a namespace for utility functions that convert
     // between the decimal floating-point types of 'bdldfp_decimal' and various
     // other formats.
@@ -239,37 +238,33 @@ struct DecimalConvertUtil_decNumber {
         // value in DPD format.
 };
 
-#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
-typedef DecimalConvertUtil_decNumber DecimalConvertUtil_Platform;
-#endif
-
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                         // ----------------------------------
-                        // class DecimalConvertUtil_decNumber
+                        // class DecimalConvertUtil_DecNumber
                         // ----------------------------------
 
                         // decimalToLongDouble functions
 
 inline
 long double
-DecimalConvertUtil_decNumber::decimal32ToLongDouble(Decimal32 decimal)
+DecimalConvertUtil_DecNumber::decimal32ToLongDouble(Decimal32 decimal)
 {
     return decimalToLongDouble(decimal);
 }
 
 inline
 long double
-DecimalConvertUtil_decNumber::decimal64ToLongDouble(Decimal64 decimal)
+DecimalConvertUtil_DecNumber::decimal64ToLongDouble(Decimal64 decimal)
 {
     return decimalToLongDouble(decimal);
 }
 
 inline
 long double
-DecimalConvertUtil_decNumber::decimal128ToLongDouble(Decimal128 decimal)
+DecimalConvertUtil_DecNumber::decimal128ToLongDouble(Decimal128 decimal)
 {
     return decimalToLongDouble(decimal);
 }
@@ -278,21 +273,21 @@ DecimalConvertUtil_decNumber::decimal128ToLongDouble(Decimal128 decimal)
 
 inline
 double
-DecimalConvertUtil_decNumber::decimal32ToDouble(Decimal32 decimal)
+DecimalConvertUtil_DecNumber::decimal32ToDouble(Decimal32 decimal)
 {
     return decimalToDouble(decimal);
 }
 
 inline
 double
-DecimalConvertUtil_decNumber::decimal64ToDouble(Decimal64 decimal)
+DecimalConvertUtil_DecNumber::decimal64ToDouble(Decimal64 decimal)
 {
     return decimalToDouble(decimal);
 }
 
 inline
 double
-DecimalConvertUtil_decNumber::decimal128ToDouble(Decimal128 decimal)
+DecimalConvertUtil_DecNumber::decimal128ToDouble(Decimal128 decimal)
 {
     return decimalToDouble(decimal);
 }
@@ -301,19 +296,19 @@ DecimalConvertUtil_decNumber::decimal128ToDouble(Decimal128 decimal)
 
 inline
 float
-DecimalConvertUtil_decNumber::decimal32ToFloat(Decimal32 decimal)
+DecimalConvertUtil_DecNumber::decimal32ToFloat(Decimal32 decimal)
 {
     return decimalToFloat(decimal);
 }
 
 inline float
-DecimalConvertUtil_decNumber::decimal64ToFloat(Decimal64 decimal)
+DecimalConvertUtil_DecNumber::decimal64ToFloat(Decimal64 decimal)
 {
     return decimalToFloat(decimal);
 }
 
 inline float
-DecimalConvertUtil_decNumber::decimal128ToFloat(Decimal128 decimal)
+DecimalConvertUtil_DecNumber::decimal128ToFloat(Decimal128 decimal)
 {
     return decimalToFloat(decimal);
 }
@@ -322,7 +317,7 @@ DecimalConvertUtil_decNumber::decimal128ToFloat(Decimal128 decimal)
 
 inline
 void
-DecimalConvertUtil_decNumber::decimal32ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_DecNumber::decimal32ToDenselyPacked(unsigned char *buffer,
                                                        Decimal32      decimal)
 {
     BSLS_ASSERT(buffer);
@@ -332,7 +327,7 @@ DecimalConvertUtil_decNumber::decimal32ToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_decNumber::decimal64ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_DecNumber::decimal64ToDenselyPacked(unsigned char *buffer,
                                                        Decimal64      decimal)
 {
     BSLS_ASSERT(buffer);
@@ -342,7 +337,7 @@ DecimalConvertUtil_decNumber::decimal64ToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_decNumber::decimal128ToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_DecNumber::decimal128ToDenselyPacked(unsigned char *buffer,
                                                         Decimal128     decimal)
 {
     BSLS_ASSERT(buffer);
@@ -352,7 +347,7 @@ DecimalConvertUtil_decNumber::decimal128ToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_decNumber::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_DecNumber::decimalToDenselyPacked(unsigned char *buffer,
                                                      Decimal32      decimal)
 {
     BSLS_ASSERT(buffer);
@@ -362,7 +357,7 @@ DecimalConvertUtil_decNumber::decimalToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_decNumber::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_DecNumber::decimalToDenselyPacked(unsigned char *buffer,
                                                      Decimal64      decimal)
 {
     BSLS_ASSERT(buffer);
@@ -372,7 +367,7 @@ DecimalConvertUtil_decNumber::decimalToDenselyPacked(unsigned char *buffer,
 
 inline
 void
-DecimalConvertUtil_decNumber::decimalToDenselyPacked(unsigned char *buffer,
+DecimalConvertUtil_DecNumber::decimalToDenselyPacked(unsigned char *buffer,
                                                      Decimal128     decimal)
 {
     BSLS_ASSERT(buffer);
@@ -384,7 +379,7 @@ DecimalConvertUtil_decNumber::decimalToDenselyPacked(unsigned char *buffer,
 
 inline
 Decimal32
-DecimalConvertUtil_decNumber::decimal32FromDenselyPacked(
+DecimalConvertUtil_DecNumber::decimal32FromDenselyPacked(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -396,7 +391,7 @@ DecimalConvertUtil_decNumber::decimal32FromDenselyPacked(
 
 inline
 Decimal64
-DecimalConvertUtil_decNumber::decimal64FromDenselyPacked(
+DecimalConvertUtil_DecNumber::decimal64FromDenselyPacked(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -408,7 +403,7 @@ DecimalConvertUtil_decNumber::decimal64FromDenselyPacked(
 
 inline
 Decimal128
-DecimalConvertUtil_decNumber::decimal128FromDenselyPacked(
+DecimalConvertUtil_DecNumber::decimal128FromDenselyPacked(
                                                    const unsigned char *buffer)
 {
     BSLS_ASSERT(buffer);
@@ -420,7 +415,7 @@ DecimalConvertUtil_decNumber::decimal128FromDenselyPacked(
 
 inline
 void
-DecimalConvertUtil_decNumber::decimalFromDenselyPacked(
+DecimalConvertUtil_DecNumber::decimalFromDenselyPacked(
                                                   Decimal32           *decimal,
                                                   const unsigned char *buffer)
 {
@@ -432,7 +427,7 @@ DecimalConvertUtil_decNumber::decimalFromDenselyPacked(
 
 inline
 void
-DecimalConvertUtil_decNumber::decimalFromDenselyPacked(
+DecimalConvertUtil_DecNumber::decimalFromDenselyPacked(
                                                   Decimal64           *decimal,
                                                   const unsigned char *buffer)
 {
@@ -444,7 +439,7 @@ DecimalConvertUtil_decNumber::decimalFromDenselyPacked(
 
 inline
 void
-DecimalConvertUtil_decNumber::decimalFromDenselyPacked(
+DecimalConvertUtil_DecNumber::decimalFromDenselyPacked(
                                                   Decimal128          *decimal,
                                                   const unsigned char *buffer)
 {

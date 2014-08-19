@@ -99,7 +99,7 @@ unsigned char *decimalFromNetworkT(DECIMAL_TYPE        *decimal,
     bsl::memcpy(decimal, buffer, sizeof(DECIMAL_TYPE));
     unsigned char *result = memReverseIfNeeded(decimal, sizeof(DECIMAL_TYPE));
 
-    DecimalConvertUtil_Platform::decimalFromDenselyPacked(
+    DecimalConvertUtil::decimalFromDenselyPacked(
                                    decimal,
                                    reinterpret_cast<unsigned char *>(decimal));
 
@@ -114,7 +114,7 @@ unsigned char *decimalToNetworkT(unsigned char *buffer, DECIMAL_TYPE decimal)
     // return a raw memory pointer, providing modifiable access, to one byte
     // past the last written byte of the 'buffer'.
 {
-    DecimalConvertUtil_Platform::decimalToDenselyPacked(buffer, decimal);
+    DecimalConvertUtil::decimalToDenselyPacked(buffer, decimal);
     return memReverseIfNeeded(buffer, sizeof(DECIMAL_TYPE));
 }
 

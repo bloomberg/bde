@@ -15,6 +15,8 @@ BSLS_IDENT("$Id$")
 #include <bsl_string.h>
 #include <bsl_cstdlib.h>
 
+#include <bslmf_assert.h>
+
 // Even in hardware and intel modes, we need decNumber functions.
 
 extern "C" {
@@ -24,7 +26,7 @@ extern "C" {
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #  ifndef  __STDC_WANT_DEC_FP__
 #    error __STDC_WANT_DEC_FP__ must be defined on the command line!
-     char die[-42];     // if '#error' unsupported
+     BSLMF_ASSERT(false);
 #  endif
 #endif
 
@@ -443,20 +445,6 @@ void makeDecimalRaw(typename Properties<Size>::StorageType *target,
                          static_cast<signed long long>(mantissa),
                          exponent);
 }
-
-                        // Infinity encoding functions
-
-inline
-DenselyPackedDecimalImpUtil::StorageType64 inf64(bool isNegative = false)
-    // Return a pattern of bits representing a Densely Packed Decimal infinity
-    // value.  Optionally specify whether the infinity 'isNegative', If
-    // 'isNegative' is false, the returned value will be positive.
-
-{
-    typedef Properties<64> Props;
-    return Props::infBits | (isNegative ? Props::getSignBit() : 0);
-}
-
 
 }  // close unnamed namespace
 

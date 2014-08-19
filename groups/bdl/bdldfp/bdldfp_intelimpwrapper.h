@@ -30,8 +30,6 @@ BSLS_IDENT("$Id$")
 #define INCLUDED_BDLDFP_DECIMALPLATFORM
 #endif
 
-#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-
 #  if !defined(INCLUDED_BID_FUNCTIONS) && !defined(INCLUDED_BID_CONF)
 
 // Controlling macros for the intel library configuration
@@ -67,8 +65,6 @@ BSLS_IDENT("$Id$")
 #    define INCLUDED_BID_CONF
 #    define INCLUDED_BID_FUNCTIONS
 #  endif
-
-#endif
 
 #endif
 

@@ -3913,8 +3913,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
 #   undef BDLDFP_DECIMAL_RESTORE_STD
 #endif
 
-#define BDLDFP_DECIMAL_SUN_WORKAROUND
-
                     // THE DECIMAL FLOATING-POINT TYPES
 
                         // ---------------

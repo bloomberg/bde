@@ -90,7 +90,7 @@ void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
 }  // close anonymous namesapce 
 
 long double
-DecimalConvertUtil_decNumber::decimalToLongDouble(Decimal32 decimal)
+DecimalConvertUtil_DecNumber::decimalToLongDouble(Decimal32 decimal)
 {
     long double result;
     makeBinaryFloatingPoint(&result, decimal);
@@ -98,7 +98,7 @@ DecimalConvertUtil_decNumber::decimalToLongDouble(Decimal32 decimal)
 }
 
 long double
-DecimalConvertUtil_decNumber::decimalToLongDouble(Decimal64 decimal)
+DecimalConvertUtil_DecNumber::decimalToLongDouble(Decimal64 decimal)
 {
     long double result;
     makeBinaryFloatingPoint(&result, decimal);
@@ -106,7 +106,7 @@ DecimalConvertUtil_decNumber::decimalToLongDouble(Decimal64 decimal)
 }
 
 long double
-DecimalConvertUtil_decNumber::decimalToLongDouble(Decimal128 decimal)
+DecimalConvertUtil_DecNumber::decimalToLongDouble(Decimal128 decimal)
 {
     long double result;
     makeBinaryFloatingPoint(&result, decimal);
@@ -116,7 +116,7 @@ DecimalConvertUtil_decNumber::decimalToLongDouble(Decimal128 decimal)
                         // decimalToDouble functions
 
 double
-DecimalConvertUtil_decNumber::decimalToDouble(Decimal32 decimal)
+DecimalConvertUtil_DecNumber::decimalToDouble(Decimal32 decimal)
 {
     double result;
     makeBinaryFloatingPoint(&result, decimal);
@@ -124,7 +124,7 @@ DecimalConvertUtil_decNumber::decimalToDouble(Decimal32 decimal)
 }
 
 double
-DecimalConvertUtil_decNumber::decimalToDouble(Decimal64 decimal)
+DecimalConvertUtil_DecNumber::decimalToDouble(Decimal64 decimal)
 {
     double result;
     makeBinaryFloatingPoint(&result, decimal);
@@ -132,7 +132,7 @@ DecimalConvertUtil_decNumber::decimalToDouble(Decimal64 decimal)
 }
 
 double
-DecimalConvertUtil_decNumber::decimalToDouble(Decimal128 decimal)
+DecimalConvertUtil_DecNumber::decimalToDouble(Decimal128 decimal)
 {
     double result;
     makeBinaryFloatingPoint(&result, decimal);
@@ -142,7 +142,7 @@ DecimalConvertUtil_decNumber::decimalToDouble(Decimal128 decimal)
                         // decimalToFloat functions
 
 float
-DecimalConvertUtil_decNumber::decimalToFloat(Decimal32 decimal)
+DecimalConvertUtil_DecNumber::decimalToFloat(Decimal32 decimal)
 {
     double result;
     makeBinaryFloatingPoint(&result, decimal);
@@ -150,7 +150,7 @@ DecimalConvertUtil_decNumber::decimalToFloat(Decimal32 decimal)
 }
 
 float
-DecimalConvertUtil_decNumber::decimalToFloat(Decimal64 decimal)
+DecimalConvertUtil_DecNumber::decimalToFloat(Decimal64 decimal)
 {
     double result;
     makeBinaryFloatingPoint(&result, decimal);
@@ -158,7 +158,7 @@ DecimalConvertUtil_decNumber::decimalToFloat(Decimal64 decimal)
 }
 
 float
-DecimalConvertUtil_decNumber::decimalToFloat(Decimal128 decimal)
+DecimalConvertUtil_DecNumber::decimalToFloat(Decimal128 decimal)
 {
     float result;
     makeBinaryFloatingPoint(&result, decimal);

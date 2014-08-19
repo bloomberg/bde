@@ -84,21 +84,23 @@ struct DenselyPackedDecimalImpUtil {
 
     // CLASS METHODS
     static unsigned encodeDeclet(unsigned digits);
-        // Return an unsigned integer which represents an encoding of the
-        // specified 'digits' in Densely Packed Decimal (DPD) format.  The
+        // Return an unsigned integer whose bits encode the value of the
+        // specified 'digits' in the Densely Packed Decimal (DPD) format.  The
         // behavior is undefined unless '0 <= digits < 1000'.  Note that the
         // result will be a bit pattern whose binary representation corresponds
         // to a value in the range '[0, 1024]'.  Also note that this function
-        // accepts and returns 'unsigned int' type values, as it is intended
-        // for use with raw bit manipulation functions.
+        // encodes a *single* declet (not a complete DPD decimal floating point
+        // representation), and returns an 'unsigned int' as it is intended for
+        // use with raw bit manipulation functions.
 
     static unsigned decodeDeclet(unsigned declet);
-        // Return an unsigned integer containing the digits represented by the
-        // specified 'declet'.  The behavior is undefined unless the binary
-        // value of 'declet < 1024', and 'declet' is encoded in Densely Packed
-        // Decimal (DPD), and every unused bit in the densely packed state is
-        // set to 0.  Note that the result will be an integer in the range
-        // '[0, 999]'.  Also note that this function accepts and returns
+        // Return the (unsigned integer) value encoded in the specified
+        // 'declet'.  The behavior is undefined unless the binary value of
+        // 'declet < 1024', 'declet' is encoded in Densely Packed Decimal
+        // (DPD), and every unused bit in the densely packed state is set to 0.
+        // Note that the result will be an integer in the range '[0, 999]'.
+        // Also note that this function decodes a *single* declet (not a
+        // complete DPD decimal floating point representation), and returns
         // 'unsigned int' type values, as it is intended for use with raw bit
         // manipulation functions.
 

@@ -1,13 +1,12 @@
 // bdldfp_decimal.cpp                                                 -*-C++-*-
-
 #include <bdldfp_decimal.h>
 
 // TODO: Remove this #define and the generated bits...
 
-#define BDLDFP_DISABLE_COMPILE \
-typedef char Unsupported_Platform[ -1 ];
+#define BDLDFP_DISABLE_COMPILE BSLMF_ASSERT(false);
 
 #ifndef BDLDFP_DECIMAL_SUN_WORKAROUND
+
 
 // For better ways of binary-decimal FP conversion see:
 // http://www.serpentine.com/blog/2011/06/29/...
@@ -41,6 +40,8 @@ BSLS_IDENT("$Id$")
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+
+#include <bslmf_assert.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 #include <math.h>
@@ -648,7 +649,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal32      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    DecimalImpUtil::format(value.data(), buffer, sizeof(buffer));
+    DecimalImpUtil::format(*value.data(), buffer);
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
@@ -659,7 +660,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal64      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    DecimalImpUtil::format(value.data(), buffer, sizeof(buffer));
+    DecimalImpUtil::format(*value.data(), buffer);
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
@@ -670,7 +671,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal128     value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    DecimalImpUtil::format(value.data(), buffer, sizeof(buffer));
+    DecimalImpUtil::format(*value.data(), buffer);
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 
@@ -830,7 +831,8 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "1e-95", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "1e-95",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, -95);
@@ -848,7 +850,8 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "9.999999e96", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "9.999999e96",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("9.999999e96");
@@ -866,7 +869,8 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "1e-6", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "1e-6",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, -6);
@@ -884,7 +888,8 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "1.0",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, 0);
@@ -902,7 +907,8 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "INF",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("INF");
@@ -920,7 +926,8 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "NaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("NaN");
@@ -938,7 +945,8 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "sNaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("sNaN");
@@ -958,7 +966,7 @@ BloombergLP::bdldfp::Decimal32
     decSingle rv;
     decSingleFromString(&rv,
                         "0.000001E-95",
-                        BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("0.000001E-95");
@@ -980,7 +988,8 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "1e-383", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "1e-383",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw64(1, -383);
@@ -1000,7 +1009,7 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv;
     decDoubleFromString(&rv,
                         "9.999999999999999e384",
-                        BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64(
@@ -1019,7 +1028,8 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "1e-15", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "1e-15",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("1e-15");
@@ -1037,7 +1047,8 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "1.0",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw64(1, 0);
@@ -1055,7 +1066,8 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "INF",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("INF");
@@ -1073,7 +1085,8 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "qNaN", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "qNaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv) != 0);
     decDouble rv2 = rv;
     BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv2) != 0);
@@ -1094,7 +1107,8 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "sNaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("sNaN");
@@ -1114,7 +1128,7 @@ BloombergLP::bdldfp::Decimal64
     decDouble rv;
     decDoubleFromString(&rv,
                         "0.000000000000001e-383",
-                        BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64(
@@ -1137,7 +1151,8 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "1e-6143", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "1e-6143",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, -6143);
@@ -1157,7 +1172,7 @@ BloombergLP::bdldfp::Decimal128
     decQuad rv;
     decQuadFromString(&rv,
                       "9.999999999999999999999999999999999e6144",
-                      BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128(
@@ -1176,7 +1191,8 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "1e-33", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "1e-33",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, -33);
@@ -1194,7 +1210,8 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "1.0",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, 0);
@@ -1212,7 +1229,8 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "INF",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("INF");
@@ -1230,7 +1248,8 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "NaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("NaN");
@@ -1248,7 +1267,8 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "sNaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("sNaN");
@@ -1268,7 +1288,7 @@ BloombergLP::bdldfp::Decimal128
     decQuad rv;
     decQuadFromString(&rv,
                       "0.000000000000000000000000000000001e-6143",
-                      BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128(
