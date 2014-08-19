@@ -1,3 +1,9 @@
+bsl-internal (2.22.0.3.icbeta) unstable; urgency=low
+
+  * 2dca9ec Quick response to Clay's review
+
+ -- Alisdair Meredith <ameredith1@bloomberg.net>  Thu, 14 Aug 2014 20:50:42 -0400
+
 bsl-internal (2.22.0.2.icbeta) unstable; urgency=low
 
   * 76b75d8 guard #pragma bde_verify in headers with #ifdefs
