@@ -8141,7 +8141,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
 {
     // ------------------------------------------------------------------------
-    // TESTING REHASH METHODS
+    // TESTING 'rehashForNumBuckets'
     //
     // Concerns:
     //: 1 'rehashForNumBuckets' allocates at least the specified number of
@@ -8327,7 +8327,7 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 {
     // ------------------------------------------------------------------------
-    // TESTING REHASH METHODS
+    // TESTING 'reserveForNumElements'
     //
     // Concerns:
     //: 1 'reserveForNumElements' allocates sufficient buckets so that, after
@@ -8405,7 +8405,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
             const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
             const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
-            if (vervVeryVerbose) printf("In reserveForNumElements test,"
+            if (veryVeryVerbose) printf("In reserveForNumElements test,"
                                         " testing with load factor of: %f\n",
                                         MAX_LF);
 
@@ -8431,7 +8431,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 
                 if (veryVerbose) { T_ P_(LINE) P_(Z) P_(resX) P(noResX) }
 
-                const size_t ADDITIONAL_ELEMENTS = REHASH_SIZE[tk];
+                const size_t ADDITIONAL_ELEMENTS = RESERVE_SIZE[tk];
                 const size_t INITIAL_SIZE = resX.size();
                 const size_t RESERVE_ELEMENTS = ADDITIONAL_ELEMENTS +
                                                                   INITIAL_SIZE;
