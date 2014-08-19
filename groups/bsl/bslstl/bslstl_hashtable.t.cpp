@@ -182,12 +182,12 @@ using bslstl::CallableVariable;
 // for the component.
 //
 // TYPES
-//*[19] typedef ALLOCATOR                              AllocatorType;
-//*[19] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
-//*[19] typedef typename KEY_CONFIG::KeyType           KeyType;
-//*[19] typedef typename KEY_CONFIG::ValueType         ValueType;
-//*[19] typedef bslalg::BidirectionalNode<ValueType>   NodeType;
-//*[19] typedef typename AllocatorTraits::size_type    SizeType;
+//*[20] typedef ALLOCATOR                              AllocatorType;
+//*[20] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
+//*[20] typedef typename KEY_CONFIG::KeyType           KeyType;
+//*[20] typedef typename KEY_CONFIG::ValueType         ValueType;
+//*[20] typedef bslalg::BidirectionalNode<ValueType>   NodeType;
+//*[20] typedef typename AllocatorTraits::size_type    SizeType;
 //
 // CREATORS
 // [  ] HashTable(const ALLOCATOR& allocator = ALLOCATOR());
@@ -198,16 +198,16 @@ using bslstl::CallableVariable;
 //
 // MANIPULATORS
 //*[ 9] operator=(const HashTable& rhs);
-//*[12] insert(const SOURCE_TYPE& obj);
-//*[12] insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
-//*[15] insertIfMissing(bool *isInsertedFlag, const SOURCE_TYPE& obj);
-//*[15] insertIfMissing(bool *isInsertedFlag, const ValueType& obj);
-//*[16] insertIfMissing(const KeyType& key);
+//*[13] insert(const SOURCE_TYPE& obj);
+//*[13] insert(const ValueType& obj, const bslalg::BidirectionalLink *hint);
+//*[16] insertIfMissing(bool *isInsertedFlag, const SOURCE_TYPE& obj);
+//*[16] insertIfMissing(bool *isInsertedFlag, const ValueType& obj);
+//*[17] insertIfMissing(const KeyType& key);
 // [  ] remove(bslalg::BidirectionalLink *node);
 // [ 2] removeAll();
 //*[11] rehashForNumBuckets(SizeType newNumBuckets);
-//*[11] reserveForNumElements(SizeType numElements);
-//*[13] setMaxLoadFactor(float loadFactor);
+//*[12] reserveForNumElements(SizeType numElements);
+//*[14] setMaxLoadFactor(float loadFactor);
 // [ 8] swap(HashTable& other);
 //
 // ACCESSORS
@@ -215,15 +215,15 @@ using bslstl::CallableVariable;
 // [ 4] comparator() const;
 // [ 4] hasher() const;
 // [ 4] size() const;
-//*[18] maxSize() const;
+//*[19] maxSize() const;
 // [ 4] numBuckets() const;
-//*[18] maxNumBuckets() const;
-//*[13] loadFactor() const;
+//*[19] maxNumBuckets() const;
+//*[14] loadFactor() const;
 // [ 4] maxLoadFactor() const;
 // [ 4] rehashThreshold() const;
 // [ 4] elementListRoot() const;
-//*[17] find(const KeyType& key) const;
-//*[17] findRange(BLink **first, BLink **last, const KeyType& k) const;
+//*[18] find(const KeyType& key) const;
+//*[18] findRange(BLink **first, BLink **last, const KeyType& k) const;
 //*[ 6] findEndOfRange(bslalg::BidirectionalLink *first) const;
 // [ 4] bucketAtIndex(SizeType index) const;
 // [ 4] bucketIndexForKey(const KeyType& key) const;
@@ -4481,6 +4481,7 @@ struct TestDriver_ForwardTestCasesByConfiguation {
     static void testCase24() { CONFIGURED_DRIVER::testCase24(); }
     static void testCase25() { CONFIGURED_DRIVER::testCase25(); }
     static void testCase26() { CONFIGURED_DRIVER::testCase26(); }
+    static void testCase27() { CONFIGURED_DRIVER::testCase27(); }
         // Run the test case with the matching number from the supplied
         // (template parameter) type 'CONFIGURED_DRIVER'.
 };
@@ -5226,6 +5227,7 @@ class TestDriver {
     static void testCase13();
     static void testCase14();
     static void testCase15();
+    static void testCase16();
         // Run the test case with the corresponding case number for
         // 'HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>'.
 };
@@ -8145,47 +8147,31 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
     //: 1 'rehashForNumBuckets' allocates at least the specified number of
     //:   buckets.
     //:
-    //: 2 'reserveForNumElements' allocates sufficient buckets so that, after
-    //:   the rehash, 'numBuckets() / maxLoadFactor()' >= the specified number
-    //:   of elements.
+    //: 2 'rehashForNumBuckets' does not affect the value of the object.
     //:
-    //: 3 Neither rehash function affects the value of the object.
+    //: 3 'rehashForNumBuckets' does not affect the order of the inserted
+    //:   elements with the same value.
     //:
-    //: 4 Neither rehash function affects the order of the inserted elements
-    //:   with the same value.
-    //:
-    //: 5 'rehashForNumBuckets' is a no-op if the requested number of buckets
+    //: 4 'rehashForNumBuckets' is a no-op if the requested number of buckets
     //:   is less than the current 'numBuckets' in the object.
     //:
-    //: 6 'reserveForNumElements' is a no-op if the requested number of
-    //:   elements can already be accommodated without exceeding the
-    //:   'maxLoadFactor' of the object.
+    //: 5 Any memory allocation is from the object allocator.
     //:
-    //: 7 Any memory allocation is from the object allocator.
-    //:
-    //: 8 The only memory allocation is a single allocation for the new bucket
+    //: 6 The only memory allocation is a single allocation for the new bucket
     //:   array; no new nodes are allocated, and the old array is reclaimed by
     //:   the object allocator.
     //:
-    //: 9 'rehashForNumBuckets' provides the strong exception guarantee if the
+    //: 7 'rehashForNumBuckets' provides the strong exception guarantee if the
     //:   hasher does not throw.
     //:
-    //:10 'rehashForNumBuckets' will reset the object to an empty container,
+    //: 8 'rehashForNumBuckets' will reset the object to an empty container,
     //:   without leaking memory or objects, if a hasher throws.
-    //:
-    //:11 'reserveForNumElements' provides the strong exception guarantee if
-    //:   the hasher does not throw.
-    //:
-    //:12 'reserveForNumElements' will reset the object to an empty container,
-    //:   without leaking memory or objects, if a hasher throws.
-    //:
     //
     // Plan:
     //: 1 TBD
     //
     // Testing:
     //   rehashForNumBuckets(SizeType newNumBuckets);
-    //   reserveForNumElements(SizeType numElements);
     // ------------------------------------------------------------------------
 
     if (verbose) printf(
@@ -8216,10 +8202,16 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
     const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
     const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
 
+    bslma::TestAllocator tda("test-array values", veryVeryVeryVerbose);
+    const TestValues VALUES(&tda);
+
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
         const size_t      LENGTH = strlen(SPEC);
+
+        if (veryVerbose) printf("Testing rehashForNumBuckets on spec: %s,"
+                                " index: %i\n", SPEC,  ti);
 
         for (int tj = 0; tj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++tj) {
             const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
@@ -8291,66 +8283,6 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
             }
         }
 
-        for (int tj = 0; tj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++tj) {
-            const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
-            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
-
-            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-            ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
-
-            Obj mZ(HASH, COMPARE, NUM_BUCKETS, MAX_LF, scratchAlloc);
-            const Obj& Z = gg(&mZ,  SPEC);
-
-            for (int tk = 0; tk < NUM_REHASH_SIZE; ++tk) {
-
-                bslma::TestAllocator reserve("reserveAlloc",
-                                             veryVeryVeryVerbose);
-                bslma::TestAllocator noReserve("noReserveAlloc",
-                                               veryVeryVeryVerbose);
-
-                ALLOCATOR reserveAlloc = MakeAllocator<ALLOCATOR>::make(
-                                                                     &reserve);
-                ALLOCATOR noReserveAlloc = MakeAllocator<ALLOCATOR>::make(
-                                                                   &noReserve);
-
-                Obj mResX(Z, reserveAlloc); const Obj& resX = mResX;
-                Obj mNoResX(Z, noReserveAlloc); const Obj& noResX = mNoResX;
-
-                if (veryVerbose) { T_ P_(LINE) P_(Z) P_(resX) P(noResX) }
-
-                const size_t ADDITIONAL_ELEMENTS = REHASH_SIZE[tk];
-                const size_t INITIAL_SIZE = resX.size();
-                const size_t RESERVE_ELEMENTS = ADDITIONAL_ELEMENTS +
-                                                                  INITIAL_SIZE;
-
-                mResX.reserveForNumElements(RESERVE_ELEMENTS);
-
-                const bsls::Types::Int64 RESERVED_MEM = reserve.numBytesTotal();
-
-                mResX.reserveForNumElements(RESERVE_ELEMENTS);
-
-                // Reserve doesn't allocate memory when some is already
-                // availible from previous reserve
-                ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() ==
-                                                                 RESERVED_MEM);
-
-                bslma::TestAllocator tda("test-array values",
-                                         veryVeryVeryVerbose);
-                const TestValues VALUES(&tda);
-
-                for (int tl = 0; tl < ADDITIONAL_ELEMENTS; ++tl) {
-                    mResX.insert( VALUES[tl % 10] );
-                    mNoResX.insert( VALUES[tl % 10] );
-                }
-
-                // Reserving X elements allocates same or less amount of memory
-                // as inserting 'X' elements one at a time
-                ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() <=
-                                                    noReserve.numBytesTotal());
-            }
-        }
-
-
 #if defined BDE_BUILD_TARGET_EXC
         // The following set of tests are expected, at least in some test
         // configurations, to fail by throwing exceptions.
@@ -8393,6 +8325,149 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase11()
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
+{
+    // ------------------------------------------------------------------------
+    // TESTING REHASH METHODS
+    //
+    // Concerns:
+    //: 1 'reserveForNumElements' allocates sufficient buckets so that, after
+    //:   the rehash, 'numBuckets() / maxLoadFactor()' >= the specified number
+    //:   of elements.
+    //:
+    //: 2 'reserveForNumElements' does not affect the value of the object.
+    //:
+    //: 3 'reserveForNumElements' does not affect the order of the inserted
+    //:   elements with the same value.
+    //:
+    //: 4 'reserveForNumElements' is a no-op if the requested number of
+    //:   elements can already be accommodated without exceeding the
+    //:   'maxLoadFactor' of the object.
+    //:
+    //: 5 Any memory allocation is from the object allocator.
+    //:
+    //: 6 The only memory allocation is a single allocation for the new bucket
+    //:   array; no new nodes are allocated, and the old array is reclaimed by
+    //:   the object allocator.
+    //:
+    //: 7 'reserveForNumElements' provides the strong exception guarantee if
+    //:   the hasher does not throw.
+    //:
+    //: 8 'reserveForNumElements' will reset the object to an empty container,
+    //:   without leaking memory or objects, if a hasher throws.
+    //
+    // Plan:
+    //: 1 TBD
+    //
+    // Testing:
+    //   reserveForNumElements(SizeType numElements);
+    // ------------------------------------------------------------------------
+
+    if (verbose) printf(
+                 "\nCreate a test allocator and install it as the default.\n");
+
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (verbose) printf(
+       "\nUse a table of distinct object values and expected memory usage.\n");
+
+    const size_t RESERVE_SIZE[] = {
+        0,
+        1,
+        2,
+        3,
+        5,
+        8,
+        12,
+        13,
+        2099
+    };
+    const int NUM_RESERVE_SIZE = sizeof RESERVE_SIZE / sizeof *RESERVE_SIZE;
+
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    const HASHER     HASH    = MakeCallableEntity<HASHER>::make();
+    const COMPARATOR COMPARE = MakeCallableEntity<COMPARATOR>::make();
+
+    bslma::TestAllocator tda("test-array values", veryVeryVeryVerbose);
+    const TestValues VALUES(&tda);
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_spec;
+        const size_t      LENGTH = strlen(SPEC);
+
+        if (veryVerbose) printf("Testing reserveForNumElements on spec: %s,"
+                                " index: %i\n", SPEC,  ti);
+
+        for (int tj = 0; tj < DEFAULT_MAX_LOAD_FACTOR_SIZE; ++tj) {
+            const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
+            const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
+
+            if (vervVeryVerbose) printf("In reserveForNumElements test,"
+                                        " testing with load factor of: %f\n",
+                                        MAX_LF);
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            ALLOCATOR scratchAlloc = MakeAllocator<ALLOCATOR>::make(&scratch);
+
+            Obj mZ(HASH, COMPARE, NUM_BUCKETS, MAX_LF, scratchAlloc);
+            const Obj& Z = gg(&mZ,  SPEC);
+
+            for (int tk = 0; tk < NUM_RESERVE_SIZE; ++tk) {
+                bslma::TestAllocator reserve("reserveAlloc",
+                                             veryVeryVeryVerbose);
+                bslma::TestAllocator noReserve("noReserveAlloc",
+                                               veryVeryVeryVerbose);
+
+                ALLOCATOR reserveAlloc = MakeAllocator<ALLOCATOR>::make(
+                                                                     &reserve);
+                ALLOCATOR noReserveAlloc = MakeAllocator<ALLOCATOR>::make(
+                                                                   &noReserve);
+
+                Obj mResX(Z, reserveAlloc); const Obj& resX = mResX;
+                Obj mNoResX(Z, noReserveAlloc); const Obj& noResX = mNoResX;
+
+                if (veryVerbose) { T_ P_(LINE) P_(Z) P_(resX) P(noResX) }
+
+                const size_t ADDITIONAL_ELEMENTS = REHASH_SIZE[tk];
+                const size_t INITIAL_SIZE = resX.size();
+                const size_t RESERVE_ELEMENTS = ADDITIONAL_ELEMENTS +
+                                                                  INITIAL_SIZE;
+
+                if (true) printf("In reserveForNumElements test,"
+                                                " testing with reserve size"
+                                                " of: " ZU "\n", 
+                                                RESERVE_ELEMENTS);
+
+                mResX.reserveForNumElements(RESERVE_ELEMENTS);
+
+                const bsls::Types::Int64 RESERVED_MEM = reserve.numBytesTotal();
+
+                mResX.reserveForNumElements(RESERVE_ELEMENTS);
+
+                // Reserve doesn't allocate memory when some is already
+                // availible from previous reserve
+                ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() ==
+                                                                 RESERVED_MEM);
+
+                for (int tl = 0; tl < ADDITIONAL_ELEMENTS; ++tl) {
+                    mResX.insert( VALUES[tl % 10] );
+                    mNoResX.insert( VALUES[tl % 10] );
+                }
+
+                // Reserving X elements allocates same or less amount of memory
+                // as inserting 'X' elements one at a time
+                ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() <=
+                                                    noReserve.numBytesTotal());
+            }
+        }
+    }
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 {
     // ------------------------------------------------------------------------
     // TESTING 'insert' METHODS
@@ -8886,7 +8961,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
 {
     // ------------------------------------------------------------------------
     // TESTING setMaxLoadFactor METHOD
@@ -8983,7 +9058,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
 {
     // ------------------------------------------------------------------------
     // TESTING DEFAULT CONSTRUCTOR:
@@ -9181,7 +9256,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase14()
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase15()
+void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase16()
 {
     // ------------------------------------------------------------------------
     // TESTING traits and other compile-time properties
@@ -10679,7 +10754,7 @@ void mainTestCase10()
 static
 void mainTestCase11()
     // --------------------------------------------------------------------
-    // TESTING 'rehashFor...' FUNCTIONS
+    // TESTING 'rehashForNumBuckets'
     // --------------------------------------------------------------------
 {
 #define BSLSTL_HASHTABLE_TESTCASE11_TYPES \
@@ -10689,8 +10764,8 @@ void mainTestCase11()
     // This test case will use 'operator==' on the container, so cannot support
     // elements that do not, in turn, directly overload the operator.
 
-    if (verbose) printf("\nTesting 'rehashFor...' functions"
-                        "\n================================\n");
+    if (verbose) printf("\nTESTING 'rehashForNumBuckets'"
+                        "\n=============================\n");
 
     if (verbose) printf("\nTesting basic configurations"
                         "\n----------------------------\n");
@@ -10788,6 +10863,36 @@ void mainTestCase11()
 static
 void mainTestCase12()
     // --------------------------------------------------------------------
+    // TESTING 'reserveForNumElements'
+    // --------------------------------------------------------------------
+{
+#define BSLSTL_HASHTABLE_TESTCASE11_TYPES \
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
+                  bsltf::NonAssignableTestType,                  \
+                  bsltf::NonDefaultConstructibleTestType
+    // This test case will use 'operator==' on the container, so cannot support
+    // elements that do not, in turn, directly overload the operator.
+
+    if (verbose) printf("\nTESTING 'reserveForNumElements'"
+                        "\n===============================n");
+
+    if (verbose) printf("\nTesting basic configurations"
+                        "\n----------------------------\n");
+
+    // Because 'reserveForNumElements' uses already tested functionality, we
+    // only need to run a basic battery of test cases to verify the logic.
+    // Issues such as different allocators and types with strange overloads are
+    // already covered by other tests, such as case 11 for
+    // 'rehashIntoExactlyNumBuckets'.
+
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase11,
+                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+}
+
+static
+void mainTestCase13()
+    // --------------------------------------------------------------------
     // TESTING 'insert'
     // --------------------------------------------------------------------
 {
@@ -10802,7 +10907,7 @@ void mainTestCase12()
                         "\n================\n");
 
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase12,
+                  testCase13,
                   BSLSTL_HASHTABLE_TESTCASE12_TYPES);
 
 #if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
@@ -10813,18 +10918,18 @@ void mainTestCase12()
     if (verbose) printf("\nTesting map-like configuration"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase12,
+                  testCase13,
                   BSLSTL_HASHTABLE_TESTCASE12_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase12,
+                  testCase13,
                   BSLSTL_HASHTABLE_TESTCASE12_TYPES);
 
 #undef BSLSTL_HASHTABLE_TESTCASE12_TYPES
 }
 
 static
-void mainTestCase13()
+void mainTestCase14()
     // --------------------------------------------------------------------
     //  TESTING 'setMaxLoadFactor'
     // --------------------------------------------------------------------
@@ -10840,7 +10945,7 @@ void mainTestCase13()
                         "\n==========================\n");
 
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase13,
+                  testCase14,
                   BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
 #if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
@@ -10851,31 +10956,31 @@ void mainTestCase13()
     if (verbose) printf("\nTesting map-like configuration"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase13,
+                  testCase14,
                   BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
     // We need to limit the test coverage on IBM as the compiler cannot cope
     // with so many template instantiations.
 
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase13,
+                  testCase14,
                   BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase13,
+                  testCase14,
                   BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase13,
+                  testCase14,
                   BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
 #undef BSLSTL_HASHTABLE_TESTCASE13_TYPES
 
     // Remaining special cases
-    TestDriver_AwkwardMaplike::testCase13();
+    TestDriver_AwkwardMaplike::testCase14();
 }
 static
-void mainTestCase14()
+void mainTestCase15()
     // --------------------------------------------------------------------
     // DEFAULT CONSTRUCTOR
     // --------------------------------------------------------------------
@@ -10893,7 +10998,7 @@ void mainTestCase14()
     if (verbose) printf("\nTesting basic configurations"
                         "\n----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting non-copyable functors"
@@ -10903,7 +11008,7 @@ void mainTestCase14()
     // We probably want to test with a smattering of the following concerns as
     // well, notably with the different allocator patterns.
     RUN_EACH_TYPE(TestDriver_DefaultOnlyFunctors,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
@@ -10914,25 +11019,25 @@ void mainTestCase14()
     if (verbose) printf("\nTesting map-like configuration"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting stateful functors"
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting grouped hash with unique key values"
                         "\n-------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting grouped hash with grouped key values"
                         "\n--------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #if 0
@@ -10942,13 +11047,13 @@ void mainTestCase14()
     if (verbose) printf("\nTesting degenerate functors"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors without swap"
                         "\n----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 #endif
 
@@ -10958,26 +11063,26 @@ void mainTestCase14()
     if (verbose) printf("\nTesting pointers for functors"
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 #endif
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting functors taking convertible arguments"
                         "\n---------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     if (verbose) printf("\nTesting functors taking modifiable arguments"
                         "\n---------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #if 0
@@ -10987,14 +11092,14 @@ void mainTestCase14()
     if (verbose) printf("\nTesting stateless STL allocators"
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 #endif
 
     if (verbose) printf("\nTesting stateful STL allocators"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
-                  testCase14,
+                  testCase15,
                   BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #undef BSLSTL_HASHTABLE_TESTCASE14_TYPES
@@ -11002,12 +11107,12 @@ void mainTestCase14()
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
                         "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase14();
-    TestDriver_AwkwardMaplikeForDefault::testCase14();
+    TestDriver_AwkwardMaplike::testCase15();
+    TestDriver_AwkwardMaplikeForDefault::testCase15();
 }
 
 static
-void mainTestCase15()
+void mainTestCase16()
     // --------------------------------------------------------------------
     // TESTING traits and other compile-time properties
     // --------------------------------------------------------------------
@@ -11021,51 +11126,51 @@ void mainTestCase15()
     if (verbose) printf("\nTesting basic configuration"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
     if (verbose) printf("\nTesting stateful functors"
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
     if (verbose) printf("\nTesting grouped hash with unique key values"
                         "\n-------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
     if (verbose) printf("\nTesting grouped hash with grouped key values"
                         "\n--------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors without swap"
                         "\n----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
     if (verbose) printf("\nTesting const functors"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_ConstFunctors,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
 #if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING)
     if (verbose) printf("\nTesting functor referencess"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctorReferences,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 #endif
 
     if (verbose) printf("\nTesting function pointers"
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
 #if !defined(BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING) \
@@ -11073,55 +11178,39 @@ void mainTestCase15()
     if (verbose) printf("\nTesting function types"
                         "\n----------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionTypes,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
     if (verbose) printf("\nTesting function references"
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionReferences,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 #endif
 
     if (verbose) printf("\nTesting stateless STL allocators"
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
     if (verbose) printf("\nTesting stateful STL allocators"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
-                  testCase15,
+                  testCase16,
                   BSLSTL_HASHTABLE_MINIMALTEST_TYPES);
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
                         "\n---------------------------\n");
-    TestDriver_AwkwardMaplike::testCase15();
+    TestDriver_AwkwardMaplike::testCase16();
 }
 
 #if 0  // Planned test cases, not yet implemented
 static
-void mainTestCase15()
-    // --------------------------------------------------------------------
-    // TESTING 'setMaxLoadFactor'
-    // --------------------------------------------------------------------
-{
-    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase15,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
-                  testCase15,
-                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-}
-
-static
 void mainTestCase16()
     // --------------------------------------------------------------------
-    // TESTING 'insert'
+    // TESTING 'setMaxLoadFactor'
     // --------------------------------------------------------------------
 {
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -11137,7 +11226,7 @@ void mainTestCase16()
 static
 void mainTestCase17()
     // --------------------------------------------------------------------
-    // TESTING 'insertIfMissing(bool *, VALUE)'
+    // TESTING 'insert'
     // --------------------------------------------------------------------
 {
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -11147,12 +11236,13 @@ void mainTestCase17()
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase17,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
 }
 
 static
 void mainTestCase18()
     // --------------------------------------------------------------------
-    // TESTING 'insertIfMissing(const KeyType& key);
+    // TESTING 'insertIfMissing(bool *, VALUE)'
     // --------------------------------------------------------------------
 {
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -11167,7 +11257,7 @@ void mainTestCase18()
 static
 void mainTestCase19()
     // --------------------------------------------------------------------
-    // TESTING 'find'
+    // TESTING 'insertIfMissing(const KeyType& key);
     // --------------------------------------------------------------------
 {
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -11182,7 +11272,7 @@ void mainTestCase19()
 static
 void mainTestCase20()
     // --------------------------------------------------------------------
-    // TESTING 'findRange'
+    // TESTING 'find'
     // --------------------------------------------------------------------
 {
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -11197,7 +11287,7 @@ void mainTestCase20()
 static
 void mainTestCase21()
     // --------------------------------------------------------------------
-    // TESTING 'countElementsInBucket'
+    // TESTING 'findRange'
     // --------------------------------------------------------------------
 {
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -11212,7 +11302,7 @@ void mainTestCase21()
 static
 void mainTestCase22()
     // --------------------------------------------------------------------
-    // TESTING "max" FUNCTIONS
+    // TESTING 'countElementsInBucket'
     // --------------------------------------------------------------------
 {
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -11227,7 +11317,7 @@ void mainTestCase22()
 static
 void mainTestCase23()
     // --------------------------------------------------------------------
-    // TESTING PUBLIC TYPEDEFS
+    // TESTING "max" FUNCTIONS
     // --------------------------------------------------------------------
 {
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
@@ -11236,6 +11326,21 @@ void mainTestCase23()
 
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase23,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+}
+
+static
+void mainTestCase24()
+    // --------------------------------------------------------------------
+    // TESTING PUBLIC TYPEDEFS
+    // --------------------------------------------------------------------
+{
+    RUN_EACH_TYPE(TestDriver_BasicConfiguation,
+                  testCase24,
+                  BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
+    RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
+                  testCase24,
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 }
 
@@ -11339,9 +11444,10 @@ int main(int argc, char *argv[])
 #pragma bde_verify -TP05  // Test doc is in delegated functions
 #pragma bde_verify -TP17  // No test-banners in a delegating switch statement
     switch (test) { case 0:
-      case 16: mainTestCaseUsageExample(); break;
+      case 17: mainTestCaseUsageExample(); break;
+//      case 18: mainTestCase18(); break;
 //      case 17: mainTestCase17(); break;
-//      case 16: mainTestCase16(); break;
+      case 16: mainTestCase16(); break;
       case 15: mainTestCase15(); break;
       case 14: mainTestCase14(); break;
       case 13: mainTestCase13(); break;
