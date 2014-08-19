@@ -1557,9 +1557,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_LIMITS
 #endif
 
-#pragma bde_verify push  // Flag specific exceptions to the documentation rules
-#pragma bde_verify set ok_unquoted key node first last
-
 namespace BloombergLP {
 
 namespace bslstl {
@@ -2724,8 +2721,6 @@ class HashTable_ImplParameters
         // Return a non-modifiable reference to the 'hasher' functor owned by
         // this object.
 };
-
-#pragma bde_verify pop  // Flag specific exceptions to the documentation rules
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
