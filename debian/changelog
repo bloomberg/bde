@@ -1,3 +1,9 @@
+bsl-internal (2.22.0.5.icbeta) unstable; urgency=low
+
+  * 20ec4bf Revert to an earlier solution for null pointers
+
+ -- Alisdair Meredith <ameredith1@bloomberg.net>  Wed, 20 Aug 2014 16:29:24 -0400
+
 bsl-internal (2.22.0.4.icbeta) unstable; urgency=low
 
   * e723d48 Fix IC Beta issues
