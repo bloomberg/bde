@@ -1126,8 +1126,7 @@ DecimalImpUtil_DecNumber::notEqual(DecimalImpUtil_DecNumber::ValueType64 lhs,
 {
     ValueType64 comparison;
     decDoubleCompare(&comparison, &lhs, &rhs, getDecNumberContext());
-    return decDoubleIsPositive(&comparison)
-        || decDoubleIsNegative(&comparison);
+    return !decDoubleIsZero(&comparison);
 }
 
 inline
@@ -1137,7 +1136,7 @@ DecimalImpUtil_DecNumber::notEqual(DecimalImpUtil_DecNumber::ValueType128 lhs,
 {
     ValueType128 comparison;
     decQuadCompare(&comparison, &lhs, &rhs, getDecNumberContext());
-    return decQuadIsPositive(&comparison) || decQuadIsNegative(&comparison);
+    return !decQuadIsZero(&comparison);
 }
 
                         // Inter-type Conversion functions
