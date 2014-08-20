@@ -40,19 +40,89 @@ using bsl::atoi;
 //                                  --------
 // TBD:
 // ----------------------------------------------------------------------------
-// CREATORS
-//
-// MANIPULATORS
-//
-// ACCESSORS
-//
-// FREE OPERATORS
-//
-// TRAITS
+// CLASS METHODS
+// [  ] makeDecimal64(                   int, int)
+// [  ] makeDecimal64(unsigned           int, int)
+// [  ] makeDecimal64(         long long int, int)
+// [  ] makeDecimal64(unsigned long long int, int)
+// [  ] makeInfinity64(bool)
+// [  ]  int32ToDecimal32 (                   int)
+// [  ] uint32ToDecimal32 (unsigned           int)
+// [  ]  int64ToDecimal32 (         long long int)
+// [  ] uint64ToDecimal32 (unsigned long long int)
+// [  ]  int32ToDecimal64 (                   int)
+// [  ] uint32ToDecimal64 (unsigned           int)
+// [  ]  int64ToDecimal64 (         long long int)
+// [  ] uint64ToDecimal64 (unsigned long long int)
+// [  ]  int32ToDecimal128(                   int)
+// [  ] uint32ToDecimal128(unsigned          int)
+// [  ]  int64ToDecimal128(         long long int)
+// [  ] uint64ToDecimal128(unsigned long long int)
+// [  ] add(ValueType64,  ValueType64)
+// [  ] add(ValueType128, ValueType128)
+// [  ] subtract(ValueType64,  ValueType64)
+// [  ] subtract(ValueType128, ValueType128)
+// [  ] multiply(ValueType64,  ValueType64)
+// [  ] multiply(ValueType128, ValueType128)
+// [  ] divide(ValueType64,  ValueType64)
+// [  ] divide(ValueType128, ValueType128)
+// [  ] negate(ValueType32)
+// [  ] negate(ValueType64)
+// [  ] negate(ValueType128)
+// [  ] less(ValueType32,  ValueType32)
+// [  ] less(ValueType64,  ValueType64)
+// [  ] less(ValueType128, ValueType128)
+// [  ] greater(ValueType32,  ValueType32)
+// [  ] greater(ValueType64,  ValueType64)
+// [  ] greater(ValueType128, ValueType128)
+// [  ] lessEqual(ValueType32,  ValueType32)
+// [  ] lessEqual(ValueType64,  ValueType64)
+// [  ] lessEqual(ValueType128, ValueType128)
+// [  ] greaterEqual(ValueType32,  ValueType32)
+// [  ] greaterEqual(ValueType64,  ValueType64)
+// [  ] greaterEqual(ValueType128, ValueType128)
+// [  ] equal(ValueType32,  ValueType32)
+// [  ] equal(ValueType64,  ValueType64)
+// [  ] equal(ValueType128, ValueType128)
+// [  ] notEqual(ValueType32,  ValueType32)
+// [  ] notEqual(ValueType64,  ValueType64)
+// [  ] notEqual(ValueType128, ValueType128)
+// [  ] convertToDecimal32( const ValueType64&)
+// [  ] convertToDecimal64( const ValueType32&)
+// [  ] convertToDecimal64( const ValueType128&)
+// [  ] convertToDecimal128(const ValueType32&)
+// [  ] convertToDecimal128(const ValueType64&)
+// [  ] binaryToDecimal32 (float)
+// [  ] binaryToDecimal32 (double)
+// [  ] binaryToDecimal32 (long double)
+// [  ] binaryToDecimal64 (float)
+// [  ] binaryToDecimal64 (double)
+// [  ] binaryToDecimal64 (long double)
+// [  ] binaryToDecimal128(float)
+// [  ] binaryToDecimal128(double)
+// [  ] binaryToDecimal128(long double)
+// [ 2] makeDecimalRaw32 (                   int, int)
+// [ 2] makeDecimalRaw64 (unsigned long long int, int)
+// [ 2] makeDecimalRaw64 (         long long int, int)
+// [ 2] makeDecimalRaw64 (unsigned           int, int)
+// [ 2] makeDecimalRaw64 (                   int, int)
+// [ 2] makeDecimalRaw128(unsigned long long int, int)
+// [ 2] makeDecimalRaw128(         long long int, int)
+// [ 2] makeDecimalRaw128(unsigned           int, int)
+// [ 2] makeDecimalRaw128(                   int, int)
+// [  ] scaleB(ValueType32,  int)
+// [  ] scaleB(ValueType64,  int)
+// [  ] scaleB(ValueType128, int)
+// [  ] parse32 (const char *)
+// [  ] parse64 (const char *)
+// [  ] parse128(const char *)
+// [  ] format(ValueType32,  char *)
+// [  ] format(ValueType64,  char *)
+// [  ] format(ValueType128, char *)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] TEST 'notEqual' FOR 'NaN' CORRECTNESS
-// [ 4] USAGE EXAMPLE
+// [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
+// [42] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -119,7 +189,260 @@ static void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 namespace BDEC = BloombergLP::bdldfp;
+typedef BDEC::DecimalImpUtil Util;
 
+
+// ============================================================================
+//                      HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+
+template<class INTEGER>
+bsl::string makeParseString(INTEGER mantissa, int exponent)
+    // Return a string representing the specified 'mantissa' and 'exponent', in
+    // the format 'MeX', where 'M' is a string representation of 'mantissa',
+    // and 'X' is a string representation of 'exponent'.  Note that this
+    // function is intended to reduce the complexity of the 'makeDecimalRawXX'
+    // test cases.
+{
+    bsl::ostringstream oss;
+    oss << mantissa << "e" << exponent;
+    return oss.str();
+}
+
+Util::ValueType32 alternateMakeDecimalRaw32(int mantissa, int exponent)
+    // Create a 'ValueType32' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // 'abs(mantissa) <= 9,999,999' and '-101 <= exponent <= 90'.  Note that
+    // this contract is identical to the one in the Utility under test.
+{
+    Util::ValueType32 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType32 denselyPacked =
+       BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw32(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT32 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT32 converted = __bid_dpd_to_bid32(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
+
+Util::ValueType64 alternateMakeDecimalRaw64(int mantissa, int exponent)
+    // Create a 'ValueType64' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
+    // Note that this contract is identical to the one in the Utility under
+    // test.
+{
+    Util::ValueType64 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType64 denselyPacked =
+       BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT64 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT64 converted = __bid_dpd_to_bid64(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
+
+Util::ValueType64 alternateMakeDecimalRaw64(unsigned int mantissa,
+                                                     int exponent)
+    // Create a 'ValueType64' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
+    // Note that this contract is identical to the one in the Utility under
+    // test.
+{
+    Util::ValueType64 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType64 denselyPacked =
+       BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT64 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT64 converted = __bid_dpd_to_bid64(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
+
+Util::ValueType64 alternateMakeDecimalRaw64(long long int mantissa,
+                                                      int exponent)
+    // Create a 'ValueType64' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
+    // Note that this contract is identical to the one in the Utility under
+    // test.
+{
+    Util::ValueType64 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType64 denselyPacked =
+       BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT64 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT64 converted = __bid_dpd_to_bid64(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
+
+Util::ValueType64 alternateMakeDecimalRaw64(unsigned long long int mantissa,
+                                                               int exponent)
+    // Create a 'ValueType64' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // 'abs(mantissa) <= 9,999,999,999,999,999' and '-398 <= exponent <= 369'.
+    // Note that this contract is identical to the one in the Utility under
+    // test.
+{
+    Util::ValueType64 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType64 denselyPacked =
+       BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT64 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT64 converted = __bid_dpd_to_bid64(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
+
+Util::ValueType128 alternateMakeDecimalRaw128(int mantissa, int exponent)
+    // Create a 'ValueType128' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.  Note that this contract is identical to
+    // the one in the Utility under test.
+{
+    Util::ValueType128 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType128 denselyPacked =
+      BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT128 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT128 converted = __bid_dpd_to_bid128(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
+
+Util::ValueType128 alternateMakeDecimalRaw128(unsigned int mantissa,
+                                                       int exponent)
+    // Create a 'ValueType128' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.  Note that this contract is identical to
+    // the one in the Utility under test.
+{
+    Util::ValueType128 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType128 denselyPacked =
+      BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT128 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT128 converted = __bid_dpd_to_bid128(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
+
+Util::ValueType128 alternateMakeDecimalRaw128(long long int mantissa,
+                                                        int exponent)
+    // Create a 'ValueType128' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.  Note that this contract is identical to
+    // the one in the Utility under test.
+{
+    Util::ValueType128 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType128 denselyPacked =
+      BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT128 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT128 converted = __bid_dpd_to_bid128(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
+
+Util::ValueType128 alternateMakeDecimalRaw128(unsigned long long int mantissa,
+                                                                 int exponent)
+    // Create a 'ValueType128' object representing a decimal floating point
+    // number consisting of the specified 'mantissa' and 'exponent', with the
+    // sign given by 'mantissa'.  The behavior is undefined unless
+    // '-6176 <= exponent <= 6111'.  Note that this contract is identical to
+    // the one in the Utility under test.
+{
+    Util::ValueType128 result;
+
+    BDEC::DenselyPackedDecimalImpUtil::StorageType128 denselyPacked =
+      BDEC::DenselyPackedDecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+
+#ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
+    BID_UINT128 temp;
+    bsl::memcpy(&temp, &denselyPacked, sizeof(temp));
+    BID_UINT128 converted = __bid_dpd_to_bid128(temp);
+
+    bsl::memcpy(&denselyPacked, &converted, sizeof(denselyPacked));
+#endif
+
+    bsl::memcpy(&result, &denselyPacked, sizeof(result));
+
+    return result;
+}
 
 // ============================================================================
 //                      USAGE EXAMPLE
@@ -189,7 +512,7 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
-      case 4: {
+      case 42: {
 ///Usage
 ///-----
 // This section shows the intended use of this component.
@@ -271,7 +594,7 @@ int main(int argc, char* argv[])
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING notEqual
         //
@@ -311,8 +634,7 @@ int main(int argc, char* argv[])
             ASSERT(Util::notEqual(nan128, nan128));
         }
       } break;
-      case 2: {} break;
-      case 1: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING makeDecimalRaw
         //
@@ -333,34 +655,583 @@ int main(int argc, char* argv[])
         //:
         //: 5 'makeDecimalRawXX' asserts in the right build modes for undefined
         //:   behavior.
+        //:
+        //: 6 'makeDecimalRawXX' generates expected values.
         //
         // Plan:
         //: 1 Test 'makeDecimalRawXX' contract using
         //:   'AssertFailureHandlerGuard' and 'BSLS_ASSERTTEST_ASSERT_OPT_FAIL'
+        //:   (C-5)
         //:
         //: 2 Test each overload of each 'makeDecimalRawXX' by representing the
         //:   mantissa in a string format and parsing in each intergral type.
+        //:   (C-1..4, 6)
         //:
-        //: 3 Test a mantissa of each length in base 10.
+        //: 3 Test a mantissa of each length in base 10.  (C-1..4, 6)
         //:
         //: 4 Test that 'makeDecimalRawXX' returns the same value as the
         //:   decimal created by invoking the decNumber constructors using
-        //:   binary-coded decimals.
+        //:   binary-coded decimals.  (C-1..4, 6)
         //
         // Testing:
-        //   makeDecimalRaw32 (int mantissa,                int exponent);
-        //   makeDecimalRaw64 (long long mantissa,          int exponent);
-        //   makeDecimalRaw64 (unsigned long long mantissa, int exponent);
-        //   makeDecimalRaw64 (int mantissa,                int exponent);
-        //   makeDecimalRaw64 (unsigned int mantissa,       int exponent);
-        //   makeDecimalRaw128(long long mantissa,          int exponent);
-        //   makeDecimalRaw128(unsigned long long mantissa, int exponent);
-        //   makeDecimalRaw128(int mantissa,                int exponent);
-        //   makeDecimalRaw128(unsigned int mantissa,       int exponent);
+        //   makeDecimalRaw32 (                   int, int)
+        //   makeDecimalRaw64 (unsigned long long int, int)
+        //   makeDecimalRaw64 (         long long int, int)
+        //   makeDecimalRaw64 (unsigned           int, int)
+        //   makeDecimalRaw64 (                   int, int)
+        //   makeDecimalRaw128(unsigned long long int, int)
+        //   makeDecimalRaw128(         long long int, int)
+        //   makeDecimalRaw128(unsigned           int, int)
+        //   makeDecimalRaw128(                   int, int)
         // --------------------------------------------------------------------
         if (verbose) bsl::cout << bsl::endl
                                 << "PRIMARY MANIPULATORS"
                                 << "====================" << bsl::endl;
+
+        // Test that with any of a set of exponents, we can create values with
+        // mantissas from 1 to 16 digit for 32-bit Decimal values
+        {
+            int mantissas[] = {
+                                      0,
+                                      2,
+                                      7,
+                                     35,
+                                     72,
+                                    135,
+                                    924,
+
+                        // Exhaustive mantissa cases
+                                      1,
+                                      9,
+                                     12,
+                                     98,
+                                    123,
+                                    987,
+                                   1234,
+                                   9876,
+                                  12345,
+                                  98765,
+                                 123456,
+                                 987654,
+                                1234567,
+                                9876543,
+
+                               -      1,
+                               -      9,
+                               -     12,
+                               -     98,
+                               -    123,
+                               -    987,
+                               -   1234,
+                               -   9876,
+                               -  12345,
+                               -  98765,
+                               - 123456,
+                               - 987654,
+                               -1234567,
+                               -9876543
+                              };
+            int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
+
+            int exponents[] = {
+                                  0,
+                                  1,
+                                  7,
+                                 13,
+                                 64,
+
+                                - 1,
+                                - 7,
+                                -13,
+                                -64
+                              };
+            int numExponents = sizeof(exponents) / sizeof(exponents);
+
+            Util::ValueType32 test;
+            Util::ValueType32 witnessAlternate;
+            Util::ValueType32 witnessParse;
+
+
+                        // 0e0
+
+            test             =    Util::makeDecimalRaw32( 0,0);
+            witnessAlternate = alternateMakeDecimalRaw32( 0,0);
+            witnessParse     =             Util::parse32("0e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+                        // 7e0
+
+            test             =    Util::makeDecimalRaw32( 7,0);
+            witnessAlternate = alternateMakeDecimalRaw32( 7,0);
+            witnessParse     =             Util::parse32("7e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+                        // 52e0
+
+            test             =    Util::makeDecimalRaw32( 52,0);
+            witnessAlternate = alternateMakeDecimalRaw32( 52,0);
+            witnessParse     =             Util::parse32("52e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+            for (int t_m = 0; t_m < numMantissas; ++t_m) {
+                for (int t_e = 0; t_e < numExponents; ++t_e) {
+                    int mantissa = mantissas[t_m];
+                    int exponent = exponents[t_e];
+
+                    bsl::string parseString = makeParseString(mantissa,
+                                                              exponent);
+
+                    test = Util::makeDecimalRaw32(mantissa, exponent);
+                    witnessAlternate = alternateMakeDecimalRaw32(mantissa,
+                                                                 exponent);
+                    witnessParse = Util::parse32(parseString.c_str());
+
+                    LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                    LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                }
+            }
+        }
+
+        // Test that with any of a set of exponents, we can create values with
+        // mantissas from 1 to 16 digit for 64-bit Decimal values
+        {
+            long long mantissas[] = {
+                                                     0LL,
+                                                     2LL,
+                                                     7LL,
+                                                    35LL,
+                                                    72LL,
+                                                   135LL,
+                                                   924LL,
+
+                        // Exhaustive mantissa cases
+                                                     1LL,
+                                                     9LL,
+                                                    12LL,
+                                                    98LL,
+                                                   123LL,
+                                                   987LL,
+                                                  1234LL,
+                                                  9876LL,
+                                                 12345LL,
+                                                 98765LL,
+                                                123456LL,
+                                                987654LL,
+                                               1234567LL,
+                                               9876543LL,
+                                              12345678LL,
+                                              98765432LL,
+                                             123456789LL,
+                                             987654321LL,
+                                            1234567890LL,
+                                            9876543210LL,
+                                           12345678901LL,
+                                           98765432109LL,
+                                          123456789012LL,
+                                          987654321098LL,
+                                         1234567890123LL,
+                                         9876543210987LL,
+                                        12345678901234LL,
+                                        98765432109876LL,
+                                       123456789012345LL,
+                                       987654321098765LL,
+                                      1234567890123456LL,
+                                      9876543210987654LL,
+
+                                     -               1LL,
+                                     -               9LL,
+                                     -              12LL,
+                                     -              98LL,
+                                     -             123LL,
+                                     -             987LL,
+                                     -            1234LL,
+                                     -            9876LL,
+                                     -           12345LL,
+                                     -           98765LL,
+                                     -          123456LL,
+                                     -          987654LL,
+                                     -         1234567LL,
+                                     -         9876543LL,
+                                     -        12345678LL,
+                                     -        98765432LL,
+                                     -       123456789LL,
+                                     -       987654321LL,
+                                     -      1234567890LL,
+                                     -      9876543210LL,
+                                     -     12345678901LL,
+                                     -     98765432109LL,
+                                     -    123456789012LL,
+                                     -    987654321098LL,
+                                     -   1234567890123LL,
+                                     -   9876543210987LL,
+                                     -  12345678901234LL,
+                                     -  98765432109876LL,
+                                     - 123456789012345LL,
+                                     - 987654321098765LL,
+                                     -1234567890123456LL,
+                                     -9876543210987654LL
+                                    };
+            int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
+
+            int exponents[] = {
+                                  0,
+                                  1,
+                                  7,
+                                 13,
+                                 64,
+                                123,
+                                321,
+
+                               -  1,
+                               -  7,
+                               - 13,
+                               - 64,
+                               -123,
+                               -321
+                              };
+            int numExponents = sizeof(exponents) / sizeof(*exponents);
+
+            Util::ValueType64 test;
+            Util::ValueType64 witnessAlternate;
+            Util::ValueType64 witnessParse;
+
+
+                        // 0e0
+
+            test             =    Util::makeDecimalRaw64( 0,0);
+            witnessAlternate = alternateMakeDecimalRaw64( 0,0);
+            witnessParse     =             Util::parse64("0e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+                        // 7e0
+
+            test             =    Util::makeDecimalRaw64( 7,0);
+            witnessAlternate = alternateMakeDecimalRaw64( 7,0);
+            witnessParse     =             Util::parse64("7e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+                        // 52e0
+
+            test             =    Util::makeDecimalRaw64( 52,0);
+            witnessAlternate = alternateMakeDecimalRaw64( 52,0);
+            witnessParse     =             Util::parse64("52e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+            for (int t_m = 0; t_m < numMantissas; ++t_m) {
+                for (int t_e = 0; t_e < numExponents; ++t_e) {
+                    long long mantissa = mantissas[t_m];
+                    int exponent = exponents[t_e];
+
+                    if (mantissa <= bsl::numeric_limits<int>::max() &&
+                        mantissa >= bsl::numeric_limits<int>::min()) {
+                        int intMantissa = mantissa;
+
+                        bsl::string parseString = makeParseString(intMantissa,
+                                                                  exponent);
+
+                        test = Util::makeDecimalRaw64(intMantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw64(
+                                                                   intMantissa,
+                                                                   exponent);
+                        witnessParse = Util::parse64(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e, intMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                        LOOP5_ASSERT(t_m, t_e, intMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
+
+                    if (mantissa <= bsl::numeric_limits<unsigned>::max() &&
+                        mantissa >= bsl::numeric_limits<unsigned>::min()) {
+                        unsigned uMantissa = mantissa;
+
+                        bsl::string parseString = makeParseString(uMantissa,
+                                                                  exponent);
+
+                        test = Util::makeDecimalRaw64(uMantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw64(
+                                                                   uMantissa,
+                                                                   exponent);
+                        witnessParse = Util::parse64(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e, uMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                        LOOP5_ASSERT(t_m, t_e, uMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
+
+                    if (mantissa <=
+                              bsl::numeric_limits<unsigned long long>::max() &&
+                        mantissa >=
+                              bsl::numeric_limits<unsigned long long>::min()) {
+                        unsigned long long ullMantissa = mantissa;
+
+                        bsl::string parseString = makeParseString(ullMantissa,
+                                                                  exponent);
+
+                        test = Util::makeDecimalRaw64(ullMantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw64(
+                                                                   ullMantissa,
+                                                                   exponent);
+                        witnessParse = Util::parse64(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e,
+                                     ullMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                        LOOP5_ASSERT(t_m, t_e,
+                                     ullMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
+
+                    if (mantissa <= bsl::numeric_limits<long long>::max() &&
+                        mantissa >= bsl::numeric_limits<long long>::min()) {
+                        bsl::string parseString = makeParseString(mantissa,
+                                                                  exponent);
+
+                        test = Util::makeDecimalRaw64(mantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw64(mantissa,
+                                                                     exponent);
+                        witnessParse = Util::parse64(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
+                }
+            }
+        }
+
+        // Test that with any of a set of exponents, we can create values with
+        // mantissas from 1 to 16 digit for 128-bit Decimal values
+        {
+            long long mantissas[] = {
+                                                     0LL,
+                                                     2LL,
+                                                     7LL,
+                                                    35LL,
+                                                    72LL,
+                                                   135LL,
+                                                   924LL,
+
+                        // Exhaustive mantissa cases
+                                                     1LL,
+                                                     9LL,
+                                                    12LL,
+                                                    98LL,
+                                                   123LL,
+                                                   987LL,
+                                                  1234LL,
+                                                  9876LL,
+                                                 12345LL,
+                                                 98765LL,
+                                                123456LL,
+                                                987654LL,
+                                               1234567LL,
+                                               9876543LL,
+                                              12345678LL,
+                                              98765432LL,
+                                             123456789LL,
+                                             987654321LL,
+                                            1234567890LL,
+                                            9876543210LL,
+                                           12345678901LL,
+                                           98765432109LL,
+                                          123456789012LL,
+                                          987654321098LL,
+                                         1234567890123LL,
+                                         9876543210987LL,
+                                        12345678901234LL,
+                                        98765432109876LL,
+                                       123456789012345LL,
+                                       987654321098765LL,
+                                      1234567890123456LL,
+                                      9876543210987654LL,
+
+                                     -               1LL,
+                                     -               9LL,
+                                     -              12LL,
+                                     -              98LL,
+                                     -             123LL,
+                                     -             987LL,
+                                     -            1234LL,
+                                     -            9876LL,
+                                     -           12345LL,
+                                     -           98765LL,
+                                     -          123456LL,
+                                     -          987654LL,
+                                     -         1234567LL,
+                                     -         9876543LL,
+                                     -        12345678LL,
+                                     -        98765432LL,
+                                     -       123456789LL,
+                                     -       987654321LL,
+                                     -      1234567890LL,
+                                     -      9876543210LL,
+                                     -     12345678901LL,
+                                     -     98765432109LL,
+                                     -    123456789012LL,
+                                     -    987654321098LL,
+                                     -   1234567890123LL,
+                                     -   9876543210987LL,
+                                     -  12345678901234LL,
+                                     -  98765432109876LL,
+                                     - 123456789012345LL,
+                                     - 987654321098765LL,
+                                     -1234567890123456LL,
+                                     -9876543210987654LL
+                                    };
+            int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
+
+            int exponents[] = {
+                                  0,
+                                  1,
+                                  7,
+                                 13,
+                                 64,
+                                123,
+                                321,
+
+                               -  1,
+                               -  7,
+                               - 13,
+                               - 64,
+                               -123,
+                               -321
+                              };
+            int numExponents = sizeof(exponents) / sizeof(*exponents);
+
+            Util::ValueType128 test;
+            Util::ValueType128 witnessAlternate;
+            Util::ValueType128 witnessParse;
+
+
+                        // 0e0
+
+            test             =    Util::makeDecimalRaw128( 0,0);
+            witnessAlternate = alternateMakeDecimalRaw128( 0,0);
+            witnessParse     =             Util::parse128("0e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+                        // 7e0
+
+            test             =    Util::makeDecimalRaw128( 7,0);
+            witnessAlternate = alternateMakeDecimalRaw128( 7,0);
+            witnessParse     =             Util::parse128("7e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+                        // 52e0
+
+            test             =    Util::makeDecimalRaw128( 52,0);
+            witnessAlternate = alternateMakeDecimalRaw128( 52,0);
+            witnessParse     =             Util::parse128("52e0");
+
+            ASSERT(!bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+            ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+
+            for (int t_m = 0; t_m < numMantissas; ++t_m) {
+                for (int t_e = 0; t_e < numExponents; ++t_e) {
+                    long long mantissa = mantissas[t_m];
+                    int exponent = exponents[t_e];
+
+                    if (mantissa <= bsl::numeric_limits<int>::max() &&
+                        mantissa >= bsl::numeric_limits<int>::min()) {
+                        int intMantissa = mantissa;
+
+                        bsl::string parseString = makeParseString(intMantissa,
+                                                                  exponent);
+
+                        test = Util::makeDecimalRaw128(intMantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw128(
+                                                                   intMantissa,
+                                                                   exponent);
+                        witnessParse = Util::parse128(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e, intMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                        LOOP5_ASSERT(t_m, t_e, intMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
+
+                    if (mantissa <= bsl::numeric_limits<unsigned>::max() &&
+                        mantissa >= bsl::numeric_limits<unsigned>::min()) {
+                        unsigned uMantissa = mantissa;
+
+                        bsl::string parseString = makeParseString(uMantissa,
+                                                                  exponent);
+
+                        test = Util::makeDecimalRaw128(uMantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw128(
+                                                                   uMantissa,
+                                                                   exponent);
+                        witnessParse = Util::parse128(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e, uMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                        LOOP5_ASSERT(t_m, t_e, uMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
+
+                    if (mantissa <=
+                              bsl::numeric_limits<unsigned long long>::max() &&
+                        mantissa >=
+                              bsl::numeric_limits<unsigned long long>::min()) {
+                        unsigned long long ullMantissa = mantissa;
+
+                        bsl::string parseString = makeParseString(ullMantissa,
+                                                                  exponent);
+
+                        test = Util::makeDecimalRaw128(ullMantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw128(
+                                                                   ullMantissa,
+                                                                   exponent);
+                        witnessParse = Util::parse128(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e,
+                                     ullMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                        LOOP5_ASSERT(t_m, t_e,
+                                     ullMantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
+
+                    if (mantissa <= bsl::numeric_limits<long long>::max() &&
+                        mantissa >= bsl::numeric_limits<long long>::min()) {
+                        bsl::string parseString = makeParseString(mantissa,
+                                                                  exponent);
+
+                        test = Util::makeDecimalRaw128(mantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw128(mantissa,
+                                                                     exponent);
+                        witnessParse = Util::parse128(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
+                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
+                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
+                }
+            }
+        }
+
 
         // Test that 'makeDecimalRaw32' enforces undefined behavior in the
         // right build mode
@@ -527,6 +1398,7 @@ int main(int argc, char* argv[])
                                                                         6112));
         }
       } break;
+      case 1: {} break; // Breathing test dummy
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
         testStatus = -1;
