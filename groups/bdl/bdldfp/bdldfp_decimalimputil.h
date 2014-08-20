@@ -32,25 +32,27 @@ BSLS_IDENT("$Id$")
 // 'Decimal32', 'Decimal64', and 'Decimal128' values.
 //
 // First we define values representing the 'coefficient' and 'exponent' (note
-// the result should be the value 4.2):
+// the result should be the value 42.5):
 //..
-//  long long coefficient = 42; // Yet another name for significand
-//  int exponent          = -1;
+//  long long coefficient = 425; // Yet another name for significand
+//  int exponent          =  -1;
 //..
 // Then we call 'makeDecimal32', 'makeDecimal64', and 'makeDecimal128' to
 // construct a 'Decimal32', 'Decimal64', and 'Decimal128' respectively.
 //..
+//  bdldfp::DecimalImpUtil::ValueType32  d32 =
+//            bdldfp::DecimalImpUtil::makeDecimalRaw32( coefficient, exponent);
+//  bdldfp::DecimalImpUtil::ValueType64  d64 =
+//            bdldfp::DecimalImpUtil::makeDecimalRaw64( coefficient, exponent);
+//  bdldfp::DecimalImpUtil::ValueType128 d128 =
+//            bdldfp::DecimalImpUtil::makeDecimalRaw128(coefficient, exponent);
 //
-//  bdldfp::DecimalImpUtil::ValueType32  d32
-//               = bdldfp::DecimalImpUtil::makeDecimal32( coefficient, exponent);
-//  bdldfp::DecimalImpUtil::ValueType64  d64
-//               = bdldfp::DecimalImpUtil::makeDecimal64( coefficient, exponent);
-//  bdldfp::DecimalImpUtil::ValueType128 d128
-//               = bdldfp::DecimalImpUtil::makeDecimal128(coefficient, exponent);
-//
-//  assert(Util::binaryToDecimal32( 4.2) == d32);
-//  assert(Util::binaryToDecimal64( 4.2) == d64);
-//  assert(Util::binaryToDecimal128(4.2) == d128);
+//  ASSERT(bdldfp::DecimalImpUtil::equal(
+//                    bdldfp::DecimalImpUtil::binaryToDecimal32( 42.5), d32));
+//  ASSERT(bdldfp::DecimalImpUtil::equal(
+//                    bdldfp::DecimalImpUtil::binaryToDecimal64( 42.5), d64));
+//  ASSERT(bdldfp::DecimalImpUtil::equal(
+//                    bdldfp::DecimalImpUtil::binaryToDecimal128(42.5), d128));
 //..
 //
 ///Example 2: Adding two Decimal Floating Point Values

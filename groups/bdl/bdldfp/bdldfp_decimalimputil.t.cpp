@@ -52,7 +52,7 @@ using bsl::atoi;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TEST 'notEqual' FOR 'NaN' CORRECTNESS
-// [  ] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -120,6 +120,44 @@ static void aSsErT(int c, const char *s, int i)
 
 namespace BDEC = BloombergLP::bdldfp;
 
+
+// ============================================================================
+//                      USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+///Example 2: Adding two Decimal Floating Point Values
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we we define the signature of a function that computes the sum of an
+// array of security prices, and returns that sum as a decimal floating point
+// value:
+
+    bdldfp::DecimalImpUtil::ValueType64
+    totalSecurities(bdldfp::DecimalImpUtil::ValueType64 *prices,
+                    int                                  numPrices)
+        // Return a Decimal Floating Point number representing the arithmetic
+        // total of the values specified by 'prices' and 'numPrices'.
+    {
+
+// Then, we create a local variable to hold the intermediate sum, and set it to
+// 0:
+
+        bdldfp::DecimalImpUtil::ValueType64 total;
+        total = bdldfp::DecimalImpUtil::int32ToDecimal64(0);
+
+// Next, we loop over the array of 'prices' and add each price to the
+// intermediate 'total':
+
+        for (int i = 0; i < numPrices; ++i) {
+            total = bdldfp::DecimalImpUtil::add(total, prices[i]);
+        }
+
+// Now, we return the computed total value of the securities:
+
+        return total;
+    }
+
+
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -151,6 +189,88 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
+      case 4: {
+///Usage
+///-----
+// This section shows the intended use of this component.
+//
+///Example 1: Constructing a Representation of a Value in Decimal
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// A common requirement for decimal floating point types is to be able to
+// create a value from independent "coefficient" and "exponent" values, where
+// the resulting decimal has the value 'coefficient * 10 ^ exponent'.  In the
+// following example we use such a 'coffecicient' and 'exponent' to create
+// 'Decimal32', 'Decimal64', and 'Decimal128' values.
+//
+// First we define values representing the 'coefficient' and 'exponent' (note
+// the result should be the value 42.5):
+
+    long long coefficient = 425; // Yet another name for significand
+    int exponent          =  -1;
+
+// Then we call 'makeDecimal32', 'makeDecimal64', and 'makeDecimal128' to
+// construct a 'Decimal32', 'Decimal64', and 'Decimal128' respectively.
+
+    bdldfp::DecimalImpUtil::ValueType32  d32 =
+              bdldfp::DecimalImpUtil::makeDecimalRaw32( coefficient, exponent);
+    bdldfp::DecimalImpUtil::ValueType64  d64 =
+              bdldfp::DecimalImpUtil::makeDecimalRaw64( coefficient, exponent);
+    bdldfp::DecimalImpUtil::ValueType128 d128 =
+              bdldfp::DecimalImpUtil::makeDecimalRaw128(coefficient, exponent);
+//
+    ASSERT(bdldfp::DecimalImpUtil::equal(
+                      bdldfp::DecimalImpUtil::binaryToDecimal32( 42.5), d32));
+    ASSERT(bdldfp::DecimalImpUtil::equal(
+                      bdldfp::DecimalImpUtil::binaryToDecimal64( 42.5), d64));
+    ASSERT(bdldfp::DecimalImpUtil::equal(
+                      bdldfp::DecimalImpUtil::binaryToDecimal128(42.5), d128));
+
+//
+///Example 2: Adding two Decimal Floating Point Values
+///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// Decimal floating point values are frequently used in arithmetic computations
+// where the precise representation of decimal values is of paramount
+// importance (for example, financial calculations, as currency is typically
+// denominated in base-10 decimal values).  In the following example we
+// demonstrate computing the sum of a sequence of security prices, where each
+// price is held in a 'DecimalImpUtil::ValueType64' value.
+//
+
+// Notice that 'add' is called as a function, and is not an operator overload
+// for '+'; this is because the 'bdldfp::DecimalImpUtil' utility is intended to
+// be used in the implementation of operator overloads on a more full fledged
+// type.
+//
+// Finally, we call the function with some sample data, and check the result:
+
+    bdldfp::DecimalImpUtil::ValueType64 data[16];
+//
+    for (int i = 0; i < 16; ++i) {
+        data[i] = bdldfp::DecimalImpUtil::int32ToDecimal64(i + 1);
+    }
+//
+    bdldfp::DecimalImpUtil::ValueType64 result;
+    result = totalSecurities(data, 16);
+//
+    bdldfp::DecimalImpUtil::ValueType64 expected;
+//
+    expected = bdldfp::DecimalImpUtil::int32ToDecimal64(16);
+//
+    // Totals of values from 1 to 'x' are '(x * x + x) / 2':
+//
+    expected = bdldfp::DecimalImpUtil::add(
+                 bdldfp::DecimalImpUtil::multiply(expected, expected),
+                 expected);
+    expected = bdldfp::DecimalImpUtil::divide(
+                         expected,
+                         bdldfp::DecimalImpUtil::int32ToDecimal64(2));
+//
+    ASSERT(bdldfp::DecimalImpUtil::equal(expected, result));
+
+// Notice that arithmetic is unwieldy and hard to visualize.  This is by
+// design, as the DecimalImpUtil and subordinate components are not intended
+// for public consumption, or direct use in decimal arithmetic.
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING notEqual
