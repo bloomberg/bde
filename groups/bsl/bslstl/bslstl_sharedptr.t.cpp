@@ -3222,7 +3222,6 @@ int main(int argc, char *argv[])
 
     typedef bsl::shared_ptr<MyTestObject>         ObjSP;
     typedef bsl::weak_ptr<MyTestObject>           ObjWP;
-    typedef bsl::weak_ptr<MyTestBaseObject>       BaseWP;
     typedef bsl::weak_ptr<MyTestDerivedObject>    DerivedWP;
     typedef bsl::shared_ptr<MyTestDerivedObject>  DerivedSP;
 
@@ -7017,6 +7016,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
 
+#ifdef BDE_OMIT_INTERNAL_DEPRECATED
         if (verbose) printf("\nTesting ASSIGNMENT of null pointer"
                             "\n----------------------------------\n");
         {
@@ -7051,6 +7051,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X1.use_count());
         }
         ASSERT(1 == numDeletes);
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
         if (verbose) printf("\nTesting ASSIGNMENT of loaded object"
                             "\n----------------------------------\n");
@@ -7580,11 +7581,6 @@ int main(int argc, char *argv[])
         numAllocations   = ta.numAllocations();
         numDeallocations = ta.numDeallocations();
         {
-            Obj v = NULL; const Obj& V = v;
-            ASSERT(0 == V.get());
-            ASSERT(0 == V.use_count());
-            ASSERT(numAllocations == ta.numAllocations());
-
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
             // This test case is omitted as it raises an ambiguity with the
             // deprecated-internal constructor taking a 'bslma::SharedPtrRep *'
@@ -7602,11 +7598,16 @@ int main(int argc, char *argv[])
             // in another wrapper type to create a longer conversion sequence
             // to disambiguate from the 'nullptr_t' form.
 #else
+            Obj v = NULL; const Obj& V = v;
+            ASSERT(0 == V.get());
+            ASSERT(0 == V.use_count());
+            ASSERT(numAllocations == ta.numAllocations());
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
             Obj w(0); const Obj& W = w;
             ASSERT(0 == W.get());
             ASSERT(0 == W.use_count());
             ASSERT(numAllocations == ta.numAllocations());
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
             Obj x(0, &ta); const Obj& X = x;
             ASSERT(0 == X.get());

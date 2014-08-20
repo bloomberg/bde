@@ -1785,10 +1785,28 @@ class shared_ptr {
         // representation, that does not refer to any object and has no
         // deleter.
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
+        // Create a shared pointer taking ownership of the specified 'rep' and
+        // pointing to the object stored in the 'rep'.  The behavior is
+        // undefined unless 'rep->originalPtr()' points to an object of type
+        // 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT* increment the
+        // number of references to 'rep'.
+        //
+        // DEPRECATED This constructor will be made inaccessible in the next
+        // BDE release, as the undefined behavior is too easily triggered and
+        // offers no simple way to guard against misuse.  Instead, call the
+        // constructor taking an additional 'ELEMENT_TYPE *' initial argument:
+        //..
+        //  shared_ptr(ELEMENT_TYPE *p, BloombergLP::bslma::SharedPtrRep *rep);
+        //..
+#else
     shared_ptr(bsl::nullptr_t);                                     // IMPLICIT
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation, that does not refer to any object and has no
         // deleter.
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+
 
     template <class COMPATIBLE_TYPE>
     explicit shared_ptr(COMPATIBLE_TYPE *ptr);
@@ -1806,23 +1824,6 @@ class shared_ptr {
         // component-level documentation, to comply with C++ standard
         // specifications, future implementations of 'shared_ptr' may destroy
         // the shared object using '::operator delete'.
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
-        // Create a shared pointer taking ownership of the specified 'rep' and
-        // pointing to the object stored in the 'rep'.  The behavior is
-        // undefined unless 'rep->originalPtr()' points to an object of type
-        // 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT* increment the
-        // number of references to 'rep'.
-        //
-        // DEPRECATED This constructor will be made inaccessible in the next
-        // BDE release, as the undefined behavior is too easily triggered and
-        // offers no simple way to guard against misuse.  Instead, call the
-        // constructor taking an additional 'ELEMENT_TYPE *' initial argument:
-        //..
-        //  shared_ptr(ELEMENT_TYPE *p, BloombergLP::bslma::SharedPtrRep *rep);
-        //..
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     template <class COMPATIBLE_TYPE>
     shared_ptr(COMPATIBLE_TYPE               *ptr,
@@ -3879,6 +3880,15 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr()
 {
 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+template <class ELEMENT_TYPE>
+inline
+shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
+: d_ptr_p(rep ? reinterpret_cast<ELEMENT_TYPE *>(rep->originalPtr()) : 0)
+, d_rep_p(rep)
+{
+}
+#else
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t)
@@ -3886,6 +3896,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t)
 , d_rep_p(0)
 {
 }
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
@@ -3899,16 +3910,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(COMPATIBLE_TYPE *ptr)
 
     d_rep_p = RepMaker::makeOutofplaceRep(ptr, Deleter(), 0);
 }
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class ELEMENT_TYPE>
-inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
-: d_ptr_p(rep ? reinterpret_cast<ELEMENT_TYPE *>(rep->originalPtr()) : 0)
-, d_rep_p(rep)
-{
-}
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
