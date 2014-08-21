@@ -956,7 +956,7 @@ int main(int argc, char* argv[])
                     }
 
                     if (mantissa <= bsl::numeric_limits<unsigned>::max() &&
-                        mantissa >= bsl::numeric_limits<unsigned>::min()) {
+                        mantissa >= 0ll) {
                         unsigned uMantissa = mantissa;
 
                         bsl::string parseString = makeParseString(uMantissa,
@@ -976,8 +976,7 @@ int main(int argc, char* argv[])
 
                     if (mantissa <=
                               bsl::numeric_limits<unsigned long long>::max() &&
-                        mantissa >=
-                              bsl::numeric_limits<unsigned long long>::min()) {
+                        mantissa >= 0ll) {
                         unsigned long long ullMantissa = mantissa;
 
                         bsl::string parseString = makeParseString(ullMantissa,
@@ -1172,7 +1171,7 @@ int main(int argc, char* argv[])
                     }
 
                     if (mantissa <= bsl::numeric_limits<unsigned>::max() &&
-                        mantissa >= bsl::numeric_limits<unsigned>::min()) {
+                        mantissa >= 0ll) {
                         unsigned uMantissa = mantissa;
 
                         bsl::string parseString = makeParseString(uMantissa,
@@ -1192,8 +1191,7 @@ int main(int argc, char* argv[])
 
                     if (mantissa <=
                               bsl::numeric_limits<unsigned long long>::max() &&
-                        mantissa >=
-                              bsl::numeric_limits<unsigned long long>::min()) {
+                        mantissa >= 0ll ) {
                         unsigned long long ullMantissa = mantissa;
 
                         bsl::string parseString = makeParseString(ullMantissa,
