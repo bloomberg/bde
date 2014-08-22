@@ -1493,6 +1493,58 @@ int main(int argc, char* argv[])
 
         }
 
+        // Non bitwise equal testing:
+
+        {
+            Util::ValueType32 test32;
+            Util::ValueType32 alt32;
+
+            Util::ValueType64 test64;
+            Util::ValueType64 alt64;
+
+            Util::ValueType128 test128;
+            Util::ValueType128 alt128;
+
+                        // 0
+
+            test32 = Util::makeDecimalRaw32(0, 0);
+            alt32  = Util::makeDecimalRaw32(0, 5);
+
+            ASSERT( Util::equal(test32,  alt32));
+            ASSERT( Util::equal( alt32, test32));
+
+            test64 = Util::makeDecimalRaw64(0, 0);
+            alt64  = Util::makeDecimalRaw64(0, 5);
+
+            ASSERT( Util::equal(test64,  alt64));
+            ASSERT( Util::equal( alt64, test64));
+
+            test128 = Util::makeDecimalRaw128(0, 0);
+            alt128  = Util::makeDecimalRaw128(0, 5);
+
+            ASSERT( Util::equal(test128,  alt128));
+            ASSERT( Util::equal( alt128, test128));
+
+                        // 700 vs 7e2
+
+            test32 = Util::makeDecimalRaw32(700, 0);
+            alt32  = Util::makeDecimalRaw32(7,   2);
+
+            ASSERT( Util::equal(test32,  alt32));
+            ASSERT( Util::equal( alt32, test32));
+
+            test64 = Util::makeDecimalRaw64(700, 0);
+            alt64  = Util::makeDecimalRaw64(7,   2);
+
+            ASSERT( Util::equal(test64,  alt64));
+            ASSERT( Util::equal( alt64, test64));
+
+            test128 = Util::makeDecimalRaw128(700, 0);
+            alt128  = Util::makeDecimalRaw128(7,   2);
+
+            ASSERT( Util::equal(test128,  alt128));
+            ASSERT( Util::equal( alt128, test128));
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
