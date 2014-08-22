@@ -119,6 +119,19 @@ class ByteOrderUtil {
         // in the specified 'x'.
 };
 
+                      // ===============================
+                      // struct ByteOrderUtil_Dispatcher
+                      // ===============================
+
+template <size_t WIDTH>
+struct ByteOrderUtil_Dispatcher {
+    // This utility 'struct' provides a set of namespaces for type- and
+    // size-specific swap dispatch functions.
+
+    template <class T>
+    static T swapBytes(T x);
+};
+
 // ============================================================================
 //                                  LOCAL MACROS
 // ============================================================================
@@ -142,6 +155,45 @@ class ByteOrderUtil {
 //                          INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                      // -------------------------------
+                      // struct ByteOrderUtil_Dispatcher
+                      // -------------------------------
+
+template <size_t WIDTH>
+template <class T>
+T ByteOrderUtil_Dispatcher<WIDTH>::swapBytes(T x)
+{
+    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(false);
+}
+
+template <>
+template <class T>
+T ByteOrderUtil_Dispatcher<1>::swapBytes(T x)
+{
+    return x;
+}
+
+template <>
+template <class T>
+T ByteOrderUtil_Dispatcher<2>::swapBytes(T x)
+{
+    return static_cast<T>(ByteOrderUtil::swapBytes16(x));
+}
+
+template <>
+template <class T>
+T ByteOrderUtil_Dispatcher<4>::swapBytes(T x)
+{
+    return static_cast<T>(ByteOrderUtil::swapBytes32(x));
+}
+
+template <>
+template <class T>
+T ByteOrderUtil_Dispatcher<8>::swapBytes(T x)
+{
+    return static_cast<T>(ByteOrderUtil::swapBytes64(x));
+}
+
                               // -------------------
                               // class ByteOrderUtil
                               // -------------------
@@ -150,104 +202,79 @@ class ByteOrderUtil {
 inline
 bool ByteOrderUtil::swapBytes(bool x)
 {
-    return x;
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 char ByteOrderUtil::swapBytes(char x)
 {
-    return x;
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 unsigned char ByteOrderUtil::swapBytes(unsigned char x)
 {
-    return x;
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 signed char ByteOrderUtil::swapBytes(signed char x)
 {
-    return x;
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 wchar_t ByteOrderUtil::swapBytes(wchar_t x)
 {
-#if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
-    (defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CPU_32_BIT))
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(2 == sizeof x);
-
-    return static_cast<wchar_t>(swapBytes16(x));
-#else
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof x);
-
-    return static_cast<wchar_t>(swapBytes32(x));
-#endif
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 short ByteOrderUtil::swapBytes(short x)
 {
-    return static_cast<short>(swapBytes16(x));
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 unsigned short ByteOrderUtil::swapBytes(unsigned short x)
 {
-    return swapBytes16(x);
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 int ByteOrderUtil::swapBytes(int x)
 {
-    return static_cast<int>(swapBytes32(x));
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 unsigned int ByteOrderUtil::swapBytes(unsigned int x)
 {
-    return swapBytes32(x);
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 long ByteOrderUtil::swapBytes(long x)
 {
-#if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_UNIX)
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(8 == sizeof x);
-
-    return static_cast<long>(swapBytes64(x));
-#else
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof x);
-
-    return static_cast<long>(swapBytes32(x));
-#endif
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 unsigned long ByteOrderUtil::swapBytes(unsigned long x)
 {
-#if defined(BSLS_PLATFORM_CPU_64_BIT) && defined(BSLS_PLATFORM_OS_UNIX)
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(8 == sizeof x);
-
-    return swapBytes64(x);
-#else
-    BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT(4 == sizeof x);
-
-    return swapBytes32(x);
-#endif
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 bsls::Types::Uint64 ByteOrderUtil::swapBytes(bsls::Types::Uint64 x)
 {
-    return swapBytes64(x);
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
 bsls::Types::Int64 ByteOrderUtil::swapBytes(bsls::Types::Int64 x)
 {
-    return static_cast<Types::Int64>(swapBytes64(x));
+    return ByteOrderUtil_Dispatcher<sizeof(x)>::swapBytes(x);
 }
 
 inline
