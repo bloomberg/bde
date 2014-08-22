@@ -146,11 +146,11 @@ void aSsErT(bool b, const char *s, int i)
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a value semantic type, 'Box', that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
-// hashing. Some of these attributes are themselves user defined types. We want
+// hashing.  Some of these attributes are themselves user defined types.  We want
 // to store objects of type 'Box' in a hash table, so we need to be able to
-// produce hash values that represent instances of 'Box'. We don't want to
+// produce hash values that represent instances of 'Box'.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
-// difficult and labour intensive to write a proper hashing algorithm. In order
+// difficult and labour intensive to write a proper hashing algorithm.  In order
 // to hash this 'Box', we will use the modular hashing system supplied in
 // 'bslh'.
 //
@@ -211,13 +211,13 @@ int Point::getY() const
 
 
 //..
-// Then, we define 'operator=='. Notice how it checks only attributes that we
-// would want to incorporate into the hashed value. Note that attributes that
+// Then, we define 'operator=='.  Notice how it checks only attributes that we
+// would want to incorporate into the hashed value.  Note that attributes that
 // are salient to hashing tend to be the same as or a subset of the attributes
 // that are checked in 'operator=='.
 //..
 bool operator==(const Point &lhs, const Point &rhs)
-    // Return true if the specified 'lhs' and 'rhs' have the same value. Two
+    // Return true if the specified 'lhs' and 'rhs' have the same value.  Two
     // 'Point' objects have the same value if they have the same x and y
     // coordinates.
 {
@@ -225,10 +225,10 @@ bool operator==(const Point &lhs, const Point &rhs)
 }
 
 //..
-// Next, we define 'hashAppend'. This function will allow any hashing algorithm
+// Next, we define 'hashAppend'.  This function will allow any hashing algorithm
 // that meets the 'bslh' hashing algorithm requirements to be applied to
-// 'Point'. This is the full extent of the work that needs to be done by type
-// creators. They do not need to implement any algorithms, they just need to
+// 'Point'.  This is the full extent of the work that needs to be done by type
+// creators.  They do not need to implement any algorithms, they just need to
 // call out the attributes that are salient to hashing by calling 'hashAppend'
 // on them.
 //..
@@ -291,11 +291,11 @@ int Box::getWidth() const
 }
 
 //..
-// Then, we define 'operator=='. This time all of the data members are salient
+// Then, we define 'operator=='.  This time all of the data members are salient
 // to equality.
 //..
 bool operator==(const Box &lhs, const Box &rhs)
-    // Return true if the specified 'lhs' and 'rhs' have the same value. Two
+    // Return true if the specified 'lhs' and 'rhs' have the same value.  Two
     // 'Box' objects have the same value if they have the same length, width,
     // and position.
 {
@@ -305,9 +305,9 @@ bool operator==(const Box &lhs, const Box &rhs)
 }
 
 //..
-// Next, we define 'hashAppend' for 'Box'. Notice how as well as calling
+// Next, we define 'hashAppend' for 'Box'.  Notice how as well as calling
 // 'hashAppend' on fundamental types, we can also call it with our user defined
-// type 'Point'. Calling 'hashAppend' with 'Point' will propogate a reference
+// type 'Point'.  Calling 'hashAppend' with 'Point' will propogate a reference
 // to the hashing algorithm functor 'hashAlg' down to the fundamental types
 // that make up 'Point', and those types will then be passed into the
 // referenced algorithm functor.
@@ -322,8 +322,8 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
 }
 
 //..
-// Then, we create our hash table. We simplify the problem by requiring the
-// caller to supply an array. This means we already know how many buckets we
+// Then, we create our hash table.  We simplify the problem by requiring the
+// caller to supply an array.  This means we already know how many buckets we
 // need.  We do not need to copy the values into our own area, so we don't have
 // to create storage for them, or require that a copy constructor or destructor
 // be available.  We only require that they have a transitive, symmetric
@@ -351,7 +351,7 @@ class HashTable {
     //  size_t operator()(const TYPE&) const;
     //..
     // and 'HASHER' shall have a publicly accessible default constructor and
-    // destructor. Here we use 'bslh::Hash' as our default template argument.
+    // destructor.  Here we use 'bslh::Hash' as our default template argument.
     // This allows us to hash any type for which 'hashAppend' has been
     // implemented.
     //
@@ -392,7 +392,7 @@ class HashTable {
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
         // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues'. No value in 'valuesArray' shall
+        // length of the specified 'numValues'.  No value in 'valuesArray' shall
         // have the same value as any of the other values in 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
@@ -510,14 +510,14 @@ class MockHashingAlgorithm {
     }
 
     const char *getData()
-        // Return the pointer stored by 'operator()'. The behaviour is
+        // Return the pointer stored by 'operator()'.  The behaviour is
         // undefined if 'operator()' has not been called.
     {
         return d_data;
     }
 
     size_t getLength()
-        // Return the length stored by 'operator()'. The behaviour is
+        // Return the length stored by 'operator()'.  The behaviour is
         // undefined if 'operator()' has not been called.
     {
         return d_length;
@@ -563,14 +563,14 @@ class MockAccumulatingHashingAlgorithm {
     }
 
     const char *getData()
-        // Return the pointer stored by 'operator()'. The behaviour is
+        // Return the pointer stored by 'operator()'.  The behaviour is
         // undefined if 'operator()' has not been called.
     {
         return d_data;
     }
 
     size_t getLength()
-        // Return the length stored by 'operator()'. The behaviour is
+        // Return the length stored by 'operator()'.  The behaviour is
         // undefined if 'operator()' has not been called.
     {
         return d_length;
@@ -597,7 +597,7 @@ class TestDriver {
 
     void testHashAppendNegativeZero()
         // Test 'hashAppend' on the (template parameter) 'TYPE' ensuring that
-        // both 0 and -0 will hash to the same value. This is intended to test
+        // both 0 and -0 will hash to the same value.  This is intended to test
         // floating point numbers where 0.0 and -0.0 have different binary
         // representations.
     {
@@ -762,11 +762,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Define two non-empty classes with no padding, one of which is
-        //:   derived from 'hash'. Assert that both classes have the same size.
+        //:   derived from 'hash'.  Assert that both classes have the same size.
         //:   (C-1).
         //:
         //: 2 Create a third class, with identical structure to the previous
-        //:   two, but with 'Hash' additional data member. Assert that the
+        //:   two, but with 'Hash' additional data member.  Assert that the
         //:   class with 'Hash' as a member is larger than the other classes.
         //:   (C-2)
         //
@@ -780,7 +780,7 @@ int main(int argc, char *argv[])
         typedef DefaultHashAlgorithm TYPE;
 
         if (verbose) printf("Define two non-empty classes with no padding, one"
-                            " of which is derived from 'hash'. Assert that"
+                            " of which is derived from 'hash'.  Assert that"
                             " both classes have the same size. (C-1).\n");
         {
             struct TwoInts {
@@ -799,7 +799,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Create a third class, with identical structure to"
                             " the previous two, but with 'Hash' additional"
-                            " data member. Assert that the class with 'Hash'"
+                            " data member.  Assert that the class with 'Hash'"
                             " as a member is larger than the other classes."
                             "(C-2)\n");
         {
@@ -929,7 +929,7 @@ int main(int argc, char *argv[])
         //: 2 The function call operator can be invoked on constant objects.
         //
         // Plan:
-        //: 1 Create 'const' ints and hash them. Compare the results against
+        //: 1 Create 'const' ints and hash them.  Compare the results against
         //:   known good values. (C-1,2)
         //
         // Testing:
@@ -963,7 +963,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) printf("Create 'const' strings and hash them. Compare the"
+        if (verbose) printf("Create 'const' strings and hash them.  Compare the"
                             " results against known good values. (C-1,2)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
@@ -1020,7 +1020,7 @@ int main(int argc, char *argv[])
         //:
         //: 3 Use a mock hashing algorithm to test that 'hashAppend' inputs one
         //:   of two possible byte representations of boolean values into the
-        //:   hashing algorithm it is given. Attempt to permute the boolean
+        //:   hashing algorithm it is given.  Attempt to permute the boolean
         //:   input using '++', assignment, and memcpy operations. (C-3)
         //:
         //: 4 Hash different pointers pointing to different data in different
@@ -1032,7 +1032,7 @@ int main(int argc, char *argv[])
         //:   garbage is ignored by 'hashAppend'.
         //:
         //: 6 Copy a known bitsequece into each fundamental type and pass it
-        //:   into 'hashAppend' with a mocked hashing algorith. Verify that the
+        //:   into 'hashAppend' with a mocked hashing algorith.  Verify that the
         //:   data inputted into the hashing algorithm matches the known input
         //:   bitsequence. (C-6)
         //
@@ -1209,7 +1209,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("Use a mock hashing algorithm to test that"
                             " 'hashAppend' inputs one of two possible byte"
                             " representations of boolean values into the"
-                            " hashing algorithm it is given. Attempt to"
+                            " hashing algorithm it is given.  Attempt to"
                             " permute the boolean input using '++',"
                             " assignment, and memcpy operations. (C-3)\n");
         {
@@ -1407,7 +1407,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Copy a known bitsequece into each fundamental"
                             " type and pass it into 'hashAppend' with a mocked"
-                            " hashing algorithm. Verify that the data inputted"
+                            " hashing algorithm.  Verify that the data inputted"
                             " into the hashing algorithm matches the known"
                             " input bitsequence. (C-6)\n");
         {

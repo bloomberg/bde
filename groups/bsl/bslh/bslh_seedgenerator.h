@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------
 // The (template parameter) type 'RNG' shall be a class exposing 'operator()'
 // which returns a result of type 'result_type', which will also be and
-// publicly accessible in 'RNG'. The value returned by 'operator()' shall be
+// publicly accessible in 'RNG'.  The value returned by 'operator()' shall be
 // random bits, the quality of which can be defined by 'RNG'. 'RNG' shall also
 // be default and copy constructible.
 
@@ -100,11 +100,11 @@ class SeedGenerator : private RNG
 
     void generateSeed(char *seedLocation, size_t seedLength);
         // Generate a seed of the specified 'seedLength' bytes and store it at
-        // the specified 'seedLocation'. The seed will be generated with bytes
-        // from the random number generator supplied at construction. All of
+        // the specified 'seedLocation'.  The seed will be generated with bytes
+        // from the random number generator supplied at construction.  All of
         // the returned bytes will come from the RNG, meaning if the requested
         // seed is larger than the return type of the RNG, the RNG will be
-        // called multiple times. The behaviour is undefined unless the memory
+        // called multiple times.  The behaviour is undefined unless the memory
         // at 'seedLocation' can store 'seedLength' bytes.
 };
 

@@ -171,8 +171,8 @@ unsigned int someSeededHash(const char *seed,
                             const char *data,
                             size_t length)
     // Hash the specified 'length' bytes of 'data' using the specified
-    // 'seedLength' bytes of 'seed' to seed the hash. This is not a real hash
-    // function. DO NOT USE FOR ACTUAL HASHING
+    // 'seedLength' bytes of 'seed' to seed the hash.  This is not a real hash
+    // function.  DO NOT USE FOR ACTUAL HASHING
 {
     const unsigned int *castedSeed = reinterpret_cast<const unsigned int *>(
                                                                          seed);
@@ -189,7 +189,7 @@ unsigned int someSeededHash(const char *seed,
 
 void fill(char *data, size_t length, char repeatingElement)
     // Load the specified 'repeatingElement' into each byte of the specified
-    // 'length' bytes long 'data'. The behaviour is undefined if 'data' does
+    // 'length' bytes long 'data'.  The behaviour is undefined if 'data' does
     // not point to at least 'length' bytes of writable memory.
 {
     for(size_t i = 0; i != length; ++i) {
@@ -209,11 +209,11 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 ///Example: Seeding hashing algorithms requiring different seed sizes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a number of hashing algorithms that all require different
-// length seeds. Some require 32 bits, some require 64 bits, some even require
-// 1024 bits. We want to generate all these seeds in the same way, but we do
+// length seeds.  Some require 32 bits, some require 64 bits, some even require
+// 1024 bits.  We want to generate all these seeds in the same way, but we do
 // not want to keep manually generating seeds of different sizes for these
-// algorithms. Moreover, we want to be able to use all these algorithms through
-// a general purpose functor. To accomplish this, we give all our algorithm
+// algorithms.  Moreover, we want to be able to use all these algorithms through
+// a general purpose functor.  To accomplish this, we give all our algorithm
 // the same interface and supply a seed generator, which can create any size
 // seed that the algorithms require.
 //
@@ -409,8 +409,8 @@ int main(int argc, char *argv[])
 
 //..
 // Finally, we can hash the data the same way using all of the different
-// hashing algorithms. The seed generator allows us to abstract away the
-// different requirements each algorithm has on seed size. Each algorithm will
+// hashing algorithms.  The seed generator allows us to abstract away the
+// different requirements each algorithm has on seed size.  Each algorithm will
 // produce different output because it has been supplied with a different seed.
 //..
 

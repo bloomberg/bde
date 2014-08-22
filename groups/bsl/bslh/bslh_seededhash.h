@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslh_hash, bslh_seedgenerator
 //
 //@DESCRIPTION: This component provides a templated struct, 'bslh::SeededHash',
-// which provides hashing functionality. This struct is a drop in replacement
+// which provides hashing functionality.  This struct is a drop in replacement
 // for 'bsl::hash'.  It is similar to 'bslh::Hash', however, it is meant for
 // hashes that require a seed.  It takes a seed generator and uses that to
 // create seeds to give the the hashing algorithm.  'bslh::SeededHash' is a
@@ -56,7 +56,7 @@ BSLS_IDENT("$Id: $")
 // The 'k_SEED_LENGTH' enum must be in the public interface, and 'XXX' must be
 // replaced with an integer literal indicating the number of bytes of seed the
 // algorithm requires.  The parameterized constructor must accept a 'const void
-// *'. This pointer will point to a seed of 'XXX' bytes in size.
+// *'.  This pointer will point to a seed of 'XXX' bytes in size.
 //
 ///Requirements on (template parameter) Type 'SEED_GENERATOR'
 ///----------------------------------------------------------
@@ -72,8 +72,8 @@ BSLS_IDENT("$Id: $")
 //..
 // The only mandatory piece of the seed generator interface is the generateSeed
 // method which accepts a char pointer to memory to be written and a size_t
-// length in bytes. The generateSeed method must fill the size_t bytes of the
-// memory pointed to by the char pointer with a seed. The seed generator must
+// length in bytes.  The generateSeed method must fill the size_t bytes of the
+// memory pointed to by the char pointer with a seed.  The seed generator must
 // be either:
 //
 //: 1 Default constructible

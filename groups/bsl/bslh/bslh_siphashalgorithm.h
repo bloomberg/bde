@@ -132,14 +132,14 @@ BSLS_IDENT("$Id: $")
 // SipHash reference C implementation
 //
 // Written in 2012 by Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
-// Daniel J. Bernstein <djb@cr.yp.to>
+// Daniel J.  Bernstein <djb@cr.yp.to>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright
 // and related and neighboring rights to this software to the public domain
-// worldwide. This software is distributed without any warranty.
+// worldwide.  This software is distributed without any warranty.
 //
 // You should have received a copy of the CC0 Public Domain Dedication along
-// with this software. If not, see
+// with this software.  If not, see
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 //-----------------------------------------------------------------------------
@@ -222,8 +222,8 @@ class SipHashAlgorithm {
         // Create an instance of 'SipHashAlgorithm' seeded with a 128-bit
         // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
         // Each bit of the supplied seed will contribute to the final hash
-        // produced by 'computeHash()'. The behaviour is undefined unless
-        // 'seed' points to at least 16 bytes of initialized memory. Note that
+        // produced by 'computeHash()'.  The behaviour is undefined unless
+        // 'seed' points to at least 16 bytes of initialized memory.  Note that
         // if data in 'seed' is not random, all guarantees of security and
         // denial of service protection are void.
 
@@ -233,13 +233,13 @@ class SipHashAlgorithm {
     // MANIPULATORS
     void operator()(const void *data, size_t length);
         // Incorporate the specified 'length' bytes of 'data' into the
-        // internal state of the hashing algorithm. Every bit of data
+        // internal state of the hashing algorithm.  Every bit of data
         // incorporated into the internal state of the algorithm will
-        // contribute to the final hash produced by 'computeHash()'. The same
+        // contribute to the final hash produced by 'computeHash()'.  The same
         // hash will be produced regardless of whether a sequence of bytes is
         // passed in all at once or through multiple calls to this member
-        // function. Input where 'length' == 0 will have no effect on the
-        // internal state of the algorithm. The behaviour is undefined unless
+        // function.  Input where 'length' == 0 will have no effect on the
+        // internal state of the algorithm.  The behaviour is undefined unless
         // 'data' points to at least 'length' bytes of initialized memory.
 
     result_type computeHash();
@@ -247,7 +247,7 @@ class SipHashAlgorithm {
         // Note that this changes the internal state of the object, so calling
         // 'computeHash' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
-        // the algorithm. Also note that a value will be returned, even if data
+        // the algorithm.  Also note that a value will be returned, even if data
         // has not been passed into 'operator()'
 };
 

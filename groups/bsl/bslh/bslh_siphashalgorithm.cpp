@@ -15,7 +15,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Changes
 ///-------
 // The third party code begins with the "siphash.h" header below, and continues
-// until the Bloomberg LP copyright banner below. Changes made to the original
+// until the Bloomberg LP copyright banner below.  Changes made to the original
 // code include:
 //
 //: 1  Adding BloombergLP and bslh namespaces
@@ -58,14 +58,14 @@ BSLS_IDENT("$Id$ $CSID$")
 // SipHash reference C implementation
 //
 // Written in 2012 by Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
-// Daniel J. Bernstein <djb@cr.yp.to>
+// Daniel J.  Bernstein <djb@cr.yp.to>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright
 // and related and neighboring rights to this software to the public domain
-// worldwide. This software is distributed without any warranty.
+// worldwide.  This software is distributed without any warranty.
 //
 // You should have received a copy of the CC0 Public Domain Dedication along
-// with this software. If not, see
+// with this software.  If not, see
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 //
 //-----------------------------------------------------------------------------
@@ -112,7 +112,7 @@ static void sipround(u64& v0, u64& v1, u64& v2, u64& v3)
 inline
 static u64 u8to64_le(const u8* p)
     // Return the 64-bit integer representation of the specified 'p' taking
-    // into account endianness. Undefined unless 'p' points to at least one
+    // into account endianness.  Undefined unless 'p' points to at least one
     // byte of initialized memory.
 {
     BSLS_ASSERT(p);

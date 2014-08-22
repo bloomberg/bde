@@ -7,7 +7,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///Changes
 ///-------
 // The third party code begins with the "Spooky Hash" header below, and
-// continues until the BloombergLP copyright notice. Changes made to the
+// continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
 //: 1 Added BloombergLP and bslh namespaces

@@ -144,18 +144,18 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 ///Example: Creating and Using a Hash Table containing User Input
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of types that define 'operator==', and we want a
-// fast way to find out if values are contained in the array. We can create a
+// fast way to find out if values are contained in the array.  We can create a
 // 'HashTable' data structure that is capable of looking up values in O(1)
 // time.
 //
 // Further suppose that we will be storing arbitrary user input in our table.
 // It is possible that an attacker with knowledge of the hashing algorithm we
 // are using could specially craft input that will cause collisions in our hash
-// table, degrading performance to O(n). To avoid this we will need to use a
-// secure hash algorithm with a random seed. This algorithm will need to be  in
+// table, degrading performance to O(n).  To avoid this we will need to use a
+// secure hash algorithm with a random seed.  This algorithm will need to be  in
 // the form of a hash functor -- an object that will take objects stored in our
 // array as input, and yield an integer value which is hard enough for an
-// outside observer to predict that it appear random. The functor can pass the
+// outside observer to predict that it appear random.  The functor can pass the
 // attributes of the 'TYPE' that are salient to hashing into the hashing
 // algorithm, and then return the hash that is produced.
 //
@@ -232,7 +232,7 @@ class HashTable {
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
         // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues'. No value in 'valuesArray' shall
+        // length of the specified 'numValues'.  No value in 'valuesArray' shall
         // have the same value as any of the other values in 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
@@ -502,7 +502,7 @@ int main(int argc, char *argv[])
         //:   'bslmf::IsSame'. (C-1)
         //:
         //: 2 Declare the expected signature of 'computeHash()' and then assign
-        //:   to it. If it compiles, the test passes. (C-2)
+        //:   to it.  If it compiles, the test passes. (C-2)
         //
         // Testing:
         //   typedef bsls::Types::Uint64 result_type;
@@ -519,7 +519,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Declare the expected signature of 'computeHash()'"
-                            " and then assign to it. If it compiles, the test"
+                            " and then assign to it.  If it compiles, the test"
                             " passes. (C-2)\n");
         {
             Obj::result_type (Obj::*expectedSignature) ();
@@ -532,9 +532,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING TESTING 'operator()' AND 'computeHash'
         //   Verify the class provides an overload for the function call
-        //   operator that can be called with some bytes and a length. Verify
+        //   operator that can be called with some bytes and a length.  Verify
         //   that calling 'operator()' will permute the algorithm's internal
-        //   state as specified by SipHash. Verify that 'computeHash' returns
+        //   state as specified by SipHash.  Verify that 'computeHash' returns
         //   the final value by SipHash specifications.
         //
         // Concerns:
@@ -554,11 +554,11 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Insert various lengths of c-strings into the algorithm both all
-        //:   at once and char by char using 'operator()'. Assert that the
+        //:   at once and char by char using 'operator()'.  Assert that the
         //:   algorithm produces the same result in both cases. (C-1,2)
         //:
         //: 2 Hash c-strings all at once and with multiple calls to
-        //:   'operator()' with length 0. Assert that both methods of hashing
+        //:   'operator()' with length 0.  Assert that both methods of hashing
         //:   c-strings produce the same values.(C-3)
         //:
         //: 3 Check the output of 'computeHash()' against the expected results
@@ -606,7 +606,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Insert various lengths of c-strings into the"
                             " algorithm both all at once and char by char"
-                            " using 'operator()'. Assert that the algorithm"
+                            " using 'operator()'.  Assert that the algorithm"
                             " produces the same result in both cases. (C-1,2)"
                             "\n");
         {
@@ -632,7 +632,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Hash c-strings all at once and with multiple"
-                            " calls to 'operator()' with length 0. Assert that"
+                            " calls to 'operator()' with length 0.  Assert that"
                             " both methods of hashing c-strings produce the"
                             " same values.(C-3)\n");
         {

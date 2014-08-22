@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //   Dec 31 2011: beta, improved Mix, tested it for 2-bit deltas
 //   Feb  2 2012: production, same bits as beta
 //   Feb  5 2012: adjusted definitions of uint* to be more portable
-//   Mar 30 2012: 3 bytes/cycle, not 4. Alpha was 4 but wasn't thorough enough.
+//   Mar 30 2012: 3 bytes/cycle, not 4.  Alpha was 4 but wasn't thorough enough.
 //   August 5 2012: SpookyV2 (different results)
 //
 // Up to 3 bytes/cycle for long messages.  Reasonably fast for short messages.
@@ -110,7 +110,7 @@ namespace bslh {
 
 class SpookyHashAlgorithmImp {
     // This class wraps an implementation of Bob Jenkin's "SpookyHash" in a
-    // BDE-style component. For more information, see
+    // BDE-style component.  For more information, see
     // http://burtleburtle.net/bob/hash/spooky.html .
 
   public:
@@ -147,9 +147,9 @@ class SpookyHashAlgorithmImp {
         // Incorporate the first 12 bytes of the specified 'data' into 'h0',
         // 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', and
         // 'h11', and then mix the inputs together so that 'h0' and 'h1' are a
-        // hash of all the inputs. Note that non-BDE-standard passing by
+        // hash of all the inputs.  Note that non-BDE-standard passing by
         // non-const reference is used here to remain consistent with the
-        // cannonical implementation. The behavior is undefined unles 'data'
+        // cannonical implementation.  The behavior is undefined unles 'data'
         // points at least 8 bytes of initialized memory.
 
     static void endPartial(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3,
@@ -157,9 +157,9 @@ class SpookyHashAlgorithmImp {
                            Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
         // Combine the specified 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
-        // will be a hash of all the inputs. Note that non-BDE-standard passing
+        // will be a hash of all the inputs.  Note that non-BDE-standard passing
         // by non-const reference is used here to remain consistent with the
-        // cannonical implementation. The behavior is undefined unles 'data'
+        // cannonical implementation.  The behavior is undefined unles 'data'
         // points at least 8 bytes of initialized memory.
 
     static void mix(const Uint64 *data,
@@ -168,11 +168,11 @@ class SpookyHashAlgorithmImp {
                     Uint64 &s8, Uint64 &s9, Uint64 &s10, Uint64 &s11);
         // Thoroughly mix the first 12 bytes of the specified 'data' into 's0',
         // 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', and
-        // 's1'. This method should be used when the input is 96 bytes or
+        // 's1'.  This method should be used when the input is 96 bytes or
         // longer to prevent the loss of entropy, because the internal state of
-        // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes. Note that
+        // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes.  Note that
         // non-BDE-standard passing by non-const reference is used here to
-        // remain consistent with the cannonical implementation. The behavior
+        // remain consistent with the cannonical implementation.  The behavior
         // is undefined unles 'data' points at least 8 bytes of initialized
         // memory.
 
@@ -184,24 +184,24 @@ class SpookyHashAlgorithmImp {
                           Uint64     *hash1,
                           Uint64     *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
-        // 'hash2' as seeds. Load the higher order bits of the resulting
-        // 128-bit into 'hash1' and the lower order bits in 'hash2'. This
+        // 'hash2' as seeds.  Load the higher order bits of the resulting
+        // 128-bit into 'hash1' and the lower order bits in 'hash2'.  This
         // method is meant to be used for messages less than 192 bytes in
-        // length because of it's lower startup cost. The behavior is undefined
+        // length because of it's lower startup cost.  The behavior is undefined
         // unles 'message' points at least 'length' bytes of initialized memory
         // and both 'hash1' and 'hash2' point to at least 8 bytes of
         // initialized, modifiable, memory.
 
     static void shortEnd(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
         // Combine the specified 'h0', 'h1', 'h2', and 'h3' together so that
-        // 'h0' and 'h1' will be a hash of all the inputs. Note that
+        // 'h0' and 'h1' will be a hash of all the inputs.  Note that
         // non-BDE-standard passing by non-const reference is used here to
         // remain consistent with the cannonical implementation.
 
     static void shortMix(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
         // Thoroughly mix the specified 'h0', 'h1', 'h2', and 'h3' so that each
         // bit of input contributes entropy to every bit of the final states of
-        // 'h0', 'h1', 'h2', and 'h3'. Note that non-BDE-standard passing by
+        // 'h0', 'h1', 'h2', and 'h3'.  Note that non-BDE-standard passing by
         // non-const reference is used here to remain consistent with the
         // cannonical implementation.
 
@@ -219,7 +219,7 @@ class SpookyHashAlgorithmImp {
                          size_t      length,
                          Uint32      seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
-        // seed. Return the resulting 32-bit hash.The behavior is undefined
+        // seed.  Return the resulting 32-bit hash.The behavior is undefined
         // unles 'message' points at least 'length' bytes of initialized
         // memory.
 
@@ -227,7 +227,7 @@ class SpookyHashAlgorithmImp {
                          size_t      length,
                          Uint64      seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
-        // seed. Return the resulting 64-bit hash.The behavior is undefined
+        // seed.  Return the resulting 64-bit hash.The behavior is undefined
         // unles 'message' points at least 'length' bytes of initialized
         // memory.
 
@@ -236,7 +236,7 @@ class SpookyHashAlgorithmImp {
                         Uint64     *hash1,
                         Uint64     *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
-        // 'hash2' as seeds. Load the higher order bits of the resulting
+        // 'hash2' as seeds.  Load the higher order bits of the resulting
         // 128-bit into 'hash1' and the lower order bits in 'hash2'.The
         // behavior is undefined unles 'message' points at least 'length' bytes
         // of initialized memory and both 'hash1' and 'hash2' point to at least
@@ -254,21 +254,21 @@ class SpookyHashAlgorithmImp {
     // MANIPULATORS
     void update(const void *message, size_t length);
         // Accumulate the specified 'length' bytes of 'message' into the
-        // internal state of the algorithm. Accumulating bytes through 'Update'
+        // internal state of the algorithm.  Accumulating bytes through 'Update'
         // will produce the same result as hashing them all at once through the
-        // 'HashXX' static methods. The behavior is undefined unles 'message'
+        // 'HashXX' static methods.  The behavior is undefined unles 'message'
         // points at least 'length' bytes of initialized memory.
 
     void finalize(Uint64 *hash1, Uint64 *hash2);
         // Load the finalized hash into the specified 'hash1' and 'hash2'.
         // 'hash1' will contain the higher order bits of the hash and 'hash2'
-        // will contain the lower order bits. The internal state of the
+        // will contain the lower order bits.  The internal state of the
         // algorithm will be modified, meaning that calling final multiple
-        // times will result in different hash values being returned. The
+        // times will result in different hash values being returned.  The
         // returned hash will be the same as if 'Hash128' had been called will
-        // all of the accumulated data in one block. The behaviour is undefined
+        // all of the accumulated data in one block.  The behaviour is undefined
         // unless both 'hash1' and 'hash2' point to 8 bytes of modifiable
-        // memory. Note that a value will be returned even if 'update' has not
+        // memory.  Note that a value will be returned even if 'update' has not
         // been called.
 };
 

@@ -112,15 +112,15 @@ void aSsErT(bool b, const char *s, int i)
 ///Example 1: Storing User Defined Input in a Hash Table
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of user-specified nicknames, and we want a really
-// fast way to find out if values are contained in the array. We can create a
+// fast way to find out if values are contained in the array.  We can create a
 // 'HashTable' data structure that is capable of looking up values in O(1)
 // time.
 //
 // Because we will be storing arbitrary user input in our table, it is possible
 // that an attacker with knowledge of the hashing algorithm we are using could
 // specially craft input that will cause collisions in our hash table,
-// degrading performance to O(n). To avoid this we will need to use a secure
-// hash algorithm with a random seed. This algorithm will need to be  in the
+// degrading performance to O(n).  To avoid this we will need to use a secure
+// hash algorithm with a random seed.  This algorithm will need to be  in the
 // form of a hash functor -- an object that will take objects stored in our
 // array as input, and yield a 64-bit int value which is hard enough for an
 // outside observer to predict that it appear random. 'bslh::SeededHash'
@@ -158,7 +158,7 @@ class HashTable {
     //  size_t operator()(const TYPE&) const;
     //..
     // and 'HASHER' shall have a publicly accessible default constructor and
-    // destructor. Here we use 'bslh::Hash' as our default template argument.
+    // destructor.  Here we use 'bslh::Hash' as our default template argument.
     // This allows us to hash any type for which 'hashAppend' has been
     // implemented.
     //
@@ -201,7 +201,7 @@ class HashTable {
               HASHER      hasher)
         // Create a hash table referring to the specified 'valuesArray' having
         // length of the specified 'numValues' and using the specified 'hasher'
-        // to generate hash values. No value in 'valuesArray' shall have the
+        // to generate hash values.  No value in 'valuesArray' shall have the
         // same value as any of the other values in 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
 //..
 // Next, we create a seed generator, with a cryptographically secure random
 // number generator, that can be used to generate seeds for our secure hashing
-// algorithm. We then pass that seed generator into 'bslh::SeededHash'. We use
+// algorithm.  We then pass that seed generator into 'bslh::SeededHash'.  We use
 // the 'bslh::SipHashAlgorithm' as our secure hashing algorithm.
 //..
         typedef SeedGenerator<CryptographicallySecureRNG> SecureSeedGenerator;
@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
 
 //..
 // Then, we create our hash table 'hashTable'.  We pass it the 'secureHash'
-// hashing functor we created. Passing it in through the functor, rather than
+// hashing functor we created.  Passing it in through the functor, rather than
 // just having it default constructed from the template parameter, allows us to
 // pass in an algorithm with a pre-configured state if we so desire.
 //..
@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
         //: 2 The function call operator can be invoked on constant objects.
         //
         // Plan:
-        //: 1 Create 'const' ints and hash them. Compare the results against
+        //: 1 Create 'const' ints and hash them.  Compare the results against
         //:   known good values. (C-1,2)
         //
         // Testing:
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) printf("Create 'const' strings and hash them. Compare the"
+        if (verbose) printf("Create 'const' strings and hash them.  Compare the"
                             " results against known good values. (C-1,2)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {

@@ -88,7 +88,7 @@ class DefaultHashAlgorithm {
     // PRIVATE TYPES
     typedef bslh::SpookyHashAlgorithm InternalHashAlgorithm;
         // Typedef indicating the algorithm currently being used by
-        // 'bslh::DefualtHashAlgorithm' to compute hashes. This algorithm is
+        // 'bslh::DefualtHashAlgorithm' to compute hashes.  This algorithm is
         // subject to change.
 
     // DATA
@@ -134,7 +134,7 @@ class DefaultHashAlgorithm {
         // Note that this changes the internal state of the object, so calling
         // 'computeHash' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
-        // the algorithm. Also note that a value will be returned, even if data
+        // the algorithm.  Also note that a value will be returned, even if data
         // has not been passed into 'operator()'
 };
 

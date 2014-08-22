@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslh_hash, bslh_spookhashalgorithmimp
 //
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithm' implements the SpookyHash algorithm
-// by Bob Jenkins. This algorithm is a general purpose algorithm that is known
+// by Bob Jenkins.  This algorithm is a general purpose algorithm that is known
 // to quickly reach good avalanche performance and execute in time that is
 // comprable to or faster than other industry standard algorithms such as
 // CityHash.  It is a good default choice for hashing values in unordered
@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 // thereby causing hashes to collide to buckets, which degrades performance.
 // There are NO security guarantees made by 'bslh::DefaultHashAlgorithm',
 // meaning attackers may be able to engineer keys that will cause a DOS attack
-// in hash tables using this algorithm. Note that even if an attacker does not
+// in hash tables using this algorithm.  Note that even if an attacker does not
 // know the seed used to initialize this algorithm, they may still be able to
 // produce keys that will cause a DOS attack in hash tables using this
 // algorithm.  If security is required, an algorithm that documents better
@@ -59,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Hash Consistency
 ///----------------
-// This hash algorithm is endian-specific. It is designed for little endian
+// This hash algorithm is endian-specific.  It is designed for little endian
 // machines, however, it will run on big endian machines.  On big endian
 // machines, the Performance and Security Guarantees still apply, however the
 // hashes produced will be different from those produced by the canonical
@@ -150,7 +150,7 @@ class SpookyHashAlgorithm {
         // Create an instance of 'SpookyHashAlgorithm' seeded with a 128-bit
         // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
         // Each bit of the supplied seed will contribute to the final hash
-        // produced by 'computeHash()'. The behaviour is undefined unless
+        // produced by 'computeHash()'.  The behaviour is undefined unless
         // 'seed' points to at least 16 bytes of initialized memory.
 
     //! ~SpookyHashAlgorithm() = default;
@@ -159,13 +159,13 @@ class SpookyHashAlgorithm {
     // MANIPULATORS
     void operator()(const void *data, size_t length);
         // Incorporate the specified 'length' bytes of 'data' into the internal
-        // state of the hashing algorithm. Every bit of data incorporated into
+        // state of the hashing algorithm.  Every bit of data incorporated into
         // the internal state of the algorithm will contribute to the final
-        // hash produced by 'computeHash()'. The same hash value will be
+        // hash produced by 'computeHash()'.  The same hash value will be
         // produced regardless of whether a sequence of bytes is passed in all
-        // at once or through multiple calls to this member function. Input
+        // at once or through multiple calls to this member function.  Input
         // where 'length' == 0 will have no effect on the internal state of the
-        // algorithm. The behaviour is undefined unless 'data' points to at
+        // algorithm.  The behaviour is undefined unless 'data' points to at
         // least 'length' bytes of initialized memory.
 
     result_type computeHash();
@@ -173,7 +173,7 @@ class SpookyHashAlgorithm {
         // Note that this changes the internal state of the object, so calling
         // 'computeHash' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
-        // the algorithm. Also note that a value will be returned, even if data
+        // the algorithm.  Also note that a value will be returned, even if data
         // has not been passed into 'operator()'
 };
 

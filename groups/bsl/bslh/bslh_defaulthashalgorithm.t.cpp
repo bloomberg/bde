@@ -107,14 +107,14 @@ void aSsErT(bool b, const char *s, int i)
 ///Example: Creating and Using a Hash Table
 /// - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of types that define 'operator==', and we want a
-// fast way to find out if values are contained in the array. We can create a
+// fast way to find out if values are contained in the array.  We can create a
 // 'HashTable' data structure that is capable of looking up values in O(1)
 // time.
 //
 // Further suppose that we will be storing futures (the financial instruments)
-// in this table. Since futures have standardized names, we don't have to worry
-// about any malicious values causing collisions. We will want to use a general
-// purpose hashing algorithm with a good hash distribution and good speed. This
+// in this table.  Since futures have standardized names, we don't have to worry
+// about any malicious values causing collisions.  We will want to use a general
+// purpose hashing algorithm with a good hash distribution and good speed.  This
 // algorithm will need to be in the form of a hash functor -- an object that
 // will take objects stored in our array as input, and yield an integer value.
 // The functor can pass the attributes of the 'TYPE' that are salient to
@@ -193,7 +193,7 @@ class HashTable {
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
         // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues'. No value in 'valuesArray' shall
+        // length of the specified 'numValues'.  No value in 'valuesArray' shall
         // have the same value as any of the other values in 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
@@ -296,7 +296,7 @@ bool operator!=(const Future& lhs, const Future& rhs)
 // 'DefaultHashAlgorithm' because it is a fast, general purpose hashing
 // algorithm that will provide an easy way to combine the attributes of
 // 'Future' objects that are salient to hashing into one reasonable hash that
-// will distribute the items evenly throughout the hash table. Moreover, when a
+// will distribute the items evenly throughout the hash table.  Moreover, when a
 // new hashing algorithm is discovered to be a better default, we can be
 // automatically be upgraded to use it as soon as 'bslh::DefaultHashAlgorithm'
 // is updated.
@@ -409,7 +409,7 @@ int main(int argc, char *argv[])
         //:   'bslmf::IsSame'. (C-1)
         //:
         //: 2 Declare the expected signature of 'computeHash()' and then assign
-        //:   to it. If it compiles, the test passes. (C-2)
+        //:   to it.  If it compiles, the test passes. (C-2)
         //
         // Testing:
         //   typedef InternalHashAlgorithm::result_type result_type;
@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Declare the expected signature of 'computeHash()'"
-                            " and then assign to it. If it compiles, the test"
+                            " and then assign to it.  If it compiles, the test"
                             " passes. (C-2)\n");
         {
             Obj::result_type (Obj::*expectedSignature) ();
@@ -439,10 +439,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'operator()' AND 'computeHash'
         //   Verify the class provides an overload for the function call
-        //   operator that can be called with some bytes and a length. Verify
+        //   operator that can be called with some bytes and a length.  Verify
         //   that calling 'operator()' will permute the algorithm's internal
         //   state as specified by the underlying hashing algorithm
-        //   (bslh::SpookyHashAlgorithm). Verify that 'computeHash' returns the
+        //   (bslh::SpookyHashAlgorithm).  Verify that 'computeHash' returns the
         //   final value specified by the canonical implementation of the
         //   underlying hashing algorithm.
         //

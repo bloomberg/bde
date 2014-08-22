@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // thereby causing hashes to collide to buckets, which degrades performance.
 // There are NO security guarantees made by 'bslh::DefaultHashAlgorithm',
 // meaning attackers may be able to engineer keys that will cause a DOS attack
-// in hash tables using this algorithm. Note that even if an attacker does not
+// in hash tables using this algorithm.  Note that even if an attacker does not
 // know the seed used to initialize this algorithm, they may still be able to
 // produce keys that will cause a DOS attack in hash tables using this
 // algorithm.  If security is required, an algorithm that documents better
@@ -89,7 +89,7 @@ class DefaultSeededHashAlgorithm {
     // PRIVATE TYPES
     typedef bslh::SpookyHashAlgorithm InternalHashAlgorithm;
         // Typedef indicating the algorithm currently being used by
-        // 'bslh::DefualtHashAlgorithm' to compute hashes. This algorithm is
+        // 'bslh::DefualtHashAlgorithm' to compute hashes.  This algorithm is
         // subject to change.
 
     // DATA
@@ -128,13 +128,13 @@ class DefaultSeededHashAlgorithm {
     // MANIPULATORS
     void operator()(const void *data, size_t length);
         // Incorporate the specified 'length' bytes of 'data' into the
-        // internal state of the hashing algorithm. Every bit of data
+        // internal state of the hashing algorithm.  Every bit of data
         // incorporated into the internal state of the algorithm will
-        // contribute to the final hash produced by 'computeHash()'. The same
+        // contribute to the final hash produced by 'computeHash()'.  The same
         // hash will be produced regardless of whether a sequence of bytes is
         // passed in all at once or through multiple calls to this member
-        // function. Input where 'length' == 0 will have no effect on the
-        // internal state of the algorithm. The behaviour is undefined unless
+        // function.  Input where 'length' == 0 will have no effect on the
+        // internal state of the algorithm.  The behaviour is undefined unless
         // 'data' points to at least 'length' bytes of initialized memory.
 
     result_type computeHash();
@@ -142,7 +142,7 @@ class DefaultSeededHashAlgorithm {
         // Note that this changes the internal state of the object, so calling
         // 'computeHash' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
-        // the algorithm. Also note that a value will be returned, even if data
+        // the algorithm.  Also note that a value will be returned, even if data
         // has not been passed into 'operator()'.
 };
 

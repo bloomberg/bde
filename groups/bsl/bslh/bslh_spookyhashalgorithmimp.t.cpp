@@ -192,8 +192,8 @@ class CheckedData {
   public:
     CheckedData(const char *data, size_t length);
         // Creates an instance of this class having the specified 'length'
-        // bytes of 'data'. Note that only a pointer to the data will be
-        // maintained, it will not be copied. The behaviour is undefined unless
+        // bytes of 'data'.  Note that only a pointer to the data will be
+        // maintained, it will not be copied.  The behaviour is undefined unless
         // 'data' is initialized with at least 'length' bytes.
 
     const char *getData();
@@ -232,7 +232,7 @@ const char *CheckedData::getData() {
 // class was created.  If the two hashes match, then we can be reasonable
 // certian that the data is still in a valid state (the chance of an accidental
 // collision is very low).  If the checksums do not match, we know that the
-// data has been corrupted. We will not be able to restore it, but we will know
+// data has been corrupted.  We will not be able to restore it, but we will know
 // not to trust it.
 //..
 
@@ -289,15 +289,15 @@ int main(int argc, char *argv[])
                       "Whether 'tis nobler in the mind to suffer"
                       "The slings and arrows of outrageous fortune"
                       "Or to take arms against a sea of troubles"
-                      "And by opposing end them. To die, to sleep--"
+                      "And by opposing end them.  To die, to sleep--"
                       "No more--and by a sleep to say we end"
                       "The heartache, and the thousand natural shocks"
                       "That flesh is heir to. 'Tis a consummation"
-                      "Devoutly to be wished. To die, to sleep--"
+                      "Devoutly to be wished.  To die, to sleep--"
                       "To sleep--perchance to dream: ay, there's the rub,"
                       "For in that sleep of death what dreams may come"
                       "When we have shuffled off this mortal coil,"
-                      "Must give us pause. There's the respect"
+                      "Must give us pause.  There's the respect"
                       "That makes calamity of so long life."
                       "For who would bear the whips and scorns of time,"
                       "Th' oppressor's wrong, the proud man's contumely"
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'hash64' AND 'hash32'
         //   Verify that the class offers the ability to invoke 'hash64' and
-        //   'hash32' with some bytes and a length. Verify that the values
+        //   'hash32' with some bytes and a length.  Verify that the values
         //   returned matches the hash specified by the canonical SpookyHash
         //   implementation.
         //
@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'hash128'
         //   Verify that the class offers the ability to invoke 'Hash128' with
-        //   some bytes and a length. Verify that the values returned matches
+        //   some bytes and a length.  Verify that the values returned matches
         //   the hash specified by the canonical SpookyHash implementation.
         //
         // Concerns:
@@ -529,9 +529,9 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'update'
         //   Verify that the class offers the ability to invoke 'update' with
-        //   some bytes and a length. Verify that calling 'update' will permute
+        //   some bytes and a length.  Verify that calling 'update' will permute
         //   the algorithm's internal state as specified by SpookyHash
-        //   (verified by checking 'finalize'). Verify that calling 'Update'
+        //   (verified by checking 'finalize').  Verify that calling 'Update'
         //   with messages incrementally or all at once will return the hash
         //   specified by the canonical SpookyHash implementation.
         //
@@ -555,8 +555,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Insert various lengths of c-strings into the algorithm both all
-        //:   at once, char by char, and in chunks using 'Update'. Call
-        //:   'finalize' periodically between updates. Assert that the
+        //:   at once, char by char, and in chunks using 'Update'.  Call
+        //:   'finalize' periodically between updates.  Assert that the
         //:   algorithm produces the same result in all cases. (C-1,2,3)
         //:
         //: 2 Check the output of 'update' followed by 'finalize' against the
@@ -574,8 +574,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Insert various lengths of c-strings into the"
                             " algorithm both all at once, char by char, and in"
-                            " chunks using 'update'. Call 'finalize'"
-                            " periodically between updates. Assert that the"
+                            " chunks using 'update'.  Call 'finalize'"
+                            " periodically between updates.  Assert that the"
                             " algorithm produces the same result in all cases."
                             " (C-1,2,3)\n");
         {
@@ -673,8 +673,8 @@ int main(int argc, char *argv[])
         // TESTING INITIALIZATION AND FINALIZATION
         //   Verify that the class offers the ability to initialize and
         //   finalize via the parameterized constructor and 'finalize()'
-        //   respectively. Verify that calling the constructor with different
-        //   seed will produce different results. Verify that the constructor
+        //   respectively.  Verify that calling the constructor with different
+        //   seed will produce different results.  Verify that the constructor
         //   and 'finalize' together produces a result that matches the
         //   canonical implementation.  Note that these operators must be
         //   tested together because 'final' is the only way to access the
