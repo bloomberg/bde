@@ -56,6 +56,7 @@ BSLS_IDENT("$Id: $")
 //: 13 Made function names lower case (had to change 'Final' to 'finalize' and
 //:    'Short' to 'shortHash' to avoid using a keyword)
 //
+//..
 ///Third Party Doc
 ///---------------
 //
@@ -85,7 +86,7 @@ BSLS_IDENT("$Id: $")
 // SpookyHash, they have nice math for combining the CRCs of pieces to form the
 // CRCs of wholes.  There are also cryptographic hashes, but those are even
 // slower than MD5.
-//
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
