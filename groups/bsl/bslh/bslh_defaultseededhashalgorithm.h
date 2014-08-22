@@ -126,16 +126,16 @@ class DefaultSeededHashAlgorithm {
         // Destroy this object.
 
     // MANIPULATORS
-    void operator()(const void *data, size_t length);
-        // Incorporate the specified 'length' bytes of 'data' into the
-        // internal state of the hashing algorithm.  Every bit of data
+    void operator()(const void *data, size_t numBytes);
+        // Incorporate the specified 'data', of at least the specified
+        // 'numBytes', into the internal state of the hashing algorithm.  Every bit of data
         // incorporated into the internal state of the algorithm will
         // contribute to the final hash produced by 'computeHash()'.  The same
         // hash will be produced regardless of whether a sequence of bytes is
         // passed in all at once or through multiple calls to this member
-        // function.  Input where 'length' == 0 will have no effect on the
+        // function.  Input where 'length' is 0 will have no effect on the
         // internal state of the algorithm.  The behaviour is undefined unless
-        // 'data' points to at least 'length' bytes of initialized memory.
+        // 'data' points to a valid memory location with at least 'length' bytes of initialized memory.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
@@ -160,10 +160,10 @@ DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed)
 
 // MANIPULATORS
 inline
-void DefaultSeededHashAlgorithm::operator()(const void *data, size_t length)
+void DefaultSeededHashAlgorithm::operator()(const void *data, size_t numBytes)
 {
-    BSLS_ASSERT(data);
-    d_state(data, length);
+    BSLS_ASSERT(data || numBytes);
+    d_state(data, numBytes);
 }
 
 inline

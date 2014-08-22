@@ -124,9 +124,9 @@ class DefaultHashAlgorithm {
         // will contribute to the final hash produced by 'computeHash()'.  The
         // same hash will be produced regardless of whether a sequence of bytes
         // is passed in all at once or through multiple calls to this member
-        // function.  Input where 'length' == 0 will have no effect on the
+        // function.  Input where 'length' is 0 will have no effect on the
         // internal state of the algorithm.  The behaviour is undefined unless
-        // 'data' points to at least 'length' bytes of initialized memory.
+        // 'data' points to a valid memory location with at least 'length' bytes of initialized memory.
 
 
     result_type computeHash();
@@ -151,10 +151,10 @@ DefaultHashAlgorithm::DefaultHashAlgorithm()
 
 // MANIPULATORS
 inline
-void DefaultHashAlgorithm::operator()(const void *data, size_t length)
+void DefaultHashAlgorithm::operator()(const void *data, size_t numBytes)
 {
-    BSLS_ASSERT(data);
-    d_state(data, length);
+    BSLS_ASSERT(data || numBytes);
+    d_state(data, numBytes);
 }
 
 inline

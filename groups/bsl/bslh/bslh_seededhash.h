@@ -14,17 +14,33 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslh_hash, bslh_seedgenerator
 //
-//@DESCRIPTION: This component provides a templated struct, 'bslh::SeededHash',
-// which provides hashing functionality.  This struct is a drop in replacement
-// for 'bsl::hash'.  It is similar to 'bslh::Hash', however, it is meant for
-// hashes that require a seed.  It takes a seed generator and uses that to
-// create seeds to give the the hashing algorithm.  'bslh::SeededHash' is a
-// wrapper which adapts hashing algorithms from 'bslh' to match the interface
-// of 'bsl::hash'.  'bslh::SeededHash' is a universal hashing functor that will
-// hash any type that implements 'hashAppend' using the hashing algorithm
-// provided as a template parameter.  More information can be found in the
-// package level documentation for 'bslh' (internal users can also find
-// information here {TEAM BDE:USING MODULAR HASHING<GO>})
+//@DESCRIPTION: This component provides a templated 'struct',
+// 'bslh::SeededHash', that defines a hash-functor that can be used with
+// standard containers (a drop in replacement for 'bsl::hash'), and which
+// applies the supplied (template parameter) 'HASH_ALGORITHM' to the attributes
+// of the (template parameter) 'TYPE' which have been identified as salient to
+// hashing.  The 'bslh::SeededHash' template parameter 'HASH_ALGORITHM' must be
+// a hashing algorithm that conforms the the requirements outlined below (see
+// {'Requirements for Seeded 'bslh' Hashing Algorithms'}).  Note that there are
+// several hashing algorithms defined in 'bslh', some of which do not accept
+// seeds, meaning they cannot be used with 'bslh::SeededHash'.
+//
+// 'bslh::SeededHash' will use the (template parameter) 'SEED_GENERATOR' to
+// generate the seed used to instantiate the 'HASH_ALGORITHM'.  The
+// 'bslh::SeededHash' template parameter 'SEED_GENERATOR' must be a seed
+// generator that conforms the the requirements outlined below (see
+// {'Requirements on (template parameter) Type 'SEED_GENERATOR''}).  The seed
+// will be generated once upon construction of 'bslh::SeededHash' and then held
+// until destruction.
+//
+// A call to 'bslh::Hash::operator()' for a (template parameter) 'TYPE' will
+// call the 'hashAppend' free function for 'TYPE' and provide 'hashAppend' an
+// instance of the 'HASH_ALGORITHM' which has been constructed using the stored
+// seed.  Clients are expected to define a free-function 'hashAppend' for each
+// of the types they wish to be hashable (see bslh_hash.h for details on
+// 'hashAppend').   More information can be found in the package level
+// documentation for 'bslh' (internal users can also find information here
+// {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Relationship to 'bslh::Hash'
 /// - - - - - - - - - - - - - -
@@ -50,13 +66,13 @@ BSLS_IDENT("$Id: $")
 //     enum { k_SEED_LENGTH = XXX };
 //
 //     // CREATORS
-//     explicit SomeHashAlgorithm(const void *seed);
+//     explicit SomeHashAlgorithm(const char *seed);
 // };
 //..
 // The 'k_SEED_LENGTH' enum must be in the public interface, and 'XXX' must be
 // replaced with an integer literal indicating the number of bytes of seed the
-// algorithm requires.  The parameterized constructor must accept a 'const void
-// *'.  This pointer will point to a seed of 'XXX' bytes in size.
+// algorithm requires.  The parameterized constructor must accept a
+// 'const char *'.  This pointer will point to a seed of 'XXX' bytes in size.
 //
 ///Requirements on (template parameter) Type 'SEED_GENERATOR'
 ///----------------------------------------------------------
@@ -64,24 +80,26 @@ BSLS_IDENT("$Id: $")
 // bslh::SeededHash.  The seed generator must conform to the interface shown
 // here:
 //..
-// class YourSeedGenerator
+// class SomeSeedGenerator
 // {
 //     // ACCESSORS
 //     void generateSeed(char *seedLocation, size_t seedLength);
 // };
 //..
 // The only mandatory piece of the seed generator interface is the generateSeed
-// method which accepts a char pointer to memory to be written and a size_t
+// method, which accepts a char pointer to memory to be written and a size_t
 // length in bytes.  The generateSeed method must fill the size_t bytes of the
 // memory pointed to by the char pointer with a seed.  The seed generator must
-// be either:
+// be meet one of the two requirements:
 //
-//: 1 Default constructible
+//: A The seed generator is default constructible.
 //:
-//: 2 Construcible with a parameterized constructor and copy constructible
+//: B The seed generator is constructable through any method (default or via
+//:   parameterized constructor) and ALSO copy constructible.
 //
-// Option 1 is prefered because it allows 'bslh::SeededHash' to be defualt
-// constructible.
+// Option A is prefered because it allows 'bslh::SeededHash' to be defualt
+// constructible. Option B is allowed, but means that 'bslh::SeededHash' must
+// be passed an already-instantiated 'SEED_GENERATOR' at construction.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -111,13 +129,16 @@ namespace bslh {
 template <class SEED_GENERATOR, class HASH_ALGORITHM
                                             = bslh::DefaultSeededHashAlgorithm>
 struct SeededHash {
-    // This class wraps the (template paramete) 'HASH_ALGORITHM', which
+    // This class wraps the (template parameter) 'HASH_ALGORITHM', which
     // requires a seed, in an interface that satisfies the 'hash' requirements
-    // of the C++11 standard.
+    // of the C++11 standard. The (template parameter) type 'SEED_GENERATOR'
+    // will be used to generate the seed required by 'HASH_ALGORITHM'.
 
   private:
     // DATA
     char seed[HASH_ALGORITHM::k_SEED_LENGTH];
+        // Stores the seed generated by the (template parameter) type
+        // 'SEED_GENERATOR'.
 
   public:
     // TYPES
@@ -128,10 +149,10 @@ struct SeededHash {
     // CREATORS
     SeededHash();
         // Create a 'bslh::SeededHash' which will default construct the
-        // parameterized 'SEED_GENERATOR' to initialize the seed that will be
-        // passed to the (template parameter) type 'HASH_ALGORITHM' when it is
-        // used.  'SEED_GENERATOR' must be default constructible to use this
-        // constructor.
+        // (template parameter) type 'SEED_GENERATOR' to initialize the seed
+        // that will be passed to the (template parameter) type
+        // 'HASH_ALGORITHM' when it is used.  'SEED_GENERATOR' must be default
+        // constructible to use this constructor.
 
     explicit SeededHash(SEED_GENERATOR& seedGenerator);
         // Create a 'bslh::SeededHash' which will use the specified
@@ -154,9 +175,9 @@ struct SeededHash {
     // ACCESSORS
     template <class TYPE>
     result_type operator()(const TYPE& type) const;
-        // Returns a hash generated by the (template parameter) type 'HASHALG'
-        // for the specified 'type'.  The value returned by the
-        // 'HASH_ALGORITHM' is cast to 'size_t' before returning.
+        // Returns a hash generated by the (template parameter) type
+        // 'HASH_ALGORITHM' for the specified 'type'.  The value returned by
+        // the 'HASH_ALGORITHM' is cast to 'size_t' before returning.
 
 };
 

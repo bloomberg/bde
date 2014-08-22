@@ -16,11 +16,12 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
+#include <limits>
 #include <math.h>
-#include <wchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 using namespace BloombergLP;
 using namespace bslh;
@@ -316,6 +317,7 @@ template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
     // Apply the specified 'hashAlg' to the specified 'box'
 {
+    using bslh::hashAppend;
     hashAppend(hashAlg, box.getPosition());
     hashAppend(hashAlg, box.getLength());
     hashAppend(hashAlg, box.getWidth());
@@ -614,6 +616,62 @@ class TestDriver {
         ASSERT(binaryCompare(zeroAlg.getData(),
                              negativeZeroAlg.getData(),
                              sizeof(TYPE)));
+    }
+
+    void testHashAppendInfinity()
+        // Test 'hashAppend' on the (template parameter) 'TYPE' ensuring that
+        // negative infinity always hashes to the same value and positive
+        // infinity always hashes to the same value.  This is intended to test
+        // floating point numbers.
+    {
+        if (std::numeric_limits<TYPE>::has_infinity) {
+            for (int i = -1; i != 3; i +=2) {
+                TYPE inf1 = i *  std::numeric_limits<TYPE>::infinity();
+                TYPE inf2 = i *  std::numeric_limits<TYPE>::infinity() + inf1;
+                TYPE inf3 = i * (std::numeric_limits<TYPE>::infinity() - 2366);
+                TYPE inf4 = i * (std::numeric_limits<TYPE>::infinity() + 1);
+                TYPE inf5 = i * (std::numeric_limits<TYPE>::infinity() *
+                                 std::numeric_limits<TYPE>::infinity() );
+                TYPE inf6 = i * (std::numeric_limits<TYPE>::infinity() / 500);
+
+                printf("Number 1: %f\n", inf1);
+                printf("Number 2: %f\n", inf2);
+                printf("Number 3: %f\n", inf3);
+                printf("Number 4: %f\n", inf4);
+                printf("Number 5: %f\n", inf5);
+                printf("Number 6: %f\n", inf6);
+
+                ASSERT(inf1 == inf2);
+                ASSERT(inf1 == inf3);
+                ASSERT(inf1 == inf4);
+                ASSERT(inf1 == inf5);
+                ASSERT(inf1 == inf6);
+
+                MockHashingAlgorithm infAlg1;
+                hashAppend(infAlg1, inf1);
+                MockHashingAlgorithm infAlg2;
+                hashAppend(infAlg2, inf2);
+                MockHashingAlgorithm infAlg3;
+                hashAppend(infAlg3, inf3);
+                MockHashingAlgorithm infAlg4;
+                hashAppend(infAlg4, inf4);
+                MockHashingAlgorithm infAlg5;
+                hashAppend(infAlg5, inf5);
+                MockHashingAlgorithm infAlg6;
+                hashAppend(infAlg6, inf6);
+
+                ASSERT(binaryCompare(infAlg1.getData(), infAlg2.getData(),
+                                                                sizeof(TYPE)));
+                ASSERT(binaryCompare(infAlg1.getData(), infAlg3.getData(),
+                                                                sizeof(TYPE)));
+                ASSERT(binaryCompare(infAlg1.getData(), infAlg4.getData(),
+                                                                sizeof(TYPE)));
+                ASSERT(binaryCompare(infAlg1.getData(), infAlg5.getData(),
+                                                                sizeof(TYPE)));
+                ASSERT(binaryCompare(infAlg1.getData(), infAlg6.getData(),
+                                                                sizeof(TYPE)));
+            }
+        }
     }
 
     void testHashAppendPassThrough(int line)
@@ -1010,6 +1068,9 @@ int main(int argc, char *argv[])
         //: 6 'hashAppend' passes the bytes it is given into the hashing
         //:   algorithm without truncation or appends for all types (with the
         //:   exceptions outlined above).
+        //:
+        //: 7 Infinate floating point values that compare equal result in the
+        //:   same data being passed to the hashing algorithm.
         //
         // Plan:
         //: 1 Call 'hashAppend' with each fundamental type to ensure the
@@ -1035,6 +1096,11 @@ int main(int argc, char *argv[])
         //:   into 'hashAppend' with a mocked hashing algorith.  Verify that the
         //:   data inputted into the hashing algorithm matches the known input
         //:   bitsequence. (C-6)
+        //:
+        //: 7 Generate positive infinity in a number of ways and call
+        //:   'hashAppend' with each infinity and ASSERT that the data passed
+        //:   into the hashing algorithm is always the same. Repeat with
+        //:   negative infinity. (C-7)
         //
         // Testing:
         //   void hashAppend(HASHALG& hashAlg, bool input);
@@ -1576,6 +1642,20 @@ int main(int argc, char *argv[])
 
             TestDriver<void (*)()> fnptr0Driver;
             fnptr0Driver.testHashAppendPassThrough(L_);
+        }
+
+        if (verbose) printf("Generate positive infinity in a number of ways"
+                            " and call 'hashAppend' with each infinity and"
+                            " ASSERT that the data passed into the hashing"
+                            " algorithm is always the same. Repeat with"
+                            " negative infinity. (C-7)\n");
+        {
+            TestDriver<float> floatDriver;
+            floatDriver.testHashAppendInfinity();
+            TestDriver<double> doubleDriver;
+            doubleDriver.testHashAppendInfinity();
+            TestDriver<long double> longDoubleDriver;
+            longDoubleDriver.testHashAppendInfinity();
         }
 
       } break;

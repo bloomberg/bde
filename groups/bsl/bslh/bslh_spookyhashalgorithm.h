@@ -157,15 +157,15 @@ class SpookyHashAlgorithm {
         // Destroy this object.
 
     // MANIPULATORS
-    void operator()(const void *data, size_t length);
-        // Incorporate the specified 'length' bytes of 'data' into the internal
-        // state of the hashing algorithm.  Every bit of data incorporated into
+    void operator()(const void *data, size_t numBytes);
+        // Incorporate the specified 'data', of at least the specified
+        // 'numBytes', into the internal state of the hashing algorithm.  Every bit of data incorporated into
         // the internal state of the algorithm will contribute to the final
         // hash produced by 'computeHash()'.  The same hash value will be
         // produced regardless of whether a sequence of bytes is passed in all
         // at once or through multiple calls to this member function.  Input
-        // where 'length' == 0 will have no effect on the internal state of the
-        // algorithm.  The behaviour is undefined unless 'data' points to at
+        // where 'length' is 0 will have no effect on the internal state of the
+        // algorithm.  The behaviour is undefined unless 'data' points to a valid memory location with at
         // least 'length' bytes of initialized memory.
 
     result_type computeHash();
@@ -220,11 +220,11 @@ SpookyHashAlgorithm::SpookyHashAlgorithm(const char *seed)
 
 // MANIPULATORS
 inline
-void SpookyHashAlgorithm::operator()(const void *data, size_t length)
+void SpookyHashAlgorithm::operator()(const void *data, size_t numBytes)
 {
     BSLS_ASSERT(data);
 
-    d_state.update(data, length);
+    d_state.update(data, numBytes);
 }
 
 inline

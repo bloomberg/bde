@@ -15,38 +15,60 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a templated 'struct', 'bslh::Hash',
-// which provides hashing functionality.  This struct is a drop in replacement
-// for 'bsl::hash'.  'bslh::Hash' is a wrapper that adapts hashing algorithms
-// from 'bslh' and 'hashAppend' free functions to match the interface of
-// 'bsl::hash'.  This component also contains 'hashAppend' definitions for
-// fundamental types, which are required to make the hashing algorithms in
-// 'bslh' work.  More information can be found in the package level
-// documentation for 'bslh' (internal users can also find information here
-// {TEAM BDE:USING MODULAR HASHING<GO>})
+// that defines a hash-functor that can be used with standard containers (a
+// drop in replacement for 'bsl::hash'), and which applies the supplied
+// (template parameter) 'HASH_ALGORITHM' to the attributes of the (template
+// parameter) 'TYPE' which have been identified as salient to hashing.  The
+// 'bslh::Hash' template parameter 'HASH_ALGORITHM' must be a hashing algorithm
+// that conforms the the requirements outlined below (see {'Requirements for
+// Regular 'bslh' Hashing Algorithms'}).  Note that there are several hashing
+// algorithms defined within the 'bslh' package and some, such as those that
+// require seeds, will not meet these requirements, meaning they cannot be used
+// with 'bslh::Hash'.  A call to 'bslh::Hash::operator()' for a (template
+// parameter) 'TYPE' will call the 'hashAppend' free function for 'TYPE' and
+// provide 'hashAppend' an instance of the 'HASH_ALGORITHM'.
+//
+// This component also contains 'hashAppend' definitions for fundamental types,
+// which are required by algorithms deinfed in 'bslh'.  Clients are expected to
+// define a free-function 'hashAppend' for each of the types they wish to be
+// hashable (see {'hashAppend'} below).   More information can be found in the
+// package level documentation for 'bslh' (internal users can also find
+// information here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Modularity
 ///----------
-// 'bslh::Hash' provides a modular system for hashing.  Identification of
-// attributes on a type that are salient to hashing and the actual
-// implementation of hashing algorithms can be decoupled.  Attributes that are
-// salient to hashing can be called out on a type using 'hashAppend'.  Hashing
-// algorithms can be written to operate on the attributes called out by
+// 'bslh::Hash' provides a modular system for hashing.  This modularity refers
+// to the decoupling of the various tasks associated with hashing. Using this
+// system, type implementers can identify attributes of their type that are
+// salient to hashing, without having to write a hashing algorithm. Conversely,
+// hashign algorithms can be written independant of types.  Attributes that are
+// salient to hashing are called out on a type using 'hashAppend'.  Hashing
+// algorithms are written to operate on the attributes called out by
 // 'hashAppend'.  Some default algorithms have been provided in the 'bslh'
 // package.  This modularity allows type creators to avoid writing hashing
-// algorithms, which can save work avoid bad hashing algorithm implementations.
+// algorithms, which can save work and avoid bad hashing algorithm
+// implementations.
 //
 ///'hashAppend'
 ///------------
 // 'hashAppend' is the function that is used to pass attributes that are
 // salient to hashing into a hashing algorithm.  A type must define a
 // 'hashAppend' overload that can be discovered through ADL in order to be
-// hashed using this facility.  The simplest 'hashAppend' overload will call
-// 'hashAppend' on each of the type's attributes that are salient to hashing.
-// Other 'hashAppend' implementations are possible, such as for the special
-// case of c-strings where the data contained in the string must be passed
-// directly into the algorithm, rather than calling 'hashAppend' on the
-// pointer.  This special case exists becuase calling 'hashAppend' on a pointer
-// will hash the pointer rather than the data that is pointed to.
+// hashed using this facility.  A simple implementation of an overload for
+// 'hashAppend' might call 'hashAppend' on each of the type's attributes that
+// are salient to hashing.  Note that when writing a 'hashAppend' function,
+// 'using bslh::hashAppend;' must be included as the first line of code in the
+// function. The using statement ensures that ADL will always be able to find
+// the fundamental type 'hashAppend' functions, even when the (template
+// parameter) type 'HASH_ALGORITHM' is not implemented in 'bslh'.
+//
+// Some types may require more subtle implementations
+// for 'hashAppend', such as types containing C-strings which are salient to
+// hashing.  These C-strings must be passed directly into the (template
+// parameter) type 'HASH_ALGORITHM', rather than calling 'hashAppend' with the
+// pointer as an argument.  This special case exists because calling
+// 'hashAppend' with a pointer will hash the pointer rather than the data that
+// is pointed to.
 //
 // Within this component, 'hashAppend' has been implemented for all of the
 // fundamental types.  When 'hashAppend is reached on a fundamental type, the
@@ -89,7 +111,7 @@ BSLS_IDENT("$Id: $")
 //     SomeHashAlgorithm();
 //
 //     // MANIPULATORS
-//     void operator()(const void * key, size_t len);
+//     void operator()(const void *data, size_t numBytes);
 //
 //     result_type computeHash();
 // };

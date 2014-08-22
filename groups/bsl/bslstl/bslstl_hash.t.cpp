@@ -434,6 +434,7 @@ bool operator==(const Point &left, const Point &right)
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
 {
+    using bslh::hashAppend;
     hashAppend(hashAlg, point.d_x);
     hashAppend(hashAlg, point.d_y);
 }

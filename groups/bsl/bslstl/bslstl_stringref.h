@@ -1389,6 +1389,7 @@ template <typename CHAR_TYPE, typename HASHALG>
 void bslstl::hashAppend(HASHALG& hashAlg, 
                         const StringRefImp<CHAR_TYPE>&  input)
 {
+    using bslh::hashAppend;
     hashAlg(input.data(), sizeof(CHAR_TYPE)*input.length());
     hashAppend(hashAlg, input.length());
 }
