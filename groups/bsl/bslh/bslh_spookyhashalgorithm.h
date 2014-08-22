@@ -24,10 +24,9 @@ BSLS_IDENT("$Id: $")
 //
 // This class satisfies the requirements for regular 'bslh' hashing algorithms
 // and seeded 'bslh' hashing algorithms, defined in bslh_hash.h and
-// bslh_seededhash.h respectively.  More information about these requirements
-// can also be found here:
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Using+Modular+Hashing&spaceKey=bde
+// bslh_seededhash.h respectively.  More information can be found in the
+// package level documentation for 'bslh' (internal users can also find
+// information here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Security
 ///--------
@@ -35,9 +34,13 @@ BSLS_IDENT("$Id: $")
 // hashes that are not predictable by an attacker.  Security is a concern when
 // an attacker may be able to provide malicious input into a hash table,
 // thereby causing hashes to collide to buckets, which degrades performance.
-// There are NO security guarantees made by 'bslh::SpookyHashAlgorithm'.  If
-// security is required, an algorithm that documents better secure properties
-// should be used, such as 'bslh_siphashalgorithm'.
+// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm',
+// meaning attackers may be able to engineer keys that will cause a DOS attack
+// in hash tables using this algorithm. Note that even if an attacker does not
+// know the seed used to initialize this algorithm, they may still be able to
+// produce keys that will cause a DOS attack in hash tables using this
+// algorithm.  If security is required, an algorithm that documents better
+// secure properties should be used, such as 'bslh_siphashalgorithm'.
 //
 ///Speed
 ///-----
@@ -111,8 +114,7 @@ namespace bslh {
 
 class SpookyHashAlgorithm {
     // This class wraps an implementation of the "SpookyHash" hash algorithm in
-    // an interface that is usable in the modular hashing system in 'bslh' (see
-    // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing).
+    // an interface that is usable in the modular hashing system in 'bslh'.
 
   private:
     // PRIVATE TYPES

@@ -21,6 +21,11 @@ BSLS_IDENT("$Id: $")
 // order for 'SeedGenerator' to produce seeds suitable for a cryptographically
 // secure algorithm.
 //
+// This class satisfies the requirements for a seed generator, defined in
+// bslh_seededhash.h.  More information can be found in the package level
+// documentation for 'bslh' (internal users can also find information here
+// {TEAM BDE:USING MODULAR HASHING<GO>})
+//
 ///Requirements on RNG
 ///-------------------
 // The (template parameter) type 'RNG' shall be a class exposing 'operator()'

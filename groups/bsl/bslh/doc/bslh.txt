@@ -6,15 +6,29 @@
 
 @DESCRIPTION: The 'bslh' package provides components for a more modular hashing
  implemenation than is found in the standard. This implementation is based on
- ISO C++ Proposal N3980. A BDE specific proposal for this is availible at
- https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing. This package
- provides hashing algorithms as well as a 'hash' struct that allows different
- algorithms to be applied to the same type after writing only one 'hashAppend'
- function.
+ ISO C++ Proposal N3980. An internal proposal for this is availible at 
+ {TEAM BDE:MODULAR HASHING<GO>}. This package provides hashing algorithms as
+ well as 'Hash' and 'seededHash' structs which different algorithms to be
+ applied to any type that has a 'hashAppend' function.
+
+/Why Use This Modular Hashing System?
+/------------------------------------
+The hashing system outlined in the standard requires type creators to
+implement hashing algorithms themsleves. There are two issues with this. First,
+this results in people who do not know how to write hashing algorithms writing
+potentially very poor hashing algorithms (see {TEAM BDE:FLAT MAP<GO>} for an
+example of the negative results of poorly implemented string hashing). Second,
+this results in a duplication of work when the multiple algorithms need to be
+applied to multiple types. This new modular system solves both problems by
+decoupling the implementaion of the hashing algorithms from the implementation
+of types. Now type creators can simply write a 'hashAppend' function that will
+identify their salient attributes, but differ the hashing to an algorithm
+chosen by the consumer of the type. A suite of algorithms for common use cases
+such as secure hashing will be provided in the 'bslh' package.
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslh' package currently has 3 components having 3 levels of physical
+ The 'bslh' package currently has 8 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -27,7 +41,7 @@
 
   2. bslh_siphashalgorithm, bslh_spookyhashalgorithm
 
-  1. bslh_spookyhashalgorithmimp, bslh_seedgenerator
+  1. bslh_seedgenerator, bslh_spookyhashalgorithmimp
 
 ..
 
@@ -55,7 +69,7 @@
 :      Provide an implementation of the SpookyHash algorithm.
 :
 : 'bslh_spookyhashalgorithmimp':
-:      Provide BDE style wrapping around a spooky hash implementation.
+:      Provide BDE style encapsulation of 3rd party SpookyHash code.
 
 
 /Component Overview
@@ -66,81 +80,92 @@
 
 /'bslh_defaulthashalgorithm'
 /- - - - - - - - - - - - - -
- 'bslh::DefaultHashAlgorithm' provides an unspecified default hashing
- algorithm.  The supplied algorithm is suitable for general purpose use in a
- hash table. The underlying algorithm is subject to change in future releases.
+'bslh::DefaultHashAlgorithm' provides an unspecified default hashing algorithm.
+The supplied algorithm is suitable for general purpose use in a hash table.
+The underlying algorithm is subject to change in future releases.
+
+This class satisfies the requirements for regular 'bslh' hashing algorithms,
+defined in bslh_hash.h.
 
 /'bslh_defaultseededhashalgorithm'
 /- - - - - - - - - - - - - - - - -
 'bslh::DefaultSeededHashAlgorithm' provides an unspecified default seeded
-hashing algorithm. The supplied algorithm is suitable for general purpose use
-in a hash table. The underlying algorithm is subject to  change in future
+hashing algorithm.  The supplied algorithm is suitable for general purpose use
+in a hash table.  The underlying algorithm is subject to change in future
 releases.
+
+This class satisfies the requirements for seeded 'bslh' hashing algorithms,
+defined in bslh_seededhash.h.
 
 /'bslh_hash'
 /- - - - - -
- This component provides a templated 'struct', 'bslh::Hash', which provides
- hashing functionality and is a drop in replacement for 'bsl::hash'.
- 'bslh::Hash' is a wrapper that adapts the hashing algorithms to match the
- interface of 'bsl::hash'.  This component also contains hashAppend definitions
- for fundamental types, which are required to make the hashing algorithms in
- 'bslh' work. 'bslh::Hash' is a universal hashing functor that will hash any
- type that implements 'hashAppend' using the hashing algorithm provided as a
- template parameter.  For more details, see:
- https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
- Modular+Hashing&spaceKey=bde
+This component provides a templated 'struct', 'bslh::Hash', which provides
+hashing functionality. This struct is a drop in replacement for 'bsl::hash'.
+'bslh::Hash' is a wrapper that adapts hashing algorithms from 'bslh' and
+'hashAppend' free functions to match the interface of 'bsl::hash'.  This
+component also contains 'hashAppend' definitions for fundamental types, which
+are required to make the hashing algorithms in 'bslh' work.
 
 /'bslh_seededhash'
 /- - - - - - - - -
- This component provides a templated struct, 'bslh::SeededHash', which provides
- hashing functionality and is a drop in replacement for 'bsl::hash'.  It is
- similar to 'bslh::Hash', however, it is meant for hashes that require a seed.
- It takes a seed generator and uses that to create seeds to give the the
- hashing algorithm.  'bslh::SeededHash' is a wrapper which adapts hashing
- algorithms from 'bslh' to match the interface of 'bsl::hash'.
- 'bslh::SeededHash' is a universal hashing functor that will hash any type that
- implements 'hashAppend' using the hashing algorithm provided as a template
- parameter.  For more details, see:
- https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
- Modular+Hashing&spaceKey=bde
+This component provides a templated struct, 'bslh::SeededHash', which provides
+hashing functionality. This struct is a drop in replacement for 'bsl::hash'.
+It is similar to 'bslh::Hash', however, it is meant for hashes that require a
+seed.  It takes a seed generator and uses that to create seeds to give the the
+hashing algorithm.  'bslh::SeededHash' is a wrapper which adapts hashing
+algorithms from 'bslh' to match the interface of 'bsl::hash'.
+'bslh::SeededHash' is a universal hashing functor that will hash any type that
+implements 'hashAppend' using the hashing algorithm provided as a template
+parameter.
 
 /'bslh_seedgenerator'
 / - - - - - - - - - -
- This component provides a class, 'bslh::SeedGenerator', which utilizes a
- user-supplied random number generator (RNG) to generate arbitrary length
- seeds.  The quality of the seeds will only be as good as the quality of the
- supplied RNG. A cryptographically secure RNG must be supplied in order for
- 'SeedGenerator' to produce seeds suitable for a cryptographically secure
- hashing algorithm.
+This component provides a class, 'bslh::SeedGenerator', which utilizes a
+user-supplied random number generator (RNG) to generate arbitrary length seeds.
+The quality of the seeds will only be as good as the quality of the supplied
+RNG.  A cryptographically secure RNG must be supplied in order for
+'SeedGenerator' to produce seeds suitable for a cryptographically secure
+algorithm.
+
+This class satisfies the requirements for a seed generator, defined in
+bslh_seededhash.h.
 
 /'bslh_siphashalgorithm'
 /- - - - - - - - - - - -
- 'bslh::SipHashAlgorithm' implements the SipHash algorithm.  SipHash is an
- algorithm designed for speed and security.  A primary use case for this
- algorithm is to provide an extra line of defense in hash tables (such as the
- underlying implementation of unordered map) against malicious input that could
- cause denial of service attacks.  It is based on one of the finalists for the
- SHA-3 cryptographic hash standard.  Full details of the hash function can be
- found here: https://131002.net/siphash/siphash.pdf This particular
- implementation has been derived from Howard Hinnant's work here:
- https://github.com/HowardHinnant/hash_append/blob/master/siphash.h and as much
- of the original code as possible, including comment headers, has been
- preserved.
+'bslh::SipHashAlgorithm' implements the SipHash algorithm.  SipHash is an
+algorithm designed for speed and security.  A primary use case for this
+algorithm is to provide an extra line of defense in hash tables (such as the
+underlying implementation of 'unordered_map') against malicious input that
+could cause denial of service (DOS) attacks.  It is based on one of the
+finalists for the SHA-3 cryptographic hash standard.  Full details of the hash
+function can be found here: https://131002.net/siphash/siphash.pdf This
+particular implementation has been derived from Howard Hinnant's work here:
+https://github.com/HowardHinnant/hash_append/blob/master/siphash.h and as much
+of the original code as possible, including comment headers, has been
+preserved.
+
+This class satisfies the requirements for seeded 'bslh' hashing algorithms,
+defined in bslh_seededhash.h.
 
 /'bslh_spookyhashalgorithm'
 / - - - - - - - - - - - - -
- 'bslh::SpookyHashAlgorithm' implements the spooky hashing algorithm by Bob
- Jenkins. The algorithm is a general purpose algorithm that is known to quickly
- reach good avalanche performance and is very fast.  It is a good choice to use
- as a default hashing algorithm for associative containers. See:
- http://burtleburtle.net/bob/hash/spooky.html
+'bslh::SpookyHashAlgorithm' implements the SpookyHash algorithm by Bob
+Jenkins. This algorithm is a general purpose algorithm that is known to quickly
+reach good avalanche performance and execute in time that is comprable to or
+faster than other industry standard algorithms such as CityHash.  It is a good
+default choice for hashing values in unordered associative containers.  For
+more information, see: http://burtleburtle.net/bob/hash/spooky.html
+
+This class satisfies the requirements for regular 'bslh' hashing algorithms
+and seeded 'bslh' hashing algorithms, defined in bslh_hash.h and
+bslh_seededhash.h respectively.
 
 /'bslh_spookyhashalgorithmimp'
 /- - - - - - - - - - - - - - -
- 'bslh::SpookyHashAlgorithmImp' provides BDE style wrapping around Bob Jenkins
- spooky hash implementation. SpookyHash provides a way to hash contiguous data
- all at once, or discontiguous data in pieces. More information is available
- at: http://burtleburtle.net/bob/hash/spooky.html
+'bslh::SpookyHashAlgorithmImp' provides BDE style encapsulation around Bob
+Jenkins cannonical SpookyHash implementation.  SpookyHash provides a way to
+hash contiguous data all at once, or discontiguous data in pieces.  More
+information is available at: http://burtleburtle.net/bob/hash/spooky.html
 
 /Terminology
 /-----------
@@ -168,20 +193,6 @@ releases.
  https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
  Using+Modular+Hashing&spaceKey=bde#UsingModularHashing-DeterminingwhattoHash
 
-/Why Use This Modular Hashing System?
-/------------------------------------
-The hashing system outlined in the standard requires type creators to
-implement hashing algorithms themsleves. There are two issues with this. First,
-this results in people who do not know how to write hashing algorithms writing
-potentially very poor hashing algorithms (see
-https://cms.prod.bloomberg.com/team/display/bde/Flat+Map for an example of the
-negative results of poorly implemented string hashing). Second, this results in
-a duplication of work when the multiple algorithms need to be applied to
-multiple types. This new modular system solves both problems by decoupling the
-implementaion of the hashing algorithms from the implementation of types. Now
-type creators can simply write a 'hashAppend' function that will identify their
-salient attributes, but differ the hashing to an algorithm chosen by the
-consumer of the type. A suite of algorithms for common use cases such as secure
-hashing will be provided in the 'bslh' package.
+
 
 

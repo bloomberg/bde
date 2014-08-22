@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a struct to run 'bslh' hash algorithms on supported types.
 //
 //@CLASSES:
-//  bslh::Hash: Functor that runs 'bslh' hash algorithms on supported types.
+//  bslh::Hash: Functor that runs 'bslh' hash algorithms on supported types
 //
 //@SEE_ALSO:
 //
@@ -20,11 +20,9 @@ BSLS_IDENT("$Id: $")
 // from 'bslh' and 'hashAppend' free functions to match the interface of
 // 'bsl::hash'.  This component also contains 'hashAppend' definitions for
 // fundamental types, which are required to make the hashing algorithms in
-// 'bslh' work.  For more details, see the following pages:
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Modular+Hashing&spaceKey=bde
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Using+Modular+Hashing&spaceKey=bde
+// 'bslh' work.  More information can be found in the package level
+// documentation for 'bslh' (internal users can also find information here
+// {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Modularity
 ///----------
@@ -107,10 +105,6 @@ BSLS_IDENT("$Id: $")
 // result of the hashing algorithm, as type 'result_type'.  'computeHash()' is
 // allowed to modify the internal state of the algorithm, meaning calling
 // 'computeHash()' more than once may not return the correct value.
-//
-// More information is availible at:
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Using+Modular+Hashing&spaceKey=bde
 
 
 #ifndef INCLUDED_BSLSCM_VERSION

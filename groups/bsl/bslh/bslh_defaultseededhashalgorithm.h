@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a reasonable seeded hashing algorithm for default use.
 //
 //@CLASSES:
-//  bslh::DefaultSeededHashAlgorithm: A default seeded hashing algorithm.
+//  bslh::DefaultSeededHashAlgorithm: A default seeded hashing algorithm
 //
 //@SEE_ALSO: bslh_hash, bslh_siphashalgorithm, bslh_defaulthashalgorithm
 //
@@ -20,10 +20,9 @@ BSLS_IDENT("$Id: $")
 // change in future releases.
 //
 // This class satisfies the requirements for seeded 'bslh' hashing algorithms,
-// defined in bslh_seededhash.h.  More information about these requirements can
-// also be found here:
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Using+Modular+Hashing&spaceKey=bde
+// defined in bslh_seededhash.h.  More information can be found in the package
+// level documentation for 'bslh' (internal users can also find information
+// here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Security
 ///--------
@@ -31,9 +30,13 @@ BSLS_IDENT("$Id: $")
 // hashes that are not predictable by an attacker.  Security is a concern when
 // an attacker may be able to provide malicious input into a hash table,
 // thereby causing hashes to collide to buckets, which degrades performance.
-// There are NO security guarantees made by 'bslh::DefaultSeededHashAlgorithm'.
-// If security is required, an algorithm that documents better secure
-// properties should be used, such as 'bslh_siphashalgorithm'.
+// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm',
+// meaning attackers may be able to engineer keys that will cause a DOS attack
+// in hash tables using this algorithm. Note that even if an attacker does not
+// know the seed used to initialize this algorithm, they may still be able to
+// produce keys that will cause a DOS attack in hash tables using this
+// algorithm.  If security is required, an algorithm that documents better
+// secure properties should be used, such as 'bslh_siphashalgorithm'.
 //
 ///Speed
 ///-----
@@ -80,9 +83,7 @@ namespace bslh {
 class DefaultSeededHashAlgorithm {
     // This class wraps an unspecified default hashing algorithm, which takes a
     // seed, that is appropriate for general purpose use such as generating
-    // hashes for a hash table. This class implements an interface usable in
-    // the modular hashing system in 'bslh' (see
-    // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing)
+    // hashes for a hash table.
 
   private:
     // PRIVATE TYPES

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a struct to run seeded 'bslh' hash algorithms on types.
 //
 //@CLASSES:
-//  bslh::SeededHash: Functor that runs seeded 'bslh' hash algorithms on types.
+//  bslh::SeededHash: Functor that runs seeded 'bslh' hash algorithms on types
 //
 //@SEE_ALSO: bslh_hash, bslh_seedgenerator
 //
@@ -22,9 +22,9 @@ BSLS_IDENT("$Id: $")
 // wrapper which adapts hashing algorithms from 'bslh' to match the interface
 // of 'bsl::hash'.  'bslh::SeededHash' is a universal hashing functor that will
 // hash any type that implements 'hashAppend' using the hashing algorithm
-// provided as a template parameter.  For more details, see:
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Modular+Hashing&spaceKey=bde
+// provided as a template parameter.  More information can be found in the
+// package level documentation for 'bslh' (internal users can also find
+// information here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Relationship to 'bslh::Hash'
 /// - - - - - - - - - - - - - -
@@ -57,10 +57,6 @@ BSLS_IDENT("$Id: $")
 // replaced with an integer literal indicating the number of bytes of seed the
 // algorithm requires.  The parameterized constructor must accept a 'const void
 // *'. This pointer will point to a seed of 'XXX' bytes in size.
-//
-// More information is availible at:
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Using+Modular+Hashing&spaceKey=bde
 //
 ///Requirements on (template parameter) Type 'SEED_GENERATOR'
 ///----------------------------------------------------------

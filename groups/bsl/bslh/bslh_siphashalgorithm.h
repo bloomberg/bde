@@ -27,10 +27,9 @@ BSLS_IDENT("$Id: $")
 // been preserved.
 //
 // This class satisfies the requirements for seeded 'bslh' hashing algorithms,
-// defined in bslh_seededhash.h.  More information about these requirements can
-// also be found here:
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Using+Modular+Hashing&spaceKey=bde
+// defined in bslh_seededhash.h.  More information can be found in the
+// package level documentation for 'bslh' (internal users can also find
+// information here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Security
 ///--------
@@ -173,8 +172,7 @@ namespace bslh {
 
 class SipHashAlgorithm {
     // This class wraps an implementation of the "SipHash" algorithm in an
-    // interface that is usable in the modular hashing system in 'bslh' (see
-    // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing).
+    // interface that is usable in the modular hashing system in 'bslh'.
 
   private:
     // PRIVATE TYPES

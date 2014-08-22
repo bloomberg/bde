@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide BDE style encapsulation of 3rd party SpookyHash code.
 //
 //@CLASSES:
-//  bslh::SpookyHashAlgorithmImp: Encapsulatoin of 3rd party SpookyHash code.
+//  bslh::SpookyHashAlgorithmImp: Encapsulation of 3rd party SpookyHash code
 //
 //@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithm
 //

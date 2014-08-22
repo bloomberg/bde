@@ -10,10 +10,10 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a reasonable hashing algorithm for default use.
 //
 //@CLASSES:
-//  bslh::DefaultHashAlgorithm: A default hashing algorithm.
+//  bslh::DefaultHashAlgorithm: A default hashing algorithm
 //
 //@SEE_ALSO: bslh_hash, bslh_securehashalgorithm,
-// bslh_defaultseededhashalgorithm
+//           bslh_defaultseededhashalgorithm
 //
 //@DESCRIPTION: 'bslh::DefaultHashAlgorithm' provides an unspecified default
 // hashing algorithm.  The supplied algorithm is suitable for general purpose
@@ -21,10 +21,9 @@ BSLS_IDENT("$Id: $")
 // future releases.
 //
 // This class satisfies the requirements for regular 'bslh' hashing algorithms,
-// defined in bslh_hash.h.  More information about these requirements can also
-// be found here:
-// https://cms.prod.bloomberg.com/team/pages/viewpage.action?title=
-// Using+Modular+Hashing&spaceKey=bde
+// defined in bslh_hash.h.  More information can be found in the package level
+// documentation for 'bslh' (internal users can also find information here
+// {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Security
 ///--------
@@ -32,9 +31,11 @@ BSLS_IDENT("$Id: $")
 // hashes that are not predictable by an attacker.  Security is a concern when
 // an attacker may be able to provide malicious input into a hash table,
 // thereby causing hashes to collide to buckets, which degrades performance.
-// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm'.  If
-// security is required, an algorithm that documents better secure properties
-// should be used, such as 'bslh_siphashalgorithm'.
+// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm',
+// meaning attackers may be able to engineer keys that will cause a DOS attack
+// in hash tables using this algorithm.  If security is required, an algorithm
+// that documents better secure properties should be used, such as
+// 'bslh_siphashalgorithm'.
 //
 ///Speed
 ///-----
@@ -81,9 +82,7 @@ namespace bslh {
 class DefaultHashAlgorithm {
     // This class wraps an unspecified default hashing algorithm that is
     // appropriate for general purpose use such as generating hashes for a hash
-    // table. This class implements an interface usable in the modular hashing
-    // system in 'bslh' (see
-    // https://cms.prod.bloomberg.com/team/display/bde/Modular+Hashing)
+    // table.
 
   private:
     // PRIVATE TYPES
@@ -118,15 +117,15 @@ class DefaultHashAlgorithm {
         // Destroy this object.
 
     // MANIPULATORS
-    void operator()(const void *data, size_t length);
-        // Incorporate the specified 'length' bytes of 'data' into the
-        // internal state of the hashing algorithm. Every bit of data
-        // incorporated into the internal state of the algorithm will
-        // contribute to the final hash produced by 'computeHash()'. The same
-        // hash will be produced regardless of whether a sequence of bytes is
-        // passed in all at once or through multiple calls to this member
-        // function. Input where 'length' == 0 will have no effect on the
-        // internal state of the algorithm. The behaviour is undefined unless
+    void operator()(const void *data, size_t numBytes);
+        // Incorporate the specified 'data', of at least the specified
+        // 'numBytes', into the internal state of the hashing algorithm.  Every
+        // bit of data incorporated into the internal state of the algorithm
+        // will contribute to the final hash produced by 'computeHash()'.  The
+        // same hash will be produced regardless of whether a sequence of bytes
+        // is passed in all at once or through multiple calls to this member
+        // function.  Input where 'length' == 0 will have no effect on the
+        // internal state of the algorithm.  The behaviour is undefined unless
         // 'data' points to at least 'length' bytes of initialized memory.
 
 
