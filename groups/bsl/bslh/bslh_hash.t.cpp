@@ -625,7 +625,7 @@ class TestDriver {
         // floating point numbers.
     {
         if (std::numeric_limits<TYPE>::has_infinity) {
-            for (int i = -1; i != 3; i +=2) {
+            for (float i = -1; i <= 1; i +=2) {
                 TYPE inf1 = i *  std::numeric_limits<TYPE>::infinity();
                 TYPE inf2 = i *  std::numeric_limits<TYPE>::infinity() + inf1;
                 TYPE inf3 = i * (std::numeric_limits<TYPE>::infinity() - 2366);
@@ -633,13 +633,6 @@ class TestDriver {
                 TYPE inf5 = i * (std::numeric_limits<TYPE>::infinity() *
                                  std::numeric_limits<TYPE>::infinity() );
                 TYPE inf6 = i * (std::numeric_limits<TYPE>::infinity() / 500);
-
-                printf("Number 1: %f\n", inf1);
-                printf("Number 2: %f\n", inf2);
-                printf("Number 3: %f\n", inf3);
-                printf("Number 4: %f\n", inf4);
-                printf("Number 5: %f\n", inf5);
-                printf("Number 6: %f\n", inf6);
 
                 ASSERT(inf1 == inf2);
                 ASSERT(inf1 == inf3);

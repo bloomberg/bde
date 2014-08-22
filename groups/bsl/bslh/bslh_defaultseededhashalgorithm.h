@@ -162,7 +162,7 @@ DefaultSeededHashAlgorithm::DefaultSeededHashAlgorithm(const char *seed)
 inline
 void DefaultSeededHashAlgorithm::operator()(const void *data, size_t numBytes)
 {
-    BSLS_ASSERT(data || numBytes);
+    BSLS_ASSERT(data);
     d_state(data, numBytes);
 }
 

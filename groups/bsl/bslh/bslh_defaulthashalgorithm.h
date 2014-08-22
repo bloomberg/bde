@@ -153,7 +153,7 @@ DefaultHashAlgorithm::DefaultHashAlgorithm()
 inline
 void DefaultHashAlgorithm::operator()(const void *data, size_t numBytes)
 {
-    BSLS_ASSERT(data || numBytes);
+    BSLS_ASSERT(data);
     d_state(data, numBytes);
 }
 
