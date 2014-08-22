@@ -351,8 +351,8 @@ int main(int argc, char *argv[])
 //..
 // Next, we create a seed generator, with a cryptographically secure random
 // number generator, that can be used to generate seeds for our secure hashing
-// algorithm.  We then pass that seed generator into 'bslh::SeededHash'.  We use
-// the 'bslh::SipHashAlgorithm' as our secure hashing algorithm.
+// algorithm.  We then pass that seed generator into 'bslh::SeededHash'.  We
+// use the 'bslh::SipHashAlgorithm' as our secure hashing algorithm.
 //..
         typedef SeedGenerator<CryptographicallySecureRNG> SecureSeedGenerator;
         typedef SeededHash<SecureSeedGenerator, SipHashAlgorithm> SecureHash;
@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create 'const' ints and hash them.  Compare the results against
-        //:   known good values. (C-1,2)
+        //:   known good values.  (C-1,2)
         //
         // Testing:
         //   operator()(const T&) const
@@ -496,8 +496,9 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) printf("Create 'const' strings and hash them.  Compare the"
-                            " results against known good values. (C-1,2)\n");
+        if (verbose) printf("Create 'const' strings and hash them.  Compare"
+                            " the results against known good values."
+                            "  (C-1,2)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int     LINE  = DATA[i].d_line;

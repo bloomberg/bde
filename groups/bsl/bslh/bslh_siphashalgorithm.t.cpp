@@ -152,9 +152,9 @@ CryptoSecureRNG::result_type CryptoSecureRNG::operator()() {
 // It is possible that an attacker with knowledge of the hashing algorithm we
 // are using could specially craft input that will cause collisions in our hash
 // table, degrading performance to O(n).  To avoid this we will need to use a
-// secure hash algorithm with a random seed.  This algorithm will need to be  in
-// the form of a hash functor -- an object that will take objects stored in our
-// array as input, and yield an integer value which is hard enough for an
+// secure hash algorithm with a random seed.  This algorithm will need to be
+// in the form of a hash functor -- an object that will take objects stored in
+// our array as input, and yield an integer value which is hard enough for an
 // outside observer to predict that it appear random.  The functor can pass the
 // attributes of the 'TYPE' that are salient to hashing into the hashing
 // algorithm, and then return the hash that is produced.
@@ -232,8 +232,9 @@ class HashTable {
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
         // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues'.  No value in 'valuesArray' shall
-        // have the same value as any of the other values in 'valuesArray'
+        // length of the specified 'numValues'.  No value in 'valuesArray'
+        // shall have the same value as any of the other values in
+        // 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
@@ -632,9 +633,9 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Hash c-strings all at once and with multiple"
-                            " calls to 'operator()' with length 0.  Assert that"
-                            " both methods of hashing c-strings produce the"
-                            " same values.(C-3)\n");
+                            " calls to 'operator()' with length 0.  Assert"
+                            " that both methods of hashing c-strings produce"
+                            " the same values.(C-3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int   LINE  = DATA[i].d_line;

@@ -119,14 +119,14 @@ void aSsErT(bool b, const char *s, int i)
 // time.
 //
 // Further suppose that we will be storing futures (the financial instruments)
-// in this table.  Since futures have standardized names, we don't have to worry
-// about any malicious values causing collisions.  We will want to use a general
-// purpose hashing algorithm with a good hash distribution and good speed.  This
-// algorithm will need to be in the form of a hash functor -- an object that
-// will take objects stored in our array as input, and yield a 64-bit int
-// value.  The functor can pass the attributes of the 'TYPE' that are salient to
-// hashing into the hashing algorithm, and then return the hash that is
-// produced.
+// in this table.  Since futures have standardized names, we don't have to
+// worry about any malicious values causing collisions.  We will want to use a
+// general purpose hashing algorithm with a good hash distribution and good
+// speed.  This algorithm will need to be in the form of a hash functor -- an
+// object that will take objects stored in our array as input, and yield a
+// 64-bit int value.  The functor can pass the attributes of the 'TYPE' that
+// are salient to hashing into the hashing algorithm, and then return the hash
+// that is produced.
 //
 // We can use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
@@ -200,8 +200,9 @@ class HashTable {
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
         // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues'.  No value in 'valuesArray' shall
-        // have the same value as any of the other values in 'valuesArray'
+        // length of the specified 'numValues'.  No value in 'valuesArray'
+        // shall have the same value as any of the other values in
+        // 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
@@ -623,9 +624,9 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Hash c-strings all at once and with multiple"
-                            " calls to 'operator()' with length 0.  Assert that"
-                            " both methods of hashing c-strings produce the"
-                            " same values.(C-3)\n");
+                            " calls to 'operator()' with length 0.  Assert"
+                            " that both methods of hashing c-strings produce"
+                            " the same values.(C-3)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int   LINE  = DATA[i].d_line;

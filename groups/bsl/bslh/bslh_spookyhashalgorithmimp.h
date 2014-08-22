@@ -26,26 +26,26 @@ BSLS_IDENT("$Id: $")
 // continues until the BloombergLP copyright notice.  Changes made to the
 // original code include:
 //
-//: 1  Added BloombergLP and bslh namespaces
+//: 1 Added BloombergLP and bslh namespaces
 //:
-//: 2  Renamed 'SpookyHash' to 'SpookyHashAlgorithmImp'
+//: 2 Renamed 'SpookyHash' to 'SpookyHashAlgorithmImp'
 //:
-//: 3  Removed usage of 'stdint.h' (which might not be availible on all
-//:    platforms) and updated associated typedefs
+//: 3 Removed usage of 'stdint.h' (which might not be availible on all
+//:   platforms) and updated associated typedefs
 //:
-//: 4  Added include guards
+//: 4 Added include guards
 //:
-//: 5  Made some methods private
+//: 5 Made some methods private
 //:
-//: 6  Reformatted comments and added comments
+//: 6 Reformatted comments and added comments
 //:
-//: 7  Updated indenting to BDE style
+//: 7 Updated indenting to BDE style
 //:
-//: 7  Moved typedefs within class
+//: 7 Moved typedefs within class
 //:
-//: 8  Changed c style casts to static_casts
+//: 8 Changed c style casts to static_casts
 //:
-//: 9  Reordered methods according to BDE style
+//: 9 Reordered methods according to BDE style
 //:
 //: 10 Added inline to 'Hash32' and 'Hash64'
 //:
@@ -68,7 +68,7 @@ BSLS_IDENT("$Id: $")
 //   Dec 31 2011: beta, improved Mix, tested it for 2-bit deltas
 //   Feb  2 2012: production, same bits as beta
 //   Feb  5 2012: adjusted definitions of uint* to be more portable
-//   Mar 30 2012: 3 bytes/cycle, not 4.  Alpha was 4 but wasn't thorough enough.
+//   Mar 30 2012: 3 bytes/cycle, not 4. Alpha was 4 but wasn't thorough enough.
 //   August 5 2012: SpookyV2 (different results)
 //
 // Up to 3 bytes/cycle for long messages.  Reasonably fast for short messages.
@@ -158,10 +158,10 @@ class SpookyHashAlgorithmImp {
                            Uint64 &h8, Uint64 &h9, Uint64 &h10,Uint64 &h11);
         // Combine the specified 'h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         // 'h7', 'h8', 'h9', 'h10', and 'h11' together so that 'h0' and 'h1'
-        // will be a hash of all the inputs.  Note that non-BDE-standard passing
-        // by non-const reference is used here to remain consistent with the
-        // cannonical implementation.  The behavior is undefined unles 'data'
-        // points at least 8 bytes of initialized memory.
+        // will be a hash of all the inputs.  Note that non-BDE-standard
+        // passing by non-const reference is used here to remain consistent
+        // with the cannonical implementation.  The behavior is undefined unles
+        // 'data' points at least 8 bytes of initialized memory.
 
     static void mix(const Uint64 *data,
                     Uint64 &s0, Uint64 &s1, Uint64 &s2,  Uint64 &s3,
@@ -188,10 +188,10 @@ class SpookyHashAlgorithmImp {
         // 'hash2' as seeds.  Load the higher order bits of the resulting
         // 128-bit into 'hash1' and the lower order bits in 'hash2'.  This
         // method is meant to be used for messages less than 192 bytes in
-        // length because of it's lower startup cost.  The behavior is undefined
-        // unles 'message' points at least 'length' bytes of initialized memory
-        // and both 'hash1' and 'hash2' point to at least 8 bytes of
-        // initialized, modifiable, memory.
+        // length because of it's lower startup cost.  The behavior is
+        // undefined unles 'message' points at least 'length' bytes of
+        // initialized memory and both 'hash1' and 'hash2' point to at least 8
+        // bytes of initialized, modifiable, memory.
 
     static void shortEnd(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
         // Combine the specified 'h0', 'h1', 'h2', and 'h3' together so that
@@ -238,7 +238,7 @@ class SpookyHashAlgorithmImp {
                         Uint64     *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
         // 'hash2' as seeds.  Load the higher order bits of the resulting
-        // 128-bit into 'hash1' and the lower order bits in 'hash2'.The
+        // 128-bit into 'hash1' and the lower order bits in 'hash2'.  The
         // behavior is undefined unles 'message' points at least 'length' bytes
         // of initialized memory and both 'hash1' and 'hash2' point to at least
         // 8 bytes of initialized, modifiable, memory.
@@ -255,10 +255,11 @@ class SpookyHashAlgorithmImp {
     // MANIPULATORS
     void update(const void *message, size_t length);
         // Accumulate the specified 'length' bytes of 'message' into the
-        // internal state of the algorithm.  Accumulating bytes through 'Update'
-        // will produce the same result as hashing them all at once through the
-        // 'HashXX' static methods.  The behavior is undefined unles 'message'
-        // points at least 'length' bytes of initialized memory.
+        // internal state of the algorithm.  Accumulating bytes through
+        // 'Update' will produce the same result as hashing them all at once
+        // through the 'HashXX' static methods.  The behavior is undefined
+        // unles 'message' points at least 'length' bytes of initialized
+        // memory.
 
     void finalize(Uint64 *hash1, Uint64 *hash2);
         // Load the finalized hash into the specified 'hash1' and 'hash2'.
@@ -267,10 +268,10 @@ class SpookyHashAlgorithmImp {
         // algorithm will be modified, meaning that calling final multiple
         // times will result in different hash values being returned.  The
         // returned hash will be the same as if 'Hash128' had been called will
-        // all of the accumulated data in one block.  The behaviour is undefined
-        // unless both 'hash1' and 'hash2' point to 8 bytes of modifiable
-        // memory.  Note that a value will be returned even if 'update' has not
-        // been called.
+        // all of the accumulated data in one block.  The behaviour is
+        // undefined unless both 'hash1' and 'hash2' point to 8 bytes of
+        // modifiable memory.  Note that a value will be returned even if
+        // 'update' has not been called.
 };
 
 // ============================================================================

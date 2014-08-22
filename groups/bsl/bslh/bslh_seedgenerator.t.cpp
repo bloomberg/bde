@@ -212,10 +212,10 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 // length seeds.  Some require 32 bits, some require 64 bits, some even require
 // 1024 bits.  We want to generate all these seeds in the same way, but we do
 // not want to keep manually generating seeds of different sizes for these
-// algorithms.  Moreover, we want to be able to use all these algorithms through
-// a general purpose functor.  To accomplish this, we give all our algorithm
-// the same interface and supply a seed generator, which can create any size
-// seed that the algorithms require.
+// algorithms.  Moreover, we want to be able to use all these algorithms
+// through a general purpose functor.  To accomplish this, we give all our
+// algorithm the same interface and supply a seed generator, which can create
+// any size seed that the algorithms require.
 //
 // First, we write our first hashing algorithm, which accepts a 32-bit seed and
 // returns a 32-bit unsigned int.

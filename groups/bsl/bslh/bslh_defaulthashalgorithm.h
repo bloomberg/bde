@@ -126,7 +126,8 @@ class DefaultHashAlgorithm {
         // is passed in all at once or through multiple calls to this member
         // function.  Input where 'length' is 0 will have no effect on the
         // internal state of the algorithm.  The behaviour is undefined unless
-        // 'data' points to a valid memory location with at least 'length' bytes of initialized memory.
+        // 'data' points to a valid memory location with at least 'length'
+        // bytes of initialized memory.
 
 
     result_type computeHash();
@@ -134,8 +135,8 @@ class DefaultHashAlgorithm {
         // Note that this changes the internal state of the object, so calling
         // 'computeHash' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
-        // the algorithm.  Also note that a value will be returned, even if data
-        // has not been passed into 'operator()'
+        // the algorithm.  Also note that a value will be returned, even if
+        // data has not been passed into 'operator()'
 };
 
 // ============================================================================

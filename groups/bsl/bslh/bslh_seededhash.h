@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // instance of the 'HASH_ALGORITHM' which has been constructed using the stored
 // seed.  Clients are expected to define a free-function 'hashAppend' for each
 // of the types they wish to be hashable (see bslh_hash.h for details on
-// 'hashAppend').   More information can be found in the package level
+// 'hashAppend').  More information can be found in the package level
 // documentation for 'bslh' (internal users can also find information here
 // {TEAM BDE:USING MODULAR HASHING<GO>})
 //
@@ -98,7 +98,7 @@ BSLS_IDENT("$Id: $")
 //:   parameterized constructor) and ALSO copy constructible.
 //
 // Option A is prefered because it allows 'bslh::SeededHash' to be defualt
-// constructible. Option B is allowed, but means that 'bslh::SeededHash' must
+// constructible.  Option B is allowed, but means that 'bslh::SeededHash' must
 // be passed an already-instantiated 'SEED_GENERATOR' at construction.
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -131,7 +131,7 @@ template <class SEED_GENERATOR, class HASH_ALGORITHM
 struct SeededHash {
     // This class wraps the (template parameter) 'HASH_ALGORITHM', which
     // requires a seed, in an interface that satisfies the 'hash' requirements
-    // of the C++11 standard. The (template parameter) type 'SEED_GENERATOR'
+    // of the C++11 standard.  The (template parameter) type 'SEED_GENERATOR'
     // will be used to generate the seed required by 'HASH_ALGORITHM'.
 
   private:

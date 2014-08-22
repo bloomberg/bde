@@ -142,13 +142,14 @@ SomeRNG::result_type SomeRNG::operator()() {
 // time.
 //
 // Further suppose that we will be storing futures (the financial instruments)
-// in this table.  Since futures have standardized names, we don't have to worry
-// about any malicious values causing collisions.  We will want to use a general
-// purpose hashing algorithm with a good hash distribution and good speed.  This
-// algorithm will need to be in the form of a hash functor -- an object that
-// will take objects stored in our array as input, and yield an integer value.
-// The functor can pass the attributes of 'TYPE' that are salient to hashing
-// into the hashing algorithm, and then return the hash that is produced.
+// in this table.  Since futures have standardized names, we don't have to
+// worry about any malicious values causing collisions.  We will want to use a
+// general purpose hashing algorithm with a good hash distribution and good
+// speed.  This algorithm will need to be in the form of a hash functor -- an
+// object that will take objects stored in our array as input, and yield an
+// integer value.  The functor can pass the attributes of 'TYPE' that are
+// salient to hashing into the hashing algorithm, and then return the hash that
+// is produced.
 //
 // We can use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
@@ -222,8 +223,9 @@ class HashTable {
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
         // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues'.  No value in 'valuesArray' shall
-        // have the same value as any of the other values in 'valuesArray'
+        // length of the specified 'numValues'.  No value in 'valuesArray'
+        // shall have the same value as any of the other values in
+        // 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
@@ -325,8 +327,8 @@ bool operator!=(const Future& lhs, const Future& rhs)
 // 'DefaultSeededHashAlgorithm' because it is a fast, general purpose hashing
 // algorithm that will provide an easy way to combine the attributes of
 // 'Future' objects that are salient to hashing into one reasonable hash that
-// will distribute the items evenly throughout the hash table.  Moreover, when a
-// new hashing algorithm is discovered to be a better default, we can be
+// will distribute the items evenly throughout the hash table.  Moreover, when
+// a new hashing algorithm is discovered to be a better default, we can be
 // automatically be upgraded to use it as soon as
 // 'bslh::DefaultSeededHashAlgorithm' is updated.
 
@@ -510,8 +512,8 @@ int main(int argc, char *argv[])
         //   operator that can be called with some bytes and a length.  Verify
         //   that calling 'operator()' will permute the algorithm's internal
         //   state as specified by the underlying hashing algorithm
-        //   (bslh::SpookyHashAlgorithm).  Verify that 'computeHash' returns the
-        //   final value specified by the canonical implementation of the
+        //   (bslh::SpookyHashAlgorithm).  Verify that 'computeHash' returns
+        //   the final value specified by the canonical implementation of the
         //   underlying hashing algorithm.
         //
         // Concerns:
@@ -619,8 +621,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CREATORS
         //   Ensure that the implicit destructor and the explicit parameterized
-        //   constructor are publicly callable.  Note that a null pointer is not
-        //   tested here, because there is no way to perform a BSLS_ASSERT
+        //   constructor are publicly callable.  Note that a null pointer is
+        //   not tested here, because there is no way to perform a BSLS_ASSERT
         //   before dereferenceing the pointer (without a performance penalty).
         //
         // Concerns:

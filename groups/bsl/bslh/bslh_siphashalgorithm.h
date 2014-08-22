@@ -27,9 +27,9 @@ BSLS_IDENT("$Id: $")
 // been preserved.
 //
 // This class satisfies the requirements for seeded 'bslh' hashing algorithms,
-// defined in bslh_seededhash.h.  More information can be found in the
-// package level documentation for 'bslh' (internal users can also find
-// information here {TEAM BDE:USING MODULAR HASHING<GO>})
+// defined in bslh_seededhash.h.  More information can be found in the package
+// level documentation for 'bslh' (internal users can also find information
+// here {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Security
 ///--------
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // Strong", but explicitly avoid calling it cryptographically secure.  In order
 // to be cryptographically secure, and algorithm must, among other things,
 // provide "collision resistance".  "Collision resistance" means that it should
-// be difficult to find two different messages m1 and m2 such that hash(m1) =
+// be difficult to find two different messages m1 and m2 such that hash(m1) ==
 // hash(m2).  Because of the limited sized output (only 2^64 possibilities) and
 // the fast execution time of the algorithm, it is feasible to find collisions
 // by brute force, making the algorithm not cryptographically secure.
@@ -93,26 +93,26 @@ BSLS_IDENT("$Id: $")
 // until the TYPE TRAITS banner below.  Changes made to the original code
 // include:
 //
-//: 1  Adding BloombergLP and bslh namespaces
+//: 1 Adding BloombergLP and bslh namespaces
 //:
-//: 2  Renaming 'siphash' to 'SipHashAlgorithm'
+//: 2 Renaming 'siphash' to 'SipHashAlgorithm'
 //:
-//: 3  Whitespace changes for formatting
+//: 3 Whitespace changes for formatting
 //:
-//: 4  Added comments
+//: 4 Added comments
 //:
-//: 5  Removed C++11 features including class member initializer, 'noexcept',
-//:    'std::Uint64_t', explicit conversion operator, and an '= default'
-//:    constructor.
+//: 5 Removed C++11 features including class member initializer, 'noexcept',
+//:   'std::Uint64_t', explicit conversion operator, and an '= default'
+//:   constructor.
 //:
-//: 6  Added typedef to replace removed 'std::Uint64_t'
+//: 6 Added typedef to replace removed 'std::Uint64_t'
 //:
-//: 7  Added 'computeHash' to replace the removed explicit conversion
+//: 7 Added 'computeHash' to replace the removed explicit conversion
 //:
-//: 8  Added 'k_SEED_LENGTH' and changed the constructor to accept a 'const
-//:    char *'
+//: 8 Added 'k_SEED_LENGTH' and changed the constructor to accept a
+//:   'const    char *'
 //:
-//: 9  Added includes and include guards
+//: 9 Added includes and include guards
 //:
 //: 10 Changed variables to use 'size_t' rather than 'unsigned int'
 //
@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 // SipHash reference C implementation
 //
 // Written in 2012 by Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
-// Daniel J. Bernstein <djb@cr.yp.to>
+// Daniel J.  Bernstein <djb@cr.yp.to>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright
 // and related and neighboring rights to this software to the public domain
@@ -233,22 +233,23 @@ class SipHashAlgorithm {
     // MANIPULATORS
     void operator()(const void *data, size_t numBytes);
         // Incorporate the specified 'data', of at least the specified
-        // 'numBytes', into the internal state of the hashing algorithm.  Every bit of data
-        // incorporated into the internal state of the algorithm will
-        // contribute to the final hash produced by 'computeHash()'.  The same
-        // hash will be produced regardless of whether a sequence of bytes is
-        // passed in all at once or through multiple calls to this member
+        // 'numBytes', into the internal state of the hashing algorithm.  Every
+        // bit of data incorporated into the internal state of the algorithm
+        // will contribute to the final hash produced by 'computeHash()'.  The
+        // same hash will be produced regardless of whether a sequence of bytes
+        // is passed in all at once or through multiple calls to this member
         // function.  Input where 'length' is 0 will have no effect on the
         // internal state of the algorithm.  The behaviour is undefined unless
-        // 'data' points to a valid memory location with at least 'length' bytes of initialized memory.
+        // 'data' points to a valid memory location with at least 'length'
+        // bytes of initialized memory.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
         // Note that this changes the internal state of the object, so calling
         // 'computeHash' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
-        // the algorithm.  Also note that a value will be returned, even if data
-        // has not been passed into 'operator()'
+        // the algorithm.  Also note that a value will be returned, even if
+        // data has not been passed into 'operator()'
 };
 
 }  // close package namespace

@@ -147,12 +147,12 @@ void aSsErT(bool b, const char *s, int i)
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have a value semantic type, 'Box', that contains attributes that
 // are salient to hashing as well as attributes that are not salient to
-// hashing.  Some of these attributes are themselves user defined types.  We want
-// to store objects of type 'Box' in a hash table, so we need to be able to
-// produce hash values that represent instances of 'Box'.  We don't want to
+// hashing.  Some of these attributes are themselves user defined types.  We
+// want to store objects of type 'Box' in a hash table, so we need to be able
+// to produce hash values that represent instances of 'Box'.  We don't want to
 // write our own hashing or hash combine algorithm, because we know it is very
-// difficult and labour intensive to write a proper hashing algorithm.  In order
-// to hash this 'Box', we will use the modular hashing system supplied in
+// difficult and labour intensive to write a proper hashing algorithm.  In
+// order to hash this 'Box', we will use the modular hashing system supplied in
 // 'bslh'.
 //
 // First, we define 'Point', a class that allows us to identify a loction on a
@@ -226,12 +226,12 @@ bool operator==(const Point &lhs, const Point &rhs)
 }
 
 //..
-// Next, we define 'hashAppend'.  This function will allow any hashing algorithm
-// that meets the 'bslh' hashing algorithm requirements to be applied to
-// 'Point'.  This is the full extent of the work that needs to be done by type
-// creators.  They do not need to implement any algorithms, they just need to
-// call out the attributes that are salient to hashing by calling 'hashAppend'
-// on them.
+// Next, we define 'hashAppend'.  This function will allow any hashing
+// algorithm that meets the 'bslh' hashing algorithm requirements to be applied
+// to 'Point'.  This is the full extent of the work that needs to be done by
+// type creators.  They do not need to implement any algorithms, they just need
+// to call out the attributes that are salient to hashing by calling
+// 'hashAppend' on them.
 //..
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
@@ -394,8 +394,9 @@ class HashTable {
     HashTable(const TYPE *valuesArray,
               size_t      numValues)
         // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues'.  No value in 'valuesArray' shall
-        // have the same value as any of the other values in 'valuesArray'
+        // length of the specified 'numValues'.  No value in 'valuesArray'
+        // shall have the same value as any of the other values in
+        // 'valuesArray'
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
@@ -462,7 +463,7 @@ static size_t findNumberOfBytesBeforePadding(long double *d1, long double *d2)
             return i;                                                 // RETURN
         }
     }
-    
+
     return size;
 }
 
@@ -813,8 +814,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Define two non-empty classes with no padding, one of which is
-        //:   derived from 'hash'.  Assert that both classes have the same size.
-        //:   (C-1).
+        //:   derived from 'hash'.  Assert that both classes have the same
+        //:   size.  (C-1).
         //:
         //: 2 Create a third class, with identical structure to the previous
         //:   two, but with 'Hash' additional data member.  Assert that the
@@ -1014,8 +1015,9 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        if (verbose) printf("Create 'const' strings and hash them.  Compare the"
-                            " results against known good values. (C-1,2)\n");
+        if (verbose) printf("Create 'const' strings and hash them.  Compare"
+                            " the results against known good values."
+                            " (C-1,2)\n");
         {
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int    LINE  = DATA[i].d_line;
@@ -1086,9 +1088,9 @@ int main(int argc, char *argv[])
         //:   garbage is ignored by 'hashAppend'.
         //:
         //: 6 Copy a known bitsequece into each fundamental type and pass it
-        //:   into 'hashAppend' with a mocked hashing algorith.  Verify that the
-        //:   data inputted into the hashing algorithm matches the known input
-        //:   bitsequence. (C-6)
+        //:   into 'hashAppend' with a mocked hashing algorith.  Verify that
+        //:   the data inputted into the hashing algorithm matches the known
+        //:   input bitsequence. (C-6)
         //:
         //: 7 Generate positive infinity in a number of ways and call
         //:   'hashAppend' with each infinity and ASSERT that the data passed
@@ -1466,9 +1468,9 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Copy a known bitsequece into each fundamental"
                             " type and pass it into 'hashAppend' with a mocked"
-                            " hashing algorithm.  Verify that the data inputted"
-                            " into the hashing algorithm matches the known"
-                            " input bitsequence. (C-6)\n");
+                            " hashing algorithm.  Verify that the data"
+                            " inputted into the hashing algorithm matches the"
+                            " known input bitsequence. (C-6)\n");
         {
             // 'bool' has already been tested and we explicitly DO NOT want it
             // to preserve its bitwise representation.

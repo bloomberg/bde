@@ -193,8 +193,8 @@ class CheckedData {
     CheckedData(const char *data, size_t length);
         // Creates an instance of this class having the specified 'length'
         // bytes of 'data'.  Note that only a pointer to the data will be
-        // maintained, it will not be copied.  The behaviour is undefined unless
-        // 'data' is initialized with at least 'length' bytes.
+        // maintained, it will not be copied.  The behaviour is undefined
+        // unless 'data' is initialized with at least 'length' bytes.
 
     const char *getData();
         // Return a pointer to the data being tracked by this class.
@@ -232,8 +232,8 @@ const char *CheckedData::getData() {
 // class was created.  If the two hashes match, then we can be reasonable
 // certian that the data is still in a valid state (the chance of an accidental
 // collision is very low).  If the checksums do not match, we know that the
-// data has been corrupted.  We will not be able to restore it, but we will know
-// not to trust it.
+// data has been corrupted.  We will not be able to restore it, but we will
+// know not to trust it.
 //..
 
 bool CheckedData::isDataValid() {
@@ -529,8 +529,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING 'update'
         //   Verify that the class offers the ability to invoke 'update' with
-        //   some bytes and a length.  Verify that calling 'update' will permute
-        //   the algorithm's internal state as specified by SpookyHash
+        //   some bytes and a length.  Verify that calling 'update' will
+        //   permute the algorithm's internal state as specified by SpookyHash
         //   (verified by checking 'finalize').  Verify that calling 'Update'
         //   with messages incrementally or all at once will return the hash
         //   specified by the canonical SpookyHash implementation.
