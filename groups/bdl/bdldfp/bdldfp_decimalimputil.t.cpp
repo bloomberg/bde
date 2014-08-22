@@ -81,9 +81,9 @@ using bsl::atoi;
 // [  ] greaterEqual(ValueType32,  ValueType32)
 // [  ] greaterEqual(ValueType64,  ValueType64)
 // [  ] greaterEqual(ValueType128, ValueType128)
-// [  ] equal(ValueType32,  ValueType32)
-// [  ] equal(ValueType64,  ValueType64)
-// [  ] equal(ValueType128, ValueType128)
+// [ 3] equal(ValueType32,  ValueType32)
+// [ 3] equal(ValueType64,  ValueType64)
+// [ 3] equal(ValueType128, ValueType128)
 // [  ] notEqual(ValueType32,  ValueType32)
 // [  ] notEqual(ValueType64,  ValueType64)
 // [  ] notEqual(ValueType128, ValueType128)
@@ -729,6 +729,770 @@ int main(int argc, char* argv[])
             ASSERT(Util::notEqual(nan64,  nan64));
             ASSERT(Util::notEqual(nan128, nan128));
         }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // EQUALITY COMPARISON 'Util::equal'
+        //
+        // Concerns:
+        //:  1 'equal' should return true if the bit patterns are the same (and
+        //:    are not a bit pattern representing a 'NaN').
+        //:
+        //:  2 'equal' should return true if the bit patterns are different,
+        //:    but represent the same value.  I.e. '10e0' should be equal to
+        //:    '1e1'.
+        //:
+        //:  3 Values which differ by only one of sign, exponent, or mantissa
+        //:    should not be equal.
+        //:
+        //:  4 'NaN' values should never be equal.
+        //:
+        //:  5 The implementation of 'equal' normally would be a forwarding
+        //:    function (to the underlying implementation), but some
+        //:    implementations require a call to a helper function to determine
+        //:    value.  This means that we don't have to aggressively test this
+        //:    function, but should perform more than a cursory forwarding
+        //:    test.  (This will result in more than a simple forwarding test.)
+        //:
+        //:  6 Equality is a "Commutative" operation.
+        //:       'A == B' implies 'B == A'
+        //:    (Commutative property.)
+        //:
+        //:  7 Equality is a "Commutative" operation in the negative.
+        //:       'A != B' implies 'B != A'
+        //:    (Commutative property.)
+        //:
+        //:  8 Any two things equal to a third are equal to each other:
+        //:       'A == B' and 'B == C' implies 'A == C'.
+        //:    (Transitive property.)
+        //:
+        //:  9 Any two things equal to each other are both inequal to an
+        //:    inequal third.
+        //:    (Transitive property.)
+        //:       'A == B' and 'B != C' implies 'A != C'
+        //:
+        //: 10 'NaN' and 'Inf' states are excluded from these rules and instead
+        //:    have the following properties:
+        //:
+        //:     1  'NaN' !=  'NaN'
+        //:     2  value !=  'NaN'
+        //:     3  'NaN' !=  value
+        //:     4 +'Inf' == +'Inf'
+        //:     5 -'Inf' == -'Inf'
+        //:     6 +'Inf' != -'Inf'
+        //:     7 -'Inf' != +'Inf'
+        //:     8  value != +'Inf'
+        //:     9  value != -'Inf'
+        //:    10 +'Inf' !=  value
+        //:    11 -'Inf' !=  value
+        //:    12  'NaN' != +'Inf'
+        //:    13  'NaN' != -'Inf'
+        //:    14 +'Inf' !=  'NaN'
+        //:    15 -'Inf' !=  'NaN'
+        //:
+        //: 11 Equality tests more than identity (same 'this' pointer).
+        //
+        // Plan:
+        //:  1 Myriad values will be tested for equality and inequality with
+        //:    slightly altered values.  ('A != A + 1', and 'A + 1 != A', for
+        //:    example)
+        //:
+        //:  2 All equality, and inequality tests will be tested with both
+        //:    possible orderings to check the Commutative property.
+        //:
+        //:  3 Values will be tested for equality with copies of themselves
+        //
+        // Testing:
+        //   equal(ValueType32,  ValueType32)
+        //   equal(ValueType64,  ValueType64)
+        //   equal(ValueType128, ValueType128)
+        // --------------------------------------------------------------------
+
+
+        if (verbose) cout << endl
+                          << "EQUALITY COMPARISON 'Util::equal'" << endl
+                          << "=================================" << endl;
+
+        // Basic value comparison testing
+
+        {
+
+            Util::ValueType32  test32;
+            Util::ValueType64  test64;
+            Util::ValueType128 test128;
+
+            Util::ValueType32  same32;
+            Util::ValueType64  same64;
+            Util::ValueType128 same128;
+
+            Util::ValueType32  negated32;
+            Util::ValueType64  negated64;
+            Util::ValueType128 negated128;
+
+            Util::ValueType32  incremented32;
+            Util::ValueType64  incremented64;
+            Util::ValueType128 incremented128;
+
+            Util::ValueType32  exponentChanged32;
+            Util::ValueType64  exponentChanged64;
+            Util::ValueType128 exponentChanged128;
+
+                    //    0e0
+
+                    // (All 0's are special cases which only differ by mantissa
+                    // value not by exponent or sign.)
+
+            test32 = Util::makeDecimalRaw32(0, 0);
+            same32 = Util::makeDecimalRaw32(0, 0);
+            incremented32 = Util::makeDecimalRaw32(1, 0);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+
+            test64 = Util::makeDecimalRaw64(0, 0);
+            same64 = Util::makeDecimalRaw64(0, 0);
+            incremented64 = Util::makeDecimalRaw64(1, 0);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+
+            test128 = Util::makeDecimalRaw128(0, 0);
+            same128 = Util::makeDecimalRaw128(0, 0);
+            incremented128 = Util::makeDecimalRaw128(1, 0);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+
+                    //    7e0
+
+            test32 = Util::makeDecimalRaw32(7, 0);
+            same32 = Util::makeDecimalRaw32(7, 0);
+            negated32 = Util::makeDecimalRaw32(-7, 0);
+            incremented32 = Util::makeDecimalRaw32(8, 0);
+            exponentChanged32 = Util::makeDecimalRaw32(7, 2);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(7, 0);
+            same64 = Util::makeDecimalRaw64(7, 0);
+            negated64 = Util::makeDecimalRaw64(-7, 0);
+            incremented64 = Util::makeDecimalRaw64(8, 0);
+            exponentChanged64 = Util::makeDecimalRaw64(7, 2);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(7, 0);
+            same128 = Util::makeDecimalRaw128(7, 0);
+            negated128 = Util::makeDecimalRaw128(-7, 0);
+            incremented128 = Util::makeDecimalRaw128(8, 0);
+            exponentChanged128 = Util::makeDecimalRaw128(7, 2);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    //  100e0
+
+            test32 = Util::makeDecimalRaw32(100, 0);
+            same32 = Util::makeDecimalRaw32(100, 0);
+            negated32 = Util::makeDecimalRaw32(-100, 0);
+            incremented32 = Util::makeDecimalRaw32(101, 0);
+            exponentChanged32 = Util::makeDecimalRaw32(100, 2);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(100, 0);
+            same64 = Util::makeDecimalRaw64(100, 0);
+            negated64 = Util::makeDecimalRaw64(-100, 0);
+            incremented64 = Util::makeDecimalRaw64(101, 0);
+            exponentChanged64 = Util::makeDecimalRaw64(100, 2);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(100, 0);
+            same128 = Util::makeDecimalRaw128(100, 0);
+            negated128 = Util::makeDecimalRaw128(-100, 0);
+            incremented128 = Util::makeDecimalRaw128(101, 0);
+            exponentChanged128 = Util::makeDecimalRaw128(100, 2);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    //   -7e0
+
+            test32 = Util::makeDecimalRaw32(-7, 0);
+            same32 = Util::makeDecimalRaw32(-7, 0);
+            negated32 = Util::makeDecimalRaw32(7, 0);
+            incremented32 = Util::makeDecimalRaw32(-6, 0);
+            exponentChanged32 = Util::makeDecimalRaw32(-7, 2);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(-7, 0);
+            same64 = Util::makeDecimalRaw64(-7, 0);
+            negated64 = Util::makeDecimalRaw64(7, 0);
+            incremented64 = Util::makeDecimalRaw64(-6, 0);
+            exponentChanged64 = Util::makeDecimalRaw64(-7, 2);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(-7, 0);
+            same128 = Util::makeDecimalRaw128(-7, 0);
+            negated128 = Util::makeDecimalRaw128(7, 0);
+            incremented128 = Util::makeDecimalRaw128(-6, 0);
+            exponentChanged128 = Util::makeDecimalRaw128(-7, 2);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    // -100e0
+
+            test32 = Util::makeDecimalRaw32(-100, 0);
+            same32 = Util::makeDecimalRaw32(-100, 0);
+            negated32 = Util::makeDecimalRaw32(100, 0);
+            incremented32 = Util::makeDecimalRaw32(-99, 0);
+            exponentChanged32 = Util::makeDecimalRaw32(-100, 2);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(-100, 0);
+            same64 = Util::makeDecimalRaw64(-100, 0);
+            negated64 = Util::makeDecimalRaw64(100, 0);
+            incremented64 = Util::makeDecimalRaw64(-99, 0);
+            exponentChanged64 = Util::makeDecimalRaw64(-100, 2);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(-100, 0);
+            same128 = Util::makeDecimalRaw128(-100, 0);
+            negated128 = Util::makeDecimalRaw128(100, 0);
+            incremented128 = Util::makeDecimalRaw128(-99, 0);
+            exponentChanged128 = Util::makeDecimalRaw128(-100, 2);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    //    0e3
+
+            test32 = Util::makeDecimalRaw32(0, 3);
+            same32 = Util::makeDecimalRaw32(0, 3);
+            incremented32 = Util::makeDecimalRaw32(1, 3);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+
+            test64 = Util::makeDecimalRaw64(0, 3);
+            same64 = Util::makeDecimalRaw64(0, 3);
+            incremented64 = Util::makeDecimalRaw64(1, 3);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+
+            test128 = Util::makeDecimalRaw128(0, 3);
+            same128 = Util::makeDecimalRaw128(0, 3);
+            incremented128 = Util::makeDecimalRaw128(1, 3);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+
+                    //    7e3
+
+            test32 = Util::makeDecimalRaw32(7, 3);
+            same32 = Util::makeDecimalRaw32(7, 3);
+            negated32 = Util::makeDecimalRaw32(-7, 3);
+            incremented32 = Util::makeDecimalRaw32(8, 3);
+            exponentChanged32 = Util::makeDecimalRaw32(7, 5);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(7, 3);
+            same64 = Util::makeDecimalRaw64(7, 3);
+            negated64 = Util::makeDecimalRaw64(-7, 3);
+            incremented64 = Util::makeDecimalRaw64(8, 3);
+            exponentChanged64 = Util::makeDecimalRaw64(7, 5);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(7, 3);
+            same128 = Util::makeDecimalRaw128(7, 3);
+            negated128 = Util::makeDecimalRaw128(-7, 3);
+            incremented128 = Util::makeDecimalRaw128(8, 3);
+            exponentChanged128 = Util::makeDecimalRaw128(7, 5);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    //  100e3
+
+            test32 = Util::makeDecimalRaw32(100, 3);
+            same32 = Util::makeDecimalRaw32(100, 3);
+            negated32 = Util::makeDecimalRaw32(-100, 3);
+            incremented32 = Util::makeDecimalRaw32(101, 3);
+            exponentChanged32 = Util::makeDecimalRaw32(100, 5);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(100, 3);
+            same64 = Util::makeDecimalRaw64(100, 3);
+            negated64 = Util::makeDecimalRaw64(-100, 3);
+            incremented64 = Util::makeDecimalRaw64(101, 3);
+            exponentChanged64 = Util::makeDecimalRaw64(100, 5);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(100, 3);
+            same128 = Util::makeDecimalRaw128(100, 3);
+            negated128 = Util::makeDecimalRaw128(-100, 3);
+            incremented128 = Util::makeDecimalRaw128(101, 3);
+            exponentChanged128 = Util::makeDecimalRaw128(100, 5);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    //   -7e3
+
+            test32 = Util::makeDecimalRaw32(-7, 3);
+            same32 = Util::makeDecimalRaw32(-7, 3);
+            negated32 = Util::makeDecimalRaw32(7, 3);
+            incremented32 = Util::makeDecimalRaw32(-6, 3);
+            exponentChanged32 = Util::makeDecimalRaw32(-7, 5);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(-7, 3);
+            same64 = Util::makeDecimalRaw64(-7, 3);
+            negated64 = Util::makeDecimalRaw64(7, 3);
+            incremented64 = Util::makeDecimalRaw64(-6, 3);
+            exponentChanged64 = Util::makeDecimalRaw64(-7, 5);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(-7, 3);
+            same128 = Util::makeDecimalRaw128(-7, 3);
+            negated128 = Util::makeDecimalRaw128(7, 3);
+            incremented128 = Util::makeDecimalRaw128(-6, 3);
+            exponentChanged128 = Util::makeDecimalRaw128(-7, 5);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    // -100e3
+
+            test32 = Util::makeDecimalRaw32(-100, 3);
+            same32 = Util::makeDecimalRaw32(-100, 3);
+            negated32 = Util::makeDecimalRaw32(100, 3);
+            incremented32 = Util::makeDecimalRaw32(-99, 3);
+            exponentChanged32 = Util::makeDecimalRaw32(-100, 5);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(-100, 3);
+            same64 = Util::makeDecimalRaw64(-100, 3);
+            negated64 = Util::makeDecimalRaw64(100, 3);
+            incremented64 = Util::makeDecimalRaw64(-99, 3);
+            exponentChanged64 = Util::makeDecimalRaw64(-100, 5);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(-100, 3);
+            same128 = Util::makeDecimalRaw128(-100, 3);
+            negated128 = Util::makeDecimalRaw128(100, 3);
+            incremented128 = Util::makeDecimalRaw128(-99, 3);
+            exponentChanged128 = Util::makeDecimalRaw128(-100, 5);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    //    0e-5
+
+            test32 = Util::makeDecimalRaw32(0, -5);
+            same32 = Util::makeDecimalRaw32(0, -5);
+            incremented32 = Util::makeDecimalRaw32(1, -5);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+
+            test64 = Util::makeDecimalRaw64(0, -5);
+            same64 = Util::makeDecimalRaw64(0, -5);
+            incremented64 = Util::makeDecimalRaw64(1, -5);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+
+            test128 = Util::makeDecimalRaw128(0, -5);
+            same128 = Util::makeDecimalRaw128(0, -5);
+            incremented128 = Util::makeDecimalRaw128(1, -5);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+
+                    //    7e-5
+
+            test32 = Util::makeDecimalRaw32(7, -5);
+            same32 = Util::makeDecimalRaw32(7, -5);
+            negated32 = Util::makeDecimalRaw32(-7, -5);
+            incremented32 = Util::makeDecimalRaw32(8, -5);
+            exponentChanged32 = Util::makeDecimalRaw32(7, -3);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(7, -5);
+            same64 = Util::makeDecimalRaw64(7, -5);
+            negated64 = Util::makeDecimalRaw64(-7, -5);
+            incremented64 = Util::makeDecimalRaw64(8, -5);
+            exponentChanged64 = Util::makeDecimalRaw64(7, -3);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(7, -5);
+            same128 = Util::makeDecimalRaw128(7, -5);
+            negated128 = Util::makeDecimalRaw128(-7, -5);
+            incremented128 = Util::makeDecimalRaw128(8, -5);
+            exponentChanged128 = Util::makeDecimalRaw128(7, -3);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    //  100e-5
+
+            test32 = Util::makeDecimalRaw32(100, -5);
+            same32 = Util::makeDecimalRaw32(100, -5);
+            negated32 = Util::makeDecimalRaw32(-100, -5);
+            incremented32 = Util::makeDecimalRaw32(101, -5);
+            exponentChanged32 = Util::makeDecimalRaw32(100, -3);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(100, -5);
+            same64 = Util::makeDecimalRaw64(100, -5);
+            negated64 = Util::makeDecimalRaw64(-100, -5);
+            incremented64 = Util::makeDecimalRaw64(101, -5);
+            exponentChanged64 = Util::makeDecimalRaw64(100, -3);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(100, -5);
+            same128 = Util::makeDecimalRaw128(100, -5);
+            negated128 = Util::makeDecimalRaw128(-100, -5);
+            incremented128 = Util::makeDecimalRaw128(101, -5);
+            exponentChanged128 = Util::makeDecimalRaw128(100, -3);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    //   -7e-5
+
+            test32 = Util::makeDecimalRaw32(-7, -5);
+            same32 = Util::makeDecimalRaw32(-7, -5);
+            negated32 = Util::makeDecimalRaw32(7, -5);
+            incremented32 = Util::makeDecimalRaw32(-6, -5);
+            exponentChanged32 = Util::makeDecimalRaw32(-7, -3);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(-7, -5);
+            same64 = Util::makeDecimalRaw64(-7, -5);
+            negated64 = Util::makeDecimalRaw64(7, -5);
+            incremented64 = Util::makeDecimalRaw64(-6, -5);
+            exponentChanged64 = Util::makeDecimalRaw64(-7, -3);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(-7, -5);
+            same128 = Util::makeDecimalRaw128(-7, -5);
+            negated128 = Util::makeDecimalRaw128(7, -5);
+            incremented128 = Util::makeDecimalRaw128(-6, -5);
+            exponentChanged128 = Util::makeDecimalRaw128(-7, -3);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+                    // -100e-5
+
+            test32 = Util::makeDecimalRaw32(-100, -5);
+            same32 = Util::makeDecimalRaw32(-100, -5);
+            negated32 = Util::makeDecimalRaw32(100, -5);
+            incremented32 = Util::makeDecimalRaw32(-99, -5);
+            exponentChanged32 = Util::makeDecimalRaw32(-100, -3);
+            ASSERT( Util::equal(test32, test32));
+            ASSERT( Util::equal(same32, test32));
+            ASSERT( Util::equal(test32, same32));
+            ASSERT(!Util::equal(negated32, test32));
+            ASSERT(!Util::equal(test32, negated32));
+            ASSERT(!Util::equal(incremented32, test32));
+            ASSERT(!Util::equal(test32, incremented32));
+            ASSERT(!Util::equal(exponentChanged32, test32));
+            ASSERT(!Util::equal(test32, exponentChanged32));
+
+            test64 = Util::makeDecimalRaw64(-100, -5);
+            same64 = Util::makeDecimalRaw64(-100, -5);
+            negated64 = Util::makeDecimalRaw64(100, -5);
+            incremented64 = Util::makeDecimalRaw64(-99, -5);
+            exponentChanged64 = Util::makeDecimalRaw64(-100, -3);
+            ASSERT( Util::equal(test64, test64));
+            ASSERT( Util::equal(same64, test64));
+            ASSERT( Util::equal(test64, same64));
+            ASSERT(!Util::equal(negated64, test64));
+            ASSERT(!Util::equal(test64, negated64));
+            ASSERT(!Util::equal(incremented64, test64));
+            ASSERT(!Util::equal(test64, incremented64));
+            ASSERT(!Util::equal(exponentChanged64, test64));
+            ASSERT(!Util::equal(test64, exponentChanged64));
+
+            test128 = Util::makeDecimalRaw128(-100, -5);
+            same128 = Util::makeDecimalRaw128(-100, -5);
+            negated128 = Util::makeDecimalRaw128(100, -5);
+            incremented128 = Util::makeDecimalRaw128(-99, -5);
+            exponentChanged128 = Util::makeDecimalRaw128(-100, -3);
+            ASSERT( Util::equal(test128, test128));
+            ASSERT( Util::equal(same128, test128));
+            ASSERT( Util::equal(test128, same128));
+            ASSERT(!Util::equal(negated128, test128));
+            ASSERT(!Util::equal(test128, negated128));
+            ASSERT(!Util::equal(incremented128, test128));
+            ASSERT(!Util::equal(test128, incremented128));
+            ASSERT(!Util::equal(exponentChanged128, test128));
+            ASSERT(!Util::equal(test128, exponentChanged128));
+
+        }
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
