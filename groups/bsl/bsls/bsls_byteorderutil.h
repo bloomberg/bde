@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE ALSO: bsls_byteorder
 //
-//@DESCRIPTION: This component provides a utility 'class',
+//@DESCRIPTION: This component provides a utility 'struct',
 // 'bsls::ByteOrderUtil', that contains a suite of static functions for
 // reversing the byte order of integral types.  The functions
 // 'swapByteOrder{16,32,64}' reverse the byte order of words having the
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // In this example we demonstrate the use of different overloads of the
 // 'swapBytes' function.
 //
-// First we 'typedef' a shorthand to the namespace 'class':
+// First we 'typedef' a shorthand to the namespace 'struct':
 //..
 //  typedef bsls::ByteOrderUtil Util;
 //..
@@ -77,9 +77,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bsls {
 
-                          // ===================
-                          // class ByteOrderUtil
-                          // ===================
+                            // ====================
+                            // struct ByteOrderUtil
+                            // ====================
 
 struct ByteOrderUtil {
     // This utility struct provides a namespace for functions used for
@@ -121,9 +121,9 @@ struct ByteOrderUtil {
 
 template <size_t WIDTH>
 class ByteOrderUtil_Dispatcher {
-    // This class provides a set of namespaces for type- and size-specific swap
-    // dispatch functions that call the size-appropriate 'ByteOrderUtil_Impl'
-    // function for any type.
+    // This templatized utility class provides a set of namespaces for type-
+    // and size-specific swap dispatch functions that call the size-appropriate
+    // 'ByteOrderUtil_Impl' function for any type.
 
     // PRIVATE TYPES
     typedef ByteOrderUtil_Impl Impl;
@@ -134,12 +134,12 @@ class ByteOrderUtil_Dispatcher {
 };
 
 // ============================================================================
-//                                  LOCAL MACROS
+//                               LOCAL MACROS
 // ============================================================================
 
-                  // --------------------------------------------
-                  // macro BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT
-                  // --------------------------------------------
+                // --------------------------------------------
+                // macro BSLS_BYTEORDERUTIL_COMPILE_TIME_ASSERT
+                // --------------------------------------------
 
 // We don't have access to 'BSLMF_ASSERT' here in 'bsls' -- do a crude
 // compile-time assert for use in 'bsls_byteorderutil'.  This macro will
@@ -153,12 +153,12 @@ class ByteOrderUtil_Dispatcher {
         (void) k_NOT_INFINITY; }
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                              // -------------------
-                              // class ByteOrderUtil
-                              // -------------------
+                            // --------------------
+                            // struct ByteOrderUtil
+                            // --------------------
 
 // CLASS METHODS
 inline
