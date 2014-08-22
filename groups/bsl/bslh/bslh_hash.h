@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 // to the decoupling of the various tasks associated with hashing. Using this
 // system, type implementers can identify attributes of their type that are
 // salient to hashing, without having to write a hashing algorithm. Conversely,
-// hashign algorithms can be written independant of types.  Attributes that are
+// hashing algorithms can be written independant of types.  Attributes that are
 // salient to hashing are called out on a type using 'hashAppend'.  Hashing
 // algorithms are written to operate on the attributes called out by
 // 'hashAppend'.  Some default algorithms have been provided in the 'bslh'
@@ -478,22 +478,26 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
     // For Clang, the final 2 bytes of the padding are zeroed, but the 4 bytes
     // that proceed the final two appear to be garbage.
     //
+    //..
     //      Actual Data --+*****************************+
     //                    |                             |
     // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8 5c 2b  0  0
     //                                                   |          ||   |
     //      Garbage -------------------------------------+**********+|   |
     //      Zeroed --------------------------------------------------+***+
+    //..
     //
     // For GCC, the first and last 2 bytes of the padding are zeroed, but the 2
     // bytes in the middle appear to be garbage.
     //
+    //..
     //      Garbage -------------------------------------------+****+
     //      Actual Data --+*****************************+     |     |
     //                    |                             |     |     |
     // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40  0  0 5c 2b  0  0
     //                                                   |    |      |    |
     //      Zeroed --------------------------------------+****+------+****+
+    //..
     //
     // On 32-bit hardware, 'sizeof(long double)' is advertised as 12 bytes, but
     // again, only 10 bytes of precision is used.  The remaining 2 bytes are
@@ -501,19 +505,23 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
     //
     // For Clang, the 2 bytes of the padding appear to be garbage.
     //
+    //..
     //      Actual Data --+*****************************+
     //                    |                             |
     // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8
     //                                                   |    |
     //      Garbage -------------------------------------+****+
+    //..
     //
     // For GCC, the 2 bytes of the padding are zeroed.
     //
+    //..
     //      Actual Data --+*****************************+
     //                    |                             |
     // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40  0  0
     //                                                   |    |
     //      Zeroed --------------------------------------+****+
+    //..
     //
     // To address all of these issues, we will pass in only 10 bytes for a
     // 'long double' even if it is longer.
