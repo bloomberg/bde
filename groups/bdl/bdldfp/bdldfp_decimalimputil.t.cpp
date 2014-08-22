@@ -1545,6 +1545,92 @@ int main(int argc, char* argv[])
             ASSERT( Util::equal(test128,  alt128));
             ASSERT( Util::equal( alt128, test128));
         }
+
+        // Transitivity tests
+
+        {
+            // Positive transitivity
+
+            Util::ValueType32 a32;
+            Util::ValueType32 b32;
+            Util::ValueType32 c32;
+
+            Util::ValueType64 a64;
+            Util::ValueType64 b64;
+            Util::ValueType64 c64;
+
+            Util::ValueType128 a128;
+            Util::ValueType128 b128;
+            Util::ValueType128 c128;
+
+            a32 = Util::makeDecimalRaw32(   1, 3);
+            b32 = Util::makeDecimalRaw32(1000, 0);
+            c32 = Util::makeDecimalRaw32(  10, 2);
+
+            ASSERT( Util::equal(a32, b32));
+            ASSERT( Util::equal(b32, a32));
+            ASSERT( Util::equal(b32, c32));
+            ASSERT( Util::equal(c32, b32));
+            ASSERT( Util::equal(a32, c32));
+            ASSERT( Util::equal(c32, a32));
+
+            a64 = Util::makeDecimalRaw64(   1, 3);
+            b64 = Util::makeDecimalRaw64(1000, 0);
+            c64 = Util::makeDecimalRaw64(  10, 2);
+
+            ASSERT( Util::equal(a64, b64));
+            ASSERT( Util::equal(b64, a64));
+            ASSERT( Util::equal(b64, c64));
+            ASSERT( Util::equal(c64, b64));
+            ASSERT( Util::equal(a64, c64));
+            ASSERT( Util::equal(c64, a64));
+
+            a128 = Util::makeDecimalRaw128(   1, 3);
+            b128 = Util::makeDecimalRaw128(1000, 0);
+            c128 = Util::makeDecimalRaw128(  10, 2);
+
+            ASSERT( Util::equal(a128, b128));
+            ASSERT( Util::equal(b128, a128));
+            ASSERT( Util::equal(b128, c128));
+            ASSERT( Util::equal(c128, b128));
+            ASSERT( Util::equal(a128, c128));
+            ASSERT( Util::equal(c128, a128));
+
+            // Negative transitivity
+
+            a32 = Util::makeDecimalRaw32(   1, 3);
+            b32 = Util::makeDecimalRaw32(1000, 0);
+            c32 = Util::makeDecimalRaw32(  20, 2);
+
+            ASSERT( Util::equal(a32, b32));
+            ASSERT( Util::equal(b32, a32));
+            ASSERT(!Util::equal(b32, c32));
+            ASSERT(!Util::equal(c32, b32));
+            ASSERT(!Util::equal(a32, c32));
+            ASSERT(!Util::equal(c32, a32));
+
+            a64 = Util::makeDecimalRaw64(   1, 3);
+            b64 = Util::makeDecimalRaw64(1000, 0);
+            c64 = Util::makeDecimalRaw64(  20, 2);
+
+            ASSERT( Util::equal(a64, b64));
+            ASSERT( Util::equal(b64, a64));
+            ASSERT(!Util::equal(b64, c64));
+            ASSERT(!Util::equal(c64, b64));
+            ASSERT(!Util::equal(a64, c64));
+            ASSERT(!Util::equal(c64, a64));
+
+            a128 = Util::makeDecimalRaw128(   1, 3);
+            b128 = Util::makeDecimalRaw128(1000, 0);
+            c128 = Util::makeDecimalRaw128(  20, 2);
+
+            ASSERT( Util::equal(a128, b128));
+            ASSERT( Util::equal(b128, a128));
+            ASSERT(!Util::equal(b128, c128));
+            ASSERT(!Util::equal(c128, b128));
+            ASSERT(!Util::equal(a128, c128));
+            ASSERT(!Util::equal(c128, a128));
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
