@@ -191,6 +191,102 @@ static void aSsErT(int c, const char *s, int i)
 namespace BDEC = BloombergLP::bdldfp;
 typedef BDEC::DecimalImpUtil Util;
 
+const long long mantissas[] = {
+                                               0LL,
+                                               2LL,
+                                               7LL,
+                                              35LL,
+                                              72LL,
+                                             135LL,
+                                             924LL,
+
+                  // Exhaustive mantissa cases
+                                               1LL,
+                                               9LL,
+                                              12LL,
+                                              98LL,
+                                             123LL,
+                                             987LL,
+                                            1234LL,
+                                            9876LL,
+                                           12345LL,
+                                           98765LL,
+                                          123456LL,
+                                          987654LL,
+                                         1234567LL,
+                                         9876543LL,
+                                        12345678LL,
+                                        98765432LL,
+                                       123456789LL,
+                                       987654321LL,
+                                      1234567890LL,
+                                      9876543210LL,
+                                     12345678901LL,
+                                     98765432109LL,
+                                    123456789012LL,
+                                    987654321098LL,
+                                   1234567890123LL,
+                                   9876543210987LL,
+                                  12345678901234LL,
+                                  98765432109876LL,
+                                 123456789012345LL,
+                                 987654321098765LL,
+                                1234567890123456LL,
+                                9876543210987654LL,
+
+                               -               1LL,
+                               -               9LL,
+                               -              12LL,
+                               -              98LL,
+                               -             123LL,
+                               -             987LL,
+                               -            1234LL,
+                               -            9876LL,
+                               -           12345LL,
+                               -           98765LL,
+                               -          123456LL,
+                               -          987654LL,
+                               -         1234567LL,
+                               -         9876543LL,
+                               -        12345678LL,
+                               -        98765432LL,
+                               -       123456789LL,
+                               -       987654321LL,
+                               -      1234567890LL,
+                               -      9876543210LL,
+                               -     12345678901LL,
+                               -     98765432109LL,
+                               -    123456789012LL,
+                               -    987654321098LL,
+                               -   1234567890123LL,
+                               -   9876543210987LL,
+                               -  12345678901234LL,
+                               -  98765432109876LL,
+                               - 123456789012345LL,
+                               - 987654321098765LL,
+                               -1234567890123456LL,
+                               -9876543210987654LL
+                              };
+const int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
+
+const int exponents[] = {
+                            0,
+                            1,
+                            7,
+                           13,
+                           64,
+                          123,
+                          321,
+
+                         -  1,
+                         -  7,
+                         - 13,
+                         - 64,
+                         -123,
+                         -321
+                        };
+const int numExponents = sizeof(exponents) / sizeof(*exponents);
+
 
 // ============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -691,62 +787,6 @@ int main(int argc, char* argv[])
         // Test that with any of a set of exponents, we can create values with
         // mantissas from 1 to 16 digit for 32-bit Decimal values
         {
-            int mantissas[] = {
-                                      0,
-                                      2,
-                                      7,
-                                     35,
-                                     72,
-                                    135,
-                                    924,
-
-                        // Exhaustive mantissa cases
-                                      1,
-                                      9,
-                                     12,
-                                     98,
-                                    123,
-                                    987,
-                                   1234,
-                                   9876,
-                                  12345,
-                                  98765,
-                                 123456,
-                                 987654,
-                                1234567,
-                                9876543,
-
-                               -      1,
-                               -      9,
-                               -     12,
-                               -     98,
-                               -    123,
-                               -    987,
-                               -   1234,
-                               -   9876,
-                               -  12345,
-                               -  98765,
-                               - 123456,
-                               - 987654,
-                               -1234567,
-                               -9876543
-                              };
-            int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
-
-            int exponents[] = {
-                                  0,
-                                  1,
-                                  7,
-                                 13,
-                                 64,
-
-                                - 1,
-                                - 7,
-                                -13,
-                                -64
-                              };
-            int numExponents = sizeof(exponents) / sizeof(exponents);
-
             Util::ValueType32 test;
             Util::ValueType32 witnessAlternate;
             Util::ValueType32 witnessParse;
@@ -781,21 +821,25 @@ int main(int argc, char* argv[])
 
             for (int t_m = 0; t_m < numMantissas; ++t_m) {
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
-                    int mantissa = mantissas[t_m];
+                    long long mantissa = mantissas[t_m];
                     int exponent = exponents[t_e];
 
-                    bsl::string parseString = makeParseString(mantissa,
-                                                              exponent);
+                    if (mantissa <= 9999999 && mantissa >= -9999999
+                     && exponent <= 90      && exponent >= -101) {
 
-                    test = Util::makeDecimalRaw32(mantissa, exponent);
-                    witnessAlternate = alternateMakeDecimalRaw32(mantissa,
-                                                                 exponent);
-                    witnessParse = Util::parse32(parseString.c_str());
+                        bsl::string parseString = makeParseString(mantissa,
+                                                                  exponent);
 
-                    LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
+                        test = Util::makeDecimalRaw32(mantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw32(mantissa,
+                                                                     exponent);
+                        witnessParse = Util::parse32(parseString.c_str());
+
+                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
                          !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                    LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
+                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
                          !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                    }
                 }
             }
         }
@@ -803,102 +847,6 @@ int main(int argc, char* argv[])
         // Test that with any of a set of exponents, we can create values with
         // mantissas from 1 to 16 digit for 64-bit Decimal values
         {
-            long long mantissas[] = {
-                                                     0LL,
-                                                     2LL,
-                                                     7LL,
-                                                    35LL,
-                                                    72LL,
-                                                   135LL,
-                                                   924LL,
-
-                        // Exhaustive mantissa cases
-                                                     1LL,
-                                                     9LL,
-                                                    12LL,
-                                                    98LL,
-                                                   123LL,
-                                                   987LL,
-                                                  1234LL,
-                                                  9876LL,
-                                                 12345LL,
-                                                 98765LL,
-                                                123456LL,
-                                                987654LL,
-                                               1234567LL,
-                                               9876543LL,
-                                              12345678LL,
-                                              98765432LL,
-                                             123456789LL,
-                                             987654321LL,
-                                            1234567890LL,
-                                            9876543210LL,
-                                           12345678901LL,
-                                           98765432109LL,
-                                          123456789012LL,
-                                          987654321098LL,
-                                         1234567890123LL,
-                                         9876543210987LL,
-                                        12345678901234LL,
-                                        98765432109876LL,
-                                       123456789012345LL,
-                                       987654321098765LL,
-                                      1234567890123456LL,
-                                      9876543210987654LL,
-
-                                     -               1LL,
-                                     -               9LL,
-                                     -              12LL,
-                                     -              98LL,
-                                     -             123LL,
-                                     -             987LL,
-                                     -            1234LL,
-                                     -            9876LL,
-                                     -           12345LL,
-                                     -           98765LL,
-                                     -          123456LL,
-                                     -          987654LL,
-                                     -         1234567LL,
-                                     -         9876543LL,
-                                     -        12345678LL,
-                                     -        98765432LL,
-                                     -       123456789LL,
-                                     -       987654321LL,
-                                     -      1234567890LL,
-                                     -      9876543210LL,
-                                     -     12345678901LL,
-                                     -     98765432109LL,
-                                     -    123456789012LL,
-                                     -    987654321098LL,
-                                     -   1234567890123LL,
-                                     -   9876543210987LL,
-                                     -  12345678901234LL,
-                                     -  98765432109876LL,
-                                     - 123456789012345LL,
-                                     - 987654321098765LL,
-                                     -1234567890123456LL,
-                                     -9876543210987654LL
-                                    };
-            int numMantissas = sizeof(mantissas) / sizeof(*mantissas);
-
-            int exponents[] = {
-                                  0,
-                                  1,
-                                  7,
-                                 13,
-                                 64,
-                                123,
-                                321,
-
-                               -  1,
-                               -  7,
-                               - 13,
-                               - 64,
-                               -123,
-                               -321
-                              };
-            int numExponents = sizeof(exponents) / sizeof(*exponents);
-
             Util::ValueType64 test;
             Util::ValueType64 witnessAlternate;
             Util::ValueType64 witnessParse;
