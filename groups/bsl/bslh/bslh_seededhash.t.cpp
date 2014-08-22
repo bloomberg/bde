@@ -123,7 +123,7 @@ void aSsErT(bool b, const char *s, int i)
 // hash algorithm with a random seed.  This algorithm will need to be  in the
 // form of a hash functor -- an object that will take objects stored in our
 // array as input, and yield a 64-bit int value which is hard enough for an
-// outside observer to predict that it appear random. 'bslh::SeededHash'
+// outside observer to predict that it appear random.  'bslh::SeededHash'
 // provides a convenient functor that can wrap any seeded hashing algorithm and
 // use it to produce a hash for any type them implements 'hashAppend'.
 //

@@ -331,7 +331,7 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
 // 'bslh::Hash'.
 //
 // Our hash table takes two type parameters: 'TYPE' (the type being referenced)
-// and 'HASHER' (a functor that produces the hash). 'HASHER' will default to
+// and 'HASHER' (a functor that produces the hash).  'HASHER' will default to
 // 'bslh::Hash<>'.
 
 template <class TYPE, class HASHER = bslh::Hash<> >

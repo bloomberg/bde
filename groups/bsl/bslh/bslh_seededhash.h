@@ -130,7 +130,7 @@ struct SeededHash {
         // Create a 'bslh::SeededHash' which will default construct the
         // parameterized 'SEED_GENERATOR' to initialize the seed that will be
         // passed to the (template parameter) type 'HASH_ALGORITHM' when it is
-        // used. 'SEED_GENERATOR' must be default constructible to use this
+        // used.  'SEED_GENERATOR' must be default constructible to use this
         // constructor.
 
     explicit SeededHash(SEED_GENERATOR& seedGenerator);

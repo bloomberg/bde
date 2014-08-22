@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
                       "And by opposing end them.  To die, to sleep--"
                       "No more--and by a sleep to say we end"
                       "The heartache, and the thousand natural shocks"
-                      "That flesh is heir to. 'Tis a consummation"
+                      "That flesh is heir to.  'Tis a consummation"
                       "Devoutly to be wished.  To die, to sleep--"
                       "To sleep--perchance to dream: ay, there's the rub,"
                       "For in that sleep of death what dreams may come"

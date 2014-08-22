@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 // The (template parameter) type 'RNG' shall be a class exposing 'operator()'
 // which returns a result of type 'result_type', which will also be and
 // publicly accessible in 'RNG'.  The value returned by 'operator()' shall be
-// random bits, the quality of which can be defined by 'RNG'. 'RNG' shall also
+// random bits, the quality of which can be defined by 'RNG'.  'RNG' shall also
 // be default and copy constructible.
 
 #ifndef INCLUDED_BSLSCM_VERSION
