@@ -19,11 +19,11 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a namespace, 'bdlb::SysRandom', for a
 // suite of functions used to generate random numbers from platform dependent
 // random number generators.  Two variants are provided: one which may block,
-// but which potentially samples from a stronger distribution, and another does
-// not block, but which potentially should not be used for cryptography.  The
-// strength of these random numbers and the performance of these calls is
-// strongly dependent on the underlying system.  On UNIX-like platforms
-// 'genRandomBytes()' reads from '/dev/random' and
+// but which potentially samples from a stronger distribution, and another
+// which does not block, but which potentially should not be used for
+// cryptography.  The strength of these random numbers and the performance of
+// these calls is strongly dependent on the underlying system.  On UNIX-like
+// platforms 'genRandomBytes()' reads from '/dev/random' and
 // 'genRandonBytesNonBlocking()' reads from '/dev/urandom'.  On Windows both
 // methods use 'CrypGenRandom'.
 //

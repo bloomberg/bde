@@ -368,9 +368,10 @@ int main(int argc, char *argv[])
                  << "=================================================="
                  << endl;
 
-        if (veryVerbose) cout << "\nTesting the number of bytes set."
-                              << endl;
-
+        if (veryVerbose) {
+            cout << "\nTesting the number of bytes set."
+                 << endl;
+        }
         // 2) If a number is passed, that many bytes are set.
         for (unsigned i = 0; i < 5; ++i) {
             unsigned j;
