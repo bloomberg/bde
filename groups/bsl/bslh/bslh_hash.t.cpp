@@ -655,15 +655,15 @@ class TestDriver {
                 hashAppend(infAlg6, inf6);
 
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg2.getData(),
-                                                                sizeof(TYPE)));
+                                                         infAlg1.getLength()));
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg3.getData(),
-                                                                sizeof(TYPE)));
+                                                         infAlg1.getLength()));
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg4.getData(),
-                                                                sizeof(TYPE)));
+                                                         infAlg1.getLength()));
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg5.getData(),
-                                                                sizeof(TYPE)));
+                                                         infAlg1.getLength()));
                 ASSERT(binaryCompare(infAlg1.getData(), infAlg6.getData(),
-                                                                sizeof(TYPE)));
+                                                         infAlg1.getLength()));
             }
         }
     }
