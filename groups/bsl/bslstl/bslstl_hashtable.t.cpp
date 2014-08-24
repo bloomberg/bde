@@ -1659,7 +1659,7 @@ if (verbose) {
                                     bsl::distance(result.first, result.second);
 
 if (verbose) {
-            printf("customerId %d, count %ld\n", customerId, count);
+            printf("customerId %d, count %d\n", customerId, count);
 }
 
             for (MySalesRecordContainer::ConstItrById itr  = result.first,
@@ -1702,7 +1702,7 @@ if (verbose) {
                 MySalesRecordContainer::ConstItrById>::difference_type count =
                                     bsl::distance(result.first, result.second);
 if (verbose) {
-            printf("vendorId %d, count %ld\n", vendorId, count);
+            printf("vendorId %d, count %d\n", vendorId, count);
 }
 
             for (MySalesRecordContainer::ConstItrById itr  = result.first,
