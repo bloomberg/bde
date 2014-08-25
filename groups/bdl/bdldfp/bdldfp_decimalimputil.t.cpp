@@ -1626,6 +1626,167 @@ int main(int argc, char* argv[])
             ASSERT( Util::notEqual(a128, c128));
             ASSERT( Util::notEqual(c128, a128));
         }
+
+        // 'NaN' and 'Inf' testing
+        // These tests should be in the same order as Concern #10.
+
+        {
+            Util::ValueType32   nan32  = Util::parse32(  "NaN");
+            Util::ValueType32  qnan32  = Util::parse32( "qNaN");
+            Util::ValueType32  snan32  = Util::parse32( "sNaN");
+            Util::ValueType32  pinf32  = Util::parse32( "+Inf");
+            Util::ValueType32  ninf32  = Util::parse32( "-Inf");
+            Util::ValueType32  test32  = Util::makeDecimalRaw32(42, 1);
+
+            Util::ValueType64   nan64  = Util::parse64(  "NaN");
+            Util::ValueType64  qnan64  = Util::parse64( "qNaN");
+            Util::ValueType64  snan64  = Util::parse64( "sNaN");
+            Util::ValueType64  pinf64  = Util::parse64( "+Inf");
+            Util::ValueType64  ninf64  = Util::parse64( "-Inf");
+            Util::ValueType64  test64  = Util::makeDecimalRaw64(42, 1);
+
+            Util::ValueType128  nan128 = Util::parse128( "NaN");
+            Util::ValueType128 qnan128 = Util::parse128("qNaN");
+            Util::ValueType128 snan128 = Util::parse128("sNaN");
+            Util::ValueType128 pinf128 = Util::parse128("+Inf");
+            Util::ValueType128 ninf128 = Util::parse128("-Inf");
+            Util::ValueType128 test128 = Util::makeDecimalRaw128(42, 1);
+
+            // 'NaN' is not notEqual to itself, in any form.
+
+            ASSERT(!Util::notEqual( nan32,   nan32));
+            ASSERT(!Util::notEqual(qnan32,  qnan32));
+            ASSERT(!Util::notEqual(snan32,  snan32));
+
+            ASSERT(!Util::notEqual( nan64,   nan64));
+            ASSERT(!Util::notEqual(qnan64,  qnan64));
+            ASSERT(!Util::notEqual(snan64,  snan64));
+
+            ASSERT(!Util::notEqual( nan128,  nan128));
+            ASSERT(!Util::notEqual(qnan128, qnan128));
+            ASSERT(!Util::notEqual(snan128, snan128));
+
+            // Cross 'NaN' comparisons should all be false.
+
+            ASSERT(!Util::notEqual( nan32,  qnan32));
+            ASSERT(!Util::notEqual(qnan32,   nan32));
+            ASSERT(!Util::notEqual( nan32,  snan32));
+            ASSERT(!Util::notEqual(snan32,   nan32));
+            ASSERT(!Util::notEqual(qnan32,  snan32));
+            ASSERT(!Util::notEqual(snan32,  qnan32));
+
+            ASSERT(!Util::notEqual( nan64,  qnan64));
+            ASSERT(!Util::notEqual(qnan64,   nan64));
+            ASSERT(!Util::notEqual( nan64,  snan64));
+            ASSERT(!Util::notEqual(snan64,   nan64));
+            ASSERT(!Util::notEqual(qnan64,  snan64));
+            ASSERT(!Util::notEqual(snan64,  qnan64));
+
+            ASSERT(!Util::notEqual( nan128, qnan128));
+            ASSERT(!Util::notEqual(qnan128,  nan128));
+            ASSERT(!Util::notEqual( nan128, snan128));
+            ASSERT(!Util::notEqual(snan128,  nan128));
+            ASSERT(!Util::notEqual(qnan128, snan128));
+            ASSERT(!Util::notEqual(snan128, qnan128));
+
+            // 'NaN' to value comparisons should be false too.
+
+            ASSERT(!Util::notEqual( nan32,  test32));
+            ASSERT(!Util::notEqual(test32,   nan32));
+            ASSERT(!Util::notEqual(qnan32,  test32));
+            ASSERT(!Util::notEqual(test32,  qnan32));
+            ASSERT(!Util::notEqual(snan32,  test32));
+            ASSERT(!Util::notEqual(test32,  snan32));
+
+            ASSERT(!Util::notEqual( nan64,  test64));
+            ASSERT(!Util::notEqual(test64,   nan64));
+            ASSERT(!Util::notEqual(qnan64,  test64));
+            ASSERT(!Util::notEqual(test64,  qnan64));
+            ASSERT(!Util::notEqual(snan64,  test64));
+            ASSERT(!Util::notEqual(test64,  snan64));
+
+            ASSERT(!Util::notEqual( nan128, test128));
+            ASSERT(!Util::notEqual(test128,  nan128));
+            ASSERT(!Util::notEqual(qnan128, test128));
+            ASSERT(!Util::notEqual(test128, qnan128));
+            ASSERT(!Util::notEqual(snan128, test128));
+            ASSERT(!Util::notEqual(test128, snan128));
+
+            // 'Inf's should compare notEqual only when they have the same sign.
+
+            ASSERT( Util::notEqual(pinf32,  pinf32));
+            ASSERT( Util::notEqual(ninf32,  ninf32));
+            ASSERT(!Util::notEqual(pinf32,  ninf32));
+            ASSERT(!Util::notEqual(ninf32,  pinf32));
+
+            ASSERT( Util::notEqual(pinf64,  pinf64));
+            ASSERT( Util::notEqual(ninf64,  ninf64));
+            ASSERT(!Util::notEqual(pinf64,  ninf64));
+            ASSERT(!Util::notEqual(ninf64,  pinf64));
+
+            ASSERT( Util::notEqual(pinf128, pinf128));
+            ASSERT( Util::notEqual(ninf128, ninf128));
+            ASSERT(!Util::notEqual(pinf128, ninf128));
+            ASSERT(!Util::notEqual(ninf128, pinf128));
+
+            // Value to 'Inf' comparisons should be false.
+
+            ASSERT(!Util::notEqual(test32,  pinf32));
+            ASSERT(!Util::notEqual(test32,  ninf32));
+            ASSERT(!Util::notEqual(pinf32,  test32));
+            ASSERT(!Util::notEqual(ninf32,  test32));
+
+            ASSERT(!Util::notEqual(test64,  pinf64));
+            ASSERT(!Util::notEqual(test64,  ninf64));
+            ASSERT(!Util::notEqual(pinf64,  test64));
+            ASSERT(!Util::notEqual(ninf64,  test64));
+
+            ASSERT(!Util::notEqual(test128, pinf128));
+            ASSERT(!Util::notEqual(test128, ninf128));
+            ASSERT(!Util::notEqual(pinf128, test128));
+            ASSERT(!Util::notEqual(ninf128, test128));
+
+            // 'Inf' to 'NaN' comparisons should be false.
+
+            ASSERT(!Util::notEqual( nan32,  pinf32));
+            ASSERT(!Util::notEqual( nan32,  ninf32));
+            ASSERT(!Util::notEqual(qnan32,  pinf32));
+            ASSERT(!Util::notEqual(qnan32,  ninf32));
+            ASSERT(!Util::notEqual(snan32,  pinf32));
+            ASSERT(!Util::notEqual(snan32,  ninf32));
+            ASSERT(!Util::notEqual(pinf32,   nan32));
+            ASSERT(!Util::notEqual(ninf32,   nan32));
+            ASSERT(!Util::notEqual(pinf32,  qnan32));
+            ASSERT(!Util::notEqual(ninf32,  qnan32));
+            ASSERT(!Util::notEqual(pinf32,  snan32));
+            ASSERT(!Util::notEqual(ninf32,  snan32));
+
+            ASSERT(!Util::notEqual( nan64,  pinf64));
+            ASSERT(!Util::notEqual( nan64,  ninf64));
+            ASSERT(!Util::notEqual(qnan64,  pinf64));
+            ASSERT(!Util::notEqual(qnan64,  ninf64));
+            ASSERT(!Util::notEqual(snan64,  pinf64));
+            ASSERT(!Util::notEqual(snan64,  ninf64));
+            ASSERT(!Util::notEqual(pinf64,   nan64));
+            ASSERT(!Util::notEqual(ninf64,   nan64));
+            ASSERT(!Util::notEqual(pinf64,  qnan64));
+            ASSERT(!Util::notEqual(ninf64,  qnan64));
+            ASSERT(!Util::notEqual(pinf64,  snan64));
+            ASSERT(!Util::notEqual(ninf64,  snan64));
+
+            ASSERT(!Util::notEqual( nan128, pinf128));
+            ASSERT(!Util::notEqual( nan128, ninf128));
+            ASSERT(!Util::notEqual(qnan128, pinf128));
+            ASSERT(!Util::notEqual(qnan128, ninf128));
+            ASSERT(!Util::notEqual(snan128, pinf128));
+            ASSERT(!Util::notEqual(snan128, ninf128));
+            ASSERT(!Util::notEqual(pinf128,  nan128));
+            ASSERT(!Util::notEqual(ninf128,  nan128));
+            ASSERT(!Util::notEqual(pinf128, qnan128));
+            ASSERT(!Util::notEqual(ninf128, qnan128));
+            ASSERT(!Util::notEqual(pinf128, snan128));
+            ASSERT(!Util::notEqual(ninf128, snan128));
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
