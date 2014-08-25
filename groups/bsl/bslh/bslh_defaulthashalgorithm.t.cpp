@@ -189,6 +189,7 @@ class HashTable {
         // 'valuesArray'
 
     ~HashTable();
+        // Free up memory used by this hash table.
 
     // ACCESSORS
     bool contains(const TYPE& value) const;
@@ -299,7 +300,7 @@ bool HashTable<TYPE, HASHER>::lookup(size_t      *idx,
     for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
                                    *idx = (*idx + 1) & d_bucketArrayMask) {
         if (value == *ptr) {
-            return true;                                          // RETURN
+            return true;                                              // RETURN
         }
     }
     // value was not found in table
