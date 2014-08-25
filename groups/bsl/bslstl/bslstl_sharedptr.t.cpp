@@ -1815,8 +1815,8 @@ MyTestObjectFactory::MyTestObjectFactory()
 {
 }
 
-MyTestObjectFactory::MyTestObjectFactory(bslma::Allocator* /*basicAllocator*/)
-: d_allocator_p(bslma::Default::allocator(d_allocator_p))
+MyTestObjectFactory::MyTestObjectFactory(bslma::Allocator* basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
 }
 
