@@ -1562,43 +1562,8 @@ int main(int argc, char* argv[])
             b32 = Util::makeDecimalRaw32(1000, 0);
             c32 = Util::makeDecimalRaw32(  10, 2);
 
-            ASSERT( Util::notEqual(a32, b32));
-            ASSERT( Util::notEqual(b32, a32));
-            ASSERT( Util::notEqual(b32, c32));
-            ASSERT( Util::notEqual(c32, b32));
-            ASSERT( Util::notEqual(a32, c32));
-            ASSERT( Util::notEqual(c32, a32));
-
-            a64 = Util::makeDecimalRaw64(   1, 3);
-            b64 = Util::makeDecimalRaw64(1000, 0);
-            c64 = Util::makeDecimalRaw64(  10, 2);
-
-            ASSERT( Util::notEqual(a64, b64));
-            ASSERT( Util::notEqual(b64, a64));
-            ASSERT( Util::notEqual(b64, c64));
-            ASSERT( Util::notEqual(c64, b64));
-            ASSERT( Util::notEqual(a64, c64));
-            ASSERT( Util::notEqual(c64, a64));
-
-            a128 = Util::makeDecimalRaw128(   1, 3);
-            b128 = Util::makeDecimalRaw128(1000, 0);
-            c128 = Util::makeDecimalRaw128(  10, 2);
-
-            ASSERT( Util::notEqual(a128, b128));
-            ASSERT( Util::notEqual(b128, a128));
-            ASSERT( Util::notEqual(b128, c128));
-            ASSERT( Util::notEqual(c128, b128));
-            ASSERT( Util::notEqual(a128, c128));
-            ASSERT( Util::notEqual(c128, a128));
-
-            // Negative transitivity
-
-            a32 = Util::makeDecimalRaw32(   1, 3);
-            b32 = Util::makeDecimalRaw32(1000, 0);
-            c32 = Util::makeDecimalRaw32(  20, 2);
-
-            ASSERT( Util::notEqual(a32, b32));
-            ASSERT( Util::notEqual(b32, a32));
+            ASSERT(!Util::notEqual(a32, b32));
+            ASSERT(!Util::notEqual(b32, a32));
             ASSERT(!Util::notEqual(b32, c32));
             ASSERT(!Util::notEqual(c32, b32));
             ASSERT(!Util::notEqual(a32, c32));
@@ -1606,10 +1571,10 @@ int main(int argc, char* argv[])
 
             a64 = Util::makeDecimalRaw64(   1, 3);
             b64 = Util::makeDecimalRaw64(1000, 0);
-            c64 = Util::makeDecimalRaw64(  20, 2);
+            c64 = Util::makeDecimalRaw64(  10, 2);
 
-            ASSERT( Util::notEqual(a64, b64));
-            ASSERT( Util::notEqual(b64, a64));
+            ASSERT(!Util::notEqual(a64, b64));
+            ASSERT(!Util::notEqual(b64, a64));
             ASSERT(!Util::notEqual(b64, c64));
             ASSERT(!Util::notEqual(c64, b64));
             ASSERT(!Util::notEqual(a64, c64));
@@ -1617,14 +1582,49 @@ int main(int argc, char* argv[])
 
             a128 = Util::makeDecimalRaw128(   1, 3);
             b128 = Util::makeDecimalRaw128(1000, 0);
-            c128 = Util::makeDecimalRaw128(  20, 2);
+            c128 = Util::makeDecimalRaw128(  10, 2);
 
-            ASSERT( Util::notEqual(a128, b128));
-            ASSERT( Util::notEqual(b128, a128));
+            ASSERT(!Util::notEqual(a128, b128));
+            ASSERT(!Util::notEqual(b128, a128));
             ASSERT(!Util::notEqual(b128, c128));
             ASSERT(!Util::notEqual(c128, b128));
             ASSERT(!Util::notEqual(a128, c128));
             ASSERT(!Util::notEqual(c128, a128));
+
+            // Negative transitivity
+
+            a32 = Util::makeDecimalRaw32(   1, 3);
+            b32 = Util::makeDecimalRaw32(1000, 0);
+            c32 = Util::makeDecimalRaw32(  20, 2);
+
+            ASSERT(!Util::notEqual(a32, b32));
+            ASSERT(!Util::notEqual(b32, a32));
+            ASSERT( Util::notEqual(b32, c32));
+            ASSERT( Util::notEqual(c32, b32));
+            ASSERT( Util::notEqual(a32, c32));
+            ASSERT( Util::notEqual(c32, a32));
+
+            a64 = Util::makeDecimalRaw64(   1, 3);
+            b64 = Util::makeDecimalRaw64(1000, 0);
+            c64 = Util::makeDecimalRaw64(  20, 2);
+
+            ASSERT(!Util::notEqual(a64, b64));
+            ASSERT(!Util::notEqual(b64, a64));
+            ASSERT( Util::notEqual(b64, c64));
+            ASSERT( Util::notEqual(c64, b64));
+            ASSERT( Util::notEqual(a64, c64));
+            ASSERT( Util::notEqual(c64, a64));
+
+            a128 = Util::makeDecimalRaw128(   1, 3);
+            b128 = Util::makeDecimalRaw128(1000, 0);
+            c128 = Util::makeDecimalRaw128(  20, 2);
+
+            ASSERT(!Util::notEqual(a128, b128));
+            ASSERT(!Util::notEqual(b128, a128));
+            ASSERT( Util::notEqual(b128, c128));
+            ASSERT( Util::notEqual(c128, b128));
+            ASSERT( Util::notEqual(a128, c128));
+            ASSERT( Util::notEqual(c128, a128));
         }
       } break;
       case 3: {
