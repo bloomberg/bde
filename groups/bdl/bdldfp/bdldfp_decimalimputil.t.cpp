@@ -698,6 +698,73 @@ int main(int argc, char* argv[])
             ASSERT(Util::equal(lhs128, Util::add(lhs128, negativeZero128)));
             ASSERT(Util::equal(lhs128, Util::add(negativeZero128, lhs128)));
         }
+
+                        // Testing for 'NaN'/'Inf' special cases:
+
+        {
+            //:             L + R|-Inf|Normal|+Inf|NaN|
+            //:            ------+----+------+----+---+
+            //:             -Inf |-Inf| -Inf | NaN|NaN|
+            //:            ------+----+------+----+---+
+            //:            Normal|-Inf|Normal|+Inf|NaN|
+            //:            ------+----+------+----+---+
+            //:             +Inf | NaN| +Inf |+Inf|NaN|
+            //:            ------+----+------+----+---+
+            //:              NaN | NaN|  NaN | NaN|NaN|
+
+            Util::ValueType64   ninf64 = Util::parse64("-Inf");
+            Util::ValueType64   pinf64 = Util::parse64("+Inf");
+            Util::ValueType64    nan64 = Util::parse64( "NaN");
+            Util::ValueType64 normal64 = Util::makeDecimalRaw64(42,1);
+
+            ASSERT(Util::equal(  ninf64, Util::add(  ninf64,   ninf64)));
+            ASSERT(Util::equal(  ninf64, Util::add(  ninf64, normal64)));
+            ASSERT(Util::equal(   nan64, Util::add(  ninf64,   pinf64)));
+            ASSERT(Util::equal(   nan64, Util::add(  ninf64,    nan64)));
+
+            ASSERT(Util::equal(  ninf64, Util::add(normal64,   ninf64)));
+            ASSERT(Util::equal(          Util::add(normal64, normal64),
+                               Util::makeDecimalRaw64(84,1)));
+            ASSERT(Util::equal(  pinf64, Util::add(normal64,   pinf64)));
+            ASSERT(Util::equal(   nan64, Util::add(normal64,    nan64)));
+
+            ASSERT(Util::equal(   nan64, Util::add(  pinf64,   ninf64)));
+            ASSERT(Util::equal(  ninf64, Util::add(  pinf64, normal64)));
+            ASSERT(Util::equal(  pinf64, Util::add(  pinf64,   pinf64)));
+            ASSERT(Util::equal(   nan64, Util::add(  pinf64,    nan64)));
+
+            ASSERT(Util::equal(   nan64, Util::add(   nan64,   ninf64)));
+            ASSERT(Util::equal(   nan64, Util::add(   nan64, normal64)));
+            ASSERT(Util::equal(   nan64, Util::add(   nan64,   pinf64)));
+            ASSERT(Util::equal(   nan64, Util::add(   nan64,    nan64)));
+
+
+            Util::ValueType128   ninf128 = Util::parse128("-Inf");
+            Util::ValueType128   pinf128 = Util::parse128("+Inf");
+            Util::ValueType128    nan128 = Util::parse128( "NaN");
+            Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
+
+            ASSERT(Util::equal(  ninf128, Util::add(  ninf128,   ninf128)));
+            ASSERT(Util::equal(  ninf128, Util::add(  ninf128, normal128)));
+            ASSERT(Util::equal(   nan128, Util::add(  ninf128,   pinf128)));
+            ASSERT(Util::equal(   nan128, Util::add(  ninf128,    nan128)));
+
+            ASSERT(Util::equal(  ninf128, Util::add(normal128,   ninf128)));
+            ASSERT(Util::equal(           Util::add(normal128, normal128),
+                               Util::makeDecimalRaw128(84,1)));
+            ASSERT(Util::equal(  pinf128, Util::add(normal128,   pinf128)));
+            ASSERT(Util::equal(   nan128, Util::add(normal128,    nan128)));
+
+            ASSERT(Util::equal(   nan128, Util::add(  pinf128,   ninf128)));
+            ASSERT(Util::equal(  ninf128, Util::add(  pinf128, normal128)));
+            ASSERT(Util::equal(  pinf128, Util::add(  pinf128,   pinf128)));
+            ASSERT(Util::equal(   nan128, Util::add(  pinf128,    nan128)));
+
+            ASSERT(Util::equal(   nan128, Util::add(   nan128,   ninf128)));
+            ASSERT(Util::equal(   nan128, Util::add(   nan128, normal128)));
+            ASSERT(Util::equal(   nan128, Util::add(   nan128,   pinf128)));
+            ASSERT(Util::equal(   nan128, Util::add(   nan128,    nan128)));
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
