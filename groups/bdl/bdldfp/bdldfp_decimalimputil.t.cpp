@@ -58,8 +58,8 @@ using bsl::atoi;
 // [  ] uint32ToDecimal128(unsigned          int)
 // [  ]  int64ToDecimal128(         long long int)
 // [  ] uint64ToDecimal128(unsigned long long int)
-// [  ] add(ValueType64,  ValueType64)
-// [  ] add(ValueType128, ValueType128)
+// [ 5] add(ValueType64,  ValueType64)
+// [ 5] add(ValueType128, ValueType128)
 // [  ] subtract(ValueType64,  ValueType64)
 // [  ] subtract(ValueType128, ValueType128)
 // [  ] multiply(ValueType64,  ValueType64)
@@ -639,6 +639,65 @@ int main(int argc, char* argv[])
         //:    orders. (C-4,6)
         // --------------------------------------------------------------------
 
+        Util::ValueType64     lhs64;
+        Util::ValueType64     rhs64;
+        Util::ValueType64  result64;
+
+        Util::ValueType128    lhs128;
+        Util::ValueType128    rhs128;
+        Util::ValueType128 result128;
+
+        struct  {
+            long long int lhsMantissa;
+                      int lhsExponent;
+            long long int rhsMantissa;
+                      int rhsExponent;
+            long long int resMantissa;
+                      int resExponent;
+        } testCases[] = {
+            {  0,  0,  0,  0,  0,  0 },
+            {  1,  0,  0,  0,  1,  0 },
+            {  0,  0,  1,  0,  1,  0 },
+            { 42,  0,  0,  0, 42,  0 },
+            {  0,  0, 42,  0, 42,  0 },
+            { 42,  0,  1,  0, 43,  0 },
+            {  1,  0, 42,  0, 43,  0 },
+            { 42,  0,  1,  1, 52,  0 },
+            {  1,  1, 42,  0, 52,  0 }
+        };
+        const int numTestCases = sizeof(testCases) / sizeof(*testCases);
+
+        for (int i = 0; i < numTestCases; ++i) {
+            long long int lhsMantissa = testCases[ i ].lhsMantissa;
+                      int lhsExponent = testCases[ i ].lhsExponent;
+            long long int rhsMantissa = testCases[ i ].rhsMantissa;
+                      int rhsExponent = testCases[ i ].rhsMantissa;
+            long long int resMantissa = testCases[ i ].resMantissa;
+                      int resExponent = testCases[ i ].resExponent;
+
+            Util::ValueType64 negativeZero64 = Util::parse64("-0");
+
+               lhs64 = Util::makeDecimalRaw64(lhsMantissa, lhsExponent);
+               rhs64 = Util::makeDecimalRaw64(rhsMantissa, rhsExponent);
+            result64 = Util::add(lhs64, rhs64);
+
+            ASSERT(Util::equal(result64, Util::makeDecimalRaw64(resMantissa,
+                                                                resExponent)));
+            ASSERT(Util::equal(lhs64, Util::add(lhs64, negativeZero64)));
+            ASSERT(Util::equal(lhs64, Util::add(negativeZero64, lhs64)));
+
+
+            Util::ValueType128 negativeZero128 = Util::parse128("-0");
+
+               lhs128 = Util::makeDecimalRaw128(lhsMantissa, lhsExponent);
+               rhs128 = Util::makeDecimalRaw128(rhsMantissa, rhsExponent);
+            result128 = Util::add(lhs128, rhs128);
+
+            ASSERT(Util::equal(result128, Util::makeDecimalRaw128(resMantissa,
+                                                                resExponent)));
+            ASSERT(Util::equal(lhs128, Util::add(lhs128, negativeZero128)));
+            ASSERT(Util::equal(lhs128, Util::add(negativeZero128, lhs128)));
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
