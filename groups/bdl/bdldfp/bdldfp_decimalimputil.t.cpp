@@ -594,6 +594,52 @@ int main(int argc, char* argv[])
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'add'
+        //
+        // Concerns:
+        //:  1 'add' should never (except in 'NaN' and 'Inf' cases) return the
+        //:    same value as at least one of the operands.
+        //:
+        //:  2 'add' behaves correctly with identity operands (0 and -0).
+        //:
+        //:  3 'add' will return a distinct value from both of its operands,
+        //:    when both are non-zero and value-states (not 'NaN' or 'Inf').
+        //:
+        //:  4 'add' to 'NaN' or 'Inf' should follow the IEEE rules for the
+        //:    cases listed in this chart:
+        //:
+        //:             L + R|-Inf|Normal|+Inf|NaN|
+        //:            ------+----+------+----+---+
+        //:             -Inf |-Inf| -Inf | NaN|NaN|
+        //:            ------+----+------+----+---+
+        //:            Normal|-Inf|Normal|+Inf|NaN|
+        //:            ------+----+------+----+---+
+        //:             +Inf | NaN| +Inf |+Inf|NaN|
+        //:            ------+----+------+----+---+
+        //:              NaN | NaN|  NaN | NaN|NaN|
+        //:
+        //:  5 'add' behaves reasonably when working with different quanta.
+        //:
+        //:  6 'add' must be a commutative operation (when avoiding corner
+        //     cases).
+        //:
+        //: Plan:
+        //:  1 Test a handful of expected values of different exponent and
+        //:    mantissa, with both possible orders. (C-1,5,6)
+        //:
+        //:  2 Test identity with both '-0' and '0' cases. (C-2)
+        //:
+        //:  3 When not dealing with special cases (or rounding cases), make
+        //:    sure the result value does not compare equal to either source.
+        //:    (C-3)
+        //:
+        //:  4 Test all 16 special cases in the chart, which covers both
+        //:    orders. (C-4,6)
+        // --------------------------------------------------------------------
+
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING notEqual
