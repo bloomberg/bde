@@ -48,7 +48,7 @@ enum { PADDING_SIZE = sizeof(bsls::AlignmentUtil::MaxAlignedType) };
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU  // An alias for a string that can be
                                        // treated as the "%zu" format
                                        // specifier (MSVC issue).
-    
+
                         // ===========
                         // struct Link
                         // ===========
