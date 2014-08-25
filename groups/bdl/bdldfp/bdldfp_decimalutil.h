@@ -494,6 +494,26 @@ Decimal64 DecimalUtil::makeDecimal64(unsigned long long mantissa, int exponent)
     return DecimalImpUtil::makeDecimal64(mantissa, exponent);
 }
 
+                             // Quantum functions
+
+inline
+Decimal64 DecimalUtil::multiplyByPowerOf10(Decimal64 value, int exponent)
+{
+    BSLS_ASSERT(-1999999997 <= exponent);
+    BSLS_ASSERT(               exponent <= 99999999);
+
+    return bdldfp::DecimalImpUtil::scaleB(*value.data(), exponent);
+}
+
+inline
+Decimal128 DecimalUtil::multiplyByPowerOf10(Decimal128 value, int exponent)
+{
+    BSLS_ASSERT(-1999999997 <= exponent);
+    BSLS_ASSERT(               exponent <= 99999999);
+
+    return bdldfp::DecimalImpUtil::scaleB(*value.data(), exponent);
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
