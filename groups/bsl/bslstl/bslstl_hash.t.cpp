@@ -37,10 +37,8 @@ using namespace bsl;
 // [ 2] hash& operator=(const hash&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] STRINGTHING
-// [ 8] USAGE EXAMPLE 1
-// [ 9] USAGE EXAMPLE 2
-// [10] USAGE EXAMPLE 3
+// [ 7] USAGE EXAMPLE 1
+// [ 8] USAGE EXAMPLE 2
 // [ 4] typedef argument_type
 // [ 4] typedef second_argument_type
 // [ 5] IsBitwiseMovable trait
@@ -265,108 +263,12 @@ class HashCrossReference {
     }
 };
 
-///Example 2: Using Our Hash Cross Reference For a Custom Class
+///Example 2: Using 'hashAppend' from 'bslh' with 'HashCrossReference'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In Example 1, we demonstrated a hash cross reference for integers, a trivial
-// example.  In Example 2, we want to demonstrate specializing 'hash' for a
-// custom class.  We will re-use the 'HashCrossReference' template class
-// defined in Example 1.
-
-// First, we define a 'StringThing' class, which is basically a 'const char *'
-// except that 'operator==' will do the right thing on the strings and properly
-// compare them:
-
-class StringThing {
-    // This class holds a pointer to zero-terminated string.  It is implicitly
-    // convertible to and from a 'const char *'.  The difference between this
-    // type and a 'const char *' is that 'operator==' will properly compare two
-    // objects of this type for equality of strings rather than equality of
-    // pointers.
-
-    // DATA
-    const char *d_string;    // held, not owned
-
-  public:
-    // CREATOR
-    StringThing(const char *string)                                 // IMPLICIT
-    : d_string(string)
-        // Create a 'StringThing' object out of the specified 'string'.
-    {}
-
-    // ACCESSOR
-    operator const char *() const
-        // Implicitly cast this 'StringThing' object to a 'const char *' that
-        // refers to the same buffer.
-    {
-        return d_string;
-    }
-};
-
-inline
-bool operator==(const StringThing& lhs, const StringThing& rhs)
-    // Return true if the specified 'lhs' and 'rhs' have the same value. Two
-    // 'StringThing' objects have the same value if they point to C-strings
-    // that compare equal.
-{
-    return !strcmp(lhs, rhs);
-}
-
-inline
-bool operator!=(const StringThing& lhs, const StringThing& rhs)
-    // Return true if the specified 'lhs' and 'rhs' do not have the same value. Two
-    // 'StringThing' objects do not have the same value if they point to
-    // C-strings that do not compare equal.
-{
-    return !(lhs == rhs);
-}
-
-// Then, we need a hash function for 'StringThing'.  We can specialize
-// 'bsl::hash' for our 'StringThing' type:
-
-namespace bsl {
-
-template <>
-struct hash<StringThing> {
-    // We need to specialize 'hash' for our 'StringThing' type.  If we just
-    // called 'hash<const char *>', it would just hash the pointer, so that
-    // pointers to two different buffers containing the same sequence of chars
-    // would hash to different values, which would not be the desired behavior.
-
-    size_t operator()(const StringThing& st) const
-        // Return the hash of the zero-terminated sequence of bytes referred to
-        // by the specified 'st'.  Note that this is an ad-hoc hash function
-        // thrown together in a few minutes, it has not been exhaustively
-        // tested or mathematically analyzed.  Also note that even though most
-        // of the default specializations of 'hash' have functions that take
-        // their arguments by value, there is nothing preventing us from
-        // chosing to pass it by reference in this case.
-    {
-        enum { SHIFT_DOWN = sizeof(size_t) * 8 - 8 };
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        const size_t MULTIPLIER = 0x5555555555555555ULL; // 16 '5's
-#else
-        const size_t MULTIPLIER = 0x55555555;            //  8 '5's
-#endif
-
-        size_t ret = 0;
-        unsigned char c;
-        for (const char *pc = st; (c = *pc); ++pc) {
-            ret =  MULTIPLIER * (ret + c);
-            ret += ret >> SHIFT_DOWN;
-        }
-
-        return ret;
-    }
-};
-
-}  // close namespace bsl
-
-///Example 3: Using 'hashAppend' from 'bslh' with 'HashCrossReference'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In Example 2, we specialized 'bsl::hash' for a custom class. Now we want to
-// do the same thing in the modular hashing system implemented in 'bslh'. We
-// will re-use the 'HashCrossReference' template class defined in Example 1.
+// We want to specialize 'bsl::hash' for a custom class. We can use the the
+// modular hashing system implemented in 'bslh' rather than explicitly
+// specializing 'bsl::hash'. We will re-use the 'HashCrossReference' template
+// class defined in Example 1.
 //
 // First, we declare 'Point', a class that allows us to identify a loction on a
 // two dimensional cartesian plane.
@@ -519,9 +421,9 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 3
+        // USAGE EXAMPLE 2
         //   Implement hashing in the new 'bslh' hashing system test that
         //   'bls::hash' picks up on it when there isn't a 'bsl::hash' template
         //   specialization.
@@ -536,10 +438,10 @@ int main(int argc, char *argv[])
         //:   functionality with some sample values. (C-1,2)
         //
         // Testing:
-        //   USAGE EXAMPLE 3
+        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        if (verbose) printf("USAGE EXAMPLE 3\n"
+        if (verbose) printf("USAGE EXAMPLE 2\n"
                             "===============\n");
 //..
 // Then, we want to use our cross reference on a 'Box'.  We create an array of
@@ -584,84 +486,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == hcrsts.count(Box(Point(30, 37), 34, 13)));
 
       } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE 2
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("USAGE EXAMPLE 2\n"
-                            "===============\n");
-
-// Next, now we want to use our cross reference on a more complex type, so
-// we'll use the 'StringThing' type we created.  We create an array of unique
-// 'StringThing's and take its length:
-
-        StringThing stringThings[] = { "woof",
-                                       "meow",
-                                       "bark",
-                                       "arf",
-                                       "bite",
-                                       "chomp",
-                                       "gnaw" };
-        enum { NUM_STRINGTHINGS =
-                              sizeof stringThings / sizeof *stringThings };
-
-// Then, we create our cross-reference 'hcrsts' and verify that it constructed
-// properly.  Note we don't pass a second parameter template argument and let
-// 'HASHER' will define to 'bsl::hash<StringThing>', which we have defined
-// above:
-
-        HashCrossReference<StringThing> hcrsts(stringThings,
-                                               NUM_STRINGTHINGS);
-        ASSERT(hcrsts.isValid());
-
-// Next, we verify that each element in our array registers with count:
-
-        ASSERT(1 == hcrsts.count("woof"));
-        ASSERT(1 == hcrsts.count("meow"));
-        ASSERT(1 == hcrsts.count("bark"));
-        ASSERT(1 == hcrsts.count("arf"));
-        ASSERT(1 == hcrsts.count("bite"));
-        ASSERT(1 == hcrsts.count("chomp"));
-        ASSERT(1 == hcrsts.count("gnaw"));
-
-// Now, we verify that strings not in our original array are correctly
-// identified as not being in the set:
-
-        ASSERT(0 == hcrsts.count("buy"));
-        ASSERT(0 == hcrsts.count("beg"));
-        ASSERT(0 == hcrsts.count("borrow"));
-        ASSERT(0 == hcrsts.count("or"));
-        ASSERT(0 == hcrsts.count("steal"));
-
-// Finally, to make sure that our lookup is independent of string location, we
-// copy some strings into a buffer and make sure that our results are as
-// expected.
-
-        char buffer[10];
-        strcpy(buffer, "woof");
-        ASSERT(1 == hcrsts.count(buffer));
-        strcpy(buffer, "chomp");
-        ASSERT(1 == hcrsts.count(buffer));
-        strcpy(buffer, "buy");
-        ASSERT(0 == hcrsts.count(buffer));
-        strcpy(buffer, "steal");
-        ASSERT(0 == hcrsts.count(buffer));
-      } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //   Extracted from component header file.
@@ -707,25 +532,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == hcri.count(31));
         ASSERT(0 == hcri.count(37));
         ASSERT(0 == hcri.count(58));
-      } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING 'StringThing'
-        //
-        // Concern:
-        //   That the 'StringThing' type use in the usage example functions
-        //   properly.
-        // --------------------------------------------------------------------
-
-        const char *a = "woof";
-        char b[5];
-        strcpy(b, a);
-        ASSERT(a != b);
-
-        ASSERT(StringThing(a) == StringThing(b));
-        b[0] = '*';
-        ASSERT(StringThing(a) != StringThing(b));
-        ASSERT(StringThing(a) != StringThing("meow"));
       } break;
       case 6: {
         // --------------------------------------------------------------------

@@ -28,8 +28,18 @@ using namespace bslh;
 
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
+//                                  Overview
+//                                  --------
+// The component under test is a standards-conformant hashing algorithm
+// functor.  The component will be tested for conformance to the interface
+// requirements on 'std::hash', outlined in the C++ Standard.  The output of
+// the component will also be tested to check that it matches the expected
+// output of the underlying hashing algorithms. This component also contains
+// 'hashAppend' free functions written for fundamental types. These free
+// functions will be tested to ensure they properly pass data into the hashing
+// algorithms they are given.
 //-----------------------------------------------------------------------------
 // TYPEDEF
 // [ 5] typedef size_t result_type;
@@ -324,17 +334,11 @@ void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
 }
 
 //..
-// Then, we create our hash table.  We simplify the problem by requiring the
-// caller to supply an array.  This means we already know how many buckets we
-// need.  We do not need to copy the values into our own area, so we don't have
-// to create storage for them, or require that a copy constructor or destructor
-// be available.  We only require that they have a transitive, symmetric
-// equivalence operation 'bool operator==' and that a they are hashable using
-// 'bslh::Hash'.
-//
-// Our hash table takes two type parameters: 'TYPE' (the type being referenced)
-// and 'HASHER' (a functor that produces the hash).  'HASHER' will default to
-// 'bslh::Hash<>'.
+// Then, we declare our hash table (implementation elided).  We simplify the
+// problem by requiring the caller to supply an array.  Our hash table takes
+// two type parameters: 'TYPE' (the type being referenced) and 'HASHER' (a
+// functor that produces the hash).  'HASHER' will default to 'bslh::Hash<>'.
+//..
 
 template <class TYPE, class HASHER = bslh::Hash<> >
 class HashTable {
@@ -371,68 +375,90 @@ class HashTable {
     // PRIVATE ACCESSORS
     bool lookup(size_t      *idx,
                 const TYPE&  value,
-                size_t       hashValue) const
+                size_t       hashValue) const;
         // Look up the specified 'value', having the specified 'hashValue', and
         // load its index in 'd_bucketArray' into the specified 'idx'.  If not
         // found, return the vacant entry in 'd_bucketArray' where it should be
         // inserted.  Return 'true' if 'value' is found and 'false' otherwise.
-    {
-        const TYPE *ptr;
-        for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
-                                       *idx = (*idx + 1) & d_bucketArrayMask) {
-            if (value == *ptr) {
-                return true;                                          // RETURN
-            }
-        }
-        // value was not found in table
 
-        return false;
-    }
 
   public:
     // CREATORS
     HashTable(const TYPE *valuesArray,
-              size_t      numValues)
+              size_t      numValues);
         // Create a hash table referring to the specified 'valuesArray' having
         // length of the specified 'numValues'.  No value in 'valuesArray'
         // shall have the same value as any of the other values in
         // 'valuesArray'
-    : d_values(valuesArray)
-    , d_numValues(numValues)
-    , d_hasher()
-    {
-        size_t bucketArrayLength = 4;
-        while (bucketArrayLength < numValues * 4) {
-            bucketArrayLength *= 2;
 
-        }
-        d_bucketArrayMask = bucketArrayLength - 1;
-        d_bucketArray = new const TYPE *[bucketArrayLength];
-        memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
-
-        for (unsigned i = 0; i < numValues; ++i) {
-            const TYPE& value = d_values[i];
-            size_t idx;
-            BSLS_ASSERT_OPT(!lookup(&idx, value, d_hasher(value)));
-            d_bucketArray[idx] = &d_values[i];
-        }
-    }
-
-    ~HashTable()
-        // Free up memory used by this cross-reference.
-    {
-        delete [] d_bucketArray;
-    }
+    ~HashTable();
 
     // ACCESSORS
-    bool contains(const TYPE& value) const
+    bool contains(const TYPE& value) const;
         // Return true if the specified 'value' is found in the table and false
         // otherwise.
-    {
-        size_t idx;
-        return lookup(&idx, value, d_hasher(value));
-    }
 };
+
+//=============================================================================
+//                     ELIDED USAGE EXAMPLE IMPLEMENTATIONS
+//-----------------------------------------------------------------------------
+
+// PRIVATE ACCESSORS
+template <class TYPE, class HASHER>
+bool HashTable<TYPE, HASHER>::lookup(size_t      *idx,
+                                     const TYPE&  value,
+                                     size_t       hashValue) const
+{
+    const TYPE *ptr;
+    for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
+                                   *idx = (*idx + 1) & d_bucketArrayMask) {
+        if (value == *ptr) {
+            return true;                                          // RETURN
+        }
+    }
+    // value was not found in table
+
+    return false;
+}
+
+// CREATORS
+template <class TYPE, class HASHER>
+HashTable<TYPE, HASHER>::HashTable(const TYPE *valuesArray,
+                                  size_t      numValues)
+: d_values(valuesArray)
+, d_numValues(numValues)
+, d_hasher()
+{
+    size_t bucketArrayLength = 4;
+    while (bucketArrayLength < numValues * 4) {
+        bucketArrayLength *= 2;
+
+    }
+    d_bucketArrayMask = bucketArrayLength - 1;
+    d_bucketArray = new const TYPE *[bucketArrayLength];
+    memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
+
+    for (unsigned i = 0; i < numValues; ++i) {
+        const TYPE& value = d_values[i];
+        size_t idx;
+        BSLS_ASSERT_OPT(!lookup(&idx, value, d_hasher(value)));
+        d_bucketArray[idx] = &d_values[i];
+    }
+}
+
+template <class TYPE, class HASHER>
+HashTable<TYPE, HASHER>::~HashTable()
+{
+    delete [] d_bucketArray;
+}
+
+// ACCESSORS
+template <class TYPE, class HASHER>
+bool HashTable<TYPE, HASHER>::contains(const TYPE& value) const
+{
+    size_t idx;
+    return lookup(&idx, value, d_hasher(value));
+}
 
 //=============================================================================
 //          GLOBAL TYPEDEFS, HELPER FUNCTIONS, AND CLASSES FOR TESTING
@@ -727,7 +753,6 @@ bool TypeChecker<EXPECTED_TYPE>::isCorrectType(OTHER_TYPE type) {
     return false;
 }
 
-
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -994,7 +1019,7 @@ int main(int argc, char *argv[])
         static const struct {
             int                  d_line;
             const int            d_value;
-            bsls::Types::Uint64  d_hash;
+            bsls::Types::Uint64  d_expectedHash;
         } DATA[] = {
         // LINE    DATA              HASH
          {  L_,        1,  9778072230994240314ULL,},
@@ -1022,7 +1047,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int    LINE  = DATA[i].d_line;
                 const int    VALUE = DATA[i].d_value;
-                const size_t HASH  = static_cast<size_t>(DATA[i].d_hash);
+                const size_t HASH  =
+                                   static_cast<size_t>(DATA[i].d_expectedHash);
 
                 if (veryVerbose) printf("Hashing: %i, Expecting: " ZU "\n",
                                         VALUE,

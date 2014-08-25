@@ -10,12 +10,12 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a class to generate arbitrary length seeds for algorithms.
 //
 //@CLASSES:
-//  bslh::SeedGenerator: Generator for arbitrary length seeds
+//  bslh::SeedGenerator: generator for arbitrary length seeds
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a class, 'bslh::SeedGenerator', which
-// utilizes a user-supplied random number generator (RNG) to generate arbitrary
+// utilizes a user-supplied Random Number Generator (RNG) to generate arbitrary
 // length seeds.  The quality of the seeds will only be as good as the quality
 // of the supplied RNG.  A cryptographically secure RNG must be supplied in
 // order for 'SeedGenerator' to produce seeds suitable for a cryptographically
@@ -28,11 +28,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirements on RNG
 ///-------------------
-// The (template parameter) type 'RNG' shall be a class exposing 'operator()'
-// which returns a result of type 'result_type', which will also be and
-// publicly accessible in 'RNG'.  The value returned by 'operator()' shall be
-// random bits, the quality of which can be defined by 'RNG'.  'RNG' shall also
-// be default and copy constructible.
+// The (template parameter) type 'RANDOM_NUM_GEN' shall be a class that
+// provides a type alias 'result_type' and exposes an 'operator()' that returns
+// a result of type 'result_type'. The value returned by 'operator()' shall be
+// random bits, the quality of which can be defined by 'RANDOM_NUM_GEN'.
+// 'RANDOM_NUM_GEN' shall also be default and copy constructible.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -59,21 +59,21 @@ namespace bslh {
                         // =========================
                         // class bslh::SeedGenerator
                         // =========================
-template<class RNG>
-class SeedGenerator : private RNG
-{
+template<class RANDOM_NUM_GEN>
+class SeedGenerator : private RANDOM_NUM_GEN {
     // This class template implements a seed generator which takes a user
     // supplied random number generator and uses it to generate an arbitrary
-    // length seed.
+    // length seed. Note that this type inherits from the (template parameter)
+    // type 'RANDOM_NUM_GEN' to take advantage of the empty-base optimization.
 
   private:
     // PRIVATE TYPES
-    typedef typename RNG::result_type result_type;
+    typedef typename RANDOM_NUM_GEN::result_type result_type;
         // 'result_type' is an alias for the value returned by a call to
         // 'operator()' on the (template parameter) type 'RNG'.
 
     // DATA
-    enum { k_RNGOUTPUTSIZE =  sizeof(typename RNG::result_type)};
+    enum { k_RNGOUTPUTSIZE = sizeof(typename RANDOM_NUM_GEN::result_type)};
         // Size in bytes of the rng's output.
 
   public:
@@ -82,7 +82,7 @@ class SeedGenerator : private RNG
         // Create a 'bslh::SeedGenerator' that will default construct the
         // parameterized 'RNG' and use it to generate its seeds.
 
-    explicit SeedGenerator(const RNG &randomNumberGenerator);
+    explicit SeedGenerator(const RANDOM_NUM_GEN &randomNumberGenerator);
         // Create a 'bslh::SeedGenerator' that will use the specified
         // 'randomNumberGenerator' to generate its seeds.
 
@@ -113,52 +113,41 @@ class SeedGenerator : private RNG
 // ============================================================================
 
 // CREATORS
-template<class RNG>
+template<class RANDOM_NUM_GEN>
 inline
-SeedGenerator<RNG>::SeedGenerator()
-: RNG()
+SeedGenerator<RANDOM_NUM_GEN>::SeedGenerator()
+: RANDOM_NUM_GEN()
 {
 }
 
-template<class RNG>
+template<class RANDOM_NUM_GEN>
 inline
-SeedGenerator<RNG>::SeedGenerator(const RNG &randomNumberGenerator)
-: RNG(randomNumberGenerator)
+SeedGenerator<RANDOM_NUM_GEN>::SeedGenerator(
+                                   const RANDOM_NUM_GEN &randomNumberGenerator)
+: RANDOM_NUM_GEN(randomNumberGenerator)
 {
 }
 
 // MANIPULATORS
-template<class RNG>
+template<class RANDOM_NUM_GEN>
 inline
-void SeedGenerator<RNG>::generateSeed(char *seedLocation, size_t seedLength)
+void SeedGenerator<RANDOM_NUM_GEN>::generateSeed(char *seedLocation,
+                                                 size_t seedLength)
 {
     BSLS_ASSERT(seedLocation || !seedLength);
 
     size_t numChunks = seedLength / k_RNGOUTPUTSIZE;
     size_t remainder = seedLength % k_RNGOUTPUTSIZE;
 
-#if defined(BSLS_PLATFORM_OS_SOLARIS)
     for (size_t i = 0; i != numChunks; ++i) {
-        result_type rand = RNG::operator()();
+        result_type rand = RANDOM_NUM_GEN::operator()();
         memcpy(seedLocation + i * sizeof(rand), &rand, sizeof(rand));
     }
 
     if (remainder) {
-        result_type rand = RNG::operator()();
+        result_type rand = RANDOM_NUM_GEN::operator()();
         memcpy(seedLocation + numChunks * sizeof(rand), &rand, remainder);
     }
-#else
-    char  *chunkEnd  = seedLocation + numChunks * k_RNGOUTPUTSIZE;
-
-    for (; seedLocation != chunkEnd; seedLocation += k_RNGOUTPUTSIZE) {
-        *(reinterpret_cast<result_type *>(seedLocation)) = RNG::operator()();
-    }
-
-    if (remainder) {
-        result_type randomBytes = RNG::operator()();
-        memcpy(seedLocation, &randomBytes, remainder);
-    }
-#endif
 }
 
 }  // close package namespace

@@ -10,21 +10,22 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an implementation of the SipHash algorithm.
 //
 //@CLASSES:
-//  bslh::SipHashAlgorithm: Functor implementing the SipHash algorithm
+//  bslh::SipHashAlgorithm: functor implementing the SipHash algorithm
 //
 //@SEE_ALSO: bslh_hash
 //
 //@DESCRIPTION: 'bslh::SipHashAlgorithm' implements the SipHash algorithm.
 // SipHash is an algorithm designed for speed and security.  A primary use case
 // for this algorithm is to provide an extra line of defense in hash tables
-// (such as the underlying implementation of 'unordered_map') against malicious
-// input that could cause denial of service (DOS) attacks.  It is based on one
-// of the finalists for the SHA-3 cryptographic hash standard.  Full details of
-// the hash function can be found here: https://131002.net/siphash/siphash.pdf
-// This particular implementation has been derived from Howard Hinnant's work
-// here: https://github.com/HowardHinnant/hash_append/blob/master/siphash.h and
-// as much of the original code as possible, including comment headers, has
-// been preserved.
+// (such as the hash table that is used to implement 'unordered_map') against
+// malicious input that could cause denial of service (DOS) attacks.  It is
+// based on one of the finalists for the SHA-3 cryptographic hash standard.
+// Full details of the hash function can be found here:
+// https://131002.net/siphash/siphash.pdf This particular implementation has
+// been derived from Howard Hinnant's work here:
+// https://github.com/HowardHinnant/hash_append/blob/master/siphash.h and as
+// much of the original code as possible, including comment headers, has been
+// preserved.
 //
 // This class satisfies the requirements for seeded 'bslh' hashing algorithms,
 // defined in bslh_seededhash.h.  More information can be found in the package
@@ -33,8 +34,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Security
 ///--------
-// SipHash is NOT a cryptographically secure hash.  In the paper linked above,
-// the creators of this hash function describe it as "Cryptographically
+// SipHash is *not* a cryptographically secure hash.  In the paper linked
+// above, the creators of this hash function describe it as "Cryptographically
 // Strong", but explicitly avoid calling it cryptographically secure.  In order
 // to be cryptographically secure, and algorithm must, among other things,
 // provide "collision resistance".  "Collision resistance" means that it should
@@ -43,11 +44,11 @@ BSLS_IDENT("$Id: $")
 // the fast execution time of the algorithm, it is feasible to find collisions
 // by brute force, making the algorithm not cryptographically secure.
 //
-// SipHash IS, however, a cryptographically strong PRF (pseudorandom function).
-// This means, assuming a properly random seed is given, the output of this
-// algorithm will be indistinguishable from a uniform random distribution.
-// This property is enough for the algorithm to be able to protect a hash table
-// from malicious DOS attacks
+// SipHash *is*, however, a cryptographically strong PRF (pseudorandom
+// function).  This means, assuming a cryptographically secure random seed is
+// given, the output of this algorithm will be indistinguishable from a uniform
+// random distribution.  This property is enough for the algorithm to be able
+// to protect a hash table from malicious DOS attacks.
 //
 ///Denial of Service Protection
 /// - - - - - - - - - - - - - -

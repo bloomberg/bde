@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a struct to run seeded 'bslh' hash algorithms on types.
 //
 //@CLASSES:
-//  bslh::SeededHash: Functor that runs seeded 'bslh' hash algorithms on types
+//  bslh::SeededHash: functor that runs seeded 'bslh' hash algorithms on types
 //
 //@SEE_ALSO: bslh_hash, bslh_seedgenerator
 //

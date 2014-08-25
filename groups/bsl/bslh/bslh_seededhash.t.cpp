@@ -23,8 +23,15 @@ using namespace bslh;
 
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
+//                                  Overview
+//                                  --------
+// The component under test is a standards-conformant hashing algorithm
+// functor.  The component will be tested for conformance to the interface
+// requirements on 'std::hash', outlined in the C++ Standard.  The output of
+// the component will also be tested to check that it matches the expected
+// output of the underlying hashing algorithms.
 //-----------------------------------------------------------------------------
 // TYPEDEF
 // [ 4] typedef size_t result_type;
@@ -129,12 +136,7 @@ void aSsErT(bool b, const char *s, int i)
 //
 // We can use the result of the hash function to index into our array of
 // 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
-// array of 'TYPE' objects.  We will resolve hash collisions in our array
-// through 'linear probing', where we will search consecutive buckets following
-// the bucket where the collision occurred, testing occupied buckets for
-// equality with the value we are searching on, and concluding that the value
-// is not in the table if we encounter an empty bucket before we encounter one
-// referring to an equal element.
+// array of 'TYPE' objects.
 //
 // First, we define our 'HashTable' template class, with the two type
 // parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
@@ -475,7 +477,7 @@ int main(int argc, char *argv[])
         static const struct {
             int                  d_line;
             const int            d_value;
-            bsls::Types::Uint64  d_hash;
+            bsls::Types::Uint64  d_expectedHash;
         } DATA[] = {
         // LINE    DATA              HASH
          {  L_,        1,  9778072230994240314ULL,},
@@ -503,7 +505,8 @@ int main(int argc, char *argv[])
             for (int i = 0; i != NUM_DATA; ++i) {
                 const int     LINE  = DATA[i].d_line;
                 const int     VALUE = DATA[i].d_value;
-                const size_t  HASH  = static_cast<size_t>(DATA[i].d_hash);
+                const size_t  HASH  =
+                                   static_cast<size_t>(DATA[i].d_expectedHash);
 
                 if (veryVerbose) printf("Hashing: %i, Expecting: " ZU "\n",
                                         VALUE,

@@ -18,8 +18,13 @@ using namespace bslh;
 
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
+//                                  Overview
+//                                  --------
+// The component under test is a 'bslh' seed generator.  The component will
+// also be tested for conformance to the requirements on 'bslh' seed
+// generators, outlined in the 'bslh' package level documentation.
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] SeedGenerator()
@@ -166,27 +171,6 @@ void verifyResultMatchesRNG(const char *result, size_t length)
     }
 }
 
-unsigned int someSeededHash(const char *seed,
-                            size_t seedLength,
-                            const char *data,
-                            size_t length)
-    // Hash the specified 'length' bytes of 'data' using the specified
-    // 'seedLength' bytes of 'seed' to seed the hash.  This is not a real hash
-    // function.  DO NOT USE FOR ACTUAL HASHING
-{
-    const unsigned int *castedSeed = reinterpret_cast<const unsigned int *>(
-                                                                         seed);
-    unsigned int hash = 0;
-    for (size_t i = 0; i < seedLength/4; ++i) {
-        hash ^= castedSeed[i];
-    }
-
-    for (size_t i = 0; i < length; ++i) {
-        hash *= data[i];
-    }
-    return hash;
-}
-
 void fill(char *data, size_t length, char repeatingElement)
     // Load the specified 'repeatingElement' into each byte of the specified
     // 'length' bytes long 'data'.  The behaviour is undefined if 'data' does
@@ -240,14 +224,6 @@ class Seeded32BitHashingAlgorithm {
         // Return a hash of the specified 'length' bytes of 'data'.
 };
 
-Seeded32BitHashingAlgorithm::Seeded32BitHashingAlgorithm(const char *seed) :
-                                                               d_seed(seed) { }
-
-Seeded32BitHashingAlgorithm::result_type
-Seeded32BitHashingAlgorithm::operator()(const char *data, size_t length) {
-    return someSeededHash(d_seed, 4, data, length);
-}
-
 //..
 // Then, we define another hashing algorithm, which accepts a 64-bit seed and
 // returns a 32-bit unsigned int
@@ -272,14 +248,6 @@ class Seeded64BitHashingAlgorithm {
     result_type operator()(const char *data, size_t length);
         // Return a hash of the specified 'length' bytes of 'data'.
 };
-
-Seeded64BitHashingAlgorithm::Seeded64BitHashingAlgorithm(const char *seed) :
-                                                               d_seed(seed) { }
-
-Seeded64BitHashingAlgorithm::result_type
-Seeded64BitHashingAlgorithm::operator()(const char *data, size_t length) {
-    return someSeededHash(d_seed, 8, data, length);
-}
 
 //..
 // Next, we define a final hashing algorithm, which accepts a 1024-bit seed and
@@ -306,18 +274,10 @@ class Seeded1024BitHashingAlgorithm {
         // Return a hash of the specified 'length' bytes of 'data'.
 };
 
-Seeded1024BitHashingAlgorithm::Seeded1024BitHashingAlgorithm(const char *seed)
-                                                             : d_seed(seed) { }
-
-Seeded1024BitHashingAlgorithm::result_type
-Seeded1024BitHashingAlgorithm::operator()(const char *data, size_t length) {
-    return someSeededHash(d_seed, 128, data, length);
-}
-
 //..
-// Then, we define our functor, 'SeededHash', which will take a seed generator,
-// and be able to run any of our hashing algorithms by generating the correct
-// size seed with the seed generator.
+// Then, we declare our functor, 'SeededHash', which will take a seed
+// generator, and be able to run any of our hashing algorithms by generating
+// the correct size seed with the seed generator.
 //..
 
 template <class HASH_ALGORITHM>
@@ -347,6 +307,12 @@ class SeededHash {
 
 };
 
+//..
+// Next, we define our constructor where we actually use 'bslh::SeedGenerator'.
+// 'bslh::SeedGenerator' allows us to create arbitarty length seeds to match
+// the requirements of the above declared algorithms.
+//..
+
 template <class HASH_ALGORITHM>
 template<class SEED_GENERATOR>
 SeededHash<HASH_ALGORITHM>::SeededHash(SEED_GENERATOR seedGenerator) {
@@ -360,6 +326,55 @@ SeededHash<HASH_ALGORITHM>::operator()(const char *data, size_t length) const {
     return hashAlg(data, length);
 }
 
+//=============================================================================
+//                     ELIDED USAGE EXAMPLE IMPLEMENTATIONS
+//-----------------------------------------------------------------------------
+
+unsigned int someSeededHash(const char *seed,
+                            size_t seedLength,
+                            const char *data,
+                            size_t length)
+    // Hash the specified 'length' bytes of 'data' using the specified
+    // 'seedLength' bytes of 'seed' to seed the hash.  This is not a real hash
+    // function.  DO NOT USE FOR ACTUAL HASHING
+{
+    const unsigned int *castedSeed = reinterpret_cast<const unsigned int *>(
+                                                                         seed);
+    unsigned int hash = 0;
+    for (size_t i = 0; i < seedLength/4; ++i) {
+        hash ^= castedSeed[i];
+    }
+
+    for (size_t i = 0; i < length; ++i) {
+        hash *= data[i];
+    }
+    return hash;
+}
+
+Seeded32BitHashingAlgorithm::Seeded32BitHashingAlgorithm(const char *seed) :
+                                                               d_seed(seed) { }
+
+Seeded32BitHashingAlgorithm::result_type
+Seeded32BitHashingAlgorithm::operator()(const char *data, size_t length) {
+    return someSeededHash(d_seed, 4, data, length);
+}
+
+
+Seeded64BitHashingAlgorithm::Seeded64BitHashingAlgorithm(const char *seed) :
+                                                               d_seed(seed) { }
+
+Seeded64BitHashingAlgorithm::result_type
+Seeded64BitHashingAlgorithm::operator()(const char *data, size_t length) {
+    return someSeededHash(d_seed, 8, data, length);
+}
+
+Seeded1024BitHashingAlgorithm::Seeded1024BitHashingAlgorithm(const char *seed)
+                                                             : d_seed(seed) { }
+
+Seeded1024BitHashingAlgorithm::result_type
+Seeded1024BitHashingAlgorithm::operator()(const char *data, size_t length) {
+    return someSeededHash(d_seed, 128, data, length);
+}
 
 // ============================================================================
 //                            MAIN PROGRAM

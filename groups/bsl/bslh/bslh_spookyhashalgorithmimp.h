@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide BDE style encapsulation of 3rd party SpookyHash code.
 //
 //@CLASSES:
-//  bslh::SpookyHashAlgorithmImp: Encapsulation of 3rd party SpookyHash code
+//  bslh::SpookyHashAlgorithmImp: encapsulation of 3rd party SpookyHash code
 //
 //@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithm
 //
@@ -115,10 +115,10 @@ class SpookyHashAlgorithmImp {
     // http://burtleburtle.net/bob/hash/spooky.html .
 
   public:
-    typedef  ::BloombergLP::bsls::Types::Uint64  Uint64;
-    typedef  unsigned int                        Uint32;
-    typedef  unsigned short                      Uint16;
-    typedef  unsigned char                       Uint8;
+    typedef  bsls::Types::Uint64  Uint64;
+    typedef  unsigned int         Uint32;
+    typedef  unsigned short       Uint16;
+    typedef  unsigned char        Uint8;
 
   private:
     // DATA
@@ -135,10 +135,10 @@ class SpookyHashAlgorithmImp {
         // A non-zero, odd, constant that has an irregular distribution of 1's
         // and 0's to be used in hashing calculations.
 
-    Uint64 m_data[2 * k_NUM_VARS]; // Unhashed data, for partial messages
-    Uint64 m_state[k_NUM_VARS];    // Internal state of the hash
-    size_t m_length;               // Total length of the input so far
-    Uint8  m_remainder;            // Length of unhashed data stashed in m_data
+    Uint64 m_data[2 * k_NUM_VARS]; // unhashed data, for partial messages
+    Uint64 m_state[k_NUM_VARS];    // internal state of the hash
+    size_t m_length;               // total length of the input so far
+    Uint8  m_remainder;            // length of unhashed data stashed in m_data
 
     // PRIVATE CLASS METHODS
     static void end(const Uint64 *data,
@@ -169,7 +169,7 @@ class SpookyHashAlgorithmImp {
                     Uint64 &s8, Uint64 &s9, Uint64 &s10, Uint64 &s11);
         // Thoroughly mix the first 12 bytes of the specified 'data' into 's0',
         // 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', and
-        // 's1'.  This method should be used when the input is 96 bytes or
+        // 's11'.  This method should be used when the input is 96 bytes or
         // longer to prevent the loss of entropy, because the internal state of
         // 'SpookyHashAlgorithmImp' is overwritten every 96 bytes.  Note that
         // non-BDE-standard passing by non-const reference is used here to
@@ -186,12 +186,12 @@ class SpookyHashAlgorithmImp {
                           Uint64     *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
         // 'hash2' as seeds.  Load the higher order bits of the resulting
-        // 128-bit into 'hash1' and the lower order bits in 'hash2'.  This
-        // method is meant to be used for messages less than 192 bytes in
-        // length because of it's lower startup cost.  The behavior is
-        // undefined unles 'message' points at least 'length' bytes of
-        // initialized memory and both 'hash1' and 'hash2' point to at least 8
-        // bytes of initialized, modifiable, memory.
+        // 128-bit hash value into 'hash1' and the lower order bits in 'hash2'.
+        // This method is meant to be used for messages less than 192 bytes in
+        // length because of its lower startup cost.  The behavior is undefined
+        // unless 'message' points at least 'length' bytes of initialized
+        // memory and both 'hash1' and 'hash2' point to at least 8 bytes of
+        // initialized, modifiable, memory.
 
     static void shortEnd(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
         // Combine the specified 'h0', 'h1', 'h2', and 'h3' together so that
@@ -228,7 +228,7 @@ class SpookyHashAlgorithmImp {
                          size_t      length,
                          Uint64      seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
-        // seed.  Return the resulting 64-bit hash.The behavior is undefined
+        // seed.  Return the resulting 64-bit hash.  The behavior is undefined
         // unles 'message' points at least 'length' bytes of initialized
         // memory.
 
@@ -238,10 +238,10 @@ class SpookyHashAlgorithmImp {
                         Uint64     *hash2);
         // Hash the specified 'length' bytes of 'message' using 'hash1' and
         // 'hash2' as seeds.  Load the higher order bits of the resulting
-        // 128-bit into 'hash1' and the lower order bits in 'hash2'.  The
-        // behavior is undefined unles 'message' points at least 'length' bytes
-        // of initialized memory and both 'hash1' and 'hash2' point to at least
-        // 8 bytes of initialized, modifiable, memory.
+        // 128-bit hash value into 'hash1' and the lower order bits in 'hash2'.
+        // The behavior is undefined unless 'message' points at least 'length'
+        // bytes of initialized memory and both 'hash1' and 'hash2' point to at
+        // least 8 bytes of initialized, modifiable, memory.
 
     // CREATORS
     SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2);

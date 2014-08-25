@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a reasonable seeded hashing algorithm for default use.
 //
 //@CLASSES:
-//  bslh::DefaultSeededHashAlgorithm: A default seeded hashing algorithm
+//  bslh::DefaultSeededHashAlgorithm: a default seeded hashing algorithm
 //
 //@SEE_ALSO: bslh_hash, bslh_siphashalgorithm, bslh_defaulthashalgorithm
 //
@@ -30,13 +30,14 @@ BSLS_IDENT("$Id: $")
 // hashes that are not predictable by an attacker.  Security is a concern when
 // an attacker may be able to provide malicious input into a hash table,
 // thereby causing hashes to collide to buckets, which degrades performance.
-// There are NO security guarantees made by 'bslh::DefaultHashAlgorithm',
-// meaning attackers may be able to engineer keys that will cause a DOS attack
-// in hash tables using this algorithm.  Note that even if an attacker does not
-// know the seed used to initialize this algorithm, they may still be able to
-// produce keys that will cause a DOS attack in hash tables using this
-// algorithm.  If security is required, an algorithm that documents better
-// secure properties should be used, such as 'bslh_siphashalgorithm'.
+// There are *no* security guarantees made by 'bslh::DefaultHashAlgorithm',
+// meaning attackers may be able to engineer keys that will cause a Denial of
+// Service (DoS) attack in hash tables using this algorithm.  Note that even if
+// an attacker does not know the seed used to initialize this algorithm, they
+// may still be able to produce keys that will cause a DOS attack in hash
+// tables using this algorithm.  If security is required, an algorithm that
+// documents better secure properties should be used, such as
+// 'bslh_siphashalgorithm'.
 //
 ///Speed
 ///-----
