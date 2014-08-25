@@ -160,7 +160,7 @@ void formatInvalidMemoryBlock(Align                *address,
                     static_cast<bsls::Types::Int64>(numBytes),
                     static_cast<void *>(payload));
 #else
-        std::printf("*** Invalid (non-positive) byte count %d at address"
+        std::printf("*** Invalid (non-positive) byte count %zd at address"
                     " %p. *** \n",
                     numBytes,
                     static_cast<void *>(payload));
@@ -178,7 +178,7 @@ void formatInvalidMemoryBlock(Align                *address,
                     static_cast<bsls::Types::Int64>(numBytes),
                     static_cast<void *>(payload));
 #else
-        std::printf("*** Memory corrupted at %d bytes before %d byte"
+        std::printf("*** Memory corrupted at %d bytes before %zd byte"
                     " segment at %p. ***\n",
                     underrunBy,
                     numBytes,
@@ -196,7 +196,7 @@ void formatInvalidMemoryBlock(Align                *address,
                     static_cast<bsls::Types::Int64>(numBytes),
                     static_cast<void *>(payload));
 #else
-        std::printf("*** Memory corrupted at %d bytes after %d byte"
+        std::printf("*** Memory corrupted at %d bytes after %zd byte"
                     " segment at %p. ***\n",
                     overrunBy,
                     numBytes,
@@ -573,7 +573,7 @@ void *TestAllocator::allocate(size_type size)
                     1 == size ? " " : "s ",
                     address);
 #else
-        std::printf(" [%lld]: Allocated %d byte%sat %p.\n",
+        std::printf(" [%lld]: Allocated %zd byte%sat %p.\n",
                     allocationIndex,
                     size,
                     1 == size ? " " : "s ",
@@ -730,7 +730,7 @@ void TestAllocator::deallocate(void *address)
                     1 == size ? " " : "s ",
                     address);
 #else
-        std::printf(" [%lld]: Deallocated %d byte%sat %p.\n",
+        std::printf(" [%lld]: Deallocated %zd byte%sat %p.\n",
                     allocationIndex,
                     size,
                     1 == size ? " " : "s ",
