@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: $")
 ///-------------------
 // The (template parameter) type 'RANDOM_NUM_GEN' shall be a class that
 // provides a type alias 'result_type' and exposes an 'operator()' that returns
-// a result of type 'result_type'. The value returned by 'operator()' shall be
+// a result of type 'result_type'.  The value returned by 'operator()' shall be
 // random bits, the quality of which can be defined by 'RANDOM_NUM_GEN'.
 // 'RANDOM_NUM_GEN' shall also be default and copy constructible.
 //
@@ -232,7 +232,7 @@ template<class RANDOM_NUM_GEN>
 class SeedGenerator : private RANDOM_NUM_GEN {
     // This class template implements a seed generator which takes a user
     // supplied random number generator and uses it to generate an arbitrary
-    // length seed. Note that this type inherits from the (template parameter)
+    // length seed.  Note that this type inherits from the (template parameter)
     // type 'RANDOM_NUM_GEN' to take advantage of the empty-base optimization.
 
   private:

@@ -116,7 +116,7 @@ BSLS_IDENT("$Id: $")
 // that an attacker with knowledge of the hashing algorithm we are using could
 // specially craft input that will cause collisions in our hash table,
 // degrading performance to O(n).  To avoid this we will need to use a secure
-// hash algorithm with a random seed.  This algorithm will need to be  in the
+// hash algorithm with a random seed.  This algorithm will need to be in the
 // form of a hash functor -- an object that will take objects stored in our
 // array as input, and yield a 64-bit int value which is hard enough for an
 // outside observer to predict that it appear random.  'bslh::SeededHash'
