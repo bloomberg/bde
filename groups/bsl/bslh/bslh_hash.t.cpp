@@ -615,6 +615,24 @@ class TestDriver {
         char d_data[sizeof(TYPE)];                            // Arbitrary data
     };
 
+    template<class CV_TYPE>
+    void testHashAppendPassThroughCV(int line)
+        // Test 'hashAppend' on 'CV_TYPE', using the specified 'line' in a
+        // 'ASSERTV'.
+    {
+        MockHashingAlgorithm alg;
+        TYPE input = *reinterpret_cast<TYPE *>(d_data);
+
+        hashAppend(alg, input);
+
+        ASSERTV(line, alg.getLength(), sizeof(TYPE),
+                                              alg.getLength() == sizeof(TYPE));
+
+        ASSERT(binaryCompare(reinterpret_cast<const char *>(&input),
+                             alg.getData(),
+                             sizeof(TYPE) ) );
+    }
+
   public:
     TestDriver()
         // Construct a 'TestDriver'
@@ -699,17 +717,8 @@ class TestDriver {
         // Test 'hashAppend' on 'TYPE', using the specified 'line' in a
         // 'ASSERTV'.
     {
-        MockHashingAlgorithm alg;
-        const TYPE input = *reinterpret_cast<const TYPE *>(d_data);
-
-        hashAppend(alg, input);
-
-        ASSERTV(line, alg.getLength(), sizeof(TYPE),
-                                              alg.getLength() == sizeof(TYPE));
-
-        ASSERT(binaryCompare(reinterpret_cast<const char *>(&input),
-                             alg.getData(),
-                             sizeof(TYPE) ) );
+        testHashAppendPassThroughCV<TYPE>(line);
+        testHashAppendPassThroughCV<const TYPE>(line);
     }
 };
 
@@ -1097,38 +1106,38 @@ int main(int argc, char *argv[])
         //: 8 'hashAppend' will not accept types that are convertable to
         //:   fundamental types (i.e. some type convertable to bool will not be
         //:   automatically hashed as a bool).
+        //:
+        //: 9 'hashAppend' can be called with 'const' qualified types.
         //
         // Plan:
-        //: 1 Call 'hashAppend' with each fundamental type to ensure the
-        //:   function exists. (C-1)
-        //:
-        //: 2 Use a mock hashing algorithm to test that 'hashAppend' inputs the
+        //: 1 Use a mock hashing algorithm to test that 'hashAppend' inputs the
         //:   same bytes when given -0.0 or +0.0 floating point numbers. (C-2)
         //:
-        //: 3 Use a mock hashing algorithm to test that 'hashAppend' inputs one
+        //: 2 Use a mock hashing algorithm to test that 'hashAppend' inputs one
         //:   of two possible byte representations of boolean values into the
         //:   hashing algorithm it is given.  Attempt to permute the boolean
-        //:   input using '++', assignment, and memcpy operations. (C-3)
+        //:   input using '++' and assignment.  Test with 'const' and
+        //:   non-'const' 'bool'.  (C-3,9)
         //:
-        //: 4 Hash different pointers pointing to different data in different
+        //: 3 Hash different pointers pointing to different data in different
         //:   locations, the same data in different locations, and the same
         //:   location, and verify all behave as expected. (C-4)
         //:
-        //: 5 Check if there is garbage in the binary representation of 'long
+        //: 4 Check if there is garbage in the binary representation of 'long
         //:   double' if there is, ASSERT that all data including and after the
         //:   garbage is ignored by 'hashAppend'.
         //:
-        //: 6 Copy a known bitsequece into each fundamental type and pass it
+        //: 5 Copy a known bitsequece into each fundamental type and pass it
         //:   into 'hashAppend' with a mocked hashing algorith.  Verify that
         //:   the data inputted into the hashing algorithm matches the known
-        //:   input bitsequence. (C-6)
+        //:   input bitsequence.  Test with 'const' types.  (C-1,6,9)
         //:
-        //: 7 Generate positive infinity in a number of ways and call
+        //: 6 Generate positive infinity in a number of ways and call
         //:   'hashAppend' with each infinity and ASSERT that the data passed
         //:   into the hashing algorithm is always the same. Repeat with
         //:   negative infinity. (C-7)
         //:
-        //: 8 Create an 'ifdef'ed test case that should fail to compile when
+        //: 7 Create an 'ifdef'ed test case that should fail to compile when
         //:   manually tested.
         //
         // Testing:
@@ -1159,134 +1168,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'hashAppend'"
                             "\n====================\n");
 
-        if (verbose) printf("Call 'hashAppend' with each fundamental type to"
-                            " ensure the function exists. (C-1)\n");
-        {
-            MockHashingAlgorithm boolAlg;
-            hashAppend(boolAlg, static_cast<bool>(1));
-
-            MockHashingAlgorithm charAlg;
-            hashAppend(charAlg, static_cast<char>(1));
-
-            MockHashingAlgorithm signedCharAlg;
-            hashAppend(signedCharAlg, static_cast<signed char>(1));
-
-            MockHashingAlgorithm wchar_tAlg;
-            hashAppend(wchar_tAlg, static_cast<wchar_t>(1));
-
-#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-            MockHashingAlgorithm char16_tAlg;
-            hashAppend(char16_tAlg, static_cast<char16_t>(1));
-
-            MockHashingAlgorithm char32_tAlg;
-            hashAppend(char32_tAlg, static_cast<char32_t>(1));
-#endif
-
-            MockHashingAlgorithm shortAlg;
-            hashAppend(shortAlg, static_cast<short>(1));
-
-            MockHashingAlgorithm unsignedShortAlg;
-            hashAppend(unsignedShortAlg, static_cast<unsigned short>(1));
-
-            MockHashingAlgorithm intAlg;
-            hashAppend(intAlg, static_cast<int>(1));
-
-            MockHashingAlgorithm unsignedIntAlg;
-            hashAppend(unsignedIntAlg, static_cast<unsigned int>(1));
-
-            MockHashingAlgorithm longAlg;
-            hashAppend(longAlg, static_cast<long>(1));
-
-            MockHashingAlgorithm unsignedLongAlg;
-            hashAppend(unsignedLongAlg, static_cast<unsigned long>(1));
-
-            MockHashingAlgorithm longLongAlg;
-            hashAppend(longLongAlg, static_cast<long long>(1));
-
-            MockHashingAlgorithm unsignedLongLongAlg;
-            hashAppend(unsignedLongLongAlg,static_cast<unsigned long long>(1));
-
-            MockHashingAlgorithm floatAlg;
-            hashAppend(floatAlg, static_cast<float>(1));
-
-            MockHashingAlgorithm doubleAlg;
-            hashAppend(doubleAlg, static_cast<double>(1));
-
-            MockHashingAlgorithm longDoubleAlg;
-            hashAppend(longDoubleAlg, static_cast<long double>(1));
-
-            char carray[] = "asdf";
-            MockHashingAlgorithm carrayAlg;
-            hashAppend(carrayAlg, carray);
-
-            const char constCarray[] = "asdf";
-            MockHashingAlgorithm constCarrayAlg;
-            hashAppend(constCarrayAlg, constCarray);
-
-            int iarray[] = {1, 2, 3, 4};
-            MockHashingAlgorithm iarrayAlg;
-            hashAppend(iarrayAlg, iarray);
-
-            const int constIarray[] = {1, 2, 3, 4};
-            MockHashingAlgorithm constIarrayAlg;
-            hashAppend(constIarrayAlg, constIarray);
-
-            char literal[] = "asdf";
-            char *ptr = literal;
-            MockHashingAlgorithm ptrAlg;
-            hashAppend(ptrAlg, ptr);
-
-            char constLiteral[] = "asdf";
-            const char *constPtr = constLiteral;
-            MockHashingAlgorithm constPtrAlg;
-            hashAppend(constPtrAlg, constPtr);
-
-            void (*fnptr10)(int, int, int, int, int, int, int, int, int, int) =
-                                                                             0;
-            MockHashingAlgorithm fnptrAlg10;
-            hashAppend(fnptrAlg10, fnptr10);
-
-            void (*fnptr9)(int, int, int, int, int, int, int, int, int) = 0;
-            MockHashingAlgorithm fnptrAlg9;
-            hashAppend(fnptrAlg9, fnptr9);
-
-            void (*fnptr8)(int, int, int, int, int, int, int, int) = 0;
-            MockHashingAlgorithm fnptrAlg8;
-            hashAppend(fnptrAlg8, fnptr8);
-
-            void (*fnptr7)(int, int, int, int, int, int, int) = 0;
-            MockHashingAlgorithm fnptrAlg7;
-            hashAppend(fnptrAlg7, fnptr7);
-
-            void (*fnptr6)(int, int, int, int, int, int) = 0;
-            MockHashingAlgorithm fnptrAlg6;
-            hashAppend(fnptrAlg6, fnptr6);
-
-            void (*fnptr5)(int, int, int, int, int) = 0;
-            MockHashingAlgorithm fnptrAlg5;
-            hashAppend(fnptrAlg5, fnptr5);
-
-            void (*fnptr4)(int, int, int, int) = 0;
-            MockHashingAlgorithm fnptrAlg4;
-            hashAppend(fnptrAlg4, fnptr4);
-
-            void (*fnptr3)(int, int, int) = 0;
-            MockHashingAlgorithm fnptrAlg3;
-            hashAppend(fnptrAlg3, fnptr3);
-
-            void (*fnptr2)(int, int) = 0;
-            MockHashingAlgorithm fnptrAlg2;
-            hashAppend(fnptrAlg2, fnptr2);
-
-            void (*fnptr1)(int) = 0;
-            MockHashingAlgorithm fnptrAlg1;
-            hashAppend(fnptrAlg1, fnptr1);
-
-            void (*fnptr0)() = 0;
-            MockHashingAlgorithm fnptrAlg0;
-            hashAppend(fnptrAlg0, fnptr0);
-        }
-
         if (verbose) printf("Use a mock hashing algorithm to test that"
                             " 'hashAppend' inputs the same bytes when given"
                             " -0.0 or +0.0 floating point numbers. (C-2)\n");
@@ -1305,8 +1186,9 @@ int main(int argc, char *argv[])
                             " 'hashAppend' inputs one of two possible byte"
                             " representations of boolean values into the"
                             " hashing algorithm it is given.  Attempt to"
-                            " permute the boolean input using '++',"
-                            " assignment, and memcpy operations. (C-3)\n");
+                            " permute the boolean input using '++' and"
+                            " assignment.  Test with 'const' and non-'const'"
+                            " 'bool'.  (C-3,9)\n");
         {
             MockHashingAlgorithm defaultAlg;
             hashAppend(defaultAlg, true);
@@ -1317,7 +1199,7 @@ int main(int argc, char *argv[])
             hashAppend(incrementedAlg, incrementedBool);
 
             unsigned short uShort = 219;
-            bool assignedBool = uShort;
+            const bool assignedBool = uShort;
             MockHashingAlgorithm assignedAlg;
             hashAppend(assignedAlg, assignedBool);
 
@@ -1502,9 +1384,10 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("Copy a known bitsequece into each fundamental"
                             " type and pass it into 'hashAppend' with a mocked"
-                            " hashing algorithm.  Verify that the data"
-                            " inputted into the hashing algorithm matches the"
-                            " known input bitsequence. (C-6)\n");
+                            " hashing algorith.  Verify that the data inputted"
+                            " into the hashing algorithm matches the known"
+                            " input bitsequence.  Test with 'const' types."
+                            "  (C-1,6,9)\n");
         {
             // 'bool' has already been tested and we explicitly DO NOT want it
             // to preserve its bitwise representation.
