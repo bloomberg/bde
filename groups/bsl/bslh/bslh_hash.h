@@ -518,7 +518,6 @@ typename bsl::enable_if<
 >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
 
-
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if<
     bsl::is_floating_point<TYPE>::value &&
@@ -526,20 +525,22 @@ typename bsl::enable_if<
 >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
 
-
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if< bsl::is_same<TYPE, bool>::value >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
-
 
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if< bsl::is_same<TYPE, long double>::value >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
 
+template <class HASH_ALGORITHM, size_t N>
+void hashAppend(HASH_ALGORITHM& hashAlg, char (&input)[N]);
 
 template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N]);
 
+template <class HASH_ALGORITHM, class TYPE, size_t N>
+void hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N]);
 
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
@@ -693,10 +694,34 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
 
 template <class HASH_ALGORITHM, size_t N>
 inline
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char (&input)[N])
+{
+    // This 'hashAppend' exists because some platforms don't recognize that
+    // adding a const qualifies is a better match for arrays than pointer
+    // decay.
+    hashAlg(&input, sizeof(char)*N);
+}
+
+template <class HASH_ALGORITHM, size_t N>
+inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N])
 {
     hashAlg(&input, sizeof(char)*N);
 }
+
+template <class HASH_ALGORITHM, class TYPE, size_t N>
+inline
+void bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N])
+{
+    // This 'hashAppend' exists because some platforms don't recognize that
+    // adding a const qualifies is a better match for arrays than pointer
+    // decay.
+
+    for (size_t i = 0; i < N; ++i) {
+        hashAppend(hashAlg, input[i]);
+    }
+}
+
 
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 inline
