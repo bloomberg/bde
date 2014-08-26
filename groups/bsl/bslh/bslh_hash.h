@@ -615,12 +615,12 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
         input = 0;
     }
 
-#if defined BSLS_PLATFORM_OS_LINUX   &&                                       \
-    (defined BSLS_PLATFORM_CMP_GNU   || defined BSLS_PLATFORM_CMP_CLANG)
+#if (defined BSLS_PLATFORM_CPU_X86 || defined BSLS_PLATFORM_CPU_X86_64) &&                                      \
+    (defined BSLS_PLATFORM_CMP_GNU || defined BSLS_PLATFORM_CMP_CLANG)
     // This needs to be done to work around issues when compiling with GCC and
-    // Clang on Linux.  On 64-bit hardware, 'sizeof(long double)' is advertised
-    // as 16 bytes, but only 10 bytes of precision is used.  The remaining 6
-    // bytes are padding.
+    // Clang on 86 machines.  On 64-bit hardware, 'sizeof(long double)' is
+    // advertised as 16 bytes, but only 10 bytes of precision is used.  The
+    // remaining 6 bytes are padding.
     //
     // For Clang, the final 2 bytes of the padding are zeroed, but the 4 bytes
     // that proceed the final two appear to be garbage.
@@ -672,7 +672,7 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     //
     // To address all of these issues, we will pass in only 10 bytes for a
     // 'long double' even if it is longer.
-  #if !defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CPU_64_BIT
+  #if !defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CPU_X86_64
     // We cant just check 'defined(BSLS_PLATFORM_CMP_GNU)' because Clang
     // masquerades as GCC.  Since we know that to be in this block we must be
     // using GCC or Clang, we can just check
