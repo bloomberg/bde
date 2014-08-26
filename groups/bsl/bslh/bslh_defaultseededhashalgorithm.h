@@ -343,10 +343,10 @@ class DefaultSeededHashAlgorithm {
 
     // CREATORS
     explicit DefaultSeededHashAlgorithm(const char *seed);
-        // Create an instance of 'DefaultSeededHashAlgorithm' seeded with a
-        // 128-bit ('k_SEED_LENGTH' bytes) seed pointed to by the specified
-        // 'seed'.  Each bit of the supplied seed will contribute to the final
-        // hash produced by 'computeHash()'.  The behaviour is undefined unless
+        // Create a 'bslh::DefaultSeededHashAlgorithm', seeded with a 128-bit
+        // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
+        // Each bit of the supplied seed will contribute to the final hash
+        // produced by 'computeHash()'.  The behaviour is undefined unless
         // 'seed' points to at least 16 bytes of initialized memory.
 
     //! ~DefaultSeededHashAlgorithm() = default;
@@ -368,7 +368,7 @@ class DefaultSeededHashAlgorithm {
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
         // Note that this changes the internal state of the object, so calling
-        // 'computeHash' multiple times in a row will return different results,
+        // 'computeHash()' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
         // the algorithm.  Also note that a value will be returned, even if
         // data has not been passed into 'operator()'.

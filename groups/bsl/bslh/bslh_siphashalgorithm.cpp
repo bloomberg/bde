@@ -27,7 +27,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //: 4  Added initializer list to handle class member initializers removed from
 //:    the header
 //:
-//: 5  Added 'computeHash' to handle explicit conversion removed from header.
+//: 5  Added 'computeHash()' to handle explicit conversion removed from header.
 //:
 //: 6  Changed the constructor to accept a 'const char *'
 //:

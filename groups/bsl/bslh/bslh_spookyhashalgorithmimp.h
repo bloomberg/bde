@@ -387,9 +387,9 @@ class SpookyHashAlgorithmImp {
 
     // CREATORS
     SpookyHashAlgorithmImp(Uint64 seed1, Uint64 seed2);
-        // Create an object of type 'SpookyHashAlgorithmImp', initializing the
-        // internal state of the object using the specified 'seed1' and 'seed2'
-        // as seeds for the algorithm.
+        // Create a 'bslh::SpookyHashAlgorithmImp', initializing the internal
+        // state of the object using the specified 'seed1' and 'seed2' as seeds
+        // for the algorithm.
 
     //! ~SpookyHashAlgorithmImp() = default;
         // Destroy this object.

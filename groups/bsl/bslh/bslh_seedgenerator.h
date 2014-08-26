@@ -256,8 +256,8 @@ class SeedGenerator : private RANDOM_NUM_GEN {
         // 'randomNumberGenerator' to generate its seeds.
 
     //! SeedGenerator(const SeedGenerator& original) = default;
-        // Create a 'SeedGenerator' object with a copy of the random number
-        // generator used by the specified 'original'.
+        // Create a 'bslh::SeedGenerator' object with a copy of the random
+        // number generator used by the specified 'original'.
 
     //! ~SeedGenerator() = default;
         // Destroy this object.

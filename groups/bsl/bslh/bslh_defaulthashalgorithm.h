@@ -347,7 +347,7 @@ class DefaultHashAlgorithm {
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
         // Note that this changes the internal state of the object, so calling
-        // 'computeHash' multiple times in a row will return different results,
+        // 'computeHash()' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
         // the algorithm.  Also note that a value will be returned, even if
         // data has not been passed into 'operator()'

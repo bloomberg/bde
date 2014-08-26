@@ -557,11 +557,11 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING TESTING 'operator()' AND 'computeHash'
+        // TESTING TESTING 'operator()' AND 'computeHash()'
         //   Verify the class provides an overload for the function call
         //   operator that can be called with some bytes and a length.  Verify
         //   that calling 'operator()' will permute the algorithm's internal
-        //   state as specified by SipHash.  Verify that 'computeHash' returns
+        //   state as specified by SipHash.  Verify that 'computeHash()' returns
         //   the final value by SipHash specifications.
         //
         // Concerns:
@@ -599,7 +599,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                         "\nTESTING TESTING 'operator()' AND 'computeHash'"
+                         "\nTESTING TESTING 'operator()' AND 'computeHash()'"
                          "\n==============================================\n");
 
         static const struct {

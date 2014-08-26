@@ -329,7 +329,7 @@ BSLS_IDENT("$Id: $")
 //:
 //: 6 Added typedef to replace removed 'std::Uint64_t'
 //:
-//: 7 Added 'computeHash' to replace the removed explicit conversion
+//: 7 Added 'computeHash()' to replace the removed explicit conversion
 //:
 //: 8 Added 'k_SEED_LENGTH' and changed the constructor to accept a
 //:   'const    char *'
@@ -441,7 +441,7 @@ class SipHashAlgorithm {
 
     // CREATORS
     explicit SipHashAlgorithm(const char *seed);
-        // Create an instance of 'SipHashAlgorithm' seeded with a 128-bit
+        // Create a 'bslh::SipHashAlgorithm', seeded with a 128-bit
         // ('k_SEED_LENGTH' bytes) seed pointed to by the specified 'seed'.
         // Each bit of the supplied seed will contribute to the final hash
         // produced by 'computeHash()'.  The behaviour is undefined unless
@@ -468,7 +468,7 @@ class SipHashAlgorithm {
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
         // Note that this changes the internal state of the object, so calling
-        // 'computeHash' multiple times in a row will return different results,
+        // 'computeHash()' multiple times in a row will return different results,
         // and only the first result returned will match the expected result of
         // the algorithm.  Also note that a value will be returned, even if
         // data has not been passed into 'operator()'
