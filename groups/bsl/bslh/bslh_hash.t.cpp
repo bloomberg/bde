@@ -392,6 +392,7 @@ class HashTable {
         // 'valuesArray'
 
     ~HashTable();
+        // Free up memory used by this hash table.
 
     // ACCESSORS
     bool contains(const TYPE& value) const;
@@ -413,7 +414,7 @@ bool HashTable<TYPE, HASHER>::lookup(size_t      *idx,
     for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
                                    *idx = (*idx + 1) & d_bucketArrayMask) {
         if (value == *ptr) {
-            return true;                                          // RETURN
+            return true;                                              // RETURN
         }
     }
     // value was not found in table
@@ -1090,8 +1091,12 @@ int main(int argc, char *argv[])
         //:   algorithm without truncation or appends for all types (with the
         //:   exceptions outlined above).
         //:
-        //: 7 Infinate floating point values that compare equal result in the
+        //: 7 Infinite floating point values that compare equal result in the
         //:   same data being passed to the hashing algorithm.
+        //:
+        //: 8 'hashAppend' will not accept types that are convertable to
+        //:   fundamental types (i.e. some type convertable to bool will not be
+        //:   automatically hashed as a bool).
         //
         // Plan:
         //: 1 Call 'hashAppend' with each fundamental type to ensure the
@@ -1122,6 +1127,9 @@ int main(int argc, char *argv[])
         //:   'hashAppend' with each infinity and ASSERT that the data passed
         //:   into the hashing algorithm is always the same. Repeat with
         //:   negative infinity. (C-7)
+        //:
+        //: 8 Create an 'ifdef'ed test case that should fail to compile when
+        //:   manually tested.
         //
         // Testing:
         //   void hashAppend(HASHALG& hashAlg, bool input);
@@ -1679,6 +1687,25 @@ int main(int argc, char *argv[])
             longDoubleDriver.testHashAppendInfinity();
         }
 
+#ifdef TEST_COMPILE_FAILS
+        if (verbose) printf("Create an 'ifdef'ed test case that should fail to"
+                            " compile when manually tested.\n");
+        {
+            class ConvertibleClass {
+              public:
+                operator bool() const
+                    // Supply a conversion to bool for testing purposes
+                {
+                    return true;
+                }
+            };
+
+            ConvertibleClass c = ConvertibleClass();
+            MockHashingAlgorithm hashAlg;
+            hashAppend(hashAlg, c);
+
+        }
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------

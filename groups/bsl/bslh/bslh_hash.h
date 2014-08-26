@@ -136,8 +136,28 @@ BSLS_IDENT("$Id: $")
 #include <bslh_defaulthashalgorithm.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISENUM
+#include <bslmf_isenum.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFLOATINGPOINT
+#include <bslmf_isfloatingpoint.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISINTEGRAL
+#include <bslmf_isintegral.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include <bslmf_ispointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
@@ -211,101 +231,43 @@ struct Hash {
 };
 
 // FREE FUNCTIONS
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, bool input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, char input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, signed char input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, unsigned char input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, wchar_t input);
-#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, char16_t input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, char32_t input);
-#endif
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, short input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, unsigned short input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, int input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, unsigned int input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, long input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, unsigned long input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, long long input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, unsigned long long input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, float input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, double input);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, long double input);
+template <class HASH_ALGORITHM, class TYPE>
+typename bsl::enable_if<
+    (bsl::is_integral<TYPE>::value ||
+     bsl::is_pointer<TYPE>::value  ||
+     bsl::is_enum<TYPE>::value)    &&
+    !bsl::is_same<TYPE, bool>::value
+>::type
+hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
+
+
+template <class HASH_ALGORITHM, class TYPE>
+typename bsl::enable_if<
+    bsl::is_floating_point<TYPE>::value &&
+    !bsl::is_same<TYPE, long double>::value
+>::type
+hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
+
+
+template <class HASH_ALGORITHM, class TYPE>
+typename bsl::enable_if< bsl::is_same<TYPE, bool>::value >::type
+hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
+
+
+template <class HASH_ALGORITHM, class TYPE>
+typename bsl::enable_if< bsl::is_same<TYPE, long double>::value >::type
+hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
+
+
 template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N]);
+
+
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM& hashAlg, const void *input);
-#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-template <class HASH_ALGORITHM, class RT, class ...  ARGS>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(ARGS...));
-#else
-template <class HASH_ALGORITHM, class RT>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)());
-template <class HASH_ALGORITHM, class RT, class T0>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0));
-template <class HASH_ALGORITHM, class RT, class T0, class T1>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1));
-template <class HASH_ALGORITHM, class RT, class T0, class T1, class T2>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2));
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3) );
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3, T4));
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5>
-void hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3, T4, T5));
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-void hashAppend(HASH_ALGORITHM& hashAlg,
-                RT (*input)(T0, T1, T2, T3, T4, T5, T6));
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7>
-void hashAppend(HASH_ALGORITHM& hashAlg,
-                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7));
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8>
-void hashAppend(HASH_ALGORITHM& hashAlg,
-                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7, T8));
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9>
-void hashAppend(HASH_ALGORITHM& hashAlg,
-                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9));
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
     // resulting hash value.
-#endif
 
 }  // close package namespace
 
@@ -326,9 +288,36 @@ bslh::Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
 }
 
 // FREE FUNCTIONS
-template <class HASH_ALGORITHM>
+template <class HASH_ALGORITHM, class TYPE>
 inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, bool input)
+typename bsl::enable_if<
+    (bsl::is_integral<TYPE>::value ||
+     bsl::is_pointer<TYPE>::value  ||
+     bsl::is_enum<TYPE>::value)    &&
+    !bsl::is_same<TYPE, bool>::value
+>::type
+bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
+{
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM, class TYPE>
+inline
+typename bsl::enable_if<
+    bsl::is_floating_point<TYPE>::value &&
+    !bsl::is_same<TYPE, long double>::value
+>::type
+bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
+{
+    if (input == 0)
+        input = 0;
+    hashAlg(&input, sizeof(input));
+}
+
+template <class HASH_ALGORITHM, class TYPE>
+inline
+typename bsl::enable_if< bsl::is_same<TYPE, bool>::value >::type
+bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
 {
     // We need to ensure that any inputs that compare equal produce the same
     // hash.  Any non-zero binary representation of 'input' can be 'true', so
@@ -339,129 +328,10 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, bool input)
     hashAlg(&normalizedData, sizeof(normalizedData));
 }
 
-template <class HASH_ALGORITHM>
+template <class HASH_ALGORITHM, class TYPE>
 inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, signed char input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned char input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, wchar_t input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-#if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char16_t input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char32_t input)
-{
-    hashAlg(&input, sizeof(input));
-}
-#endif
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, short input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned short input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, int input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned int input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned long input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long long input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, unsigned long long input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, float input)
-{
-    if (input == 0.0f){
-        input = 0;
-    }
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, double input)
-{
-    if (input == 0.0){
-        input = 0;
-    }
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
+typename bsl::enable_if< bsl::is_same<TYPE, long double>::value >::type
+bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
 {
     if (input == 0.0l){
         input = 0;
@@ -525,7 +395,7 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
     // To address all of these issues, we will pass in only 10 bytes for a
     // 'long double' even if it is longer.
 
-#if !defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CPU_64_BIT
+  #if !defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CPU_64_BIT
     // We cant just check 'defined(BSLS_PLATFORM_CMP_GNU)' because Clang
     // masquerades as GCC.  Since we know that to be in this block we must be
     // using GCC or Clang, we can just check
@@ -537,7 +407,7 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, long double input)
         hashAlg(&input, sizeof(input));
         return;                                                       // RETURN
     }
-#endif
+  #endif
     hashAlg(&input, sizeof(input) > 10 ? 10 : sizeof(input));
 #else
     hashAlg(&input, sizeof(input));
@@ -559,113 +429,6 @@ void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N])
         hashAppend(hashAlg, input[i]);
     }
 }
-
-template <class HASH_ALGORITHM>
-inline
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, const void *input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-
-template <class HASH_ALGORITHM, class RT, class ...  ARGS>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(ARGS...))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-#else
-
-template <class HASH_ALGORITHM, class RT>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)())
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM, class RT, class T0>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM, class RT, class T0, class T1>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM, class RT, class T0, class T1, class T2>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3) )
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg, RT (*input)(T0, T1, T2, T3, T4))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
-                      RT (*input)(T0, T1, T2, T3, T4, T5))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5, class T6>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
-                RT (*input)(T0, T1, T2, T3, T4, T5, T6))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
-                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
-                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7, T8))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM,
-          class RT,
-          class T0, class T1, class T2, class T3, class T4, class T5, class T6,
-          class T7, class T8, class T9>
-void bslh::hashAppend(HASH_ALGORITHM& hashAlg,
-                RT (*input)(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9))
-{
-    hashAlg(&input, sizeof(input));
-}
-
-#endif
 
 // ============================================================================
 //                                TYPE TRAITS
