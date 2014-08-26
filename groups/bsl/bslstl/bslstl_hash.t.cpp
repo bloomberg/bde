@@ -274,57 +274,58 @@ class HashCrossReference {
 // two dimensional cartesian plane.
 //..
 
-class Point {
-    // This class is a value semantic type that represents as two dimensional
-    // location on a cartesian plane.
+    class Point {
+        // This class is a value semantic type that represents as two
+        // dimensional location on a cartesian plane.
 
-  private:
-    int    d_x;
-    int    d_y;
-    double d_distToOrigin; // This value will be accessed a lot, so we cache it
-                           // rather than recalculating every time.
+      private:
+        int    d_x;
+        int    d_y;
+        double d_distToOrigin; // This value will be accessed a lot, so we
+                               // cache it rather than recalculating every
+                               // time.
 
-  public:
-    Point (int x, int y);
-        // Create a 'Point' with the specified 'x' and 'y' coordinates
+      public:
+        Point (int x, int y);
+            // Create a 'Point' with the specified 'x' and 'y' coordinates
 
-    double distanceToOrigin();
-        // Return the distance from the origin (0, 0) to this point.
+        double distanceToOrigin();
+            // Return the distance from the origin (0, 0) to this point.
 
 //..
 // Then, we declare 'operator==' as a friend so that we will be able to compare
 // two points.
 //..
-    friend bool operator==(const Point &left, const Point &right);
+        friend bool operator==(const Point &left, const Point &right);
 
 //..
 // Next, we declare 'hashAppend' as a friend so that we will be able hash a
 // 'Point'.
 //..
-    template <class HASH_ALGORITHM>
-    friend
-    void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point);
-        // Apply the specified 'hashAlg' to the specified 'point'
-};
+        template <class HASH_ALGORITHM>
+        friend
+        void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point);
+            // Apply the specified 'hashAlg' to the specified 'point'
+    };
 
-Point::Point(int x, int y) : d_x(x), d_y(y) {
-    d_distToOrigin = sqrt(static_cast<long double>(d_x * d_x) +
-                          static_cast<long double>(d_y * d_y));
-}
+    Point::Point(int x, int y) : d_x(x), d_y(y) {
+        d_distToOrigin = sqrt(static_cast<long double>(d_x * d_x) +
+                              static_cast<long double>(d_y * d_y));
+    }
 
-double Point::distanceToOrigin() {
-    return d_distToOrigin;
-}
+    double Point::distanceToOrigin() {
+        return d_distToOrigin;
+    }
 
 //..
 // Then, we define 'operator=='. Notice how it only checks salient attributes -
 // attributes that contribute to the value of the class. We ignore
 // 'd_distToOrigin' which is not required to determine equality.
 //..
-bool operator==(const Point &left, const Point &right)
-{
-    return (left.d_x == right.d_x) && (left.d_y == right.d_y);
-}
+    bool operator==(const Point &left, const Point &right)
+    {
+        return (left.d_x == right.d_x) && (left.d_y == right.d_y);
+    }
 
 //..
 // Next, we define 'hashAppend'. This method will allow any hashing algorithm
@@ -333,57 +334,57 @@ bool operator==(const Point &left, const Point &right)
 // just need to call out the salient attributes (which have already been
 // determined by 'operator==') by calling 'hashAppend' on them.
 //..
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
-{
-    using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlg, point.d_x);
-    hashAppend(hashAlg, point.d_y);
-}
+    template <class HASH_ALGORITHM>
+    void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
+    {
+        using ::BloombergLP::bslh::hashAppend;
+        hashAppend(hashAlg, point.d_x);
+        hashAppend(hashAlg, point.d_y);
+    }
 
 //..
 // Then, we declare another value semantic type, 'Box' that will have point as
 // one of its salient attributes.
 //..
-class Box {
-    // This class is a value semantic type that represents a box drawn on to a
-    // cartesian plane.
+    class Box {
+        // This class is a value semantic type that represents a box drawn on
+        // to a cartesian plane.
 
-  private:
-    Point d_position;
-    int d_length;
-    int d_width;
+      private:
+        Point d_position;
+        int d_length;
+        int d_width;
 
-  public:
-    Box(Point position, int length, int width);
-        // Create a box with the specified 'length' and 'width', with its upper
-        // left corner at the specified 'position'
+      public:
+        Box(Point position, int length, int width);
+            // Create a box with the specified 'length' and 'width', with its
+            // upper left corner at the specified 'position'
 
 //..
 // Next, we declare 'operator==' and 'hashAppend' as we did before.
 //..
-    friend bool operator==(const Box &left, const Box &right);
+        friend bool operator==(const Box &left, const Box &right);
 
-    template <class HASH_ALGORITHM>
-    friend
-    void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box);
-        // Apply the specified 'hashAlg' to the specified 'box'
-};
+        template <class HASH_ALGORITHM>
+        friend
+        void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box);
+            // Apply the specified 'hashAlg' to the specified 'box'
+    };
 
-Box::Box(Point position, int length, int width) : d_position(position),
-                                                  d_length(length),
-                                                  d_width(width) { }
+    Box::Box(Point position, int length, int width) : d_position(position),
+                                                      d_length(length),
+                                                      d_width(width) { }
 
 //..
 // Then, we define 'operator=='. This time all of the data members contribute
 // to equality.
 //..
-bool operator==(const Box &left, const Box &right)
-{
-    return (left.d_position == right.d_position) &&
-           (left.d_length   == right.d_length) &&
-           (left.d_width    == right.d_width);
-}
+    bool operator==(const Box &left, const Box &right)
+    {
+        return (left.d_position == right.d_position) &&
+               (left.d_length   == right.d_length) &&
+               (left.d_width    == right.d_width);
+    }
 
 //..
 // Next, we define 'hashAppend' for 'Box'. Notice how as well as calling
@@ -392,13 +393,13 @@ bool operator==(const Box &left, const Box &right)
 // algorithm functor 'hashAlg' down to the fundamental types that make up
 // 'Point', and those types will then be passed into the algorithm functor.
 //..
-template <class HASH_ALGORITHM>
-void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
-{
-    hashAppend(hashAlg, box.d_position);
-    hashAppend(hashAlg, box.d_length);
-    hashAppend(hashAlg, box.d_width);
-}
+    template <class HASH_ALGORITHM>
+    void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+    {
+        hashAppend(hashAlg, box.d_position);
+        hashAppend(hashAlg, box.d_length);
+        hashAppend(hashAlg, box.d_width);
+    }
 
 
 // ============================================================================
