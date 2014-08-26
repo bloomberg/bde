@@ -616,7 +616,7 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
         input = 0;
     }
 
-#if (defined BSLS_PLATFORM_CPU_X86 || defined BSLS_PLATFORM_CPU_X86_64) &&                                      \
+#if (defined BSLS_PLATFORM_CPU_X86 || defined BSLS_PLATFORM_CPU_X86_64) &&    \
     (defined BSLS_PLATFORM_CMP_GNU || defined BSLS_PLATFORM_CMP_CLANG)
     // This needs to be done to work around issues when compiling with GCC and
     // Clang on 86 machines.  On 64-bit hardware, 'sizeof(long double)' is
