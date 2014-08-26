@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 // {TEAM BDE:USING MODULAR HASHING<GO>})
 //
 ///Relationship to 'bslh::Hash'
-/// - - - - - - - - - - - - - -
+///----------------------------
 // 'bslh::SeededHash' is substantially similar to 'bslh::Hash'.
 // 'bslh::SeededHash' presents a similar interface to that of 'bslh::Hash',
 // however, it adds a constructor that accepts a seed generator.  Because of
@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended usage of this component.
 //
-///Example 1: Storing User Defined Input in a Hash Table
+///Example: Storing User Defined Input in a Hash Table
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we have any array of user-specified nicknames, and we want a really
 // fast way to find out if values are contained in the array.  We can create a

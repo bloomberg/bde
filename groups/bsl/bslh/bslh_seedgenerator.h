@@ -181,24 +181,24 @@ BSLS_IDENT("$Id: $")
 // different requirements each algorithm has on seed size.  Each algorithm will
 // produce different output because it has been supplied with a different seed.
 //..
-//      MockRNG rng;
-//      SeedGenerator<MockRNG> seedGen(rng);
+//      MockRNG                                   rng;
+//      SeedGenerator<MockRNG>                    seedGen(rng);
 //      SeededHash<Seeded32BitHashingAlgorithm>   hashAlg32BitSeed(seedGen);
 //      SeededHash<Seeded64BitHashingAlgorithm>   hashAlg64BitSeed(seedGen);
 //      SeededHash<Seeded1024BitHashingAlgorithm> hashAlg1024BitSeed(seedGen);
 //
 //      for (int i = 0; i < NUM_STRINGS; ++i) {
-//          unsigned int hash32BitSeed = hashAlg32BitSeed(data[i],
+//          unsigned int hash32BitSeed   = hashAlg32BitSeed(data[i],
 //                                                            strlen(data[i]));
-//          unsigned int hash64BitSeed = hashAlg64BitSeed(data[i],
+//          unsigned int hash64BitSeed   = hashAlg64BitSeed(data[i],
 //                                                            strlen(data[i]));
 //          unsigned int hash1024BitSeed = hashAlg1024BitSeed(data[i],
 //                                                            strlen(data[i]));
 //
 //          if (veryVerbose) printf("Asserting hashes of %s come out"
 //                                 " different\n", data[i]);
-//          ASSERT(hash32BitSeed != hash64BitSeed);
-//          ASSERT(hash32BitSeed != hash1024BitSeed);
+//          ASSERT(hash32BitSeed   != hash64BitSeed);
+//          ASSERT(hash32BitSeed   != hash1024BitSeed);
 //          ASSERT(hash1024BitSeed != hash64BitSeed);
 //      }
 //..

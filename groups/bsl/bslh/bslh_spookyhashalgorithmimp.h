@@ -183,19 +183,19 @@ BSLS_IDENT("$Id: $")
 //:
 //: 7 Updated indenting to BDE style
 //:
-//: 7 Moved typedefs within class
+//: 8 Moved typedefs within class
 //:
-//: 8 Changed c style casts to static_casts
+//: 9 Changed c style casts to static_casts
 //:
-//: 9 Reordered methods according to BDE style
+//: 10 Reordered methods according to BDE style
 //:
-//: 10 Added inline to 'Hash32' and 'Hash64'
+//: 11 Added inline to 'Hash32' and 'Hash64'
 //:
-//: 11 Changed static constants to 'enum's to avoid storage overhead
+//: 12 Changed static constants to 'enum's to avoid storage overhead
 //:
-//: 12 Added constructor in place of init
+//: 13 Added constructor in place of init
 //:
-//: 13 Made function names lower case (had to change 'Final' to 'finalize' and
+//: 14 Made function names lower case (had to change 'Final' to 'finalize' and
 //:    'Short' to 'shortHash' to avoid using a keyword)
 //
 //..
@@ -362,7 +362,7 @@ class SpookyHashAlgorithmImp {
                          size_t      length,
                          Uint32      seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
-        // seed.  Return the resulting 32-bit hash.The behavior is undefined
+        // seed.  Return the resulting 32-bit hash.  The behavior is undefined
         // unles 'message' points at least 'length' bytes of initialized
         // memory.
 

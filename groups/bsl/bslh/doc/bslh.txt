@@ -2,7 +2,8 @@
 
 @PURPOSE: Provide a framework for hashing types using swapable algorithms.
 
-@MNEMONIC: Basic Standard Library Hashing (bslh)
+@MNEMONIC:
+Basic Standard Library Hashing (bslh)
 
 @DESCRIPTION: The 'bslh' package provides components for a more modular hashing
 implemenation than is found in the standard. This implementation is based on
@@ -265,7 +266,7 @@ A few key features of the hashAppend fuction:
 : 1 It is a free function that can be picked up through argument dependent
 :   look-up (ADL).
 :   A In order to ensure 'hashAppend' can be found through ADL, the function
-:     must begin with using 'bslh::hashAppend'. Note that most of the time this
+:     must begin with 'using bslh::hashAppend'. Note that most of the time this
 :     isn't required because most 'HASH_ALGORITHM's will be implemented in
 :     'bslh' and thus ADL will already be looking in 'bslh'. The using
 :     statement is still required, however, to support algorithms that are
@@ -886,9 +887,9 @@ just alphabetical.
 
   3. bslh_defaulthashalgorithm, bslh_defaultseededhashalgorithm
 
-  2. bslh_siphashalgorithm, bslh_spookyhashalgorithm
+  2. bslh_spookyhashalgorithm
 
-  1. bslh_seedgenerator, bslh_spookyhashalgorithmimp
+  1. bslh_seedgenerator, bslh_spookyhashalgorithmimp, bslh_siphashalgorithm
 
 ..
 

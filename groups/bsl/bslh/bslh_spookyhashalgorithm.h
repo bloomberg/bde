@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslh::SpookyHashAlgorithm: functor implementing the SpookyHash algorithm
 //
-//@SEE_ALSO: bslh_hash, bslh_spookhashalgorithmimp
+//@SEE_ALSO: bslh_hash, bslh_spookyhashalgorithmimp
 //
 //@DESCRIPTION: 'bslh::SpookyHashAlgorithm' implements the SpookyHash algorithm
 // by Bob Jenkins.  This algorithm is a general purpose algorithm that is known
@@ -373,10 +373,10 @@ class SpookyHashAlgorithm {
         // will contribute to the final hash produced by 'computeHash()'.  The
         // same hash value will be produced regardless of whether a sequence of
         // bytes is passed in all at once or through multiple calls to this
-        // member function.  Input where 'length' is 0 will have no effect on
+        // member function.  Input where 'numBytes' is 0 will have no effect on
         // the internal state of the algorithm.  The behaviour is undefined
         // unless 'data' points to a valid memory location with at least
-        // 'length' bytes of initialized memory.
+        // 'numBytes' bytes of initialized memory.
 
     result_type computeHash();
         // Return the finalized version of the hash that has been accumulated.
