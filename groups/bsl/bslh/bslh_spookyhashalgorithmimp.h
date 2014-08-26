@@ -363,7 +363,7 @@ class SpookyHashAlgorithmImp {
                          Uint32      seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed.  Return the resulting 32-bit hash.  The behavior is undefined
-        // unles 'message' points at least 'length' bytes of initialized
+        // unless 'message' points at least 'length' bytes of initialized
         // memory.
 
     static Uint64 hash64(const void *message,
@@ -371,7 +371,7 @@ class SpookyHashAlgorithmImp {
                          Uint64      seed);
         // Hash the specified 'length' bytes of 'message' using 'seed' as a
         // seed.  Return the resulting 64-bit hash.  The behavior is undefined
-        // unles 'message' points at least 'length' bytes of initialized
+        // unless 'message' points at least 'length' bytes of initialized
         // memory.
 
     static void hash128(const void *message,
