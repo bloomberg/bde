@@ -149,28 +149,28 @@ BSLS_IDENT("$Id: $")
 //  class Point {
 //      // This class is a value semantic type that represents a two
 //      // dimensional location on a cartesian plane.
-//  
+//
 //    private:
 //      int    d_x;
 //      int    d_y;
 //      double d_distToOrigin; // This value will be accessed frequently, so we
 //                             // cache it rather than recalculate it every
 //                             // time.
-//  
+//
 //    public:
 //      Point (int x, int y);
 //          // Create a 'Point' having the specified 'x' and 'y' coordinates.
-//  
+//
 //      double distanceToOrigin() const;
 //          // Return the distance from the origin (0, 0) to this point.
-//  
+//
 //      int getX() const;
 //          // Return the x coordinate of this point.
-//  
+//
 //      int getY() const;
 //          // Return the y coordinate of this point.
 //  };
-//  
+//
 //  inline
 //  Point::Point(int x, int y)
 //  : d_x(x)
@@ -179,19 +179,19 @@ BSLS_IDENT("$Id: $")
 //      d_distToOrigin = sqrt(static_cast<double>(d_x * d_x) +
 //                            static_cast<double>(d_y * d_y));
 //  }
-//  
+//
 //  inline
 //  double Point::distanceToOrigin() const
 //  {
 //      return d_distToOrigin;
 //  }
-//  
+//
 //  inline
 //  int Point::getX() const
 //  {
 //      return d_x;
 //  }
-//  
+//
 //  inline
 //  int Point::getY() const
 //  {
@@ -232,44 +232,44 @@ BSLS_IDENT("$Id: $")
 //  class Box {
 //      // This class is a value semantic type that represents a box drawn on
 //      // to a cartesian plane.
-//  
+//
 //    private:
 //      Point d_position;
 //      int d_length;
 //      int d_width;
-//  
+//
 //    public:
 //      Box(Point position, int length, int width);
 //          // Create a box having the specified 'length' and 'width', with its
 //          // upper left corner at the specified 'position'
-//  
+//
 //      int getLength() const;
 //          // Return the length of this box.
-//  
+//
 //      Point getPosition() const;
 //          // Return a 'Point' representing the upper left corner of this box
 //          // on a cartesian plane
-//  
+//
 //      int getWidth() const;
 //          // Return the width of this box.
 //  };
-//  
+//
 //  inline
 //  Box::Box(Point position, int length, int width)
 //  : d_position(position)
 //  , d_length(length)
 //  , d_width(width) { }
-//  
+//
 //  int Box::getLength() const
 //  {
 //      return d_length;
 //  }
-//  
+//
 //  Point Box::getPosition() const
 //  {
 //      return d_position;
 //  }
-//  
+//
 //  int Box::getWidth() const
 //  {
 //      return d_width;
@@ -335,7 +335,7 @@ BSLS_IDENT("$Id: $")
 //      //
 //      // Note that this hash table has numerous simplifications because we
 //      // know the size of the array and never have to resize the table.
-//  
+//
 //      // DATA
 //      const TYPE       *d_values;             // Array of values table is to
 //                                              // hold
@@ -344,7 +344,7 @@ BSLS_IDENT("$Id: $")
 //                                              // 'd_values'
 //      unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
 //      HASHER            d_hasher;
-//  
+//
 //    private:
 //      // PRIVATE ACCESSORS
 //      bool lookup(size_t      *idx,
@@ -355,8 +355,7 @@ BSLS_IDENT("$Id: $")
 //          // If not found, return the vacant entry in 'd_bucketArray' where
 //          // it should be inserted.  Return 'true' if 'value' is found and
 //          // 'false' otherwise.
-//  
-//  
+//
 //    public:
 //      // CREATORS
 //      HashTable(const TYPE *valuesArray,
@@ -365,10 +364,10 @@ BSLS_IDENT("$Id: $")
 //          // having length of the specified 'numValues'.  No value in
 //          // 'valuesArray' shall have the same value as any of the other
 //          // values in 'valuesArray'
-//  
+//
 //      ~HashTable();
 //          // Free up memory used by this hash table.
-//  
+//
 //      // ACCESSORS
 //      bool contains(const TYPE& value) const;
 //          // Return true if the specified 'value' is found in the table and
@@ -394,7 +393,7 @@ BSLS_IDENT("$Id: $")
 //..
 //
 //        HashTable<Box> hashTable(boxes, NUM_BOXES);
-//
+//..
 // Now, we verify that each element in our array registers with count:
 //..
 // for ( int i = 0; i < 6; ++i) { ASSERT(hashTable.contains(boxes[i])); }
@@ -627,23 +626,24 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // that proceed the final two appear to be garbage.
     //
     //..
-    // Actual Data
-    // --+*****************************+                    |                             |
-    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8 5c 2b 0
-    // 0                                                   |          ||   |      Garbage
-    // -------------------------------------+**********+|   |      Zeroed
-    // --------------------------------------------------+***+
+    //      Actual Data --+*****************************+
+    //                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8 5c 2b  0  0
+    //                                                   |          ||   |
+    //      Garbage -------------------------------------+**********+|   |
+    //      Zeroed --------------------------------------------------+***+
     //..
     //
     // For GCC, the first and last 2 bytes of the padding are zeroed, but the 2
     // bytes in the middle appear to be garbage.
     //
     //..
-    // Garbage -------------------------------------------+****+ Actual Data
-    // --+*****************************+     |     |                    |                             |     |     |
-    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 0 0 5c 2b 0
-    // 0                                                   |    |      |    |
-    // Zeroed --------------------------------------+****+------+****+
+    //      Garbage -------------------------------------------+****+
+    //      Actual Data --+*****************************+     |     |
+    //                    |                             |     |     |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40  0  0 5c 2b  0  0
+    //                                                   |    |      |    |
+    //      Zeroed --------------------------------------+****+------+****+
     //..
     //
     // On 32-bit hardware, 'sizeof(long double)' is advertised as 12 bytes, but
@@ -653,26 +653,25 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // For Clang, the 2 bytes of the padding appear to be garbage.
     //
     //..
-    // Actual Data
-    // --+*****************************+                    |                             |
-    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87
-    // d8                                                   |    | Garbage
-    // -------------------------------------+****+
+    //      Actual Data --+*****************************+
+    //                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8
+    //                                                   |    |
+    //      Garbage -------------------------------------+****+
     //..
     //
     // For GCC, the 2 bytes of the padding are zeroed.
     //
     //..
-    // Actual Data
-    // --+*****************************+                    |                             |
-    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 0
-    // 0                                                   |    | Zeroed
-    // --------------------------------------+****+
+    //      Actual Data --+*****************************+
+    //                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40  0  0
+    //                                                   |    |
+    //      Zeroed --------------------------------------+****+
     //..
     //
     // To address all of these issues, we will pass in only 10 bytes for a
     // 'long double' even if it is longer.
-
   #if !defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CPU_64_BIT
     // We cant just check 'defined(BSLS_PLATFORM_CMP_GNU)' because Clang
     // masquerades as GCC.  Since we know that to be in this block we must be

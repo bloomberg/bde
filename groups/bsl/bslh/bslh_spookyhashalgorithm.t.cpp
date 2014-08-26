@@ -140,7 +140,7 @@ void aSsErT(bool b, const char *s, int i)
 // First, we define our 'HashTable' template class, with the two type
 // parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
 // produces the hash).
-    
+
     template <class TYPE, class HASHER>
     class HashTable {
         // This class template implements a hash table providing fast lookup of
@@ -165,13 +165,13 @@ void aSsErT(bool b, const char *s, int i)
         // know the size of the array and never have to resize the table.
 
         // DATA
-        const TYPE       *d_values;             // Array of values table is to
-                                                // hold
-        size_t            d_numValues;          // Length of 'd_values'.
-        const TYPE      **d_bucketArray;        // Contains ptrs into
-                                                // 'd_values'
-        unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
-        HASHER            d_hasher;
+        const TYPE       *d_values;          // Array of values table is to
+                                             // hold
+        size_t            d_numValues;       // Length of 'd_values'.
+        const TYPE      **d_bucketArray;     // Contains ptrs into 'd_values'
+        unsigned          d_bucketArrayMask; // Will always be '2^N - 1'.
+        HASHER            d_hasher;          // User supplied hashing algorithm
+
 
       private:
         // PRIVATE ACCESSORS
