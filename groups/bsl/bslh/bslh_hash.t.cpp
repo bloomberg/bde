@@ -759,6 +759,40 @@ bool TypeChecker<EXPECTED_TYPE>::isCorrectType(OTHER_TYPE type) {
     return false;
 }
 
+namespace X {
+    struct A
+        // Empty struct for testing.
+    {
+    };
+
+    template<class HASH_ALGORITHM>
+    void hashAppend(HASH_ALGORITHM &hashAlg, A a) { 
+        // Do nothing with the specified 'hashAlg' and 'a'. This is a test
+        // 'hashAppend' to ensure that the correct 'hashAppend' is picked up by
+        // ADL.
+    }
+}
+
+namespace Y {
+    template<class HASH_ALGORITHM>
+    void hashAppend(HASH_ALGORITHM &hashAlg, X::A a) { 
+        // Do nothing with the specified 'hashAlg' and 'a'. This is a test
+        // 'hashAppend' that should not be picked up by ADL.
+        ASSERT(!"ADL picked the wrong 'hashAppend'");
+    }
+}
+    
+namespace Z {
+    void doHashAppend() {
+        // Test that ADL is able to pick up the correct 'hashAppend' when it is
+        // in another namespace.
+        X::A a = X::A();
+        MockHashingAlgorithm alg = MockHashingAlgorithm();
+        hashAppend(alg, a);  // Should compile and not assert
+    }
+}
+
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -1104,6 +1138,8 @@ int main(int argc, char *argv[])
         //:   automatically hashed as a bool).
         //:
         //: 9 'hashAppend' can be called with 'const' qualified types.
+        //:
+        //: 10 'hashAppend' is correctly detected by ADL.
         //
         // Plan:
         //: 1 Use a mock hashing algorithm to test that 'hashAppend' inputs the
@@ -1135,6 +1171,9 @@ int main(int argc, char *argv[])
         //:
         //: 7 Create an 'ifdef'ed test case that should fail to compile when
         //:   manually tested.
+        //:
+        //: 8 Declare types and 'hashAppend's in various namespaces, and ensure
+        //:   the correct ones are used.  (C-10)
         //
         // Testing:
         //   void hashAppend(HASHALG& hashAlg, bool input);
@@ -1585,6 +1624,12 @@ int main(int argc, char *argv[])
 
         }
 #endif
+        if (verbose) printf("Declare types and 'hashAppend's in various"
+                            " namespaces, and ensure the correct ones are"
+                            " used.  (C-10)\n");
+        {
+            Z::doHashAppend();
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
