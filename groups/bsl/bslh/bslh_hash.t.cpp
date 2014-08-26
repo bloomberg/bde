@@ -783,7 +783,7 @@ namespace Y {
 }
     
 namespace Z {
-    void doHashAppend() {
+    void testHashAppendADL() {
         // Test that ADL is able to pick up the correct 'hashAppend' when it is
         // in another namespace.
         X::A a = X::A();
@@ -1628,7 +1628,7 @@ int main(int argc, char *argv[])
                             " namespaces, and ensure the correct ones are"
                             " used.  (C-10)\n");
         {
-            Z::doHashAppend();
+            Z::testHashAppendADL();
         }
       } break;
       case 2: {
