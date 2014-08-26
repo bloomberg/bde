@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 // class SomeHashAlgorithm
 // {
 //   public:
-// //     // CONSTANTS
+//     // CONSTANTS
 //     enum { k_SEED_LENGTH = XXX };
 //
 //     // CREATORS
@@ -100,6 +100,151 @@ BSLS_IDENT("$Id: $")
 // Option A is prefered because it allows 'bslh::SeededHash' to be defualt
 // constructible.  Option B is allowed, but means that 'bslh::SeededHash' must
 // be passed an already-instantiated 'SEED_GENERATOR' at construction.
+//
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example 1: Storing User Defined Input in a Hash Table
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we have any array of user-specified nicknames, and we want a really
+// fast way to find out if values are contained in the array.  We can create a
+// 'HashTable' data structure that is capable of looking up values in O(1)
+// time.
+//
+// Because we will be storing arbitrary user input in our table, it is possible
+// that an attacker with knowledge of the hashing algorithm we are using could
+// specially craft input that will cause collisions in our hash table,
+// degrading performance to O(n).  To avoid this we will need to use a secure
+// hash algorithm with a random seed.  This algorithm will need to be  in the
+// form of a hash functor -- an object that will take objects stored in our
+// array as input, and yield a 64-bit int value which is hard enough for an
+// outside observer to predict that it appear random.  'bslh::SeededHash'
+// provides a convenient functor that can wrap any seeded hashing algorithm and
+// use it to produce a hash for any type them implements 'hashAppend'.
+//
+// We can use the result of the hash function to index into our array of
+// 'buckets'.  Each 'bucket' is simply a pointer to a value in our original
+// array of 'TYPE' objects.
+//
+// First, we define our 'HashTable' template class, with the two type
+// parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
+// produces the hash).
+//..
+//
+//  template <class TYPE, class HASHER>
+//  class HashTable {
+//      // This class template implements a hash table providing fast lookup of
+//      // an external, non-owned, array of values of (template parameter)
+//      // 'TYPE'.
+//      //
+//      // The (template parameter) 'TYPE' shall have a transitive, symmetric
+//      // 'operator==' function and it will be hashable using 'bslh::Hash'.
+//      // Note that there is no requirement that it have any kind of creator
+//      // defined.
+//      //
+//      // The 'HASHER' template parameter type must be a functor with a method
+//      // having the following signature:
+//      //..
+//      //  size_t operator()(TYPE)  const;
+//      //                   -OR-
+//      //  size_t operator()(const TYPE&) const;
+//      //..
+//      // and 'HASHER' shall have a publicly accessible default constructor
+//      // and destructor.  Here we use 'bslh::Hash' as our default template
+//      // argument.  This allows us to hash any type for which 'hashAppend'
+//      // has been implemented.
+//      //
+//      // Note that this hash table has numerous simplifications because we
+//      // know the size of the array and never have to resize the table.
+//
+//      // DATA
+//      const TYPE       *d_values;          // Array of values table is to
+//                                           // hold
+//      size_t            d_numValues;       // Length of 'd_values'.
+//      const TYPE      **d_bucketArray;     // Contains ptrs into 'd_values'
+//      unsigned          d_bucketArrayMask; // Will always be '2^N - 1'.
+//      HASHER            d_hasher;          // User supplied hashing algorithm
+//
+//    private:
+//      // PRIVATE ACCESSORS
+//      bool lookup(size_t      *idx,
+//                  const TYPE&  value,
+//                  size_t       hashValue) const;
+//          // Look up the specified 'value', having the specified 'hashValue',
+//          // and load its index in 'd_bucketArray' into the specified 'idx'.
+//          // If not found, return the vacant entry in 'd_bucketArray' where
+//          // it should be inserted.  Return 'true' if 'value' is found and
+//          // 'false' otherwise.
+//
+//    public:
+//      // CREATORS
+//      HashTable(const TYPE *valuesArray,
+//                size_t      numValues,
+//                HASHER      hasher);
+//          // Create a hash table referring to the specified 'valuesArray'
+//          // having length of the specified 'numValues' and using the
+//          // specified 'hasher' to generate hash values.  No value in
+//          // 'valuesArray' shall have the same value as any of the other
+//          // values in 'valuesArray'
+//
+//      ~HashTable();
+//          // Free up memory used by this cross-reference.
+//
+//      // ACCESSORS
+//      bool contains(const TYPE& value) const;
+//          // Return true if the specified 'value' is found in the table and
+//          // false otherwise.
+//  };
+//..
+// Then, we will create an array of user supplied nicknames that would create
+// collisions in some other hashing algorithm.
+//..
+//
+//      const char names[6][11] = { "COLLISION!",
+//                                  "COLLISION@",
+//                                  "COLLISION#",
+//                                  "COLLISION$",
+//                                  "COLLISION%",
+//                                  "COLLISION^"};
+//
+//      enum { NUM_NAMES = sizeof names / sizeof *names };
+//
+//..
+// Next, we create a seed generator, with a cryptographically secure random
+// number generator, that can be used to generate seeds for our secure hashing
+// algorithm.  We then pass that seed generator into 'bslh::SeededHash'.  We
+// use the 'bslh::SipHashAlgorithm' as our secure hashing algorithm.
+//..
+//      typedef SeedGenerator<CryptographicallySecureRNG> SecureSeedGenerator;
+//      typedef SeededHash<SecureSeedGenerator, SipHashAlgorithm> SecureHash;
+//
+//      SecureSeedGenerator secureSeedGenerator;
+//      SecureHash          secureHash(secureSeedGenerator);
+//
+//..
+// Then, we create our hash table 'hashTable'.  We pass it the 'secureHash'
+// hashing functor we created.  Passing it in through the functor, rather than
+// just having it default constructed from the template parameter, allows us to
+// pass in an algorithm with a pre-configured state if we so desire.
+//..
+//
+//      HashTable<const char [11], SecureHash> hashTable(names,
+//                                                       NUM_NAMES,
+//                                                       secureHash);
+//
+// Now, we verify that each element in our array registers with count:
+//      for ( int i = 0; i < NUM_NAMES; ++i) {
+//          ASSERT(hashTable.contains(names[i]));
+//      }
+//
+// Finally, we verify that futures not in our original array are correctly
+// identified as not being in the set:
+//
+//      ASSERT(!hashTable.contains("asdfasdfas"));
+//      ASSERT(!hashTable.contains("asdfqwerqw"));
+//      ASSERT(!hashTable.contains("asdfqwerzx"));
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>

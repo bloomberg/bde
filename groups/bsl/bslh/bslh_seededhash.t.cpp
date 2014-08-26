@@ -111,7 +111,6 @@ void aSsErT(bool b, const char *s, int i)
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-
 ///Usage
 ///-----
 // This section illustrates intended usage of this component.
@@ -143,65 +142,70 @@ void aSsErT(bool b, const char *s, int i)
 // produces the hash).
 //..
 
-template <class TYPE, class HASHER>
-class HashTable {
-    // This class template implements a hash table providing fast lookup of an
-    // external, non-owned, array of values of (template parameter) 'TYPE'.
-    //
-    // The (template parameter) 'TYPE' shall have a transitive, symmetric
-    // 'operator==' function and it will be hashable using 'bslh::Hash'.  Note
-    // that there is no requirement that it have any kind of creator defined.
-    //
-    // The 'HASHER' template parameter type must be a functor with a method
-    // having the following signature:
-    //..
-    //  size_t operator()(TYPE)  const;
-    //                   -OR-
-    //  size_t operator()(const TYPE&) const;
-    //..
-    // and 'HASHER' shall have a publicly accessible default constructor and
-    // destructor.  Here we use 'bslh::Hash' as our default template argument.
-    // This allows us to hash any type for which 'hashAppend' has been
-    // implemented.
-    //
-    // Note that this hash table has numerous simplifications because we know
-    // the size of the array and never have to resize the table.
+    template <class TYPE, class HASHER>
+    class HashTable {
+        // This class template implements a hash table providing fast lookup of
+        // an external, non-owned, array of values of (template parameter)
+        // 'TYPE'.
+        //
+        // The (template parameter) 'TYPE' shall have a transitive, symmetric
+        // 'operator==' function and it will be hashable using 'bslh::Hash'.
+        // Note that there is no requirement that it have any kind of creator
+        // defined.
+        //
+        // The 'HASHER' template parameter type must be a functor with a method
+        // having the following signature:
+        //..
+        //  size_t operator()(TYPE)  const;
+        //                   -OR-
+        //  size_t operator()(const TYPE&) const;
+        //..
+        // and 'HASHER' shall have a publicly accessible default constructor
+        // and destructor.  Here we use 'bslh::Hash' as our default template
+        // argument.  This allows us to hash any type for which 'hashAppend'
+        // has been implemented.
+        //
+        // Note that this hash table has numerous simplifications because we
+        // know the size of the array and never have to resize the table.
 
-    // DATA
-    const TYPE       *d_values;             // Array of values table is to hold
-    size_t            d_numValues;          // Length of 'd_values'.
-    const TYPE      **d_bucketArray;        // Contains ptrs into 'd_values'
-    unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
-    HASHER            d_hasher;
+        // DATA
+        const TYPE       *d_values;          // Array of values table is to
+                                             // hold
+        size_t            d_numValues;       // Length of 'd_values'.
+        const TYPE      **d_bucketArray;     // Contains ptrs into 'd_values'
+        unsigned          d_bucketArrayMask; // Will always be '2^N - 1'.
+        HASHER            d_hasher;          // User supplied hashing algorithm
 
-  private:
-    // PRIVATE ACCESSORS
-    bool lookup(size_t      *idx,
-                const TYPE&  value,
-                size_t       hashValue) const;
-        // Look up the specified 'value', having the specified 'hashValue', and
-        // load its index in 'd_bucketArray' into the specified 'idx'.  If not
-        // found, return the vacant entry in 'd_bucketArray' where it should be
-        // inserted.  Return 'true' if 'value' is found and 'false' otherwise.
+      private:
+        // PRIVATE ACCESSORS
+        bool lookup(size_t      *idx,
+                    const TYPE&  value,
+                    size_t       hashValue) const;
+            // Look up the specified 'value', having the specified 'hashValue',
+            // and load its index in 'd_bucketArray' into the specified 'idx'.
+            // If not found, return the vacant entry in 'd_bucketArray' where
+            // it should be inserted.  Return 'true' if 'value' is found and
+            // 'false' otherwise.
 
-  public:
-    // CREATORS
-    HashTable(const TYPE *valuesArray,
-              size_t      numValues,
-              HASHER      hasher);
-        // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues' and using the specified 'hasher'
-        // to generate hash values.  No value in 'valuesArray' shall have the
-        // same value as any of the other values in 'valuesArray'
+      public:
+        // CREATORS
+        HashTable(const TYPE *valuesArray,
+                  size_t      numValues,
+                  HASHER      hasher);
+            // Create a hash table referring to the specified 'valuesArray'
+            // having length of the specified 'numValues' and using the
+            // specified 'hasher' to generate hash values.  No value in
+            // 'valuesArray' shall have the same value as any of the other
+            // values in 'valuesArray'
 
-    ~HashTable();
-        // Free up memory used by this cross-reference.
+        ~HashTable();
+            // Free up memory used by this cross-reference.
 
-    // ACCESSORS
-    bool contains(const TYPE& value) const;
-        // Return true if the specified 'value' is found in the table and false
-        // otherwise.
-};
+        // ACCESSORS
+        bool contains(const TYPE& value) const;
+            // Return true if the specified 'value' is found in the table and
+            // false otherwise.
+    };
 
 //=============================================================================
 //                     ELIDED USAGE EXAMPLE IMPLEMENTATIONS

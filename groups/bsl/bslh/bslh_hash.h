@@ -146,73 +146,70 @@ BSLS_IDENT("$Id: $")
 // First, we define 'Point', a class that allows us to identify a loction on a
 // two dimensional cartesian plane.
 //..
-//
-//class Point {
-//    // This class is a value semantic type that represents a two dimensional
-//    // location on a cartesian plane.
-//
-//  private:
-//    int    d_x;
-//    int    d_y;
-//    double d_distToOrigin; // This value will be accessed frequently, so we
-//                           // cache it rather than recalculate it every time.
-//
-//  public:
-//    Point (int x, int y);
-//        // Create a 'Point' having the specified 'x' and 'y' coordinates.
-//
-//    double distanceToOrigin() const;
-//        // Return the distance from the origin (0, 0) to this point.
-//
-//    int getX() const;
-//        // Return the x coordinate of this point.
-//
-//    int getY() const;
-//        // Return the y coordinate of this point.
-//};
-//
-//inline
-//Point::Point(int x, int y)
-//: d_x(x)
-//, d_y(y)
-//{
-//    d_distToOrigin = sqrt(static_cast<double>(d_x * d_x) +
-//                          static_cast<double>(d_y * d_y));
-//}
-//
-//inline
-//double Point::distanceToOrigin() const
-//{
-//    return d_distToOrigin;
-//}
-//
-//inline
-//int Point::getX() const
-//{
-//    return d_x;
-//}
-//
-//inline
-//int Point::getY() const
-//{
-//    return d_y;
-//}
-//
-//
+//  class Point {
+//      // This class is a value semantic type that represents a two
+//      // dimensional location on a cartesian plane.
+//  
+//    private:
+//      int    d_x;
+//      int    d_y;
+//      double d_distToOrigin; // This value will be accessed frequently, so we
+//                             // cache it rather than recalculate it every
+//                             // time.
+//  
+//    public:
+//      Point (int x, int y);
+//          // Create a 'Point' having the specified 'x' and 'y' coordinates.
+//  
+//      double distanceToOrigin() const;
+//          // Return the distance from the origin (0, 0) to this point.
+//  
+//      int getX() const;
+//          // Return the x coordinate of this point.
+//  
+//      int getY() const;
+//          // Return the y coordinate of this point.
+//  };
+//  
+//  inline
+//  Point::Point(int x, int y)
+//  : d_x(x)
+//  , d_y(y)
+//  {
+//      d_distToOrigin = sqrt(static_cast<double>(d_x * d_x) +
+//                            static_cast<double>(d_y * d_y));
+//  }
+//  
+//  inline
+//  double Point::distanceToOrigin() const
+//  {
+//      return d_distToOrigin;
+//  }
+//  
+//  inline
+//  int Point::getX() const
+//  {
+//      return d_x;
+//  }
+//  
+//  inline
+//  int Point::getY() const
+//  {
+//      return d_y;
+//  }
 //..
 // Then, we define 'operator=='.  Notice how it checks only attributes that we
 // would want to incorporate into the hashed value.  Note that attributes that
 // are salient to hashing tend to be the same as or a subset of the attributes
 // that are checked in 'operator=='.
 //..
-//bool operator==(const Point &lhs, const Point &rhs)
-//    // Return true if the specified 'lhs' and 'rhs' have the same value.  Two
-//    // 'Point' objects have the same value if they have the same x and y
-//    // coordinates.
-//{
-//    return (lhs.getX() == rhs.getX()) && (lhs.getY() == rhs.getY());
-//}
-//
+//  bool operator==(const Point &lhs, const Point &rhs)
+//      // Return true if the specified 'lhs' and 'rhs' have the same value.
+//      // Two 'Point' objects have the same value if they have the same x and
+//      // y coordinates.
+//  {
+//      return (lhs.getX() == rhs.getX()) && (lhs.getY() == rhs.getY());
+//  }
 //..
 // Next, we define 'hashAppend'.  This function will allow any hashing
 // algorithm that meets the 'bslh' hashing algorithm requirements to be applied
@@ -221,78 +218,75 @@ BSLS_IDENT("$Id: $")
 // to call out the attributes that are salient to hashing by calling
 // 'hashAppend' on them.
 //..
-//template <class HASH_ALGORITHM>
-//void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
-//    // Apply the specified 'hashAlg' to the specified 'point'
-//{
-//    hashAppend(hashAlg, point.getX());
-//    hashAppend(hashAlg, point.getY());
-//}
-//
+//  template <class HASH_ALGORITHM>
+//  void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
+//      // Apply the specified 'hashAlg' to the specified 'point'
+//  {
+//      hashAppend(hashAlg, point.getX());
+//      hashAppend(hashAlg, point.getY());
+//  }
 //..
 // Then, we declare another value semantic type, 'Box' that will have a 'Point'
 // as one of its attributes that are salient to hashing.
 //..
-//class Box {
-//    // This class is a value semantic type that represents a box drawn on to a
-//    // cartesian plane.
-//
-//  private:
-//    Point d_position;
-//    int d_length;
-//    int d_width;
-//
-//  public:
-//    Box(Point position, int length, int width);
-//        // Create a box having the specified 'length' and 'width', with its
-//        // upper left corner at the specified 'position'
-//
-//    int getLength() const;
-//        // Return the length of this box.
-//
-//    Point getPosition() const;
-//        // Return a 'Point' representing the upper left corner of this box on a
-//        // cartesian plane
-//
-//    int getWidth() const;
-//        // Return the width of this box.
-//};
-//
-//inline
-//Box::Box(Point position, int length, int width)
-//: d_position(position)
-//, d_length(length)
-//, d_width(width) { }
-//
-//int Box::getLength() const
-//{
-//    return d_length;
-//}
-//
-//Point Box::getPosition() const
-//{
-//    return d_position;
-//}
-//
-//int Box::getWidth() const
-//{
-//    return d_width;
-//}
-//
+//  class Box {
+//      // This class is a value semantic type that represents a box drawn on
+//      // to a cartesian plane.
+//  
+//    private:
+//      Point d_position;
+//      int d_length;
+//      int d_width;
+//  
+//    public:
+//      Box(Point position, int length, int width);
+//          // Create a box having the specified 'length' and 'width', with its
+//          // upper left corner at the specified 'position'
+//  
+//      int getLength() const;
+//          // Return the length of this box.
+//  
+//      Point getPosition() const;
+//          // Return a 'Point' representing the upper left corner of this box
+//          // on a cartesian plane
+//  
+//      int getWidth() const;
+//          // Return the width of this box.
+//  };
+//  
+//  inline
+//  Box::Box(Point position, int length, int width)
+//  : d_position(position)
+//  , d_length(length)
+//  , d_width(width) { }
+//  
+//  int Box::getLength() const
+//  {
+//      return d_length;
+//  }
+//  
+//  Point Box::getPosition() const
+//  {
+//      return d_position;
+//  }
+//  
+//  int Box::getWidth() const
+//  {
+//      return d_width;
+//  }
 //..
 // Then, we define 'operator=='.  This time all of the data members are salient
 // to equality.
 //..
-//bool operator==(const Box &lhs, const Box &rhs)
-//    // Return true if the specified 'lhs' and 'rhs' have the same value.  Two
-//    // 'Box' objects have the same value if they have the same length, width,
-//    // and position.
-//{
-//    return (lhs.getPosition() == rhs.getPosition()) &&
-//           (lhs.getLength()   == rhs.getLength()) &&
-//           (lhs.getWidth()    == rhs.getWidth());
-//}
-//
+//  bool operator==(const Box &lhs, const Box &rhs)
+//      // Return true if the specified 'lhs' and 'rhs' have the same value.
+//      // Two 'Box' objects have the same value if they have the same length,
+//      // width, and position.
+//  {
+//      return (lhs.getPosition() == rhs.getPosition()) &&
+//             (lhs.getLength()   == rhs.getLength()) &&
+//             (lhs.getWidth()    == rhs.getWidth());
+//  }
 //..
 // Next, we define 'hashAppend' for 'Box'.  Notice how as well as calling
 // 'hashAppend' on fundamental types, we can also call it with our user defined
@@ -301,82 +295,85 @@ BSLS_IDENT("$Id: $")
 // that make up 'Point', and those types will then be passed into the
 // referenced algorithm functor.
 //..
-//template <class HASH_ALGORITHM>
-//void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
-//    // Apply the specified 'hashAlg' to the specified 'box'
-//{
-//    using bslh::hashAppend;
-//    hashAppend(hashAlg, box.getPosition());
-//    hashAppend(hashAlg, box.getLength());
-//    hashAppend(hashAlg, box.getWidth());
-//}
-//
+//  template <class HASH_ALGORITHM>
+//  void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+//      // Apply the specified 'hashAlg' to the specified 'box'
+//  {
+//      using bslh::hashAppend;
+//      hashAppend(hashAlg, box.getPosition());
+//      hashAppend(hashAlg, box.getLength());
+//      hashAppend(hashAlg, box.getWidth());
+//  }
 //..
 // Then, we declare our hash table (implementation elided).  We simplify the
 // problem by requiring the caller to supply an array.  Our hash table takes
 // two type parameters: 'TYPE' (the type being referenced) and 'HASHER' (a
 // functor that produces the hash).  'HASHER' will default to 'bslh::Hash<>'.
 //..
-//
-//template <class TYPE, class HASHER = bslh::Hash<> >
-//class HashTable {
-//    // This class template implements a hash table providing fast lookup of an
-//    // external, non-owned, array of values of (template parameter) 'TYPE'.
-//    //
-//    // The (template parameter) 'TYPE' shall have a transitive, symmetric
-//    // 'operator==' function and it will be hashable using 'bslh::Hash'.  Note
-//    // that there is no requirement that it have any kind of creator defined.
-//    //
-//    // The 'HASHER' template parameter type must be a functor with a method
-//    // having the following signature:
-//    //..
-//    //  size_t operator()(TYPE)  const;
-//    //                   -OR-
-//    //  size_t operator()(const TYPE&) const;
-//    //..
-//    // and 'HASHER' shall have a publicly accessible default constructor and
-//    // destructor.  Here we use 'bslh::Hash' as our default template argument.
-//    // This allows us to hash any type for which 'hashAppend' has been
-//    // implemented.
-//    //
-//    // Note that this hash table has numerous simplifications because we know
-//    // the size of the array and never have to resize the table.
-//
-//    // DATA
-//    const TYPE       *d_values;             // Array of values table is to hold
-//    size_t            d_numValues;          // Length of 'd_values'.
-//    const TYPE      **d_bucketArray;        // Contains ptrs into 'd_values'
-//    unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
-//    HASHER            d_hasher;
-//
-//  private:
-//    // PRIVATE ACCESSORS
-//    bool lookup(size_t      *idx,
-//                const TYPE&  value,
-//                size_t       hashValue) const;
-//        // Look up the specified 'value', having the specified 'hashValue', and
-//        // load its index in 'd_bucketArray' into the specified 'idx'.  If not
-//        // found, return the vacant entry in 'd_bucketArray' where it should be
-//        // inserted.  Return 'true' if 'value' is found and 'false' otherwise.
-//
-//
-//  public:
-//    // CREATORS
-//    HashTable(const TYPE *valuesArray,
-//              size_t      numValues);
-//        // Create a hash table referring to the specified 'valuesArray' having
-//        // length of the specified 'numValues'.  No value in 'valuesArray'
-//        // shall have the same value as any of the other values in
-//        // 'valuesArray'
-//
-//    ~HashTable();
-//        // Free up memory used by this hash table.
-//
-//    // ACCESSORS
-//    bool contains(const TYPE& value) const;
-//        // Return true if the specified 'value' is found in the table and false
-//        // otherwise.
-//};
+//  template <class TYPE, class HASHER = bslh::Hash<> >
+//  class HashTable {
+//      // This class template implements a hash table providing fast lookup of
+//      // an external, non-owned, array of values of (template parameter)
+//      // 'TYPE'.
+//      //
+//      // The (template parameter) 'TYPE' shall have a transitive, symmetric
+//      // 'operator==' function and it will be hashable using 'bslh::Hash'.
+//      // Note that there is no requirement that it have any kind of creator
+//      // defined.
+//      //
+//      // The 'HASHER' template parameter type must be a functor with a method
+//      // having the following signature:
+//      //..
+//      //  size_t operator()(TYPE)  const;
+//      //                   -OR-
+//      //  size_t operator()(const TYPE&) const;
+//      //..
+//      // and 'HASHER' shall have a publicly accessible default constructor
+//      // and destructor.  Here we use 'bslh::Hash' as our default template
+//      // argument.  This allows us to hash any type for which 'hashAppend'
+//      // has been implemented.
+//      //
+//      // Note that this hash table has numerous simplifications because we
+//      // know the size of the array and never have to resize the table.
+//  
+//      // DATA
+//      const TYPE       *d_values;             // Array of values table is to
+//                                              // hold
+//      size_t            d_numValues;          // Length of 'd_values'.
+//      const TYPE      **d_bucketArray;        // Contains ptrs into
+//                                              // 'd_values'
+//      unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
+//      HASHER            d_hasher;
+//  
+//    private:
+//      // PRIVATE ACCESSORS
+//      bool lookup(size_t      *idx,
+//                  const TYPE&  value,
+//                  size_t       hashValue) const;
+//          // Look up the specified 'value', having the specified 'hashValue',
+//          // and load its index in 'd_bucketArray' into the specified 'idx'.
+//          // If not found, return the vacant entry in 'd_bucketArray' where
+//          // it should be inserted.  Return 'true' if 'value' is found and
+//          // 'false' otherwise.
+//  
+//  
+//    public:
+//      // CREATORS
+//      HashTable(const TYPE *valuesArray,
+//                size_t      numValues);
+//          // Create a hash table referring to the specified 'valuesArray'
+//          // having length of the specified 'numValues'.  No value in
+//          // 'valuesArray' shall have the same value as any of the other
+//          // values in 'valuesArray'
+//  
+//      ~HashTable();
+//          // Free up memory used by this hash table.
+//  
+//      // ACCESSORS
+//      bool contains(const TYPE& value) const;
+//          // Return true if the specified 'value' is found in the table and
+//          // false otherwise.
+//  };
 //..
 // Next, we will create an array of boxes that we want to store in our hash
 // table.
@@ -400,16 +397,14 @@ BSLS_IDENT("$Id: $")
 //
 // Now, we verify that each element in our array registers with count:
 //..
-//        for ( int i = 0; i < 6; ++i) {
-//            ASSERT(hashTable.contains(boxes[i]));
-//        }
+// for ( int i = 0; i < 6; ++i) { ASSERT(hashTable.contains(boxes[i])); }
 //..
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
 //..
-//        ASSERT(!hashTable.contains(Box(Point(1, 1), 1, 1)));
-//        ASSERT(!hashTable.contains(Box(Point(0, 0), 0, 0)));
-//        ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
+// ASSERT(!hashTable.contains(Box(Point(1, 1), 1, 1)));
+// ASSERT(!hashTable.contains(Box(Point(0, 0), 0, 0)));
+// ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -632,24 +627,23 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // that proceed the final two appear to be garbage.
     //
     //..
-    //      Actual Data --+*****************************+
-    //                    |                             |
-    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8 5c 2b  0  0
-    //                                                   |          ||   |
-    //      Garbage -------------------------------------+**********+|   |
-    //      Zeroed --------------------------------------------------+***+
+    // Actual Data
+    // --+*****************************+                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8 5c 2b 0
+    // 0                                                   |          ||   |      Garbage
+    // -------------------------------------+**********+|   |      Zeroed
+    // --------------------------------------------------+***+
     //..
     //
     // For GCC, the first and last 2 bytes of the padding are zeroed, but the 2
     // bytes in the middle appear to be garbage.
     //
     //..
-    //      Garbage -------------------------------------------+****+
-    //      Actual Data --+*****************************+     |     |
-    //                    |                             |     |     |
-    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40  0  0 5c 2b  0  0
-    //                                                   |    |      |    |
-    //      Zeroed --------------------------------------+****+------+****+
+    // Garbage -------------------------------------------+****+ Actual Data
+    // --+*****************************+     |     |                    |                             |     |     |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 0 0 5c 2b 0
+    // 0                                                   |    |      |    |
+    // Zeroed --------------------------------------+****+------+****+
     //..
     //
     // On 32-bit hardware, 'sizeof(long double)' is advertised as 12 bytes, but
@@ -659,21 +653,21 @@ bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
     // For Clang, the 2 bytes of the padding appear to be garbage.
     //
     //..
-    //      Actual Data --+*****************************+
-    //                    |                             |
-    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87 d8
-    //                                                   |    |
-    //      Garbage -------------------------------------+****+
+    // Actual Data
+    // --+*****************************+                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 87
+    // d8                                                   |    | Garbage
+    // -------------------------------------+****+
     //..
     //
     // For GCC, the 2 bytes of the padding are zeroed.
     //
     //..
-    //      Actual Data --+*****************************+
-    //                    |                             |
-    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40  0  0
-    //                                                   |    |
-    //      Zeroed --------------------------------------+****+
+    // Actual Data
+    // --+*****************************+                    |                             |
+    // Actual long double: 5d e9 79 a9 c2 82 bb ef 2b 40 0
+    // 0                                                   |    | Zeroed
+    // --------------------------------------+****+
     //..
     //
     // To address all of these issues, we will pass in only 10 bytes for a

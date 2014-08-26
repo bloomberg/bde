@@ -204,75 +204,76 @@ typedef bslh::SeedGenerator<MockRNG> Obj;
 // First, we write our first hashing algorithm, which accepts a 32-bit seed and
 // returns a 32-bit unsigned int.
 //..
-class Seeded32BitHashingAlgorithm {
-    // This class is a functor that implements a hashing algorithm seeded with
-    // 32 bits.
 
-  public:
-    typedef unsigned result_type; // Type of the hash returned
-    enum { k_SEED_LENGTH = 4 };     // Seed length in bytes
+    class Seeded32BitHashingAlgorithm {
+        // This class is a functor that implements a hashing algorithm seeded
+        // with 32 bits.
 
-  private:
-    const char *d_seed; // Seed used in the generation of hashes
+      public:
+        typedef unsigned result_type; // Type of the hash returned
+        enum { k_SEED_LENGTH = 4 };   // Seed length in bytes
 
-  public:
-    explicit Seeded32BitHashingAlgorithm(const char *seed);
-        // Construct a 'Seeded32BitHashingAlgorithm' that will use the first 4
-        // bytes of the specified 'seed' to seed the algorithm.
+      private:
+        const char *d_seed; // Seed used in the generation of hashes
 
-    result_type operator()(const char *data, size_t length);
-        // Return a hash of the specified 'length' bytes of 'data'.
-};
+      public:
+        explicit Seeded32BitHashingAlgorithm(const char *seed);
+            // Construct a 'Seeded32BitHashingAlgorithm' that will use the
+            // first 4 bytes of the specified 'seed' to seed the algorithm.
+
+        result_type operator()(const char *data, size_t length);
+            // Return a hash of the specified 'length' bytes of 'data'.
+    };
 
 //..
 // Then, we define another hashing algorithm, which accepts a 64-bit seed and
 // returns a 32-bit unsigned int
 //..
 
-class Seeded64BitHashingAlgorithm {
-    // This class is a functor that implements a hashing algorithm seeded with
-    // 64 bits.
+    class Seeded64BitHashingAlgorithm {
+        // This class is a functor that implements a hashing algorithm seeded
+        // with 64 bits.
 
-  public:
-    typedef unsigned result_type; // Type of the hash returned
-    enum { k_SEED_LENGTH = 8 };     // Seed length in bytes
+      public:
+        typedef unsigned result_type; // Type of the hash returned
+        enum { k_SEED_LENGTH = 8 };     // Seed length in bytes
 
-  private:
-    const char *d_seed; // Seed used in the generation of hashes
+      private:
+        const char *d_seed; // Seed used in the generation of hashes
 
-  public:
-    explicit Seeded64BitHashingAlgorithm(const char *seed);
-        // Construct a 'Seeded64BitHashingAlgorithm' that will use the first 8
-        // bytes of the specified 'seed' to seed the algorithm.
+      public:
+        explicit Seeded64BitHashingAlgorithm(const char *seed);
+            // Construct a 'Seeded64BitHashingAlgorithm' that will use the
+            // first 8 bytes of the specified 'seed' to seed the algorithm.
 
-    result_type operator()(const char *data, size_t length);
-        // Return a hash of the specified 'length' bytes of 'data'.
-};
+        result_type operator()(const char *data, size_t length);
+            // Return a hash of the specified 'length' bytes of 'data'.
+    };
 
 //..
 // Next, we define a final hashing algorithm, which accepts a 1024-bit seed and
 // returns a 32-bit unsigned int
 //..
 
-class Seeded1024BitHashingAlgorithm {
-    // This class is a functor that implements a hashing algorithm seeded with
-    // 1024 bits.
+    class Seeded1024BitHashingAlgorithm {
+        // This class is a functor that implements a hashing algorithm seeded
+        // with 1024 bits.
 
-  public:
-    typedef unsigned result_type; // Type of the hash returned
-    enum { k_SEED_LENGTH = 128 };   // Seed length in bytes
+      public:
+        typedef unsigned result_type; // Type of the hash returned
+        enum { k_SEED_LENGTH = 128 };   // Seed length in bytes
 
-  private:
-    const char *d_seed; // Seed used in the generation of hashes
+      private:
+        const char *d_seed; // Seed used in the generation of hashes
 
-  public:
-    explicit Seeded1024BitHashingAlgorithm(const char *seed);
-        // Construct a 'Seeded1024BitHashingAlgorithm' that will use the first
-        // 128 bytes of the specified 'seed' to seed the algorithm.
+      public:
+        explicit Seeded1024BitHashingAlgorithm(const char *seed);
+            // Construct a 'Seeded1024BitHashingAlgorithm' that will use the
+            // first 128 bytes of the specified 'seed' to seed the algorithm.
 
-    result_type operator()(const char *data, size_t length);
-        // Return a hash of the specified 'length' bytes of 'data'.
-};
+        result_type operator()(const char *data, size_t length);
+            // Return a hash of the specified 'length' bytes of 'data'.
+    };
 
 //..
 // Then, we declare our functor, 'SeededHash', which will take a seed
@@ -280,32 +281,31 @@ class Seeded1024BitHashingAlgorithm {
 // the correct size seed with the seed generator.
 //..
 
-template <class HASH_ALGORITHM>
-class SeededHash {
-    // This class template implements an interface similar to 'std::hash',
-    // which will used the (template parameter) type 'SEED_GENERATOR' and
-    // 'HASH_ALGORITHM' to compute hashes.
+    template <class HASH_ALGORITHM>
+    class SeededHash {
+        // This class template implements an interface similar to 'std::hash',
+        // which will used the (template parameter) type 'SEED_GENERATOR' and
+        // 'HASH_ALGORITHM' to compute hashes.
 
-  public:
-    typedef typename HASH_ALGORITHM::result_type result_type;
-        // Type of the hash that will be returned.
+      public:
+        typedef typename HASH_ALGORITHM::result_type result_type;
+            // Type of the hash that will be returned.
 
-  private:
-    char seed[HASH_ALGORITHM::k_SEED_LENGTH];
-        // Stores the seed that will be used to run the (template parameter)
-        // type 'HASH_ALGORITHM'
+      private:
+        char seed[HASH_ALGORITHM::k_SEED_LENGTH];
+            // Stores the seed that will be used to run the (template
+            // parameter) type 'HASH_ALGORITHM'
 
-  public:
-    template<class SEED_GENERATOR>
-    SeededHash(SEED_GENERATOR seedGenerator);
-        //Create a 'SeededHash' and generate a seed using the specified
-        //'seedGenerator'.
+      public:
+        template<class SEED_GENERATOR>
+        SeededHash(SEED_GENERATOR seedGenerator);
+            //Create a 'SeededHash' and generate a seed using the specified
+            //'seedGenerator'.
 
-    result_type operator()(const char *data, size_t length) const;
-        // Returns a hash generated by the (template parameter) type
-        // 'HASH_ALGORITHM' for the specified 'length' bytes of 'data'.
-
-};
+        result_type operator()(const char *data, size_t length) const;
+            // Returns a hash generated by the (template parameter) type
+            // 'HASH_ALGORITHM' for the specified 'length' bytes of 'data'.
+    };
 
 //..
 // Next, we define our constructor where we actually use 'bslh::SeedGenerator'.
@@ -313,18 +313,19 @@ class SeededHash {
 // the requirements of the above declared algorithms.
 //..
 
-template <class HASH_ALGORITHM>
-template<class SEED_GENERATOR>
-SeededHash<HASH_ALGORITHM>::SeededHash(SEED_GENERATOR seedGenerator) {
-    seedGenerator.generateSeed(seed, HASH_ALGORITHM::k_SEED_LENGTH);
-}
+    template <class HASH_ALGORITHM>
+    template<class SEED_GENERATOR>
+    SeededHash<HASH_ALGORITHM>::SeededHash(SEED_GENERATOR seedGenerator) {
+        seedGenerator.generateSeed(seed, HASH_ALGORITHM::k_SEED_LENGTH);
+    }
 
-template <class HASH_ALGORITHM>
-typename SeededHash<HASH_ALGORITHM>::result_type
-SeededHash<HASH_ALGORITHM>::operator()(const char *data, size_t length) const {
-    HASH_ALGORITHM hashAlg(seed);
-    return hashAlg(data, length);
-}
+    template <class HASH_ALGORITHM>
+    typename SeededHash<HASH_ALGORITHM>::result_type
+    SeededHash<HASH_ALGORITHM>::operator()(const char *data,
+                                           size_t length) const {
+        HASH_ALGORITHM hashAlg(seed);
+        return hashAlg(data, length);
+    }
 
 //=============================================================================
 //                     ELIDED USAGE EXAMPLE IMPLEMENTATIONS

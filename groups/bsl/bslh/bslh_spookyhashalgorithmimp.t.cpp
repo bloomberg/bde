@@ -183,56 +183,56 @@ const int NUM_DATA = sizeof DATA / sizeof *DATA;
 // well as the checksum associated with it.
 //..
 
-class CheckedData {
-    // This class holds a pointer to data and provides a way of verifying that
-    // the data has not changed.
+    class CheckedData {
+        // This class holds a pointer to data and provides a way of verifying
+        // that the data has not changed.
 
-    // TYPES
-    typedef bsls::Types::Uint64 Uint64;
+        // TYPES
+        typedef bsls::Types::Uint64 Uint64;
 
-    // DATA
-    size_t      d_length;
-    const char *d_data;
-    Uint64      d_checksum1;
-    Uint64      d_checksum2;
+        // DATA
+        size_t      d_length;
+        const char *d_data;
+        Uint64      d_checksum1;
+        Uint64      d_checksum2;
 
-  public:
-    CheckedData(const char *data, size_t length);
-        // Creates an instance of this class having the specified 'length'
-        // bytes of 'data'.  The behaviour is undefined unless 'data' is
-        // initialized with at least 'length' bytes, and remains valid for the
-        // lifetime of this object.  Note that only a pointer to the data will
-        // be maintained, it will not be copied.
+      public:
+        CheckedData(const char *data, size_t length);
+            // Creates an instance of this class having the specified 'length'
+            // bytes of 'data'.  The behaviour is undefined unless 'data' is
+            // initialized with at least 'length' bytes, and remains valid for
+            // the lifetime of this object.  Note that only a pointer to the
+            // data will be maintained, it will not be copied.
 
-    const char *getData();
-        // Return a pointer to the data being tracked by this class.
+        const char *getData();
+            // Return a pointer to the data being tracked by this class.
 
-    bool isDataValid();
-        // Return 'true' if the data stored in this class matches the stored
-        // checksum, and 'false' otherwise.
-};
+        bool isDataValid();
+            // Return 'true' if the data stored in this class matches the
+            // stored checksum, and 'false' otherwise.
+    };
 
 //..
 // Then, we define the 'CheckedData' constructor.  Here we will use
 // 'SpookyHashImp' to calculate a 128-bit checksum.
 //..
 
-CheckedData::CheckedData(const char *data, size_t length)
-: d_length(length)
-, d_data(data)
-, d_checksum1(0)
-, d_checksum2(0)
-{
-    BSLS_ASSERT(data);
+    CheckedData::CheckedData(const char *data, size_t length)
+    : d_length(length)
+    , d_data(data)
+    , d_checksum1(0)
+    , d_checksum2(0)
+    {
+        BSLS_ASSERT(data);
 
-    SpookyHashAlgorithmImp hashAlg(1, 2);
+        SpookyHashAlgorithmImp hashAlg(1, 2);
 
-    hashAlg.hash128(d_data, d_length, &d_checksum1, &d_checksum2);
-}
+        hashAlg.hash128(d_data, d_length, &d_checksum1, &d_checksum2);
+    }
 
-const char *CheckedData::getData() {
-    return d_data;
-}
+    const char *CheckedData::getData() {
+        return d_data;
+    }
 
 //..
 // Next, we define 'isDataValid'.  We will generate a checksum from the
@@ -244,16 +244,15 @@ const char *CheckedData::getData() {
 // know not to trust it.
 //..
 
-bool CheckedData::isDataValid() {
-    SpookyHashAlgorithmImp hashAlg(1, 2);
-    Uint64 checksum1 = 0;
-    Uint64 checksum2 = 0;
+    bool CheckedData::isDataValid() {
+        SpookyHashAlgorithmImp hashAlg(1, 2);
+        Uint64 checksum1 = 0;
+        Uint64 checksum2 = 0;
 
-    hashAlg.hash128(d_data, d_length, &checksum1, &checksum2);
+        hashAlg.hash128(d_data, d_length, &checksum1, &checksum2);
 
-    return (d_checksum1 == checksum1) && (d_checksum2 == checksum2);
-}
-
+        return (d_checksum1 == checksum1) && (d_checksum2 == checksum2);
+    }
 
 // ============================================================================
 //                            MAIN PROGRAM

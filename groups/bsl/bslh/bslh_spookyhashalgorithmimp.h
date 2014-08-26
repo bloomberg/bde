@@ -20,6 +20,148 @@ BSLS_IDENT("$Id: $")
 // pieces.  More information is available at:
 // http://burtleburtle.net/bob/hash/spooky.html
 //
+///Usage
+///-----
+// This section illustrates intended usage of this component.
+//
+///Example: Creating 128-bit checksums
+///- - - - - - - - - - - - - - - - - -
+// Suppose we have a library of 4 billion pieces of data and we want to store
+// checksums for this data.  For a 64-bit hash, there is a 35% chance of two of
+// these checksums colliding (according to the approximation found here:
+// http://en.wikipedia.org/wiki/Birthday_problem).  We want to avoid checksum
+// collision, so we will use the 128-bit hashing functionality provided by
+// 'SpookyHashAlgorithmImp'.
+//
+// First, we will declare a class 'CheckedData' which will store some data as
+// well as the checksum associated with it.
+//..
+//
+//  class CheckedData {
+//      // This class holds a pointer to data and provides a way of verifying
+//      // that the data has not changed.
+//
+//      // TYPES
+//      typedef bsls::Types::Uint64 Uint64;
+//
+//      // DATA
+//      size_t      d_length;
+//      const char *d_data;
+//      Uint64      d_checksum1;
+//      Uint64      d_checksum2;
+//
+//    public:
+//      CheckedData(const char *data, size_t length);
+//          // Creates an instance of this class having the specified 'length'
+//          // bytes of 'data'.  The behaviour is undefined unless 'data' is
+//          // initialized with at least 'length' bytes, and remains valid for
+//          // the lifetime of this object.  Note that only a pointer to the
+//          // data will be maintained, it will not be copied.
+//
+//      const char *getData();
+//          // Return a pointer to the data being tracked by this class.
+//
+//      bool isDataValid();
+//          // Return 'true' if the data stored in this class matches the
+//          // stored checksum, and 'false' otherwise.
+//  };
+//
+//..
+// Then, we define the 'CheckedData' constructor.  Here we will use
+// 'SpookyHashImp' to calculate a 128-bit checksum.
+//..
+//
+//  CheckedData::CheckedData(const char *data, size_t length)
+//  : d_length(length)
+//  , d_data(data)
+//  , d_checksum1(0)
+//  , d_checksum2(0)
+//  {
+//      BSLS_ASSERT(data);
+//
+//      SpookyHashAlgorithmImp hashAlg(1, 2);
+//
+//      hashAlg.hash128(d_data, d_length, &d_checksum1, &d_checksum2);
+//  }
+//
+//  const char *CheckedData::getData() {
+//      return d_data;
+//  }
+//
+//..
+// Next, we define 'isDataValid'.  We will generate a checksum from the
+// contained data and then compare it to the checksum we generated when the
+// class was created.  If the two hashes match, then we can be reasonably
+// certian that the data is still in a valid state (the chance of an accidental
+// collision is very low).  If the checksums do not match, we know that the
+// data has been corrupted.  We will not be able to restore it, but we will
+// know not to trust it.
+//..
+//
+//  bool CheckedData::isDataValid() {
+//      SpookyHashAlgorithmImp hashAlg(1, 2);
+//      Uint64 checksum1 = 0;
+//      Uint64 checksum2 = 0;
+//
+//      hashAlg.hash128(d_data, d_length, &checksum1, &checksum2);
+//
+//      return (d_checksum1 == checksum1) && (d_checksum2 == checksum2);
+//  }
+//..
+// Then, we store some data in our 'CheckedData' class for safekeeping.
+//..
+//
+//      char data[] = "To be, or not to be--that is the question:"
+//                    "Whether 'tis nobler in the mind to suffer"
+//                    "The slings and arrows of outrageous fortune"
+//                    "Or to take arms against a sea of troubles"
+//                    "And by opposing end them.  To die, to sleep--"
+//                    "No more--and by a sleep to say we end"
+//                    "The heartache, and the thousand natural shocks"
+//                    "That flesh is heir to.  'Tis a consummation"
+//                    "Devoutly to be wished.  To die, to sleep--"
+//                    "To sleep--perchance to dream: ay, there's the rub,"
+//                    "For in that sleep of death what dreams may come"
+//                    "When we have shuffled off this mortal coil,"
+//                    "Must give us pause.  There's the respect"
+//                    "That makes calamity of so long life."
+//                    "For who would bear the whips and scorns of time,"
+//                    "Th' oppressor's wrong, the proud man's contumely"
+//                    "The pangs of despised love, the law's delay,"
+//                    "The insolence of office, and the spurns"
+//                    "That patient merit of th' unworthy takes,"
+//                    "When he himself might his quietus make"
+//                    "With a bare bodkin? Who would fardels bear,"
+//                    "To grunt and sweat under a weary life,"
+//                    "But that the dread of something after death,"
+//                    "The undiscovered country, from whose bourn"
+//                    "No traveller returns, puzzles the will,"
+//                    "And makes us rather bear those ills we have"
+//                    "Than fly to others that we know not of?"
+//                    "Thus conscience does make cowards of us all,"
+//                    "And thus the native hue of resolution"
+//                    "Is sicklied o'er with the pale cast of thought,"
+//                    "And enterprise of great pitch and moment"
+//                    "With this regard their currents turn awry"
+//                    "And lose the name of action. -- Soft you now,"
+//                    "The fair Ophelia! -- Nymph, in thy orisons"
+//                    "Be all my sins remembered.";
+//      CheckedData checkedData(data, strlen(data));
+//
+//..
+// Now, we check that the 'CheckedData' recognizes that it is still valid.
+//..
+//
+//      ASSERT(checkedData.isDataValid());
+//
+//..
+// Finally, we tamper with the data and check that our 'CheckedData' class can
+// detect this.
+//..
+//      data[34] = 'z';
+//      ASSERT(!checkedData.isDataValid());
+//..
+//
 ///Changes
 ///-------
 // The third party code begins with the "SpookyHash" header below, and

@@ -163,125 +163,130 @@ SomeRNG::result_type SomeRNG::operator()() {
 // First, we define our 'HashTable' template class, with the two type
 // parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
 // produces the hash).
+//..
+    template <class TYPE, class HASHER>
+    class HashTable {
+        // This class template implements a hash table providing fast lookup of
+        // an external, non-owned, array of values of (template parameter)
+        // 'TYPE'.
+        //
+        // The (template parameter) 'TYPE' shall have a transitive, symmetric
+        // 'operator==' function.  There is no requirement that it have any
+        // kind of creator defined.
+        //
+        // The 'HASHER' template parameter type must be a functor with a method
+        // having the following signature:
+        //..
+        //  size_t operator()(TYPE)  const;
+        //                   -OR-
+        //  size_t operator()(const TYPE&) const;
+        //..
+        // and 'HASHER' shall have a publicly accessible default constructor
+        // and destructor.
+        //
+        // Note that this hash table has numerous simplifications because we
+        // know the size of the array and never have to resize the table.
 
-template <class TYPE, class HASHER>
-class HashTable {
-    // This class template implements a hash table providing fast lookup of an
-    // external, non-owned, array of values of (template parameter) 'TYPE'.
-    //
-    // The (template parameter) 'TYPE' shall have a transitive, symmetric
-    // 'operator==' function.  There is no requirement that it have any kind of
-    // creator defined.
-    //
-    // The 'HASHER' template parameter type must be a functor with a method
-    // having the following signature:
-    //..
-    //  size_t operator()(TYPE)  const;
-    //                   -OR-
-    //  size_t operator()(const TYPE&) const;
-    //..
-    // and 'HASHER' shall have a publicly accessible default constructor and
-    // destructor.
-    //
-    // Note that this hash table has numerous simplifications because we know
-    // the size of the array and never have to resize the table.
+        // DATA
+        const TYPE       *d_values;             // Array of values table is to
+                                                // hold
+        size_t            d_numValues;          // Length of 'd_values'.
+        const TYPE      **d_bucketArray;        // Contains ptrs into 
+                                                // 'd_values'
+        unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
+        HASHER            d_hasher;
 
-    // DATA
-    const TYPE       *d_values;             // Array of values table is to hold
-    size_t            d_numValues;          // Length of 'd_values'.
-    const TYPE      **d_bucketArray;        // Contains ptrs into 'd_values'
-    unsigned          d_bucketArrayMask;    // Will always be '2^N - 1'.
-    HASHER            d_hasher;
+      private:
+        // PRIVATE ACCESSORS
+        bool lookup(size_t      *idx,
+                    const TYPE&  value,
+                    size_t       hashValue) const;
+            // Look up the specified 'value', having the specified 'hashValue',
+            // and load its index in 'd_bucketArray' into the specified 'idx'.
+            // If not found, return the vacant entry in 'd_bucketArray' where
+            // it should be inserted.  Return 'true' if 'value' is found and
+            // 'false' otherwise.
 
-  private:
-    // PRIVATE ACCESSORS
-    bool lookup(size_t      *idx,
-                const TYPE&  value,
-                size_t       hashValue) const;
-        // Look up the specified 'value', having the specified 'hashValue', and
-        // load its index in 'd_bucketArray' into the specified 'idx'.  If not
-        // found, return the vacant entry in 'd_bucketArray' where it should be
-        // inserted.  Return 'true' if 'value' is found and 'false' otherwise.
+      public:
+        // CREATORS
+        HashTable(const TYPE *valuesArray,
+                  size_t      numValues);
+            // Create a hash table referring to the specified 'valuesArray'
+            // having length of the specified 'numValues'.  No value in
+            // 'valuesArray' shall have the same value as any of the other
+            // values in 'valuesArray'
 
+        ~HashTable();
+            // Free up memory used by this hash table.
 
-  public:
-    // CREATORS
-    HashTable(const TYPE *valuesArray,
-              size_t      numValues);
-        // Create a hash table referring to the specified 'valuesArray' having
-        // length of the specified 'numValues'.  No value in 'valuesArray'
-        // shall have the same value as any of the other values in
-        // 'valuesArray'
-
-    ~HashTable();
-        // Free up memory used by this hash table.
-
-    // ACCESSORS
-    bool contains(const TYPE& value) const;
-        // Return true if the specified 'value' is found in the table and false
-        // otherwise.
-};
-
+        // ACCESSORS
+        bool contains(const TYPE& value) const;
+            // Return true if the specified 'value' is found in the table and
+            // false otherwise.
+    };
+//..
 // Then, we define a 'Future' class, which holds a c-string 'name', char
 // 'callMonth', and short 'callYear'.
+//..
+    class Future {
+        // This class identifies a future contract.  It tracks the name, call
+        // month and year of the contract it represents, and allows equality
+        // comparison.
 
-class Future {
-    // This class identifies a future contract.  It tracks the name, call month
-    // and year of the contract it represents, and allows equality comparison.
+        // DATA
+        const char *d_name;    // held, not owned
+        const char  d_callMonth;
+        const short d_callYear;
 
-    // DATA
-    const char *d_name;    // held, not owned
-    const char  d_callMonth;
-    const short d_callYear;
+      public:
+        // CREATORS
+        Future(const char *name, const char callMonth, const short callYear)
+        : d_name(name), d_callMonth(callMonth), d_callYear(callYear)
+            // Create a 'Future' object out of the specified 'name',
+            // 'callMonth', and 'callYear'.
+        {}
 
-  public:
-    // CREATORS
-    Future(const char *name, const char callMonth, const short callYear)
-    : d_name(name), d_callMonth(callMonth), d_callYear(callYear)
-        // Create a 'Future' object out of the specified 'name', 'callMonth',
-        // and 'callYear'.
-    {}
+        Future() : d_name(""), d_callMonth('\0'), d_callYear(0)
+            // Create a 'Future' with default values.
+        {}
 
-    Future() : d_name(""), d_callMonth('\0'), d_callYear(0)
-        // Create a 'Future' with default values.
-    {}
+        // ACCESSORS
+        const char * getMonth() const
+            // Return the month that this future expires.
+        {
+            return &d_callMonth;
+        }
 
-    // ACCESSORS
-    const char * getMonth() const
-        // Return the month that this future expires.
+        const char * getName() const
+            // Return the name of this future
+        {
+            return d_name;
+        }
+
+        const short * getYear() const
+            // Return the year that this future expires
+        {
+            return &d_callYear;
+        }
+
+        bool operator==(const Future& other) const
+            // Compare this to the specified 'other' object and return true if
+            // they are equal
+        {
+            return (!strcmp(d_name, other.d_name))  &&
+               d_callMonth == other.d_callMonth &&
+               d_callYear  == other.d_callYear;
+        }
+    };
+
+    bool operator!=(const Future& lhs, const Future& rhs)
+        // Compare compare the specified 'lhs' and 'rhs' objects and return
+        // true if they are not equal
     {
-        return &d_callMonth;
+        return !(lhs == rhs);
     }
 
-    const char * getName() const
-        // Return the name of this future
-    {
-        return d_name;
-    }
-
-    const short * getYear() const
-        // Return the year that this future expires
-    {
-        return &d_callYear;
-    }
-
-    bool operator==(const Future& other) const
-        // Compare this to the specified 'other' object and return true if they
-        // are equal
-    {
-        return (!strcmp(d_name, other.d_name))  &&
-           d_callMonth == other.d_callMonth &&
-           d_callYear  == other.d_callYear;
-    }
-};
-
-bool operator!=(const Future& lhs, const Future& rhs)
-    // Compare compare the specified 'lhs' and 'rhs' objects and return true if
-    // they are not equal
-{
-    return !(lhs == rhs);
-}
-
+//..
 // Next, we need a hash functor for 'Future'.  We are going to use the
 // 'DefaultSeededHashAlgorithm' because it is a fast, general purpose hashing
 // algorithm that will provide an easy way to combine the attributes of
@@ -290,40 +295,41 @@ bool operator!=(const Future& lhs, const Future& rhs)
 // a new hashing algorithm is discovered to be a better default, we can be
 // automatically be upgraded to use it as soon as
 // 'bslh::DefaultSeededHashAlgorithm' is updated.
+//..
 
-struct HashFuture {
-    // This struct is a functor that will apply the
-    // 'DefaultSeededHashAlgorithm' to objects of type 'Future', using a
-    // generated seed.
+    struct HashFuture {
+        // This struct is a functor that will apply the
+        // 'DefaultSeededHashAlgorithm' to objects of type 'Future', using a
+        // generated seed.
 
-    size_t operator()(const Future& future) const
-        // Return the hash of the of the specified 'future'.  Note that this
-        // uses the 'DefaultSeededHashAlgorithm' to quickly combine the
-        // attributes of 'Future' objects that are salient to hashing into a
-        // hash suitable for a hash table.
-    {
+        size_t operator()(const Future& future) const
+            // Return the hash of the of the specified 'future'.  Note that
+            // this uses the 'DefaultSeededHashAlgorithm' to quickly combine
+            // the attributes of 'Future' objects that are salient to hashing
+            // into a hash suitable for a hash table.
+        {
 //..
 // Then, we use a 'bslh::SeedGenerator' combined with a RNG (implementation not
 // shown), to generate the seeds for our algorithm.
 //..
-        char seed[DefaultSeededHashAlgorithm::k_SEED_LENGTH];
-        SeedGenerator<SomeRNG> seedGenerator;
-        seedGenerator.generateSeed(seed,
+            char seed[DefaultSeededHashAlgorithm::k_SEED_LENGTH];
+            SeedGenerator<SomeRNG> seedGenerator;
+            seedGenerator.generateSeed(seed,
                                     DefaultSeededHashAlgorithm::k_SEED_LENGTH);
 
-        DefaultSeededHashAlgorithm hash(seed);
+            DefaultSeededHashAlgorithm hash(seed);
 //..
 // Next, after seeding our algorithm, we pass data into it and operate on it
 // just as easily as for a non-seeded algorithm
 //..
 
-        hash(future.getName(),  strlen(future.getName()));
-        hash(future.getMonth(), sizeof(char));
-        hash(future.getYear(),  sizeof(short));
+            hash(future.getName(),  strlen(future.getName()));
+            hash(future.getMonth(), sizeof(char));
+            hash(future.getYear(),  sizeof(short));
 
-        return static_cast<size_t>(hash.computeHash());
-    }
-};
+            return static_cast<size_t>(hash.computeHash());
+        }
+    };
 
 //=============================================================================
 //                     ELIDED USAGE EXAMPLE IMPLEMENTATIONS
@@ -420,11 +426,11 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
-
+//..
 // Then, we want to actually use our hash table on 'Future' objects.  We
 // create an array of 'Future's based on data that was originally from some
 // external source:
-
+//..
         Future futures[] = { Future("Swiss Franc", 'F', 2014),
                              Future("US Dollar", 'G', 2015),
                              Future("Canadian Dollar", 'Z', 2014),
@@ -432,20 +438,21 @@ int main(int argc, char *argv[])
                              Future("Deutsche Mark", 'X', 2016),
                              Future("Eurodollar", 'Q', 2017)};
         enum { NUM_FUTURES = sizeof futures / sizeof *futures };
-
+//..
 // Next, we create our HashTable 'hashTable'.  We pass the functor that we
 // defined above as the second argument:
-
+//..
         HashTable<Future, HashFuture> hashTable(futures, NUM_FUTURES);
-
+//..
 // Now, we verify that each element in our array registers with count:
+//..
         for ( int i = 0; i < 6; ++i) {
             ASSERT(hashTable.contains(futures[i]));
         }
-
+//..
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
-
+//..
         ASSERT(!hashTable.contains(Future("French Franc", 'N', 2019)));
         ASSERT(!hashTable.contains(Future("Swiss Franc", 'X', 2014)));
         ASSERT(!hashTable.contains(Future("US Dollar", 'F', 2014)));
