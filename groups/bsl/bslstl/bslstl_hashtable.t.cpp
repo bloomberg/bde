@@ -75,9 +75,14 @@
 // XLC                    (CMP_IBM)
 // Sun Studio & Sun gcc   (OS_SOLARIS)
 // clang gcc              (OS_DARWIN)
-#if !(defined(BSLS_PLATFORM_CMP_IBM)    || \
-      defined(BSLS_PLATFORM_OS_SOLARIS) || \
-      defined(BSLS_PLATFORM_OS_DARWIN))
+// Linux gcc 4.8+         (OS_LINUX, CMP_GNU, CMP_VER_MAJOR >= 40800)
+
+#if !(defined(BSLS_PLATFORM_CMP_IBM)    ||  \
+      defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
+      defined(BSLS_PLATFORM_OS_DARWIN)  ||  \
+        (defined(BSLS_PLATFORM_OS_LINUX) && \
+         defined(BSLS_PLATFORM_CMP_GNU)  && \
+         BSLS_PLATFORM_CMP_VER_MAJOR >= 40800))
 #  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
