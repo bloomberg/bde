@@ -510,20 +510,34 @@ struct Hash {
 
 // FREE FUNCTIONS
 template <class HASH_ALGORITHM, class TYPE>
+inline
 typename bsl::enable_if<
     (bsl::is_integral<TYPE>::value ||
      bsl::is_pointer<TYPE>::value  ||
      bsl::is_enum<TYPE>::value)    &&
     !bsl::is_same<TYPE, bool>::value
 >::type
-hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
+hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
+{
+    // MS Visual Studio compilers before 2013 require (some) functions declared
+    // using enable_if be in-place inline.
+    hashAlg(&input, sizeof(input));
+}
 
 template <class HASH_ALGORITHM, class TYPE>
+inline
 typename bsl::enable_if<
     bsl::is_floating_point<TYPE>::value &&
-    !bsl::is_same<TYPE, long double>::value
+   !bsl::is_same<TYPE, long double>::value
 >::type
-hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
+hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
+{
+    // MS Visual Studio compilers before 2013 require (some) functions declared
+    // using enable_if be in-place inline.
+    if (input == 0)
+        input = 0;
+    hashAlg(&input, sizeof(input));
+}
 
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if< bsl::is_same<TYPE, bool>::value >::type
@@ -567,32 +581,6 @@ bslh::Hash<HASH_ALGORITHM>::operator()(TYPE const& key) const
 }
 
 // FREE FUNCTIONS
-template <class HASH_ALGORITHM, class TYPE>
-inline
-typename bsl::enable_if<
-    (bsl::is_integral<TYPE>::value ||
-     bsl::is_pointer<TYPE>::value  ||
-     bsl::is_enum<TYPE>::value)    &&
-    !bsl::is_same<TYPE, bool>::value
->::type
-bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
-{
-    hashAlg(&input, sizeof(input));
-}
-
-template <class HASH_ALGORITHM, class TYPE>
-inline
-typename bsl::enable_if<
-    bsl::is_floating_point<TYPE>::value &&
-    !bsl::is_same<TYPE, long double>::value
->::type
-bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
-{
-    if (input == 0)
-        input = 0;
-    hashAlg(&input, sizeof(input));
-}
-
 template <class HASH_ALGORITHM, class TYPE>
 inline
 typename bsl::enable_if< bsl::is_same<TYPE, bool>::value >::type
@@ -697,7 +685,7 @@ inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char (&input)[N])
 {
     // This 'hashAppend' exists because some platforms don't recognize that
-    // adding a const qualifies is a better match for arrays than pointer
+    // adding a const qualifier is a better match for arrays than pointer
     // decay.
     hashAlg(&input, sizeof(char)*N);
 }
@@ -714,7 +702,7 @@ inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N])
 {
     // This 'hashAppend' exists because some platforms don't recognize that
-    // adding a const qualifies is a better match for arrays than pointer
+    // adding a const qualifier is a better match for arrays than pointer
     // decay.
 
     for (size_t i = 0; i < N; ++i) {

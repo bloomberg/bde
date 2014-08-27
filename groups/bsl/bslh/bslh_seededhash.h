@@ -306,8 +306,8 @@ struct SeededHash {
         // 'SEED_GENERATOR' must be copy-constructible to use this constructor.
 
     //! SeededHash(const SeededHash& original) = default;
-        // Create a 'SeededHash' object having the same internal state as the
-        // specified 'original'.
+        // Create a 'bslh::SeededHash' object having the same internal state as
+        // the specified 'original'.
 
     //! ~SeededHash() = default;
         // Destroy this object.
