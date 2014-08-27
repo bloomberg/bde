@@ -62,8 +62,8 @@ using bsl::atoi;
 // [ 5] add(ValueType128, ValueType128)
 // [ 6] subtract(ValueType64,  ValueType64)
 // [ 6] subtract(ValueType128, ValueType128)
-// [  ] multiply(ValueType64,  ValueType64)
-// [  ] multiply(ValueType128, ValueType128)
+// [ 7] multiply(ValueType64,  ValueType64)
+// [ 7] multiply(ValueType128, ValueType128)
 // [  ] divide(ValueType64,  ValueType64)
 // [  ] divide(ValueType128, ValueType128)
 // [  ] negate(ValueType32)
@@ -613,6 +613,176 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'multiply'
+        //
+        // Concerns:
+        //:  1 'multiply' should never (except in identity, 'NaN' and 'Inf'
+        //:    cases) return the same value as at least one of the operands.
+        //:
+        //:  2 'multiply' behaves correctly with identity operand (1).
+        //:
+        //:  3 'multiply' will return a distinct value from both of its
+        //:    operands, when both are non-zero and value-states (not 'NaN' or
+        //:    'Inf').
+        //:
+        //:  4 'multiply' to 'NaN' or 'Inf' should follow the IEEE rules for
+        //:    the cases listed in this chart:
+        //:
+        //:             L * R|-Inf|Normal|+Inf|NaN|
+        //:            ------+----+------+----+---+
+        //:             -Inf |+Inf|+/-Inf|+Inf|NaN|
+        //:            ------+----+------+----+---+
+        //:            Normal| Inf|Normal| Inf|NaN|
+        //:            ------+----+------+----+---+
+        //:             +Inf |-Inf|+/-Inf|+Inf|NaN|
+        //:            ------+----+------+----+---+
+        //:              NaN | NaN|  NaN | NaN|NaN|
+        //:
+        //:  5 'multiply' behaves reasonably when working with different
+        //:    quanta.
+        //:
+        //: Plan:
+        //:  1 Test a handful of expected values of different exponent and
+        //:    mantissa, with both possible orders. (C-1,5,6)
+        //:
+        //:  2 Test identity with '1' case. (C-2)
+        //:
+        //:  3 When not dealing with special cases (or rounding cases), make
+        //:    sure the result value does not compare equal to either source.
+        //:    (C-3)
+        //:
+        //:  4 Test all 16 special cases in the chart, which covers both
+        //:    orders. (C-4,6)
+        // --------------------------------------------------------------------
+
+        Util::ValueType64     lhs64;
+        Util::ValueType64     rhs64;
+        Util::ValueType64  result64;
+
+        Util::ValueType128    lhs128;
+        Util::ValueType128    rhs128;
+        Util::ValueType128 result128;
+
+        struct  {
+            long long int lhsMantissa;
+                      int lhsExponent;
+            long long int rhsMantissa;
+                      int rhsExponent;
+            long long int resMantissa;
+                      int resExponent;
+        } testCases[] = {
+            {  0,  0,  0,  0,  0,  0 },
+            {  1,  0,  0,  0,  1,  0 },
+            {  0,  0,  1,  0, -1,  0 },
+            { 42,  0,  0,  0, 42,  0 },
+            {  0,  0, 42,  0,-42,  0 },
+            { 42,  0,  1,  0, 41,  0 },
+            {  1,  0, 42,  0,-41,  0 },
+            { 42,  0,  1,  1, 32,  0 },
+            {  1,  1, 42,  0,-32,  0 }
+        };
+        const int numTestCases = sizeof(testCases) / sizeof(*testCases);
+
+        for (int i = 0; i < numTestCases; ++i) {
+            long long int lhsMantissa = testCases[ i ].lhsMantissa;
+                      int lhsExponent = testCases[ i ].lhsExponent;
+            long long int rhsMantissa = testCases[ i ].rhsMantissa;
+                      int rhsExponent = testCases[ i ].rhsMantissa;
+            long long int resMantissa = testCases[ i ].resMantissa;
+                      int resExponent = testCases[ i ].resExponent;
+
+            Util::ValueType64 negativeZero64 = Util::parse64("-0");
+
+               lhs64 = Util::makeDecimalRaw64(lhsMantissa, lhsExponent);
+               rhs64 = Util::makeDecimalRaw64(rhsMantissa, rhsExponent);
+            result64 = Util::multiply(lhs64, rhs64);
+
+            ASSERT(Util::equal(result64, Util::makeDecimalRaw64(resMantissa,
+                                                                resExponent)));
+            ASSERT(Util::equal(lhs64, Util::multiply(lhs64, negativeZero64)));
+
+
+            Util::ValueType128 negativeZero128 = Util::parse128("-0");
+
+               lhs128 = Util::makeDecimalRaw128(lhsMantissa, lhsExponent);
+               rhs128 = Util::makeDecimalRaw128(rhsMantissa, rhsExponent);
+            result128 = Util::multiply(lhs128, rhs128);
+
+            ASSERT(Util::equal(result128, Util::makeDecimalRaw128(resMantissa,
+                                                                resExponent)));
+            ASSERT(Util::equal(lhs128, Util::multiply(lhs128,
+                                                      negativeZero128)));
+        }
+
+
+                        // Testing for 'NaN'/'Inf' special cases:
+        {
+            //:             L - R|-Inf|Normal|+Inf|NaN|
+            //:            ------+----+------+----+---+
+            //:             -Inf | NaN| -Inf |-Inf|NaN|
+            //:            ------+----+------+----+---+
+            //:            Normal|+Inf|Normal|-Inf|NaN|
+            //:            ------+----+------+----+---+
+            //:             +Inf |+Inf| +Inf | NaN|NaN|
+            //:            ------+----+------+----+---+
+            //:              NaN | NaN|  NaN | NaN|NaN|
+
+            Util::ValueType64   ninf64 = Util::parse64("-Inf");
+            Util::ValueType64   pinf64 = Util::parse64("+Inf");
+            Util::ValueType64    nan64 = Util::parse64( "NaN");
+            Util::ValueType64 normal64 = Util::makeDecimalRaw64(42,1);
+
+            ASSERT(Util::equal(ninf64, Util::multiply(  ninf64,   ninf64)));
+            ASSERT(Util::equal(ninf64, Util::multiply(  ninf64, normal64)));
+            ASSERT(Util::equal( nan64, Util::multiply(  ninf64,   pinf64)));
+            ASSERT(Util::equal( nan64, Util::multiply(  ninf64,    nan64)));
+
+            ASSERT(Util::equal(ninf64, Util::multiply(normal64,   ninf64)));
+            ASSERT(Util::equal(        Util::multiply(normal64, normal64),
+                               Util::makeDecimalRaw64(84,1)));
+            ASSERT(Util::equal(pinf64, Util::multiply(normal64,   pinf64)));
+            ASSERT(Util::equal( nan64, Util::multiply(normal64,    nan64)));
+
+            ASSERT(Util::equal( nan64, Util::multiply(  pinf64,   ninf64)));
+            ASSERT(Util::equal(ninf64, Util::multiply(  pinf64, normal64)));
+            ASSERT(Util::equal(pinf64, Util::multiply(  pinf64,   pinf64)));
+            ASSERT(Util::equal( nan64, Util::multiply(  pinf64,    nan64)));
+
+            ASSERT(Util::equal( nan64, Util::multiply(   nan64,   ninf64)));
+            ASSERT(Util::equal( nan64, Util::multiply(   nan64, normal64)));
+            ASSERT(Util::equal( nan64, Util::multiply(   nan64,   pinf64)));
+            ASSERT(Util::equal( nan64, Util::multiply(   nan64,    nan64)));
+
+
+            Util::ValueType128   ninf128 = Util::parse128("-Inf");
+            Util::ValueType128   pinf128 = Util::parse128("+Inf");
+            Util::ValueType128    nan128 = Util::parse128( "NaN");
+            Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
+
+            ASSERT(Util::equal(ninf128, Util::multiply(  ninf128,   ninf128)));
+            ASSERT(Util::equal(ninf128, Util::multiply(  ninf128, normal128)));
+            ASSERT(Util::equal( nan128, Util::multiply(  ninf128,   pinf128)));
+            ASSERT(Util::equal( nan128, Util::multiply(  ninf128,    nan128)));
+
+            ASSERT(Util::equal(ninf128, Util::multiply(normal128,   ninf128)));
+            ASSERT(Util::equal(         Util::multiply(normal128, normal128),
+                               Util::makeDecimalRaw128(84,1)));
+            ASSERT(Util::equal(pinf128, Util::multiply(normal128,   pinf128)));
+            ASSERT(Util::equal( nan128, Util::multiply(normal128,    nan128)));
+
+            ASSERT(Util::equal( nan128, Util::multiply(  pinf128,   ninf128)));
+            ASSERT(Util::equal(ninf128, Util::multiply(  pinf128, normal128)));
+            ASSERT(Util::equal(pinf128, Util::multiply(  pinf128,   pinf128)));
+            ASSERT(Util::equal( nan128, Util::multiply(  pinf128,    nan128)));
+
+            ASSERT(Util::equal( nan128, Util::multiply(   nan128,   ninf128)));
+            ASSERT(Util::equal( nan128, Util::multiply(   nan128, normal128)));
+            ASSERT(Util::equal( nan128, Util::multiply(   nan128,   pinf128)));
+            ASSERT(Util::equal( nan128, Util::multiply(   nan128,    nan128)));
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
