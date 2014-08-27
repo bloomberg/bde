@@ -55,7 +55,7 @@ using bsl::atoi;
 // [  ]  int64ToDecimal64 (         long long int)
 // [  ] uint64ToDecimal64 (unsigned long long int)
 // [  ]  int32ToDecimal128(                   int)
-// [  ] uint32ToDecimal128(unsigned          int)
+// [  ] uint32ToDecimal128(unsigned           int)
 // [  ]  int64ToDecimal128(         long long int)
 // [  ] uint64ToDecimal128(unsigned long long int)
 // [ 5] add(ValueType64,  ValueType64)
@@ -644,7 +644,9 @@ int main(int argc, char* argv[])
         //:  5 'multiply' behaves reasonably when working with different
         //:    quanta.
         //:
-        //: Plan:
+        //:  6 'multiply' by 0 behaves as expected.
+        //
+        // Plan:
         //:  1 Test a handful of expected values of different exponent and
         //:    mantissa, with both possible orders. (C-1,5,6)
         //:
@@ -656,6 +658,10 @@ int main(int argc, char* argv[])
         //:
         //:  4 Test all 16 special cases in the chart, which covers both
         //:    orders. (C-4,6)
+        //
+        // Testing:
+        //   multiply(ValueType64,  ValueType64)
+        //   multiply(ValueType128, ValueType128)
         // --------------------------------------------------------------------
 
         Util::ValueType64     lhs64;
@@ -675,14 +681,16 @@ int main(int argc, char* argv[])
                       int resExponent;
         } testCases[] = {
             {  0,  0,  0,  0,  0,  0 },
-            {  1,  0,  0,  0,  1,  0 },
-            {  0,  0,  1,  0, -1,  0 },
-            { 42,  0,  0,  0, 42,  0 },
-            {  0,  0, 42,  0,-42,  0 },
-            { 42,  0,  1,  0, 41,  0 },
-            {  1,  0, 42,  0,-41,  0 },
-            { 42,  0,  1,  1, 32,  0 },
-            {  1,  1, 42,  0,-32,  0 }
+            {  1,  0,  0,  0,  0,  0 },
+            {  0,  0,  1,  0,  0,  0 },
+            {  1,  0,  1,  0,  1,  0 },
+            {  1,  0,  1,  0,  1,  0 },
+            { 42,  0,  1,  0, 42,  0 },
+            {  1,  0, 42,  0, 42,  0 },
+            { 42,  0,  1,  1, 42,  1 },
+            {  1,  1, 42,  0, 42,  1 },
+            { 42,  0,  1,  2, 42,  2 },
+            {  1,  2, 42,  0, 42,  2 }
         };
         const int numTestCases = sizeof(testCases) / sizeof(*testCases);
 
@@ -690,43 +698,55 @@ int main(int argc, char* argv[])
             long long int lhsMantissa = testCases[ i ].lhsMantissa;
                       int lhsExponent = testCases[ i ].lhsExponent;
             long long int rhsMantissa = testCases[ i ].rhsMantissa;
-                      int rhsExponent = testCases[ i ].rhsMantissa;
+                      int rhsExponent = testCases[ i ].rhsExponent;
             long long int resMantissa = testCases[ i ].resMantissa;
                       int resExponent = testCases[ i ].resExponent;
 
-            Util::ValueType64 negativeZero64 = Util::parse64("-0");
+            Util::ValueType64 identity64 = Util::parse64("1");
 
                lhs64 = Util::makeDecimalRaw64(lhsMantissa, lhsExponent);
                rhs64 = Util::makeDecimalRaw64(rhsMantissa, rhsExponent);
             result64 = Util::multiply(lhs64, rhs64);
 
-            ASSERT(Util::equal(result64, Util::makeDecimalRaw64(resMantissa,
+            LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                         rhsMantissa, rhsExponent,
+                         resMantissa, resExponent,
+                   Util::equal(result64, Util::makeDecimalRaw64(resMantissa,
                                                                 resExponent)));
-            ASSERT(Util::equal(lhs64, Util::multiply(lhs64, negativeZero64)));
+            LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                         rhsMantissa, rhsExponent,
+                         resMantissa, resExponent,
+                   Util::equal(lhs64, Util::multiply(lhs64, identity64)));
 
 
-            Util::ValueType128 negativeZero128 = Util::parse128("-0");
+            Util::ValueType128 identity128 = Util::parse128("1");
 
                lhs128 = Util::makeDecimalRaw128(lhsMantissa, lhsExponent);
                rhs128 = Util::makeDecimalRaw128(rhsMantissa, rhsExponent);
             result128 = Util::multiply(lhs128, rhs128);
 
-            ASSERT(Util::equal(result128, Util::makeDecimalRaw128(resMantissa,
+            LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                         rhsMantissa, rhsExponent,
+                         resMantissa, resExponent,
+                   Util::equal(result128, Util::makeDecimalRaw128(resMantissa,
                                                                 resExponent)));
-            ASSERT(Util::equal(lhs128, Util::multiply(lhs128,
-                                                      negativeZero128)));
+            LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                         rhsMantissa, rhsExponent,
+                         resMantissa, resExponent,
+                   Util::equal(lhs128, Util::multiply(lhs128,
+                                                      identity128)));
         }
 
 
                         // Testing for 'NaN'/'Inf' special cases:
         {
-            //:             L - R|-Inf|Normal|+Inf|NaN|
+            //:             L * R|-Inf|Normal|+Inf|NaN|
             //:            ------+----+------+----+---+
-            //:             -Inf | NaN| -Inf |-Inf|NaN|
+            //:             -Inf |+Inf|+/-Inf|+Inf|NaN|
             //:            ------+----+------+----+---+
-            //:            Normal|+Inf|Normal|-Inf|NaN|
+            //:            Normal| Inf|Normal| Inf|NaN|
             //:            ------+----+------+----+---+
-            //:             +Inf |+Inf| +Inf | NaN|NaN|
+            //:             +Inf |-Inf|+/-Inf|+Inf|NaN|
             //:            ------+----+------+----+---+
             //:              NaN | NaN|  NaN | NaN|NaN|
 
@@ -735,26 +755,26 @@ int main(int argc, char* argv[])
             Util::ValueType64    nan64 = Util::parse64( "NaN");
             Util::ValueType64 normal64 = Util::makeDecimalRaw64(42,1);
 
-            ASSERT(Util::equal(ninf64, Util::multiply(  ninf64,   ninf64)));
-            ASSERT(Util::equal(ninf64, Util::multiply(  ninf64, normal64)));
-            ASSERT(Util::equal( nan64, Util::multiply(  ninf64,   pinf64)));
-            ASSERT(Util::equal( nan64, Util::multiply(  ninf64,    nan64)));
+            ASSERT(nanEqual(pinf64, Util::multiply(  ninf64,   ninf64)));
+            ASSERT(nanEqual(ninf64, Util::multiply(  ninf64, normal64)));
+            ASSERT(nanEqual(ninf64, Util::multiply(  ninf64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::multiply(  ninf64,    nan64)));
 
-            ASSERT(Util::equal(ninf64, Util::multiply(normal64,   ninf64)));
-            ASSERT(Util::equal(        Util::multiply(normal64, normal64),
-                               Util::makeDecimalRaw64(84,1)));
-            ASSERT(Util::equal(pinf64, Util::multiply(normal64,   pinf64)));
-            ASSERT(Util::equal( nan64, Util::multiply(normal64,    nan64)));
+            ASSERT(nanEqual(ninf64, Util::multiply(normal64,   ninf64)));
+            ASSERT(nanEqual(        Util::multiply(normal64, normal64),
+                            Util::makeDecimalRaw64(42*42,2)));
+            ASSERT(nanEqual(pinf64, Util::multiply(normal64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::multiply(normal64,    nan64)));
 
-            ASSERT(Util::equal( nan64, Util::multiply(  pinf64,   ninf64)));
-            ASSERT(Util::equal(ninf64, Util::multiply(  pinf64, normal64)));
-            ASSERT(Util::equal(pinf64, Util::multiply(  pinf64,   pinf64)));
-            ASSERT(Util::equal( nan64, Util::multiply(  pinf64,    nan64)));
+            ASSERT(nanEqual(ninf64, Util::multiply(  pinf64,   ninf64)));
+            ASSERT(nanEqual(pinf64, Util::multiply(  pinf64, normal64)));
+            ASSERT(nanEqual(pinf64, Util::multiply(  pinf64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::multiply(  pinf64,    nan64)));
 
-            ASSERT(Util::equal( nan64, Util::multiply(   nan64,   ninf64)));
-            ASSERT(Util::equal( nan64, Util::multiply(   nan64, normal64)));
-            ASSERT(Util::equal( nan64, Util::multiply(   nan64,   pinf64)));
-            ASSERT(Util::equal( nan64, Util::multiply(   nan64,    nan64)));
+            ASSERT(nanEqual( nan64, Util::multiply(   nan64,   ninf64)));
+            ASSERT(nanEqual( nan64, Util::multiply(   nan64, normal64)));
+            ASSERT(nanEqual( nan64, Util::multiply(   nan64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::multiply(   nan64,    nan64)));
 
 
             Util::ValueType128   ninf128 = Util::parse128("-Inf");
@@ -762,26 +782,26 @@ int main(int argc, char* argv[])
             Util::ValueType128    nan128 = Util::parse128( "NaN");
             Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
 
-            ASSERT(Util::equal(ninf128, Util::multiply(  ninf128,   ninf128)));
-            ASSERT(Util::equal(ninf128, Util::multiply(  ninf128, normal128)));
-            ASSERT(Util::equal( nan128, Util::multiply(  ninf128,   pinf128)));
-            ASSERT(Util::equal( nan128, Util::multiply(  ninf128,    nan128)));
+            ASSERT(nanEqual(pinf128, Util::multiply(  ninf128,   ninf128)));
+            ASSERT(nanEqual(ninf128, Util::multiply(  ninf128, normal128)));
+            ASSERT(nanEqual(ninf128, Util::multiply(  ninf128,   pinf128)));
+            ASSERT(nanEqual( nan128, Util::multiply(  ninf128,    nan128)));
 
-            ASSERT(Util::equal(ninf128, Util::multiply(normal128,   ninf128)));
-            ASSERT(Util::equal(         Util::multiply(normal128, normal128),
-                               Util::makeDecimalRaw128(84,1)));
-            ASSERT(Util::equal(pinf128, Util::multiply(normal128,   pinf128)));
-            ASSERT(Util::equal( nan128, Util::multiply(normal128,    nan128)));
+            ASSERT(nanEqual(ninf128, Util::multiply(normal128,   ninf128)));
+            ASSERT(nanEqual(         Util::multiply(normal128, normal128),
+                            Util::makeDecimalRaw128(42*42, 2)));
+            ASSERT(nanEqual(pinf128, Util::multiply(normal128,   pinf128)));
+            ASSERT(nanEqual( nan128, Util::multiply(normal128,    nan128)));
 
-            ASSERT(Util::equal( nan128, Util::multiply(  pinf128,   ninf128)));
-            ASSERT(Util::equal(ninf128, Util::multiply(  pinf128, normal128)));
-            ASSERT(Util::equal(pinf128, Util::multiply(  pinf128,   pinf128)));
-            ASSERT(Util::equal( nan128, Util::multiply(  pinf128,    nan128)));
+            ASSERT(nanEqual(ninf128, Util::multiply(  pinf128,   ninf128)));
+            ASSERT(nanEqual(pinf128, Util::multiply(  pinf128, normal128)));
+            ASSERT(nanEqual(pinf128, Util::multiply(  pinf128,   pinf128)));
+            ASSERT(nanEqual( nan128, Util::multiply(  pinf128,    nan128)));
 
-            ASSERT(Util::equal( nan128, Util::multiply(   nan128,   ninf128)));
-            ASSERT(Util::equal( nan128, Util::multiply(   nan128, normal128)));
-            ASSERT(Util::equal( nan128, Util::multiply(   nan128,   pinf128)));
-            ASSERT(Util::equal( nan128, Util::multiply(   nan128,    nan128)));
+            ASSERT(nanEqual( nan128, Util::multiply(   nan128,   ninf128)));
+            ASSERT(nanEqual( nan128, Util::multiply(   nan128, normal128)));
+            ASSERT(nanEqual( nan128, Util::multiply(   nan128,   pinf128)));
+            ASSERT(nanEqual( nan128, Util::multiply(   nan128,    nan128)));
         }
       } break;
       case 6: {
@@ -813,8 +833,8 @@ int main(int argc, char* argv[])
         //:
         //:  5 'subtract' behaves reasonably when working with different
         //:    quanta.
-        //:
-        //: Plan:
+        //
+        // Plan:
         //:  1 Test a handful of expected values of different exponent and
         //:    mantissa, with both possible orders. (C-1,5,6)
         //:
@@ -826,6 +846,10 @@ int main(int argc, char* argv[])
         //:
         //:  4 Test all 16 special cases in the chart, which covers both
         //:    orders. (C-4,6)
+        //
+        // Testing:
+        //   subtract(ValueType64,  ValueType64)
+        //   subtract(ValueType128, ValueType128)
         // --------------------------------------------------------------------
 
         Util::ValueType64     lhs64;
@@ -860,7 +884,7 @@ int main(int argc, char* argv[])
             long long int lhsMantissa = testCases[ i ].lhsMantissa;
                       int lhsExponent = testCases[ i ].lhsExponent;
             long long int rhsMantissa = testCases[ i ].rhsMantissa;
-                      int rhsExponent = testCases[ i ].rhsMantissa;
+                      int rhsExponent = testCases[ i ].rhsExponent;
             long long int resMantissa = testCases[ i ].resMantissa;
                       int resExponent = testCases[ i ].resExponent;
 
@@ -870,9 +894,15 @@ int main(int argc, char* argv[])
                rhs64 = Util::makeDecimalRaw64(rhsMantissa, rhsExponent);
             result64 = Util::subtract(lhs64, rhs64);
 
-            ASSERT(Util::equal(result64, Util::makeDecimalRaw64(resMantissa,
+            LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                         rhsMantissa, rhsExponent,
+                         resMantissa, resExponent,
+                   Util::equal(result64, Util::makeDecimalRaw64(resMantissa,
                                                                 resExponent)));
-            ASSERT(Util::equal(lhs64, Util::subtract(lhs64, negativeZero64)));
+            LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                         rhsMantissa, rhsExponent,
+                         resMantissa, resExponent,
+                   Util::equal(lhs64, Util::subtract(lhs64, negativeZero64)));
 
 
             Util::ValueType128 negativeZero128 = Util::parse128("-0");
@@ -881,9 +911,15 @@ int main(int argc, char* argv[])
                rhs128 = Util::makeDecimalRaw128(rhsMantissa, rhsExponent);
             result128 = Util::subtract(lhs128, rhs128);
 
-            ASSERT(Util::equal(result128, Util::makeDecimalRaw128(resMantissa,
-                                                                resExponent)));
-            ASSERT(Util::equal(lhs128, Util::subtract(lhs128,
+            LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                         rhsMantissa, rhsExponent,
+                         resMantissa, resExponent,
+                   Util::equal(result128, Util::makeDecimalRaw128(resMantissa,
+                                                                  resExponent)));
+            LOOP6_ASSERT(lhsMantissa, lhsExponent,
+                         rhsMantissa, rhsExponent,
+                         resMantissa, resExponent,
+                   Util::equal(lhs128, Util::subtract(lhs128,
                                                       negativeZero128)));
         }
 
@@ -905,26 +941,26 @@ int main(int argc, char* argv[])
             Util::ValueType64    nan64 = Util::parse64( "NaN");
             Util::ValueType64 normal64 = Util::makeDecimalRaw64(42,1);
 
-            ASSERT(Util::equal(ninf64, Util::subtract(  ninf64,   ninf64)));
-            ASSERT(Util::equal(ninf64, Util::subtract(  ninf64, normal64)));
-            ASSERT(Util::equal( nan64, Util::subtract(  ninf64,   pinf64)));
-            ASSERT(Util::equal( nan64, Util::subtract(  ninf64,    nan64)));
+            ASSERT(nanEqual( nan64, Util::subtract(  ninf64,   ninf64)));
+            ASSERT(nanEqual(ninf64, Util::subtract(  ninf64, normal64)));
+            ASSERT(nanEqual(ninf64, Util::subtract(  ninf64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::subtract(  ninf64,    nan64)));
 
-            ASSERT(Util::equal(ninf64, Util::subtract(normal64,   ninf64)));
-            ASSERT(Util::equal(        Util::subtract(normal64, normal64),
-                               Util::makeDecimalRaw64(84,1)));
-            ASSERT(Util::equal(pinf64, Util::subtract(normal64,   pinf64)));
-            ASSERT(Util::equal( nan64, Util::subtract(normal64,    nan64)));
+            ASSERT(nanEqual(pinf64, Util::subtract(normal64,   ninf64)));
+            ASSERT(nanEqual(        Util::subtract(normal64, normal64),
+                            Util::makeDecimalRaw64( 0, 1)));
+            ASSERT(nanEqual(ninf64, Util::subtract(normal64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::subtract(normal64,    nan64)));
 
-            ASSERT(Util::equal( nan64, Util::subtract(  pinf64,   ninf64)));
-            ASSERT(Util::equal(ninf64, Util::subtract(  pinf64, normal64)));
-            ASSERT(Util::equal(pinf64, Util::subtract(  pinf64,   pinf64)));
-            ASSERT(Util::equal( nan64, Util::subtract(  pinf64,    nan64)));
+            ASSERT(nanEqual(pinf64, Util::subtract(  pinf64,   ninf64)));
+            ASSERT(nanEqual(pinf64, Util::subtract(  pinf64, normal64)));
+            ASSERT(nanEqual( nan64, Util::subtract(  pinf64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::subtract(  pinf64,    nan64)));
 
-            ASSERT(Util::equal( nan64, Util::subtract(   nan64,   ninf64)));
-            ASSERT(Util::equal( nan64, Util::subtract(   nan64, normal64)));
-            ASSERT(Util::equal( nan64, Util::subtract(   nan64,   pinf64)));
-            ASSERT(Util::equal( nan64, Util::subtract(   nan64,    nan64)));
+            ASSERT(nanEqual( nan64, Util::subtract(   nan64,   ninf64)));
+            ASSERT(nanEqual( nan64, Util::subtract(   nan64, normal64)));
+            ASSERT(nanEqual( nan64, Util::subtract(   nan64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::subtract(   nan64,    nan64)));
 
 
             Util::ValueType128   ninf128 = Util::parse128("-Inf");
@@ -932,26 +968,26 @@ int main(int argc, char* argv[])
             Util::ValueType128    nan128 = Util::parse128( "NaN");
             Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
 
-            ASSERT(Util::equal(ninf128, Util::subtract(  ninf128,   ninf128)));
-            ASSERT(Util::equal(ninf128, Util::subtract(  ninf128, normal128)));
-            ASSERT(Util::equal( nan128, Util::subtract(  ninf128,   pinf128)));
-            ASSERT(Util::equal( nan128, Util::subtract(  ninf128,    nan128)));
+            ASSERT(nanEqual( nan128, Util::subtract(  ninf128,   ninf128)));
+            ASSERT(nanEqual(ninf128, Util::subtract(  ninf128, normal128)));
+            ASSERT(nanEqual(ninf128, Util::subtract(  ninf128,   pinf128)));
+            ASSERT(nanEqual( nan128, Util::subtract(  ninf128,    nan128)));
 
-            ASSERT(Util::equal(ninf128, Util::subtract(normal128,   ninf128)));
-            ASSERT(Util::equal(         Util::subtract(normal128, normal128),
-                               Util::makeDecimalRaw128(84,1)));
-            ASSERT(Util::equal(pinf128, Util::subtract(normal128,   pinf128)));
-            ASSERT(Util::equal( nan128, Util::subtract(normal128,    nan128)));
+            ASSERT(nanEqual(pinf128, Util::subtract(normal128,   ninf128)));
+            ASSERT(nanEqual(         Util::subtract(normal128, normal128),
+                            Util::makeDecimalRaw128( 0, 1)));
+            ASSERT(nanEqual(ninf128, Util::subtract(normal128,   pinf128)));
+            ASSERT(nanEqual( nan128, Util::subtract(normal128,    nan128)));
 
-            ASSERT(Util::equal( nan128, Util::subtract(  pinf128,   ninf128)));
-            ASSERT(Util::equal(ninf128, Util::subtract(  pinf128, normal128)));
-            ASSERT(Util::equal(pinf128, Util::subtract(  pinf128,   pinf128)));
-            ASSERT(Util::equal( nan128, Util::subtract(  pinf128,    nan128)));
+            ASSERT(nanEqual(pinf128, Util::subtract(  pinf128,   ninf128)));
+            ASSERT(nanEqual(pinf128, Util::subtract(  pinf128, normal128)));
+            ASSERT(nanEqual( nan128, Util::subtract(  pinf128,   pinf128)));
+            ASSERT(nanEqual( nan128, Util::subtract(  pinf128,    nan128)));
 
-            ASSERT(Util::equal( nan128, Util::subtract(   nan128,   ninf128)));
-            ASSERT(Util::equal( nan128, Util::subtract(   nan128, normal128)));
-            ASSERT(Util::equal( nan128, Util::subtract(   nan128,   pinf128)));
-            ASSERT(Util::equal( nan128, Util::subtract(   nan128,    nan128)));
+            ASSERT(nanEqual( nan128, Util::subtract(   nan128,   ninf128)));
+            ASSERT(nanEqual( nan128, Util::subtract(   nan128, normal128)));
+            ASSERT(nanEqual( nan128, Util::subtract(   nan128,   pinf128)));
+            ASSERT(nanEqual( nan128, Util::subtract(   nan128,    nan128)));
         }
       } break;
       case 5: {
@@ -984,8 +1020,8 @@ int main(int argc, char* argv[])
         //:
         //:  6 'add' must be a commutative operation (when avoiding corner
         //     cases).
-        //:
-        //: Plan:
+        //
+        // Plan:
         //:  1 Test a handful of expected values of different exponent and
         //:    mantissa, with both possible orders. (C-1,5,6)
         //:
@@ -997,6 +1033,10 @@ int main(int argc, char* argv[])
         //:
         //:  4 Test all 16 special cases in the chart, which covers both
         //:    orders. (C-4,6)
+        //
+        // Testing:
+        //   add(ValueType64,  ValueType64)
+        //   add(ValueType128, ValueType128)
         // --------------------------------------------------------------------
 
         Util::ValueType64     lhs64;
@@ -1006,6 +1046,7 @@ int main(int argc, char* argv[])
         Util::ValueType128    lhs128;
         Util::ValueType128    rhs128;
         Util::ValueType128 result128;
+
 
         struct  {
             long long int lhsMantissa;
@@ -1093,28 +1134,33 @@ int main(int argc, char* argv[])
             Util::ValueType64   ninf64 = Util::parse64("-Inf");
             Util::ValueType64   pinf64 = Util::parse64("+Inf");
             Util::ValueType64    nan64 = Util::parse64( "NaN");
+            ASSERT( Util::equal(pinf64, pinf64));
+            ASSERT( Util::equal(ninf64, ninf64));
+            ASSERT( Util::notEqual(pinf64, ninf64));
+            ASSERT(!Util::equal(nan64, nan64));
+            ASSERT( Util::notEqual(nan64, nan64));
             Util::ValueType64 normal64 = Util::makeDecimalRaw64(42,1);
 
-            ASSERT(Util::equal(ninf64, Util::add(  ninf64,   ninf64)));
-            ASSERT(Util::equal(ninf64, Util::add(  ninf64, normal64)));
-            ASSERT(   nanEqual( nan64, Util::add(  ninf64,   pinf64)));
-            ASSERT(   nanEqual( nan64, Util::add(  ninf64,    nan64)));
+            ASSERT(nanEqual(ninf64, Util::add(  ninf64,   ninf64)));
+            ASSERT(nanEqual(ninf64, Util::add(  ninf64, normal64)));
+            ASSERT(nanEqual( nan64, Util::add(  ninf64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::add(  ninf64,    nan64)));
 
-            ASSERT(Util::equal(ninf64, Util::add(normal64,   ninf64)));
-            ASSERT(Util::equal(        Util::add(normal64, normal64),
-                               Util::makeDecimalRaw64(84,1)));
-            ASSERT(Util::equal(pinf64, Util::add(normal64,   pinf64)));
-            ASSERT(   nanEqual( nan64, Util::add(normal64,    nan64)));
+            ASSERT(nanEqual(ninf64, Util::add(normal64,   ninf64)));
+            ASSERT(nanEqual(        Util::add(normal64, normal64),
+                            Util::makeDecimalRaw64(84,1)));
+            ASSERT(nanEqual(pinf64, Util::add(normal64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::add(normal64,    nan64)));
 
-            ASSERT(   nanEqual( nan64, Util::add(  pinf64,   ninf64)));
-            ASSERT(Util::equal(ninf64, Util::add(  pinf64, normal64)));
-            ASSERT(Util::equal(pinf64, Util::add(  pinf64,   pinf64)));
-            ASSERT(   nanEqual( nan64, Util::add(  pinf64,    nan64)));
+            ASSERT(nanEqual( nan64, Util::add(  pinf64,   ninf64)));
+            ASSERT(nanEqual(pinf64, Util::add(  pinf64, normal64)));
+            ASSERT(nanEqual(pinf64, Util::add(  pinf64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::add(  pinf64,    nan64)));
 
-            ASSERT(   nanEqual( nan64, Util::add(   nan64,   ninf64)));
-            ASSERT(   nanEqual( nan64, Util::add(   nan64, normal64)));
-            ASSERT(   nanEqual( nan64, Util::add(   nan64,   pinf64)));
-            ASSERT(   nanEqual( nan64, Util::add(   nan64,    nan64)));
+            ASSERT(nanEqual( nan64, Util::add(   nan64,   ninf64)));
+            ASSERT(nanEqual( nan64, Util::add(   nan64, normal64)));
+            ASSERT(nanEqual( nan64, Util::add(   nan64,   pinf64)));
+            ASSERT(nanEqual( nan64, Util::add(   nan64,    nan64)));
 
 
             Util::ValueType128   ninf128 = Util::parse128("-Inf");
@@ -1122,26 +1168,26 @@ int main(int argc, char* argv[])
             Util::ValueType128    nan128 = Util::parse128( "NaN");
             Util::ValueType128 normal128 = Util::makeDecimalRaw128(42,1);
 
-            ASSERT(Util::equal(  ninf128, Util::add(  ninf128,   ninf128)));
-            ASSERT(Util::equal(  ninf128, Util::add(  ninf128, normal128)));
-            ASSERT(   nanEqual(   nan128, Util::add(  ninf128,   pinf128)));
-            ASSERT(   nanEqual(   nan128, Util::add(  ninf128,    nan128)));
+            ASSERT(nanEqual(  ninf128, Util::add(  ninf128,   ninf128)));
+            ASSERT(nanEqual(  ninf128, Util::add(  ninf128, normal128)));
+            ASSERT(nanEqual(   nan128, Util::add(  ninf128,   pinf128)));
+            ASSERT(nanEqual(   nan128, Util::add(  ninf128,    nan128)));
 
-            ASSERT(Util::equal(  ninf128, Util::add(normal128,   ninf128)));
-            ASSERT(Util::equal(           Util::add(normal128, normal128),
-                               Util::makeDecimalRaw128(84,1)));
-            ASSERT(Util::equal(  pinf128, Util::add(normal128,   pinf128)));
-            ASSERT(   nanEqual(   nan128, Util::add(normal128,    nan128)));
+            ASSERT(nanEqual(  ninf128, Util::add(normal128,   ninf128)));
+            ASSERT(nanEqual(           Util::add(normal128, normal128),
+                            Util::makeDecimalRaw128(84,1)));
+            ASSERT(nanEqual(  pinf128, Util::add(normal128,   pinf128)));
+            ASSERT(nanEqual(   nan128, Util::add(normal128,    nan128)));
 
-            ASSERT(   nanEqual(   nan128, Util::add(  pinf128,   ninf128)));
-            ASSERT(Util::equal(  ninf128, Util::add(  pinf128, normal128)));
-            ASSERT(Util::equal(  pinf128, Util::add(  pinf128,   pinf128)));
-            ASSERT(   nanEqual(   nan128, Util::add(  pinf128,    nan128)));
+            ASSERT(nanEqual(   nan128, Util::add(  pinf128,   ninf128)));
+            ASSERT(nanEqual(  pinf128, Util::add(  pinf128, normal128)));
+            ASSERT(nanEqual(  pinf128, Util::add(  pinf128,   pinf128)));
+            ASSERT(nanEqual(   nan128, Util::add(  pinf128,    nan128)));
 
-            ASSERT(   nanEqual(   nan128, Util::add(   nan128,   ninf128)));
-            ASSERT(   nanEqual(   nan128, Util::add(   nan128, normal128)));
-            ASSERT(   nanEqual(   nan128, Util::add(   nan128,   pinf128)));
-            ASSERT(   nanEqual(   nan128, Util::add(   nan128,    nan128)));
+            ASSERT(nanEqual(   nan128, Util::add(   nan128,   ninf128)));
+            ASSERT(nanEqual(   nan128, Util::add(   nan128, normal128)));
+            ASSERT(nanEqual(   nan128, Util::add(   nan128,   pinf128)));
+            ASSERT(nanEqual(   nan128, Util::add(   nan128,    nan128)));
         }
       } break;
       case 4: {
