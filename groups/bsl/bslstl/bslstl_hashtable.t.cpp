@@ -51,7 +51,7 @@
                                       // treated as the "%zu" format
 
 #define TD BSLS_BSLTESTUTIL_FORMAT_TD // An alias for a string that can be
-                                      // treated as the "%zd" format
+                                      // treated as the "%td" format
 
 // We note that certain test cases rely on the reference collapsing rules that
 // were adopted shortly after C++03, and so are not a feature of many older
