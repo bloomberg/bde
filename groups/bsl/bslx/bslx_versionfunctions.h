@@ -110,11 +110,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-// Including bsl_list.h to work around Sun CC compiler bug.
-#ifndef INCLUDED_BSL_LIST
-#include <bsl_list.h>
-#endif
-
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
