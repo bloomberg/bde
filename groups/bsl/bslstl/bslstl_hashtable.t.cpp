@@ -75,8 +75,13 @@
 // them, until such time as we can provide a more specific review of the type
 // based concerns, and narrow the range of tests needed for confirmed coverage.
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
- && !defined(BSLS_PLATFORM_OS_SOLARIS) // gcc on Sun runs out of resources
+// Currently we are enabling the minimal set of test types on:
+// XLC                    (CMP_IBM)
+// Sun Studio & Sun gcc   (OS_SOLARIS)
+// clang gcc              (OS_DARWIN)
+#if !(defined(BSLS_PLATFORM_CMP_IBM)    || \
+      defined(BSLS_PLATFORM_OS_SOLARIS) || \
+      defined(BSLS_PLATFORM_OS_DARWIN))
 #  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
@@ -86,9 +91,10 @@
         bsltf::AllocBitwiseMoveableTestType,    \
         TestTypes::MostEvilTestType
 
-// Change '0' to '1' below to speed up testing, but do not commit
+// #define BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK
+// to enable fast compilation.
 
-#if 0 || defined(BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK)
+#if defined(BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK)
 # undef BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #
 # undef  BSLSTL_HASHTABLE_MINIMALTEST_TYPES
