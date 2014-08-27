@@ -24,7 +24,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_forwarditerator.h>   // for testing only
 #include <bslstl_iterator.h>          // for testing only
-#include <bslstl_list.h>              // for testing only
 
 namespace bsl {
 
