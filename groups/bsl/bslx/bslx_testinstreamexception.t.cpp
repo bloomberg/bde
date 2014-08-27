@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
+#ifdef BDE_BUILD_TARGET_EXC
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -120,10 +121,11 @@ int main(int argc, char *argv[])
 //..
 // Then, catch the exception and verify the indicated cause of the exception:
 //..
-    } catch (bslx::TestInStreamException& e) {
+    } catch (const bslx::TestInStreamException& e) {
         ASSERT(bslx::TypeCode::e_UINT32 == e.dataType());
     }
 //..
+#endif
 
       } break;
       case 1: {
