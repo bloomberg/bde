@@ -44,18 +44,14 @@
 #include <stdlib.h>
 #include <string.h> // for 'strcmp'
 
-// To resolve gcc warnings, while printing 'size_t' arguments portably on
-// Windows, we use a macro and string literal concatenation to produce the
-// correct 'printf' format flag.
-#ifdef ZU
-#undef ZU
-#endif
+// The following macros are used for 'printf' format strings to work around
+// issues with MSVC non-standard format specifiers.
 
-#if defined BSLS_PLATFORM_CMP_MSVC
-#  define ZU "%Iu"
-#else
-#  define ZU "%zu"
-#endif
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU // An alias for a string that can be
+                                      // treated as the "%zu" format
+
+#define TD BSLS_BSLTESTUTIL_FORMAT_TD // An alias for a string that can be
+                                      // treated as the "%zd" format
 
 // We note that certain test cases rely on the reference collapsing rules that
 // were adopted shortly after C++03, and so are not a feature of many older
@@ -1668,7 +1664,7 @@ if (verbose) {
                                     bsl::distance(result.first, result.second);
 
 if (verbose) {
-            printf("customerId %d, count %ld\n", customerId, count);
+            printf("customerId %d, count " TD "\n", customerId, count);
 }
 
             for (MySalesRecordContainer::ConstItrById itr  = result.first,
@@ -1711,7 +1707,7 @@ if (verbose) {
                 MySalesRecordContainer::ConstItrById>::difference_type count =
                                     bsl::distance(result.first, result.second);
 if (verbose) {
-            printf("vendorId %d, count %ld\n", vendorId, count);
+            printf("vendorId %d, count " TD "\n", vendorId, count);
 }
 
             for (MySalesRecordContainer::ConstItrById itr  = result.first,
