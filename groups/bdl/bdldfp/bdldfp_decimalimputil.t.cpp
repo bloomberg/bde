@@ -66,9 +66,9 @@ using bsl::atoi;
 // [ 7] multiply(ValueType128, ValueType128)
 // [ 8] divide(ValueType64,  ValueType64)
 // [ 8] divide(ValueType128, ValueType128)
-// [  ] negate(ValueType32)
-// [  ] negate(ValueType64)
-// [  ] negate(ValueType128)
+// [ 9] negate(ValueType32)
+// [ 9] negate(ValueType64)
+// [ 9] negate(ValueType128)
 // [  ] less(ValueType32,  ValueType32)
 // [  ] less(ValueType64,  ValueType64)
 // [  ] less(ValueType128, ValueType128)
@@ -613,6 +613,111 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING 'negate'
+        //
+        // Concerns:
+        //:  1 'negate' returns the correct answer.
+        //:
+        //:  2 'negate' inverts signed 0 values.
+        //:
+        //:  3 'negate' inverts 'Inf' state-values.
+        //:
+        //
+        // Plan:
+        //:  1 Test several example values for negation and equality. (C-1..3)
+        //
+        // Testing:
+        //   negate(ValueType32)
+        //   negate(ValueType64)
+        //   negate(ValueType128)
+        // --------------------------------------------------------------------
+
+        Util::ValueType32 nZero32 = Util::parse32("-0");
+        Util::ValueType32 pZero32 = Util::parse32("+0");
+
+        Util::ValueType32 nFive32 = Util::parse32("-5");
+        Util::ValueType32 pFive32 = Util::parse32("+5");
+
+        Util::ValueType32 nSeventeen32 = Util::parse32("-17");
+        Util::ValueType32 pSeventeen32 = Util::parse32("+17");
+
+        ASSERT(Util::equal(pZero32, Util::negate(nZero32)));
+        ASSERT(Util::equal(nZero32, Util::negate(pZero32)));
+
+        // Check for zero sign correctly...
+
+        {
+            Util::ValueType32 tmp = Util::negate(pZero32);
+            ASSERT(!bsl::memcmp(&nZero32, &tmp, sizeof(tmp)));
+
+            tmp = Util::negate(nZero32);
+            ASSERT(!bsl::memcmp(&pZero32, &tmp, sizeof(tmp)));
+        }
+
+        ASSERT(Util::equal(pFive32, Util::negate(nFive32)));
+        ASSERT(Util::equal(nFive32, Util::negate(pFive32)));
+
+        ASSERT(Util::equal(pSeventeen32, Util::negate(nSeventeen32)));
+        ASSERT(Util::equal(nSeventeen32, Util::negate(pSeventeen32)));
+
+        Util::ValueType64 nZero64 = Util::parse64("-0");
+        Util::ValueType64 pZero64 = Util::parse64("+0");
+
+        Util::ValueType64 nFive64 = Util::parse64("-5");
+        Util::ValueType64 pFive64 = Util::parse64("+5");
+
+        Util::ValueType64 nSeventeen64 = Util::parse64("-17");
+        Util::ValueType64 pSeventeen64 = Util::parse64("+17");
+
+        ASSERT(Util::equal(pZero64, Util::negate(nZero64)));
+        ASSERT(Util::equal(nZero64, Util::negate(pZero64)));
+
+        // Check for zero sign correctly...
+
+        {
+            Util::ValueType64 tmp = Util::negate(pZero64);
+            ASSERT(!bsl::memcmp(&nZero64, &tmp, sizeof(tmp)));
+
+            tmp = Util::negate(nZero64);
+            ASSERT(!bsl::memcmp(&pZero64, &tmp, sizeof(tmp)));
+        }
+
+        ASSERT(Util::equal(pFive64, Util::negate(nFive64)));
+        ASSERT(Util::equal(nFive64, Util::negate(pFive64)));
+
+        ASSERT(Util::equal(pSeventeen64, Util::negate(nSeventeen64)));
+        ASSERT(Util::equal(nSeventeen64, Util::negate(pSeventeen64)));
+
+        Util::ValueType128 nZero128 = Util::parse128("-0");
+        Util::ValueType128 pZero128 = Util::parse128("+0");
+
+        Util::ValueType128 nFive128 = Util::parse128("-5");
+        Util::ValueType128 pFive128 = Util::parse128("+5");
+
+        Util::ValueType128 nSeventeen128 = Util::parse128("-17");
+        Util::ValueType128 pSeventeen128 = Util::parse128("+17");
+
+        ASSERT(Util::equal(pZero128, Util::negate(nZero128)));
+        ASSERT(Util::equal(nZero128, Util::negate(pZero128)));
+
+        // Check for zero sign correctly...
+
+        {
+            Util::ValueType128 tmp = Util::negate(pZero128);
+            ASSERT(!bsl::memcmp(&nZero128, &tmp, sizeof(tmp)));
+
+            tmp = Util::negate(nZero128);
+            ASSERT(!bsl::memcmp(&pZero128, &tmp, sizeof(tmp)));
+        }
+
+        ASSERT(Util::equal(pFive128, Util::negate(nFive128)));
+        ASSERT(Util::equal(nFive128, Util::negate(pFive128)));
+
+        ASSERT(Util::equal(pSeventeen128, Util::negate(nSeventeen128)));
+        ASSERT(Util::equal(nSeventeen128, Util::negate(pSeventeen128)));
       } break;
       case 8: {
         // --------------------------------------------------------------------
