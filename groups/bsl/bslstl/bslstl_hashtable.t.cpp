@@ -74,7 +74,7 @@
 // in this test driver.  We define this macro to simplify the test driver for
 // them, until such time as we can provide a more specific review of the type
 // based concerns, and narrow the range of tests needed for confirmed coverage.
-
+//
 // Currently we are enabling the minimal set of test types on:
 // XLC                    (CMP_IBM)
 // Sun Studio & Sun gcc   (OS_SOLARIS)
@@ -91,8 +91,11 @@
         bsltf::AllocBitwiseMoveableTestType,    \
         TestTypes::MostEvilTestType
 
-// #define BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK
-// to enable fast compilation.
+// The following macro can be enabled to provide a truly minimal test driver
+// (fast enough to be suitable for testing during development):
+//
+//  #define BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK
+
 
 #if defined(BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK)
 # undef BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
