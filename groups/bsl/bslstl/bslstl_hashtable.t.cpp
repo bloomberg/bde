@@ -44,18 +44,14 @@
 #include <stdlib.h>
 #include <string.h> // for 'strcmp'
 
-// To resolve gcc warnings, while printing 'size_t' arguments portably on
-// Windows, we use a macro and string literal concatenation to produce the
-// correct 'printf' format flag.
-#ifdef ZU
-#undef ZU
-#endif
+// The following macros are used for 'printf' format strings to work around
+// issues with MSVC non-standard format specifiers.
 
-#if defined BSLS_PLATFORM_CMP_MSVC
-#  define ZU "%Iu"
-#else
-#  define ZU "%zu"
-#endif
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU // An alias for a string that can be
+                                      // treated as the "%zu" format
+
+#define TD BSLS_BSLTESTUTIL_FORMAT_TD // An alias for a string that can be
+                                      // treated as the "%td" format
 
 // We note that certain test cases rely on the reference collapsing rules that
 // were adopted shortly after C++03, and so are not a feature of many older
@@ -74,9 +70,19 @@
 // in this test driver.  We define this macro to simplify the test driver for
 // them, until such time as we can provide a more specific review of the type
 // based concerns, and narrow the range of tests needed for confirmed coverage.
+//
+// Currently we are enabling the minimal set of test types on:
+// XLC                    (CMP_IBM)
+// Sun Studio & Sun gcc   (OS_SOLARIS)
+// clang gcc              (OS_DARWIN)
+// Linux gcc 4.8+         (OS_LINUX, CMP_GNU, CMP_VER_MAJOR >= 40800)
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
- && !defined(BSLS_PLATFORM_OS_SOLARIS) // gcc on Sun runs out of resources
+#if !(defined(BSLS_PLATFORM_CMP_IBM)    ||  \
+      defined(BSLS_PLATFORM_OS_SOLARIS) ||  \
+      defined(BSLS_PLATFORM_OS_DARWIN)  ||  \
+        (defined(BSLS_PLATFORM_OS_LINUX) && \
+         defined(BSLS_PLATFORM_CMP_GNU)  && \
+         BSLS_PLATFORM_CMP_VER_MAJOR >= 40800))
 #  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
@@ -86,9 +92,13 @@
         bsltf::AllocBitwiseMoveableTestType,    \
         TestTypes::MostEvilTestType
 
-// Change '0' to '1' below to speed up testing, but do not commit
+// The following macro can be enabled to provide a truly minimal test driver
+// (fast enough to be suitable for testing during development):
+//
+//  #define BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK
 
-#if 0 || defined(BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK)
+
+#if defined(BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK)
 # undef BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #
 # undef  BSLSTL_HASHTABLE_MINIMALTEST_TYPES
@@ -1659,7 +1669,7 @@ if (verbose) {
                                     bsl::distance(result.first, result.second);
 
 if (verbose) {
-            printf("customerId %d, count %ld\n", customerId, count);
+            printf("customerId %d, count " TD "\n", customerId, count);
 }
 
             for (MySalesRecordContainer::ConstItrById itr  = result.first,
@@ -1702,7 +1712,7 @@ if (verbose) {
                 MySalesRecordContainer::ConstItrById>::difference_type count =
                                     bsl::distance(result.first, result.second);
 if (verbose) {
-            printf("vendorId %d, count %ld\n", vendorId, count);
+            printf("vendorId %d, count " TD "\n", vendorId, count);
 }
 
             for (MySalesRecordContainer::ConstItrById itr  = result.first,
