@@ -4,6 +4,7 @@
 
 #include <bslstl_allocator.h>
 #include <bslstl_forwarditerator.h>
+#include <bslstl_stringrefdata.h>
 
 #include <bslma_allocator.h>               // for testing only
 #include <bslma_default.h>                 // for testing only
@@ -121,6 +122,7 @@ using namespace std;
 // [17] operator+=(const string& rhs);
 // [17] operator+=(const C *s);
 // [17] operator+=(c);
+// [17] operator+=(const StringRefData& strRefData);
 // [16] iterator begin();
 // [16] iterator end();
 // [16] reverse_iterator rbegin();
@@ -7304,6 +7306,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     //     append(InputIter first, InputIter last);
     //   // operator+=(const string& rhs);
     //   // operator+=(const C *s);
+    //   operator+=(const StringRefData& strRefData);
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -7327,7 +7330,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         APPEND_CSTRING            = 4,
         APPEND_RANGE              = 5,
         APPEND_CONST_RANGE        = 6,
-        APPEND_STRING_MODE_LAST   = 6
+        APPEND_STRINGREFDATA      = 7,
+        APPEND_STRING_MODE_LAST   = 7
     };
 
     static const struct {
@@ -7416,6 +7420,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
+                    bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
+                                                   &*Y.end());   
+                    const bslstl::StringRefData<TYPE> V = mV;
+
                     Obj mX(INIT_LENGTH,
                            DEFAULT_VALUE,
                            AllocType(&testAllocator));  const Obj& X = mX;
@@ -7475,6 +7483,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         // template <class InputIter>
                         // void append(InputIter first, last);
                         mX.append(U.begin(), U.end());
+                      } break;
+                      case APPEND_STRINGREFDATA: {
+                        //operator+=(const StringRefData& strRefData);
+                        mX += V;
                       } break;
                       default:
                         printf("***UNKNOWN APPEND MODE***\n");
@@ -7659,6 +7671,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                     CONTAINER mU(Y);  const CONTAINER& U = mU;
 
+                    bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
+                                                   &*Y.end());    
+                    const bslstl::StringRefData<TYPE> V = mV;
+
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
                         const Int64 AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
@@ -7710,6 +7726,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                           case APPEND_SUBSTRING: {
                         // string& append(const string<C,CT,A>& str, pos2, n);
                             mX.append(Y, 0, NUM_ELEMENTS);
+                          } break;
+                          case APPEND_STRINGREFDATA: {
+                        //operator+=(const StringRefData& strRefData);
+                            mX += V;
                           } break;
                           default:
                             printf("***UNKNOWN APPEND MODE***\n");
@@ -7778,6 +7798,10 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
 
                 Obj mY(X); const Obj& Y = mY;  // control
 
+                bslstl::StringRefData<TYPE> mV(&*Y.begin(), 
+                                                   &*Y.end());     
+                const bslstl::StringRefData<TYPE> V = mV;
+
                 if (veryVerbose) {
                     printf("\t\t\tAppend itself.\n");
                 }
@@ -7819,6 +7843,11 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                 // void append(InputIter first, last);
                     mX.append(Y.begin(), Y.end());
                     mY.append(Y.begin(), Y.end());
+                  } break;
+                  case APPEND_STRINGREFDATA: {
+                //operator+=(const StringRefData& strRefData);
+                    mX += V;
+                    mY += V;
                   } break;
                   default:
                     printf("***UNKNOWN APPEND MODE***\n");
