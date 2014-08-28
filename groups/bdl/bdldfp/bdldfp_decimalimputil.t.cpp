@@ -87,11 +87,11 @@ using bsl::atoi;
 // [  ] notEqual(ValueType32,  ValueType32)
 // [  ] notEqual(ValueType64,  ValueType64)
 // [  ] notEqual(ValueType128, ValueType128)
-// [  ] convertToDecimal32( const ValueType64&)
-// [  ] convertToDecimal64( const ValueType32&)
-// [  ] convertToDecimal64( const ValueType128&)
-// [  ] convertToDecimal128(const ValueType32&)
-// [  ] convertToDecimal128(const ValueType64&)
+// [10] convertToDecimal32( const ValueType64&)
+// [10] convertToDecimal64( const ValueType32&)
+// [10] convertToDecimal64( const ValueType128&)
+// [10] convertToDecimal128(const ValueType32&)
+// [10] convertToDecimal128(const ValueType64&)
 // [  ] binaryToDecimal32 (float)
 // [  ] binaryToDecimal32 (double)
 // [  ] binaryToDecimal32 (long double)
@@ -613,6 +613,302 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING 'convertToDecimalXX'
+        //
+        // Concerns:
+        //:  1 Post-conversion, the value should be as expected.
+        //:
+        //:  2 Rounded values should become infinity or 0 when truncating.
+        //:
+        //:  3 NaN value-states should convert correctly.
+        //
+        // Plan:
+        //:  1 Convert some values to wider types, and confirm the value is
+        //:    as expected.
+        //:
+        //:  2 Convert some values to narrower types, and confirm the value is
+        //:    preserved or truncated as appropriate.
+        //:
+        //:  3 Convert NaN states using all functions
+        //
+        // Testing:
+        //   convertToDecimal32( const ValueType64&)
+        //   convertToDecimal64( const ValueType32&)
+        //   convertToDecimal64( const ValueType128&)
+        //   convertToDecimal128(const ValueType32&)
+        //   convertToDecimal128(const ValueType64&)
+        // --------------------------------------------------------------------
+
+        // Testing 'convertToDecimal32( const ValueType64&)'
+        {
+            Util::ValueType32  test32;
+            Util::ValueType32 value32;
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(0, 0));
+            value32 = Util::makeDecimalRaw32(0, 0);
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(42, 0));
+            value32 = Util::makeDecimalRaw32(42, 0);
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(-42, 0));
+            value32 = Util::makeDecimalRaw32(-42, 0);
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(42, 4));
+            value32 = Util::makeDecimalRaw32(42, 4);
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(-42, 4));
+            value32 = Util::makeDecimalRaw32(-42, 4);
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64( 42,
+                                                                      -17));
+            value32 = Util::makeDecimalRaw32(42, -17);
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(-42,
+                                                                      -17));
+            value32 = Util::makeDecimalRaw32(-42, -17);
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(
+                                                                     1048576,
+                                                                         300));
+            value32 = Util::parse32("Inf");
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(
+                                                                    -1048576,
+                                                                         300));
+            value32 = Util::parse32("-Inf");
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(
+                                                                     1048576,
+                                                                    -    300));
+            value32 = Util::parse32("0");
+            ASSERT(Util::equal(test32, value32));
+
+             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(
+                                                                    -1048576,
+                                                                    -    300));
+            value32 = Util::parse32("-0");
+            ASSERT(Util::equal(test32, value32));
+
+
+             test32 = Util::convertToDecimal32(Util::parse64("NaN"));
+            ASSERT(!Util::equal(test32, test32));
+        }
+
+        // Testing 'convertToDecimal64( const ValueType32&)'
+        {
+            Util::ValueType64  test64;
+            Util::ValueType64 value64;
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(0, 0));
+            value64 = Util::makeDecimalRaw64(0, 0);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(42, 0));
+            value64 = Util::makeDecimalRaw64(42, 0);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(-42, 0));
+            value64 = Util::makeDecimalRaw64(-42, 0);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(42, 4));
+            value64 = Util::makeDecimalRaw64(42, 4);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(-42, 4));
+            value64 = Util::makeDecimalRaw64(-42, 4);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32( 42,
+                                                                      -17));
+            value64 = Util::makeDecimalRaw64(42, -17);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(-42,
+                                                                      -17));
+            value64 = Util::makeDecimalRaw64(-42, -17);
+            ASSERT(Util::equal(test64, value64));
+
+                        // Infinities and 0 rounding are not possible with
+                        // widening conversions, so we only test for 'NaN'
+                        // preservation.
+
+             test64 = Util::convertToDecimal64(Util::parse32("NaN"));
+            ASSERT(!Util::equal(test64, test64));
+        }
+
+        // Testing 'convertToDecimal64( const ValueType128&)'
+        {
+            Util::ValueType64  test64;
+            Util::ValueType64 value64;
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(0, 0));
+            value64 = Util::makeDecimalRaw64(0, 0);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(42, 0));
+            value64 = Util::makeDecimalRaw64(42, 0);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(-42, 0));
+            value64 = Util::makeDecimalRaw64(-42, 0);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(42, 4));
+            value64 = Util::makeDecimalRaw64(42, 4);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(-42,
+                                                                           4));
+            value64 = Util::makeDecimalRaw64(-42, 4);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128( 42,
+                                                                      -17));
+            value64 = Util::makeDecimalRaw64(42, -17);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(-42,
+                                                                       -17));
+            value64 = Util::makeDecimalRaw64(-42, -17);
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(
+                                                                     1048576,
+                                                                        6000));
+            value64 = Util::parse64("Inf");
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(
+                                                                    -1048576,
+                                                                        6000));
+            value64 = Util::parse64("-Inf");
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(
+                                                                     1048576,
+                                                                    -   6000));
+            value64 = Util::parse64("0");
+            ASSERT(Util::equal(test64, value64));
+
+             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(
+                                                                    -1048576,
+                                                                    -   6000));
+            value64 = Util::parse64("-0");
+            ASSERT(Util::equal(test64, value64));
+
+
+             test64 = Util::convertToDecimal64(Util::parse128("NaN"));
+            ASSERT(!Util::equal(test64, test64));
+        }
+
+        // Testing 'convertToDecimal128(const ValueType32&)'
+        {
+            Util::ValueType128  test128;
+            Util::ValueType128 value128;
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(0,
+                                                                        0));
+            value128 = Util::makeDecimalRaw128(0, 0);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(42,
+                                                                         0));
+            value128 = Util::makeDecimalRaw128(42, 0);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(-42,
+                                                                          0));
+            value128 = Util::makeDecimalRaw128(-42, 0);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(42,
+                                                                         4));
+            value128 = Util::makeDecimalRaw128(42, 4);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(-42,
+                                                                          4));
+            value128 = Util::makeDecimalRaw128(-42, 4);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32( 42,
+                                                                        -17));
+            value128 = Util::makeDecimalRaw128(42, -17);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(-42,
+                                                                        -17));
+            value128 = Util::makeDecimalRaw128(-42, -17);
+            ASSERT(Util::equal(test128, value128));
+
+                        // Infinities and 0 rounding are not possible with
+                        // widening conversions, so we only test for 'NaN'
+                        // preservation.
+
+             test128 = Util::convertToDecimal128(Util::parse32("NaN"));
+            ASSERT(!Util::equal(test128, test128));
+        }
+
+        // Testing 'convertToDecimal128(const ValueType64&)'
+        {
+            Util::ValueType128  test128;
+            Util::ValueType128 value128;
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(0,
+                                                                        0));
+            value128 = Util::makeDecimalRaw128(0, 0);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(42,
+                                                                         0));
+            value128 = Util::makeDecimalRaw128(42, 0);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(-42,
+                                                                          0));
+            value128 = Util::makeDecimalRaw128(-42, 0);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(42,
+                                                                         4));
+            value128 = Util::makeDecimalRaw128(42, 4);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(-42,
+                                                                          4));
+            value128 = Util::makeDecimalRaw128(-42, 4);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64( 42,
+                                                                        -17));
+            value128 = Util::makeDecimalRaw128(42, -17);
+            ASSERT(Util::equal(test128, value128));
+
+             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(-42,
+                                                                        -17));
+            value128 = Util::makeDecimalRaw128(-42, -17);
+            ASSERT(Util::equal(test128, value128));
+
+                        // Infinities and 0 rounding are not possible with
+                        // widening conversions, so we only test for 'NaN'
+                        // preservation.
+
+             test128 = Util::convertToDecimal128(Util::parse64("NaN"));
+            ASSERT(!Util::equal(test128, test128));
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
