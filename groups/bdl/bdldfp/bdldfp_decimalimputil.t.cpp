@@ -113,9 +113,9 @@ using bsl::atoi;
 // [  ] scaleB(ValueType32,  int)
 // [  ] scaleB(ValueType64,  int)
 // [  ] scaleB(ValueType128, int)
-// [  ] parse32 (const char *)
-// [  ] parse64 (const char *)
-// [  ] parse128(const char *)
+// [11] parse32 (const char *)
+// [11] parse64 (const char *)
+// [11] parse128(const char *)
 // [  ] format(ValueType32,  char *)
 // [  ] format(ValueType64,  char *)
 // [  ] format(ValueType128, char *)
@@ -613,6 +613,427 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'parse32', 'parse64', AND 'parse128'
+        //
+        // Concerns:
+        //:  1 Numerical values are parsed and generated correctly.
+        //:
+        //:  2 Non-numerical state-values are parsed and generated correctly.
+        //:
+        //:  3 Alternate creation strings work correctly.
+        //:
+        //:  4 Signs are interpretted correctly.
+        //
+        // Plan:
+        //:  1 Test a series of strings versus their expected values.
+        //:
+        //:  2 Test the non-numerical state-values by alternate means of
+        //:    generation, such as '1.0/0.0' and '0.0/0.0'.
+        //
+        // Testing
+        //   parse32 (const char *)
+        //   parse64 (const char *)
+        //   parse128(const char *)
+        // --------------------------------------------------------------------
+
+        // Testing 'parse32 (const char *)'
+        {
+            Util::ValueType32 value32;
+            Util::ValueType32 test32;
+
+            value32 = Util::makeDecimalRaw32(0, 0);
+
+            test32  = Util::parse32("0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("0e0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0e0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+0e0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("0e-0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0e-0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+0e-0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("0e+0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0e+0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+0e+0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("0e4");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0e4");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+0e4");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("0e+4");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0e+4");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+0e+4");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("0e-9");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0e-9");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+0e-9");
+            ASSERT(Util::equal(value32, test32));
+
+            value32 = Util::makeDecimalRaw32(1, 0);
+
+            test32  = Util::parse32("1");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+1");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("1e0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+1e0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("01e0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+01e0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("1e-0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+1e-0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("1e+0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+1e+0");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+10e-001");
+            ASSERT(Util::equal(value32, test32));
+
+            value32 = Util::makeDecimalRaw32(8, 42);
+
+            test32  = Util::parse32("8e42");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+8e42");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("8e+42");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("800e40");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("+800e40");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32(".00800e+45");
+            ASSERT(Util::equal(value32, test32));
+
+            value32 = Util::makeDecimalRaw32(-7, -33);
+
+            test32  = Util::parse32("-7e-33");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-00007e-0033");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-70000e-37");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-007e-33");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0.7e-32");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-0.0007e-29");
+            ASSERT(Util::equal(value32, test32));
+            test32  = Util::parse32("-000.000000000000000000000000000000007");
+            ASSERT(Util::equal(value32, test32));
+
+            value32 = Util::convertToDecimal32(Util::divide(Util::parse64("0"),
+                                                            Util::parse64("0")));
+
+            test32  = Util::parse32("nan");
+            ASSERT(!Util::equal(test32, test32));
+
+            value32 = Util::convertToDecimal32(Util::divide(Util::parse64("1"),
+                                                            Util::parse64("0")));
+
+            test32  = Util::parse32("inf");
+            ASSERT(Util::equal(test32, value32));
+            test32  = Util::parse32("+inf");
+            ASSERT(Util::equal(test32, value32));
+            test32  = Util::parse32("inF");
+            ASSERT(Util::equal(test32, value32));
+            test32  = Util::parse32("+inF");
+            ASSERT(Util::equal(test32, value32));
+        }
+
+        // Testing 'parse64 (const char *)'
+        {
+            Util::ValueType64 value64;
+            Util::ValueType64 test64;
+
+            value64 = Util::makeDecimalRaw64(0, 0);
+
+            test64  = Util::parse64("0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("0e0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0e0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+0e0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("0e-0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0e-0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+0e-0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("0e+0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0e+0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+0e+0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("0e4");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0e4");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+0e4");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("0e+4");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0e+4");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+0e+4");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("0e-9");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0e-9");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+0e-9");
+            ASSERT(Util::equal(value64, test64));
+
+            value64 = Util::makeDecimalRaw64(1, 0);
+
+            test64  = Util::parse64("1");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+1");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("1e0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+1e0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("01e0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+01e0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("1e-0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+1e-0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("1e+0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+1e+0");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+10e-001");
+            ASSERT(Util::equal(value64, test64));
+
+            value64 = Util::makeDecimalRaw64(8, 42);
+
+            test64  = Util::parse64("8e42");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+8e42");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("8e+42");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("800e40");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("+800e40");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64(".00800e+45");
+            ASSERT(Util::equal(value64, test64));
+
+            value64 = Util::makeDecimalRaw64(-7, -33);
+
+            test64  = Util::parse64("-7e-33");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-00007e-0033");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-70000e-37");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-007e-33");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0.7e-32");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-0.0007e-29");
+            ASSERT(Util::equal(value64, test64));
+            test64  = Util::parse64("-000.000000000000000000000000000000007");
+            ASSERT(Util::equal(value64, test64));
+
+            value64 = Util::divide(Util::parse64("0"), Util::parse64("0"));
+
+            test64  = Util::parse64("nan");
+            ASSERT(!Util::equal(test64, test64));
+
+            value64 = Util::divide(Util::parse64("1"), Util::parse64("0"));
+
+            test64  = Util::parse64("inf");
+            ASSERT(Util::equal(test64, value64));
+            test64  = Util::parse64("+inf");
+            ASSERT(Util::equal(test64, value64));
+            test64  = Util::parse64("inF");
+            ASSERT(Util::equal(test64, value64));
+            test64  = Util::parse64("+inF");
+            ASSERT(Util::equal(test64, value64));
+
+            value64 = Util::divide(Util::parse64("-1"), Util::parse64("0"));
+
+            test64  = Util::parse64("-inf");
+            ASSERT(Util::equal(test64, value64));
+            test64  = Util::parse64("-Inf");
+            ASSERT(Util::equal(test64, value64));
+            test64  = Util::parse64("-InF");
+            ASSERT(Util::equal(test64, value64));
+            test64  = Util::parse64("-inF");
+            ASSERT(Util::equal(test64, value64));
+        }
+
+        // Testing 'parse128 (const char *)'
+        {
+            Util::ValueType128 value128;
+            Util::ValueType128 test128;
+
+            value128 = Util::makeDecimalRaw128(0, 0);
+
+            test128  = Util::parse128("0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("0e0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0e0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+0e0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("0e-0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0e-0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+0e-0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("0e+0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0e+0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+0e+0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("0e4");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0e4");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+0e4");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("0e+4");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0e+4");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+0e+4");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("0e-9");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0e-9");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+0e-9");
+            ASSERT(Util::equal(value128, test128));
+
+            value128 = Util::makeDecimalRaw128(1, 0);
+
+            test128  = Util::parse128("1");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+1");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("1e0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+1e0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("01e0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+01e0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("1e-0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+1e-0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("1e+0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+1e+0");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+10e-001");
+            ASSERT(Util::equal(value128, test128));
+
+            value128 = Util::makeDecimalRaw128(8, 42);
+
+            test128  = Util::parse128("8e42");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+8e42");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("8e+42");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("800e40");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("+800e40");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128(".00800e+45");
+            ASSERT(Util::equal(value128, test128));
+
+            value128 = Util::makeDecimalRaw128(-7, -33);
+
+            test128  = Util::parse128("-7e-33");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-00007e-0033");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-70000e-37");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-007e-33");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0.7e-32");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-0.0007e-29");
+            ASSERT(Util::equal(value128, test128));
+            test128  = Util::parse128("-00.000000000000000000000000000000007");
+            ASSERT(Util::equal(value128, test128));
+
+            value128 = Util::divide(Util::parse128("0"), Util::parse128("0"));
+
+            test128  = Util::parse128("nan");
+            ASSERT(!Util::equal(test128, test128));
+
+            value128 = Util::divide(Util::parse128("1"), Util::parse128("0"));
+
+            test128  = Util::parse128("inf");
+            ASSERT(Util::equal(test128, value128));
+            test128  = Util::parse128("+inf");
+            ASSERT(Util::equal(test128, value128));
+            test128  = Util::parse128("inF");
+            ASSERT(Util::equal(test128, value128));
+            test128  = Util::parse128("+inF");
+            ASSERT(Util::equal(test128, value128));
+
+            value128 = Util::divide(Util::parse128("-1"), Util::parse128("0"));
+
+            test128  = Util::parse128("-inf");
+            ASSERT(Util::equal(test128, value128));
+            test128  = Util::parse128("-Inf");
+            ASSERT(Util::equal(test128, value128));
+            test128  = Util::parse128("-InF");
+            ASSERT(Util::equal(test128, value128));
+            test128  = Util::parse128("-inF");
+            ASSERT(Util::equal(test128, value128));
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
