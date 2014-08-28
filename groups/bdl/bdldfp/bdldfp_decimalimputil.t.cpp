@@ -46,18 +46,18 @@ using bsl::atoi;
 // [13] makeDecimal64(         long long int, int)
 // [13] makeDecimal64(unsigned long long int, int)
 // [12] makeInfinity64(bool)
-// [  ]  int32ToDecimal32 (                   int)
-// [  ] uint32ToDecimal32 (unsigned           int)
-// [  ]  int64ToDecimal32 (         long long int)
-// [  ] uint64ToDecimal32 (unsigned long long int)
-// [  ]  int32ToDecimal64 (                   int)
-// [  ] uint32ToDecimal64 (unsigned           int)
-// [  ]  int64ToDecimal64 (         long long int)
-// [  ] uint64ToDecimal64 (unsigned long long int)
-// [  ]  int32ToDecimal128(                   int)
-// [  ] uint32ToDecimal128(unsigned           int)
-// [  ]  int64ToDecimal128(         long long int)
-// [  ] uint64ToDecimal128(unsigned long long int)
+// [14]  int32ToDecimal32 (                   int)
+// [14] uint32ToDecimal32 (unsigned           int)
+// [14]  int64ToDecimal32 (         long long int)
+// [14] uint64ToDecimal32 (unsigned long long int)
+// [14]  int32ToDecimal64 (                   int)
+// [14] uint32ToDecimal64 (unsigned           int)
+// [14]  int64ToDecimal64 (         long long int)
+// [14] uint64ToDecimal64 (unsigned long long int)
+// [14]  int32ToDecimal128(                   int)
+// [14] uint32ToDecimal128(unsigned           int)
+// [14]  int64ToDecimal128(         long long int)
+// [14] uint64ToDecimal128(unsigned long long int)
 // [ 5] add(ValueType64,  ValueType64)
 // [ 5] add(ValueType128, ValueType128)
 // [ 6] subtract(ValueType64,  ValueType64)
@@ -901,6 +901,110 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING '[u]intXXToDecimalXX'
+        //
+        // Concerns:
+        //:  1 '[u]intXXToDecimalXX' must convert the value as expected.
+        //:
+        //:  2 Conversion may not be by forwarding.
+        //:
+        //:  3 There are 4 overloads for each size, which need testing.
+        //:
+        //:  4 Rounding is handled appropriately.
+        //
+        //Plan:
+        //:  1 Run numerous mantissas through the conversion functions and
+        //:    compare the results with 'parse(mantissaAsString)'.  (C-1..4)
+        //
+        // Testing:
+        //    int32ToDecimal32 (                   int)
+        //   uint32ToDecimal32 (unsigned           int)
+        //    int64ToDecimal32 (         long long int)
+        //   uint64ToDecimal32 (unsigned long long int)
+        //    int32ToDecimal64 (                   int)
+        //   uint32ToDecimal64 (unsigned           int)
+        //    int64ToDecimal64 (         long long int)
+        //   uint64ToDecimal64 (unsigned long long int)
+        //    int32ToDecimal128(                   int)
+        //   uint32ToDecimal128(unsigned           int)
+        //    int64ToDecimal128(         long long int)
+        //   uint64ToDecimal128(unsigned long long int)
+        // --------------------------------------------------------------------
+
+        for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
+            const long long MANTISSA = TEST_NONZERO_MANTISSAS[mi];
+
+            char TEST_STRING[100];
+            sprintf(TEST_STRING, "%lld", MANTISSA);
+
+            Util::ValueType32  value32 = Util::parse32(TEST_STRING);
+            Util::ValueType64  value64 = Util::parse64(TEST_STRING);
+            Util::ValueType128 value128 = Util::parse128(TEST_STRING);
+
+            if (MANTISSA >= 0) {
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value32,
+                                       Util::uint64ToDecimal32(
+                                  static_cast<unsigned long long>(MANTISSA))));
+
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value64,
+                                       Util::uint64ToDecimal64(
+                                  static_cast<unsigned long long>(MANTISSA))));
+
+
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value128,
+                                       Util::uint64ToDecimal128(
+                                  static_cast<unsigned long long>(MANTISSA))));
+            }
+
+            if ((MANTISSA >= bsl::numeric_limits<int>::min()) &&
+                (MANTISSA <= bsl::numeric_limits<int>::max())) {
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value32,
+                                       Util::int32ToDecimal32(
+                                       static_cast<int>(MANTISSA))));
+
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value64,
+                                       Util::int32ToDecimal64(
+                                       static_cast<int>(MANTISSA))));
+
+
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value128,
+                                       Util::int32ToDecimal128(
+                                       static_cast<int>(MANTISSA))));
+            }
+            if ((MANTISSA >= 0 ) &&
+                (MANTISSA <= bsl::numeric_limits<unsigned int>::max())) {
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value32,
+                                       Util::uint32ToDecimal32(
+                                       static_cast<unsigned int>(MANTISSA))));
+
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value64,
+                                       Util::uint32ToDecimal64(
+                                       static_cast<unsigned int>(MANTISSA))));
+
+
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value128,
+                                       Util::uint32ToDecimal128(
+                                       static_cast<unsigned int>(MANTISSA))));
+            }
+
+            // For 'long long'
+
+            {
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value32,
+                                       Util::int64ToDecimal32(MANTISSA)));
+
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value64,
+                                       Util::int64ToDecimal64(MANTISSA)));
+
+
+              LOOP2_ASSERT(MANTISSA, TEST_STRING, Util::equal(value128,
+                                       Util::int64ToDecimal128(MANTISSA)));
+            }
+        }
+
       } break;
       case 13: {
         // --------------------------------------------------------------------
