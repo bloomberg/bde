@@ -45,7 +45,7 @@ using bsl::atoi;
 // [  ] makeDecimal64(unsigned           int, int)
 // [  ] makeDecimal64(         long long int, int)
 // [  ] makeDecimal64(unsigned long long int, int)
-// [  ] makeInfinity64(bool)
+// [12] makeInfinity64(bool)
 // [  ]  int32ToDecimal32 (                   int)
 // [  ] uint32ToDecimal32 (unsigned           int)
 // [  ]  int64ToDecimal32 (         long long int)
@@ -613,6 +613,45 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'makeInfinity64(bool)'
+        //
+        // Concerns:
+        //:  1 'makeInfinity64' should return an infinity value which is
+        //:    positive, when passed no arguments.
+        //:
+        //:  2 'makeInfinity64' should return an infinity value which is
+        //:    positive, when passed a 'false' argument.
+        //:
+        //:  2 'makeInfinity64' should return an infinity value which is
+        //:    negative, when passed a 'true' argument.
+        //
+        // Plan:
+        //:  1 call 'makeInfinity' with no arguments.  (C-1)
+        //:
+        //:  2 call 'makeInfinity' with 'false' argument.  (C-2)
+        //:
+        //:  3 call 'makeInfinity' with 'true' argument.  (C-3)
+        //
+        // Testing
+        //   makeInfinity64(bool)
+        // --------------------------------------------------------------------
+
+        Util::ValueType64 ninf = Util::parse64("-inf");
+        Util::ValueType64 pinf = Util::parse64("+inf");
+
+        Util::ValueType64 test;
+
+        test = Util::makeInfinity64();
+        ASSERT(Util::equal(test, pinf));
+
+        test = Util::makeInfinity64(false);
+        ASSERT(Util::equal(test, pinf));
+
+        test = Util::makeInfinity64(true);
+        ASSERT(Util::equal(test, ninf));
       } break;
       case 11: {
         // --------------------------------------------------------------------
