@@ -69,18 +69,18 @@ using bsl::atoi;
 // [ 9] negate(ValueType32)
 // [ 9] negate(ValueType64)
 // [ 9] negate(ValueType128)
-// [  ] less(ValueType32,  ValueType32)
-// [  ] less(ValueType64,  ValueType64)
-// [  ] less(ValueType128, ValueType128)
-// [  ] greater(ValueType32,  ValueType32)
-// [  ] greater(ValueType64,  ValueType64)
-// [  ] greater(ValueType128, ValueType128)
-// [  ] lessEqual(ValueType32,  ValueType32)
-// [  ] lessEqual(ValueType64,  ValueType64)
-// [  ] lessEqual(ValueType128, ValueType128)
-// [  ] greaterEqual(ValueType32,  ValueType32)
-// [  ] greaterEqual(ValueType64,  ValueType64)
-// [  ] greaterEqual(ValueType128, ValueType128)
+// [16] less(ValueType32,  ValueType32)
+// [16] less(ValueType64,  ValueType64)
+// [16] less(ValueType128, ValueType128)
+// [16] greater(ValueType32,  ValueType32)
+// [16] greater(ValueType64,  ValueType64)
+// [16] greater(ValueType128, ValueType128)
+// [16] lessEqual(ValueType32,  ValueType32)
+// [16] lessEqual(ValueType64,  ValueType64)
+// [16] lessEqual(ValueType128, ValueType128)
+// [16] greaterEqual(ValueType32,  ValueType32)
+// [16] greaterEqual(ValueType64,  ValueType64)
+// [16] greaterEqual(ValueType128, ValueType128)
 // [ 3] equal(ValueType32,  ValueType32)
 // [ 3] equal(ValueType64,  ValueType64)
 // [ 3] equal(ValueType128, ValueType128)
@@ -901,6 +901,151 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING COMPARISON FUNCTIONS
+        //
+        // Concerns:
+        //:  1 Infinities are at the ends of all ordered comparision
+        //:    arrangements.
+        //:
+        //:  2 Positive numbers are greater than negative numbers.
+        //:
+        //:  3 'NaN' is neither greater nor less than any value, including
+        //:    itself.
+        //:
+        //:  4 Zero compares neither less nor greater than itself.
+        //:
+        //:  5 Transitivity is preserved.
+        //
+        // Plan:
+        //:  1 A set of representative values for 32, 64, and 128-bit types
+        //:    will be created and each compared against each other, under
+        //:    assertion for the correct result. (C-2,5)
+        //:
+        //:  2 Zeros of both signs will be in the data set. (C-4)
+        //:
+        //:  3 Infinities will be among the values (C-1)
+        //:
+        //:  4 A 'NaN' will be among the data. (C-3)
+        //
+        // [16] less(ValueType32,  ValueType32)
+        // [16] less(ValueType64,  ValueType64)
+        // [16] less(ValueType128, ValueType128)
+        // [16] greater(ValueType32,  ValueType32)
+        // [16] greater(ValueType64,  ValueType64)
+        // [16] greater(ValueType128, ValueType128)
+        // [16] lessEqual(ValueType32,  ValueType32)
+        // [16] lessEqual(ValueType64,  ValueType64)
+        // [16] lessEqual(ValueType128, ValueType128)
+        // [16] greaterEqual(ValueType32,  ValueType32)
+        // [16] greaterEqual(ValueType64,  ValueType64)
+        // [16] greaterEqual(ValueType128, ValueType128)
+        // --------------------------------------------------------------------
+
+        Util::ValueType32  nan32  = Util::parse32( "NaN");
+        Util::ValueType64  nan64  = Util::parse64( "NaN");
+        Util::ValueType128 nan128 = Util::parse128("NaN");
+
+        // Check that all 'NaN' operations return false:
+
+        ASSERT(!Util::less(nan32, nan32));
+        ASSERT(!Util::greater(nan32, nan32));
+        ASSERT(!Util::lessEqual(nan32, nan32));
+        ASSERT(!Util::greaterEqual(nan32, nan32));
+
+        ASSERT(!Util::less(nan64, nan64));
+        ASSERT(!Util::greater(nan64, nan64));
+        ASSERT(!Util::lessEqual(nan64, nan64));
+        ASSERT(!Util::greaterEqual(nan64, nan64));
+
+        ASSERT(!Util::less(nan128, nan128));
+        ASSERT(!Util::greater(nan128, nan128));
+        ASSERT(!Util::lessEqual(nan128, nan128));
+        ASSERT(!Util::greaterEqual(nan128, nan128));
+
+        struct {
+            const char *number;
+            const int order;
+        } tests[] = {
+            { "-Inf",   -100000 },
+            { "-42e10", -   100 },
+            { "-42",    -    90 },
+            { "-1",     -    10 },
+            { "-.1415", -     2 },
+            { "-.0025", -     1 },
+            { "-0",           0 },
+            { "+0",           0 },
+            { "+.0025", +     1 },
+            { "+.1415", +     2 },
+            { "+1",     +    10 },
+            { "+42",    +    90 },
+            { "+42e10", +   100 },
+            { "+Inf",   +100000 }
+        };
+        const int numTests = sizeof(tests) / sizeof(tests[0]);
+
+        for (int i = 0; i < numTests; ++i) {
+            const char *const lhsValue = tests[i].number;
+            const int         lhsOrder = tests[i].order;
+
+            Util::ValueType32  lhs32  = Util::parse32( lhsValue);
+            Util::ValueType64  lhs64  = Util::parse64( lhsValue);
+            Util::ValueType128 lhs128 = Util::parse128(lhsValue);
+
+            // Test 'NaN' against these values...
+
+            ASSERT(!Util::less( nan32, lhs32));
+            ASSERT(!Util::less(lhs32,  nan32));
+            ASSERT(!Util::greater( nan32, lhs32));
+            ASSERT(!Util::greater(lhs32,  nan32));
+            ASSERT(!Util::lessEqual( nan32, lhs32));
+            ASSERT(!Util::lessEqual(lhs32,  nan32));
+            ASSERT(!Util::greaterEqual( nan32, lhs32));
+            ASSERT(!Util::greaterEqual(lhs32,  nan32));
+
+            ASSERT(!Util::less(nan64, lhs64));
+            ASSERT(!Util::less(lhs64, nan64));
+            ASSERT(!Util::greater(nan64, lhs64));
+            ASSERT(!Util::greater(lhs64, nan64));
+            ASSERT(!Util::lessEqual(nan64, lhs64));
+            ASSERT(!Util::lessEqual(lhs64, nan64));
+            ASSERT(!Util::greaterEqual(nan64, lhs64));
+            ASSERT(!Util::greaterEqual(lhs64, nan64));
+
+            ASSERT(!Util::less(nan128, lhs128));
+            ASSERT(!Util::less(lhs128, nan128));
+            ASSERT(!Util::greater(nan128, lhs128));
+            ASSERT(!Util::greater(lhs128, nan128));
+            ASSERT(!Util::lessEqual(nan128, lhs128));
+            ASSERT(!Util::lessEqual(lhs128, nan128));
+            ASSERT(!Util::greaterEqual(nan128, lhs128));
+            ASSERT(!Util::greaterEqual(lhs128, nan128));
+
+            for (int j = 0; j < numTests; ++j) {
+                const char *const rhsValue = tests[j].number;
+                const int         rhsOrder = tests[j].order;
+
+                Util::ValueType32  rhs32  = Util::parse32( rhsValue);
+                Util::ValueType64  rhs64  = Util::parse64( rhsValue);
+                Util::ValueType128 rhs128 = Util::parse128(rhsValue);
+
+                LOOP4_ASSERT(lhsValue, rhsValue,
+                             lhsOrder, rhsOrder,
+                            Util::less(lhs32, rhs32) == (lhsOrder < rhsOrder));
+                LOOP4_ASSERT(lhsValue, rhsValue,
+                             lhsOrder, rhsOrder,
+                         Util::greater(lhs32, rhs32) == (lhsOrder > rhsOrder));
+                LOOP4_ASSERT(lhsValue, rhsValue,
+                             lhsOrder, rhsOrder,
+                      Util::lessEqual(lhs32, rhs32) == (lhsOrder <= rhsOrder));
+                LOOP4_ASSERT(lhsValue, rhsValue,
+                             lhsOrder, rhsOrder,
+                   Util::greaterEqual(lhs32, rhs32) == (lhsOrder >= rhsOrder));
+            }
+        }
+
       } break;
       case 15: {
         // --------------------------------------------------------------------
