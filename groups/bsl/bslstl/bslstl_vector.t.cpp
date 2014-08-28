@@ -1262,12 +1262,12 @@ void FixedArray<TYPE>::push_back(const TYPE& value)
 // ACCESSORS
 template <class TYPE>
 typename FixedArray<TYPE>::iterator FixedArray<TYPE>::begin() const {
-    return FixedArray<TYPE>::iterator(this, 0);
+    return typename FixedArray<TYPE>::iterator(this, 0);
 }
 
 template <class TYPE>
 typename FixedArray<TYPE>::iterator FixedArray<TYPE>::end() const {
-    return FixedArray<TYPE>::iterator(this, d_length);
+    return typename FixedArray<TYPE>::iterator(this, d_length);
 }
 
                               // ====================
