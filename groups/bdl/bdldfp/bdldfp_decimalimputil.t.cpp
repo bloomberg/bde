@@ -92,15 +92,15 @@ using bsl::atoi;
 // [10] convertToDecimal64( const ValueType128&)
 // [10] convertToDecimal128(const ValueType32&)
 // [10] convertToDecimal128(const ValueType64&)
-// [  ] binaryToDecimal32 (float)
-// [  ] binaryToDecimal32 (double)
-// [  ] binaryToDecimal32 (long double)
-// [  ] binaryToDecimal64 (float)
-// [  ] binaryToDecimal64 (double)
-// [  ] binaryToDecimal64 (long double)
-// [  ] binaryToDecimal128(float)
-// [  ] binaryToDecimal128(double)
-// [  ] binaryToDecimal128(long double)
+// [15] binaryToDecimal32 (float)
+// [15] binaryToDecimal32 (double)
+// [15] binaryToDecimal32 (long double)
+// [15] binaryToDecimal64 (float)
+// [15] binaryToDecimal64 (double)
+// [15] binaryToDecimal64 (long double)
+// [15] binaryToDecimal128(float)
+// [15] binaryToDecimal128(double)
+// [15] binaryToDecimal128(long double)
 // [ 2] makeDecimalRaw32 (                   int, int)
 // [ 2] makeDecimalRaw64 (unsigned long long int, int)
 // [ 2] makeDecimalRaw64 (         long long int, int)
@@ -901,6 +901,392 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING 'binaryToDecimalXX'
+        //
+        // Concerns:
+        //:  1 Conversion to Decimal preserves precise value, where possible.
+        //:    The bases of 10, and 2 are only able to cross convert when the
+        //:    actual value is proper sum of fractions of powers-of-two.
+        //
+        // Plan:
+        //:  1 Convert several values that are 'integral' and sums of
+        //:    power-of-two fractions (which just counts as whole numbers).
+        //:    (C-1)
+        //
+        // Testing:
+        //   binaryToDecimal32 (float)
+        //   binaryToDecimal32 (double)
+        //   binaryToDecimal32 (long double)
+        //   binaryToDecimal64 (float)
+        //   binaryToDecimal64 (double)
+        //   binaryToDecimal64 (long double)
+        //   binaryToDecimal128(float)
+        //   binaryToDecimal128(double)
+        //   binaryToDecimal128(long double)
+        // --------------------------------------------------------------------
+
+        // 'binaryToDecimal32(float)'
+
+        {
+            Util::ValueType32 value32;
+            Util::ValueType32  test32;
+
+            value32 = Util::parse32(         "0.0");
+             test32 = Util::binaryToDecimal32(0.0f);
+
+            value32 = Util::parse32(         "1.0");
+             test32 = Util::binaryToDecimal32(1.0f);
+
+            value32 = Util::parse32(         "10.");
+             test32 = Util::binaryToDecimal32(10.f);
+
+            value32 = Util::parse32(         "42.");
+             test32 = Util::binaryToDecimal32(42.f);
+
+            value32 = Util::parse32(         "-1.0");
+             test32 = Util::binaryToDecimal32(-1.0f);
+
+            value32 = Util::parse32(         "-10.");
+             test32 = Util::binaryToDecimal32(-10.f);
+
+            value32 = Util::parse32(         "-42.");
+             test32 = Util::binaryToDecimal32(-42.f);
+
+            value32 = Util::parse32(         "0.5");
+             test32 = Util::binaryToDecimal32(0.5f);
+
+            value32 = Util::parse32(         "0.25");
+             test32 = Util::binaryToDecimal32(0.25f);
+
+            value32 = Util::parse32(         "-0.5");
+             test32 = Util::binaryToDecimal32(-0.5f);
+
+            value32 = Util::parse32(         "-0.25");
+             test32 = Util::binaryToDecimal32(-0.25f);
+        }
+
+        // binaryToDecimal32(double)
+
+        {
+            Util::ValueType32 value32;
+            Util::ValueType32  test32;
+
+            value32 = Util::parse32(         "0.0");
+             test32 = Util::binaryToDecimal32(0.0);
+
+            value32 = Util::parse32(         "1.0");
+             test32 = Util::binaryToDecimal32(1.0);
+
+            value32 = Util::parse32(         "10.");
+             test32 = Util::binaryToDecimal32(10.);
+
+            value32 = Util::parse32(         "42.");
+             test32 = Util::binaryToDecimal32(42.);
+
+            value32 = Util::parse32(         "-1.0");
+             test32 = Util::binaryToDecimal32(-1.0);
+
+            value32 = Util::parse32(         "-10.");
+             test32 = Util::binaryToDecimal32(-10.);
+
+            value32 = Util::parse32(         "-42.");
+             test32 = Util::binaryToDecimal32(-42.);
+
+            value32 = Util::parse32(         "0.5");
+             test32 = Util::binaryToDecimal32(0.5);
+
+            value32 = Util::parse32(         "0.25");
+             test32 = Util::binaryToDecimal32(0.25);
+
+            value32 = Util::parse32(         "-0.5");
+             test32 = Util::binaryToDecimal32(-0.5);
+
+            value32 = Util::parse32(         "-0.25");
+             test32 = Util::binaryToDecimal32(-0.25);
+        }
+
+        // binaryToDecimal32(long double)
+
+        {
+            Util::ValueType32 value32;
+            Util::ValueType32  test32;
+
+            value32 = Util::parse32(         "0.0");
+             test32 = Util::binaryToDecimal32(0.0l);
+
+            value32 = Util::parse32(         "1.0");
+             test32 = Util::binaryToDecimal32(1.0l);
+
+            value32 = Util::parse32(         "10.");
+             test32 = Util::binaryToDecimal32(10.l);
+
+            value32 = Util::parse32(         "42.");
+             test32 = Util::binaryToDecimal32(42.l);
+
+            value32 = Util::parse32(         "-1.0");
+             test32 = Util::binaryToDecimal32(-1.0l);
+
+            value32 = Util::parse32(         "-10.");
+             test32 = Util::binaryToDecimal32(-10.l);
+
+            value32 = Util::parse32(         "-42.");
+             test32 = Util::binaryToDecimal32(-42.l);
+
+            value32 = Util::parse32(         "0.5");
+             test32 = Util::binaryToDecimal32(0.5l);
+
+            value32 = Util::parse32(         "0.25");
+             test32 = Util::binaryToDecimal32(0.25l);
+
+            value32 = Util::parse32(         "-0.5");
+             test32 = Util::binaryToDecimal32(-0.5l);
+
+            value32 = Util::parse32(         "-0.25");
+             test32 = Util::binaryToDecimal32(-0.25l);
+        }
+
+        // 'binaryToDecimal64(float)'
+
+        {
+            Util::ValueType64 value64;
+            Util::ValueType64  test64;
+
+            value64 = Util::parse64(         "0.0");
+             test64 = Util::binaryToDecimal64(0.0f);
+
+            value64 = Util::parse64(         "1.0");
+             test64 = Util::binaryToDecimal64(1.0f);
+
+            value64 = Util::parse64(         "10.");
+             test64 = Util::binaryToDecimal64(10.f);
+
+            value64 = Util::parse64(         "42.");
+             test64 = Util::binaryToDecimal64(42.f);
+
+            value64 = Util::parse64(         "-1.0");
+             test64 = Util::binaryToDecimal64(-1.0f);
+
+            value64 = Util::parse64(         "-10.");
+             test64 = Util::binaryToDecimal64(-10.f);
+
+            value64 = Util::parse64(         "-42.");
+             test64 = Util::binaryToDecimal64(-42.f);
+
+            value64 = Util::parse64(         "0.5");
+             test64 = Util::binaryToDecimal64(0.5f);
+
+            value64 = Util::parse64(         "0.25");
+             test64 = Util::binaryToDecimal64(0.25f);
+
+            value64 = Util::parse64(         "-0.5");
+             test64 = Util::binaryToDecimal64(-0.5f);
+
+            value64 = Util::parse64(         "-0.25");
+             test64 = Util::binaryToDecimal64(-0.25f);
+        }
+
+        // binaryToDecimal64(double)
+
+        {
+            Util::ValueType64 value64;
+            Util::ValueType64  test64;
+
+            value64 = Util::parse64(         "0.0");
+             test64 = Util::binaryToDecimal64(0.0);
+
+            value64 = Util::parse64(         "1.0");
+             test64 = Util::binaryToDecimal64(1.0);
+
+            value64 = Util::parse64(         "10.");
+             test64 = Util::binaryToDecimal64(10.);
+
+            value64 = Util::parse64(         "42.");
+             test64 = Util::binaryToDecimal64(42.);
+
+            value64 = Util::parse64(         "-1.0");
+             test64 = Util::binaryToDecimal64(-1.0);
+
+            value64 = Util::parse64(         "-10.");
+             test64 = Util::binaryToDecimal64(-10.);
+
+            value64 = Util::parse64(         "-42.");
+             test64 = Util::binaryToDecimal64(-42.);
+
+            value64 = Util::parse64(         "0.5");
+             test64 = Util::binaryToDecimal64(0.5);
+
+            value64 = Util::parse64(         "0.25");
+             test64 = Util::binaryToDecimal64(0.25);
+
+            value64 = Util::parse64(         "-0.5");
+             test64 = Util::binaryToDecimal64(-0.5);
+
+            value64 = Util::parse64(         "-0.25");
+             test64 = Util::binaryToDecimal64(-0.25);
+        }
+
+        // binaryToDecimal64(long double)
+
+        {
+            Util::ValueType64 value64;
+            Util::ValueType64  test64;
+
+            value64 = Util::parse64(         "0.0");
+             test64 = Util::binaryToDecimal64(0.0l);
+
+            value64 = Util::parse64(         "1.0");
+             test64 = Util::binaryToDecimal64(1.0l);
+
+            value64 = Util::parse64(         "10.");
+             test64 = Util::binaryToDecimal64(10.l);
+
+            value64 = Util::parse64(         "42.");
+             test64 = Util::binaryToDecimal64(42.l);
+
+            value64 = Util::parse64(         "-1.0");
+             test64 = Util::binaryToDecimal64(-1.0l);
+
+            value64 = Util::parse64(         "-10.");
+             test64 = Util::binaryToDecimal64(-10.l);
+
+            value64 = Util::parse64(         "-42.");
+             test64 = Util::binaryToDecimal64(-42.l);
+
+            value64 = Util::parse64(         "0.5");
+             test64 = Util::binaryToDecimal64(0.5l);
+
+            value64 = Util::parse64(         "0.25");
+             test64 = Util::binaryToDecimal64(0.25l);
+
+            value64 = Util::parse64(         "-0.5");
+             test64 = Util::binaryToDecimal64(-0.5l);
+
+            value64 = Util::parse64(         "-0.25");
+             test64 = Util::binaryToDecimal64(-0.25l);
+        }
+
+        // 'binaryToDecimal128(float)'
+
+        {
+            Util::ValueType128 value128;
+            Util::ValueType128  test128;
+
+            value128 = Util::parse128(         "0.0");
+             test128 = Util::binaryToDecimal128(0.0f);
+
+            value128 = Util::parse128(         "1.0");
+             test128 = Util::binaryToDecimal128(1.0f);
+
+            value128 = Util::parse128(         "10.");
+             test128 = Util::binaryToDecimal128(10.f);
+
+            value128 = Util::parse128(         "42.");
+             test128 = Util::binaryToDecimal128(42.f);
+
+            value128 = Util::parse128(         "-1.0");
+             test128 = Util::binaryToDecimal128(-1.0f);
+
+            value128 = Util::parse128(         "-10.");
+             test128 = Util::binaryToDecimal128(-10.f);
+
+            value128 = Util::parse128(         "-42.");
+             test128 = Util::binaryToDecimal128(-42.f);
+
+            value128 = Util::parse128(         "0.5");
+             test128 = Util::binaryToDecimal128(0.5f);
+
+            value128 = Util::parse128(         "0.25");
+             test128 = Util::binaryToDecimal128(0.25f);
+
+            value128 = Util::parse128(         "-0.5");
+             test128 = Util::binaryToDecimal128(-0.5f);
+
+            value128 = Util::parse128(         "-0.25");
+             test128 = Util::binaryToDecimal128(-0.25f);
+        }
+
+        // binaryToDecimal128(double)
+
+        {
+            Util::ValueType128 value128;
+            Util::ValueType128  test128;
+
+            value128 = Util::parse128(         "0.0");
+             test128 = Util::binaryToDecimal128(0.0);
+
+            value128 = Util::parse128(         "1.0");
+             test128 = Util::binaryToDecimal128(1.0);
+
+            value128 = Util::parse128(         "10.");
+             test128 = Util::binaryToDecimal128(10.);
+
+            value128 = Util::parse128(         "42.");
+             test128 = Util::binaryToDecimal128(42.);
+
+            value128 = Util::parse128(         "-1.0");
+             test128 = Util::binaryToDecimal128(-1.0);
+
+            value128 = Util::parse128(         "-10.");
+             test128 = Util::binaryToDecimal128(-10.);
+
+            value128 = Util::parse128(         "-42.");
+             test128 = Util::binaryToDecimal128(-42.);
+
+            value128 = Util::parse128(         "0.5");
+             test128 = Util::binaryToDecimal128(0.5);
+
+            value128 = Util::parse128(         "0.25");
+             test128 = Util::binaryToDecimal128(0.25);
+
+            value128 = Util::parse128(         "-0.5");
+             test128 = Util::binaryToDecimal128(-0.5);
+
+            value128 = Util::parse128(         "-0.25");
+             test128 = Util::binaryToDecimal128(-0.25);
+        }
+
+        // binaryToDecimal128(long double)
+
+        {
+            Util::ValueType128 value128;
+            Util::ValueType128  test128;
+
+            value128 = Util::parse128(         "0.0");
+             test128 = Util::binaryToDecimal128(0.0l);
+
+            value128 = Util::parse128(         "1.0");
+             test128 = Util::binaryToDecimal128(1.0l);
+
+            value128 = Util::parse128(         "10.");
+             test128 = Util::binaryToDecimal128(10.l);
+
+            value128 = Util::parse128(         "42.");
+             test128 = Util::binaryToDecimal128(42.l);
+
+            value128 = Util::parse128(         "-1.0");
+             test128 = Util::binaryToDecimal128(-1.0l);
+
+            value128 = Util::parse128(         "-10.");
+             test128 = Util::binaryToDecimal128(-10.l);
+
+            value128 = Util::parse128(         "-42.");
+             test128 = Util::binaryToDecimal128(-42.l);
+
+            value128 = Util::parse128(         "0.5");
+             test128 = Util::binaryToDecimal128(0.5l);
+
+            value128 = Util::parse128(         "0.25");
+             test128 = Util::binaryToDecimal128(0.25l);
+
+            value128 = Util::parse128(         "-0.5");
+             test128 = Util::binaryToDecimal128(-0.5l);
+
+            value128 = Util::parse128(         "-0.25");
+             test128 = Util::binaryToDecimal128(-0.25l);
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
