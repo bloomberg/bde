@@ -25,12 +25,12 @@ using namespace std;
 //                              Overview
 //                              --------
 // This component provides primitive operations to construct and destroy
-// objects, abstracting the fact that the class constructors may or not take an
-// optional allocator argument of type 'bslma::Allocator'.  These primitives
-// allow to write parameterized code (e.g., container) in a manner which makes
-// independent to whether the template parameters take optional allocators or
-// not.  In addition, the primitives use the most efficient implementation
-// (bit-wise copy) whenever possible.
+// objects, abstracting the fact that the class constructors may or may not
+// take an optional allocator argument of type 'bslma::Allocator *'.  These
+// primitives allow one to write parameterized code (e.g., containers) in a
+// manner that is independent of whether or not the template parameters take
+// optional allocators.  In addition, the primitives use the most efficient
+// implementation (e.g., bit-wise copy) whenever possible.
 //
 // The general concerns of this component are the proper detection of traits
 // (using 'bslma::Allocator', using bit-wise copy) and the correct selection of
@@ -44,9 +44,10 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [ 3] defaultConstruct(T *dst, *a);
 // [ 4] copyConstruct(T *dst, const T& src, *a);
-// [ 5] construct(T *dst, A[1--N]..., *a);
-// [ 6] destructiveMove(T *dst, T *src, *a);
-// [ 7] destruct(T *address);
+// [ 5] moveConstruct(T *dst, T& src, *a);
+// [ 6] construct(T *dst, A[1--N]..., *a);
+// [ 7] destructiveMove(T *dst, T *src, *a);
+// [ ?] destruct(T *address);
 // [ 8] swap(T& lhs, T& rhs);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING
@@ -93,6 +94,9 @@ void aSsErT(int c, const char *s, int i) {
 
 typedef BloombergLP::bslalg::ScalarPrimitives            Obj;
 typedef BloombergLP::bslalg::ScalarDestructionPrimitives DestructionPrimitives;
+
+const int MOVED_FROM_VAL = 0xOld;
+
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -131,7 +135,15 @@ class my_Class1 {
         d_def.d_value = rhs.d_def.d_value;
         d_def.d_allocator_p = 0;
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Class1(my_Class1&& rhs) {
+        d_def.d_value = rhs.d_def.d_value;
+        rhs.d_value = MOVED_FROM_VAL;
+        d_def.d_allocator_p = 0;
+    }
+#endif
     ~my_Class1() {
+        ASSERT(d_def.d_value != 91);
         d_def.d_value = 91;
         d_def.d_allocator_p = 0;
     }
@@ -166,7 +178,20 @@ class my_Class2 {
         d_def.d_value = rhs.d_def.d_value;
         d_def.d_allocator_p = a;
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Class2(my_Class2&& rhs, bslma::Allocator *a = 0) {
+        d_def.d_value = rhs.d_def.d_value;
+        rhs.d_value = MOVED_FROM_VAL;
+        if (a) {
+            d_def.d_allocator_p = a;
+        }
+        else {
+            d_def.d_allocator_p = rhs.d_allocator_p;
+        }
+    }
+#endif
     ~my_Class2() {
+        ASSERT(d_def.d_value != 92);
         d_def.d_value = 92;
         d_def.d_allocator_p = 0;
     }
@@ -206,6 +231,7 @@ class my_ClassFussy {
     // CLASS DATA
     static int defaultConstructorInvocations;
     static int copyConstructorInvocations;
+    static int moveConstructorInvocations;
     static int conversionConstructorInvocations;
     static int assignmentInvocations;
     static int destructorInvocations;
@@ -236,7 +262,7 @@ class my_ClassFussy {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++defaultConstructorInvocations;
     }
-    // explicit  // purposefully
+    // deliberately not explicit
     my_ClassFussy(int v) {
         ++conversionConstructorInvocations;
         d_def.d_value = v;
@@ -246,6 +272,12 @@ class my_ClassFussy {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++copyConstructorInvocations;
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_ClassFussy(my_ClassFussy&& /* rhs */) {
+        // Should never be invoked by bslalg_ScalarPrimitives.
+        ++moveConstructorInvocations;
+    }
+#endif
     ~my_ClassFussy() {
         // Should never be invoked by bslalg_ScalarPrimitives.
         ++destructorInvocations;
@@ -262,6 +294,7 @@ class my_ClassFussy {
 // CLASS DATA
 int my_ClassFussy::defaultConstructorInvocations    = 0;
 int my_ClassFussy::copyConstructorInvocations       = 0;
+int my_ClassFussy::moveConstructorInvocations       = 0;
 int my_ClassFussy::conversionConstructorInvocations = 0;
 int my_ClassFussy::assignmentInvocations            = 0;
 int my_ClassFussy::destructorInvocations            = 0;
@@ -303,7 +336,24 @@ class my_Class4 {
         d_def.d_value = rhs.d_def.d_value;
         *d_def.d_data_p = d_def.d_value;
     }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Class4(my_Class4&& rhs, bslma::Allocator *a = 0) {
+        if (a) {
+            d_def.d_allocator_p = a;
+        }
+        else {
+            d_def.d_allocator_p = rhs.d_def.d_allocator_p;
+        }
+        int *tmp = (int*)(d_def.d_allocator_p)->allocate(sizeof(int));
+        d_def.d_data_p = rhs.d_def.d_data_p;
+        d_def.d_value  = rhs.d_def.d_value;
+        rhs.d_def.d_data_p  = tmp;
+        rhs.d_def.d_value   = MOVED_FROM_VAL;
+        *rhs.d_def.d_data_p = rhs.d_def.d_value;
+    }
+#endif
     ~my_Class4() {
+        ASSERT(d_def.d_value != 94);
         ASSERT(*d_def.d_data_p == d_def.d_value);
         *d_def.d_data_p = 94;
         d_def.d_value = 94;
@@ -354,6 +404,12 @@ class my_Class5 : public my_Class4 {
         : my_Class4(rhs, a) {}
     my_Class5(const my_Class5& rhs, bslma::Allocator *a = 0)
         : my_Class4(rhs, a) {}
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Class5(my_Class4&& rhs, bslma::Allocator *a = 0)
+        : my_Class4(std::move(rhs), a) {}
+    my_Class5(my_Class5&& rhs, bslma::Allocator *a = 0)
+        : my_Class4(std::move(rhs), a) {}
+#endif
 };
 
 // TRAITS
@@ -394,6 +450,17 @@ struct my_Pair {
     template <typename U1, typename U2>
     my_Pair(const my_Pair<U1, U2>& other)
         : first(other.first), second(other.second) { }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_Pair(my_Pair&& other)
+        : first(std::move(other.first))
+        , second(std::move(other.second)) {}
+
+    template <typename U1, typename U2>
+    my_Pair(my_Pair<U1, U2>&& other)
+        : first(std::move(other.first))
+        , second(std::move(other.second)) { }
+#endif
 };
 
                                // ==============
@@ -428,6 +495,17 @@ struct my_PairA {
     template <typename U1, typename U2>
     my_PairA(const my_PairA<U1, U2>& other, bslma::Allocator *a = 0)
         : first(other.first), second(other.second, a) {}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_PairA(my_PairA&& other, bslma::Allocator *a = 0)
+        : first(std::move(other.first))
+        , second(std::move(other.second), a) {}
+
+    template <typename U1, typename U2>
+    my_PairA(my_PairA<U1, U2>&& other, bslma::Allocator *a = 0)
+        : first(std::move(other.first))
+        , second(std::move(other.second), a) { }
+#endif
 };
 
 namespace BloombergLP {
@@ -469,6 +547,17 @@ struct my_PairAA {
     template <typename U1, typename U2>
     my_PairAA(const my_PairAA<U1, U2>& other, bslma::Allocator *a = 0)
         : first(other.first, a), second(other.second, a) {}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_PairAA(my_PairAA&& other, bslma::Allocator *a = 0)
+        : first(std::move(other.first), a)
+        , second(std::move(other.second), a) {}
+
+    template <typename U1, typename U2>
+    my_PairAA(my_PairAA<U1, U2>&& other, bslma::Allocator *a = 0)
+        : first(std::move(other.first), a)
+        , second(std::move(other.second), a) { }
+#endif
 };
 
 namespace BloombergLP {
@@ -511,6 +600,17 @@ struct my_PairBB {
     template <typename U1, typename U2>
     my_PairBB(const my_PairBB<U1, U2>& other)
         : first(other.first), second(other.second) {}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    my_PairBB(my_PairBB&& other)
+        : first(std::move(other.first))
+        , second(std::move(other.second)) {}
+
+    template <typename U1, typename U2>
+    my_PairBB(my_PairBB<U1, U2>&& other)
+        : first(std::move(other.first))
+        , second(std::move(other.second)) { }
+#endif
 };
 
 namespace BloombergLP {
@@ -539,7 +639,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     ASSERT(EXP_VAL == rawBuf.d_value);                                        \
     ASSERT(EXP_ALLOC == rawBuf.d_allocator_p);                                \
   }
-    // This 'macro' evaluates the specified 'op' expression in the namespace
+    // This macro evaluates the specified 'op' expression in the namespace
     // under test, involving the address 'objPtr' of an object of type
     // 'my_ClassN' (where 'N' stands for the specified 'typeNum'), and verifies
     // that the 'd_value' and 'd_allocator_p' members store the specified
@@ -1083,7 +1183,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING swap
         //
@@ -1237,7 +1337,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING destructiveMove
         //
@@ -1347,7 +1447,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING construct
         //
@@ -1725,6 +1825,86 @@ int main(int argc, char *argv[])
         }
 
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING moveConstruct
+        //
+        // Concerns:
+        //   o That the move constructor properly forwards the allocator
+        //     when appropriate.
+        //   o That the move constructor uses memcpy when appropriate.
+        //
+        // Plan: Construct a copy of pre-initialized objects into an
+        //   uninitialized buffer using move construction, passing allocators
+        //   of both types 'bslma::Allocator *' and 'void *' types, and verify
+        //   that the values and allocator of the copy are as expected.  Using
+        //   a fussy type that has the BitwiseCopyable trait, ensure that the
+        //   copy constructor and move constructor is not invoked.
+        //
+        // Testing:
+        //   moveConstruct(T *dst, T& src, *a);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING moveConstruct"
+                            "\n=====================\n");
+
+        bslma::TestAllocator testAllocator(veryVeryVerbose);
+        bslma::TestAllocator *const TA = &testAllocator;
+        int                  dummyAllocator;  // Dummy, non-bslma allocator
+        int                  *const XA = &dummyAllocator;
+
+        // my_Class                               Expected
+        //      #  Operation                      Val Alloc
+        //      =  ============================== === =====
+        TEST_OP(1, moveConstruct(objPtr, V1, TA),  1, 0);
+        TEST_OP(2, moveConstruct(objPtr, V2, TA),  2, TA  );
+        TEST_OP(1, moveConstruct(objPtr, V1, XA),  1, 0);
+        TEST_OP(2, moveConstruct(objPtr, V2, XA),  2, 0);
+
+        if (verbose) printf("Exception testing.\n");
+
+        if (verbose) printf("\t...pair with allocators\n");
+
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+            my_ClassDef rawBuf[2];
+            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
+            Obj::moveConstruct(objPtr, PAAV4V4, TA);
+            ASSERT(4  == rawBuf[0].d_value);
+            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(4  == rawBuf[1].d_value);
+            ASSERT(TA == rawBuf[1].d_allocator_p);
+            objPtr->~my_PairAA_4_4();
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+        if (verbose) printf("\t...constructing pair with IsPair\n");
+
+        const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+            my_ClassDef rawBuf[2];
+            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
+            Obj::moveConstruct(objPtr, PBBV4V4, TA);
+            ASSERT(4  == rawBuf[0].d_value);
+            ASSERT(TA == rawBuf[0].d_allocator_p);
+            ASSERT(4  == rawBuf[1].d_value);
+            ASSERT(TA == rawBuf[1].d_allocator_p);
+            objPtr->~my_PairBB_4_4();
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        ASSERT(NUM_ALLOC1 < testAllocator.numAllocations());
+
+        if (verbose) printf("Trait selection testing.\n");
+        {
+            my_ClassDef rawBuf;
+            my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
+            std::memset(&rawBuf, 92, sizeof rawBuf);
+            const int CCI = my_ClassFussy::moveConstructorInvocations;
+            Obj::moveConstruct(objPtr, VF, XA);
+            ASSERT(CCI == my_ClassFussy::moveConstructorInvocations);
+            ASSERT(3 == rawBuf.d_value);
+            ASSERT(0 == rawBuf.d_allocator_p);
+            if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
+        }
+
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING copyConstruct
@@ -1806,7 +1986,7 @@ int main(int argc, char *argv[])
 
       } break;
       case 3:
-    {
+      {
         // --------------------------------------------------------------------
         // TESTING defaultConstruct
         //

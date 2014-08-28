@@ -30,6 +30,10 @@ BSLS_IDENT("$Id: $")
 //  copyConstruct       Copy constructor, with or without allocator,
 //                        or bitwise copy if appropriate
 //
+//  moveConstruct       Move constructor, with or without allocator,
+//                        or bitwise copy if appropriate.  In C++03 mode,
+//                        behavior is the same as 'copyConstruct'.
+//
 //  destructiveMove     Copy construction followed by destruction of the
 //                        original, with or without allocator,
 //                        or bitwise copy if appropriate
@@ -139,6 +143,11 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_NEW
 #endif
 
+#ifndef INCLUDED_UTILITY
+#include <utility>
+#define INCLUDED_UTILITY
+#endif
+
 namespace BloombergLP {
 
 namespace bslalg {
@@ -196,6 +205,26 @@ struct ScalarPrimitives {
         // constructor.  If the constructor throws, the 'address' is left in an
         // uninitialized state.  Note that bit-wise copy will be used if
         // 'TARGET_TYPE' has the bit-wise copyable trait.
+
+    template <typename TARGET_TYPE>
+    static void moveConstruct(TARGET_TYPE        *address,
+                              TARGET_TYPE&        original,
+                              bslma::Allocator   *allocator);
+    template <typename TARGET_TYPE>
+    static void moveConstruct(TARGET_TYPE        *address,
+                              TARGET_TYPE&        original,
+                              void               *allocator);
+        // Build an object of the parameterized 'TARGET_TYPE' from the
+        // specified 'original' object of the same 'TARGET_TYPE' in the
+        // uninitialized memory at the specified 'address', as if by using the
+        // move constructor of 'TARGET_TYPE'.  If the specified 'allocator' is
+        // based on 'bslma::Allocator' and 'TARGET_TYPE' takes an allocator
+        // constructor argument, then 'allocator' is passed to the move
+        // constructor.  If the constructor throws, the 'address' is left in
+        // an uninitialized state.  Note that bit-wise copy will be used if
+        // 'TARGET_TYPE' has the bit-wise copyable trait (not the bit-wise
+        // moveable trait, which indicates a destructive bit-wise move).  In
+        // C++03 mode, 'moveConstruct' has the same effect as 'copyConstruct'.
 
     template <typename TARGET_TYPE, typename ALLOCATOR>
     static void destructiveMove(TARGET_TYPE *address,
@@ -725,6 +754,59 @@ struct ScalarPrimitives_Imp {
         // traits overloading resolution only and its value is ignored.  Note
         // that a bit-wise copy is only appropriate if 'TARGET_TYPE' does not
         // take allocators.
+
+    template <typename TARGET_TYPE>
+    static void moveConstruct(
+                        TARGET_TYPE                                 *address,
+                        TARGET_TYPE&                                 original,
+                        bslma::Allocator                            *allocator,
+                        bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *);
+    template <typename TARGET_TYPE>
+    static void moveConstruct(TARGET_TYPE                 *address,
+                              TARGET_TYPE&                 original,
+                              bslma::Allocator            *allocator,
+                              bslmf::MetaInt<PAIR_TRAITS> *);
+    template <typename TARGET_TYPE>
+    static void moveConstruct(
+                            TARGET_TYPE                             *address,
+                            TARGET_TYPE&                             original,
+                            bslma::Allocator                        *allocator,
+                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+    template <typename TARGET_TYPE>
+    static void moveConstruct(TARGET_TYPE                *address,
+                              TARGET_TYPE&                original,
+                              bslma::Allocator           *allocator,
+                              bslmf::MetaInt<NIL_TRAITS> *);
+        // Build in the uninitialized memory at the specified 'address' an
+        // object of the parameterized 'TARGET_TYPE' that is a move of the
+        // specified 'original' object of the same 'TARGET_TYPE', using the
+        // specified 'allocator' to supply memory.  Use the move constructor
+        // of the 'TARGET_TYPE', or a bit-wise copy if 'TARGET_TYPE' is a
+        // bit-wise copyable type (not a bit-wise moveable type, which
+        // indicates a destructive bit-wise move).  The last argument is for
+        // traits overloading resolution only and its value is ignored.  Note
+        // that a bit-wise copy is used only if 'TARGET_TYPE' does not take
+        // allocators.  In C++03 mode, 'moveConstruct' has the same effect as
+        // 'copyConstruct'.
+
+    template <typename TARGET_TYPE>
+    static void moveConstruct(
+                             TARGET_TYPE                             *address,
+                             TARGET_TYPE&                             original,
+                             bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
+    template <typename TARGET_TYPE>
+    static void moveConstruct(TARGET_TYPE                *address,
+                              TARGET_TYPE&                original,
+                              bslmf::MetaInt<NIL_TRAITS> *);
+        // Build in the uninitialized memory at the specified 'address' an
+        // object of the parameterized 'TARGET_TYPE' that is a move of the
+        // specified 'original' object of the same 'TARGET_TYPE'.  Use the
+        // move constructor of the 'TARGET_TYPE', or a bit-wise copy if
+        // 'TARGET_TYPE' is a bit-wise copyable type (not a bit-wise moveable
+        // type, which indicates a destructive bit-wise move).  The last
+        // argument is for traits overloading resolution only and its value is
+        // ignored.  In C++03 mode, 'moveConstruct' has the same effect as
+        // 'copyConstruct'.
 
     template <typename TARGET_TYPE, typename ALLOCATOR>
     static void destructiveMove(
@@ -1301,6 +1383,76 @@ ScalarPrimitives::copyConstruct(TARGET_TYPE        *address,
     };
     Imp::copyConstruct(address, original, (bslmf::MetaInt<VALUE>*)0);
 }
+
+                      // *** moveConstruct overloads: ***
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
+                                TARGET_TYPE&        original,
+                                bslma::Allocator   *allocator)
+{
+    BSLS_ASSERT_SAFE(address);
+
+    enum {
+        VALUE = bslma::UsesBslmaAllocator<TARGET_TYPE>::value
+              ? Imp::USES_BSLMA_ALLOCATOR_TRAITS
+              : bsl::is_trivially_copyable<TARGET_TYPE>::value
+                  ? Imp::BITWISE_COPYABLE_TRAITS
+                  : bslmf::IsPair<TARGET_TYPE>::value
+                      ? Imp::PAIR_TRAITS
+                      : Imp::NIL_TRAITS
+    };
+    Imp::moveConstruct(address, original, allocator,
+                       (bslmf::MetaInt<VALUE>*)0);
+}
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
+                                TARGET_TYPE&        original,
+                                void               *)
+{
+    BSLS_ASSERT_SAFE(address);
+
+    enum {
+        VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
+              ? Imp::BITWISE_COPYABLE_TRAITS
+              : Imp::NIL_TRAITS
+    };
+    Imp::moveConstruct(address, original, (bslmf::MetaInt<VALUE>*)0);
+}
+
+#else // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
+                                TARGET_TYPE&        original,
+                                bslma::Allocator   *allocator)
+{
+    // In C++03 mode, use copy construction instead of move construction.
+    copyConstruct(address, original, allocator);
+}
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives::moveConstruct(TARGET_TYPE        *address,
+                                TARGET_TYPE&        original,
+                                void               *vp)
+{
+    // In C++03 mode, use copy construction instead of move construction.
+    copyConstruct(address, original, vp);
+}
+
+#endif  // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
 
                      // *** destructiveMove overloads: ***
 
@@ -2265,7 +2417,111 @@ ScalarPrimitives_Imp::copyConstruct(TARGET_TYPE                *address,
     ::new (address) TARGET_TYPE(original);
 }
 
-                     // *** destructiveMove overloads: ***
+                      // *** moveConstruct overloads: ***
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(
+                        TARGET_TYPE                                 *address,
+                        TARGET_TYPE&                                 original,
+                        bslma::Allocator                            *allocator,
+                        bslmf::MetaInt<USES_BSLMA_ALLOCATOR_TRAITS> *)
+{
+    ::new (address) TARGET_TYPE(std::move(original), allocator);
+}
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(TARGET_TYPE                 *address,
+                                    TARGET_TYPE&                 original,
+                                    bslma::Allocator            *allocator,
+                                    bslmf::MetaInt<PAIR_TRAITS> *)
+{
+    ScalarPrimitives::moveConstruct(
+                                  unconst(BSLS_UTIL_ADDRESSOF(address->first)),
+                                  unconst(original.first),
+                                  allocator);
+    AutoScalarDestructor<typename bslmf::RemoveCvq<
+                                typename TARGET_TYPE::first_type>::Type>
+                           guard(unconst(BSLS_UTIL_ADDRESSOF(address->first)));
+    ScalarPrimitives::moveConstruct(
+                                 unconst(BSLS_UTIL_ADDRESSOF(address->second)),
+                                 unconst(original.second),
+                                 allocator);
+    guard.release();
+}
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(
+                             TARGET_TYPE                             *address,
+                             TARGET_TYPE&                             original,
+                             bslma::Allocator                        *,
+                             bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+{
+    if (bslmf::IsFundamental<TARGET_TYPE>::value
+     || bslmf::IsPointer<TARGET_TYPE>::value) {
+        // Detectable at compile-time, this condition ensures that we don't
+        // call library functions for fundamental or pointer types.  Note that
+        // copy-constructor can't throw, and that assignment (although would
+        // likely produce equivalent code) can't be used, in case 'TARGET_TYPE'
+        // is 'const'-qualified.
+
+        ::new (address) TARGET_TYPE(original);
+    } else {
+        std::memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+    }
+}
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(TARGET_TYPE                *address,
+                                    TARGET_TYPE&                original,
+                                    bslma::Allocator           *,
+                                    bslmf::MetaInt<NIL_TRAITS> *)
+{
+    ::new (address) TARGET_TYPE(std::move(original));
+}
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(
+                             TARGET_TYPE                             *address,
+                             TARGET_TYPE&                             original,
+                             bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
+{
+    if (bslmf::IsFundamental<TARGET_TYPE>::value
+     || bslmf::IsPointer<TARGET_TYPE>::value) {
+        // Detectable at compile-time, this condition ensures that we don't
+        // call library functions for fundamental or pointer types.  Note that
+        // move-constructor can't throw, and that assignment (although would
+        // likely produce equivalent code) can't be used, in case 'TARGET_TYPE'
+        // is 'const'-qualified.
+
+        ::new (address) TARGET_TYPE(original);
+    } else {
+        std::memcpy(address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+    }
+}
+
+template <typename TARGET_TYPE>
+inline
+void
+ScalarPrimitives_Imp::moveConstruct(TARGET_TYPE                *address,
+                                    TARGET_TYPE&                original,
+                                    bslmf::MetaInt<NIL_TRAITS> *)
+{
+    ::new (address) TARGET_TYPE(std::move(original));
+}
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES                     // *** destructiveMove overloads: ***
 
 template <typename TARGET_TYPE, typename ALLOCATOR>
 inline
@@ -2298,7 +2554,7 @@ ScalarPrimitives_Imp::destructiveMove(TARGET_TYPE                *address,
                                       ALLOCATOR                  *allocator,
                                       bslmf::MetaInt<NIL_TRAITS> *)
 {
-    ScalarPrimitives::copyConstruct(address, *original, allocator);
+    ScalarPrimitives::moveConstruct(address, *original, allocator);
     ScalarDestructionPrimitives::destroy(original);
 }
 
