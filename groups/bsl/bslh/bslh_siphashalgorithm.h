@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 // to be cryptographically secure, and algorithm must, among other things,
 // provide "collision resistance".  "Collision resistance" means that it should
 // be difficult to find two different messages m1 and m2 such that
-// hash(m1) == hash(m2).  Because of the limited sized output (only 2^64
+// 'hash(m1) == hash(m2)'.  Because of the limited sized output (only 2^64
 // possibilities) and the fast execution time of the algorithm, it is feasible
 // to find collisions by brute force, making the algorithm not
 // cryptographically secure.

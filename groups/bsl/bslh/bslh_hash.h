@@ -222,6 +222,7 @@ BSLS_IDENT("$Id: $")
 //  void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
 //      // Apply the specified 'hashAlg' to the specified 'point'
 //  {
+//      using bslh::hashAppend;
 //      hashAppend(hashAlg, point.getX());
 //      hashAppend(hashAlg, point.getY());
 //  }
@@ -518,9 +519,15 @@ typename bsl::enable_if<
     !bsl::is_same<TYPE, bool>::value
 >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
+    // Passes the specified 'input' into the specified 'hashAlg' to be combined
+    // into the internal state of the algorithm which is used to produce the
+    // resulting hash value. Note that the 'enable_if' meta-function is used to
+    // enable this 'hashAppend' function for only integral (excluding 'bool'),
+    // pointer, and enum types, because these types can all be hashed as a
+    // continuous sequence of bytes. Also note that this function is defined
+    // inline because MS Visual Studio compilers before 2013 require (some)
+    // functions declared using enable_if be in-place inline.
 {
-    // MS Visual Studio compilers before 2013 require (some) functions declared
-    // using enable_if be in-place inline.
     hashAlg(&input, sizeof(input));
 }
 
@@ -531,9 +538,16 @@ typename bsl::enable_if<
    !bsl::is_same<TYPE, long double>::value
 >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
+    // Passes the specified 'input' into the specified 'hashAlg' to be combined
+    // into the internal state of the algorithm which is used to produce the
+    // resulting hash value. Note that the 'enable_if' meta-function is used to
+    // enable this 'hashAppend' function for only floating point (excluding
+    // 'long double') types, because these types need to have +/-0.0 normalized
+    // to 0.0 before they can be hashed as a continuous sequence of bytes. Also
+    // note that this function is defined inline because MS Visual Studio
+    // compilers before 2013 require (some) functions declared using enable_if
+    // be in-place inline.
 {
-    // MS Visual Studio compilers before 2013 require (some) functions declared
-    // using enable_if be in-place inline.
     if (input == 0)
         input = 0;
     hashAlg(&input, sizeof(input));
@@ -542,25 +556,59 @@ hashAppend(HASH_ALGORITHM& hashAlg, TYPE input)
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if< bsl::is_same<TYPE, bool>::value >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
+    // Passes the specified 'input' into the specified 'hashAlg' to be combined
+    // into the internal state of the algorithm which is used to produce the
+    // resulting hash value. Note that the 'enable_if' meta-function is used to
+    // enable this 'hashAppend' function for only 'bool', because 'bool's can
+    // have multiple 'true' representations and need to be normalized before
+    // they can be hashed as a continuous sequence of bytes.
 
 template <class HASH_ALGORITHM, class TYPE>
 typename bsl::enable_if< bsl::is_same<TYPE, long double>::value >::type
 hashAppend(HASH_ALGORITHM& hashAlg, TYPE input);
+    // Passes the specified 'input' into the specified 'hashAlg' to be combined
+    // into the internal state of the algorithm which is used to produce the
+    // resulting hash value. Note that the 'enable_if' meta-function is used to
+    // enable this 'hashAppend' function for only 'long double', because on
+    // some compilers 'long double's contain garabage and can not be hashed as
+    // a continuous sequence of bytes.
 
 template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, char (&input)[N]);
+    // Passes the specified 'input' into the specified 'hashAlg' to be combined
+    // into the internal state of the algorithm which is used to produce the
+    // resulting hash value. Note that the entire 'char' array will be hashed
+    // in only one call to 'hashAlg'. Also note that this 'hashAppend' exists
+    // because some platforms don't recognize that adding a const qualifier is
+    // a better match for arrays than decaying to a pointer and using the
+    // 'hashAppend' function for pointers.
 
 template <class HASH_ALGORITHM, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const char (&input)[N]);
+    // Passes the specified 'input' into the specified 'hashAlg' to be combined
+    // into the internal state of the algorithm which is used to produce the
+    // resulting hash value. Note that the entire 'char' array will be hashed
+    // in only one call to 'hashAlg'.
 
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N]);
+    // Passes the specified 'input' into the specified 'hashAlg' to be combined
+    // into the internal state of the algorithm which is used to produce the
+    // resulting hash value. Note that the elements in 'input' will be hashed
+    // one at a time by calling 'hashAppend' because the (template parameter)
+    // 'TYPE' might not be hashable as a contiguous sequence of bytes. Also
+    // note that this 'hashAppend' exists because some platforms don't
+    // recognize that adding a const qualifier is a better match for arrays
+    // than decaying to a pointer and using the 'hashAppend' function for
+    // pointers.
 
 template <class HASH_ALGORITHM, class TYPE, size_t N>
 void hashAppend(HASH_ALGORITHM& hashAlg, const TYPE (&input)[N]);
     // Passes the specified 'input' into the specified 'hashAlg' to be combined
     // into the internal state of the algorithm which is used to produce the
-    // resulting hash value.
+    // resulting hash value. Note that the elements in 'input' will be hashed
+    // one at a time by calling 'hashAppend' because the (template parameter)
+    // 'TYPE' might not be hashable as a contiguous sequence of bytes.
 
 }  // close package namespace
 
@@ -684,9 +732,6 @@ template <class HASH_ALGORITHM, size_t N>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, char (&input)[N])
 {
-    // This 'hashAppend' exists because some platforms don't recognize that
-    // adding a const qualifier is a better match for arrays than pointer
-    // decay.
     hashAlg(&input, sizeof(char)*N);
 }
 
@@ -701,9 +746,6 @@ template <class HASH_ALGORITHM, class TYPE, size_t N>
 inline
 void bslh::hashAppend(HASH_ALGORITHM& hashAlg, TYPE (&input)[N])
 {
-    // This 'hashAppend' exists because some platforms don't recognize that
-    // adding a const qualifier is a better match for arrays than pointer
-    // decay.
 
     for (size_t i = 0; i < N; ++i) {
         hashAppend(hashAlg, input[i]);

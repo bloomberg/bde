@@ -94,8 +94,7 @@ BSLS_IDENT("$Id: $")
 //
 //: A The seed generator is default constructible.
 //:
-//: B The seed generator is constructable through any method (default or via
-//:   parameterized constructor) and ALSO copy constructible.
+//: B The seed generator is copy constructible.
 //
 // Option A is prefered because it allows 'bslh::SeededHash' to be defualt
 // constructible.  Option B is allowed, but means that 'bslh::SeededHash' must

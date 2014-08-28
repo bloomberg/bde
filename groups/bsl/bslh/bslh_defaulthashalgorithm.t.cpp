@@ -314,7 +314,7 @@ bool HashTable<TYPE, HASHER>::lookup(size_t      *idx,
 // CREATORS
 template <class TYPE, class HASHER>
 HashTable<TYPE, HASHER>::HashTable(const TYPE *valuesArray,
-                                  size_t      numValues)
+                                   size_t      numValues)
 : d_values(valuesArray)
 , d_numValues(numValues)
 , d_hasher()
@@ -499,7 +499,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf(
                        "\nTESTING 'operator()' AND 'computeHash()'"
-                       "\n======================================\n");
+                       "\n========================================\n");
 
         static const struct {
             int                  d_line;

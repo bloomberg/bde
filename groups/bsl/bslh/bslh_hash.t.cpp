@@ -244,6 +244,7 @@ void aSsErT(bool b, const char *s, int i)
     void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
         // Apply the specified 'hashAlg' to the specified 'point'
     {
+        using bslh::hashAppend;
         hashAppend(hashAlg, point.getX());
         hashAppend(hashAlg, point.getY());
     }
@@ -421,7 +422,7 @@ bool HashTable<TYPE, HASHER>::lookup(size_t      *idx,
 // CREATORS
 template <class TYPE, class HASHER>
 HashTable<TYPE, HASHER>::HashTable(const TYPE *valuesArray,
-                                  size_t      numValues)
+                                   size_t      numValues)
 : d_values(valuesArray)
 , d_numValues(numValues)
 , d_hasher()
@@ -766,31 +767,34 @@ namespace X {
     };
 
     template<class HASH_ALGORITHM>
-    void hashAppend(HASH_ALGORITHM &hashAlg, A a) { 
+    void hashAppend(HASH_ALGORITHM &hashAlg, A a)
         // Do nothing with the specified 'hashAlg' and 'a'. This is a test
         // 'hashAppend' to ensure that the correct 'hashAppend' is picked up by
         // ADL.
+    {
     }
-}
+}  // close test namespace
 
 namespace Y {
     template<class HASH_ALGORITHM>
-    void hashAppend(HASH_ALGORITHM &hashAlg, X::A a) { 
+    void hashAppend(HASH_ALGORITHM &hashAlg, X::A a)
         // Do nothing with the specified 'hashAlg' and 'a'. This is a test
         // 'hashAppend' that should not be picked up by ADL.
+    {
         ASSERT(!"ADL picked the wrong 'hashAppend'");
     }
-}
-    
+}  // close test namespace
+
 namespace Z {
-    void testHashAppendADL() {
+    void testHashAppendADL()
         // Test that ADL is able to pick up the correct 'hashAppend' when it is
         // in another namespace.
+    {
         X::A a = X::A();
         MockHashingAlgorithm alg = MockHashingAlgorithm();
         hashAppend(alg, a);  // Should compile and not assert
     }
-}
+}  // close test namespace
 
 
 // ============================================================================
