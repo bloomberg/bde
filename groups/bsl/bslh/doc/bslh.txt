@@ -117,7 +117,7 @@ collide to the same value:
          Time to Find a pair<string, string> in Map vs Unordered Map
 
    18 |
-      |                      O = Map   X = Unordered Map  
+      |                      O = Map   X = Unordered Map
    16 |
 T     |                                                              X
 i  14 |                                                              |
@@ -131,7 +131,7 @@ S     |                                                 --    /
 e   6 |                                               -      /
 c     |                                             --      /
 o   4 |                                       ----O        X
-n     |                               ----0---           --
+n     |                               ----O---           --
 d   2 |                      ---O-----              ----
 s     |       XO-------XO-------X--------X--------X
       |____________________________________________________________________
@@ -181,7 +181,7 @@ another only requires a type's users to change one line of code, as shown here:
 ..
 // Uses implicitly 'DefaultHashAlgorithm'.
 bsl::unordered_map<MyType, int, bslh::Hash<>> unorderedMap;
- 
+
 // Only a single line change is required to use 'SpookyHashAlgorithm'
 bsl::unordered_map<MyType,
                    int,
@@ -227,9 +227,9 @@ class Box {
     Box(Point position, int length, int width);
         // Create a box with the specified 'length' and 'width', with its upper
         // left corner at the specified 'position'
- 
+
     friend bool operator==(const Box &left, const Box &right);
- 
+
     template <class HASH_ALGORITHM>
     friend
     void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box);
@@ -241,14 +241,14 @@ Box::Box(Point position, int length, int width)
 ,   d_width(width)
 {
 }
- 
+
 bool operator==(const Box &left, const Box &right)
 {
     return (left.d_position == right.d_position) &&
            (left.d_length   == right.d_length) &&
            (left.d_width    == right.d_width);
 }
- 
+
 template <class HASH_ALGORITHM>
 void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
 {
@@ -465,7 +465,7 @@ of 'SomeType' will call 'bsl::hash<SomeType>' by default. We have done our best
 to make 'bsl::hash' and 'bslh::Hash' interact nicely in most scenarios, and the
 section below shows what behavior can be expected from calling
 'bsl::hash<SomeType>'.
- 
+
 : o 'bsl::hash' is specialized for 'SomeType' *and* 'hashAppend' is implemented
 :   for 'SomeType'.
 :   o Calling 'bsl::hash<SomeType>' will go to the 'bsl::hash' template
@@ -512,16 +512,16 @@ algorithms can be seen below:
 // Implicitly uses 'bsl::hash<MyType>', may or may not redirect to
 // 'bslh::Hash<>'.
 bsl::unordered_map<MyType, int> unorderedMap;
- 
+
 // Implicitly uses 'bslh::DefaultHashAlgorithm', which redirects to the current
 // best default algorithm for hashing.
 bsl::unordered_map<MyType, int, bslh::Hash<>> unorderedMap;
- 
+
 // Explicitly uses 'bslh::DefaultHashAlgorithm', which redirects to the current
 // best default algorithm for hashing.
 bsl::unordered_map<MyType, int, bslh::Hash<bslh::DefaultHashAlgorithm>>
                                                                   unorderedMap;
- 
+
 // Explicitly uses 'bslh::SpookyHashAlgorithm', one of the algorithms available
 // in 'bslh'.
 bsl::unordered_map<MyType, int, bslh::Hash<bslh::SpookyHashAlgorithm>>
@@ -536,7 +536,7 @@ protection against hash table DoS attacks. In order to get the most protection,
 'bslh::SipHashAlgorithm' requires a cryptographically secure random number in
 order to produce hashes that will be secure against an attacker.
 'bslh::SeededHash' and 'bslh::SeedGenerator' exist to facilitate passing seeds
-into hashing algorithms. 
+into hashing algorithms.
 
 /Seeded Algorithms
 / -  -  -  -  -  -
@@ -575,7 +575,7 @@ template<class RANDOM_NUM_GEN>
 class SeedGenerator : private RANDOM_NUM_GEN {
     // This class template implements a seed generator which takes a user
     // supplied random number generator and uses it to generate an arbitrary
-    // length seed. Note that this type inherits from the (template parameter)
+    // length seed.  Note that this type inherits from the (template parameter)
     // type 'RANDOM_NUM_GEN' to take advantage of the empty-base optimization.
 
   private:
@@ -616,7 +616,7 @@ class SeedGenerator : private RANDOM_NUM_GEN {
         // from the random number generator supplied at construction.  All of
         // the returned bytes will come from the RNG, meaning if the requested
         // seed is larger than the return type of the RNG, the RNG will be
-        // called multiple times.  The behaviour is undefined unless the memory
+        // called multiple times.  The behavior is undefined unless the memory
         // at 'seedLocation' can store 'seedLength' bytes.
 };
 ..
@@ -647,7 +647,7 @@ the requirements of the standard for 'std::hash'. The interface of
 template <class SEED_GENERATOR, class HASH_ALGORITHM =
                                               bslh::DefaultSeededHashAlgorithm>
 struct SeededHash {
-    // This class wraps the (template paramete) 'HASH_ALGORITHM', which
+    // This class wraps the (template parameter) 'HASH_ALGORITHM', which
     // requires a seed, in an interface that satisfies the 'hash' requirements
     // of the C++11 standard.
 
@@ -666,7 +666,7 @@ struct SeededHash {
         // Create a 'bslh::SeededHash' which will default construct the
         // parameterized 'SEED_GENERATOR' to initialize the seed that will be
         // passed to the (template parameter) type 'HASH_ALGORITHM' when it is
-        // used. 'SEED_GENERATOR' must be default constructible to use this
+        // used.  'SEED_GENERATOR' must be default constructible to use this
         // constructor.
 
     explicit SeededHash(SEED_GENERATOR& seedGenerator);
@@ -719,12 +719,12 @@ must be passed through the constructor of the unordered map, seen here:
 typedef bslh::SeedGenerator<CryptoRNG> CryptoSeedGen;
 typedef bslh::SeededHash<CryptoSeedGen, bslh::SecureHashAlgorithm>
                                                                   CryptoHasher;
- 
+
 // Construct the required seed generator and hashing algorithm wrapper from
 // 'someRNGObject'
 CryptoSeedGen seedGenerator(someRNGObject);
 CryptoHasher hashAlg(seedGenerator);
- 
+
 // Construct our unordered map
 bsl::unordered_map<MyType, int, CryptoHasher> secureUnorderedMap(startIterator,
                                                                  endIterator,
@@ -775,13 +775,13 @@ class SomeHashAlgorithm
   public:
     // TYPES
     typedef uint64 result_type;
- 
+
     // CREATORS
     SomeHashAlgorithm();
- 
+
     // MANIPULATORS
     void operator()(const char * key, size_t len);
- 
+
     result_type computeHash();
 };
 ..
@@ -809,7 +809,7 @@ class SomeHashAlgorithm
   public:
     // CONSTANTS
     enum { k_SEED_LENGTH = XXX };
- 
+
     // CREATORS
     explicit SomeHashAlgorithm(const char *seed);
 };
@@ -835,7 +835,7 @@ struct YourHash
 {
     // TYPES
     typedef size_t result_type;
- 
+
     // ACCESSORS
     template <class TYPE>
     result_type operator()(TYPE const& type) const;
