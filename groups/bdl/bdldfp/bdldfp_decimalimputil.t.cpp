@@ -116,9 +116,9 @@ using bsl::atoi;
 // [11] parse32 (const char *)
 // [11] parse64 (const char *)
 // [11] parse128(const char *)
-// [  ] format(ValueType32,  char *)
-// [  ] format(ValueType64,  char *)
-// [  ] format(ValueType128, char *)
+// [18] format(ValueType32,  char *)
+// [18] format(ValueType64,  char *)
+// [18] format(ValueType128, char *)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
@@ -901,6 +901,213 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'format'
+        //
+        // Concerns:
+        //:  1 Formatted output accurately represents the value of a Decimal in
+        //:    some human readable form.
+        //:
+        //:  2 Formatted output can be re-read as a Decimal with the same
+        //:    value.
+        //
+        // Plan:
+        //:  1 Output will be formatted, and then reloaded
+        //
+        // Testing:
+        //   format(ValueType32,  char *)
+        //   format(ValueType64,  char *)
+        //   format(ValueType128, char *)
+        // --------------------------------------------------------------------
+        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+
+        // Testing 'format(ValueType32, char *)'
+
+        {
+            Util::ValueType32 value;
+            Util::ValueType32 test;
+
+            value = Util::makeDecimalRaw32(0, 0);
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw32(-1, 0);
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw32(42, 0);
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw32(-42, 0);
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw32(42, 5);
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw32(-42, 5);
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw32(42, -17);
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw32(-42, -17);
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::convertToDecimal32(Util::makeInfinity64(false));
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::convertToDecimal32(Util::makeInfinity64(true));
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::parse32("NaN");
+            Util::format(value, buffer);
+            test  = Util::parse32(buffer);
+            ASSERT(!Util::equal(test, test));
+        }
+
+        // Testing 'format(ValueType64, char *)'
+
+        {
+            Util::ValueType64 value;
+            Util::ValueType64 test;
+
+            value = Util::makeDecimalRaw64(0, 0);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw64(-1, 0);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw64(42, 0);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw64(-42, 0);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw64(42, 5);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw64(-42, 5);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw64(42, -17);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw64(-42, -17);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeInfinity64(false);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeInfinity64(true);
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::parse64("NaN");
+            Util::format(value, buffer);
+            test  = Util::parse64(buffer);
+            ASSERT(!Util::equal(test, test));
+        }
+
+        // Testing 'format(ValueType128, char *)'
+
+        {
+            Util::ValueType128 value;
+            Util::ValueType128 test;
+
+            value = Util::makeDecimalRaw128(0, 0);
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw128(-1, 0);
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw128(42, 0);
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw128(-42, 0);
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw128(42, 5);
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw128(-42, 5);
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw128(42, -17);
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::makeDecimalRaw128(-42, -17);
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::convertToDecimal128(Util::makeInfinity64(false));
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::convertToDecimal128(Util::makeInfinity64(true));
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(Util::equal(value, test));
+
+            value = Util::parse128("NaN");
+            Util::format(value, buffer);
+            test  = Util::parse128(buffer);
+            ASSERT(!Util::equal(test, test));
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
