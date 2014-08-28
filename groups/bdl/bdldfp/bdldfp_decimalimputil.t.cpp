@@ -41,10 +41,10 @@ using bsl::atoi;
 // TBD:
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [  ] makeDecimal64(                   int, int)
-// [  ] makeDecimal64(unsigned           int, int)
-// [  ] makeDecimal64(         long long int, int)
-// [  ] makeDecimal64(unsigned long long int, int)
+// [13] makeDecimal64(                   int, int)
+// [13] makeDecimal64(unsigned           int, int)
+// [13] makeDecimal64(         long long int, int)
+// [13] makeDecimal64(unsigned long long int, int)
 // [12] makeInfinity64(bool)
 // [  ]  int32ToDecimal32 (                   int)
 // [  ] uint32ToDecimal32 (unsigned           int)
@@ -191,6 +191,198 @@ static void aSsErT(int c, const char *s, int i)
 namespace BDEC = BloombergLP::bdldfp;
 typedef BDEC::DecimalImpUtil Util;
 
+
+static const long long TEST_NONZERO_MANTISSAS[] = {
+    // These numbers will test equality of decimal floating point values
+    // of different quanta.
+    2LL,
+    7LL,
+    20LL,
+    70LL,
+    200LL,
+    700LL,
+    2000LL,
+    7000LL,
+    20000LL,
+    70000LL,
+    200000LL,
+    700000LL,
+    2000000LL,
+    7000000LL,
+    20000000LL,
+    70000000LL,
+    200000000LL,
+    700000000LL,
+    2000000000LL,
+    7000000000LL,
+    20000000000LL,
+    70000000000LL,
+    200000000000LL,
+    700000000000LL,
+    2000000000000LL,
+    7000000000000LL,
+    20000000000000LL,
+    70000000000000LL,
+    200000000000000LL,
+    700000000000000LL,
+    2000000000000000LL,
+    7000000000000000LL,
+    20000000000000000LL,
+    70000000000000000LL,
+    200000000000000000LL,
+    700000000000000000LL,
+
+    // These number ensure that we can handle digits in all positions of
+    // the mantissa.
+    12LL,
+    123LL,
+    1234LL,
+    12345LL,
+    123456LL,
+    1234567LL,
+    12345678LL,
+    123456789LL,
+    1234567890LL,
+    12345678901LL,
+    123456789012LL,
+    1234567890123LL,
+    12345678901234LL,
+    123456789012345LL,
+    1234567890123456LL,
+    12345678901234567LL,
+    123456789012345678LL,
+    1234567890123456789LL,
+
+    // These numbers test the behavior of rounding to 16 significant
+    // figures (e.g., in makeDecimal64.)
+    44444444444444444LL,
+    44444444444444445LL,
+    44444444444444455LL,
+    444444444444444444LL,
+    444444444444444445LL,
+    444444444444444455LL,
+    4444444444444444445LL,
+    4444444444444444455LL,
+    4444444444444444555LL,
+    5555555555555555555LL,
+
+    // Negative variations of these test numbers.
+    -2LL,
+    -7LL,
+    -20LL,
+    -70LL,
+    -200LL,
+    -700LL,
+    -2000LL,
+    -7000LL,
+    -20000LL,
+    -70000LL,
+    -200000LL,
+    -700000LL,
+    -2000000LL,
+    -7000000LL,
+    -20000000LL,
+    -70000000LL,
+    -200000000LL,
+    -700000000LL,
+    -2000000000LL,
+    -7000000000LL,
+    -20000000000LL,
+    -70000000000LL,
+    -200000000000LL,
+    -700000000000LL,
+    -2000000000000LL,
+    -7000000000000LL,
+    -20000000000000LL,
+    -70000000000000LL,
+    -200000000000000LL,
+    -700000000000000LL,
+    -2000000000000000LL,
+    -7000000000000000LL,
+    -20000000000000000LL,
+    -70000000000000000LL,
+    -200000000000000000LL,
+    -700000000000000000LL,
+    -12LL,
+    -123LL,
+    -1234LL,
+    -12345LL,
+    -123456LL,
+    -1234567LL,
+    -12345678LL,
+    -123456789LL,
+    -1234567890LL,
+    -12345678901LL,
+    -123456789012LL,
+    -1234567890123LL,
+    -12345678901234LL,
+    -123456789012345LL,
+    -1234567890123456LL,
+    -12345678901234567LL,
+    -123456789012345678LL,
+    -1234567890123456789LL,
+
+    -44444444444444444LL,
+    -44444444444444445LL,
+    -44444444444444455LL,
+    -444444444444444444LL,
+    -444444444444444445LL,
+    -444444444444444455LL,
+    -4444444444444444445LL,
+    -4444444444444444455LL,
+    -4444444444444444555LL,
+    -5555555555555555555LL,
+
+};
+
+const int NUM_TEST_NONZERO_MANTISSAS =
+            sizeof TEST_NONZERO_MANTISSAS / sizeof *TEST_NONZERO_MANTISSAS;
+
+static const int TEST_EXPONENTS[] = {
+    -4064,
+    -399,
+    -398,
+    -355,
+    -44,
+    -42,
+    -13,
+    -4,
+    -3,
+    -2,
+    -1,
+    0,
+    1,
+    2,
+    3,
+    4,
+    13,
+    42,
+    44,
+    355,
+
+    // These exponents exercise the rounding behavior of makeDecimal64.
+    369,
+    370,
+    371,
+    372,
+    373,
+    374,
+    375,
+    376,
+    377,
+    378,
+    379,
+    380,
+    381,
+    382,
+    383,
+    384,
+    385,
+
+    4064
+};
+
+const int NUM_TEST_EXPONENTS = sizeof TEST_EXPONENTS / sizeof *TEST_EXPONENTS;
 
 // ============================================================================
 //                      HELPER FUNCTIONS FOR TESTING
@@ -613,6 +805,143 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'makeDecimal64'
+        //
+        // Concerns:
+        //: 1 'makeDecimal64' passes its arguments to 'makeDecimal64Raw' and
+        //:   'makeDecimal128Raw' correctly.
+        //:
+        //: 2 The correct rounding behavior is performed when the specified
+        //:   mantissa has a magnitude too great to be represented by a 64-bit
+        //:   decimal floating point value.
+        //:
+        //: 3 The correct rounding behavior is performed when the magnitude
+        //:   of the specified number is too great to be represented by a
+        //:   64-bit decimal floating point value.
+        //:
+        //: 4 The correct sign is preserved when rounding to zero or infinite
+        //:   values.
+        //:
+        //: 5 If the mantissa and exponent are in range for 64-bit decimal
+        //:   floating point numbers (i.e.,
+        //:   'abs(mantissa) <= 9,999,999,999,999,999' and
+        //:   '-398 <= exponent <= 369', the 64-bit decimal floating number
+        //:   consisting of the mantissa and exponent is returned without
+        //:   rounding.
+        //:
+        //: 6 The four overloads of 'makeDecimal64' perform properly.
+        //:
+        //: 7 Note that this test is adapted from the original 'makeDecimal64'
+        //:   test in the old 'bdldfp::DecimalImplUtil' component.
+        //
+        // Plan:
+        //: 1 Test that 'makeDecimal64' returns a value that is 'equals' to
+        //:   the value given by 'parse64' called on a string containing the
+        //:   specified 'mantissa' and 'exponent'.
+        //:
+        //: 2 Test 'makeDecimal64' on values for which both the mantissa and
+        //:   exponent are in the range of 64-bit decimal floating point. The
+        //:   value returned should be identical in bits to that returned by
+        //:   'makeDecimal64Raw' called on 'mantissa' and 'exponent'.
+        //:
+        //: 3 For each mantissa, exponent pair, test 'makeDecimal64' for all
+        //:   overloads for which the mantissa fits.
+        //
+        // Testing:
+        //   makeDecimal64(                   int, int)
+        //   makeDecimal64(unsigned           int, int)
+        //   makeDecimal64(         long long int, int)
+        //   makeDecimal64(unsigned long long int, int)
+        // --------------------------------------------------------------------
+          if (verbose) bsl::cout << bsl::endl
+                                  << "TESTING 'makeDecimal64'" << bsl::endl
+                                  << "=======================" << bsl::endl;
+          {
+              for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
+                  for (int ei = 0; ei < NUM_TEST_EXPONENTS; ++ei) {
+                      const long long MANTISSA = TEST_NONZERO_MANTISSAS[mi];
+                      const int EXPONENT = TEST_EXPONENTS[ei];
+
+                      char TEST_STRING[100];
+                      sprintf(TEST_STRING, "%llde%d", MANTISSA, EXPONENT);
+
+                      Util::ValueType64 EXPECTED64 =
+                          Util::parse64(TEST_STRING);
+                      LOOP2_ASSERT(MANTISSA, EXPONENT,
+                                   Util::equal(Util::makeDecimal64(
+                                             MANTISSA, EXPONENT), EXPECTED64));
+
+                      if (MANTISSA >= 0) {
+                          LOOP2_ASSERT(MANTISSA, EXPONENT,
+                                       Util::equal(Util::makeDecimal64(
+                              static_cast<unsigned long long>(
+                                            MANTISSA), EXPONENT), EXPECTED64));
+                      }
+                      if ((MANTISSA >= bsl::numeric_limits<int>::min()) &&
+                          (MANTISSA <= bsl::numeric_limits<int>::max())) {
+                          LOOP2_ASSERT(MANTISSA, EXPONENT,
+                                       Util::equal(Util::makeDecimal64(
+                              static_cast<int>(MANTISSA), EXPONENT),
+                                                                  EXPECTED64));
+                      }
+                      if ((MANTISSA >=
+                           bsl::numeric_limits<unsigned int>::min()) &&
+                          (MANTISSA <=
+                           bsl::numeric_limits<unsigned int>::max())) {
+                          LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                           Util::makeDecimal64(
+                              static_cast<unsigned int>(
+                                            MANTISSA), EXPONENT), EXPECTED64));
+                      }
+
+                      bool exponentInRange =
+                                       (EXPONENT >= -398) && (EXPONENT <= 369);
+                      bool mantissaInRange =
+                          (MANTISSA >= -9999999999999999LL) &&
+                                              (MANTISSA <= 9999999999999999LL);
+
+                      if (exponentInRange & mantissaInRange) {
+                          LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                       Util::makeDecimal64(MANTISSA, EXPONENT),
+                                  Util::makeDecimalRaw64(MANTISSA, EXPONENT)));
+                          if (MANTISSA >= 0) {
+                              LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                           Util::makeDecimal64(
+                                         static_cast<unsigned long long>(
+                                                        MANTISSA), EXPONENT),
+                                           Util::makeDecimalRaw64(
+                                               static_cast<unsigned long long>(
+                                                        MANTISSA), EXPONENT)));
+                          }
+                          if ((MANTISSA >= bsl::numeric_limits<int>::min()) &&
+                              (MANTISSA <= bsl::numeric_limits<int>::max())) {
+                              LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                           Util::makeDecimal64(
+                                         static_cast<int>(
+                                                        MANTISSA), EXPONENT),
+                                     Util::makeDecimalRaw64(
+                                         static_cast<int>(
+                                                        MANTISSA), EXPONENT)));
+                          }
+                          if ((MANTISSA >=
+                               bsl::numeric_limits<unsigned int>::min()) &&
+                              (MANTISSA <=
+                               bsl::numeric_limits<unsigned int>::max())) {
+                              LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                           Util::makeDecimal64(
+                                         static_cast<unsigned int>(
+                                                        MANTISSA), EXPONENT),
+                                     Util::makeDecimalRaw64(
+                                         static_cast<unsigned int>(
+                                                        MANTISSA), EXPONENT)));
+                          }
+                      }
+                  }
+              }
+          }
       } break;
       case 12: {
         // --------------------------------------------------------------------
