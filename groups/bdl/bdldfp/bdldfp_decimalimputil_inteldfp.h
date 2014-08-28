@@ -1280,7 +1280,7 @@ DecimalImpUtil_IntelDfp::makeDecimalRaw128(int mantissa,
                                            int exponent)
 {
     DecimalImpUtil_IntelDfp::ValueType128 result;
-    result = DecimalImpUtil_IntelDfp::uint32ToDecimal128(mantissa);
+    result = DecimalImpUtil_IntelDfp::int32ToDecimal128(mantissa);
     result = DecimalImpUtil_IntelDfp::scaleB(result, exponent);
     return result;
 }
