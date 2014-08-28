@@ -122,7 +122,7 @@ using bsl::atoi;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
-// [42] USAGE EXAMPLE
+// [19] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 
@@ -532,7 +532,7 @@ int main(int argc, char* argv[])
 
 
     switch (test) { case 0:
-      case 42: {
+      case 19: {
 ///Usage
 ///-----
 // This section shows the intended use of this component.
