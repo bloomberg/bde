@@ -110,9 +110,9 @@ using bsl::atoi;
 // [ 2] makeDecimalRaw128(         long long int, int)
 // [ 2] makeDecimalRaw128(unsigned           int, int)
 // [ 2] makeDecimalRaw128(                   int, int)
-// [  ] scaleB(ValueType32,  int)
-// [  ] scaleB(ValueType64,  int)
-// [  ] scaleB(ValueType128, int)
+// [17] scaleB(ValueType32,  int)
+// [17] scaleB(ValueType64,  int)
+// [17] scaleB(ValueType128, int)
 // [11] parse32 (const char *)
 // [11] parse64 (const char *)
 // [11] parse128(const char *)
@@ -901,6 +901,80 @@ int main(int argc, char* argv[])
 // Notice that arithmetic is unwieldy and hard to visualize.  This is by
 // design, as the DecimalImpUtil and subordinate components are not intended
 // for public consumption, or direct use in decimal arithmetic.
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING 'scaleB'
+        //
+        // Concerns:
+        //:  1 Values should be '/=' or '*=' by 10 times the second parameter.
+        //
+        // Plan:
+        //:  1 Run some sample values.
+        //
+        //   scaleB(ValueType32,  int)
+        //   scaleB(ValueType64,  int)
+        //   scaleB(ValueType128, int)
+        // --------------------------------------------------------------------
+
+        Util::ValueType32  value32;
+        Util::ValueType32   test32;
+
+        Util::ValueType64  value64;
+        Util::ValueType64   test64;
+
+        Util::ValueType128 value128;
+        Util::ValueType128  test128;
+
+        value32 = Util::parse32("0");
+        test32  = Util::scaleB(Util::parse32("0"), 10);
+        ASSERT(Util::equal(value32, test32));
+
+        value32 = Util::parse32("0");
+        test32  = Util::scaleB(Util::parse32("0"), -10);
+        ASSERT(Util::equal(value32, test32));
+
+        value32 = Util::parse32("420000000000");
+        test32  = Util::scaleB(Util::parse32("42"), 10);
+        ASSERT(Util::equal(value32, test32));
+
+        value32 = Util::parse32("4.2e-9");
+        test32  = Util::scaleB(Util::parse32("42"), -10);
+        ASSERT(Util::equal(value32, test32));
+
+
+        value64 = Util::parse64("0");
+        test64  = Util::scaleB(Util::parse64("0"), 10);
+        ASSERT(Util::equal(value64, test64));
+
+        value64 = Util::parse64("0");
+        test64  = Util::scaleB(Util::parse64("0"), -10);
+        ASSERT(Util::equal(value64, test64));
+
+        value64 = Util::parse64("420000000000");
+        test64  = Util::scaleB(Util::parse64("42"), 10);
+        ASSERT(Util::equal(value64, test64));
+
+        value64 = Util::parse64("4.2e-9");
+        test64  = Util::scaleB(Util::parse64("42"), -10);
+        ASSERT(Util::equal(value64, test64));
+
+
+        value128 = Util::parse128("0");
+        test128  = Util::scaleB(Util::parse128("0"), 10);
+        ASSERT(Util::equal(value128, test128));
+
+        value128 = Util::parse128("0");
+        test128  = Util::scaleB(Util::parse128("0"), -10);
+        ASSERT(Util::equal(value128, test128));
+
+        value128 = Util::parse128("420000000000");
+        test128  = Util::scaleB(Util::parse128("42"), 10);
+        ASSERT(Util::equal(value128, test128));
+
+        value128 = Util::parse128("4.2e-9");
+        test128  = Util::scaleB(Util::parse128("42"), -10);
+        ASSERT(Util::equal(value128, test128));
       } break;
       case 16: {
         // --------------------------------------------------------------------
