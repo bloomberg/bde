@@ -1165,8 +1165,15 @@ bool OutputRedirector::load()
                     __LINE__);
         }
 
-        d_outputBuffer[charsRead] = '\0';
-
+        if(charsRead < 0) {
+            d_outputBuffer[0] = '\0';
+        } else if(static_cast<unsigned long>(charsRead) >= d_outputSize) {
+            // This case should never happen.  This assignment is safe because
+            // the total buffer size is enough to hold 'd_outputSize' + 1.
+            d_outputBuffer[d_outputSize] = '\0';
+        } else {
+            d_outputBuffer[charsRead] = '\0';
+        }
             // ...to ensure that direct inspection of buffer does not overflow
 
         return false;                                                 // RETURN
