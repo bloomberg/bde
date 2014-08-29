@@ -5515,6 +5515,7 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&    is,
 
 // HASH SPECIALIZATIONS
 template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
 void hashAppend(HASHALG& hashAlg,
                 const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&  input)
 {

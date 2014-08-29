@@ -1386,6 +1386,7 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
 }
 
 template <typename CHAR_TYPE, typename HASHALG>
+inline
 void bslstl::hashAppend(HASHALG& hashAlg, 
                         const StringRefImp<CHAR_TYPE>&  input)
 {
