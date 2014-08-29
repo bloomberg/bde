@@ -13,6 +13,9 @@ namespace bslx {
 
 // CLASS METHODS
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01
+
                         // *** put arrays of integral values ***
 
 void MarshallingUtil::putArrayInt64(char                     *buffer,
@@ -500,6 +503,8 @@ void MarshallingUtil::getArrayFloat32(float      *variables,
         buffer += k_SIZEOF_INT32;
     }
 }
+
+// BDE_VERIFY pragma: pop
 
 }  // close package namespace
 }  // close enterprise namespace
