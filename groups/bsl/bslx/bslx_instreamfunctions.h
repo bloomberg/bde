@@ -862,10 +862,10 @@ namespace InStreamFunctions {
         // invalidated.  The behavior is undefined unless 'STREAM' and 'TYPE'
         // are BDEX-compliant.
 
-}  // close namespace InStreamFunctions
+}  // close InStreamFunctions namespace
 
 // ============================================================================
-//                          INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                          // ---------------------------

@@ -14,13 +14,14 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslx_testinstream, bslx_byteoutstream
 //
-//@DESCRIPTION: This component implements a byte-array-based output stream
-// class that provides platform-independent output methods ("externalization")
-// on values, and arrays of values, of fundamental types, and on 'bsl::string'.
-// This component also externalizes information to the stream that can be used
-// by the reader of the stream to verify, for these types, that the type of
-// data requested from the input stream matches what was written by this output
-// stream.  This component is meant for testing only.
+//@DESCRIPTION: This component, 'bslx::TestOutStream', implements a
+// byte-array-based output stream class that provides platform-independent
+// output methods ("externalization") on values, and arrays of values, of
+// fundamental types, and on 'bsl::string'.  This component also externalizes
+// information to the stream that can be used by the reader of the stream to
+// verify, for these types, that the type of data requested from the input
+// stream matches what was written by this output stream.  This component is
+// meant for testing only.
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_testinstream' "unexternalization" component.  Each output method of
@@ -772,17 +773,17 @@ class TestOutStream {
         // Return the 'serializationVersion' to be used with 'operator<<' for
         // BDEX streaming as per the 'bslx' package-level documentation.
 
-    bool isValid() const;
-        // Return 'true' if this stream is valid, and 'false' otherwise.  An
-        // invalid stream is a stream for which an output operation was
-        // detected to have failed or 'invalidate' was called.
-
     const char *data() const;
         // Return the address of the contiguous, non-modifiable internal memory
         // buffer of this stream.  The address will remain valid as long as
         // this array is not destroyed or modified (i.e., the current capacity
         // is not exceeded).  The behavior of accessing elements outside the
         // range '[ data() .. data() + (length() - 1) ]' is undefined.
+
+    bool isValid() const;
+        // Return 'true' if this stream is valid, and 'false' otherwise.  An
+        // invalid stream is a stream for which an output operation was
+        // detected to have failed or 'invalidate' was called.
 
     int length() const;
         // Return the number of bytes in this stream.
@@ -802,7 +803,7 @@ TestOutStream& operator<<(TestOutStream& stream, const TYPE& value);
     // undefined unless 'TYPE' is BDEX-compliant.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
                          // -------------------
@@ -859,15 +860,15 @@ int TestOutStream::bdexSerializationVersion() const
 }
 
 inline
-bool TestOutStream::isValid() const
-{
-    return d_imp.isValid();
-}
-
-inline
 const char *TestOutStream::data() const
 {
     return d_imp.data();
+}
+
+inline
+bool TestOutStream::isValid() const
+{
+    return d_imp.isValid();
 }
 
 inline
@@ -885,6 +886,16 @@ TestOutStream& operator<<(TestOutStream& stream, const TYPE& value)
 }
 
 }  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<bslx::TestOutStream> : bsl::true_type {};
+
+}  // close 'bslma' namespace
 }  // close enterprise namespace
 
 #endif

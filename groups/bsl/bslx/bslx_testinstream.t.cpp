@@ -47,12 +47,12 @@ using namespace bslx;
 // [ 3] TestInStream(const char *buffer, int numBytes);
 // [ 3] TestInStream(const bslstl::StringRef& srcData);
 // [ 3] ~TestInStream();
-// [ 3] setQuiet(int flag);
-// [27] setInputLimit(int limit);
-// [26] seek(int offset);
 // [26] void reset();
 // [28] void reset(const char *buffer, int numBytes);
 // [28] void reset(const bslstl::StringRef& srcData);
+// [27] setInputLimit(int limit);
+// [ 3] setQuiet(int flag);
+// [26] seek(int offset);
 // [29] getLength(int& variable);
 // [29] getVersion(int& variable);
 // [13] getInt64(bsls::Types::Int64& variable);
@@ -98,12 +98,12 @@ using namespace bslx;
 // [24] getArrayFloat32(float *variables, int numVariables);
 // [ 3] void invalidate();
 // [ 4] operator const void *() const;
-// [ 4] bool isValid() const;
-// [ 4] bool isEmpty() const;
-// [ 4] int length() const;
 // [ 4] int cursor() const;
-// [ 3] bool isQuiet() const;
 // [27] int inputLimit() const;
+// [ 4] bool isEmpty() const;
+// [ 4] bool isValid() const;
+// [ 3] bool isQuiet() const;
+// [ 4] int length() const;
 //
 // [ 5] ostream& operator<<(ostream& stream, const TestInStream& obj);
 // [31] TestInStream& operator>>(TestInStream&, TYPE& value);
@@ -1344,7 +1344,7 @@ int main(int argc, char *argv[]) {
                 }
             } BSLX_TESTINSTREAM_EXCEPTION_TEST_END
 
-#if BDE_BUILD_TARGET_EXC
+#ifdef BDE_BUILD_TARGET_EXC
             // NOTE: sum(i) for i = 1 .. n == i * (i + 1) / 2 and for the above
             // we want i + sum(i)_1_n (the number of inputs for the successful
             // pass plus all the failure inputs)

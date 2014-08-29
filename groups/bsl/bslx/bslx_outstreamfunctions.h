@@ -871,7 +871,7 @@ namespace OutStreamFunctions {
         // Note that the specified 'TYPE' might not require a 'version' to be
         // serialized and that 'version' is not written to 'stream'.
 
-}  // close namespace OutStreamFunctions
+}  // close OutStreamFunctions namespace
 
 // ============================================================================
 //                          INLINE FUNCTION DEFINITIONS

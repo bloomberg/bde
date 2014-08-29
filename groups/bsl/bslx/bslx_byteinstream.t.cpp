@@ -88,11 +88,11 @@ using namespace bslx;
 // [27] void reset(const char *buffer, int numBytes);
 // [27] void reset(const bslstl::StringRef& srcData);
 // [ 3] operator const void *() const;
-// [ 3] bool isValid() const;
+// [ 3] int cursor() const;
 // [ 3] const char *data() const;
 // [ 3] bool isEmpty() const;
+// [ 3] bool isValid() const;
 // [ 3] int length() const;
-// [ 3] int cursor() const;
 //
 // [ 4] ostream& operator<<(ostream& stream, const ByteInStream& obj);
 // [28] ByteInStream& operator>>(ByteInStream&, TYPE& value);
@@ -4509,11 +4509,11 @@ int main(int argc, char *argv[])
         //
         // Testing
         //   operator const void *() const;
-        //   bool isValid() const;
+        //   int cursor() const;
         //   const char *data() const;
         //   bool isEmpty() const;
+        //   bool isValid() const;
         //   int length() const;
-        //   int cursor() const;
         // --------------------------------------------------------------------
 
         if (verbose) {

@@ -18,12 +18,12 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslx_testoutstream, bslx_byteinstream
 //
-//@DESCRIPTION: This component implements a byte-array-based input stream class
-// that provides platform-independent input methods ("unexternalization") on
-// values, and arrays of values, of fundamental types, and on 'bsl::string'.
-// This component also verifies, for these types, that the type of data
-// requested from the stream matches what was written to the stream.  This
-// component is meant for testing only.
+//@DESCRIPTION: This component, 'bslx::TestInStream', implements a
+// byte-array-based input stream class that provides platform-independent input
+// methods ("unexternalization") on values, and arrays of values, of
+// fundamental types, and on 'bsl::string'.  This component also verifies, for
+// these types, that the type of data requested from the stream matches what
+// was written to the stream.  This component is meant for testing only.
 //
 // This component reads from a user-supplied buffer directly, with no data
 // copying or assumption of ownership.  The user must therefore make sure that
@@ -525,25 +525,6 @@ class TestInStream {
         // should be called whenever a value extracted from this stream is
         // determined to be invalid, inconsistent, or otherwise incorrect.
 
-    void seek(int offset);
-        // Set the index of the next byte to be extracted from this stream to
-        // the specified 'offset' from the beginning of the stream, and
-        // validate this stream if it is currently invalid.  The behavior is
-        // undefined unless '0 <= offset <= length()'.
-
-    void setQuiet(bool flagValue);
-        // Set the quiet mode for this test stream to the specified (boolean)
-        // 'flagValue'.  If 'flagValue' is 'true', then quiet mode is turned ON
-        // and no error messages will be written to standard output.  If
-        // 'flagValue' is 'false', then quiet mode is turned OFF.  Note that
-        // quiet mode is turned OFF by default.
-
-    void setInputLimit(int limit);
-        // Set the number of input operations allowed on this stream to the
-        // specified 'limit' before an exception is thrown.  If 'limit' is less
-        // than 0, no exception is to be thrown.  By default, no exception is
-        // scheduled.
-
     void reset();
         // Set the index of the next byte to be extracted from this stream to 0
         // (i.e., the beginning of the stream) and validate this stream if it
@@ -560,6 +541,25 @@ class TestInStream {
         // Reset this stream to extract from the specified 'srcData', set the
         // index of the next byte to be extracted to 0 (i.e., the beginning of
         // the stream), and validate this stream if it is currently invalid.
+
+    void seek(int offset);
+        // Set the index of the next byte to be extracted from this stream to
+        // the specified 'offset' from the beginning of the stream, and
+        // validate this stream if it is currently invalid.  The behavior is
+        // undefined unless '0 <= offset <= length()'.
+
+    void setInputLimit(int limit);
+        // Set the number of input operations allowed on this stream to the
+        // specified 'limit' before an exception is thrown.  If 'limit' is less
+        // than 0, no exception is to be thrown.  By default, no exception is
+        // scheduled.
+
+    void setQuiet(bool flagValue);
+        // Set the quiet mode for this test stream to the specified (boolean)
+        // 'flagValue'.  If 'flagValue' is 'true', then quiet mode is turned ON
+        // and no error messages will be written to standard output.  If
+        // 'flagValue' is 'false', then quiet mode is turned OFF.  Note that
+        // quiet mode is turned OFF by default.
 
                       // *** scalar integer values ***
 
@@ -1117,12 +1117,10 @@ class TestInStream {
         // buffer of this stream.  The behavior of accessing elements outside
         // the range '[ data() .. data() + (length() - 1) ]' is undefined.
 
-    bool isValid() const;
-        // Return 'true' if this stream is valid, and 'false' otherwise.  An
-        // invalid stream is a stream in which insufficient or invalid data was
-        // detected during an extraction operation.  Note that an empty stream
-        // will be valid unless an extraction attempt or explicit invalidation
-        // causes it to be otherwise.
+    int inputLimit() const;
+        // Return the current number of input requests left before an exception
+        // is thrown.  A negative value indicates that no exception is
+        // scheduled.
 
     bool isEmpty() const;
         // Return 'true' if this stream is empty, and 'false' otherwise.  Note
@@ -1133,10 +1131,12 @@ class TestInStream {
         // Return 'true' if this stream's quiet mode is ON, and 'false'
         // otherwise.
 
-    int inputLimit() const;
-        // Return the current number of input requests left before an exception
-        // is thrown.  A negative value indicates that no exception is
-        // scheduled.
+    bool isValid() const;
+        // Return 'true' if this stream is valid, and 'false' otherwise.  An
+        // invalid stream is a stream in which insufficient or invalid data was
+        // detected during an extraction operation.  Note that an empty stream
+        // will be valid unless an extraction attempt or explicit invalidation
+        // causes it to be otherwise.
 
     int length() const;
         // Return the total number of bytes stored in the external memory
@@ -1304,7 +1304,7 @@ TestInStream_getProxy(BSLX_STREAM_TYPE *stream)
 namespace bslx {
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                          // ------------------
@@ -1314,7 +1314,7 @@ namespace bslx {
 // PRIVATE MANIPULATORS
 inline
 void TestInStream::throwExceptionIfInputLimitExhausted(
-                                                   const TypeCode::Enum& code)
+                                                    const TypeCode::Enum& code)
 {
 #ifdef BDE_BUILD_TARGET_EXC
     if (0 <= d_inputLimit) {
@@ -1331,28 +1331,6 @@ inline
 void TestInStream::invalidate()
 {
     d_validFlag = false;
-}
-
-inline
-void TestInStream::seek(int offset)
-{
-    BSLS_ASSERT_SAFE(0 <= offset);
-    BSLS_ASSERT_SAFE(     offset <= length());
-
-    d_cursor    = offset;
-    d_validFlag = 1;
-}
-
-inline
-void TestInStream::setQuiet(bool flagValue)
-{
-    d_quietFlag = flagValue;
-}
-
-inline
-void TestInStream::setInputLimit(int limit)
-{
-    d_inputLimit = limit;
 }
 
 inline
@@ -1383,6 +1361,28 @@ void TestInStream::reset(const bslstl::StringRef& srcData)
     d_cursor    = 0;
 }
 
+inline
+void TestInStream::seek(int offset)
+{
+    BSLS_ASSERT_SAFE(0 <= offset);
+    BSLS_ASSERT_SAFE(     offset <= length());
+
+    d_cursor    = offset;
+    d_validFlag = 1;
+}
+
+inline
+void TestInStream::setInputLimit(int limit)
+{
+    d_inputLimit = limit;
+}
+
+inline
+void TestInStream::setQuiet(bool flagValue)
+{
+    d_quietFlag = flagValue;
+}
+
 // ACCESSORS
 inline
 TestInStream::operator const void *() const
@@ -1403,9 +1403,9 @@ const char *TestInStream::data() const
 }
 
 inline
-bool TestInStream::isValid() const
+int TestInStream::inputLimit() const
 {
-    return d_validFlag;
+    return d_inputLimit;
 }
 
 inline
@@ -1421,9 +1421,9 @@ bool TestInStream::isQuiet() const
 }
 
 inline
-int TestInStream::inputLimit() const
+bool TestInStream::isValid() const
 {
-    return d_inputLimit;
+    return d_validFlag;
 }
 
 inline

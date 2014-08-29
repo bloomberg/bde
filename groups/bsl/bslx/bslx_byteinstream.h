@@ -14,9 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslx_byteoutstream
 //
-//@DESCRIPTION: This component implements a byte-array-based input stream class
-// that provides platform-independent input methods ("unexternalization") on
-// values, and arrays of values, of fundamental types, and on 'bsl::string'.
+//@DESCRIPTION: This component, 'bslx::ByteInStream', implements a
+// byte-array-based input stream class that provides platform-independent input
+// methods ("unexternalization") on values, and arrays of values, of
+// fundamental types, and on 'bsl::string'.
 //
 // This component reads from a user-supplied buffer directly, with no data
 // copying or assumption of ownership.  The user must therefore make sure that
@@ -897,17 +898,17 @@ class ByteInStream {
         // buffer of this stream.  The behavior of accessing elements outside
         // the range '[ data() .. data() + (length() - 1) ]' is undefined.
 
+    bool isEmpty() const;
+        // Return 'true' if this stream is empty, and 'false' otherwise.  Note
+        // that this function enables higher-level components to verify that,
+        // after successfully reading all expected data, no data remains.
+
     bool isValid() const;
         // Return 'true' if this stream is valid, and 'false' otherwise.  An
         // invalid stream is a stream in which insufficient or invalid data was
         // detected during an extraction operation.  Note that an empty stream
         // will be valid unless an extraction attempt or explicit invalidation
         // causes it to be otherwise.
-
-    bool isEmpty() const;
-        // Return 'true' if this stream is empty, and 'false' otherwise.  Note
-        // that this function enables higher-level components to verify that,
-        // after successfully reading all expected data, no data remains.
 
     int length() const;
         // Return the total number of bytes stored in the external memory
@@ -928,7 +929,7 @@ ByteInStream& operator>>(ByteInStream& stream, TYPE& value);
     // undefined unless 'TYPE' is BDEX-compliant.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                           INLINE DEFINITIONS
 // ============================================================================
 
                          // ------------------
@@ -1931,15 +1932,15 @@ const char *ByteInStream::data() const
 }
 
 inline
-bool ByteInStream::isValid() const
-{
-    return d_validFlag;
-}
-
-inline
 bool ByteInStream::isEmpty() const
 {
     return cursor() == length();
+}
+
+inline
+bool ByteInStream::isValid() const
+{
+    return d_validFlag;
 }
 
 inline

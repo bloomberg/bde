@@ -205,7 +205,8 @@ namespace VersionFunctions_Impl {
         // per the BDEX protocol (see the 'bslx' package-level documentation).
         // Note that this function assumes the 'TYPE' is neither 'const' nor
         // 'volatile'.
-};
+
+}  // close VersionFunctions_Impl namespace
 
                          // ==========================
                          // namespace VersionFunctions
@@ -228,10 +229,11 @@ namespace VersionFunctions {
         // per the BDEX protocol (see the 'bslx' package-level documentation).
         // Note that this function ignores any 'const' and 'volatile'
         // qualifiers on the 'TYPE'.
-};
+
+}  // close VersionFunctions namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                  // ------------------------------------------

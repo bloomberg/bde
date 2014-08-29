@@ -14,9 +14,10 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslx_byteinstream
 //
-//@DESCRIPTION: This component implements a byte-array-based output stream
-// class that provides platform-independent output methods ("externalization")
-// on values, and arrays of values, of fundamental types, and on 'bsl::string'.
+//@DESCRIPTION: This component, 'bslx::ByteOutStream', implements a
+// byte-array-based output stream class that provides platform-independent
+// output methods ("externalization") on values, and arrays of values, of
+// fundamental types, and on 'bsl::string'.
 //
 // This component is intended to be used in conjunction with the
 // 'bslx_byteinstream' "unexternalization" component.  Each output method of
@@ -136,12 +137,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLX_MARSHALLINGUTIL
-#include <bslx_marshallingutil.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
-#include <bslx_outstreamfunctions.h>
+#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslma_allocator.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -150,6 +147,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLX_MARSHALLINGUTIL
+#include <bslx_marshallingutil.h>
+#endif
+
+#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
+#include <bslx_outstreamfunctions.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
@@ -173,9 +178,6 @@ BSLS_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-namespace bslma { class Allocator; }
-
 namespace bslx {
 
                          // ===================
@@ -270,6 +272,9 @@ class ByteOutStream {
     void reset();
         // Remove all content in this stream and validate this stream if it is
         // currently invalid.
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01
 
                       // *** scalar integer values ***
 
@@ -588,6 +593,8 @@ class ByteOutStream {
         // unless '0 <= numValues' and 'values' has sufficient contents.  Note
         // that for non-conforming platforms, this operation may be lossy.
 
+// BDE_VERIFY pragma: pop
+
     // ACCESSORS
     operator const void *() const;
         // Return a non-zero value if this stream is valid, and 0 otherwise.
@@ -628,7 +635,7 @@ ByteOutStream& operator<<(ByteOutStream& stream, const TYPE& value);
     // undefined unless 'TYPE' is BDEX-compliant.
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
                          // -------------------
@@ -710,6 +717,9 @@ void ByteOutStream::reset()
     d_buffer.clear();
     validate();
 }
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FABC01
 
                       // *** scalar integer values ***
 
@@ -1540,6 +1550,8 @@ ByteOutStream& ByteOutStream::putArrayFloat32(const float *values,
     return *this;
 }
 
+// BDE_VERIFY pragma: pop
+
 // ACCESSORS
 inline
 ByteOutStream::operator const void *() const
@@ -1579,6 +1591,16 @@ ByteOutStream& operator<<(ByteOutStream& stream, const TYPE& value)
 }
 
 }  // close package namespace
+}  // close enterprise namespace
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<bslx::ByteOutStream> : bsl::true_type {};
+
+}  // close 'bslma' namespace
 }  // close enterprise namespace
 
 #endif
