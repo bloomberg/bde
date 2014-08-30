@@ -5,7 +5,6 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-
 #include <fcntl.h>
 #include <limits.h>    // PATH_MAX on linux, INT_MAX
 #include <stdint.h>    // SIZE_MAX
@@ -43,34 +42,32 @@ using namespace BloombergLP;
 //: o TBD
 // ----------------------------------------------------------------------------
 // MACROS
-// [ 5] BSLS_LOG(format, ...)
-// [  ] BSLS_LOG_SIMPLE(message)
+// [ 8] BSLS_LOG(format, ...)
+// [ 7] BSLS_LOG_SIMPLE(message)
 //
 // TYPES
-// [ 4] typedef void (*LogMessageHandler)(file, line, message);
+// [ 3] typedef void (*LogMessageHandler)(file, line, message);
 //
 // CLASS METHODS
-// [ 4] static bsls::Log::LogMessageHandler logMessageHandler();
-// [ 4] static void setLogMessageHandler(bsls::Log::LogMessageHandler);
-// [  ] static void logFormatted(file, line, format, ...);
-// [ 5] static void logMessage(file, line, message);
-// [  ] static void platformDefaultMessageHandler(file, line, message);
+// [ 5] static bsls::Log::LogMessageHandler logMessageHandler();
+// [ 5] static void setLogMessageHandler(bsls::Log::LogMessageHandler);
+// [ 8] static void logFormatted(file, line, format, ...);
+// [ 7] static void logMessage(file, line, message);
+// [ 4] static void platformDefaultMessageHandler(file, line, message);
 // [ 3] static void stdoutMessageHandler(file, line, message);
 // [ 3] static void stderrMessageHandler(file, line, message);
 // ----------------------------------------------------------------------------
-// [  ] BREATHING TEST
-//
 // [ 2] TEST-DRIVER LOG MESSAGE HANDLER APPARATUS
 // [ 1] STREAM REDIRECTION APPARATUS
 //
-// [11] COMPONENT-LEVEL DOCUMENTATION 1
-// [10] COMPONENT-LEVEL DOCUMENTATION 2
-// [ 9] COMPONENT-LEVEL DOCUMENTATION 3
-// [ 8] USAGE EXAMPLE 1
-// [ 7] USAGE EXAMPLE 2
-// [ 6] USAGE EXAMPLE 3
+// [14] COMPONENT-LEVEL DOCUMENTATION 1
+// [13] COMPONENT-LEVEL DOCUMENTATION 2
+// [12] COMPONENT-LEVEL DOCUMENTATION 3
+// [11] USAGE EXAMPLE 1
+// [10] USAGE EXAMPLE 2
+// [ 9] USAGE EXAMPLE 3
 //
-// [  ] CONCERN: By default, the 'platformDefaultMessageHandler' is used
+// [ 6] CONCERN: By default, the 'platformDefaultMessageHandler' is used
 
 
 //=============================================================================
@@ -152,9 +149,9 @@ static
 const DefaultDataRow DEFAULT_DATA[] = {
     // This is a set of good, useful data that is the cross product of the sets
     // of situations in which the file name string is empty or non-empty, the
-    // line is 0 or non-zero, and the message is empty or non-empty.  The
-    // file name and message strings may also have 'printf'-style format
-    // specifiers to ensure that no unwanted formatting is being done.
+    // line is 0 or non-zero, and the message is empty or non-empty.  The file
+    // name and message strings may also have 'printf'-style format specifiers
+    // to ensure that no unwanted formatting is being done.
     //
     // All normal values:
     {L_,
@@ -679,7 +676,7 @@ bool OutputRedirector::load()
     const long tempOutputSize = ftell(redirectedStream());
     const long incremented    = tempOutputSize + 1;
 
-    if(tempOutputSize < 0 || incremented < tempOutputSize) {
+    if(tempOutputSize < 0 || incremented < 0) {
         // Protect against overflow or negative value
         if (veryVerbose) {
             fprintf(nonRedirectedStream(),
@@ -1218,7 +1215,7 @@ int main(int argc, char *argv[]) {
     printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch(test) { case 0: // zero is always the leading case
-      case 11: {
+      case 14: {
         // --------------------------------------------------------------------
         // COMPONENT-LEVEL DOCUMENTATION 1
         //   Extracted from component header file.
@@ -1271,7 +1268,7 @@ int main(int argc, char *argv[]) {
                  user,
                  admin);
       } break;
-      case 10: {
+      case 13: {
         // --------------------------------------------------------------------
         // COMPONENT-LEVEL DOCUMENTATION 2
         //   Extracted from component header file.
@@ -1309,7 +1306,7 @@ int main(int argc, char *argv[]) {
         bsls::Log::setLogMessageHandler(&ignoreMessage);
         BSLS_LOG_SIMPLE("This message will be ignored");
       } break;
-      case 9: {
+      case 12: {
         // --------------------------------------------------------------------
         // COMPONENT-LEVEL DOCUMENTATION 3
         //   Extracted from component header file.
@@ -1348,7 +1345,7 @@ int main(int argc, char *argv[]) {
         int x = 3;
         BSLS_LOG("This message will be printed to stdout (x=%d)", x);
       } break;
-      case 8: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //   Extracted from component header file.
@@ -1385,7 +1382,7 @@ int main(int argc, char *argv[]) {
 
         unsigned int x = add(3, -100);
       } break;
-      case 7: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //   Extracted from component header file.
@@ -1422,7 +1419,7 @@ int main(int argc, char *argv[]) {
 
         handleError(3);
       } break;
-      case 6: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3
         //   Extracted from component header file.
@@ -1459,14 +1456,344 @@ int main(int argc, char *argv[]) {
 
         handleErrorFlexible(__FILE__, __LINE__, 2);
       } break;
-      case 5: {
+      case 8: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'logMessage', macro 'BSLS_LOG_SIMPLE'
+        // CLASS METHOD 'logFormatted', MACRO 'BSLS_LOG'
+        //
+        // Concerns:
+        //: 1 'logFormatted' invokes the installed handler with a string
+        //:
+        //: 2 'logFormatted' properly formats the format string
+        //:
+        //: 3 'logFormatted' can be called with no variadic arguments
+        //:
+        //: 4 'logFormatted properly handles final formatted strings of length
+        //:   0 and 1
+        //:
+        //: 5 'logFormatted' properly handles final formatted strings of
+        //:   lengths above, below, and equal to the size of the initial
+        //:   stack-allocated buffer
+        //:
+        //: 6 'BSLS_LOG' properly invokes 'logFormatted' with the current file
+        //:   name, the line number on which the macro was invoked, the format
+        //:   string, and any and all variadic arguments
+        //:
+        //: 7 'BSLS_LOG' can still be called with no variadic arguments
+        //:
+        //
+        // Plan:
+        //: 1 Install 'LogMessageSink::testMessageHandler' as the logger's
+        //:   handler.
+        //:
+        //: 2 Call 'logFormatted' with a simple format string requiring no
+        //:   substitutions, and confirm that the log message sink has
+        //:   received the expected parameters.  (C-1)  (C-3)
+        //:
+        //: 3 Pass into 'logFormatted' a format string and variadic arguments
+        //:   corresponding to very simple output.  (C-2)
+        //:
+        //: 4 Populate a sufficiently large buffer with a set of characters,
+        //:   followed by a null byte.  This will be used to ensure a formatted
+        //:   string of a specific length.
+        //:
+        //: 5 Pass into 'logFormatted' the sets of arguments resulting in
+        //:   expected formatted strings with the following formatted lengths:
+        //:              ===================================
+        //:              0
+        //:              1
+        //:              LOG_FORMATTED_STACK_BUFFER_SIZE - 2
+        //:              LOG_FORMATTED_STACK_BUFFER_SIZE - 1
+        //:              LOG_FORMATTED_STACK_BUFFER_SIZE
+        //:              LOG_FORMATTED_STACK_BUFFER_SIZE + 1
+        //:              LOG_FORMATTED_STACK_BUFFER_SIZE + 2
+        //:              LOG_FORMATTED_STACK_BUFFER_SIZE * 2
+        //:              ===================================
+        //:   (C-4) (C-5)
+        //:
+        //: 6 Call 'BSLS_LOG' with a simple format string and confirm that the
+        //:   log message sink has received the correct results.  Ensure that
+        //:   the line number is determined from the line of invocation.  Also
+        //:   confirm that the file name is the current file name and the
+        //:   expected formatted string has been received.  (C-6)
+        //:
+        //: 7 Call 'BSLS_LOG' with no variadic arguments.  (C-7)
+        //
+        // Testing:
+        //   static void logFormatted(file, line, format, ...);
+        //   BSLS_LOG(format, ...)
+        // --------------------------------------------------------------------
+        if (verbose) {
+            puts("\nLOGGING A FORMATTED MESSAGE"
+                 "\n===========================\n");
+        }
+
+        bsls::Log::setLogMessageHandler(&LogMessageSink::testMessageHandler);
+        ASSERT(bsls::Log::logMessageHandler()
+               == &LogMessageSink::testMessageHandler);
+
+        {
+            if (verbose) {
+                puts("\nCALLING logFormatted with a simple string"
+                     "\n-----------------------------------------\n");
+            }
+            LogMessageSink::reset();
+
+            const char * const testFile         = "testFile3.h";
+            const int          testLine         = 65536;
+            const char * const testFormat       = "Test of a simple format.";
+
+            const char * const expectedMessage  = testFormat;
+
+            bsls::Log::logFormatted(testFile,
+                                    testLine,
+                                    testFormat);
+
+            ASSERT(LogMessageSink::s_hasBeenCalled);
+
+            LOOP2_ASSERT(testFile,
+                         LogMessageSink::s_file,
+                         strcmp(testFile, LogMessageSink::s_file) == 0);
+
+            LOOP2_ASSERT(testLine,
+                         LogMessageSink::s_line,
+                         testLine == LogMessageSink::s_line);
+
+            LOOP2_ASSERT(expectedMessage,
+                         LogMessageSink::s_message,
+                         strcmp(expectedMessage,LogMessageSink::s_message)==0);
+
+        }
+
+        {
+            if (verbose) {
+                puts("\nCALLING logFormatted with a more complex string"
+                     "\n-----------------------------------------------\n");
+            }
+            LogMessageSink::reset();
+
+            const char * const testFile        = "myTestFile.cpp";
+            const int          testLine        = 900123;
+            const char * const testFormat      = "String: %s, Int: %d";
+            const char * const substitutionStr = "This is a string";
+            const int          substitutionInt = 172934;
+
+            const char * const expectedMessage = "String: This is a string, "
+                                                 "Int: 172934";
+
+            bsls::Log::logFormatted(testFile,
+                                    testLine,
+                                    testFormat,
+                                    substitutionStr,
+                                    substitutionInt);
+
+            ASSERT(LogMessageSink::s_hasBeenCalled);
+
+            LOOP2_ASSERT(testFile,
+                         LogMessageSink::s_file,
+                         strcmp(testFile, LogMessageSink::s_file) == 0);
+
+            LOOP2_ASSERT(testLine,
+                         LogMessageSink::s_line,
+                         testLine == LogMessageSink::s_line);
+
+            LOOP2_ASSERT(expectedMessage,
+                         LogMessageSink::s_message,
+                         strcmp(expectedMessage,LogMessageSink::s_message)==0);
+
+        }
+
+        {
+            if (verbose) {
+                puts("\nCALLING logFormatted with various-length strings"
+                     "\n------------------------------------------------\n");
+            }
+
+            const size_t SUBSTITUTION_BUFFER_SIZE = 1 +
+                                             LOG_FORMATTED_STACK_BUFFER_SIZE*2;
+            char substitutionBuffer[SUBSTITUTION_BUFFER_SIZE];
+
+            // Fill the substitution buffer with ['A' .. 'Z'] looping.  It
+            // doesn't really matter what characters are put in.
+            const unsigned char numLetters = 1 +
+                                         static_cast<unsigned char>('Z' - 'A');
+
+            for(size_t i = 0; i < SUBSTITUTION_BUFFER_SIZE - 1; ++i) {
+                substitutionBuffer[i] = static_cast<char>('A' + i%numLetters);
+            }
+            substitutionBuffer[SUBSTITUTION_BUFFER_SIZE - 1] = '\0';
+
+            if(veryVerbose) {
+                P(substitutionBuffer)
+                P(SUBSTITUTION_BUFFER_SIZE)
+            }
+
+            // We will index enough space from the end of the buffer to reach
+            // each expected length.
+            const size_t EXPECTED_LENGTHS[] = {
+                0                                  ,
+                1                                  ,
+                LOG_FORMATTED_STACK_BUFFER_SIZE - 2,
+                LOG_FORMATTED_STACK_BUFFER_SIZE - 1,
+                LOG_FORMATTED_STACK_BUFFER_SIZE    ,
+                LOG_FORMATTED_STACK_BUFFER_SIZE + 1,
+                LOG_FORMATTED_STACK_BUFFER_SIZE + 2,
+                LOG_FORMATTED_STACK_BUFFER_SIZE * 2 // Note: this is '*'
+            };
+
+            const size_t NUM_EXPECTED_LENGTHS = sizeof(EXPECTED_LENGTHS)/
+                                                sizeof(EXPECTED_LENGTHS[0]);
+
+            // We will pre-populate the indices into the buffer:
+            size_t expectedIndices[NUM_EXPECTED_LENGTHS];
+            for(size_t i = 0; i < NUM_EXPECTED_LENGTHS; i++) {
+                expectedIndices[i] = SUBSTITUTION_BUFFER_SIZE
+                                     - 1
+                                     - EXPECTED_LENGTHS[i];
+                if(veryVerbose) {
+                    T_ P(i)
+                    T_ P(EXPECTED_LENGTHS[i])
+                    T_ P(expectedIndices[i])
+                }
+            }
+
+            // To confirm that we have gotten the indices right, we will ensure
+            // that the first index points to the null byte in the buffer
+            // (length 0) and the last index points to the first byte in the
+            // buffer (length LOG_FORMATTED_STACK_BUFFER_SIZE * 2):
+            ASSERT(expectedIndices[0] == SUBSTITUTION_BUFFER_SIZE - 1);
+            ASSERT(expectedIndices[NUM_EXPECTED_LENGTHS - 1] == 0);
+
+            const char * const testFile         = "myTestFile.cpp";
+            const int          testLine         = 900123;
+
+            for(size_t i = 0; i < NUM_EXPECTED_LENGTHS; i++) {
+                const size_t       localIndex  = expectedIndices[i];
+                const char * const localBuffer = substitutionBuffer+localIndex;
+
+                if(veryVerbose) {
+                    T_ P(localIndex)
+                    if(veryVeryVerbose) {
+                        T_ P(localBuffer)
+                    }
+                }
+
+                LogMessageSink::reset();
+
+                bsls::Log::logFormatted(testFile,
+                                        testLine,
+                                        "%s",
+                                        localBuffer);
+
+                ASSERT(LogMessageSink::s_hasBeenCalled);
+
+                LOOP4_ASSERT(i,
+                             localIndex,
+                             testFile,
+                             LogMessageSink::s_file,
+                             strcmp(testFile, LogMessageSink::s_file) == 0);
+
+                LOOP4_ASSERT(i,
+                             localIndex,
+                             testLine,
+                             LogMessageSink::s_line,
+                             testLine == LogMessageSink::s_line);
+
+                if(veryVerbose) {
+                    LOOP4_ASSERT(i,
+                                 localIndex,
+                                 localBuffer,
+                                 LogMessageSink::s_message,
+                                 strcmp(localBuffer, LogMessageSink::s_message)
+                                                                          ==0);
+                } else {
+                    LOOP2_ASSERT(i,
+                                 localIndex,
+                                 strcmp(localBuffer, LogMessageSink::s_message)
+                                                                          ==0);
+                }
+            }
+
+        }
+
+        {
+            if (verbose) {
+                puts("\nCALLING BSLS_LOG"
+                     "\n----------------\n");
+            }
+
+            LogMessageSink::reset();
+
+            const char * const testFile        = __FILE__;
+            const char * const testFormat      = "Int: %d, String: %s";
+            const int          subInt          = 17372;
+            const char * const subStr          = "Hello World!";
+
+            const char * const expectedMessage = "Int: 17372, "
+                                                 "String: Hello World!";
+
+            // We are expanding the '__LINE__' macro on the same line as the
+            // call to 'BSLS_LOG_SIMPLE' to ensure that the true line numbers
+            // match.
+            const int testLine =__LINE__; BSLS_LOG(testFormat, subInt, subStr);
+
+            ASSERT(LogMessageSink::s_hasBeenCalled);
+
+            LOOP2_ASSERT(testFile,
+                         LogMessageSink::s_file,
+                         strcmp(testFile, LogMessageSink::s_file) == 0);
+
+            LOOP2_ASSERT(testLine,
+                         LogMessageSink::s_line,
+                         testLine == LogMessageSink::s_line);
+
+            LOOP2_ASSERT(expectedMessage,
+                         LogMessageSink::s_message,
+                         strcmp(expectedMessage,LogMessageSink::s_message)==0);
+
+        }
+
+        {
+            if (verbose) {
+                puts("\nCALLING BSLS_LOG WITH ONE PARAMETER"
+                     "\n-----------------------------------\n");
+            }
+
+            LogMessageSink::reset();
+
+            const char * const testFile        = __FILE__;
+            const char * const testFormat      = "Hello World";
+            const char * const expectedMessage = testFormat;
+
+            // We are expanding the '__LINE__' macro on the same line as the
+            // call to 'BSLS_LOG_SIMPLE' to ensure that the true line numbers
+            // match.
+            const int testLine =__LINE__; BSLS_LOG(testFormat);
+
+            ASSERT(LogMessageSink::s_hasBeenCalled);
+
+            LOOP2_ASSERT(testFile,
+                         LogMessageSink::s_file,
+                         strcmp(testFile, LogMessageSink::s_file) == 0);
+
+            LOOP2_ASSERT(testLine,
+                         LogMessageSink::s_line,
+                         testLine == LogMessageSink::s_line);
+
+            LOOP2_ASSERT(expectedMessage,
+                         LogMessageSink::s_message,
+                         strcmp(expectedMessage,LogMessageSink::s_message)==0);
+
+        }
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // CLASS METHOD 'logMessage', MACRO 'BSLS_LOG_SIMPLE'
         //
         // Concerns:
         //: 1 'logMessage' properly calls the currently installed handler
         //:
-        //: 2 The macro 'BSLS_LOG_SIMPLE' properly calls 'logMessage'
+        //: 2 The macro 'BSLS_LOG_SIMPLE' properly calls 'logMessage' with the
+        //:   original line of instantiation, not any other line number
         //:
         //: 3 The macro 'BSLS_LOG_SIMPLE' does not interpret the message as a
         //:   'printf'-style format string
@@ -1494,7 +1821,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         if (verbose) {
             puts("\nLOGGING A SIMPLE MESSAGE"
-                 "\n------------------------\n");
+                 "\n========================\n");
         }
 
         bsls::Log::setLogMessageHandler(&LogMessageSink::testMessageHandler);
@@ -1563,7 +1890,30 @@ int main(int argc, char *argv[]) {
             }
 
       } break;
-      case 4: {
+      case 6: {
+        // --------------------------------------------------------------------
+        // CONCERN: By default, the 'platformDefaultMessageHandler' is used
+        //
+        // Concerns:
+        //: 1 An initial call to 'logMessageHandler' will return
+        //:   the address of 'platformDefaultMessageHandler'
+        //
+        // Plan:
+        //: 1 Confirm that 'logMessageHandler' returns the address of
+        //:   'platformDefaultMessageHandler'.
+        //
+        // Testing:
+        //   CONCERN: By default, the 'platformDefaultMessageHandler' is used
+        // --------------------------------------------------------------------
+        if (verbose) {
+            puts("\nDEFAULT HANDLER CONFIRMATION"
+                 "\n============================\n");
+        }
+
+        ASSERT(bsls::Log::logMessageHandler()
+               == &bsls::Log::platformDefaultMessageHandler);
+      } break;
+      case 5: {
         // --------------------------------------------------------------------
         // CLASS METHODS 'setLogMessageHandler', 'logMessageHandler'
         //   Ensure that setting and retrieving a specific handler works as
@@ -1601,7 +1951,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         if (verbose) {
             puts("\nSETTING AND RETRIEVING THE LOG MESSAGE HANDLER"
-                 "\n----------------------------------------------\n");
+                 "\n==============================================\n");
         }
 
         bsls::Log::setLogMessageHandler(&bsls::Log::stdoutMessageHandler);
@@ -1620,6 +1970,88 @@ int main(int argc, char *argv[]) {
         bsls::Log::setLogMessageHandler(&LogMessageSink::testMessageHandler);
         ASSERT(bsls::Log::logMessageHandler()
                == &LogMessageSink::testMessageHandler);
+
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // CLASS METHOD 'platformDefaultMessageHandler'
+        //
+        // Concerns:
+        //: 1 'platformDefaultMessageHandler' delegates log messages to
+        //:   'stderrMessageHandler', except in Windows non-console mode.
+        //:
+        //: 2 In Windows non-console mode, 'platformDefaultMessageHandler'
+        //:   writes a properly formatted string to the Windows debugger.
+        //:
+        //: 3 In Windows non-console mode, the string formatted by
+        //:   'platformDefaultMessageHandler' can handle final formatted
+        //:   strings of lengths 0, 1, and values above, below, and equal to
+        //:   the initial stack-allocated buffer (which is only used to
+        //:   implement the Windows non-console mode behavior, so it does not
+        //:   need to be tested for other modes).
+        //
+        // Plan:
+        //: 1 For all systems, write a simple message to
+        //:   'platformDefaultMessageHandler', capture 'stderr', and confirm
+        //:   that the captured output is as expected.  (C-1)
+        //:
+        //: 2 [TBD] In Windows, register ourselves as a debugger using the
+        //:   class 'WindowsDebuggerSink'.
+        //:
+        //: 3 [TBD] Spawn a copy of this test driver, specifying the manual
+        //:   test case' -1'.  This test case will close the handles to
+        //:   'stdout' and 'stderr', effectively putting that process in
+        //:   non-console mode.
+        //:
+        //: 4 [TBD] Block, waiting for the spawned process to output a message.
+        //:   Confirm that this message has occurred as expected, then release
+        //:   the lock and allow the sub-process to output the next expected
+        //:   string.
+        //:
+        //
+        // Testing:
+        //   static void platformDefaultMessageHandler(file, line, message);
+        // --------------------------------------------------------------------
+        if (verbose) {
+            fputs("\nPLATFORM DEFAULT HANDLER"
+                  "\n========================\n",
+                  stdout);
+        }
+
+        {
+            if (verbose) {
+                fputs("\nCONFIRMING STDERR BEHAVIOR"
+                      "\n--------------------------\n",
+                      stdout);
+            }
+            OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
+
+            const char * const tFile       = "testingAFile.cpp";
+            const int          tLine       = 10272;
+            const char * const tMsg        = "Platform default handler!";
+
+            const char * const expectedMsg = "testingAFile.cpp:10272 "
+                                             "Platform default handler!\n";
+
+            stderrRedirector.enable();
+            (bsls::Log::platformDefaultMessageHandler)(tFile,tLine,tMsg);
+            ASSERT(stderrRedirector.load());
+            ASSERT(stderrRedirector.isOutputReady());
+            stderrRedirector.disable();
+
+            LOOP2_ASSERT(expectedMsg,
+                         stderrRedirector.getOutput(),
+                         0 == stderrRedirector.compare(expectedMsg));
+
+        }
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        {
+            // In this case, we must register ourselves as a debugger, spawn
+            // a sub-process, and then wait for the expected debugger state.
+            // TBD
+        }
+#endif
 
       } break;
       case 3: {
@@ -1664,7 +2096,7 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         if (verbose) {
             fputs("\nBASIC STREAM HANDLERS"
-                  "\n---------------------\n",
+                  "\n=====================\n",
                   stdout);
         }
         static const struct {
@@ -1813,59 +2245,60 @@ int main(int argc, char *argv[]) {
         //:  2 Calling 'LogMessageSink::testMessageHandler' results in the
         //:    proper values being set.
         //:
-        //:  3 Calling 'LogMessageSink::reset' puts the 'static' state in the
-        //:    same state that existed at initialization.
+        //:  3 Calling 'LogMessageSink::reset' resets all 'static' members to
+        //:    their state at initialization.
         //:
         // Plan:
         //:  1 Confirm that all four 'static' members of 'LogMessageSink' are
-        //     valid empty values.
+        //     valid empty values.  (C-1)
         //:
         //:  2 Call 'LogMessageSink::testMessageHandler' with valid values, and
-        //:    confirm that the state variables are valid.
+        //:    confirm that the state variables are valid.  (C-2)
         //:
-        //:  3 Confirm that 'ftell(stdout)' succeeds.  This demonstrates that
-        //:    'stdout' is a seekable file.
-        //:
-        //:  4 Write a simple string to 'stdout' and read it back with
-        //:    'OutputRedirector::load'.  Confirm that
-        //:    'OutputRedirector::compare' gives the correct results.
+        //:  3 Call 'LogMessageSink::reset' and confirm that all variables are
+        //:    now valid.  (C-3)
         //
         // Testing:
         //   TEST-DRIVER LOG MESSAGE HANDLER APPARATUS
         // --------------------------------------------------------------------
         if (verbose) {
-            fputs("\nTESTING TEST APPARATUS PART 2"
-                  "\n-----------------------------\n",
+            fputs("\nTESTING TEST-DRIVER LOG MESSAGE HANDLER APPARATUS"
+                  "\n=================================================\n",
                   stdout);
         }
 
-        OutputRedirector stdoutRedirector(OutputRedirector::STDOUT_STREAM);;
+        ASSERT(! LogMessageSink::s_hasBeenCalled);
+        ASSERT(!*LogMessageSink::s_file);
+        ASSERT(! LogMessageSink::s_line);
+        ASSERT(!*LogMessageSink::s_message);
 
-        {
-            // 1 Object has valid state
-            ASSERT(stdoutRedirector.redirectedStreamId()
-                   == OutputRedirector::STDOUT_STREAM);
-            stdoutRedirector.enable();
-            ASSERT(stdoutRedirector.isRedirecting());
-        }
+        const char * const file    = "TeStIng123.cpp";
+        const int          line    = 893721;
+        const char * const message = "Testing\nThe\nTest";
 
-        {
-            // 2 Object has consistent internals
-            ASSERT(stdoutRedirector.redirectedStream()    == stdout);
-            ASSERT(stdoutRedirector.nonRedirectedStream() == stderr);
-        }
+        (LogMessageSink::testMessageHandler)(file, line, message);
 
-        {
-            // 3 Output is redirected
-            ASSERT(-1 != ftell(stdout));
-        }
+        ASSERT(LogMessageSink::s_hasBeenCalled);
 
-        {
-            // 4 'compare' works
-            fprintf(stdout, "Hello\nWorld\n%s", "World, Hello");
-            ASSERT(stdoutRedirector.load());
-            ASSERT(0==stdoutRedirector.compare("Hello\nWorld\nWorld, Hello"));
-        }
+        LOOP2_ASSERT(file,
+                     LogMessageSink::s_file,
+                     strcmp(file, LogMessageSink::s_file) == 0);
+
+        LOOP2_ASSERT(line,
+                     LogMessageSink::s_line,
+                     line == LogMessageSink::s_line);
+
+        LOOP2_ASSERT(message,
+                     LogMessageSink::s_message,
+                     strcmp(message, LogMessageSink::s_message) == 0);
+
+        LogMessageSink::reset();
+
+        ASSERT(! LogMessageSink::s_hasBeenCalled);
+        ASSERT(!*LogMessageSink::s_file);
+        ASSERT(! LogMessageSink::s_line);
+        ASSERT(!*LogMessageSink::s_message);
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -2010,7 +2443,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) {
             fputs("\nTESTING TEST APPARATUS"
-                  "\n----------------------\n",
+                  "\n======================\n",
                   stdout);
         }
 
@@ -2400,6 +2833,9 @@ int main(int argc, char *argv[]) {
             stdoutRedirector.disable();
         }
 
+      } break;
+      case -1: {
+        // Windows debug mode test.  TBD.
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -4,9 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_assert.h>
 #include <bsls_atomicoperations.h> // Atomic pointers
-#include <bsls_platform.h> // 'BSLS_PLATFORM_OS_WINDOWS'
- 
+#include <bsls_bsltestutil.h>      // for testing only
+#include <bsls_platform.h>         // 'BSLS_PLATFORM_OS_WINDOWS'
+
 #include <stdarg.h> // 'va_list', 'va_start', 'va_end', 'va_copy'
 #include <stdio.h>  // 'puts', 'snprintf', 'vsnprintf'
 #include <stdlib.h> // 'malloc', 'free'
@@ -232,11 +234,21 @@ int vsnprintf_allocate(char * const        originalBuffer,
                 const int newStatus = vsnprintf(buffer,
                                                 bufferSize,
                                                 format,
-                                                arguments_copy);
+                                                arguments);
                 if(newStatus != status) {
-                    // Some weird error.  Just set the status and let the final
-                    // code return.
-                    status = newStatus;
+                    // Some weird error.
+                    if(newStatus < 0) {
+                        // If the new status was negative then we should return
+                        // the new status so the user can get better error
+                        // information:
+                        status = newStatus;
+                    } else {
+                        // Otherwise, if it was nonnegative but not the
+                        // expected value, we should let the user know that we
+                        // failed, so we will set the status to a negative
+                        // value:
+                        status = -2;
+                    }
                 }
             } else {
                 // Allocation error.  Just set the status to a negative value:
