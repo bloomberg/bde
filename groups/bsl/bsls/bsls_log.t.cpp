@@ -10,12 +10,13 @@
 #include <stdint.h>    // SIZE_MAX
 #include <stdio.h>     // 'snprintf', '_snprintf'
 #include <stdlib.h>    // abort
-#include <string.h>    // strlen
+#include <string.h>    // strlen, strncpy
 #include <sys/types.h> // struct stat: required on Sun and Windows only
 #include <sys/stat.h>  // struct stat: required on Sun and Windows only
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-# include <windows.h>  // MAX_PATH
+# include <winbase.h>  // Mutex functionality
+# include <windows.h>
 # include <io.h>       // _dup2, _dup, _close
 #else
 # include <unistd.h>
@@ -111,10 +112,10 @@ static void aSsErT(bool b, const char *s, int i)
 
 #ifndef SIZE_MAX
 #define SIZE_MAX (static_cast<size_t>(-1))
+    // 'SIZE_MAX' is only defined as part of C99, so it may not exist in some
+    // pre-C++11 compilers.
 #endif
 
-static const size_t OUTPUT_REDIRECTOR_BUFFER_SIZE  = 4096;
-static const size_t LOG_MESSAGE_SINK_BUFFER_SIZE   = 4096;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 static const size_t PATH_BUFFER_SIZE = MAX_PATH + 1;
@@ -122,16 +123,41 @@ static const size_t PATH_BUFFER_SIZE = MAX_PATH + 1;
 static const size_t PATH_BUFFER_SIZE = PATH_MAX + 1;
 #endif
 
-// Keep this in sync with 'bsls_log.cpp'
-const size_t LOG_FORMATTED_STACK_BUFFER_SIZE = 1024;
-const size_t WINDOWS_DEBUG_STACK_BUFFER_SIZE = 1024;
 
+static const size_t WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE = 4096;
+    // This represents the size of the buffer that will be used to store debug
+    // messages captured in the Windows debugger.  This should generally be at
+    // least '4092' (i.e. 4096 - sizeof(DWORD)), since this is the maximum
+    // string size that 'OutputDebugString' will write.
+
+static const size_t LOG_MESSAGE_SINK_BUFFER_SIZE           = 4096;
+    // This represents the size of the buffers used by the class
+    // 'LogMessageSink' to store the file name and line number values received
+    // as part of the logging interface.
+
+static const size_t OUTPUT_REDIRECTOR_BUFFER_SIZE          = 4096;
+    // This represents the size of the buffer used by the class
+    // 'OutputRedirector' to store the captured values loaded in the 'stdout'
+    // and 'stderr' error streams.
+
+
+// Keep the below in sync with 'bsls_log.cpp'
+static const size_t WINDOWS_DEBUG_STACK_BUFFER_SIZE        = 1024;
+    // This represents the size of the initial stack buffer used in the method
+    // 'bsls::Log::platformDefaultMessageHandler' when it is writing output to
+    // 'OutputDebugStringA'.  Keep this in sync with 'bsls_log.cpp'
+
+static const size_t LOG_FORMATTED_STACK_BUFFER_SIZE        = 1024;
+    // This represents the size of the initial stack buffer used in the method
+    // 'bsls::Log::logFormatted' when it is formatting its 'printf'-style
+    // output.
+
+
+// Standard test driver globals:
 static bool             verbose;
 static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
-
-
 
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -216,6 +242,304 @@ const size_t NUM_DEFAULT_DATA = sizeof(DEFAULT_DATA) / sizeof(DEFAULT_DATA[0]);
 //                       GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+                         // =============================
+                         // class WindowsDebugMessageSink
+                         // =============================
+class WindowsDebugMessageSink {
+    // This class provides a mechanism to allow the current process to act as a
+    // Windows debugger, capturing all logs written to the 'OutputDebugString'
+    // Windows API function by other processes.
+
+  private:
+    // TYPES
+    union SharedMemoryData {
+        unsigned char d_rawData[4096];
+        struct InterpretedData {
+            unsigned long d_pid;
+            char d_message[4096 - sizeof(unsigned long)];
+        } d_interpretedData;
+    };
+
+    // DATA
+    bool              d_enabled;
+    unsigned long     d_expectedPid; //DWORD
+    void             *d_dbWinMutexHandle; //HANDLE
+    void             *d_dbWinDataReadyHandle;
+    void             *d_dbWinBufferReadyHandle;
+    void             *d_dbWinBufferHandle;
+    SharedMemoryData *d_sharedData_p;
+
+    char d_localBuffer[WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE];
+
+  private:
+    // NOT IMPLEMENTED
+    WindowsDebugMessageSink(const WindowsDebugMessageSink&);       // = delete;
+    WindowsDebugMessageSink& operator=(
+                                  const WindowsDebugMessageSink&); // = delete;
+
+  public:
+    // CREATORS
+    WindowsDebugMessageSink();
+        // Create a 'WindowsDebugMessageSink' object that does not hold any
+        // OS-provided handles.
+
+    ~WindowsDebugMessageSink();
+        // Destroy this object and de-register this process as the Windows
+        // debugger.
+
+    // MANIPULATORS
+    void disable();
+        // De-register this process as the Windows debugger.
+
+    bool enable();
+        // Register this object as the Windows debugger.  Return 'true' if this
+        // is successful, or return 'false' in case of an error.
+
+    void setTargetProcessId(const unsigned long pid);
+        // Set this object to accept only debug messages of processes with the
+        // specified 'pid'.  Messages from other processes will be discarded.
+        // By default, the object will monitor all debug messages.  If 'pid' is
+        // zero, the object will return to its default behavior of accepting
+        // all debug messages.  Note that this should not be used for security,
+        // as any process can spoof the source process ID by writing directly
+        // to the debug buffer.
+
+    bool wait(const unsigned long timeoutMilliseconds);
+        // Block until a debug message becomes available or until the specified
+        // 'timeoutMilliseconds' number of milliseconds have passed. If
+        // 'setTargetProcessId' has been called most recently with a non-zero
+        // value, ignore any messages that do not originate from a process with
+        // the expected process ID.  Return 'true' if data becomes available
+        // and has been successfully copied for later inspection through the
+        // method 'message'.  Return 'false' if a time-out occurs or if some
+        // other error occurs.  The behavior is undefined unless 'enable' has
+        // been successfully called after the latest call to 'disable'.
+
+    // ACCESSORS
+    const char *message();
+        // Return the latest null-terminated message that was retrieved by a
+        // successful call to 'wait'.  The pointer returned by this method is
+        // valid until 'wait' is successfully called again or until the object
+        // is destroyed.  The behavior is undefined unless 'wait' has been
+        // called successfully.
+
+};
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+// In non-Windows builds, this class will simply have no implemented methods.
+// The class definition is kept in place under non-Windows builds for simple
+// consistency reasons.
+
+// CREATORS
+WindowsDebugMessageSink::WindowsDebugMessageSink()
+: d_enabled(false)
+, d_expectedPid(0)
+, d_dbWinMutexHandle(NULL) //HANDLE
+, d_dbWinDataReadyHandle(NULL)
+, d_dbWinBufferReadyHandle(NULL)
+, d_dbWinBufferHandle(NULL)
+, d_sharedData_p(NULL)
+{
+    d_localBuffer[0] = '\0';
+}
+
+WindowsDebugMessageSink::~WindowsDebugMessageSink()
+{
+    disable();
+}
+
+// MANIPULATORS
+void WindowsDebugMessageSink::disable()
+{
+    if(!d_enabled) return;                                            // RETURN
+
+    if(d_sharedData_p) {
+        UnmapViewOfFile(d_sharedData_p);
+        d_sharedData_p = NULL;
+    }
+
+    if(d_dbWinBufferHandle) {
+        CloseHandle(d_dbWinBufferHandle);
+        d_dbWinBufferHandle = NULL;
+    }
+
+    if(d_dbWinBufferReadyHandle) {
+        CloseHandle(d_dbWinBufferReadyHandle);
+        d_dbWinBufferReadyHandle = NULL;
+    }
+
+    if(d_dbWinDataReadyHandle) {
+        CloseHandle(d_dbWinDataReadyHandle);
+        d_dbWinDataReadyHandle = NULL;
+    }
+
+    if(d_dbWinMutexHandle) {
+        CloseHandle(d_dbWinMutexHandle);
+        d_dbWinMutexHandle = NULL;
+    }
+
+    d_enabled = false;
+}
+
+bool WindowsDebugMessageSink::enable()
+{
+    // First, we attempt to get a handle to the possibly-already-existing
+    // DBWinMutex.  We only need the 'SYNCHRONIZE' permission.  We use the 'A'
+    // version so that we can pass an ASCII string for the name.  Note that we
+    // never actually need to this mutex, but we need to check for and possibly
+    // create it in case 'OutputDebugString' needs it.
+    d_dbWinMutexHandle = OpenMutexA(SYNCHRONIZE, FALSE, "DBWinMutex");
+    if(!d_dbWinMutexHandle) {
+        // If the mutex did not exist, we must create it.  Why not call
+        // 'CreateMutexA' initially?  Simply because if the mutex exists, it
+        // will be opened in 'MUTEX_ALL_ACCESS' mode, which is not what we want
+        // since we may not have admin access.
+        d_dbWinMutexHandle = OpenMutexA(NULL, FALSE, "DBWinMutex");
+
+        if(!d_dbWinMutexHandle) {
+            disable();
+            return false;                                             // RETURN
+        }
+    }
+
+    // Now we will attempt to retrieve a handle to the 'DBWIN_DATA_READY'
+    // event, which is what 'OutputDebugString' uses to signal that it has
+    // successfully written its data to the buffer.  We only need the
+    // 'SYNCHRONIZE' permission because we are not responsible for setting the
+    // data ready event.
+    d_dbWinDataReadyHandle = OpenEventA(SYNCHRONIZE,
+                                        FALSE,
+                                        "DBWIN_DATA_READY");
+    if(!d_dbWinDataReadyHandle) {
+        // If we have to create the event, we do not want to accidentally
+        // signal to ourselves that the data is ready until OutputDebugString
+        // sets it.  Therefore, the initial state (third parameter) is 'FALSE'.
+        d_dbWinDataReadyHandle = CreateEventA(NULL,
+                                              FALSE,
+                                              FALSE,
+                                              "DBWIN_DATA_READY");
+        if(!d_dbWinDataReadyHandle) {
+            disable();
+            return false;                                             // RETURN
+        }
+    }
+
+    // Next, the DBWIN_BUFFER_READY event:
+    d_dbWinBufferReadyHandle = OpenEventA(EVENT_MODIFY_STATE,
+                                          FALSE,
+                                          "DBWIN_BUFFER_READY");
+    if(!d_dbWinBufferReadyHandle) {
+        // If we have to create the event, we do not want to signal that the
+        // buffer is ready until we are completely sure everything is ready.
+        // Therefore, the initial state (third parameter) is 'FALSE'.
+        d_dbWinBufferReadyHandle = CreateEventA(NULL,
+                                                FALSE,
+                                                FALSE,
+                                                "DBWIN_BUFFER_READY");
+        if(!d_dbWinBufferReadyHandle) {
+            disable();
+            return false;                                             // RETURN
+        }
+    }
+
+    // Finally, we must attempt to get a handle to the file mapping object:
+    d_dbWinBufferHandle = OpenFileMappingA(FILE_MAP_READ,
+                                           FALSE,
+                                           "DBWIN_BUFFER");
+    if(!d_dbWinBufferHandle) {
+        // If we have to create the event, we do not want to signal that the
+        // buffer is ready until we are completely sure everything is ready.
+        // Therefore, the initial state (third parameter) is 'FALSE'.
+        d_dbWinBufferHandle = CreateFileMappingA(INVALID_HANDLE_VALUE,
+                                                 NULL,
+                                                 PAGE_READWRITE,
+                                                 0,
+                                                 sizeof(SharedMemoryData),
+                                                 "DBWIN_BUFFER");
+        if(!d_dbWinBufferHandle) {
+            disable();
+            return false;                                             // RETURN
+        }
+    }
+
+    d_sharedData_p = static_cast<SharedMemoryData*>(
+                        MapViewOfFile(d_dbWinBufferHandle,
+                                      FILE_MAP_READ,
+                                      0,
+                                      0,
+                                      0));
+    if(!d_sharedData_p) {
+        disable();
+        return false;                                                 // RETURN
+    }
+
+    // Finally, now that everything is ready, we will signal that the buffer is
+    // ready:
+    SetEvent(d_dbWinBufferReadyHandle);
+
+    d_enabled = true;
+
+    return true;
+}
+
+void WindowsDebugMessageSink::setTargetProcessId(const unsigned long pid)
+{
+    d_expectedPid = pid;
+}
+
+bool WindowsDebugMessageSink::wait(const unsigned long timeoutMilliseconds)
+{
+    if(!d_enabled) {
+        // It is too harmful to let this slide.  Even in non-assert mode, it is
+        // worth checking our state.
+        BSLS_ASSERT_OPT(d_enabled);
+        return false;                                                 // RETURN
+    }
+
+    if(WaitForSingleObject(d_dbWinDataReadyHandle, timeoutMilliseconds)
+       != WAIT_OBJECT_0) {
+        // Either we timed out, or something else is wrong ('WAIT_FAILED'). In
+        // either case, it is an error and we will simply return false.
+        return false;                                                 // RETURN
+    }
+
+    bool retval = false;
+    if(d_expectedPid == 0 ||
+       d_expectedPid == d_sharedData_p->d_interpretedData.d_pid) {
+        // If we have the correct process ID, we want to copy the string.
+        //
+        // The string is guaranteed to be null-terminated, so we can save copy
+        // time by calling 'strncpy':
+        strncpy(d_localBuffer,
+                d_sharedData_p->d_interpretedData.d_message,
+                WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE - 1);
+
+        // For extra safety, we will null-terminate the buffer.  Technically,
+        // this operation does not have to be done every time 'wait' is called
+        // because we never touch the last byte.  Regardless, it is good
+        // practice to do so.
+        d_localBuffer[WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE - 1] = '\0';
+
+        retval = true;
+    }
+
+    // Since we have reached this point of execution, we need to alert everyone
+    // else that the buffer is ready:
+    SetEvent(d_dbWinBufferReadyHandle);
+
+    return retval;
+}
+
+
+// ACCESSORS
+const char *WindowsDebugMessageSink::message()
+{
+    BSLS_ASSERT(d_enabled);
+    return d_localBuffer;
+}
+
+#endif // defined(BSLS_PLATFORM_OS_WINDOWS)
+
                          // ====================
                          // class LogMessageSink
                          // ====================
@@ -225,6 +549,9 @@ struct LogMessageSink {
     // 'testMessageHandler', which is a valid log message handler
     // ('bsls::Log::LogMessageHandler') that will simply copy all arguments
     // into a set of 'public' 'static' data members.
+
+    // This class is designed as fully static (instead of using a singleton) in
+    // order to more easily support registration of the log message handler.
   public:
     // PUBLIC CLASS DATA
     static bool s_hasBeenCalled;                         // Have we been called
@@ -370,7 +697,6 @@ class OutputRedirector {
   private:
     // NOT IMPLEMENTED
     OutputRedirector(const OutputRedirector&);                     // = delete;
-
     OutputRedirector& operator=(const OutputRedirector&);          // = delete;
 
   public:
@@ -648,6 +974,24 @@ void OutputRedirector::enable()
         cleanup();
         abort();
     }
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    // In Windows, we need to convert the stream to binary mode because Windows
+    // will automatically convert '\n' to '\r\n' in text mode output.  Normally
+    // this would not be a problem, since the '\r\n' would be converted back to
+    // '\n' when we read the file.  However, since we are using the size of the
+    // written file to know how much to read, having extra characters will lead
+    // to a faulty size reading.
+    if (_setmode(_fileno(redirectedStream()), _O_BINARY) < 0) {
+        if (veryVerbose) {
+            fprintf(nonRedirectedStream(),
+                    "Error " __FILE__ "(%d): Binary mode change failed.\n",
+                    __LINE__);
+        }
+        cleanup();
+        abort();
+    }
+#endif
 
     if (EOF == fflush(redirectedStream())) {
         if (veryVerbose) {

@@ -394,13 +394,11 @@ void Log::platformDefaultMessageHandler(const char *file,
         // This is the "final buffer" we will use when outputting our value to
         // the logging function.  We will let 'snprintf_allocate' set this
         // value:
-        size_t bufferSize;
-        char *buffer;
+        size_t  bufferSize;
+        char   *buffer;
 
         BufferScopedGuard guard;
 
-        va_list arguments;
-        va_start(arguments, format);
         const int status = snprintf_allocate(originalBuffer,
                                              originalBufferSize,
                                              guard,
@@ -410,7 +408,6 @@ void Log::platformDefaultMessageHandler(const char *file,
                                              file,
                                              line,
                                              message);
-        va_end(arguments);
 
         if(status >= 4) {
             // Ensure no weird errors happened.  At least four characters must
@@ -421,8 +418,8 @@ void Log::platformDefaultMessageHandler(const char *file,
             OutputDebugStringA(buffer);
         } else {
             // There are legitimate reasons for 'status' to be negative, such
-            // as a memory allocation failure.  Therefore, we will simply log
-            // some simple error so that we don't fail quietly:
+            // as a memory allocation failure.  Therefore, we will log a simple
+            // error so that we don't fail quietly:
             OutputDebugStringA("Low-level log failure.\n");
         }
     } else {
