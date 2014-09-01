@@ -7,7 +7,6 @@
 
 #include <fcntl.h>
 #include <limits.h>    // PATH_MAX on linux, INT_MAX
-#include <stdint.h>    // SIZE_MAX
 #include <stdio.h>     // 'snprintf', '_snprintf'
 #include <stdlib.h>    // abort
 #include <string.h>    // strlen, strncpy
@@ -15,11 +14,11 @@
 #include <sys/stat.h>  // struct stat: required on Sun and Windows only
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
-# include <winbase.h>  // Mutex functionality
 # include <windows.h>
 # include <io.h>       // _dup2, _dup, _close
 #else
 # include <unistd.h>
+# include <stdint.h>    // SIZE_MAX.  Cannot include on all Windows platforms.
 #endif
 
 using namespace BloombergLP;
@@ -43,32 +42,33 @@ using namespace BloombergLP;
 //: o TBD
 // ----------------------------------------------------------------------------
 // MACROS
-// [ 8] BSLS_LOG(format, ...)
-// [ 7] BSLS_LOG_SIMPLE(message)
+// [ 9] BSLS_LOG(format, ...)
+// [ 8] BSLS_LOG_SIMPLE(message)
 //
 // TYPES
-// [ 3] typedef void (*LogMessageHandler)(file, line, message);
+// [ 4] typedef void (*LogMessageHandler)(file, line, message);
 //
 // CLASS METHODS
-// [ 5] static bsls::Log::LogMessageHandler logMessageHandler();
-// [ 5] static void setLogMessageHandler(bsls::Log::LogMessageHandler);
-// [ 8] static void logFormatted(file, line, format, ...);
-// [ 7] static void logMessage(file, line, message);
-// [ 4] static void platformDefaultMessageHandler(file, line, message);
-// [ 3] static void stdoutMessageHandler(file, line, message);
-// [ 3] static void stderrMessageHandler(file, line, message);
+// [ 6] static bsls::Log::LogMessageHandler logMessageHandler();
+// [ 6] static void setLogMessageHandler(bsls::Log::LogMessageHandler);
+// [ 9] static void logFormatted(file, line, format, ...);
+// [ 8] static void logMessage(file, line, message);
+// [ 5] static void platformDefaultMessageHandler(file, line, message);
+// [ 4] static void stdoutMessageHandler(file, line, message);
+// [ 4] static void stderrMessageHandler(file, line, message);
 // ----------------------------------------------------------------------------
+// [ 3] WINDOWS DEBUG MESSAGE SINK APPARATUS
 // [ 2] TEST-DRIVER LOG MESSAGE HANDLER APPARATUS
 // [ 1] STREAM REDIRECTION APPARATUS
 //
-// [14] COMPONENT-LEVEL DOCUMENTATION 1
-// [13] COMPONENT-LEVEL DOCUMENTATION 2
-// [12] COMPONENT-LEVEL DOCUMENTATION 3
-// [11] USAGE EXAMPLE 1
-// [10] USAGE EXAMPLE 2
-// [ 9] USAGE EXAMPLE 3
+// [15] COMPONENT-LEVEL DOCUMENTATION 1
+// [14] COMPONENT-LEVEL DOCUMENTATION 2
+// [13] COMPONENT-LEVEL DOCUMENTATION 3
+// [12] USAGE EXAMPLE 1
+// [11] USAGE EXAMPLE 2
+// [10] USAGE EXAMPLE 3
 //
-// [ 6] CONCERN: By default, the 'platformDefaultMessageHandler' is used
+// [ 7] CONCERN: By default, the 'platformDefaultMessageHandler' is used
 
 
 //=============================================================================
@@ -291,9 +291,12 @@ class WindowsDebugMessageSink {
     void disable();
         // De-register this process as the Windows debugger.
 
-    bool enable();
-        // Register this object as the Windows debugger.  Return 'true' if this
-        // is successful, or return 'false' in case of an error.
+    bool enable(const unsigned long timeoutMilliseconds);
+        // Register this object as the Windows debugger.  If a log message is
+        // being written, block until this object can be safely registered or
+        // until the specified 'timeoutMilliseconds' number of milliseconds
+        // have passed.  Return 'true' if this object has been successfully
+        // enabled, or return 'false' in case of a timeout or some other error.
 
     void setTargetProcessId(const unsigned long pid);
         // Set this object to accept only debug messages of processes with the
@@ -305,15 +308,16 @@ class WindowsDebugMessageSink {
         // to the debug buffer.
 
     bool wait(const unsigned long timeoutMilliseconds);
-        // Block until a debug message becomes available or until the specified
-        // 'timeoutMilliseconds' number of milliseconds have passed. If
-        // 'setTargetProcessId' has been called most recently with a non-zero
-        // value, ignore any messages that do not originate from a process with
-        // the expected process ID.  Return 'true' if data becomes available
-        // and has been successfully copied for later inspection through the
-        // method 'message'.  Return 'false' if a time-out occurs or if some
-        // other error occurs.  The behavior is undefined unless 'enable' has
-        // been successfully called after the latest call to 'disable'.
+        // Block until a desired debug message is available or until the
+        // specified 'timeoutMilliseconds' number of milliseconds have elapsed.
+        // If 'setTargetProcessId' has been called, most recently with a
+        // non-zero value, ignore any messages that were not sent by the
+        // process with the process ID specified in 'setTargetProcessId'.
+        // Return 'true' if data becomes available and has been successfully
+        // copied for later inspection through the method 'message'.  Return
+        // 'false' if a timeout occurs or if some other error occurs.  The
+        // behavior is undefined unless 'enable' has been successfully called
+        // after the latest call, if any, to 'disable'.
 
     // ACCESSORS
     const char *message();
@@ -374,6 +378,9 @@ void WindowsDebugMessageSink::disable()
     }
 
     if(d_dbWinMutexHandle) {
+        // If, for whatever reason the mutex is still held by us, we should
+        // release it.  This call is harmless if we do not own the mutex:
+        ReleaseMutex(d_dbWinMutexHandle);
         CloseHandle(d_dbWinMutexHandle);
         d_dbWinMutexHandle = NULL;
     }
@@ -381,26 +388,66 @@ void WindowsDebugMessageSink::disable()
     d_enabled = false;
 }
 
-bool WindowsDebugMessageSink::enable()
+bool WindowsDebugMessageSink::enable(const unsigned long timeoutMilliseconds)
 {
     // First, we attempt to get a handle to the possibly-already-existing
     // DBWinMutex.  We only need the 'SYNCHRONIZE' permission.  We use the 'A'
-    // version so that we can pass an ASCII string for the name.  Note that we
-    // never actually need to this mutex, but we need to check for and possibly
-    // create it in case 'OutputDebugString' needs it.
+    // version so that we can pass an ASCII string for the name.
     d_dbWinMutexHandle = OpenMutexA(SYNCHRONIZE, FALSE, "DBWinMutex");
     if(!d_dbWinMutexHandle) {
         // If the mutex did not exist, we must create it.  Why not call
         // 'CreateMutexA' initially?  Simply because if the mutex exists, it
         // will be opened in 'MUTEX_ALL_ACCESS' mode, which is not what we want
         // since we may not have admin access.
-        d_dbWinMutexHandle = OpenMutexA(NULL, FALSE, "DBWinMutex");
+        d_dbWinMutexHandle = CreateMutexA(NULL, FALSE, "DBWinMutex");
 
         if(!d_dbWinMutexHandle) {
             disable();
             return false;                                             // RETURN
         }
     }
+
+    // Suppose that some program is currently executing 'OutputDebugString',
+    // while we are attempting to do this setup.  There are various issues with
+    // allowing this to occur, such as the fact that we may find that an event
+    // does not exist and then the event may be created by the logging process
+    // before we have a chance to create it.  If this happens, our call to
+    // 'CreateEventA' may fail, since calling the Create* functions when the
+    // item already exists requests the 'ALL_ACCESS' permission types, which we
+    // will not be able to get.  There is no way to prevent this when initially
+    // retrieving the mutex; the best we can do is first call 'OpenMutexA' and
+    // hope for the best.  However, we can solve this with the later calls once
+    // we have the mutex, since 'OutputDebugString' will block until it gets
+    // the mutex.  Other debuggers may cause us problems if they do not respect
+    // the mutex, but there is really nothing we can do about this.
+    const unsigned long oldTimeMilliseconds = GetTickCount();
+    const unsigned long waitResult = WaitForSingleObject(d_dbWinMutexHandle,
+                                                         timeoutMilliseconds);
+
+    if(waitResult == WAIT_TIMEOUT || waitResult == WAIT_FAILED) {
+        return false;                                                 // RETURN
+    } else if(waitResult == WAIT_ABANDONED) {
+        // 'WAIT_ABANDONED' means that the owner of the mutex terminated before
+        // the mutex was released.  We should just try to get the mutex
+        // ourselves, since we don't rely on the state of the buffer itself.
+        const unsigned long timeDiff = GetTickCount() - oldTimeMilliseconds;
+        if(timeDiff > timeoutMilliseconds) {
+            return false;                                             // RETURN
+        }
+
+        const unsigned long newTimeoutMilliseconds = timeoutMilliseconds
+                                                     - timeDiff;
+
+        if(WaitForSingleObject(d_dbWinMutexHandle, newTimeoutMilliseconds)
+           != WAIT_OBJECT_0) {
+            return false;                                             // RETURN
+        }
+    }
+
+    // If we reached this point, we have gotten the WAIT_OBJECT_0 return value
+    // and we now own the mutex.  We must be sure to release it whenever we
+    // can.
+
 
     // Now we will attempt to retrieve a handle to the 'DBWIN_DATA_READY'
     // event, which is what 'OutputDebugString' uses to signal that it has
@@ -419,6 +466,7 @@ bool WindowsDebugMessageSink::enable()
                                               FALSE,
                                               "DBWIN_DATA_READY");
         if(!d_dbWinDataReadyHandle) {
+            ReleaseMutex(d_dbWinMutexHandle);
             disable();
             return false;                                             // RETURN
         }
@@ -437,6 +485,7 @@ bool WindowsDebugMessageSink::enable()
                                                 FALSE,
                                                 "DBWIN_BUFFER_READY");
         if(!d_dbWinBufferReadyHandle) {
+            ReleaseMutex(d_dbWinMutexHandle);
             disable();
             return false;                                             // RETURN
         }
@@ -457,6 +506,7 @@ bool WindowsDebugMessageSink::enable()
                                                  sizeof(SharedMemoryData),
                                                  "DBWIN_BUFFER");
         if(!d_dbWinBufferHandle) {
+            ReleaseMutex(d_dbWinMutexHandle);
             disable();
             return false;                                             // RETURN
         }
@@ -469,12 +519,14 @@ bool WindowsDebugMessageSink::enable()
                                       0,
                                       0));
     if(!d_sharedData_p) {
+        ReleaseMutex(d_dbWinMutexHandle);
         disable();
         return false;                                                 // RETURN
     }
 
-    // Finally, now that everything is ready, we will signal that the buffer is
-    // ready:
+    // Finally, now that everything is ready, we will release the mutex and
+    // signal that the buffer is ready:
+    ReleaseMutex(d_dbWinMutexHandle);
     SetEvent(d_dbWinBufferReadyHandle);
 
     d_enabled = true;
@@ -496,38 +548,56 @@ bool WindowsDebugMessageSink::wait(const unsigned long timeoutMilliseconds)
         return false;                                                 // RETURN
     }
 
-    if(WaitForSingleObject(d_dbWinDataReadyHandle, timeoutMilliseconds)
-       != WAIT_OBJECT_0) {
-        // Either we timed out, or something else is wrong ('WAIT_FAILED'). In
-        // either case, it is an error and we will simply return false.
-        return false;                                                 // RETURN
+    const unsigned long oldTimeMilliseconds = GetTickCount();
+
+    bool keepGoing = true;
+    while(keepGoing) {
+
+        unsigned long timeDiff = GetTickCount() - oldTimeMilliseconds;
+        if(timeDiff > timeoutMilliseconds) {
+            return false;                                             // RETURN
+        }
+        unsigned long newTimeoutMilliseconds = timeoutMilliseconds - timeDiff;
+
+        if(WaitForSingleObject(d_dbWinDataReadyHandle, newTimeoutMilliseconds)
+           != WAIT_OBJECT_0) {
+            return false;                                             // RETURN
+        }
+
+        // We need to hold the mutex to ensure that we have a consistent buffer
+        // while we are reading the data.
+        timeDiff = GetTickCount() - oldTimeMilliseconds;
+        if(timeDiff > timeoutMilliseconds) {
+            return false;                                             // RETURN
+        }
+        newTimeoutMilliseconds = timeoutMilliseconds - timeDiff;
+
+        if(WaitForSingleObject(d_dbWinMutexHandle, newTimeoutMilliseconds)
+           != WAIT_OBJECT_0) {
+            // In this case, we want to ignore the 'WAIT_ABANDONED' value
+            // because if the mutex was abandoned, the buffer will probably be
+            // invalid.
+            return false;                                             // RETURN
+        }
+
+        if(d_expectedPid == 0 ||
+           d_expectedPid == d_sharedData_p->d_interpretedData.d_pid) {
+
+            strncpy(d_localBuffer,
+                    d_sharedData_p->d_interpretedData.d_message,
+                    WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE - 1);
+
+            d_localBuffer[WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE - 1] = '\0';
+
+            keepGoing = false; // We must use the loop to break us since we
+                               // want to release the mutex.
+        }
+
+        ReleaseMutex(d_dbWinMutexHandle);
+        SetEvent(d_dbWinBufferReadyHandle);
     }
 
-    bool retval = false;
-    if(d_expectedPid == 0 ||
-       d_expectedPid == d_sharedData_p->d_interpretedData.d_pid) {
-        // If we have the correct process ID, we want to copy the string.
-        //
-        // The string is guaranteed to be null-terminated, so we can save copy
-        // time by calling 'strncpy':
-        strncpy(d_localBuffer,
-                d_sharedData_p->d_interpretedData.d_message,
-                WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE - 1);
-
-        // For extra safety, we will null-terminate the buffer.  Technically,
-        // this operation does not have to be done every time 'wait' is called
-        // because we never touch the last byte.  Regardless, it is good
-        // practice to do so.
-        d_localBuffer[WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE - 1] = '\0';
-
-        retval = true;
-    }
-
-    // Since we have reached this point of execution, we need to alert everyone
-    // else that the buffer is ready:
-    SetEvent(d_dbWinBufferReadyHandle);
-
-    return retval;
+    return true;
 }
 
 
@@ -1559,7 +1629,7 @@ int main(int argc, char *argv[]) {
     printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch(test) { case 0: // zero is always the leading case
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // COMPONENT-LEVEL DOCUMENTATION 1
         //   Extracted from component header file.
@@ -1612,7 +1682,7 @@ int main(int argc, char *argv[]) {
                  user,
                  admin);
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // COMPONENT-LEVEL DOCUMENTATION 2
         //   Extracted from component header file.
@@ -1650,7 +1720,7 @@ int main(int argc, char *argv[]) {
         bsls::Log::setLogMessageHandler(&ignoreMessage);
         BSLS_LOG_SIMPLE("This message will be ignored");
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // COMPONENT-LEVEL DOCUMENTATION 3
         //   Extracted from component header file.
@@ -1689,7 +1759,7 @@ int main(int argc, char *argv[]) {
         int x = 3;
         BSLS_LOG("This message will be printed to stdout (x=%d)", x);
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //   Extracted from component header file.
@@ -1726,7 +1796,7 @@ int main(int argc, char *argv[]) {
 
         unsigned int x = add(3, -100);
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
         //   Extracted from component header file.
@@ -1763,7 +1833,7 @@ int main(int argc, char *argv[]) {
 
         handleError(3);
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 3
         //   Extracted from component header file.
@@ -1800,7 +1870,7 @@ int main(int argc, char *argv[]) {
 
         handleErrorFlexible(__FILE__, __LINE__, 2);
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'logFormatted', MACRO 'BSLS_LOG'
         //
@@ -2129,7 +2199,7 @@ int main(int argc, char *argv[]) {
 
         }
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'logMessage', MACRO 'BSLS_LOG_SIMPLE'
         //
@@ -2234,7 +2304,7 @@ int main(int argc, char *argv[]) {
             }
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // CONCERN: By default, the 'platformDefaultMessageHandler' is used
         //
@@ -2257,7 +2327,7 @@ int main(int argc, char *argv[]) {
         ASSERT(bsls::Log::logMessageHandler()
                == &bsls::Log::platformDefaultMessageHandler);
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // CLASS METHODS 'setLogMessageHandler', 'logMessageHandler'
         //   Ensure that setting and retrieving a specific handler works as
@@ -2316,7 +2386,7 @@ int main(int argc, char *argv[]) {
                == &LogMessageSink::testMessageHandler);
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'platformDefaultMessageHandler'
         //
@@ -2398,7 +2468,7 @@ int main(int argc, char *argv[]) {
 #endif
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // CLASS METHODS 'stdoutMessageHandler', 'stderrMessageHandler'
         //   Ensure that the methods correctly output a properly formatted
@@ -2577,6 +2647,24 @@ int main(int argc, char *argv[]) {
                          0 == redirector.compare(expectedString));
 
         }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // WINDOWS DEBUG MESSAGE SINK APPARATUS TEST
+        //: Ensure that objects of the class 'WindowsDebugMessageSink' capture
+        //: debug messages as expected.
+        //:
+        // Concerns:
+        //:  1 After a successful call to 'enable', a debug string written by
+        //:    this process or by another process can be captured through
+        //:    a call to 'wait'.
+        //:
+        // Plan:
+        //:  1 TBD
+        //
+        // Testing:
+        //   WINDOWS DEBUG MESSAGE SINK APPARATUS
+        // --------------------------------------------------------------------
       } break;
       case 2: {
         // --------------------------------------------------------------------
