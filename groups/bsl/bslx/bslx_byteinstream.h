@@ -142,12 +142,6 @@ BSLS_IDENT("$Id: $")
 //      //...
 //
 //      // ACCESSORS
-//      const bsl::string& firstName() const;
-//          // Return the first name of this person.
-//
-//      const bsl::string& lastName() const;
-//          // Return the last name of this person.
-//
 //      int age() const;
 //          // Return the age of this person.
 //
@@ -161,6 +155,12 @@ BSLS_IDENT("$Id: $")
 //          // 'stream'.  See the 'bslx' package-level documentation for more
 //          // information on BDEX streaming of value-semantic types and
 //          // containers.
+//
+//      const bsl::string& firstName() const;
+//          // Return the first name of this person.
+//
+//      const bsl::string& lastName() const;
+//          // Return the last name of this person.
 //
 //      //...
 //
@@ -176,10 +176,6 @@ BSLS_IDENT("$Id: $")
 //      // Return 'true' if the specified 'lhs' and 'rhs' person objects do not
 //      // have the same value, and 'false' otherwise.  Two person objects
 //      // differ in value if they differ in first name, last name, or age.
-//
-//  bsl::ostream& operator<<(bsl::ostream& stream, const MyPerson& person);
-//      // Write the specified 'person' value to the specified output 'stream'
-//      // in some reasonable format, and return a reference to 'stream'.
 //
 //  // ========================================================================
 //  //                  INLINE FUNCTION DEFINITIONS
@@ -223,18 +219,18 @@ BSLS_IDENT("$Id: $")
 //              if (!stream) {
 //                  d_firstName = "stream error";  // *might* be corrupted;
 //                                                 //  value for testing
-//                  return stream;
+//                  return stream;                                    // RETURN
 //              }
 //              stream.getString(d_lastName);
 //              if (!stream) {
 //                  d_lastName = "stream error";  // *might* be corrupted;
 //                                                //  value for testing
-//                  return stream;
+//                  return stream;                                    // RETURN
 //              }
 //              stream.getInt32(d_age);
 //              if (!stream) {
 //                  d_age = 999;     // *might* be corrupted; value for testing
-//                  return stream;
+//                  return stream;                                    // RETURN
 //              }
 //            } break;
 //            default: {
@@ -246,6 +242,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ACCESSORS
+//  inline
+//  int MyPerson::age() const
+//  {
+//      return d_age;
+//  }
+//
 //  template <class STREAM>
 //  STREAM& MyPerson::bdexStreamOut(STREAM& stream, int version) const
 //  {
@@ -261,14 +263,41 @@ BSLS_IDENT("$Id: $")
 //      }
 //      return stream;
 //  }
+//
+//  inline
+//  const bsl::string& MyPerson::firstName() const
+//  {
+//      return d_firstName;
+//  }
+//
+//  inline
+//  const bsl::string& MyPerson::lastName() const
+//  {
+//      return d_lastName;
+//  }
+//
+//  // FREE OPERATORS
+//  inline
+//  bool operator==(const MyPerson& lhs, const MyPerson& rhs)
+//  {
+//      return lhs.d_firstName == rhs.d_firstName &&
+//             lhs.d_lastName  == rhs.d_lastName  &&
+//             lhs.d_age       == rhs.d_age;
+//  }
+//
+//  inline
+//  bool operator!=(const MyPerson& lhs, const MyPerson& rhs)
+//  {
+//      return !(lhs == rhs);
+//  }
 //..
 // Then, we can exercise the new 'MyPerson' value-semantic class by
 // externalizing and reconstituting an object.  First, create a 'MyPerson'
 // 'janeSmith' and a 'bslx::ByteOutStream' 'outStream':
 //..
-//  MyPerson janeSmith("Jane", "Smith", 42);
+//  MyPerson            janeSmith("Jane", "Smith", 42);
 //  bslx::ByteOutStream outStream(20131127);
-//  const int VERSION = 1;
+//  const int           VERSION = 1;
 //  outStream.putVersion(VERSION);
 //  janeSmith.bdexStreamOut(outStream, VERSION);
 //  assert(outStream.isValid());
@@ -284,7 +313,7 @@ BSLS_IDENT("$Id: $")
 // data into 'janeCopy':
 //..
 //  bslx::ByteInStream inStream(outStream.data(), outStream.length());
-//  int version;
+//  int                version;
 //  inStream.getVersion(version);
 //  janeCopy.bdexStreamIn(inStream, version);
 //  assert(inStream.isValid());
