@@ -2,6 +2,7 @@
 #include <bsls_log.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
@@ -32,14 +33,13 @@ using namespace BloombergLP;
 // write log messages.
 //
 // Global Concerns:
-//: o The 'bsls::Log' class has no instance state.
-//: o Exceptions thrown in a log message handler are successfully propagated.
-//: o Setting and invoking the log message handler is thread-safe.
+//: o The test driver is robust w.r.t. reuse in other, similar components.
 //: o By default, the 'platformDefaultMessageHandler' is used.
-//: o TBD
+//: o Exceptions thrown in a log message handler are propagated.
+//: o Precondition violations are detected in appropriate build modes.
 //
 // Global Assumptions:
-//: o TBD
+//: o Setting, retrieving, and invoking the log message handler is thread-safe.
 // ----------------------------------------------------------------------------
 // MACROS
 // [ 9] BSLS_LOG(format, ...)
@@ -57,8 +57,8 @@ using namespace BloombergLP;
 // [ 4] static void stdoutMessageHandler(file, line, message);
 // [ 4] static void stderrMessageHandler(file, line, message);
 // ----------------------------------------------------------------------------
-// [ 3] WINDOWS DEBUG MESSAGE SINK APPARATUS
-// [ 2] TEST-DRIVER LOG MESSAGE HANDLER APPARATUS
+// [ 3] WINDOWS DEBUG MESSAGE SINK
+// [ 2] TEST-DRIVER LOG MESSAGE HANDLER
 // [ 1] STREAM REDIRECTION APPARATUS
 //
 // [15] COMPONENT-LEVEL DOCUMENTATION 1
@@ -68,17 +68,21 @@ using namespace BloombergLP;
 // [11] USAGE EXAMPLE 2
 // [10] USAGE EXAMPLE 3
 //
-// [ 7] CONCERN: By default, the 'platformDefaultMessageHandler' is used
+// [ *] CONCERN: This test driver is reusable w/other, similar components.
+// [ *] CONCERN: Exceptions thrown in a log message handler are propagated.
+// [ *] CONCERN: Precondition violations are detected when enabled.
+// [ 7] CONCERN: By default, the 'platformDefaultMessageHandler' is used.
 
 
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
-    if (b) {
+    if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
@@ -105,6 +109,13 @@ static void aSsErT(bool b, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
+
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
+#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
 
 // ============================================================================
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -2317,7 +2328,7 @@ int main(int argc, char *argv[]) {
         //:   'platformDefaultMessageHandler'.
         //
         // Testing:
-        //   CONCERN: By default, the 'platformDefaultMessageHandler' is used
+        //   CONCERN: By default, the 'platformDefaultMessageHandler' is used.
         // --------------------------------------------------------------------
         if (verbose) {
             puts("\nDEFAULT HANDLER CONFIRMATION"
@@ -2650,48 +2661,96 @@ int main(int argc, char *argv[]) {
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // WINDOWS DEBUG MESSAGE SINK APPARATUS TEST
-        //: Ensure that objects of the class 'WindowsDebugMessageSink' capture
-        //: debug messages as expected.
-        //:
+        // WINDOWS DEBUG MESSAGE SINK TEST
+        //   Ensure that objects of the class 'WindowsDebugMessageSink' capture
+        //   debug messages as expected.
+        //
         // Concerns:
-        //:  1 After a successful call to 'enable', a debug string written by
-        //:    this process or by another process can be captured through
-        //:    a call to 'wait'.
+        //: 1 A call to 'enable' takes no longer than the specified time-out
+        //:   limit.
+        //:
+        //: 2 After a successful call to 'enable', a call to 'wait' can be
+        //:   used to wait for or capture a currently available debug message.
+        //:
+        //: 3 A call to 'wait' takes no longer than the specified time-out
+        //:   limit.
+        //:
+        //: 4 After a successful call to 'wait', the captured message can be
+        //:   retrieved by calling 'message'.
+        //:
+        //: 5 If other debug strings are written after a successful call to
+        //:   'wait', the buffer returned by 'message' retains the value set by
+        //:   the latest successful call to 'wait'.
+        //:
+        //: 6 If a failed call to 'wait' is made after a successful call to
+        //:   'wait', the buffer returned by 'message' retains the value set by
+        //:   the latest successful call to 'wait'.
+        //:
+        //: 7 By default, 'wait' captures messages originating from all
+        //:   processes.
+        //:
+        //: 8 After a call to 'setTargetProcessID' with a non-zero PID, 'wait'
+        //:   acts as if processes without the expected PID never sent any
+        //:   messages.
+        //:
+        //: 9 After a call to 'setTargetProcessID' with a zero-valued PID,
+        //:   'wait' does not ignore any messages.
+        //:
+        //: 10 If 'wait' was ever called successfully, the buffer returned by
+        //:    'message' will remain valid after a call to 'disable'.
+        //:
+        //: 11 'disable' can be called without any prior successful calls to
+        //:    'enable', and after any prior calls to 'disable'.
+        //:
+        //: 12 'enable' can be successfully called after a call to 'disable'
+        //:
+        //: 13 'wait' can be successfully called after a successful call to
+        //:    'enable' that occurred after a call to 'disable'.
         //:
         // Plan:
         //:  1 TBD
         //
         // Testing:
-        //   WINDOWS DEBUG MESSAGE SINK APPARATUS
+        //   WINDOWS DEBUG MESSAGE SINK
         // --------------------------------------------------------------------
+        if (verbose) {
+            puts("\nTESTING WINDOWS DEBUG MESSAGE SINK"
+                 "\n==================================\n");
+        }
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        // TBD
+#else
+        if (verbose) {
+            puts("Not Windows, test passed trivially.\n");
+        }
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TEST-DRIVER LOG MESSAGE HANDLER APPARATUS TEST
+        // TEST-DRIVER LOG MESSAGE HANDLER TEST
         //:  Ensure that the locally defined handler exhibits proper behavior.
         //:
         // Concerns:
-        //:  1 The 'static' state of 'LogMessageSink' is initialized as valid.
+        //: 1 The 'static' state of 'LogMessageSink' is initialized as valid.
         //:
-        //:  2 Calling 'LogMessageSink::testMessageHandler' results in the
-        //:    proper values being set.
+        //: 2 Calling 'LogMessageSink::testMessageHandler' results in the
+        //:   proper values being set.
         //:
-        //:  3 Calling 'LogMessageSink::reset' resets all 'static' members to
-        //:    their state at initialization.
+        //: 3 Calling 'LogMessageSink::reset' resets all 'static' members to
+        //:   their state at initialization.
         //:
         // Plan:
-        //:  1 Confirm that all four 'static' members of 'LogMessageSink' are
-        //     valid empty values.  (C-1)
+        //: 1 Confirm that all four 'static' members of 'LogMessageSink' are
+        //:   valid empty values.  (C-1)
         //:
-        //:  2 Call 'LogMessageSink::testMessageHandler' with valid values, and
-        //:    confirm that the state variables are valid.  (C-2)
+        //: 2 Call 'LogMessageSink::testMessageHandler' with valid values, and
+        //:   confirm that the state variables are valid.  (C-2)
         //:
-        //:  3 Call 'LogMessageSink::reset' and confirm that all variables are
-        //:    now valid.  (C-3)
+        //: 3 Call 'LogMessageSink::reset' and confirm that all variables are
+        //:   now valid.  (C-3)
         //
         // Testing:
-        //   TEST-DRIVER LOG MESSAGE HANDLER APPARATUS
+        //   TEST-DRIVER LOG MESSAGE HANDLER
         // --------------------------------------------------------------------
         if (verbose) {
             fputs("\nTESTING TEST-DRIVER LOG MESSAGE HANDLER APPARATUS"
@@ -2737,23 +2796,23 @@ int main(int argc, char *argv[]) {
         // STREAM REDIRECTION APPARATUS TEST
         //
         // Concerns:
-        //:  1 Object can be initialized for 'stderr' and is in a proper state
+        //: 1 Object can be initialized for 'stderr' and is in a proper state
         //:
-        //:  2 'redirectedStream' and 'nonRedirectedStream' work
+        //: 2 'redirectedStream' and 'nonRedirectedStream' work
         //:
-        //:  3 'enable' works and can be called many times in order
+        //: 3 'enable' works and can be called many times in order
         //:
-        //:  4 Output is redirected
+        //: 4 Output is redirected
         //:
-        //:  5 Captured output is readable
+        //: 5 Captured output is readable
         //:
-        //:  6 'load' works
+        //: 6 'load' works
         //:
-        //:  7 'clear' works
+        //: 7 'clear' works
         //:
-        //:  8 'compare' works
+        //: 8 'compare' works
         //:
-        //:  9 Incorrect output is correctly diagnosed
+        //: 9 Incorrect output is correctly diagnosed
         //:
         //: 10 Embedded newlines work
         //:

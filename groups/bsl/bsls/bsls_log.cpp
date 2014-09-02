@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>       // for testing only
 #include <bsls_atomicoperations.h> // Atomic pointers
 #include <bsls_bsltestutil.h>      // for testing only
 #include <bsls_platform.h>         // 'BSLS_PLATFORM_OS_WINDOWS'

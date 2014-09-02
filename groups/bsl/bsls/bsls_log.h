@@ -372,14 +372,8 @@ BSLS_IDENT("$Id: $")
                          // ==========================
                          // BSLS_LOG Macro Definitions
                          // ==========================
-
-#define BSLS_LOG_IMPL (BloombergLP::bsls::Log::logFormatted)
-    // 'BSLS_LOG_IMPL' is an internal macro which allows the macro definition
-    // of 'BSLS_LOG' to exist on one line (due to line length requirements),
-    // allowing the '__LINE__' macro to expand to the true line number from
-    // which the macro was called.
-
-#define BSLS_LOG(...) (BSLS_LOG_IMPL(__FILE__, __LINE__, __VA_ARGS__))
+#define BSLS_LOG(...) \
+        (BloombergLP::bsls::Log::logFormatted(__FILE__, __LINE__, __VA_ARGS__))
     // The 'BSLS_LOG' macro accepts a 'printf'-style format string as the first
     // parameter.  All subsequent parameters are the variadic substitutions
     // expected by the 'printf'-style format string.  This macro will invoke
@@ -391,13 +385,8 @@ BSLS_IDENT("$Id: $")
     // intended as a 'printf'-style format string, use the 'BSLS_LOG_SIMPLE'
     // macro.
 
-#define BSLS_LOG_SIMPLE_IMPL (BloombergLP::bsls::Log::logMessage)
-    // 'BSLS_LOG_SIMPLE_IMPL' is an internal macro which allows the macro
-    // definition of 'BSLS_LOG' to exist on one line (due to line length
-    // requirements), allowing the '__LINE__' macro to expand to the true line
-    // number from which the macro was called.
-
-#define BSLS_LOG_SIMPLE(msg) (BSLS_LOG_SIMPLE_IMPL(__FILE__, __LINE__, (msg)))
+#define BSLS_LOG_SIMPLE(msg) \
+                (BloombergLP::bsls::Log::logMessage(__FILE__, __LINE__, (msg)))
     // Write the specified null-terminated string 'message' to the currently
     // installed log message handler function, with the file name and line
     // number parameters automatically input as the file name and line number
@@ -550,6 +539,10 @@ void Log::setLogMessageHandler(Log::LogMessageHandler handler)
 inline
 void Log::logMessage(const char *file, int line, const char *message)
 {
+    BSLS_ASSERT_OPT(file);
+    BSLS_ASSERT(line >= 0);
+    BSLS_ASSERT_OPT(message);
+
     return (logMessageHandler()) (file, line, message);
 }
 
