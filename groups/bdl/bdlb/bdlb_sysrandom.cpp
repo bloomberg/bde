@@ -5,6 +5,7 @@
 BSLS_IDENT_RCSID(bdlb_sysrandom_cpp,"$Id$ $CSID$")
 
 #include <bsls_platform.h>
+#include <bsls_assert.h>
 
 #if defined(BSLS_PLATFORM_OS_LINUX)                                           \
  || defined(BSLS_PLATFORM_OS_SUNOS)                                           \
@@ -12,18 +13,18 @@ BSLS_IDENT_RCSID(bdlb_sysrandom_cpp,"$Id$ $CSID$")
  || defined(BSLS_PLATFORM_OS_DARWIN)                                          \
  || defined(BSLS_PLATFORM_OS_AIX)
 #define BDLB_USE_DEV_RANDOM
+#include <unistd.h>
+#include <fcntl.h>
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 #include <windows.h>
 #include <Wincrypt.h>
+#include <cstdlib>
 #define BDLB_USE_WIN_CRYPT
 
 #else
 #error Unknown Platfrom
 #endif // defined(BSLS_PLATFORM_OS_WINDOWS)
-
-#include <unistd.h>
-#include <fcntl.h>
 
 namespace BloombergLP {
 namespace bdlb {
@@ -117,7 +118,7 @@ HCRYPTPROV_Adapter::HCRYPTPROV_Adapter(LPCTSTR container,
     // if the context was unable to be initialized
     if (!d_hCryptProv) {
         // unconditionally call the installed 'ASSERT' handler
-        bsls::Assert::invokeHandler(NULL != d_hCryptProv, __FILE__, __LINE__);
+        bsls::Assert::invokeHandler("NULL != d_hCryptProv", __FILE__, __LINE__);
         // invokeHandler is no return, so this line should never execute
         abort();
     }
