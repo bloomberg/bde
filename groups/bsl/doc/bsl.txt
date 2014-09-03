@@ -27,13 +27,7 @@
  The 'bsl' package group is the foundation of the firm-wide BDE library and has
  no dependencies beyond the allowed OS and runtime environment dependencies.
 
-<<<<<<< HEAD
  The 'bsl' package group currently has 12 packages having 11 levels of physical
- dependency.  The list below shows the hierarchical ordering of the packages.
- The order of packages within each level is not architecturally significant,
- just alphabetical.
-=======
- The 'bsl' package group currently has 13 packages having 12 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
@@ -42,7 +36,6 @@
  behavior is unique to 'bsl', although it is temporarily also in 'bde' for
  historic reasons, since logically *every* other package should depend on
  'bslscm'.
->>>>>>> workflow/internalcheckin/oss-import
 ..
   12. bslx
 
