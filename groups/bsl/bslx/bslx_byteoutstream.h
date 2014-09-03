@@ -93,7 +93,7 @@ BSLS_IDENT("$Id: $")
 // Then, we compare the contents of the stream to the expected value:
 //..
 //  const char *theChars = outStream.data();
-//  int length = outStream.length();
+//  int         length = outStream.length();
 //  assert(15 == length);
 //  assert( 0 == bsl::memcmp(theChars,
 //                           "\x00\x00\x00\x01\x00\x00\x00\x02""c\x05""hello",

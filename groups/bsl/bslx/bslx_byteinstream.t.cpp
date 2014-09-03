@@ -4780,7 +4780,7 @@ if (veryVerbose) {
             // invalidate stream x2 by making excessive 'get' calls
             char c;
             for (j = 0; j < i + 1; j++) {
-                if (veryVerbose) {  P(j);  }
+                if (veryVerbose) { P(j); }
                 mX2.getInt8(c);
             }
             LOOP_ASSERT(i, !X && !X2);
