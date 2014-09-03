@@ -16,10 +16,11 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
 
-#include <wchar.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -36,12 +37,14 @@ using namespace bsl;
 // [ 2] hash& operator=(const hash&)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] STRINGTHING
-// [ 8] USAGE EXAMPLE
-// [ 4] Standard typedefs
-// [ 5] Bitwise-movable trait
-// [ 5] IsPod trait
-// [ 6] QoI: Is an empty type
+// [ 7] USAGE EXAMPLE 1
+// [ 8] USAGE EXAMPLE 2
+// [ 4] typedef argument_type
+// [ 4] typedef second_argument_type
+// [ 5] IsBitwiseMovable trait
+// [ 5] is_trivially_copyable trait
+// [ 5] is_trivially_default_constructible trait
+// [ 6] QoI: Support for empty base optimization
 
 // ============================================================================
 //                    STANDARD BDE ASSERT TEST MACROS
@@ -136,14 +139,14 @@ void aSsErT(bool b, const char *s, int i)
 // An important quality of the hash function is that if two values are
 // equivalent, they must yield the same hash value.
 //
-// First, we define our 'HashCrossReference' template class, with the two
-// type parameters 'TYPE" (the type being referenced' and 'HASHER', which
-// defaults to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int',
-// a specialization of 'bsl::hash' is already defined:
+// First, we define our 'HashCrossReference' template class, with the two type
+// parameters 'TYPE" (the type being referenced' and 'HASHER', which defaults
+// to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int', a
+// specialization of 'bsl::hash' is already defined:
 
 template <class TYPE, class HASHER = bsl::hash<TYPE> >
 class HashCrossReference {
-    // This table leverages a hash table to provide a fast lookup of an
+    // This class template implements a hash table providing fast lookup of an
     // external, non-owned, array of values of configurable type.
     //
     // The only requirement for 'TYPE' is that it have a transitive, symmetric
@@ -176,9 +179,10 @@ class HashCrossReference {
                 const TYPE&  value,
                 size_t       hashValue) const
         // Look up the specified 'value', having hash value 'hashValue', and
-        // return its index in 'd_bucketArray'.  If not found, return the
-        // vacant entry in 'd_bucketArray' where it should be inserted.  Return
-        // 'true' if 'value is found and 'false' otherwise.
+        // return its index in 'd_bucketArray' stored in the specified 'idx.
+        // If not found, return the vacant entry in 'd_bucketArray' where it
+        // should be inserted.  Return 'true' if 'value is found and 'false'
+        // otherwise.
     {
         const TYPE *ptr;
         for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
@@ -197,7 +201,9 @@ class HashCrossReference {
     HashCrossReference(const TYPE       *valuesArray,
                        size_t            numValues,
                        bslma::Allocator *allocator = 0)
-        // Create a hash cross reference referring to the array of value.
+        // Create a hash table refering to the specified 'valuesArray'
+        // containing 'numValues'. Optionally specify 'allocator' or the
+        // default allocator will be used.
     : d_values(valuesArray)
     , d_numValues(numValues)
     , d_hasher()
@@ -210,8 +216,8 @@ class HashCrossReference {
             BSLS_ASSERT_OPT(bucketArrayLength);
         }
         d_bucketArrayMask = bucketArrayLength - 1;
-        d_bucketArray = (const TYPE **) d_allocator_p->allocate(
-                                          bucketArrayLength * sizeof(TYPE **));
+        d_bucketArray = static_cast<const TYPE **>(d_allocator_p->allocate(
+                                         bucketArrayLength * sizeof(TYPE **)));
         memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 
         for (unsigned i = 0; i < numValues; ++i) {
@@ -257,96 +263,144 @@ class HashCrossReference {
     }
 };
 
-///Example 2: Using Our Hash Cross Reference For a Custom Class
+///Example 2: Using 'hashAppend' from 'bslh' with 'HashCrossReference'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In Example 1, we demonstrated a hash cross reference for integers, a trivial
-// example.  In Example 2, we want to demonstrate specializing 'hash' for a
-// custom class.  We will re-use the 'HashCrossReference' template class
-// defined in Example 1.
+// We want to specialize 'bsl::hash' for a custom class. We can use the the
+// modular hashing system implemented in 'bslh' rather than explicitly
+// specializing 'bsl::hash'. We will re-use the 'HashCrossReference' template
+// class defined in Example 1.
+//
+// First, we declare 'Point', a class that allows us to identify a loction on a
+// two dimensional cartesian plane.
+//..
 
-// First, we define a 'StringThing' class, which is basically a 'const char *'
-// except that 'operator==' will do the right thing on the strings and properly
-// compare them:
+    class Point {
+        // This class is a value semantic type that represents as two
+        // dimensional location on a cartesian plane.
 
-class StringThing {
-    // This class holds a pointer to zero-terminated string.  It is implicitly
-    // convertible to and from a 'const char *'.  The difference between this
-    // type and a 'const char *' is that 'operator==' will properly compare two
-    // objects of this type for equality of strings rather than equality of
-    // pointers.
+      private:
+        int    d_x;
+        int    d_y;
+        double d_distToOrigin; // This value will be accessed a lot, so we
+                               // cache it rather than recalculating every
+                               // time.
 
-    // DATA
-    const char *d_string;    // held, not owned
+      public:
+        Point (int x, int y);
+            // Create a 'Point' with the specified 'x' and 'y' coordinates
 
-  public:
-    // CREATOR
-    StringThing(const char *string)                                 // IMPLICIT
-    : d_string(string)
-        // Create a 'StringThing' object out of the specified 'string'.
-    {}
+        double distanceToOrigin();
+            // Return the distance from the origin (0, 0) to this point.
 
-    // ACCESSOR
-    operator const char *() const
-        // Implicitly cast this 'StringThing' object to a 'const char *' that
-        // refers to the same buffer.
-    {
-        return d_string;
+//..
+// Then, we declare 'operator==' as a friend so that we will be able to compare
+// two points.
+//..
+        friend bool operator==(const Point &left, const Point &right);
+
+//..
+// Next, we declare 'hashAppend' as a friend so that we will be able hash a
+// 'Point'.
+//..
+        template <class HASH_ALGORITHM>
+        friend
+        void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point);
+            // Apply the specified 'hashAlg' to the specified 'point'
+    };
+
+    Point::Point(int x, int y) : d_x(x), d_y(y) {
+        d_distToOrigin = sqrt(static_cast<long double>(d_x * d_x) +
+                              static_cast<long double>(d_y * d_y));
     }
-};
 
-inline
-bool operator==(const StringThing& lhs, const StringThing& rhs)
-{
-    return !strcmp(lhs, rhs);
-}
-
-inline
-bool operator!=(const StringThing& lhs, const StringThing& rhs)
-{
-    return !(lhs == rhs);
-}
-
-// Then, we need a hash function for 'StringThing'.  We can specialize
-// 'bsl::hash' for our 'StringThing' type:
-
-namespace bsl {
-
-template <>
-struct hash<StringThing> {
-    // We need to specialize 'hash' for our 'StringThing' type.  If we just
-    // called 'hash<const char *>', it would just hash the pointer, so that
-    // pointers to two different buffers containing the same sequence of chars
-    // would hash to different values, which would not be the desired behavior.
-
-    size_t operator()(const StringThing& st) const
-        // Return the hash of the zero-terminated sequence of bytes referred to
-        // by the specified 'st'.  Note that this is an ad-hoc hash function
-        // thrown together in a few minutes, it has not been exhaustively
-        // tested or mathematically analyzed.  Also note that even though most
-        // of the default specializations of 'hash' have functions that take
-        // their arguments by value, there is nothing preventing us from
-        // chosing to pass it by reference in this case.
-    {
-        enum { SHIFT_DOWN = sizeof(size_t) * 8 - 8 };
-
-#ifdef BSLS_PLATFORM_CPU_64_BIT
-        const size_t MULTIPLIER = 0x5555555555555555ULL; // 16 '5's
-#else
-        const size_t MULTIPLIER = 0x55555555;            //  8 '5's
-#endif
-
-        size_t ret = 0;
-        unsigned char c;
-        for (const char *pc = st; (c = *pc); ++pc) {
-            ret =  MULTIPLIER * (ret + c);
-            ret += ret >> SHIFT_DOWN;
-        }
-
-        return ret;
+    double Point::distanceToOrigin() {
+        return d_distToOrigin;
     }
-};
 
-}  // close namespace bsl
+//..
+// Then, we define 'operator=='. Notice how it only checks salient attributes -
+// attributes that contribute to the value of the class. We ignore
+// 'd_distToOrigin' which is not required to determine equality.
+//..
+    bool operator==(const Point &left, const Point &right)
+    {
+        return (left.d_x == right.d_x) && (left.d_y == right.d_y);
+    }
+
+//..
+// Next, we define 'hashAppend'. This method will allow any hashing algorithm
+// to be applied to 'Point'. This is the extent of the work that needs to be
+// done by type creators. They do not need to implement any algorithms, they
+// just need to call out the salient attributes (which have already been
+// determined by 'operator==') by calling 'hashAppend' on them.
+//..
+    template <class HASH_ALGORITHM>
+    void hashAppend(HASH_ALGORITHM &hashAlg, const Point &point)
+    {
+        using ::BloombergLP::bslh::hashAppend;
+        hashAppend(hashAlg, point.d_x);
+        hashAppend(hashAlg, point.d_y);
+    }
+
+//..
+// Then, we declare another value semantic type, 'Box' that will have point as
+// one of its salient attributes.
+//..
+    class Box {
+        // This class is a value semantic type that represents a box drawn on
+        // to a cartesian plane.
+
+      private:
+        Point d_position;
+        int d_length;
+        int d_width;
+
+      public:
+        Box(Point position, int length, int width);
+            // Create a box with the specified 'length' and 'width', with its
+            // upper left corner at the specified 'position'
+
+//..
+// Next, we declare 'operator==' and 'hashAppend' as we did before.
+//..
+        friend bool operator==(const Box &left, const Box &right);
+
+        template <class HASH_ALGORITHM>
+        friend
+        void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box);
+            // Apply the specified 'hashAlg' to the specified 'box'
+    };
+
+    Box::Box(Point position, int length, int width) : d_position(position),
+                                                      d_length(length),
+                                                      d_width(width) { }
+
+//..
+// Then, we define 'operator=='. This time all of the data members contribute
+// to equality.
+//..
+    bool operator==(const Box &left, const Box &right)
+    {
+        return (left.d_position == right.d_position) &&
+               (left.d_length   == right.d_length) &&
+               (left.d_width    == right.d_width);
+    }
+
+//..
+// Next, we define 'hashAppend' for 'Box'. Notice how as well as calling
+// 'hashAppend' on fundamental types, we can also call it on our user defined
+// type 'Point'. Calling 'hashAppend' on 'Point' will propogate the hashing
+// algorithm functor 'hashAlg' down to the fundamental types that make up
+// 'Point', and those types will then be passed into the algorithm functor.
+//..
+    template <class HASH_ALGORITHM>
+    void hashAppend(HASH_ALGORITHM &hashAlg, const Box &box)
+    {
+        hashAppend(hashAlg, box.d_position);
+        hashAppend(hashAlg, box.d_length);
+        hashAppend(hashAlg, box.d_width);
+    }
+
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -356,7 +410,7 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-//  bool         veryVerbose = argc > 3;
+    bool         veryVerbose = argc > 3;
 //  bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
@@ -368,84 +422,72 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
-        //   Extracted from component header file.
+        //   Implement hashing in the new 'bslh' hashing system test that
+        //   'bls::hash' picks up on it when there isn't a 'bsl::hash' template
+        //   specialization.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 The usage example compiles, links, and runs as shown.
+        //:
+        //: 2 'bsl::hash' picks up on and used the implemented 'hashAppend'
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 Incorporate usage example into test driver and verify
+        //:   functionality with some sample values. (C-1,2)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
         if (verbose) printf("USAGE EXAMPLE 2\n"
                             "===============\n");
+//..
+// Then, we want to use our cross reference on a 'Box'.  We create an array of
+// unique 'Box's and take its length:
+//..
 
-// Next, now we want to use our cross reference on a more complex type, so
-// we'll use the 'StringThing' type we created.  We create an array of unique
-// 'StringThing's and take its length:
+        Box boxes[] = { Box(Point(0, 0), 2, 3),
+                        Box(Point(1, 0), 1, 1),
+                        Box(Point(0, 1), 1, 5),
+                        Box(Point(1, 1), 5, 6),
+                        Box(Point(2, 1), 1, 13),
+                        Box(Point(0, 4), 3, 3),
+                        Box(Point(3, 2), 2, 17) };
+        enum { NUM_BOXES = sizeof boxes / sizeof *boxes };
 
-        StringThing stringThings[] = { "woof",
-                                       "meow",
-                                       "bark",
-                                       "arf",
-                                       "bite",
-                                       "chomp",
-                                       "gnaw" };
-        enum { NUM_STRINGTHINGS =
-                              sizeof stringThings / sizeof *stringThings };
-
-// Then, we create our cross-reference 'hcrsts' and verify that it constructed
+//..
+// Next, we create our cross-reference 'hcrsts' and verify that it constructed
 // properly.  Note we don't pass a second parameter template argument and let
-// 'HASHER' will define to 'bsl::hash<StringThing>', which we have defined
-// above:
+// 'HASHER' default to 'bsl::hash<TYPE>'. Since we have not specialized
+// 'bsl::hash' for 'Box', 'bsl::hash<TYPE>' will attempt to use 'bslh::hash<>'
+// to hash 'Box'.
+//..
 
-        HashCrossReference<StringThing> hcrsts(stringThings,
-                                               NUM_STRINGTHINGS);
+        HashCrossReference<Box> hcrsts(boxes, NUM_BOXES);
         ASSERT(hcrsts.isValid());
 
-// Next, we verify that each element in our array registers with count:
+//..
+// Now, we verify that each element in our array registers with count:
+//..
+        for(int i = 0; i < NUM_BOXES; ++i) {
+            ASSERT(1 == hcrsts.count(boxes[i]));
+        }
 
-        ASSERT(1 == hcrsts.count("woof"));
-        ASSERT(1 == hcrsts.count("meow"));
-        ASSERT(1 == hcrsts.count("bark"));
-        ASSERT(1 == hcrsts.count("arf"));
-        ASSERT(1 == hcrsts.count("bite"));
-        ASSERT(1 == hcrsts.count("chomp"));
-        ASSERT(1 == hcrsts.count("gnaw"));
-
-// Now, we verify that strings not in our original array are correctly
+//..
+// Finally, we verify that elements not in our original array are correctly
 // identified as not being in the set:
+//..
+        ASSERT(0 == hcrsts.count(Box(Point(3, 3), 3, 3)));
+        ASSERT(0 == hcrsts.count(Box(Point(3, 2), 1, 0)));
+        ASSERT(0 == hcrsts.count(Box(Point(1, 2), 3, 4)));
+        ASSERT(0 == hcrsts.count(Box(Point(33, 23), 13, 3)));
+        ASSERT(0 == hcrsts.count(Box(Point(30, 37), 34, 13)));
 
-        ASSERT(0 == hcrsts.count("buy"));
-        ASSERT(0 == hcrsts.count("beg"));
-        ASSERT(0 == hcrsts.count("borrow"));
-        ASSERT(0 == hcrsts.count("or"));
-        ASSERT(0 == hcrsts.count("steal"));
-
-// Finally, to make sure that our lookup is independent of string location, we
-// copy some strings into a buffer and make sure that our results are as
-// expected.
-
-        char buffer[10];
-        strcpy(buffer, "woof");
-        ASSERT(1 == hcrsts.count(buffer));
-        strcpy(buffer, "chomp");
-        ASSERT(1 == hcrsts.count(buffer));
-        strcpy(buffer, "buy");
-        ASSERT(0 == hcrsts.count(buffer));
-        strcpy(buffer, "steal");
-        ASSERT(0 == hcrsts.count(buffer));
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 1
         //   Extracted from component header file.
@@ -492,28 +534,9 @@ int main(int argc, char *argv[])
         ASSERT(0 == hcri.count(37));
         ASSERT(0 == hcri.count(58));
       } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING 'StringThing'
-        //
-        // Concern:
-        //   That the 'StringThing' type use in the usage example functions
-        //   properly.
-        // --------------------------------------------------------------------
-
-        const char *a = "woof";
-        char b[5];
-        strcpy(b, a);
-        ASSERT(a != b);
-
-        ASSERT(StringThing(a) == StringThing(b));
-        b[0] = '*';
-        ASSERT(StringThing(a) != StringThing(b));
-        ASSERT(StringThing(a) != StringThing("meow"));
-      } break;
       case 6: {
         // --------------------------------------------------------------------
-        // QoI: Is an empty type
+        // TESTING QOI: IS AN EMPTY TYPE
         //   As a quality of implementation issue, the class has no state and
         //   should support the use of the empty base class optimization on
         //   compilers that support it.
@@ -542,7 +565,7 @@ int main(int argc, char *argv[])
         //   QoI: Support for empty base optimization
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING QoI: Is an empty type"
+        if (verbose) printf("\nTESTING QOI: IS AN EMPTY TYPE"
                             "\n=============================\n");
 
         typedef int TYPE;
@@ -570,7 +593,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // BDE TYPE TRAITS
+        // TESTING BDE TYPE TRAITS
         //   The functor is an empty POD, and should have the appropriate BDE
         //   type traits to reflect this.
         //
@@ -584,11 +607,13 @@ int main(int argc, char *argv[])
         //:   metafunction. (C-1..3)
         //
         // Testing:
-        //   BDE Traits
+        //   IsBitwiseMovable trait
+        //   is_trivially_copyable trait
+        //   is_trivially_default_constructible trait
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING BDE TRAITS"
-                            "\n==================\n");
+        if (verbose) printf("\nTESTING BDE TYPE TRAITS"
+                            "\n=======================\n");
 
         typedef int TYPE;
 
@@ -599,7 +624,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // STANDARD TYPEDEFS
+        // TESTING STANDARD TYPEDEFS
         //   Verify that the class offers the three typedefs required of a
         //   standard adaptable binary function.
         //
@@ -655,7 +680,7 @@ int main(int argc, char *argv[])
         //: 3
         //
         // Testing:
-        //   operator()(const T&) const
+        //   operator()(const VALUE_TYPE&) const
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTION CALL OPERATOR"
@@ -674,11 +699,11 @@ int main(int argc, char *argv[])
             TYPE       d_value;
             size_t     d_hashCode;
         } DATA[] = {
-            // LINE    VALUE   HASHCODE
-            {  L_,     0,       0 },
-            {  L_,     5,       5 },
-            {  L_,     13,     13 },
-            {  L_,     42,     42 },
+            // LINE   VALUE  HASHCODE
+            {  L_,       0,     0 },
+            {  L_,       5,     5 },
+            {  L_,      13,    13 },
+            {  L_,      42,    42 },
             {  L_,     127,   127 },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -687,6 +712,10 @@ int main(int argc, char *argv[])
             const int         LINE      = DATA[i].d_line;
             const signed char VALUE     = DATA[i].d_value;
             const size_t      HASHCODE  = DATA[i].d_hashCode;
+
+            if(veryVerbose) {
+                printf("Testing that %c hashes to %u", VALUE, HASHCODE);
+            }
 
             LOOP_ASSERT(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
             LOOP_ASSERT(LINE, bsl::hash<unsigned char>()(VALUE) == HASHCODE);
@@ -742,7 +771,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // C'TORS, D'TOR AND ASSIGNMENT OPERATOR (IMPLICITLY DEFINED)
+        // TESTING IMPLICITLY DEFINED OPERATIONS
         //   Ensure that the four implicitly declared and defined special
         //   member functions are publicly callable and have no unexpected side
         //   effects such as allocating memory.  As there is no observable
@@ -790,8 +819,8 @@ int main(int argc, char *argv[])
         //   hash& operator=(const hash&)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nIMPLICITLY DEFINED OPERATIONS"
-                            "\n=============================\n");
+        if (verbose) printf("\nTESTING IMPLICITLY DEFINED OPERATIONS"
+                            "\n=====================================\n");
 
         typedef int TYPE;
 
