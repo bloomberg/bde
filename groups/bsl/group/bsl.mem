@@ -3,6 +3,7 @@ bsl+stdhdrs
 bslalg
 bsldoc
 bslfwd
+bslh
 bslim
 bslma
 bslmf

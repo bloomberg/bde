@@ -700,6 +700,11 @@ std::basic_ostream<CHAR_TYPE>&
     // specified output 'stream' and return a reference to the modifiable
     // 'stream'.
 
+// FREE FUNCTIONS
+template <typename CHAR_TYPE, typename HASHALG>
+void hashAppend(HASHALG& hashAlg, const StringRefImp<CHAR_TYPE>&  input);
+    // Pass the specified 'input' to the specified 'hashAlg'
+
 // ===========================================================================
 //                                  TYPEDEFS
 // ===========================================================================
@@ -1382,6 +1387,18 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     return stream;
 }
 
+template <typename CHAR_TYPE, typename HASHALG>
+inline
+void bslstl::hashAppend(HASHALG& hashAlg, 
+                        const StringRefImp<CHAR_TYPE>&  input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAlg(input.data(), sizeof(CHAR_TYPE)*input.length());
+    hashAppend(hashAlg, input.length());
+}
+
+}  // close enterprise namespace
+
 #ifndef BDE_OMIT_TRANSITIONAL  // BACKWARD_COMPATIBILITY
 // ===========================================================================
 //                           BACKWARD COMPATIBILITY
@@ -1406,60 +1423,6 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     // This alias is defined for backward compatibility.
 #endif  // BDE_OMIT_TRANSITIONAL -- BACKWARD_COMPATIBILITY
 
-}  // close enterprise namespace
-
-                      // =================================
-                      // struct hash<bslstl::StringRefImp>
-                      // =================================
-
-namespace bsl {
-
-template <typename CHAR_TYPE>
-struct hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> > {
-    // This template specialization enables use of 'bslstl::StringRefImp'
-    // within STL hash containers, for example,
-    // 'bsl::unordered_set<bslstl::StringRefImp>' and
-    // 'bsl::unordered_map<bslstl::StringRefImp, Type>' for some type 'Type'.
-
-    // ACCESSORS
-    std::size_t
-    operator()(const BloombergLP::bslstl::StringRefImp<CHAR_TYPE>&
-                                                              stringRef) const;
-        // Return a hash corresponding to the string bound to the specified
-        // 'stringRef'.
-};
-
-// ACCESSORS
-template <typename CHAR_TYPE>
-std::size_t hash<BloombergLP::bslstl::StringRefImp<CHAR_TYPE> >::
-operator()(const BloombergLP::bslstl::StringRefImp<CHAR_TYPE>& stringRef) const
-{
-    const CHAR_TYPE *string = stringRef.begin();
-    const CHAR_TYPE *end    = stringRef.end();
-
-    const unsigned int ADDEND       = 1013904223U;
-    const unsigned int MULTIPLICAND =    1664525U;
-    const unsigned int MASK         = 4294967295U;
-
-    std::size_t r = 0;
-
-    if (4 == sizeof(int)) {
-        while (string != end) {
-            r ^= *string++;
-            r = r * MULTIPLICAND + ADDEND;
-        }
-    }
-    else {
-        while (string != end) {
-            r ^= *string++;
-            r = (r * MULTIPLICAND + ADDEND) & MASK;
-        }
-    }
-
-    return r;
-}
-
-}  // close namespace bsl
 
 #endif
 

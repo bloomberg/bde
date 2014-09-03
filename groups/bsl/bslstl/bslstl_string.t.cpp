@@ -248,6 +248,7 @@ using namespace std;
 //                                      const string& str);
 // [ 5] basic_istream<C,CT>& operator>>(basic_istream<C,CT>& stream,
 //                                      const string& str);
+// [29] hashAppend(HASHALG& hashAlg, const basic_string&  input);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] ALLOCATOR-RELATED CONCERNS
@@ -908,6 +909,9 @@ struct TestDriver {
         // specifications, and check that the specified 'result' agrees.
 
     // TEST CASES
+    static void testCase29();
+        // Test the hash append specialization.
+
     static void testCase28();
         // Test the short string optimization.
 
@@ -1190,6 +1194,110 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
                                  // ----------
                                  // TEST CASES
                                  // ----------
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase29()
+{
+    // --------------------------------------------------------------------
+    // TESTING 'hashAppend'
+    //   Verify that the hashAppend function works properly and is picked
+    //   up by 'bslh::Hash'
+    //
+    // Concerns:
+    //: 1 'bslh::Hash' picks up 'hashAppend(string)' and can hash strings
+    //:
+    //: 2 'hashAppend' hashes the entire string, regardless of 'char' or
+    //:   'wchar'
+    //:
+    //: 3 Empty strings can be hashed
+    //:
+    //: 4 Hash is not computed on data beyond the end of very short strings
+    //
+    // Plan:
+    //: 1 Use 'bslh::Hash' to hash a few values of strings with each char type.
+    //:   (C-1,2)
+    //:
+    //: 2 Hash an empty string. (C-3)
+    //:
+    //: 3 Hash two very short strings with the same value and assert that they
+    //:   produce equal hashes. (C-4)
+    //
+    // Testing:
+    //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
+    // --------------------------------------------------------------------
+    typedef ::BloombergLP::bslh::Hash<> Hasher;
+    typedef typename Hasher::result_type HashType;
+
+    const int PRIME = 100003; // Arbitrary large prime to be used in hash-table
+                              // like testing
+
+    int       collisions [PRIME] = {};
+    Hasher    hasher;
+    size_t    prevHash           = 0;
+    HashType  hash               = 0;
+
+    if (verbose) printf("Use 'bslh::Hash' to hash a few values of strings with"
+                        " each char type. (C-1,2)\n");
+    {
+        for (int i = 0; i != PRIME; ++i) {
+            Obj num;
+            if (i > 66000){
+                //Make sure we're testing long strings
+                for (int j = 0; j < 40; ++j) {
+                    num.push_back(TYPE('A'));
+                }
+            }
+            else if (i > 33000) {
+                //Make sure we're testing with null characters in the strings
+                for (int j = 0; j < 5; ++j) {
+                    num.push_back(TYPE('A'));
+                    num.push_back(TYPE('\0'));
+                }
+            }
+            num.push_back( TYPE('0' + (i/1000000)     ));
+            num.push_back( TYPE('0' + (i/100000)  %10 ));
+            num.push_back( TYPE('0' + (i/10000)   %10 ));
+            num.push_back( TYPE('0' + (i/1000)    %10 ));
+            num.push_back( TYPE('0' + (i/100)     %10 ));
+            num.push_back( TYPE('0' + (i/10)      %10 ));
+            num.push_back( TYPE('0' + (i)         %10 ));
+
+            if (veryVerbose) printf("Testing hash of %s\n", num.data());
+
+            prevHash = hash;
+            hash     = hasher(num);
+
+            // Check consecutive values arent hashing to the same hash
+            ASSERT(prevHash != hash);
+
+            // Check that minimal collisions are happening
+            ASSERT(++collisions[hash % PRIME] <= 11);  // Choose 11 as a max
+                                                   // number collisions
+
+            Obj numCopy = num;
+
+            // Verify same hash is produced for the same value
+            ASSERT(num == numCopy);
+            ASSERT(hash == hasher(numCopy));
+        }
+    }
+
+    if (verbose) printf("Hash an empty string. (C-3)\n");
+    {
+        Obj empty;
+        ASSERT(hasher(empty));
+    }
+
+    if (verbose) printf("Hash two very short strings with the same value and"
+                        " assert that they produce equal hashes. (C-4)\n");
+    {
+        Obj small1;
+        Obj small2;
+        small1.push_back( TYPE('0') );
+        small2.push_back( TYPE('0') );
+        ASSERT(hasher(small1) == hasher(small2));
+    }
+}
+
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE,TRAITS,ALLOC>::testCase28()
@@ -13922,7 +14030,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -14133,6 +14241,34 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, EXP == os.str());
             }
         }
+      } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING 'hashAppend'
+        //   Verify that the hashAppend function works properly and is picked
+        //   up by 'bslh::Hash'
+        //
+        // Concerns:
+        //: 1 'bslh::Hash' picks up 'hashAppend(string)' and can hash strings
+        //: 2 'hashAppend' hashes the entire string, regardless of 'char' or
+        //:   'wchar'
+        //
+        // Plan:
+        //: 1 Use 'bslh::Hash' to hash a few values of strings with each char
+        //:   type. (C-1,2)
+        //
+        // Testing:
+        //   hashAppend(HASHALG& hashAlg, const basic_string&  input);
+        // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING 'hashAppend'"
+                            "\n====================\n");
+
+        if (verbose) printf("\n... with 'char'.\n");
+        TestDriver<char>::testCase29();
+
+        if (verbose) printf("\n... with 'wchar_t'.\n");
+        TestDriver<wchar_t>::testCase29();
+
       } break;
       case 28: {
         // --------------------------------------------------------------------
