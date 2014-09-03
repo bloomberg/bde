@@ -34,16 +34,12 @@ namespace {
                          // class BufferScopedGuard
                          // =======================
 class BufferScopedGuard {
-    // This class implements a scoped guard that provides a method, 'allocate',
-    // which allocates a buffer of a specified size.  The scoped guard is then
-    // responsible for the proper deletion of this allocated buffer upon
-    // destruction of the instance or upon a new call to 'allocate'.
+    // This class implements a scoped guard that unconditionally deallocates
+    // the memory allocated by its 'allocate' method.
 
   private:
     // DATA
-    char *d_buffer_p;
-        // Owned by this object.  Lifetime shall not exceed the lifetime of
-        // this object.
+    char *d_buffer_p;  // pointer to the allocated buffer (owned)
 
     // NOT IMPLEMENTED
     BufferScopedGuard(const BufferScopedGuard&);                    // = delete
@@ -53,21 +49,20 @@ class BufferScopedGuard {
   public:
     // CREATORS
     BufferScopedGuard();
-        // Create a scoped guard that is not responsible for any initial
-        // buffer.
+        // Create a scoped guard that does not own an initial buffer.
 
     ~BufferScopedGuard();
-        // Destroy the last buffer returned by the 'allocate' function, if the
-        // 'allocate' function was ever called.  Destroy this scoped guard.
+        // Deallocate the last buffer allocated by a call to the 'allocate'
+        // method, and destroy this object.
 
     // MANIPULATORS
     char* allocate(size_t numBytes);
         // Return a pointer to a buffer guaranteed to be large enough to store
         // the specified 'numBytes' bytes, or 'NULL' if memory was not
-        // available.  Destroy the last buffer returned by this method, if this
-        // method was ever called before.  The returned pointer is owned by
-        // this object and will remain valid until this object is destroyed or
-        // until this method ('allocate') is called again.
+        // available.  Deallocate the last buffer allocated by a call to this
+        // method.  The returned pointer is owned by this object and will
+        // remain valid until this object is destroyed or until this method is
+        // called again.
 
 };
 
@@ -87,10 +82,11 @@ BufferScopedGuard::~BufferScopedGuard()
 
 // MANIPULATORS
 char* BufferScopedGuard::allocate(size_t numBytes) {
-    // We don't want to use realloc, because it guarantees that the contents of
-    // the buffer are copied to the new block (in the case that the block is
-    // moved).  The code itself does not rely on this ability, so we do not
-    // want the inefficiency of the copy if it does not need to be done.
+
+    // Note that we don't want to use realloc, because it guarantees that the
+    // contents of the buffer are copied to the new block (in the case that the
+    // block is moved).  The code itself does not rely on this ability, so we
+    // do not want the inefficiency of the copy if it does not need to be done.
 
     if(d_buffer_p) {
         free(d_buffer_p);
@@ -379,8 +375,9 @@ void Log::platformDefaultMessageHandler(const char *file,
 {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    // In Windows we must check for console mode
-    if(GetConsoleWindow() == NULL) {
+    // In Windows, we must check if we are console mode by looking for a valid
+    // handle to 'stdout'.
+    if(GetStdHandle(STD_ERROR_HANDLE) == NULL) {
         BSLS_ASSERT_OPT(file);
         BSLS_ASSERT(line >= 0);
         BSLS_ASSERT_OPT(message);

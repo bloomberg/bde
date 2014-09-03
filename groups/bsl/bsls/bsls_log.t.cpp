@@ -61,12 +61,7 @@ using namespace BloombergLP;
 // [ 2] TEST-DRIVER LOG MESSAGE HANDLER
 // [ 1] STREAM REDIRECTION APPARATUS
 //
-// [15] COMPONENT-LEVEL DOCUMENTATION 1
-// [14] COMPONENT-LEVEL DOCUMENTATION 2
-// [13] COMPONENT-LEVEL DOCUMENTATION 3
-// [12] USAGE EXAMPLE 1
-// [11] USAGE EXAMPLE 2
-// [10] USAGE EXAMPLE 3
+// [10] USAGE EXAMPLES
 //
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: Exceptions thrown in a log message handler are propagated.
@@ -75,14 +70,15 @@ using namespace BloombergLP;
 
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
-
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+static void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
+    if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
@@ -1281,236 +1277,45 @@ OutputRedirector::Stream OutputRedirector::redirectedStreamId() const
 //-----------------------------------------------------------------------------
 namespace UsageExamples {
 
-///Motivation
-///----------
-// This component provides a mechanism for installing and invoking a global log
-// message handler function through a unified interface.  This interface is
-// intended as a replacement for instances in low-level code in which a log
-// message is written directly to an output stream such as 'stderr'.
-//
-// Outputting directly to a hard-coded stream is problematic in many ways.
-// First, hard-coding the stream does not give users any freedom to control log
-// messages.  A user may want all logs to be automatically redirected to a file
-// or may want to add some custom formatting or handling.  These freedoms are
-// not available if the output stream is predetermined.  Second, Windows
-// applications running in non-console mode do not have a concept of 'stdout'
-// or 'stderr'.  Writing directly to either of these streams is known to hang
-// the process on certain Windows systems when no console is attached.  Third,
-// a better overall logging system would encourage a greater number of useful
-// logs to be written where they were originally omitted, possibly revealing
-// previously unknown issues in code.
-//
-///Functionality
-///-------------
-// This section describes the full functionality provided by this component.
-//
-///Log Message Handlers
-/// - - - - - - - - - -
-// The class 'bsls::Log' provides a mechanism for installing and invoking a
-// global log message handler function through a simple interface.
-//
-// Log message handler functions must have a signature that conforms to the
-// 'bsls::Log::LogMessageHandler' 'typedef', which corresponds to a
-// 'void'-valued function taking as input three parameters: the string name of
-// the file from which the log was written, the line number at which the log
-// was written, and the log message string.
-//
-///Invocation of the Installed Log Message Handler
-///- - - - - - - - - - - - - - - - - - - - - - - -
-// The dispatch method 'bsls::Log::logMessage' is provided as the most direct,
-// safe, and efficient means of invoking the currently installed log message
-// handler with the provided file name, line number, and message string.  It
-// can be used as in the following expression:
-//..
-//  bsls::Log::logMessage(__FILE__, __LINE__, "Function 'f' is deprecated.");
-//..
-//
-// The method 'bsls::Log::logFormatted' takes a format string and a set of
-// variadic arguments instead of a raw message string.  This method will format
-// the format string with the variadic argument substitutions according to the
-// 'printf'-style rules and will subsequently invoke the currently installed
-// log message handler with the provided file name and line number, along with
-// the newly formatted string.  *Note:* Passing an arbitrary string as the
-// format string is dangerous and can lead to undefined behavior.  The method
-// may be used as in the following example:
-//..
-//  int x = 3;
-//  const char *s = "Hello World";
-//  bsls::Log::logFormatted(__FILE__, __LINE__, "Invalid String %d: %s", x, s);
-//..
-//
-// The macro 'BSLS_LOG_SIMPLE' is provided.  This macro behaves exactly like
-// 'bsls::Log::logMessage' except that the file name and line number parameters
-// are automatically filled in with '__FILE__' and '__LINE__', respectively.
-// Therefore, the 'BSLS_LOG_SIMPLE' macro takes a single parameter, which is
-// the expected log message string:
-//..
-//  BSLS_LOG_SIMPLE("Error: Double initialization of singleton.");
-//..
-//
-// Finally, the macro 'BSLS_LOG' is provided.  This macro behaves exactly like
-// 'bsls::Log::logFormatted' except that the file name and line number
-// parameters are automatically filled in with '__FILE__' and '__LINE__',
-// respectively.  The 'BSLS_LOG' macro takes the format string as the first
-// parameter, with the expected variadic substitutions as the subsequent
-// parameters.  The 'BSLS_LOG' macro may be used as in the following example:
-//..
-//  int user = 5;
-//  int admin = 7;
-//  BSLS_LOG("User level %d does not have admin rights (%d).", user, admin);
-//..
-//
-///Installation of Log Message Handlers
-/// - - - - - - - - - - - - - - - - - -
-// The currently installed log message handler function may be replaced by
-// using the 'static' method 'bsls::Log::setLogMessageHandler' which takes, as
-// a parameter, a single function pointer of type
-// 'bsls::Log::LogMessageHandler'.
-//
-// Installing a log message handler is usually not necessary.  The default
-// handler that is installed is usually the best handler available in a given
-// moment.  Additionally, this component is designed to allow higher-level
-// logging facilities to install their own low-level log message handlers that
-// redirect all low-level logs to the higher-level facility.  Installing one's
-// own handler may interfere with this behavior.
-//
-// As an example of a situation in which a user might want to install a log
-// message handler function manually, suppose that the user wants to completely
-// silence all low-level log messages.  This can be done by defining a log
-// message handler that ignores all input messages, and later installing it:
-//..
-void ignoreMessage(const char *file, int line, const char *message)
-    // Ignore the specified 'file', the specified 'line', and the specified
-    // 'message'.  The behavior is undefined unless 'file' is a null-terminated
-    // string, 'line' is not negative, and 'message' is a null-terminated
-    // string.
-{
-    BSLS_ASSERT(file);
-    BSLS_ASSERT(line >= 0);
-    BSLS_ASSERT(message);
-    return;
-}
-//..
-//
-// We may then install the handler:
-//..
-//  bsls::Log::setLogMessageHandler(&ignoreMessage);
-//..
-//
-// If we attempt to write a low-level log, it will now be ignored:
-//..
-//  BSLS_LOG_SIMPLE("This message will be ignored");
-//..
-//
-// Note that log message handlers may be invoked from different threads at the
-// same time.  Ensure that handlers themselves are thread-safe if the program
-// may use multiple threads.
-//
-///Standard Log Message Handlers
-///- - - - - - - - - - - - - - -
-// The 'static' methods 'bsls::Log::stdoutMessageHandler' and
-// 'bsls::Log::stderrMessageHandler' are provided as a set of simple standard
-// log message handlers.  'bsls::Log::stdoutMessageHandler' writes, in the
-// following sequence, the file name, a colon character, the line number, a
-// space character, the log message string, and a newline to the 'stdout'
-// output stream.  'bsls::stderrMessageHandler' writes a string to the 'stderr'
-// output stream with the same format as the string written by
-// 'stdoutMessageHandler'.
-//
-// Suppose that the user wants to redirect all low-level logs to 'stdout'.
-// This can be done by installing the standard handler
-// 'bsls::Log::stdoutMessageHandler' as the log message handler:
-//..
-//  bsls::Log::setLogMessageHandler(&bsls::Log::stdoutMessageHandler);
-//..
-//
-// Now, writing a low-level log message will result in a log printed to
-// 'stdout':
-//..
-//  int x = 3;
-//  BSLS_LOG("This message will be printed to stdout (x=%d)", x);
-//..
-//
-// If the above logging call were to have occurred on line 7 of a file called
-// 'myFile.cpp' , the following line would be printed to 'stdout', including
-// a single newline:
-//..
-//  myfile.cpp:7 This message will be printed to stdout (x=3)
-//..
-//
-// In addition to the simple handlers, the 'static' method
-// 'bsls::Log::platformDefaultMessageHandler' is provided.  This method has
-// platform-specific behavior.  Under non-Windows systems, this handler will
-// simply ensure that all log messages are output to 'stderr', in the same
-// format as the standard handler 'bsls::Log::stderrMessageHandler'.  On
-// Windows, the method will check if the current process is running in console
-// mode or non-console mode.  If the process is running in console mode, the
-// method will behave exactly as in the non-Windows case: logs will be output
-// to 'stderr', followed by a new line.  If the current process is running in
-// non-console mode, messages will be written to the Windows debugger, in an
-// format equivalent to the string written by the standard handler
-// 'bsls::Log::stderrMessageHandler'.  In table form, this is described as
-// follows:
-//..
-//  ========================================================================
-//                                               Destination of
-//    Platform      Console Mode    bsls::Log::platformDefaultMessageHandler
-//  ------------    ------------    ----------------------------------------
-//  Non-Windows     Undefined                       'stderr'
-//  Windows         Console                         'stderr'
-//  Windows         Non-Console                 Windows Debugger
-//  ========================================================================
-//..
-//
-///Default Log Message Handler
-///- - - - - - - - - - - - - -
-// The user does not need to do any set-up to write logs.  By default, the log
-// message handler 'bsls::Log::platformDefaultMessageHandler' will be
-// immediately available as the global log message handler.
-//
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Logging Formatted Messages
 ///- - - - - - - - - - - - - - - - - - -
-// Suppose that we are writing a function with certain input requirements.  If
-// these requirements are not met, we may want to write a log alerting the
-// client to the invalid input.
+// Suppose that we want to write a log message when the preconditions of a
+// function are not met.
 //
-// First, we define a function, 'add', which will return the sum of two
-// positive integer values:
+// First, we begin to define a function, 'add', which will return the sum of
+// two positive integer values:
 //..
 // myapp.cpp
 
 unsigned int add(int a, int b)
-    // Return the sum of the specified 'a' and the specified 'b'.  The behavior
-    // is undefined unless 'a' and 'b' are not negative.
+    // Return the sum of the specified 'a' and the specified 'b'.  The
+    // behavior is undefined unless 'a' and 'b' are not negative.
 {
-    unsigned int res;
-    if(a >= 0 && b >= 0) {
-        res = static_cast<unsigned int>(a) + static_cast<unsigned int>(b);
-    } else {
 //..
 //
-// If any of the input is invalid, we will want to alert the user to the error.
-// We will use the macro 'BSLS_LOG' and will format the erroneous input values
-// into the log message:
+// Then we check the precondition of the function, and use the 'BSLS_LOG' macro
+// to write a log message if one of the input parameters is less than 0:
 //..
+    if(a < 0 || b < 0) {
         BSLS_LOG("Error: Invalid input combination (%d, %d).", a, b);
-        res = 0;
+        return 0;                                                     // RETURN
     }
 
-    return res;
+    return static_cast<unsigned int>(a) + static_cast<unsigned int>(b);
 }
 //..
-// The user might then call the 'add' function as follows:
+//
+// The user might then use the 'add' function as follows:
 //..
-//  unsigned int x = add(3, -100);
+//  printf("%d", add(3, -100));
 //..
 //
-// Assuming the default log message handler is the currently installed handler,
-// the following line would be printed to 'stderr' or to the Windows debugger:
+// Assuming the default log message handler is currently installed, the
+// following line would be printed to 'stderr' or to the Windows debugger:
 //..
 //  myapp.cpp:8 Error: Invalid input combination (3, -100).
 //..
@@ -1541,11 +1346,12 @@ static const char *errorStrings[4] = {
 // Next, we define a function that handles error codes and logs an error based
 // on the error code:
 //..
-void handleError(size_t code)
-    // Log the error message associated with the specified 'code'. The behavior
-    // is undefined unless 'code' is in the range [0 .. 3].
+void handleError(int code)
+    // Log the error message associated with the specified 'code'. The
+    // behavior is undefined unless 'code' is in the range [0 .. 3].
 {
-    BSLS_ASSERT(code < sizeof(errorStrings)/sizeof(errorStrings[0]));
+    BSLS_ASSERT(static_cast<unsigned int>(code)
+                < sizeof(errorStrings)/sizeof(errorStrings[0]));
 //..
 //
 // In the case that we receive a valid error code, we would want to log the
@@ -1565,7 +1371,7 @@ void handleError(size_t code)
 // Assuming the default log message handler is the currently installed handler,
 // the following line would be printed to 'stderr' or to the Windows debugger:
 //..
-//  myapp.cpp:12 Please use '%2f' for a slash character in a URI.
+//  myapp.cpp:14 Please use '%2f' for a slash character in a URI.
 //..
 //
 ///Example 3: Using a Different File Name or Line Number
@@ -1591,7 +1397,7 @@ static const char *errorStringsNew[4] = {
 // Next, we will define a function that takes in a file name and line number
 // along with the error code:
 //..
-void handleErrorFlexible(const char *file, int line, size_t code)
+void handleErrorFlexible(const char *file, int line, int code)
     // Log the error message associated with the specified 'code', using the
     // specified 'file' and the specified 'line' as the source location for the
     // error.  The behavior is undefined unless 'file' is a null-terminated
@@ -1599,13 +1405,15 @@ void handleErrorFlexible(const char *file, int line, size_t code)
 {
     BSLS_ASSERT(file);
     BSLS_ASSERT(line >= 0);
-    BSLS_ASSERT(code < sizeof(errorStringsNew)/sizeof(errorStringsNew[0]));
+    BSLS_ASSERT(code >= 0);
+    BSLS_ASSERT(static_cast<unsigned int>(code)
+                < (sizeof(errorStringsNew)/sizeof(errorStringsNew[0])));
 //..
 //
 // We can bypass the macros by calling the function 'bsls::Log::logMessage'
 // directly, allowing us to pass in the given file name and line number:
 //..
-    bsls::Log::logMessage(file, line, errorStringsNew[code]);
+   bsls::Log::logMessage(file, line, errorStringsNew[code]);
 }
 //..
 //
@@ -1640,234 +1448,31 @@ int main(int argc, char *argv[]) {
     printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch(test) { case 0: // zero is always the leading case
-      case 15: {
-        // --------------------------------------------------------------------
-        // COMPONENT-LEVEL DOCUMENTATION 1
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Copy entire component documentation header into header of test
-        //    driver, within the namespace 'UsageExamples'.  Uncomment any
-        //    usage example lines that do not need to execute any code and can
-        //    exist outside of the 'main' function.  For code that must be
-        //    executed in main, copy it into a case of the test driver, after a
-        //    declaration of 'using namespace UsageExamples;'.  White-space may
-        //    be changed so that the code may fit in an indented block.  Code
-        //    may be prepended or appended to allow output to be suppressed.
-        //
-        // Testing:
-        //   COMPONENT-LEVEL DOCUMENTATION 1
-        // --------------------------------------------------------------------
-        if (verbose) puts("\nCOMPONENT-LEVEL DOCUMENTATION 1"
-                          "\n===============================");
-
-        OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
-        OutputRedirector stdoutRedirector(OutputRedirector::STDOUT_STREAM);
-
-        stderrRedirector.enable();
-        if(!verbose) {
-            stdoutRedirector.enable();
-        }
-
-        using namespace UsageExamples;
-
-        bsls::Log::logMessage(__FILE__,
-                              __LINE__,
-                              "Function 'f' is deprecated.");
-        int x = 3;
-        const char *s = "Hello World";
-        bsls::Log::logFormatted(__FILE__,
-                                __LINE__,
-                                "Invalid String %d: %s",
-                                x,
-                                s);
-
-        BSLS_LOG_SIMPLE("Error: Double initialization of singleton.");
-        int user = 5;
-        int admin = 7;
-        BSLS_LOG("User level %d does not have admin rights (%d).",
-                 user,
-                 admin);
-      } break;
-      case 14: {
-        // --------------------------------------------------------------------
-        // COMPONENT-LEVEL DOCUMENTATION 2
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Copy entire component documentation header into header of test
-        //    driver, within the namespace 'UsageExamples'.  Uncomment any
-        //    usage example lines that do not need to execute any code and can
-        //    exist outside of the 'main' function.  For code that must be
-        //    executed in main, copy it into a case of the test driver, after a
-        //    declaration of 'using namespace UsageExamples;'.  White-space may
-        //    be changed so that the code may fit in an indented block.  Code
-        //    may be prepended or appended to allow output to be suppressed.
-        //
-        // Testing:
-        //   COMPONENT-LEVEL DOCUMENTATION 2
-        // --------------------------------------------------------------------
-        if (verbose) puts("\nCOMPONENT-LEVEL DOCUMENTATION 2"
-                          "\n===============================");
-
-        OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
-        OutputRedirector stdoutRedirector(OutputRedirector::STDOUT_STREAM);
-
-        stderrRedirector.enable();
-        if(!verbose) {
-            stdoutRedirector.enable();
-        }
-
-        using namespace UsageExamples;
-
-        bsls::Log::setLogMessageHandler(&ignoreMessage);
-        BSLS_LOG_SIMPLE("This message will be ignored");
-      } break;
-      case 13: {
-        // --------------------------------------------------------------------
-        // COMPONENT-LEVEL DOCUMENTATION 3
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Copy entire component documentation header into header of test
-        //    driver, within the namespace 'UsageExamples'.  Uncomment any
-        //    usage example lines that do not need to execute any code and can
-        //    exist outside of the 'main' function.  For code that must be
-        //    executed in main, copy it into a case of the test driver, after a
-        //    declaration of 'using namespace UsageExamples;'.  White-space may
-        //    be changed so that the code may fit in an indented block.  Code
-        //    may be prepended or appended to allow output to be suppressed.
-        //
-        // Testing:
-        //   COMPONENT-LEVEL DOCUMENTATION 3
-        // --------------------------------------------------------------------
-        if (verbose) puts("\nCOMPONENT-LEVEL DOCUMENTATION 3"
-                          "\n===============================");
-
-        OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
-        OutputRedirector stdoutRedirector(OutputRedirector::STDOUT_STREAM);
-
-        stderrRedirector.enable();
-        if(!verbose) {
-            stdoutRedirector.enable();
-        }
-
-        using namespace UsageExamples;
-
-        bsls::Log::setLogMessageHandler(&bsls::Log::stdoutMessageHandler);
-        int x = 3;
-        BSLS_LOG("This message will be printed to stdout (x=%d)", x);
-      } break;
-      case 12: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 1
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Copy entire component documentation header into header of test
-        //    driver, within the namespace 'UsageExamples'.  Uncomment any
-        //    usage example lines that do not need to execute any code and can
-        //    exist outside of the 'main' function.  For code that must be
-        //    executed in main, copy it into a case of the test driver, after a
-        //    declaration of 'using namespace UsageExamples;'.  White-space may
-        //    be changed so that the code may fit in an indented block.  Code
-        //    may be prepended or appended to allow output to be suppressed.
-        //
-        // Testing:
-        //   USAGE EXAMPLE 1
-        // --------------------------------------------------------------------
-        if (verbose) puts("\nUSAGE EXAMPLE 1"
-                          "\n===============");
-
-        OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
-        OutputRedirector stdoutRedirector(OutputRedirector::STDOUT_STREAM);
-
-        stderrRedirector.enable();
-        if(!verbose) {
-            stdoutRedirector.enable();
-        }
-
-        using namespace UsageExamples;
-
-        unsigned int x = add(3, -100);
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Copy entire component documentation header into header of test
-        //    driver, within the namespace 'UsageExamples'.  Uncomment any
-        //    usage example lines that do not need to execute any code and can
-        //    exist outside of the 'main' function.  For code that must be
-        //    executed in main, copy it into a case of the test driver, after a
-        //    declaration of 'using namespace UsageExamples;'.  White-space may
-        //    be changed so that the code may fit in an indented block.  Code
-        //    may be prepended or appended to allow output to be suppressed.
-        //
-        // Testing:
-        //   USAGE EXAMPLE 2
-        // --------------------------------------------------------------------
-        if (verbose) puts("\nUSAGE EXAMPLE 2"
-                          "\n===============");
-
-        OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
-        OutputRedirector stdoutRedirector(OutputRedirector::STDOUT_STREAM);
-
-        stderrRedirector.enable();
-        if(!verbose) {
-            stdoutRedirector.enable();
-        }
-
-        using namespace UsageExamples;
-
-        handleError(3);
-      } break;
       case 10: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE 3
+        // USAGE EXAMPLES
         //   Extracted from component header file.
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 The usage examples provided in the component header file compile,
+        //:   link, and run as shown.
         //
         // Plan:
-        //: 1 Copy entire component documentation header into header of test
-        //    driver, within the namespace 'UsageExamples'.  Uncomment any
-        //    usage example lines that do not need to execute any code and can
-        //    exist outside of the 'main' function.  For code that must be
-        //    executed in main, copy it into a case of the test driver, after a
-        //    declaration of 'using namespace UsageExamples;'.  White-space may
-        //    be changed so that the code may fit in an indented block.  Code
-        //    may be prepended or appended to allow output to be suppressed.
+        //: 1 Copy all parts of the component documentation that have any
+        //:   compilable code into the header of the test driver, within the
+        //:   namespace 'UsageExamples'.  Uncomment any usage example lines
+        //:   that do not need to execute any code and can exist outside of the
+        //:   'main' function.  For code that must be executed in 'main', copy
+        //:   it into a case of the test driver, after a declaration of
+        //:   'using namespace UsageExamples;'.  White-space may be changed so
+        //:   that the code may fit in an indented block.  Code may be
+        //:   prepended or appended to allow output to be suppressed.
         //
         // Testing:
-        //   USAGE EXAMPLE 3
+        //   USAGE EXAMPLES
         // --------------------------------------------------------------------
-        if (verbose) puts("\nUSAGE EXAMPLE 3"
-                          "\n===============");
+        if (verbose) printf("\nUSAGE EXAMPLES"
+                            "\n==============\n");
 
         OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
         OutputRedirector stdoutRedirector(OutputRedirector::STDOUT_STREAM);
@@ -1878,7 +1483,10 @@ int main(int argc, char *argv[]) {
         }
 
         using namespace UsageExamples;
+        // START OF CODE
 
+        printf("%d", add(3, -100));
+        handleError(3);
         handleErrorFlexible(__FILE__, __LINE__, 2);
       } break;
       case 9: {
@@ -1892,7 +1500,7 @@ int main(int argc, char *argv[]) {
         //:
         //: 3 'logFormatted' can be called with no variadic arguments
         //:
-        //: 4 'logFormatted properly handles final formatted strings of length
+        //: 4 'logFormatted' properly handles final formatted strings of length
         //:   0 and 1
         //:
         //: 5 'logFormatted' properly handles final formatted strings of
@@ -1948,8 +1556,8 @@ int main(int argc, char *argv[]) {
         //   BSLS_LOG(format, ...)
         // --------------------------------------------------------------------
         if (verbose) {
-            puts("\nLOGGING A FORMATTED MESSAGE"
-                 "\n===========================\n");
+            printf("\nCLASS METHOD 'logFormatted', MACRO 'BSLS_LOG'"
+                   "\n============================================\n");
         }
 
         bsls::Log::setLogMessageHandler(&LogMessageSink::testMessageHandler);
@@ -1958,8 +1566,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCALLING logFormatted with a simple string"
-                     "\n-----------------------------------------\n");
+                puts("\nCall 'logFormatted' with a simple string\n");
             }
             LogMessageSink::reset();
 
@@ -1991,8 +1598,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCALLING logFormatted with a more complex string"
-                     "\n-----------------------------------------------\n");
+                puts("\nCall 'logFormatted' with a more complex string\n");
             }
             LogMessageSink::reset();
 
@@ -2029,8 +1635,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCALLING logFormatted with various-length strings"
-                     "\n------------------------------------------------\n");
+                puts("\nCall 'logFormatted' with various-length strings\n");
             }
 
             const size_t SUBSTITUTION_BUFFER_SIZE = 1 +
@@ -2070,7 +1675,7 @@ int main(int argc, char *argv[]) {
 
             // We will pre-populate the indices into the buffer:
             size_t expectedIndices[NUM_EXPECTED_LENGTHS];
-            for(size_t i = 0; i < NUM_EXPECTED_LENGTHS; i++) {
+            for(size_t i = 0; i < NUM_EXPECTED_LENGTHS; ++i) {
                 expectedIndices[i] = SUBSTITUTION_BUFFER_SIZE
                                      - 1
                                      - EXPECTED_LENGTHS[i];
@@ -2091,7 +1696,7 @@ int main(int argc, char *argv[]) {
             const char * const testFile         = "myTestFile.cpp";
             const int          testLine         = 900123;
 
-            for(size_t i = 0; i < NUM_EXPECTED_LENGTHS; i++) {
+            for(size_t i = 0; i < NUM_EXPECTED_LENGTHS; ++i) {
                 const size_t       localIndex  = expectedIndices[i];
                 const char * const localBuffer = substitutionBuffer+localIndex;
 
@@ -2142,8 +1747,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCALLING BSLS_LOG"
-                     "\n----------------\n");
+                puts("\nCall 'BSLS_LOG'\n");
             }
 
             LogMessageSink::reset();
@@ -2179,8 +1783,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCALLING BSLS_LOG WITH ONE PARAMETER"
-                     "\n-----------------------------------\n");
+                puts("\nCall BSLS_LOG with one parameter\n");
             }
 
             LogMessageSink::reset();
@@ -2245,8 +1848,8 @@ int main(int argc, char *argv[]) {
         //   BSLS_LOG_SIMPLE(message)
         // --------------------------------------------------------------------
         if (verbose) {
-            puts("\nLOGGING A SIMPLE MESSAGE"
-                 "\n========================\n");
+            printf("\nCLASS METHOD 'logMessage', MACRO 'BSLS_LOG_SIMPLE'"
+                   "\n==================================================\n");
         }
 
         bsls::Log::setLogMessageHandler(&LogMessageSink::testMessageHandler);
@@ -2255,8 +1858,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCALLING logMessage"
-                     "\n------------------\n");
+                puts("\nCalling 'logMessage'.\n");
             }
             LogMessageSink::reset();
 
@@ -2284,8 +1886,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCALLING BSLS_LOG_SIMPLE"
-                     "\n-----------------------\n");
+                puts("\nCall BSLS_LOG_SIMPLE.\n");
             }
 
             LogMessageSink::reset();
@@ -2317,7 +1918,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // CONCERN: By default, the 'platformDefaultMessageHandler' is used
+        // DEFAULT HANDLER CONFIRMATION
         //
         // Concerns:
         //: 1 An initial call to 'logMessageHandler' will return
@@ -2331,8 +1932,8 @@ int main(int argc, char *argv[]) {
         //   CONCERN: By default, the 'platformDefaultMessageHandler' is used.
         // --------------------------------------------------------------------
         if (verbose) {
-            puts("\nDEFAULT HANDLER CONFIRMATION"
-                 "\n============================\n");
+            printf("\nDEFAULT HANDLER CONFIRMATION"
+                   "\n============================\n");
         }
 
         ASSERT(bsls::Log::logMessageHandler()
@@ -2340,7 +1941,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // CLASS METHODS 'setLogMessageHandler', 'logMessageHandler'
+        // SETTING AND RETRIEVING THE HANDLER
         //   Ensure that setting and retrieving a specific handler works as
         //   expected.
         //
@@ -2375,8 +1976,8 @@ int main(int argc, char *argv[]) {
         //   static void setLogMessageHandler(bsls::Log::LogMessageHandler);
         // --------------------------------------------------------------------
         if (verbose) {
-            puts("\nSETTING AND RETRIEVING THE LOG MESSAGE HANDLER"
-                 "\n==============================================\n");
+            printf("\nSETTING AND RETRIEVING THE HANDLER"
+                   "\n==================================\n");
         }
 
         bsls::Log::setLogMessageHandler(&bsls::Log::stdoutMessageHandler);
@@ -2399,7 +2000,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'platformDefaultMessageHandler'
+        // PLATFORM DEFAULT MESSAGE HANDLER
         //
         // Concerns:
         //: 1 'platformDefaultMessageHandler' delegates log messages to
@@ -2424,7 +2025,7 @@ int main(int argc, char *argv[]) {
         //:   class 'WindowsDebuggerSink'.
         //:
         //: 3 [TBD] Spawn a copy of this test driver, specifying the manual
-        //:   test case' -1'.  This test case will close the handles to
+        //:   test case '-2'.  This test case will close the handles to
         //:   'stdout' and 'stderr', effectively putting that process in
         //:   non-console mode.
         //:
@@ -2438,15 +2039,13 @@ int main(int argc, char *argv[]) {
         //   static void platformDefaultMessageHandler(file, line, message);
         // --------------------------------------------------------------------
         if (verbose) {
-            fputs("\nPLATFORM DEFAULT HANDLER"
-                  "\n========================\n",
-                  stdout);
+            printf("\nPLATFORM DEFAULT MESSAGE HANDLER"
+                   "\n================================\n");
         }
 
         {
             if (verbose) {
-                fputs("\nCONFIRMING STDERR BEHAVIOR"
-                      "\n--------------------------\n",
+                fputs("\nConfirming 'stderr' behavior.\n",
                       stdout);
             }
             OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
@@ -2481,7 +2080,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // CLASS METHODS 'stdoutMessageHandler', 'stderrMessageHandler'
+        // STDOUT AND STDERR MESSAGE HANDLERS
         //   Ensure that the methods correctly output a properly formatted
         //   string to their respective streams.
         //
@@ -2520,9 +2119,8 @@ int main(int argc, char *argv[]) {
         //   static void stderrMessageHandler(file, line, message);
         // --------------------------------------------------------------------
         if (verbose) {
-            fputs("\nBASIC STREAM HANDLERS"
-                  "\n=====================\n",
-                  stdout);
+            printf("\nSTDOUT AND STDERR MESSAGE HANDLERS"
+                   "\n==================================\n");
         }
         static const struct {
             bsls::Log::LogMessageHandler d_handler;
@@ -2536,15 +2134,15 @@ int main(int argc, char *argv[]) {
         // If more handlers are added, extra code changes will be required.
         ASSERT(NUM_HANDLERS == 2);
 
-        for(size_t i=0; i < NUM_HANDLERS; i++) {
+        for(size_t i=0; i < NUM_HANDLERS; ++i) {
             const bsls::Log::LogMessageHandler HANDLER = HANDLERS[i].d_handler;
             const OutputRedirector::Stream     STREAM  = HANDLERS[i].d_stream;
 
-            if(verbose) {
+            if(veryVerbose) {
                 if(STREAM == OutputRedirector::STDOUT_STREAM) {
-                    puts("Testing 'stdoutMessageHandler'.");
+                    puts("\nTesting 'stdoutMessageHandler'.\n");
                 } else {
-                    puts("Testing 'stderrMessageHandler'.");
+                    puts("\nTesting 'stderrMessageHandler'.\n");
                 }
             }
 
@@ -2553,7 +2151,7 @@ int main(int argc, char *argv[]) {
             OutputRedirector redirector(STREAM);
 
             // 1 Basic Writing Operation'
-            if(verbose) puts("Writing simple string.");
+            if(veryVerbose) puts("\nWriting simple string.\n");
             redirector.enable();
             HANDLER("testfile.cpp", 1073, "Testing basic operation.");
             redirector.load();
@@ -2561,7 +2159,7 @@ int main(int argc, char *argv[]) {
             LOOP2_ASSERT(i, STREAM, redirector.isOutputReady());
 
             // 2 Proper Simple Format
-            if(verbose) puts("Confirming simple string.");
+            if(veryVerbose) puts("Confirming simple string.");
             LOOP3_ASSERT(i,
                          STREAM,
                          redirector.getOutput(),
@@ -2569,8 +2167,8 @@ int main(int argc, char *argv[]) {
                               "testfile.cpp:1073 Testing basic operation.\n"));
 
             // 3 Proper Complex Format
-            if(verbose) puts("Checking complex combinations.");
-            for(size_t j = 0; j < NUM_DEFAULT_DATA; j++) {
+            if(veryVerbose) puts("Checking complex combinations.");
+            for(size_t j = 0; j < NUM_DEFAULT_DATA; ++j) {
                 const int          SOURCE_LINE
                                     = DEFAULT_DATA[j].d_sourceLine;
 
@@ -2613,7 +2211,7 @@ int main(int argc, char *argv[]) {
             }
 
             // 4 INT_MAX handling
-            if(verbose) puts("Checking INT_MAX.");
+            if(veryVerbose) puts("Checking INT_MAX.");
 
             const char * const normalFile    = "some_file.cpp";
             const int          extremeLine   = INT_MAX;
@@ -2661,7 +2259,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // WINDOWS DEBUG MESSAGE SINK TEST
+        // WINDOWS DEBUG MESSAGE SINK
         //   Ensure that objects of the class 'WindowsDebugMessageSink' capture
         //   debug messages as expected.
         //
@@ -2714,20 +2312,20 @@ int main(int argc, char *argv[]) {
         //   WINDOWS DEBUG MESSAGE SINK
         // --------------------------------------------------------------------
         if (verbose) {
-            puts("\nTESTING WINDOWS DEBUG MESSAGE SINK"
-                 "\n==================================\n");
+            printf("\nWINDOWS DEBUG MESSAGE SINK"
+                   "\n==========================\n");
         }
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         // TBD
 #else
         if (verbose) {
-            puts("Not Windows, test passed trivially.\n");
+            puts("\nNot Windows, test passed trivially.\n");
         }
 #endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TEST-DRIVER LOG MESSAGE HANDLER TEST
+        // TEST-DRIVER LOG MESSAGE HANDLER
         //:  Ensure that the locally defined handler exhibits proper behavior.
         //:
         // Concerns:
@@ -2753,9 +2351,8 @@ int main(int argc, char *argv[]) {
         //   TEST-DRIVER LOG MESSAGE HANDLER
         // --------------------------------------------------------------------
         if (verbose) {
-            fputs("\nTESTING TEST-DRIVER LOG MESSAGE HANDLER APPARATUS"
-                  "\n=================================================\n",
-                  stdout);
+            printf("\nTEST-DRIVER LOG MESSAGE HANDLER"
+                   "\n===============================\n");
         }
 
         ASSERT(! LogMessageSink::s_hasBeenCalled);
@@ -2793,26 +2390,26 @@ int main(int argc, char *argv[]) {
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // STREAM REDIRECTION APPARATUS TEST
+        // STREAM REDIRECTION APPARATUS
         //
         // Concerns:
-        //: 1 Object can be initialized for 'stderr' and is in a proper state
+        //:  1 Object can be initialized for 'stderr' and is in a proper state
         //:
-        //: 2 'redirectedStream' and 'nonRedirectedStream' work
+        //:  2 'redirectedStream' and 'nonRedirectedStream' work
         //:
-        //: 3 'enable' works and can be called many times in order
+        //:  3 'enable' works and can be called many times in order
         //:
-        //: 4 Output is redirected
+        //:  4 Output is redirected
         //:
-        //: 5 Captured output is readable
+        //:  5 Captured output is readable
         //:
-        //: 6 'load' works
+        //:  6 'load' works
         //:
-        //: 7 'clear' works
+        //:  7 'clear' works
         //:
-        //: 8 'compare' works
+        //:  8 'compare' works
         //:
-        //: 9 Incorrect output is correctly diagnosed
+        //:  9 Incorrect output is correctly diagnosed
         //:
         //: 10 Embedded newlines work
         //:
@@ -2933,9 +2530,8 @@ int main(int argc, char *argv[]) {
         // 'bsls_bsltestutil.cpp'.
 
         if (verbose) {
-            fputs("\nTESTING TEST APPARATUS"
-                  "\n======================\n",
-                  stdout);
+            printf("\nSTREAM REDIRECTION APPARATUS"
+                   "\n============================\n");
         }
 
         OutputRedirector stderrRedirector(OutputRedirector::STDERR_STREAM);
@@ -3326,7 +2922,62 @@ int main(int argc, char *argv[]) {
 
       } break;
       case -1: {
-        // Windows debug mode test.  TBD.
+        // --------------------------------------------------------------------
+        // WINDOWS DEBUG MESSAGE SINK SUB-PROCESS
+        //   This test is automatically run as a sub-process by the
+        //   'WindowsDebugMessageSink' test case to assist with sub-process
+        //   interaction.  It should not be run manually.
+        //
+        // Concerns:
+        //: 1 TBD
+        //:
+        //
+        // Plan:
+        //: 1 TBD
+        //:
+        //
+        // Testing:
+        //   WINDOWS DEBUG MESSAGE SINK [SUB-PROCESS]
+        // --------------------------------------------------------------------
+        if (verbose) {
+            printf("\nWINDOWS DEBUG MESSAGE SINK SUB-PROCESS"
+                   "\n======================================\n");
+        }
+
+        puts("\nWARNING: Case '-1' should not be run manually.\n");
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        // TBD
+#endif
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // PLATFORM DEFAULT MESSAGE HANDLER SUB-PROCESS
+        //   This test is automatically run as a sub-process by the
+        //   'platformDefaultMessageHandler' test case to allow the main test
+        //   case to act as a debugger.  This case should not be run manually.
+        //
+        // Concerns:
+        //: 1 TBD
+        //:
+        //
+        // Plan:
+        //: 1 TBD
+        //:
+        //
+        // Testing:
+        //   PLATFORM DEFAULT MESSAGE HANDLER [SUB-PROCESS]
+        // --------------------------------------------------------------------
+        if (verbose) {
+            printf("\nPLATFORM DEFAULT MESSAGE HANDLER SUB-PROCESS"
+                   "\n============================================\n");
+        }
+
+        puts("\nWARNING: Case '-2' should not be run manually.\n");
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        // TBD
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
