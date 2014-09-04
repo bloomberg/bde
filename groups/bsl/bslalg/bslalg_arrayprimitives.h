@@ -5019,7 +5019,7 @@ void ArrayPrimitives_Imp::insert(
 
     std::memmove(destBegin, toBegin, tailLen * sizeof(void **));
 
-    for (int i = 0; i < numElements; ++i) {
+    for (size_type i = 0; i < numElements; ++i) {
         *toBegin = reinterpret_cast<void *>(*fromBegin);
 
         ++fromBegin;
