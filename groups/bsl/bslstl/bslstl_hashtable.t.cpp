@@ -292,9 +292,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -561,7 +561,7 @@ namespace UsageExamples {
             // value is used.  Optionally specify a 'hash' used to generate the
             // hash values associated to the keys extracted from the values
             // contained in this object.  If 'hash' is not supplied, a
-            // default-constructed object of type 'HASH()' is used.  Optionally
+            // default-constructed object of type 'HASH' is used.  Optionally
             // specify a key-equality functor 'keyEqual' used to verify that
             // two key values are the same.  If 'keyEqual' is not supplied, a
             // default-constructed object of type 'EQUAL' is used.  Optionally
@@ -886,10 +886,11 @@ if (verbose) {
 // provides the semantics we need: an element is inserted only if no such
 // element (no element with the same key) in the container, and a reference to
 // that element ('node') is returned.  Here, we use 'node' to obtain and return
-// a modifiable reference to the 'second' member of the (possibly newly added)
-// element.  Note that the 'static_cast' from 'HashTableLink *' to
-// 'HashTableNode *' is valid because the nodes derive from the link type (see
-// 'bslalg_bidirectionallink' and 'bslalg_hashtableimputil').
+// a reference offering modifiable access to the 'second' member of the
+// (possibly newly added) element.  Note that the 'static_cast' from
+// 'HashTableLink *' to 'HashTableNode *' is valid because the nodes derive
+// from the link type (see 'bslalg_bidirectionallink' and
+// 'bslalg_hashtableimputil').
 //..
     // MANIPULATORS
     template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -1968,7 +1969,8 @@ class AwkwardMaplikeElement {
         // Return the value of the 'data' attribute of this object.
 
     const bsltf::NonEqualComparableTestType& key() const;
-        // Return a non-modifiable reference to the 'key' of this object.
+        // Return a reference offering non-modifiable access to the 'key' of
+        // this object.
 };
 
 bool operator==(const AwkwardMaplikeElement& lhs,
@@ -2078,7 +2080,7 @@ void debugprint(
         const bslstl::HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>& t);
     // Print the value of the specified 'HashTable' 't' in a format suitable
     // for reading for debug purposes.
-}  // close namespace BloombergLP::bslstl
+}  // close package namespace
 
 namespace bsltf {
 
@@ -2090,8 +2092,8 @@ template <>
 int TemplateTestFacility::getIdentifier<TestTypes::MostEvilTestType>(
                                     const TestTypes::MostEvilTestType& object);
 
-}  // close namespace BloombergLP::bsltf
-}  // close namespace BloombergLP
+}  // close aspects namespace
+}  // close enterprise namespace
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -2148,8 +2150,9 @@ class BoolArray {
 
     // MANIPULATORS
     bool& operator[](size_t index);
-        // Return a modifiable reference to the boolean flag at the specified
-        // 'index'.  The behavior is undefined unless 'index < size()'.
+        // Return a reference offering modifiable access to the boolean flag at
+        // the specified 'index'.  The behavior is undefined unless
+        // 'index < size()'.
 
     // ACCESSORS
     bool operator[](size_t index) const;
@@ -3042,7 +3045,7 @@ template <class COMPARATOR>
 void setComparatorState(COMPARATOR *comparator, size_t id);
     // This is a null function, that has no effect and does not use the
     // specified 'comparator' nor the specified 'id'.  This function provides a
-    // common signature that may be  overloaded for specific 'COMPARATOR' types
+    // common signature that may be overloaded for specific 'COMPARATOR' types
     // that can support the idea of setting a state value.  Test code can then
     // call a function with this signature and get the right behavior (without
     // a compile error) regardless of the properties of the 'COMPARATOR' type.
@@ -3054,7 +3057,7 @@ template <class HASHER>
 void setHasherState(HASHER *hasher, size_t id);
     // This is a null function, that has no effect and does not use the
     // specified 'hasher' nor the specified 'id'.  This function provides a
-    // common signature that may be  overloaded for specific 'HASHER' types
+    // common signature that may be overloaded for specific 'HASHER' types
     // that can support the idea of setting a state value.  Test code can then
     // call a function with this signature and get the right behavior (without
     // a compile error) regardless of the properties of the 'HASHER' type.
@@ -3256,8 +3259,8 @@ int TemplateTestFacility::getIdentifier<TestTypes::MostEvilTestType>(
     return object.data();
 }
 
-}  // close namespace BloombergLP::bsltf
-}  // close namespace BloombergLP
+}  // close aspects namespace
+}  // close enterprise namespace
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -8405,8 +8408,7 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
             const float  MAX_LF      = DEFAULT_MAX_LOAD_FACTOR[tj];
             const size_t NUM_BUCKETS = predictNumBuckets(LENGTH, MAX_LF);
 
-            if (veryVeryVerbose) printf("In reserveForNumElements test,"
-                                        " testing with load factor of: %f\n",
+            if (veryVeryVerbose) printf("\twith max load factor of: %f\n",
                                         MAX_LF);
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -8436,19 +8438,18 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase12()
                 const size_t RESERVE_ELEMENTS = ADDITIONAL_ELEMENTS +
                                                                   INITIAL_SIZE;
 
-                if (true) printf("In reserveForNumElements test,"
-                                                " testing with reserve size"
-                                                " of: " ZU "\n", 
-                                                RESERVE_ELEMENTS);
+                if (veryVeryVerbose) printf(
+                        "\t\treserve for " ZU " elements\n", RESERVE_ELEMENTS);
 
                 mResX.reserveForNumElements(RESERVE_ELEMENTS);
 
-                const bsls::Types::Int64 RESERVED_MEM = reserve.numBytesTotal();
+                const bsls::Types::Int64 RESERVED_MEM =
+                                                       reserve.numBytesTotal();
 
                 mResX.reserveForNumElements(RESERVE_ELEMENTS);
 
                 // Reserve doesn't allocate memory when some is already
-                // availible from previous reserve
+                // available from previous reserve
                 ASSERTV(LINE, tk, RESERVE_ELEMENTS, reserve.numBytesTotal() ==
                                                                  RESERVED_MEM);
 
@@ -8668,7 +8669,9 @@ void TestDriver<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::testCase13()
 
                     // Verify no temporary memory is allocated from the object
                     // allocator.
-                    // BROKEN TEST CONDITION
+                    //
+                    // !!! BROKEN TEST CONDITION !!!
+                    //
                     // We need to think carefully about how we allow for the
                     // allocation of the bucket-array
 
@@ -10866,7 +10869,7 @@ void mainTestCase12()
     // TESTING 'reserveForNumElements'
     // --------------------------------------------------------------------
 {
-#define BSLSTL_HASHTABLE_TESTCASE11_TYPES \
+#define BSLSTL_HASHTABLE_TESTCASE12_TYPES \
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
                   bsltf::NonAssignableTestType,                  \
                   bsltf::NonDefaultConstructibleTestType
@@ -10880,14 +10883,16 @@ void mainTestCase12()
                         "\n----------------------------\n");
 
     // Because 'reserveForNumElements' uses already tested functionality, we
-    // only need to run a basic battery of test cases to verify the logic.
+    // need to run only a basic battery of test cases to verify the logic.
     // Issues such as different allocators and types with strange overloads are
     // already covered by other tests, such as case 11 for
     // 'rehashIntoExactlyNumBuckets'.
 
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
-                  testCase11,
-                  BSLSTL_HASHTABLE_TESTCASE11_TYPES);
+                  testCase12,
+                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+
+#undef BSLSTL_HASHTABLE_TESTCASE12_TYPES
 }
 
 static
@@ -10896,7 +10901,7 @@ void mainTestCase13()
     // TESTING 'insert'
     // --------------------------------------------------------------------
 {
-#define BSLSTL_HASHTABLE_TESTCASE12_TYPES \
+#define BSLSTL_HASHTABLE_TESTCASE13_TYPES \
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
                   bsltf::NonAssignableTestType,                  \
                   bsltf::NonDefaultConstructibleTestType
@@ -10908,24 +10913,24 @@ void mainTestCase13()
 
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase13,
-                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
 #if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE12_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE12_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#  undef  BSLSTL_HASHTABLE_TESTCASE13_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE13_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
 #endif
 
     if (verbose) printf("\nTesting map-like configuration"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase13,
-                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase13,
-                  BSLSTL_HASHTABLE_TESTCASE12_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
 
-#undef BSLSTL_HASHTABLE_TESTCASE12_TYPES
+#undef BSLSTL_HASHTABLE_TESTCASE13_TYPES
 }
 
 static
@@ -10934,7 +10939,7 @@ void mainTestCase14()
     //  TESTING 'setMaxLoadFactor'
     // --------------------------------------------------------------------
 {
-#define BSLSTL_HASHTABLE_TESTCASE13_TYPES \
+#define BSLSTL_HASHTABLE_TESTCASE14_TYPES \
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
                   bsltf::NonAssignableTestType,                  \
                   bsltf::NonDefaultConstructibleTestType
@@ -10946,35 +10951,35 @@ void mainTestCase14()
 
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
 #if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE13_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE13_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#  undef  BSLSTL_HASHTABLE_TESTCASE14_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE14_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
 #endif
 
     if (verbose) printf("\nTesting map-like configuration"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     // We need to limit the test coverage on IBM as the compiler cannot cope
     // with so many template instantiations.
 
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase14,
-                  BSLSTL_HASHTABLE_TESTCASE13_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
 
-#undef BSLSTL_HASHTABLE_TESTCASE13_TYPES
+#undef BSLSTL_HASHTABLE_TESTCASE14_TYPES
 
     // Remaining special cases
     TestDriver_AwkwardMaplike::testCase14();
@@ -10985,7 +10990,7 @@ void mainTestCase15()
     // DEFAULT CONSTRUCTOR
     // --------------------------------------------------------------------
 {
-#define BSLSTL_HASHTABLE_TESTCASE14_TYPES \
+#define BSLSTL_HASHTABLE_TESTCASE15_TYPES \
                   BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR, \
                   bsltf::NonAssignableTestType,                  \
                   bsltf::NonDefaultConstructibleTestType
@@ -10999,7 +11004,7 @@ void mainTestCase15()
                         "\n----------------------------\n");
     RUN_EACH_TYPE(TestDriver_BasicConfiguation,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
     if (verbose) printf("\nTesting non-copyable functors"
                         "\n-----------------------------\n");
@@ -11009,36 +11014,36 @@ void mainTestCase15()
     // well, notably with the different allocator patterns.
     RUN_EACH_TYPE(TestDriver_DefaultOnlyFunctors,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
 #if !defined(BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS)
-#  undef  BSLSTL_HASHTABLE_TESTCASE14_TYPES
-#  define BSLSTL_HASHTABLE_TESTCASE14_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
+#  undef  BSLSTL_HASHTABLE_TESTCASE15_TYPES
+#  define BSLSTL_HASHTABLE_TESTCASE15_TYPES BSLSTL_HASHTABLE_MINIMALTEST_TYPES
 #endif
 
     if (verbose) printf("\nTesting map-like configuration"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_BsltfConfiguation,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
     if (verbose) printf("\nTesting stateful functors"
                         "\n-------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulConfiguation,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
     if (verbose) printf("\nTesting grouped hash with unique key values"
                         "\n-------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GroupedUniqueKeys,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
     if (verbose) printf("\nTesting grouped hash with grouped key values"
                         "\n--------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GroupedSharedKeys,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
 #if 0
     // These configurations not available, as functors are not default
@@ -11048,13 +11053,13 @@ void mainTestCase15()
                         "\n---------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguation,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
     if (verbose) printf("\nTesting degenerate functors without swap"
                         "\n----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_DegenerateConfiguationWithNoSwap,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 #endif
 
 #if 0
@@ -11064,26 +11069,26 @@ void mainTestCase15()
                         "\n-----------------------------\n");
     RUN_EACH_TYPE(TestDriver_FunctionPointers,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 #endif
 
     if (verbose) printf("\nTesting functors taking generic arguments"
                         "\n-----------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_GenericFunctors,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
     if (verbose) printf("\nTesting functors taking convertible arguments"
                         "\n---------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_ConvertibleValueConfiguation,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
     if (verbose) printf("\nTesting functors taking modifiable arguments"
                         "\n---------------------------------------------\n");
     RUN_EACH_TYPE(TestDriver_ModifiableFunctors,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
 #if 0
     // The stateless allocator flags issues installing the chosen allocator
@@ -11093,16 +11098,16 @@ void mainTestCase15()
                         "\n--------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StdAllocatorConfiguation,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 #endif
 
     if (verbose) printf("\nTesting stateful STL allocators"
                         "\n-------------------------------\n");
     RUN_EACH_TYPE(TestDriver_StatefulAllocatorConfiguation,
                   testCase15,
-                  BSLSTL_HASHTABLE_TESTCASE14_TYPES);
+                  BSLSTL_HASHTABLE_TESTCASE15_TYPES);
 
-#undef BSLSTL_HASHTABLE_TESTCASE14_TYPES
+#undef BSLSTL_HASHTABLE_TESTCASE15_TYPES
 
     // Remaining special cases
     if (verbose) printf("\nTesting degenerate map-like"
