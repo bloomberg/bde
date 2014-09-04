@@ -7,7 +7,7 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a common location for low-level code to write logs.
+//@PURPOSE: Provide utilities for low-level logging.
 //
 //@CLASSES:
 //  bsls::Log: utilities for low-level logging
@@ -27,16 +27,18 @@ BSLS_IDENT("$Id: $")
 // directly to 'stderr' has the following advantages:
 //
 //: o Users have the freedom to customize the default logging behavior.
-//:     - A user may want all logs to be automatically redirected to a file or
-//:       may want to add some custom formatting or handling.  These abilities
-//:       are not available if the output stream is predetermined.
+//:
+//:   A user may want all logs to be automatically redirected to a file or may
+//:   want to add some custom formatting or handling.  These abilities are not
+//:   available if the output stream is predetermined.
 //:
 //: o The logging mechanism behaves correctly on all platforms by default.
-//:     - Some platforms have particular restrictions on when the standard
-//:       output streams can be used.  For example, Windows applications
-//:       running in non-console mode do not have a concept of 'stdout' or
-//:       'stderr'; writing directly to either of these streams is known to
-//:       hang the process when no console is attached.
+//:
+//:   Some platforms have particular restrictions on the use of the standard
+//:   output streams.  For example, Windows applications running in non-console
+//:   mode do not have a concept of 'stdout' or 'stderr'; writing directly to
+//:   either of these streams is known to hang the process when no console is
+//:   attached.
 //
 ///Functionality
 ///-------------
@@ -85,15 +87,15 @@ BSLS_IDENT("$Id: $")
 //  ===========================================================================
 //..
 //
-//
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
 //
 ///Example 1: Logging Formatted Messages
 ///- - - - - - - - - - - - - - - - - - -
-// Suppose that we want to write a log message when the preconditions of a
-// function are not met.
+// Suppose that we want to write a formatted log message using 'printf'-style
+// format specifiers when the preconditions of a function are not met.  The
+// 'BSLS_LOG' macro can be used for this purpose.
 //
 // First, we begin to define a function, 'add', which will return the sum of
 // two positive integer values:
@@ -106,7 +108,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //..
 //
-// Then we check the precondition of the function, and use the 'BSLS_LOG' macro
+// Now, we check the precondition of the function, and use the 'BSLS_LOG' macro
 // to write a log message if one of the input parameters is less than 0:
 //..
 //      if(a < 0 || b < 0) {
@@ -118,25 +120,25 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-// The user might then use the 'add' function as follows:
+// Next, we may erroneously call the 'add' function with a negative argument:
 //..
-//  printf("%d", add(3, -100));
+//  unsigned int x = add(3, -100);
 //..
-//
-// Assuming the default log message handler is currently installed, the
-// following line would be printed to 'stderr' or to the Windows debugger:
+// Finally, assuming the default log message handler is currently installed, we
+// observe the following output printed to 'stderr' or to the Windows debugger:
 //..
 //  myapp.cpp:8 Error: Invalid input combination (3, -100).
 //..
-//
-// !Note:! Never pass an arbitrary string as the format string to 'BSLS_LOG'.
-// If the string happens to contain 'printf'-style format specifiers but the
-// expected substitutions are not present, it will lead to undefined behavior.
+// Note that an arbitrary string should never be passed to 'BSLS_LOG' as the
+// format string.  If the string happens to contain 'printf'-style format
+// specifiers but the expected substitutions are not present, it will lead to
+// undefined behavior.
 //
 ///Example 2: Logging Formatless Messages
 /// - - - - - - - - - - - - - - - - - - -
-// Suppose we want to log a string that is not meant to be a 'printf'-style
-// format string.
+// Suppose we want to write a raw string, which is not meant to be a
+// 'printf'-style format string, to the log.  We can use the macro
+// 'BSLS_LOG_SIMPLE' to do this.
 //
 // First, we define a global association of error codes with error strings:
 //..
@@ -152,11 +154,11 @@ BSLS_IDENT("$Id: $")
 // Notice that the fourth string has a sequence that could be misinterpreted as
 // a 'printf'-style format specifier.
 //
-// Next, we define a function that handles error codes and logs an error based
+// Then, we define a function that handles error codes and logs an error based
 // on the error code:
 //..
 //  void handleError(int code)
-//      // Log the error message associated with the specified 'code'. The
+//      // Log the error message associated with the specified 'code'.  The
 //      // behavior is undefined unless 'code' is in the range [0 .. 3].
 //  {
 //      BSLS_ASSERT(static_cast<unsigned int>(code)
@@ -171,12 +173,10 @@ BSLS_IDENT("$Id: $")
 //      BSLS_LOG_SIMPLE(errorStrings[code]);
 //  }
 //..
-//
 // A user may attempt to use error code '3':
 //..
 //  handleError(3);
 //..
-//
 // Assuming the default log message handler is the currently installed handler,
 // the following line would be printed to 'stderr' or to the Windows debugger:
 //..
@@ -202,8 +202,7 @@ BSLS_IDENT("$Id: $")
 //      "Invalid password."
 //  };
 //..
-//
-// Next, we will define a function that takes in a file name and line number
+// Then, we will define a function that takes in a file name and line number
 // along with the error code:
 //..
 //  void handleErrorFlexible(const char *file, int line, int code)
@@ -219,19 +218,16 @@ BSLS_IDENT("$Id: $")
 //      BSLS_ASSERT(static_cast<unsigned int>(code)
 //                  < (sizeof(errorStringsNew)/sizeof(errorStringsNew[0])));
 //..
-//
 // We can bypass the macros by calling the function 'bsls::Log::logMessage'
 // directly, allowing us to pass in the given file name and line number:
 //..
 //      bsls::Log::logMessage(file, line, errorStringsNew[code]);
 //  }
 //..
-//
 // A user in a different file may now specify the original source of an error:
 //..
 //  handleErrorFlexible(__FILE__, __LINE__, 2);
 //..
-//
 // If this line of code were placed on line 5 of the file 'otherapp.cpp', the
 // following line would be printed to 'stderr' or to the Windows debugger:
 //..
@@ -330,13 +326,12 @@ class Log {
         // as the formatted string written to the sufficiently large buffer
         // 'buf' by the following C function call: 'sprintf(buf, fmt, ...)',
         // where 'fmt' corresponds to the specified 'format', and '...'
-        // represents the specified variadic arguments as if they were passed
-        // directly to the hypothetical 'sprintf' function call.  The behavior
-        // is undefined unless: (a) file is a null-terminated C-style string,
-        // (b) 'line' is not negative, (c) 'format' is a null-terminated
-        // C-style string, and (d) the number and types of variadic arguments
-        // passed to this function are as expected by their 'printf'-style
-        // substitutions in the string 'format'.
+        // represents the specified '...'.  The behavior is undefined unless:
+        // (a) 'file' is a null-terminated C-style string, (b) 'line' is not
+        // negative, (c) 'format' is a null-terminated C-style string, and (d)
+        // the number and types of variadic arguments passed to this function
+        // are as expected by their 'printf'-style substitutions in the string
+        // 'format'.
 
     static void logMessage(const char *file, int line, const char *message);
         // Invoke the currently installed log message handler with the

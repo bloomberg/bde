@@ -39,7 +39,7 @@ class BufferScopedGuard {
 
   private:
     // DATA
-    char *d_buffer_p;  // pointer to the allocated buffer (owned)
+    char *d_buffer_p;                // pointer to the allocated buffer (owned)
 
     // NOT IMPLEMENTED
     BufferScopedGuard(const BufferScopedGuard&);                    // = delete
@@ -76,7 +76,6 @@ BufferScopedGuard::~BufferScopedGuard()
 {
     if(d_buffer_p) {
         free(d_buffer_p);
-        d_buffer_p = NULL;
     }
 }
 
@@ -90,7 +89,6 @@ char* BufferScopedGuard::allocate(size_t numBytes) {
 
     if(d_buffer_p) {
         free(d_buffer_p);
-        d_buffer_p = NULL;
     }
 
     d_buffer_p = static_cast<char*>(malloc(numBytes));
@@ -102,24 +100,20 @@ char* BufferScopedGuard::allocate(size_t numBytes) {
 //                      LOCAL FUNCTION DEFINITIONS
 // ============================================================================
 
-static
-int vsnprintf_alwaysCount(char * const       buffer,
-                          const size_t       size,
-                          const char * const format,
-                          va_list            arguments)
-    // Return the number of characters that would be generated if the string
-    // formed by applying the 'printf'-style formatting rules to the specified
-    // 'format' string with the specified 'arguments' as substitutions were
-    // written to a buffer that is sufficiently large, not including the null
-    // byte.  In the case of an error, return a negative value.  If the
-    // specified 'size' indicates that the specified 'buffer' is large enough
-    // to store the entire formatted string in addition to a null byte, write
-    // the entire formatted string followed by a zero byte to 'buffer'.
-    // Otherwise, the bytes in 'buffer' up to 'size' number of bytes may be
-    // written to any value.  The behavior is undefined unless 'buffer'
-    // contains sufficient space to store 'size' bytes and 'format' is a valid
-    // 'printf'-style format string with all expected substitutions present in
-    // 'arguments'.
+int vsnprintf_alwaysCount(char       *buffer,
+                          size_t      size,
+                          const char *format,
+                          va_list     substitutions)
+    // Load, into the specified 'buffer' having the specified 'size', the
+    // null-terminated output string formed by applying the 'printf'-style
+    // formatting rules to the specified 'format' string using the specified
+    // 'substitutions' when 'buffer' is large enough to hold this output
+    // string; otherwise, the contents of the buffer will be unspecified.
+    // Return the length of the formatted output string (not including the
+    // terminating null character) regardless of 'size'.  The behavior is
+    // undefined unless 'buffer' contains sufficient space to store 'size'
+    // bytes and 'format' is a valid 'printf'-style format string with all
+    // expected substitutions present in 'substitutions'.
 {
 
     // Unfortunately, 'vsnprintf' has observably different behavior on
@@ -142,80 +136,76 @@ int vsnprintf_alwaysCount(char * const       buffer,
     // generate the count.  To solve the BSD / other inconsistency, we simply
     // specify in our contract that the output string is undefined unless there
     // is enough room to hold the additional zero byte.
+    BSLS_ASSERT_OPT(buffer);
+    BSLS_ASSERT(format);
+
     int count;
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    // Because we are making *two* calls using 'arguments', we must make a copy
-    // so the first call does not ruin the 'va_list'.
-    va_list arguments_copy;
-    va_copy(arguments_copy, arguments);
-    count = _vscprintf(format, arguments_copy);
-    va_end(arguments_copy);
+    // Because we are making *two* calls using 'substitutions', we must make a
+    // copy so the first call does not ruin the 'va_list'.
+    va_list substitutions_copy;
+    va_copy(substitutions_copy, substitutions);
+    count = _vscprintf(format, substitutions_copy);
+    va_end(substitutions_copy);
 
     if(count >= 0) {
         // Because 'count >= 0', the cast to 'size_t' is safe.
         const size_t countCasted = static_cast<size_t>(count);
         if(size > countCasted) {
-            count = vsnprintf(buffer, size, format, arguments);
+            count = vsnprintf(buffer, size, format, substitutions);
         }
     }
 #else
-    count = vsnprintf(buffer, size, format, arguments);
+    count = vsnprintf(buffer, size, format, substitutions);
 #endif
 
     return count;
 }
 
-static
-int vsnprintf_allocate(char * const        originalBuffer,
-                       const size_t        originalBufferSize,
-                       BufferScopedGuard&  guard,
-                       char ** const       outputBuffer,
-                       size_t * const      outputBufferSize,
-                       const char * const  format,
-                       va_list             arguments)
-    // If no error occurs, load into the specified 'outputBuffer' a pointer to
-    // the beginning of a buffer containing a null-terminated C-style string
-    // equivalent to the formatted string generated from the 'printf'-style
-    // format specifiers in the specified 'format' string, using the specified
-    // 'arguments' as the substitutions.  The pointer loaded into
-    // 'outputBuffer' may be equal to the specified 'originalBuffer', or may
-    // reference a buffer owned and allocated by the specified 'guard'
-    // reference.  If the pointer loaded into 'outputBuffer' is not equal to
-    // 'originalBuffer', the values of the bytes referenced by 'originalBuffer'
-    // may be changed to any value (in other words, the only instance where the
-    // bytes in the original buffer are guaranteed to be equal to any specific
-    // value is the instance in which the original buffer is the output
-    // buffer).  Load a number into the specified 'outputBufferSize' that is
-    // greater than or equal to the number of bytes written into the output
-    // buffer (including the null byte) and less than or equal to the number of
-    // total available bytes in the output buffer.  Return the number of
-    // characters written to the buffer referenced by the pointer loaded into
-    // 'outputBuffer', not including the null byte.  If an error occurs with
-    // memory allocation or with the C runtime implementation of 'vsnprintf',
-    // return a negative value.  In the case of an error, any values may be
-    // loaded into 'outputBuffer' and 'outputBufferSize'.  (In other words,
-    // 'outputBuffer' and 'outputBufferSize' will refer to valid values only if
-    // this function returns a non-negative value).  The behavior is undefined
-    // unless 'originalBuffer' is not null and refers to a buffer large enough
-    // to hold at least the specified 'originalBufferSize' bytes,
-    // 'outputBuffer' is not null, 'outputBufferSize' is not null, 'format' is
-    // a null-terminated C-style string, and the various 'printf'-style format
-    // specifiers in 'format' correspond to valid substitution values in
-    // 'arguments'.
+int vsnprintf_allocate(char                 *originalBuffer,
+                       size_t                originalBufferSize,
+                       BufferScopedGuard&    guard,
+                       char                **outputBuffer,
+                       size_t               *outputBufferSize,
+                       const char           *format,
+                       va_list               substitutions)
+    // Load into the specified 'outputBuffer' the address of a buffer
+    // containing the null-terminated string formed by applying the
+    // 'printf'-style formatting rules to the specified 'format' string using
+    // the specified 'substitutions'.  Load into the specified
+    // 'outputBufferSize' a size that is at least the number of bytes in the
+    // formatted string, including the terminating null byte.  If the specified
+    // 'originalBuffer', having the specified 'originalBufferSize', is large
+    // enough to hold the entire formatted string, then 'originalBuffer' will
+    // be the loaded output buffer.  Otherwise, 'outputBuffer' will point to a
+    // buffer allocated using the specified 'guard', and the contents of
+    // 'originalBuffer' will be unspecified.  Return the number of characters
+    // in the formatted string, not including the terminating null byte.  If a
+    // memory allocation was necessary but no memory was available, return a
+    // negative value; in this case, values stored for the output buffer and
+    // its size are unspecified.  The behavior is undefined unless
+    // 'originalBuffer' contains at least 'originalBufferSize' bytes, and
+    // 'format' is a valid 'printf'-style format string with all expected
+    // substitutions present in 'substitutions'.
 {
+    BSLS_ASSERT_OPT(originalBuffer);
+    BSLS_ASSERT_OPT(outputBuffer);
+    BSLS_ASSERT_OPT(outputBufferSize);
+    BSLS_ASSERT_OPT(format);
+
     size_t  bufferSize = originalBufferSize;
     char   *buffer     = originalBuffer;
 
-    // Because we are making *two* calls using 'arguments', we must make a copy
-    // so the first call does not ruin the 'va_list'.
-    va_list arguments_copy;
-    va_copy(arguments_copy, arguments);
+    // Because we are making *two* calls using 'substitutions', we must make a
+    // copy so the first call does not ruin the 'va_list'.
+    va_list substitutions_copy;
+    va_copy(substitutions_copy, substitutions);
     int status = vsnprintf_alwaysCount(buffer,
                                        bufferSize,
                                        format,
-                                       arguments_copy);
-    va_end(arguments_copy);
+                                       substitutions_copy);
+    va_end(substitutions_copy);
 
     if(status >= 0) {
         // Cast is safe because status is nonnegative
@@ -231,7 +221,7 @@ int vsnprintf_allocate(char * const        originalBuffer,
                 const int newStatus = vsnprintf(buffer,
                                                 bufferSize,
                                                 format,
-                                                arguments);
+                                                substitutions);
                 if(newStatus != status) {
                     // Some weird error.
                     if(newStatus < 0) {
@@ -240,10 +230,11 @@ int vsnprintf_allocate(char * const        originalBuffer,
                         // information:
                         status = newStatus;
                     } else {
-                        // Otherwise, if it was nonnegative but not the
+                        // Otherwise, if it was non-negative but not the
                         // expected value, we should let the user know that we
                         // failed, so we will set the status to a negative
-                        // value:
+                        // value.  This would only happen due to undefined
+                        // behavior, so we can really return anything:
                         status = -2;
                     }
                 }
@@ -259,54 +250,42 @@ int vsnprintf_allocate(char * const        originalBuffer,
     return status;
 }
 
-static
-int snprintf_allocate(char * const        originalBuffer,
-                      const size_t        originalBufferSize,
-                      BufferScopedGuard&  guard,
-                      char ** const       outputBuffer,
-                      size_t * const      outputBufferSize,
-                      const char * const  format,
+int snprintf_allocate(char                 *originalBuffer,
+                      size_t                originalBufferSize,
+                      BufferScopedGuard&    guard,
+                      char                **outputBuffer,
+                      size_t               *outputBufferSize,
+                      const char           *format,
                       ...)
-    // If no error occurs, load into the specified 'outputBuffer' a pointer to
-    // the beginning of a buffer containing a null-terminated C-style string
-    // equivalent to the formatted string generated from the 'printf'-style
-    // format specifiers in the specified 'format' string, using the specified
-    // variadic arguments '...' as the substitutions.  The pointer loaded into
-    // 'outputBuffer' may be equal to the specified 'originalBuffer', or may
-    // reference a buffer owned and allocated by the specified 'guard'
-    // reference.  If the pointer loaded into 'outputBuffer' is not equal to
-    // 'originalBuffer', the values of the bytes referenced by 'originalBuffer'
-    // may be changed to any values (in other words, the only instance where
-    // the bytes in the original buffer are guaranteed to be equal to any
-    // specific values is the instance in which the original buffer is the
-    // output buffer).  Load a number into the specified 'outputBufferSize'
-    // that is greater than or equal to the number of bytes written into the
-    // output buffer (including the null byte) and less than or equal to the
-    // number of total available bytes in the output buffer.  Return the number
-    // of characters written to the buffer referenced by the pointer loaded
-    // into 'outputBuffer', not including the null byte.  If an error occurs
-    // with memory allocation or with the C runtime implementation of
-    // 'vsnprintf', return a negative value.  In the case of an error, any
-    // arbitrary values may be loaded into 'outputBuffer' and
-    // 'outputBufferSize'.  (In other words, the pointers 'outputBuffer' and
-    // 'outputBufferSize' will refer to meaningful values only if this function
-    // returns a non-negative value).  The behavior is undefined unless
-    // 'originalBuffer' is not null and refers to a buffer large enough to hold
-    // at least the specified 'originalBufferSize' bytes, 'format' is a
-    // null-terminated C-style string, and the various 'printf'-style format
-    // specifiers in 'format' correspond to valid substitution values in the
-    // variadic argument list ('...').
+    // Load into the specified 'outputBuffer' the address of a buffer
+    // containing the null-terminated string formed by applying the
+    // 'printf'-style formatting rules to the specified 'format' string using
+    // the specified '...' as substitutions.  Load into the specified
+    // 'outputBufferSize' a size that is at least the number of bytes in the
+    // formatted string, including the terminating null byte.  If the specified
+    // 'originalBuffer', having the specified 'originalBufferSize', is large
+    // enough to hold the entire formatted string, then 'originalBuffer' will
+    // be the loaded output buffer.  Otherwise, 'outputBuffer' will point to a
+    // buffer allocated using the specified 'guard', and the contents of
+    // 'originalBuffer' will be unspecified.  Return the number of characters
+    // in the formatted string, not including the terminating null byte.  If a
+    // memory allocation was necessary but no memory was available, return a
+    // negative value; in this case, values stored for the output buffer and
+    // its size are unspecified.  The behavior is undefined unless
+    // 'originalBuffer' contains at least 'originalBufferSize' bytes, and
+    // 'format' is a valid 'printf'-style format string with all expected
+    // substitutions present in '...'.
 {
-    va_list arguments;
-    va_start(arguments, format);
+    va_list substitutions;
+    va_start(substitutions, format);
     const int status = vsnprintf_allocate(originalBuffer,
                                           originalBufferSize,
                                           guard,
                                           outputBuffer,
                                           outputBufferSize,
                                           format,
-                                          arguments);
-    va_end(arguments);
+                                          substitutions);
+    va_end(substitutions);
     return status;
 }
 
@@ -347,16 +326,16 @@ void Log::logFormatted(const char *file,
     size_t  bufferSize;
     char   *buffer;
 
-    va_list arguments;
-    va_start(arguments, format);
+    va_list substitutions;
+    va_start(substitutions, format);
     const int status = vsnprintf_allocate(originalBuffer,
                                           originalBufferSize,
                                           guard,
                                           &buffer,
                                           &bufferSize,
                                           format,
-                                          arguments);
-    va_end(arguments);
+                                          substitutions);
+    va_end(substitutions);
 
     if(status < 0) {
         BSLS_LOG_SIMPLE("Low-level log failure.");
@@ -375,8 +354,8 @@ void Log::platformDefaultMessageHandler(const char *file,
 {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    // In Windows, we must check if we are console mode by looking for a valid
-    // handle to 'stdout'.
+    // In Windows, we must check if we are in console mode by looking for a
+    // valid handle to 'stderr'.
     if(GetStdHandle(STD_ERROR_HANDLE) == NULL) {
         BSLS_ASSERT_OPT(file);
         BSLS_ASSERT(line >= 0);
@@ -432,7 +411,7 @@ void Log::platformDefaultMessageHandler(const char *file,
 
 void Log::stderrMessageHandler(const char * file,
                                int          line,
-                               const char * message)
+                                const char * message)
 {
     BSLS_ASSERT_OPT(file);
     BSLS_ASSERT(line >= 0);
