@@ -152,7 +152,8 @@ int main(int argc, char* argv[])
         #endif
 
         #ifdef BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX
-        ASSERT(false && "BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX still declared");
+        ASSERT(false &&
+                    "BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX still declared");
         #endif
 
         #ifdef _WCHAR_T_DEFINED

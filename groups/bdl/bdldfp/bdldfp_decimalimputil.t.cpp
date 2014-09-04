@@ -1868,92 +1868,101 @@ int main(int argc, char* argv[])
         //   makeDecimal64(         long long int, int)
         //   makeDecimal64(unsigned long long int, int)
         // --------------------------------------------------------------------
-          if (verbose) bsl::cout << bsl::endl
-                                  << "TESTING 'makeDecimal64'" << bsl::endl
-                                  << "=======================" << bsl::endl;
-          {
-              for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
-                  for (int ei = 0; ei < NUM_TEST_EXPONENTS; ++ei) {
-                      const long long MANTISSA = TEST_NONZERO_MANTISSAS[mi];
-                      const int EXPONENT = TEST_EXPONENTS[ei];
+        if (verbose) bsl::cout << bsl::endl
+                               << "TESTING 'makeDecimal64'" << bsl::endl
+                               << "=======================" << bsl::endl;
+        {
+            for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
+                if (veryVerbose) cout << endl
+                                      << "Testing mantissa index: "
+                                      << mi << endl;
+                for (int ei = 0; ei < NUM_TEST_EXPONENTS; ++ei) {
+                    const long long MANTISSA = TEST_NONZERO_MANTISSAS[mi];
+                    const int EXPONENT = TEST_EXPONENTS[ei];
 
-                      char TEST_STRING[100];
-                      sprintf(TEST_STRING, "%llde%d", MANTISSA, EXPONENT);
+                if (veryVerbose) cout << endl
+                                      << "Testing exponent index: " << ei
+                                      << ", MANTISSA: " << MANTISSA
+                                      << ", EXPONENT: " << EXPONENT << endl;
 
-                      Util::ValueType64 EXPECTED64 =
-                          Util::parse64(TEST_STRING);
-                      LOOP2_ASSERT(MANTISSA, EXPONENT,
-                                   Util::equal(Util::makeDecimal64(
-                                             MANTISSA, EXPONENT), EXPECTED64));
+                    char TEST_STRING[100];
+                    sprintf(TEST_STRING, "%llde%d", MANTISSA, EXPONENT);
 
-                      if (MANTISSA >= 0) {
-                          LOOP2_ASSERT(MANTISSA, EXPONENT,
-                                       Util::equal(Util::makeDecimal64(
-                              static_cast<unsigned long long>(
-                                            MANTISSA), EXPONENT), EXPECTED64));
-                      }
-                      if ((MANTISSA >= bsl::numeric_limits<int>::min()) &&
-                          (MANTISSA <= bsl::numeric_limits<int>::max())) {
-                          LOOP2_ASSERT(MANTISSA, EXPONENT,
-                                       Util::equal(Util::makeDecimal64(
-                              static_cast<int>(MANTISSA), EXPONENT),
-                                                                  EXPECTED64));
-                      }
-                      if ((MANTISSA >=
-                           bsl::numeric_limits<unsigned int>::min()) &&
-                          (MANTISSA <=
-                           bsl::numeric_limits<unsigned int>::max())) {
-                          LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
-                                           Util::makeDecimal64(
-                              static_cast<unsigned int>(
-                                            MANTISSA), EXPONENT), EXPECTED64));
-                      }
+                    Util::ValueType64 EXPECTED64 =
+                        Util::parse64(TEST_STRING);
+                    LOOP2_ASSERT(MANTISSA, EXPONENT,
+                                 Util::equal(Util::makeDecimal64(MANTISSA,
+                                                                 EXPONENT),
+                                             EXPECTED64));
 
-                      bool exponentInRange =
-                                       (EXPONENT >= -398) && (EXPONENT <= 369);
-                      bool mantissaInRange =
-                          (MANTISSA >= -9999999999999999LL) &&
-                                              (MANTISSA <= 9999999999999999LL);
+                    if (MANTISSA >= 0) {
+                        LOOP2_ASSERT(MANTISSA, EXPONENT,
+                                Util::equal(Util::makeDecimal64(
+                                     static_cast<unsigned long long>(MANTISSA),
+                                                                     EXPONENT),
+                                            EXPECTED64));
+                    }
+                    if ((MANTISSA >= bsl::numeric_limits<int>::min()) &&
+                        (MANTISSA <= bsl::numeric_limits<int>::max())) {
+                        LOOP2_ASSERT(MANTISSA, EXPONENT,
+                                     Util::equal(Util::makeDecimal64(
+                                                    static_cast<int>(MANTISSA),
+                                                                     EXPONENT),
+                                                 EXPECTED64));
+                    }
+                    if ((MANTISSA >=
+                                   bsl::numeric_limits<unsigned int>::min()) &&
+                        (MANTISSA <=
+                                   bsl::numeric_limits<unsigned int>::max())) {
+                        LOOP2_ASSERT(MANTISSA, EXPONENT,
+                                     Util::equal(Util::makeDecimal64(
+                                           static_cast<unsigned int>(MANTISSA),
+                                                                     EXPONENT),
+                                                 EXPECTED64));
+                    }
 
-                      if (exponentInRange & mantissaInRange) {
-                          LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
-                                       Util::makeDecimal64(MANTISSA, EXPONENT),
+                    bool exponentInRange = (EXPONENT >= -398) &&
+                                           (EXPONENT <=  369);
+                    bool mantissaInRange = (MANTISSA >= -9999999999999999LL) &&
+                                           (MANTISSA <=  9999999999999999LL);
+
+                    if (exponentInRange & mantissaInRange) {
+                        LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                  Util::makeDecimal64(   MANTISSA, EXPONENT),
                                   Util::makeDecimalRaw64(MANTISSA, EXPONENT)));
-                          if (MANTISSA >= 0) {
-                              LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
-                                           Util::makeDecimal64(
-                                         static_cast<unsigned long long>(
-                                                        MANTISSA), EXPONENT),
-                                           Util::makeDecimalRaw64(
-                                               static_cast<unsigned long long>(
-                                                        MANTISSA), EXPONENT)));
-                          }
-                          if ((MANTISSA >= bsl::numeric_limits<int>::min()) &&
-                              (MANTISSA <= bsl::numeric_limits<int>::max())) {
-                              LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
-                                           Util::makeDecimal64(
-                                         static_cast<int>(
-                                                        MANTISSA), EXPONENT),
-                                     Util::makeDecimalRaw64(
-                                         static_cast<int>(
-                                                        MANTISSA), EXPONENT)));
-                          }
-                          if ((MANTISSA >=
-                               bsl::numeric_limits<unsigned int>::min()) &&
-                              (MANTISSA <=
-                               bsl::numeric_limits<unsigned int>::max())) {
-                              LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
-                                           Util::makeDecimal64(
-                                         static_cast<unsigned int>(
-                                                        MANTISSA), EXPONENT),
-                                     Util::makeDecimalRaw64(
-                                         static_cast<unsigned int>(
-                                                        MANTISSA), EXPONENT)));
-                          }
-                      }
-                  }
-              }
-          }
+                        if (MANTISSA >= 0) {
+                            LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                Util::makeDecimal64(
+                                   static_cast<unsigned long long>(MANTISSA),
+                                                                   EXPONENT),
+                                Util::makeDecimalRaw64(
+                                   static_cast<unsigned long long>(MANTISSA),
+                                                                   EXPONENT)));
+                        }
+                        if ((MANTISSA >= bsl::numeric_limits<int>::min()) &&
+                            (MANTISSA <= bsl::numeric_limits<int>::max())) {
+                            LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                Util::makeDecimal64(
+                                       static_cast<int>(MANTISSA), EXPONENT),
+                                Util::makeDecimalRaw64(
+                                       static_cast<int>(MANTISSA), EXPONENT)));
+                        }
+                        if ((MANTISSA >=
+                             bsl::numeric_limits<unsigned int>::min()) &&
+                            (MANTISSA <=
+                             bsl::numeric_limits<unsigned int>::max())) {
+                            LOOP2_ASSERT(MANTISSA, EXPONENT, Util::equal(
+                                Util::makeDecimal64(
+                                         static_cast<unsigned int>(MANTISSA),
+                                                                   EXPONENT),
+                                Util::makeDecimalRaw64(
+                                         static_cast<unsigned int>(MANTISSA),
+                                                                   EXPONENT)));
+                        }
+                    }
+                }
+            }
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -2126,14 +2135,16 @@ int main(int argc, char* argv[])
             test32  = Util::parse32("-000.000000000000000000000000000000007");
             ASSERT(Util::equal(value32, test32));
 
-            value32 = Util::convertToDecimal32(Util::divide(Util::parse64("0"),
-                                                            Util::parse64("0")));
+            value32 = Util::convertToDecimal32(
+                                             Util::divide(Util::parse64("0"),
+                                                          Util::parse64("0")));
 
             test32  = Util::parse32("nan");
             ASSERT(!Util::equal(test32, test32));
 
-            value32 = Util::convertToDecimal32(Util::divide(Util::parse64("1"),
-                                                            Util::parse64("0")));
+            value32 = Util::convertToDecimal32(
+                                             Util::divide(Util::parse64("1"),
+                                                          Util::parse64("0")));
 
             test32  = Util::parse32("inf");
             ASSERT(Util::equal(test32, value32));
@@ -2448,57 +2459,58 @@ int main(int argc, char* argv[])
             Util::ValueType32  test32;
             Util::ValueType32 value32;
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(0, 0));
-            value32 = Util::makeDecimalRaw32(0, 0);
+             test32 = Util::convertToDecimal32(
+                                             Util::makeDecimalRaw64(  0,   0));
+            value32 = Util::makeDecimalRaw32(                         0,   0);
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(42, 0));
-            value32 = Util::makeDecimalRaw32(42, 0);
+             test32 = Util::convertToDecimal32(
+                                             Util::makeDecimalRaw64( 42,   0));
+            value32 = Util::makeDecimalRaw32(                        42,   0);
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(-42, 0));
-            value32 = Util::makeDecimalRaw32(-42, 0);
+             test32 = Util::convertToDecimal32(
+                                             Util::makeDecimalRaw64(-42,   0));
+            value32 = Util::makeDecimalRaw32(                       -42,   0);
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(42, 4));
-            value32 = Util::makeDecimalRaw32(42, 4);
+             test32 = Util::convertToDecimal32(
+                                             Util::makeDecimalRaw64( 42,   4));
+            value32 = Util::makeDecimalRaw32(                        42,   4);
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(-42, 4));
-            value32 = Util::makeDecimalRaw32(-42, 4);
+             test32 = Util::convertToDecimal32(
+                                             Util::makeDecimalRaw64(-42,   4));
+            value32 = Util::makeDecimalRaw32(                       -42,   4);
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64( 42,
-                                                                      -17));
-            value32 = Util::makeDecimalRaw32(42, -17);
+             test32 = Util::convertToDecimal32(
+                                             Util::makeDecimalRaw64( 42, -17));
+            value32 = Util::makeDecimalRaw32(                        42, -17);
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(-42,
-                                                                      -17));
-            value32 = Util::makeDecimalRaw32(-42, -17);
+             test32 = Util::convertToDecimal32(
+                                             Util::makeDecimalRaw64(-42, -17));
+            value32 = Util::makeDecimalRaw32(                       -42, -17);
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(
-                                                                     1048576,
-                                                                         300));
+             test32 = Util::convertToDecimal32(
+                                       Util::makeDecimalRaw64( 1048576,  300));
             value32 = Util::parse32("Inf");
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(
-                                                                    -1048576,
-                                                                         300));
+             test32 = Util::convertToDecimal32(
+                                       Util::makeDecimalRaw64(-1048576,  300));
             value32 = Util::parse32("-Inf");
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(
-                                                                     1048576,
-                                                                    -    300));
+             test32 = Util::convertToDecimal32(
+                                       Util::makeDecimalRaw64( 1048576, -300));
             value32 = Util::parse32("0");
             ASSERT(Util::equal(test32, value32));
 
-             test32 = Util::convertToDecimal32(Util::makeDecimalRaw64(
-                                                                    -1048576,
-                                                                    -    300));
+             test32 = Util::convertToDecimal32(
+                                       Util::makeDecimalRaw64(-1048576, -300));
             value32 = Util::parse32("-0");
             ASSERT(Util::equal(test32, value32));
 
@@ -2512,34 +2524,39 @@ int main(int argc, char* argv[])
             Util::ValueType64  test64;
             Util::ValueType64 value64;
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(0, 0));
-            value64 = Util::makeDecimalRaw64(0, 0);
+             test64 = Util::convertToDecimal64(
+                                             Util::makeDecimalRaw32(  0,   0));
+            value64 = Util::makeDecimalRaw64(                         0,   0);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(42, 0));
-            value64 = Util::makeDecimalRaw64(42, 0);
+             test64 = Util::convertToDecimal64(
+                                             Util::makeDecimalRaw32( 42,   0));
+            value64 = Util::makeDecimalRaw64(                        42,   0);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(-42, 0));
-            value64 = Util::makeDecimalRaw64(-42, 0);
+             test64 = Util::convertToDecimal64(
+                                             Util::makeDecimalRaw32(-42,   0));
+            value64 = Util::makeDecimalRaw64(                       -42,   0);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(42, 4));
-            value64 = Util::makeDecimalRaw64(42, 4);
+             test64 = Util::convertToDecimal64(
+                                             Util::makeDecimalRaw32( 42,   4));
+            value64 = Util::makeDecimalRaw64(                        42,   4);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(-42, 4));
-            value64 = Util::makeDecimalRaw64(-42, 4);
+             test64 = Util::convertToDecimal64(
+                                             Util::makeDecimalRaw32(-42,   4));
+            value64 = Util::makeDecimalRaw64(                       -42,   4);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32( 42,
-                                                                      -17));
-            value64 = Util::makeDecimalRaw64(42, -17);
+             test64 = Util::convertToDecimal64(
+                                             Util::makeDecimalRaw32( 42, -17));
+            value64 = Util::makeDecimalRaw64(                        42, -17);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw32(-42,
-                                                                      -17));
-            value64 = Util::makeDecimalRaw64(-42, -17);
+             test64 = Util::convertToDecimal64(
+                                             Util::makeDecimalRaw32(-42, -17));
+            value64 = Util::makeDecimalRaw64(                       -42, -17);
             ASSERT(Util::equal(test64, value64));
 
                         // Infinities and 0 rounding are not possible with
@@ -2555,58 +2572,58 @@ int main(int argc, char* argv[])
             Util::ValueType64  test64;
             Util::ValueType64 value64;
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(0, 0));
-            value64 = Util::makeDecimalRaw64(0, 0);
+             test64 = Util::convertToDecimal64(
+                                            Util::makeDecimalRaw128(  0,   0));
+            value64 = Util::makeDecimalRaw64(                         0,   0);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(42, 0));
-            value64 = Util::makeDecimalRaw64(42, 0);
+             test64 = Util::convertToDecimal64(
+                                            Util::makeDecimalRaw128( 42,   0));
+            value64 = Util::makeDecimalRaw64(                        42,   0);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(-42, 0));
-            value64 = Util::makeDecimalRaw64(-42, 0);
+             test64 = Util::convertToDecimal64(
+                                            Util::makeDecimalRaw128(-42,   0));
+            value64 = Util::makeDecimalRaw64(                       -42,   0);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(42, 4));
-            value64 = Util::makeDecimalRaw64(42, 4);
+             test64 = Util::convertToDecimal64(
+                                            Util::makeDecimalRaw128( 42,   4));
+            value64 = Util::makeDecimalRaw64(                        42,   4);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(-42,
-                                                                           4));
-            value64 = Util::makeDecimalRaw64(-42, 4);
+             test64 = Util::convertToDecimal64(
+                                            Util::makeDecimalRaw128(-42,   4));
+            value64 = Util::makeDecimalRaw64(                       -42,   4);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128( 42,
-                                                                      -17));
-            value64 = Util::makeDecimalRaw64(42, -17);
+             test64 = Util::convertToDecimal64(
+                                            Util::makeDecimalRaw128( 42, -17));
+            value64 = Util::makeDecimalRaw64(                        42, -17);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(-42,
-                                                                       -17));
-            value64 = Util::makeDecimalRaw64(-42, -17);
+             test64 = Util::convertToDecimal64(
+                                            Util::makeDecimalRaw128(-42, -17));
+            value64 = Util::makeDecimalRaw64(                       -42, -17);
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(
-                                                                     1048576,
-                                                                        6000));
+             test64 = Util::convertToDecimal64(
+                                     Util::makeDecimalRaw128( 1048576,  6000));
             value64 = Util::parse64("Inf");
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(
-                                                                    -1048576,
-                                                                        6000));
+             test64 = Util::convertToDecimal64(
+                                     Util::makeDecimalRaw128(-1048576,  6000));
             value64 = Util::parse64("-Inf");
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(
-                                                                     1048576,
-                                                                    -   6000));
+             test64 = Util::convertToDecimal64(
+                                     Util::makeDecimalRaw128( 1048576, -6000));
             value64 = Util::parse64("0");
             ASSERT(Util::equal(test64, value64));
 
-             test64 = Util::convertToDecimal64(Util::makeDecimalRaw128(
-                                                                    -1048576,
-                                                                    -   6000));
+             test64 = Util::convertToDecimal64(
+                                     Util::makeDecimalRaw128(-1048576, -6000));
             value64 = Util::parse64("-0");
             ASSERT(Util::equal(test64, value64));
 
@@ -2620,39 +2637,39 @@ int main(int argc, char* argv[])
             Util::ValueType128  test128;
             Util::ValueType128 value128;
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(0,
-                                                                        0));
-            value128 = Util::makeDecimalRaw128(0, 0);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw32(  0,   0));
+            value128 = Util::makeDecimalRaw128(                       0,   0);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(42,
-                                                                         0));
-            value128 = Util::makeDecimalRaw128(42, 0);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw32( 42,   0));
+            value128 = Util::makeDecimalRaw128(                      42,   0);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(-42,
-                                                                          0));
-            value128 = Util::makeDecimalRaw128(-42, 0);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw32(-42,   0));
+            value128 = Util::makeDecimalRaw128(                     -42,   0);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(42,
-                                                                         4));
-            value128 = Util::makeDecimalRaw128(42, 4);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw32( 42,   4));
+            value128 = Util::makeDecimalRaw128(                      42,   4);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(-42,
-                                                                          4));
-            value128 = Util::makeDecimalRaw128(-42, 4);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw32(-42,   4));
+            value128 = Util::makeDecimalRaw128(                     -42,   4);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32( 42,
-                                                                        -17));
-            value128 = Util::makeDecimalRaw128(42, -17);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw32( 42, -17));
+            value128 = Util::makeDecimalRaw128(                      42, -17);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw32(-42,
-                                                                        -17));
-            value128 = Util::makeDecimalRaw128(-42, -17);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw32(-42, -17));
+            value128 = Util::makeDecimalRaw128(                     -42, -17);
             ASSERT(Util::equal(test128, value128));
 
                         // Infinities and 0 rounding are not possible with
@@ -2668,39 +2685,39 @@ int main(int argc, char* argv[])
             Util::ValueType128  test128;
             Util::ValueType128 value128;
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(0,
-                                                                        0));
-            value128 = Util::makeDecimalRaw128(0, 0);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw64(  0,   0));
+            value128 = Util::makeDecimalRaw128(                       0,   0);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(42,
-                                                                         0));
-            value128 = Util::makeDecimalRaw128(42, 0);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw64( 42,   0));
+            value128 = Util::makeDecimalRaw128(                      42,   0);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(-42,
-                                                                          0));
-            value128 = Util::makeDecimalRaw128(-42, 0);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw64(-42,   0));
+            value128 = Util::makeDecimalRaw128(                     -42,   0);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(42,
-                                                                         4));
-            value128 = Util::makeDecimalRaw128(42, 4);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw64( 42,   4));
+            value128 = Util::makeDecimalRaw128(                      42,   4);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(-42,
-                                                                          4));
-            value128 = Util::makeDecimalRaw128(-42, 4);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw64(-42,   4));
+            value128 = Util::makeDecimalRaw128(                     -42,   4);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64( 42,
-                                                                        -17));
-            value128 = Util::makeDecimalRaw128(42, -17);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw64( 42, -17));
+            value128 = Util::makeDecimalRaw128(                      42, -17);
             ASSERT(Util::equal(test128, value128));
 
-             test128 = Util::convertToDecimal128(Util::makeDecimalRaw64(-42,
-                                                                        -17));
-            value128 = Util::makeDecimalRaw128(-42, -17);
+             test128 = Util::convertToDecimal128(
+                                             Util::makeDecimalRaw64(-42, -17));
+            value128 = Util::makeDecimalRaw128(                     -42, -17);
             ASSERT(Util::equal(test128, value128));
 
                         // Infinities and 0 rounding are not possible with
@@ -3301,8 +3318,9 @@ int main(int argc, char* argv[])
             LOOP6_ASSERT(lhsMantissa, lhsExponent,
                          rhsMantissa, rhsExponent,
                          resMantissa, resExponent,
-                   Util::equal(result64, Util::makeDecimalRaw64(resMantissa,
-                                                                resExponent)));
+                         Util::equal(result64,
+                                     Util::makeDecimalRaw64(resMantissa,
+                                                            resExponent)));
             LOOP6_ASSERT(lhsMantissa, lhsExponent,
                          rhsMantissa, rhsExponent,
                          resMantissa, resExponent,
@@ -3318,13 +3336,15 @@ int main(int argc, char* argv[])
             LOOP6_ASSERT(lhsMantissa, lhsExponent,
                          rhsMantissa, rhsExponent,
                          resMantissa, resExponent,
-                   Util::equal(result128, Util::makeDecimalRaw128(resMantissa,
-                                                                  resExponent)));
+                         Util::equal(result128,
+                                     Util::makeDecimalRaw128(resMantissa,
+                                                             resExponent)));
             LOOP6_ASSERT(lhsMantissa, lhsExponent,
                          rhsMantissa, rhsExponent,
                          resMantissa, resExponent,
-                   Util::equal(lhs128, Util::subtract(lhs128,
-                                                      negativeZero128)));
+                         Util::equal(lhs128,
+                                     Util::subtract(lhs128,
+                                                    negativeZero128)));
         }
 
 
@@ -3599,12 +3619,12 @@ int main(int argc, char* argv[])
         // INEQUALITY COMPARISON 'Util::notEqual'
         //
         // Concerns:
-        //:  1 'notEqual' should return false if the bit patterns are the same (and
-        //:    are not a bit pattern representing a 'NaN').
+        //:  1 'notEqual' should return false if the bit patterns are the same
+        //:    (and are not a bit pattern representing a 'NaN').
         //:
-        //:  2 'notEqual' should return false if the bit patterns are different,
-        //:    but represent the same value.  I.e. '10e0' should be equal to
-        //:    '1e1'.
+        //:  2 'notEqual' should return false if the bit patterns are
+        //:    different, but represent the same value.  I.e. '10e0' should be
+        //:    equal to '1e1'.
         //:
         //:  3 Values which differ by only one of sign, exponent, or mantissa
         //:    should not be equal.
@@ -5847,8 +5867,8 @@ int main(int argc, char* argv[])
 
             for (int t_m = 0; t_m < numMantissas; ++t_m) {
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
-                    long long mantissa = mantissas[t_m];
-                    int exponent = exponents[t_e];
+                    long long int mantissa = mantissas[t_m];
+                              int exponent = exponents[t_e];
 
                     if (mantissa <= 9999999 && mantissa >= -9999999
                      && exponent <= 90      && exponent >= -101) {
@@ -5907,8 +5927,8 @@ int main(int argc, char* argv[])
 
             for (int t_m = 0; t_m < numMantissas; ++t_m) {
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
-                    long long mantissa = mantissas[t_m];
-                    int exponent = exponents[t_e];
+                    long long int mantissa = mantissas[t_m];
+                              int exponent = exponents[t_e];
 
                     if (mantissa <= bsl::numeric_limits<int>::max() &&
                         mantissa >= bsl::numeric_limits<int>::min()) {
@@ -5923,10 +5943,18 @@ int main(int argc, char* argv[])
                                                                    exponent);
                         witnessParse = Util::parse64(parseString.c_str());
 
-                        LOOP5_ASSERT(t_m, t_e, intMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                        LOOP5_ASSERT(t_m, t_e, intMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                        LOOP5_ASSERT(t_m,         t_e,
+                                     intMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessAlternate,
+                                                  sizeof(test)));
+                        LOOP5_ASSERT(t_m,         t_e,
+                                     intMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessParse,
+                                                  sizeof(test)));
                     }
 
                     if (mantissa <= bsl::numeric_limits<unsigned>::max() &&
@@ -5942,10 +5970,18 @@ int main(int argc, char* argv[])
                                                                    exponent);
                         witnessParse = Util::parse64(parseString.c_str());
 
-                        LOOP5_ASSERT(t_m, t_e, uMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                        LOOP5_ASSERT(t_m, t_e, uMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                        LOOP5_ASSERT(t_m,       t_e,
+                                     uMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessAlternate,
+                                                  sizeof(test)));
+                        LOOP5_ASSERT(t_m,       t_e,
+                                     uMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessParse,
+                                                  sizeof(test)));
                     }
 
                     if (mantissa <=
@@ -5962,12 +5998,18 @@ int main(int argc, char* argv[])
                                                                    exponent);
                         witnessParse = Util::parse64(parseString.c_str());
 
-                        LOOP5_ASSERT(t_m, t_e,
-                                     ullMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                        LOOP5_ASSERT(t_m, t_e,
-                                     ullMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                        LOOP5_ASSERT(t_m,         t_e,
+                                     ullMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessAlternate,
+                                                  sizeof(test)));
+                        LOOP5_ASSERT(t_m,         t_e,
+                                     ullMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessParse,
+                                                  sizeof(test)));
                     }
 
                     if (mantissa <= bsl::numeric_limits<long long>::max() &&
@@ -5980,10 +6022,18 @@ int main(int argc, char* argv[])
                                                                      exponent);
                         witnessParse = Util::parse64(parseString.c_str());
 
-                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                        LOOP5_ASSERT(t_m,      t_e,
+                                     mantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessAlternate,
+                                                  sizeof(test)));
+                        LOOP5_ASSERT(t_m,      t_e,
+                                     mantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessParse,
+                                                  sizeof(test)));
                     }
                 }
             }
@@ -6122,8 +6172,8 @@ int main(int argc, char* argv[])
 
             for (int t_m = 0; t_m < numMantissas; ++t_m) {
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
-                    long long mantissa = mantissas[t_m];
-                    int exponent = exponents[t_e];
+                    long long int mantissa = mantissas[t_m];
+                              int exponent = exponents[t_e];
 
                     if (mantissa <= bsl::numeric_limits<int>::max() &&
                         mantissa >= bsl::numeric_limits<int>::min()) {
@@ -6138,10 +6188,18 @@ int main(int argc, char* argv[])
                                                                    exponent);
                         witnessParse = Util::parse128(parseString.c_str());
 
-                        LOOP5_ASSERT(t_m, t_e, intMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                        LOOP5_ASSERT(t_m, t_e, intMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                        LOOP5_ASSERT(t_m,         t_e,
+                                     intMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessAlternate,
+                                                  sizeof(test)));
+                        LOOP5_ASSERT(t_m,         t_e,
+                                     intMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessParse,
+                                                  sizeof(test)));
                     }
 
                     if (mantissa <= bsl::numeric_limits<unsigned>::max() &&
@@ -6153,14 +6211,22 @@ int main(int argc, char* argv[])
 
                         test = Util::makeDecimalRaw128(uMantissa, exponent);
                         witnessAlternate = alternateMakeDecimalRaw128(
-                                                                   uMantissa,
-                                                                   exponent);
+                                                                     uMantissa,
+                                                                     exponent);
                         witnessParse = Util::parse128(parseString.c_str());
 
-                        LOOP5_ASSERT(t_m, t_e, uMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                        LOOP5_ASSERT(t_m, t_e, uMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                        LOOP5_ASSERT(t_m,       t_e,
+                                     uMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessAlternate,
+                                                  sizeof(test)));
+                        LOOP5_ASSERT(t_m,       t_e,
+                                     uMantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessParse,
+                                                  sizeof(test)));
                     }
 
                     if (mantissa <=
@@ -6177,12 +6243,16 @@ int main(int argc, char* argv[])
                                                                    exponent);
                         witnessParse = Util::parse128(parseString.c_str());
 
-                        LOOP5_ASSERT(t_m, t_e,
-                                     ullMantissa, exponent, parseString,
+                        LOOP5_ASSERT(t_m,         t_e,
+                                     ullMantissa, exponent,
+                                     parseString,
                          !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                        LOOP5_ASSERT(t_m, t_e,
-                                     ullMantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                        LOOP5_ASSERT(t_m,         t_e,
+                                     ullMantissa, exponent,
+                                     parseString,
+                         !bsl::memcmp(&test,
+                                      &witnessParse,
+                                      sizeof(test)));
                     }
 
                     if (mantissa <= bsl::numeric_limits<long long>::max() &&
@@ -6195,10 +6265,18 @@ int main(int argc, char* argv[])
                                                                      exponent);
                         witnessParse = Util::parse128(parseString.c_str());
 
-                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessAlternate, sizeof(test)));
-                        LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
-                         !bsl::memcmp(&test, &witnessParse,     sizeof(test)));
+                        LOOP5_ASSERT(t_m,      t_e,
+                                     mantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessAlternate,
+                                                  sizeof(test)));
+                        LOOP5_ASSERT(t_m,      t_e,
+                                     mantissa, exponent,
+                                     parseString,
+                                     !bsl::memcmp(&test,
+                                                  &witnessParse,
+                                                  sizeof(test)));
                     }
                 }
             }
@@ -6211,24 +6289,28 @@ int main(int argc, char* argv[])
             AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
 
             // Check exponent lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw32(42, -102));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw32(42, -101));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                      Util::makeDecimalRaw32(       42, -102));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                      Util::makeDecimalRaw32(       42, -101));
 
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw32(42, 90));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw32(42, 91));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                      Util::makeDecimalRaw32(       42,   90));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                      Util::makeDecimalRaw32(       42,   91));
 
             // Check mantissa lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw32(-10000000,
-                                                                          42));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw32(- 9999999,
-                                                                          42));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                      Util::makeDecimalRaw32(-10000000,   42));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                      Util::makeDecimalRaw32(- 9999999,   42));
 
             // Check mantissa upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw32( 9999999,
-                                                                          42));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw32(10000000,
-                                                                          42));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                      Util::makeDecimalRaw32(  9999999,   42));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                      Util::makeDecimalRaw32( 10000000,   42));
         }
 
         // Test that 'makeDecimalRaw64' variants enforce undefined behavior in
@@ -6243,8 +6325,8 @@ int main(int argc, char* argv[])
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42, -398));
 
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42, 369));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42, 370));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42,  369));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42,  370));
 
             // 'makeDecimalRaw64(int, int)' needs no test for mantissa bounds
             // because 9,999,999,999,999,999 is unrepresentable as an int.
@@ -6256,8 +6338,8 @@ int main(int argc, char* argv[])
             BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42u, -398));
 
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42u, 369));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42u, 370));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42u,  369));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42u,  370));
 
             // 'makeDecimalRaw64(unsigned int, int)' needs no test for mantissa
             // bounds because 9,999,999,999,999,999 is unrepresentable as an
@@ -6266,49 +6348,51 @@ int main(int argc, char* argv[])
             // Test 'makeDecimalRaw64(long long, int)':
 
             // Check exponent lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42ll,
-                                                                        -399));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42ll,
-                                                                        -398));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                           Util::makeDecimalRaw64(                42ll, -399));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                           Util::makeDecimalRaw64(                42ll, -398));
 
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42ll, 369));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42ll, 370));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                           Util::makeDecimalRaw64(                42ll,  369));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                           Util::makeDecimalRaw64(                42ll,  370));
 
             // Check mantissa lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(
-                                                    -10000000000000000ll, 42));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(
-                                                    - 9999999999999999ll, 42));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                           Util::makeDecimalRaw64(-10000000000000000ll,   42));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                           Util::makeDecimalRaw64(- 9999999999999999ll,   42));
 
             // Check mantissa upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(
-                                                      9999999999999999ll, 42));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(
-                                                     10000000000000000ll, 42));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                           Util::makeDecimalRaw64(  9999999999999999ll,   42));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                           Util::makeDecimalRaw64( 10000000000000000ll,   42));
 
             // Test 'makeDecimalRaw64(unsigned long long, int)':
 
             // Check exponent lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42ull,
-                                                                        -399));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42ull,
-                                                                        -398));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                           Util::makeDecimalRaw64(               42ull, -399));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                           Util::makeDecimalRaw64(               42ull, -398));
 
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(42ull,
-                                                                         369));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(42ull,
-                                                                         370));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                           Util::makeDecimalRaw64(               42ull,  369));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                           Util::makeDecimalRaw64(               42ull,  370));
 
             // Unsigned numbers cannot be negative, so we do not have a lower
             // bound test.
 
             // Check mantissa upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw64(
-                                                     9999999999999999ull, 42));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw64(
-                                                    10000000000000000ull, 42));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                           Util::makeDecimalRaw64( 9999999999999999ull,   42));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                           Util::makeDecimalRaw64(10000000000000000ull,   42));
         }
 
         // Test that 'makeDecimalRaw128' variants enforce undefined behavior in
@@ -6319,55 +6403,57 @@ int main(int argc, char* argv[])
             // Test 'makeDecimalRaw128(int, int)':
 
             // Check exponent lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw128(42,
-                                                                       -6177));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw128(42,
-                                                                       -6176));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                           Util::makeDecimalRaw128(42, -6177));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                           Util::makeDecimalRaw128(42, -6176));
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw128(42, 6111));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw128(42, 6112));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                           Util::makeDecimalRaw128(42,  6111));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                           Util::makeDecimalRaw128(42,  6112));
 
             // Test 'makeDecimalRaw128(unsigned, int)':
 
             // Check exponent lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw128(42u,
-                                                                       -6177));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw128(42u,
-                                                                       -6176));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                          Util::makeDecimalRaw128(42u, -6177));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                          Util::makeDecimalRaw128(42u, -6176));
 
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw128(42u,
-                                                                        6111));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw128(42u,
-                                                                        6112));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                          Util::makeDecimalRaw128(42u,  6111));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                          Util::makeDecimalRaw128(42u,  6112));
 
             // Test 'makeDecimalRaw128(long long, int)':
 
             // Check exponent lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw128(42ll,
-                                                                       -6177));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw128(42ll,
-                                                                       -6176));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                         Util::makeDecimalRaw128(42ll, -6177));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                         Util::makeDecimalRaw128(42ll, -6176));
 
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw128(42ll,
-                                                                        6111));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw128(42ll,
-                                                                        6112));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                         Util::makeDecimalRaw128(42ll,  6111));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                         Util::makeDecimalRaw128(42ll,  6112));
 
             // Test 'makeDecimalRaw128(unsigned long long, int)':
 
             // Check exponent lower bound
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw128(42ull,
-                                                                       -6177));
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw128(42ull,
-                                                                       -6176));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                        Util::makeDecimalRaw128(42ull, -6177));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                        Util::makeDecimalRaw128(42ull, -6176));
 
             // Check exponent upper bound
-            BSLS_ASSERTTEST_ASSERT_OPT_PASS(Util::makeDecimalRaw128(42ull,
-                                                                        6111));
-            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(Util::makeDecimalRaw128(42ull,
-                                                                        6112));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(
+                                        Util::makeDecimalRaw128(42ull,  6111));
+            BSLS_ASSERTTEST_ASSERT_OPT_FAIL(
+                                        Util::makeDecimalRaw128(42ull,  6112));
         }
       } break;
       case 1: {} break; // Breathing test dummy
