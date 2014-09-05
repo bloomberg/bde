@@ -4,6 +4,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_guardingallocator_cpp,"$Id$ $CSID$")
 
+#include <bslmf_assert.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
@@ -22,27 +24,43 @@ BSLS_IDENT_RCSID(bdlma_guardingallocator_cpp,"$Id$ $CSID$")
 #else
 
 #include <errno.h>     // 'errno'
-#include <stdio.h>     // 'fprintf'
 #include <string.h>    // 'strerror'
 #include <sys/mman.h>  // 'mmap', 'mprotect', 'munmap'
 #include <unistd.h>    // 'sysconf'
 
 #endif
 
-
-
-
 namespace BloombergLP {
 
 namespace {
-
-// HELPER FUNCTIONS
 
 // Define the offset (in bytes) from the address returned to the user in which
 // to stash reference addresses ('e_AFTER_USER_BLOCK' only).
 
 const bslma::Allocator::size_type OFFSET =
                                        bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
+struct AfterUserBlockDeallocationData
+    // Helper struct storing the addresses we need for deallocation when the
+    // guard page location is 'e_AFTER_USER_BLOCK'.
+{
+    void *d_firstPage; // address we need to deallocate
+    void *d_guardPage; // address of the page we need to unprotect
+};
+
+AfterUserBlockDeallocationData *getDataBlockAddress(void *address)
+    // Utility function to compute the 'AfterUserBlockDeallocationData*'
+    // corresponding to the specified 'address'.
+{
+    return static_cast<AfterUserBlockDeallocationData*>(
+            static_cast<void*>(
+                static_cast<char *>(address) - OFFSET * 2));
+}
+
+// Assert that we can fit our struct into the available space.
+BSLMF_ASSERT(sizeof(AfterUserBlockDeallocationData) <= OFFSET * 2);
+
+// HELPER FUNCTIONS
 
 int getSystemPageSize()
     // Return the size (in bytes) of a system memory page.
@@ -90,14 +108,6 @@ void *systemAlloc(bsl::size_t size)
                           0);
 
     if (MAP_FAILED == address) {
-        /*
-        fprintf(stderr,
-                "mmap failed, errno %d (%s)\n",
-                errno,
-                strerror(errno)
-               );
-        */
-
         return 0;                                                     // RETURN
     }
 
@@ -123,6 +133,7 @@ void systemFree(void *address, size_t size)
     // On some of our platforms, 'munmap' takes a 'char*' argument, while on
     // others it takes a 'void*'.  Casting to 'char*', which will work in both
     // cases.
+
     munmap(static_cast<char*>(address), size);
 
 #endif
@@ -241,8 +252,11 @@ void *GuardingAllocator::allocate(size_type size)
 
         // Stash the reference addresses required by 'deallocate'.
 
-        *(void **)(static_cast<char *>(userAddress) - OFFSET)     = firstPage;
-        *(void **)(static_cast<char *>(userAddress) - OFFSET * 2) = guardPage;
+        AfterUserBlockDeallocationData *deallocData =
+            getDataBlockAddress(userAddress);
+
+        deallocData->d_firstPage = firstPage;
+        deallocData->d_guardPage = guardPage;
     }
 
     // Save 'totalSize' - we'll need it for 'systemFree' in 'deallocate'.
@@ -284,8 +298,11 @@ void GuardingAllocator::deallocate(void *address)
     else {
         // The memory page after the block returned to the user is protected.
 
-        firstPage = *(void **)(static_cast<char *>(address) - OFFSET);
-        guardPage = *(void **)(static_cast<char *>(address) - OFFSET * 2);
+        AfterUserBlockDeallocationData *deallocData =
+            getDataBlockAddress(address);
+
+        firstPage = deallocData->d_firstPage;
+        guardPage = deallocData->d_guardPage;
     }
 
     // Unprotect the guard page and free the memory.
