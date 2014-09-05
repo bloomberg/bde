@@ -42,6 +42,10 @@ BSLS_IDENT("$Id$")
 #include <bsl_locale.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -649,7 +653,7 @@ struct DecimalImpUtil_IntelDfp {
 
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                           // -----------------------------

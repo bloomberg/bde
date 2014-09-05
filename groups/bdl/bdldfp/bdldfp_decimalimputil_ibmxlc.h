@@ -33,7 +33,7 @@ BSLS_IDENT("$Id$")
 #endif
 
 
-#ifndef INCLUDED_BDLDFP_DENSELYPACKEDECIMALIMPUTIL
+#ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
 #include <bdldfp_denselypackeddecimalimputil.h>
 #endif
 

@@ -158,7 +158,7 @@ namespace BDEC = BloombergLP::bdldfp;
 
 namespace UsageExample {
   // TBD
-}  // close namespace UsageExample
+}  // close UsageExample namespace
 
 //=============================================================================
 //              GLOBAL HELPER FUNCTIONS AND CLASSES FOR TESTING

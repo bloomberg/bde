@@ -1,8 +1,9 @@
-// bdldfp_intelimpwrapper.cpp                                         -*-C++-*-
+// bdldfp_intelimpwrapper.t.cpp                                       -*-C++-*-
 #include <bdldfp_intelimpwrapper.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -35,9 +36,9 @@ using bsl::atoi;
 //
 // TRAITS
 // ----------------------------------------------------------------------------
-// [ 4] Macro clean environment.
+// [ 4] Macro clean environment
 // [ 3] Simple function call tests
-// [ 2] Intel Decimal types sanity test.
+// [ 2] Intel Decimal types sanity test
 // [ 1] Include Sanity Test
 // ----------------------------------------------------------------------------
 
@@ -97,8 +98,8 @@ static void aSsErT(int c, const char *s, int i)
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // 'P(X)' without '\n'
-#define L_ __LINE__                           // current Line number
 #define T_ cout << "\t" << flush;             // Print tab w/o newline.
+#define L_ __LINE__                           // current Line number
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -121,7 +122,7 @@ int main(int argc, char* argv[])
     switch (test) { case 0:
       case 4: {
         // --------------------------------------------------------------------
-        // Macro clean environment
+        // MACRO CLEAN ENVIRONMENT
         //
         // Concerns:
         //: 1 The various macros used in configuring, tuning, and compiling the
@@ -136,7 +137,7 @@ int main(int argc, char* argv[])
         //   Macro clean environment
         // --------------------------------------------------------------------
         if (verbose) cout << std::endl
-                          << "Macro clean environment" << std::endl
+                          << "MACRO CLEAN ENVIRONMENT" << std::endl
                           << "=======================" << std::endl;
 
         #ifdef DECIMAL_CALL_BY_REFERENCE
@@ -162,7 +163,7 @@ int main(int argc, char* argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // Simple Function call tests
+        // SIMPLE FUNCTION CALL TESTS
         //   Ensure that we can call functions expected in the Intel DFP
         //   library, and that the ones we call behave reasonably.
         //
@@ -183,7 +184,7 @@ int main(int argc, char* argv[])
         //   Simple function call tests
         // --------------------------------------------------------------------
         if (verbose) cout << std::endl
-                          << "Simple function call tests" << std::endl
+                          << "SIMPLE FUNCTION CALL TESTS" << std::endl
                           << "==========================" << std::endl;
 
         BID_UINT64  doubleDecimal = __bid64_from_int32( 42);
@@ -209,7 +210,7 @@ int main(int argc, char* argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // Intel Decimal types sanity test
+        // INTEL DECIMAL TYPES SANITY TEST
         //   Ensure that we can call instantiate variables from the Intel
         //   libary.
         //
@@ -227,7 +228,7 @@ int main(int argc, char* argv[])
         //   Intel Decimal types sanity test
         // --------------------------------------------------------------------
         if (verbose) cout << std::endl
-                          << "Intel Decimal types sanity test" << std::endl
+                          << "INTEL DECIMAL TYPES SANITY TEST" << std::endl
                           << "===============================" << std::endl;
 
         // The intel library types work correctly if different values have
@@ -241,21 +242,21 @@ int main(int argc, char* argv[])
         BID_UINT64  doublePrecisionDecimalStorage2 = __bid64_from_int32( 47);
         BID_UINT128   quadPrecisionDecimalStorage2 = __bid128_from_int32(47);
 
-        ASSERT(memcmp(singlePrecisionDecimalStorage,
-                      singlePrecisionDecimalStorage2,
-                      sizeof(BID_UINT32)));
+        ASSERT(bsl::memcmp(singlePrecisionDecimalStorage,
+                           singlePrecisionDecimalStorage2,
+                           sizeof(BID_UINT32)));
 
-        ASSERT(memcmp(doublePrecisionDecimalStorage,
-                      doublePrecisionDecimalStorage2,
-                      sizeof(BID_UINT64)));
+        ASSERT(bsl::memcmp(doublePrecisionDecimalStorage,
+                           doublePrecisionDecimalStorage2,
+                           sizeof(BID_UINT64)));
 
-        ASSERT(memcmp(  quadPrecisionDecimalStorage,
-                        quadPrecisionDecimalStorage2,
-                      sizeof(BID_UINT128)));
+        ASSERT(bsl::memcmp(  quadPrecisionDecimalStorage,
+                             quadPrecisionDecimalStorage2,
+                             sizeof(BID_UINT128)));
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // Include Sanity Test
+        // INCLUDE SANITY TEST
         //   Find some evidence that the Intel headers are included.
         //   libary.
         //
@@ -267,10 +268,10 @@ int main(int argc, char* argv[])
         //:    the Intel headers. (C-1)
         //
         // Testing:
-        //   Include sanity test
+        //   Include Sanity Test
         // --------------------------------------------------------------------
         if (verbose) cout << std::endl
-                          << "Include Sanity Test" << std::endl
+                          << "INCLUDE SANITY TEST" << std::endl
                           << "===================" << std::endl;
 
         // The Intel library makes the BID_UINT64 type an integer.  This test

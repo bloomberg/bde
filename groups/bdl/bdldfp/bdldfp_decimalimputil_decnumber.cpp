@@ -58,7 +58,7 @@ const char *BufferBuf<Size>::str()
     return this->pbase();
 }
 
-}  // close anonymous namespace
+}  // close unnamed namespace
 
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::binaryToDecimal32(float value)

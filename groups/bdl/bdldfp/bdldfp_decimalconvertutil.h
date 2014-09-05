@@ -90,10 +90,6 @@ BSLS_IDENT("$Id$")
 #include <bslmf_assert.h>
 #endif
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
-#endif
-
 #ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
 #include <bdldfp_decimalconvertutil_inteldfp.h>
 #endif
@@ -112,6 +108,10 @@ BSLS_IDENT("$Id$")
 
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL
 #include <bdldfp_decimalimputil.h>
+#endif
+
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
 #endif
 
 namespace BloombergLP {
@@ -485,7 +485,7 @@ struct DecimalConvertUtil {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                         // decimalToLongDouble functions

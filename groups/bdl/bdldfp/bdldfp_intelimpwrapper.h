@@ -25,6 +25,10 @@ BSLS_IDENT("$Id$")
 ///-----
 // This section shows the intended use of this component.
 
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
+#endif
+
 #ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
 #define INCLUDED_BDLDFP_DECIMALPLATFORM

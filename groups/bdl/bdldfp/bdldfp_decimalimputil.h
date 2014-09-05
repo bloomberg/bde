@@ -15,7 +15,7 @@ BSLS_IDENT("$Id$")
 //
 //@SEE ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalimputil_decnumber
 //
-//@DESCRIPTION: This component provides a namespace, 'DecimalImpUtil',
+//@DESCRIPTION: This component provides a namespace, 'bdldfp::DecimalImpUtil',
 // containing primitive utilities used in the implementation of a decimal
 // floating point type (e.g., see 'bdldfp_decimal').
 //
@@ -868,7 +868,7 @@ class DecimalImpUtil {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
                           // --------------------

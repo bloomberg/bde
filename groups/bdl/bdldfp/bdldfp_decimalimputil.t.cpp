@@ -119,6 +119,7 @@ using bsl::atoi;
 // [18] format(ValueType32,  char *)
 // [18] format(ValueType64,  char *)
 // [18] format(ValueType128, char *)
+// [ 1] checkLiteral(double)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] TEST 'notEqual' FOR 'NaN' CORRECTNESS
@@ -289,8 +290,8 @@ const int numExponents = sizeof(exponents) / sizeof(*exponents);
 
 
 static const long long TEST_NONZERO_MANTISSAS[] = {
-    // These numbers will test equality of decimal floating point values
-    // of different quanta.
+    // These numbers will test equality of decimal floating point values of
+    // different quanta.
     2LL,
     7LL,
     20LL,
@@ -328,8 +329,8 @@ static const long long TEST_NONZERO_MANTISSAS[] = {
     200000000000000000LL,
     700000000000000000LL,
 
-    // These number ensure that we can handle digits in all positions of
-    // the mantissa.
+    // These number ensure that we can handle digits in all positions of the
+    // mantissa.
     12LL,
     123LL,
     1234LL,
@@ -349,8 +350,8 @@ static const long long TEST_NONZERO_MANTISSAS[] = {
     123456789012345678LL,
     1234567890123456789LL,
 
-    // These numbers test the behavior of rounding to 16 significant
-    // figures (e.g., in makeDecimal64.)
+    // These numbers test the behavior of rounding to 16 significant figures
+    // (e.g., in makeDecimal64.)
     44444444444444444LL,
     44444444444444445LL,
     44444444444444455LL,
@@ -498,20 +499,20 @@ bsl::string makeParseString(INTEGER mantissa, int exponent)
 }
 
 bool nanEqual(Util::ValueType64 lhs, Util::ValueType64 rhs)
-    // Return true if the specified 'lhs' and 'rhs' are the same value,
-    // even in the case of 'NaN'.  Two 'ValueType64' objects are considered
-    // equal if either 'Util::equal' returns true, or both 'lhs' and 'rhs'
-    // are not equal to themselves (implying them both to be 'NaN').
+    // Return true if the specified 'lhs' and 'rhs' are the same value, even in
+    // the case of 'NaN'.  Two 'ValueType64' objects are considered equal if
+    // either 'Util::equal' returns true, or both 'lhs' and 'rhs' are not equal
+    // to themselves (implying them both to be 'NaN').
 {
     return  Util::equal(lhs, rhs)
         || (Util::notEqual(lhs, lhs) && Util::notEqual(rhs, rhs));
 }
 
 bool nanEqual(Util::ValueType128 lhs, Util::ValueType128 rhs)
-    // Return true if the specified 'lhs' and 'rhs' are the same value,
-    // even in the case of 'NaN'.  Two 'ValueType128' objects are considered
-    // equal if either 'Util::equal' returns true, or both 'lhs' and 'rhs'
-    // are not equal to themselves (implying them both to be 'NaN').
+    // Return true if the specified 'lhs' and 'rhs' are the same value, even in
+    // the case of 'NaN'.  Two 'ValueType128' objects are considered equal if
+    // either 'Util::equal' returns true, or both 'lhs' and 'rhs' are not equal
+    // to themselves (implying them both to be 'NaN').
 {
     return  Util::equal(lhs, rhs)
         || (Util::notEqual(lhs, lhs) && Util::notEqual(rhs, rhs));
@@ -821,6 +822,24 @@ int main(int argc, char* argv[])
 
     switch (test) { case 0:
       case 19: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //
+        // Concerns:
+        //:  1 Usage example compiles
+        //
+        // Plan:
+        //:  1 Copy-and-paste usage example into test driver.
+        //:  2 Replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING USAGE EXAMPLE" << endl
+                          << "=====================" << endl;
+
 ///Usage
 ///-----
 // This section shows the intended use of this component.
@@ -921,6 +940,11 @@ int main(int argc, char* argv[])
         //   format(ValueType64,  char *)
         //   format(ValueType128, char *)
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'format'" << endl
+                          << "================" << endl;
+
         char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
 
         // Testing 'format(ValueType32, char *)'
@@ -1119,10 +1143,15 @@ int main(int argc, char* argv[])
         // Plan:
         //:  1 Run some sample values.
         //
+        // Testing:
         //   scaleB(ValueType32,  int)
         //   scaleB(ValueType64,  int)
         //   scaleB(ValueType128, int)
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'scaleB'" << endl
+                          << "================" << endl;
 
         Util::ValueType32  value32;
         Util::ValueType32   test32;
@@ -1211,19 +1240,24 @@ int main(int argc, char* argv[])
         //:
         //:  4 A 'NaN' will be among the data. (C-3)
         //
-        // [16] less(ValueType32,  ValueType32)
-        // [16] less(ValueType64,  ValueType64)
-        // [16] less(ValueType128, ValueType128)
-        // [16] greater(ValueType32,  ValueType32)
-        // [16] greater(ValueType64,  ValueType64)
-        // [16] greater(ValueType128, ValueType128)
-        // [16] lessEqual(ValueType32,  ValueType32)
-        // [16] lessEqual(ValueType64,  ValueType64)
-        // [16] lessEqual(ValueType128, ValueType128)
-        // [16] greaterEqual(ValueType32,  ValueType32)
-        // [16] greaterEqual(ValueType64,  ValueType64)
-        // [16] greaterEqual(ValueType128, ValueType128)
+        // Testing:
+        //   less(ValueType32,  ValueType32)
+        //   less(ValueType64,  ValueType64)
+        //   less(ValueType128, ValueType128)
+        //   greater(ValueType32,  ValueType32)
+        //   greater(ValueType64,  ValueType64)
+        //   greater(ValueType128, ValueType128)
+        //   lessEqual(ValueType32,  ValueType32)
+        //   lessEqual(ValueType64,  ValueType64)
+        //   lessEqual(ValueType128, ValueType128)
+        //   greaterEqual(ValueType32,  ValueType32)
+        //   greaterEqual(ValueType64,  ValueType64)
+        //   greaterEqual(ValueType128, ValueType128)
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING COMPARISON FUNCTIONS" << endl
+                          << "============================" << endl;
 
         Util::ValueType32  nan32  = Util::parse32( "NaN");
         Util::ValueType64  nan64  = Util::parse64( "NaN");
@@ -1271,6 +1305,9 @@ int main(int argc, char* argv[])
             const char *const lhsValue = tests[i].number;
             const int         lhsOrder = tests[i].order;
 
+            if (veryVerbose) cout << endl
+                                  << "lhsValue = " << lhsValue << endl;
+
             Util::ValueType32  lhs32  = Util::parse32( lhsValue);
             Util::ValueType64  lhs64  = Util::parse64( lhsValue);
             Util::ValueType128 lhs128 = Util::parse128(lhsValue);
@@ -1307,6 +1344,8 @@ int main(int argc, char* argv[])
             for (int j = 0; j < numTests; ++j) {
                 const char *const rhsValue = tests[j].number;
                 const int         rhsOrder = tests[j].order;
+                if (veryVerbose) cout << endl
+                                      << "rhsValue = " << rhsValue << endl;
 
                 Util::ValueType32  rhs32  = Util::parse32( rhsValue);
                 Util::ValueType64  rhs64  = Util::parse64( rhsValue);
@@ -1353,6 +1392,10 @@ int main(int argc, char* argv[])
         //   binaryToDecimal128(double)
         //   binaryToDecimal128(long double)
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'binaryToDecimalXX'" << endl
+                          << "===========================" << endl;
 
         // 'binaryToDecimal32(float)'
 
@@ -1746,8 +1789,16 @@ int main(int argc, char* argv[])
         //   uint64ToDecimal128(unsigned long long int)
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "TESTING '[u]intXXToDecimalXX'" << endl
+                          << "=============================" << endl;
+
         for (int mi = 0; mi < NUM_TEST_NONZERO_MANTISSAS; ++mi) {
             const long long MANTISSA = TEST_NONZERO_MANTISSAS[mi];
+
+            if (veryVerbose) cout << endl
+                                  << "Testing mantissa index: " << mi
+                                  << ", MANTISSA: " << MANTISSA << endl;
 
             char TEST_STRING[100];
             sprintf(TEST_STRING, "%lld", MANTISSA);
@@ -1966,7 +2017,7 @@ int main(int argc, char* argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING 'makeInfinity64(bool)'
+        // INFINITY CREATION 'makeInfinity64(bool)'
         //
         // Concerns:
         //:  1 'makeInfinity64' should return an infinity value which is
@@ -1985,9 +2036,14 @@ int main(int argc, char* argv[])
         //:
         //:  3 call 'makeInfinity' with 'true' argument.  (C-3)
         //
-        // Testing
+        // Testing:
         //   makeInfinity64(bool)
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "INFINITY CREATION 'makeInfinity64(bool)'" << endl
+                          << "========================================"
+                          << endl;
 
         Util::ValueType64 ninf = Util::parse64("-inf");
         Util::ValueType64 pinf = Util::parse64("+inf");
@@ -2005,7 +2061,7 @@ int main(int argc, char* argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING 'parse32', 'parse64', AND 'parse128'
+        // PARSING 'parse32', 'parse64', AND 'parse128'
         //
         // Concerns:
         //:  1 Numerical values are parsed and generated correctly.
@@ -2022,13 +2078,20 @@ int main(int argc, char* argv[])
         //:  2 Test the non-numerical state-values by alternate means of
         //:    generation, such as '1.0/0.0' and '0.0/0.0'.
         //
-        // Testing
+        // Testing:
         //   parse32 (const char *)
         //   parse64 (const char *)
         //   parse128(const char *)
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "PARSING 'parse32', 'parse64', AND 'parse128'"
+                  << endl << "============================================"
+                  << endl;
+
+
         // Testing 'parse32 (const char *)'
+
         {
             Util::ValueType32 value32;
             Util::ValueType32 test32;
@@ -2157,6 +2220,7 @@ int main(int argc, char* argv[])
         }
 
         // Testing 'parse64 (const char *)'
+
         {
             Util::ValueType64 value64;
             Util::ValueType64 test64;
@@ -2292,6 +2356,7 @@ int main(int argc, char* argv[])
         }
 
         // Testing 'parse128 (const char *)'
+
         {
             Util::ValueType128 value128;
             Util::ValueType128 test128;
@@ -2428,7 +2493,7 @@ int main(int argc, char* argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING 'convertToDecimalXX'
+        // CROSS CONVERSION 'convertToDecimalXX'
         //
         // Concerns:
         //:  1 Post-conversion, the value should be as expected.
@@ -2454,7 +2519,12 @@ int main(int argc, char* argv[])
         //   convertToDecimal128(const ValueType64&)
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "CROSS CONVERSION 'convertToDecimalXX'" << endl
+                          << "=====================================" << endl;
+
         // Testing 'convertToDecimal32( const ValueType64&)'
+
         {
             Util::ValueType32  test32;
             Util::ValueType32 value32;
@@ -2520,6 +2590,7 @@ int main(int argc, char* argv[])
         }
 
         // Testing 'convertToDecimal64( const ValueType32&)'
+
         {
             Util::ValueType64  test64;
             Util::ValueType64 value64;
@@ -2568,6 +2639,7 @@ int main(int argc, char* argv[])
         }
 
         // Testing 'convertToDecimal64( const ValueType128&)'
+
         {
             Util::ValueType64  test64;
             Util::ValueType64 value64;
@@ -2633,6 +2705,7 @@ int main(int argc, char* argv[])
         }
 
         // Testing 'convertToDecimal128(const ValueType32&)'
+
         {
             Util::ValueType128  test128;
             Util::ValueType128 value128;
@@ -2681,6 +2754,7 @@ int main(int argc, char* argv[])
         }
 
         // Testing 'convertToDecimal128(const ValueType64&)'
+
         {
             Util::ValueType128  test128;
             Util::ValueType128 value128;
@@ -2730,7 +2804,7 @@ int main(int argc, char* argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'negate'
+        // ARITHMETIC FUNCTION 'negate'
         //
         // Concerns:
         //:  1 'negate' returns the correct answer.
@@ -2748,6 +2822,10 @@ int main(int argc, char* argv[])
         //   negate(ValueType64)
         //   negate(ValueType128)
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "ARITHMETIC FUNCTION 'negate'" << endl
+                          << "============================" << endl;
 
         Util::ValueType32 nZero32 = Util::parse32("-0");
         Util::ValueType32 pZero32 = Util::parse32("+0");
@@ -2835,7 +2913,7 @@ int main(int argc, char* argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'divide'
+        // ARITHMETIC FUNCTION 'divide'
         //
         // Concerns:
         //:  1 'divide' should never (except in identity, 'NaN' and 'Inf'
@@ -2881,6 +2959,10 @@ int main(int argc, char* argv[])
         //   divide(ValueType128, ValueType128)
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "ARITHMETIC FUNCTION 'divide'" << endl
+                          << "============================" << endl;
+
         Util::ValueType64     lhs64;
         Util::ValueType64     rhs64;
         Util::ValueType64  result64;
@@ -2916,6 +2998,17 @@ int main(int argc, char* argv[])
                       int rhsExponent = testCases[ i ].rhsExponent;
             long long int resMantissa = testCases[ i ].resMantissa;
                       int resExponent = testCases[ i ].resExponent;
+
+            if (veryVerbose) cout << endl
+                                  << "Test 'divide(ValueType64,"
+                                  << " ValueType64)'" << endl
+                                  << "and 'divide(ValueType128,"
+                                  << " ValueType128)' on" << endl
+                                  << lhsMantissa << "e" << lhsExponent
+                                  << " + "
+                                  << rhsMantissa << "e" << rhsExponent
+                                  << " == "
+                                  << resMantissa << "e" << resExponent << endl;
 
             Util::ValueType64 identity64 = Util::parse64("1");
 
@@ -3037,7 +3130,7 @@ int main(int argc, char* argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING 'multiply'
+        // ARITHMETIC FUNCTION 'multiply'
         //
         // Concerns:
         //:  1 'multiply' should never (except in identity, 'NaN' and 'Inf'
@@ -3085,6 +3178,10 @@ int main(int argc, char* argv[])
         //   multiply(ValueType128, ValueType128)
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "ARITHMETIC FUNCTION 'multiply'" << endl
+                          << "==============================" << endl;
+
         Util::ValueType64     lhs64;
         Util::ValueType64     rhs64;
         Util::ValueType64  result64;
@@ -3122,6 +3219,17 @@ int main(int argc, char* argv[])
                       int rhsExponent = testCases[ i ].rhsExponent;
             long long int resMantissa = testCases[ i ].resMantissa;
                       int resExponent = testCases[ i ].resExponent;
+
+            if (veryVerbose) cout << endl
+                                  << "Test 'multiply(ValueType64,"
+                                  << " ValueType64)'" << endl
+                                  << "and 'multiply(ValueType128,"
+                                  << " ValueType128)' on" << endl
+                                  << lhsMantissa << "e" << lhsExponent
+                                  << " + "
+                                  << rhsMantissa << "e" << rhsExponent
+                                  << " == "
+                                  << resMantissa << "e" << resExponent << endl;
 
             Util::ValueType64 identity64 = Util::parse64("1");
 
@@ -3227,7 +3335,7 @@ int main(int argc, char* argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'subtract'
+        // ARITHMETIC FUNCTION 'subtract'
         //
         // Concerns:
         //:  1 'subtract' should never (except in identity, 'NaN' and 'Inf'
@@ -3273,6 +3381,10 @@ int main(int argc, char* argv[])
         //   subtract(ValueType128, ValueType128)
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "ARITHMETIC FUNCTION 'subtract'" << endl
+                          << "==============================" << endl;
+
         Util::ValueType64     lhs64;
         Util::ValueType64     rhs64;
         Util::ValueType64  result64;
@@ -3308,6 +3420,17 @@ int main(int argc, char* argv[])
                       int rhsExponent = testCases[ i ].rhsExponent;
             long long int resMantissa = testCases[ i ].resMantissa;
                       int resExponent = testCases[ i ].resExponent;
+
+            if (veryVerbose) cout << endl
+                                  << "Test 'subtract(ValueType64,"
+                                  << " ValueType64)'" << endl
+                                  << "and 'subtract(ValueType128,"
+                                  << " ValueType128)' on" << endl
+                                  << lhsMantissa << "e" << lhsExponent
+                                  << " + "
+                                  << rhsMantissa << "e" << rhsExponent
+                                  << " == "
+                                  << resMantissa << "e" << resExponent << endl;
 
             Util::ValueType64 negativeZero64 = Util::parse64("-0");
 
@@ -3416,7 +3539,7 @@ int main(int argc, char* argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'add'
+        // ARITHMETIC FUNCTION 'add'
         //
         // Concerns:
         //:  1 'add' should never (except in 'NaN' and 'Inf' cases) return the
@@ -3463,6 +3586,10 @@ int main(int argc, char* argv[])
         //   add(ValueType128, ValueType128)
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "ARITHMETIC FUNCTION 'add'" << endl
+                          << "=========================" << endl;
+
         Util::ValueType64     lhs64;
         Util::ValueType64     rhs64;
         Util::ValueType64  result64;
@@ -3472,7 +3599,7 @@ int main(int argc, char* argv[])
         Util::ValueType128 result128;
 
 
-        struct  {
+        struct {
             long long int lhsMantissa;
                       int lhsExponent;
             long long int rhsMantissa;
@@ -3499,6 +3626,17 @@ int main(int argc, char* argv[])
                       int rhsExponent = testCases[ i ].rhsExponent;
             long long int resMantissa = testCases[ i ].resMantissa;
                       int resExponent = testCases[ i ].resExponent;
+
+            if (veryVerbose) cout << endl
+                                  << "Test 'add(ValueType64,"
+                                  << " ValueType64)'" << endl
+                                  << "and 'add(ValueType128,"
+                                  << " ValueType128)' on" << endl
+                                  << lhsMantissa << "e" << lhsExponent
+                                  << " + "
+                                  << rhsMantissa << "e" << rhsExponent
+                                  << " == "
+                                  << resMantissa << "e" << resExponent << endl;
 
             Util::ValueType64 negativeZero64 = Util::parse64("-0");
 
@@ -3694,6 +3832,7 @@ int main(int argc, char* argv[])
         //   notEqual(ValueType32,  ValueType32)
         //   notEqual(ValueType64,  ValueType64)
         //   notEqual(ValueType128, ValueType128)
+        //   TEST 'notEqual' FOR 'NaN' CORRECTNESS
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4552,6 +4691,7 @@ int main(int argc, char* argv[])
         }
 
         // 'NaN' and 'Inf' testing
+
         // These tests should be in the same order as Concern #10.
 
         {
@@ -5616,6 +5756,7 @@ int main(int argc, char* argv[])
         }
 
         // 'NaN' and 'Inf' testing
+
         // These tests should be in the same order as Concern #10.
 
         {
@@ -5778,7 +5919,7 @@ int main(int argc, char* argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING makeDecimalRaw
+        // TESTING 'makeDecimalRaw'
         //
         // Concerns:
         //: 1 'makeDecimalRawXX' constructs a decimal floating point value
@@ -5826,9 +5967,10 @@ int main(int argc, char* argv[])
         //   makeDecimalRaw128(unsigned           int, int)
         //   makeDecimalRaw128(                   int, int)
         // --------------------------------------------------------------------
-        if (verbose) bsl::cout << bsl::endl
-                                << "PRIMARY MANIPULATORS"
-                                << "====================" << bsl::endl;
+
+        if (verbose) cout << endl
+                          << "TESTING 'makeDecimalRaw'" << endl
+                          << "========================" << endl;
 
         // Test that with any of a set of exponents, we can create values with
         // mantissas from 1 to 16 digit for 32-bit Decimal values
@@ -5866,7 +6008,12 @@ int main(int argc, char* argv[])
             ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
 
             for (int t_m = 0; t_m < numMantissas; ++t_m) {
+                if (veryVerbose) cout << "makeDecimalRaw32, mantissa num: "
+                                      << t_m << ", " << mantissas[t_m] << endl;
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
+                    if (veryVerbose) cout << "makeDecimalRaw32, exponent num: "
+                                          << t_e << ", "
+                                          << exponents[t_m] << endl;
                     long long int mantissa = mantissas[t_m];
                               int exponent = exponents[t_e];
 
@@ -5926,7 +6073,12 @@ int main(int argc, char* argv[])
             ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
 
             for (int t_m = 0; t_m < numMantissas; ++t_m) {
+                if (veryVerbose) cout << "makeDecimalRaw64, mantissa num: "
+                                      << t_m << ", " << mantissas[t_m] << endl;
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
+                    if (veryVerbose) cout << "makeDecimalRaw64, exponent num: "
+                                          << t_e << ", "
+                                          << exponents[t_m] << endl;
                     long long int mantissa = mantissas[t_m];
                               int exponent = exponents[t_e];
 
@@ -6171,7 +6323,12 @@ int main(int argc, char* argv[])
             ASSERT(!bsl::memcmp(&test, &witnessParse,     sizeof(test)));
 
             for (int t_m = 0; t_m < numMantissas; ++t_m) {
+                if (veryVerbose) cout << "makeDecimalRaw128, mantissa num: "
+                                      << t_m << ", " << mantissas[t_m] << endl;
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
+                    if (veryVerbose) cout << "makeDecimalRaw128, exponent num:"
+                                          << " " << t_e << ", "
+                                          << exponents[t_m] << endl;
                     long long int mantissa = mantissas[t_m];
                               int exponent = exponents[t_e];
 
@@ -6456,7 +6613,31 @@ int main(int argc, char* argv[])
                                         Util::makeDecimalRaw128(42ull,  6112));
         }
       } break;
-      case 1: {} break; // Breathing test dummy
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //
+        // Concerns:
+        //:  1 N/A
+        //
+        // Plan:
+        //:  1 N/A
+        //
+        // Testing:
+        //   BREATHING TEST
+        //   checkLiteral(double)
+        // --------------------------------------------------------------------
+        if (verbose) cout << endl << "BREATHING TEST"
+                          << endl << "==============" << endl;
+
+        // 'checkLiteral' is called in this test case, to silence bde_verify.
+        // This is not tested in its own test, because it is not a public
+        // method.
+
+#ifdef BDLDFP_DECIMALPLATFORM_SOFTWARE
+        Util::checkLiteral(0.0);
+#endif
+      } break; // Breathing test dummy
       default: {
         cerr << "WARNING: CASE '" << test << "' NOT FOUND." << endl;
         testStatus = -1;

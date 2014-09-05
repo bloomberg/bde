@@ -172,7 +172,7 @@ void restoreDecimalFromBinary(DECIMAL_TYPE *dfp, BINARY_TYPE bfp)
     }
 }
 
-} // end anonymous namespace
+}  // close unnamed namespace
 
                         // Network format converters
 

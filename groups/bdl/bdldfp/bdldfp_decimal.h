@@ -3902,10 +3902,10 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
         // by the C and C++ Decimal TRs.
 };
 
-}  // close namespace std
+}  // close std namespace
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)

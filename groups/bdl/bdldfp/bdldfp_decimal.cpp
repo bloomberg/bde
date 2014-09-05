@@ -251,7 +251,7 @@ doPutCommon(ITER_TYPE       out,
     return out;
 }
 
-} // end of anonymous namespace
+}  // close unnamed namespace
 
 
                             // -------------------

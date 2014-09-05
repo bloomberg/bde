@@ -669,7 +669,7 @@ struct DecimalImpUtil_DecNumber {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
 
 inline decContext *DecimalImpUtil_DecNumber::getDecNumberContext()
@@ -1406,8 +1406,9 @@ DecimalImpUtil_DecNumber::format(DecimalImpUtil_DecNumber::ValueType64  value,
 
 inline
 void
-DecimalImpUtil_DecNumber::format(DecimalImpUtil_DecNumber::ValueType128  value,
-                                 char                                   *buffer)
+DecimalImpUtil_DecNumber::format(
+                                DecimalImpUtil_DecNumber::ValueType128  value,
+                                char                                   *buffer)
 {
     BSLS_ASSERT(buffer);
 

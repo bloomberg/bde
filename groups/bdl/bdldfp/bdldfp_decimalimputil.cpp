@@ -27,7 +27,7 @@ struct Properties64
 
 };
 
-} // close anonymous namespace
+}  // close unnamed namespace
 
                         // --------------------
                         // class DecimalImpUtil
@@ -169,8 +169,8 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::makeInfinity64(bool isNegative)
     return DecimalImpUtil::parse64( isNegative ? "-inf" : "inf" );
 }
 
-} // close package namespace
-} // close enterprise namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.
