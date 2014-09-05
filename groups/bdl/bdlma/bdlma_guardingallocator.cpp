@@ -21,11 +21,16 @@ BSLS_IDENT_RCSID(bdlma_guardingallocator_cpp,"$Id$ $CSID$")
                        // 'VirtualProtect'
 #else
 
-#include <stdlib.h>    // 'valloc'
-#include <sys/mman.h>  // 'mprotect'
+#include <errno.h>     // 'errno'
+#include <stdio.h>     // 'fprintf'
+#include <string.h>    // 'strerror'
+#include <sys/mman.h>  // 'mmap', 'mprotect', 'munmap'
 #include <unistd.h>    // 'sysconf'
 
 #endif
+
+
+
 
 namespace BloombergLP {
 
@@ -73,15 +78,35 @@ void *systemAlloc(bsl::size_t size)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     return VirtualAlloc(0, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+                                                                      // RETURN
 
 #else
 
-    return valloc(size);
+    void *address =  mmap(0,
+                          size,
+                          PROT_READ | PROT_WRITE,
+                          MAP_ANON | MAP_PRIVATE,
+                          -1,
+                          0);
+
+    if (MAP_FAILED == address) {
+        /*
+        fprintf(stderr,
+                "mmap failed, errno %d (%s)\n",
+                errno,
+                strerror(errno)
+               );
+        */
+
+        return 0;                                                     // RETURN
+    }
+
+    return address;                                                   // RETURN
 
 #endif
 }
 
-void systemFree(void *address)
+void systemFree(void *address, size_t size)
     // Return the memory block at the specified 'address' back to its
     // allocator.  The behavior is undefined unless 'address' was returned by
     // 'systemAlloc' and has not already been freed.
@@ -91,10 +116,14 @@ void systemFree(void *address)
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
     VirtualFree(address, 0, MEM_RELEASE);
+    (void) size;
 
 #else
 
-    free(address);
+    // On some of our platforms, 'munmap' takes a 'char*' argument, while on
+    // others it takes a 'void*'.  Casting to 'char*', which will work in both
+    // cases.
+    munmap(static_cast<char*>(address), size);
 
 #endif
 }
@@ -112,10 +141,12 @@ int systemProtect(void *address, int pageSize)
     DWORD oldProtect;
 
     return !VirtualProtect(address, pageSize, PAGE_NOACCESS, &oldProtect);
+                                                                      // RETURN
 
 #else
 
     return mprotect(static_cast<char *>(address), pageSize, PROT_NONE);
+                                                                      // RETURN
 
 #endif
 }
@@ -133,12 +164,13 @@ int systemUnprotect(void *address, int pageSize)
     DWORD  oldProtect;
 
     return !VirtualProtect(address, pageSize, PAGE_READWRITE, &oldProtect);
+                                                                      // RETURN
 
 #else
 
     return mprotect(static_cast<char *>(address),
                     pageSize,
-                    PROT_READ | PROT_WRITE);
+                    PROT_READ | PROT_WRITE);                          // RETURN
 
 #endif
 }
@@ -213,10 +245,14 @@ void *GuardingAllocator::allocate(size_type size)
         *(void **)(static_cast<char *>(userAddress) - OFFSET * 2) = guardPage;
     }
 
+    // Save 'totalSize' - we'll need it for 'systemFree' in 'deallocate'.
+
+    *(int *)(guardPage) = totalSize;
+
     // Protect the guard page from read/write access.
 
     if (0 != systemProtect(guardPage, pageSize)) {
-        systemFree(firstPage);
+        systemFree(firstPage, totalSize);
 #ifdef BDE_BUILD_TARGET_EXC
         BSLS_THROW(bsl::bad_alloc());
 #else
@@ -259,7 +295,9 @@ void GuardingAllocator::deallocate(void *address)
 
     BSLS_ASSERT_OPT(0 == rc);
 
-    systemFree(firstPage);
+    size_t totalSize = *(int *)(guardPage);
+
+    systemFree(firstPage, totalSize);
 }
 
 }  // close package namespace
