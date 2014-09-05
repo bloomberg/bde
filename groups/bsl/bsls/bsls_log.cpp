@@ -16,7 +16,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <string.h> // 'strlen'
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h> // 'GetConsoleWindow'
+#include <windows.h> // 'GetStdHandle'
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && !defined(va_copy)
@@ -182,7 +182,7 @@ int vsnprintf_allocate(char                 *originalBuffer,
     // buffer allocated using the specified 'guard', and the contents of
     // 'originalBuffer' will be unspecified.  Return the number of characters
     // in the formatted string, not including the terminating null byte.  If a
-    // memory allocation was necessary but no memory was available, return a
+    // memory allocation was necessary but available was insufficient, return a
     // negative value; in this case, values stored for the output buffer and
     // its size are unspecified.  The behavior is undefined unless
     // 'originalBuffer' contains at least 'originalBufferSize' bytes, and
@@ -269,12 +269,12 @@ int snprintf_allocate(char                 *originalBuffer,
     // buffer allocated using the specified 'guard', and the contents of
     // 'originalBuffer' will be unspecified.  Return the number of characters
     // in the formatted string, not including the terminating null byte.  If a
-    // memory allocation was necessary but no memory was available, return a
-    // negative value; in this case, values stored for the output buffer and
-    // its size are unspecified.  The behavior is undefined unless
-    // 'originalBuffer' contains at least 'originalBufferSize' bytes, and
-    // 'format' is a valid 'printf'-style format string with all expected
-    // substitutions present in '...'.
+    // memory allocation was necessary but the available memory was
+    // insufficient, return a negative value; in this case, values stored for
+    // the output buffer and its size are unspecified.  The behavior is
+    // undefined unless 'originalBuffer' contains at least 'originalBufferSize'
+    // bytes, and 'format' is a valid 'printf'-style format string with all
+    // expected substitutions present in '...'.
 {
     va_list substitutions;
     va_start(substitutions, format);
@@ -303,13 +303,10 @@ bsls::AtomicOperations::AtomicTypes::Pointer Log::s_logMessageHandler =
     // address of the 'static' function 'platformDefaultMessageHandler'.
 
 // CLASS METHODS
-
-                         // Dispatcher Method
-
-void Log::logFormatted(const char *file,
-                       int         line,
-                       const char *format,
-                       ...)
+void Log::logFormattedMessage(const char *file,
+                              int         line,
+                              const char *format,
+                              ...)
 {
 
     // Scoped guard to handle the buffer if it needs to be dynamically
@@ -345,8 +342,6 @@ void Log::logFormatted(const char *file,
 
     bsls::Log::logMessage(file, line, buffer);
 }
-
-                         // Standard Log Message Handlers
 
 void Log::platformDefaultMessageHandler(const char *file,
                                         const int   line,
@@ -409,9 +404,9 @@ void Log::platformDefaultMessageHandler(const char *file,
 
 }
 
-void Log::stderrMessageHandler(const char * file,
-                               int          line,
-                                const char * message)
+void Log::stderrMessageHandler(const char *file,
+                               int         line,
+                               const char *message)
 {
     BSLS_ASSERT_OPT(file);
     BSLS_ASSERT(line >= 0);

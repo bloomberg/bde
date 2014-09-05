@@ -71,19 +71,19 @@ BSLS_IDENT("$Id: $")
 // macro 'BSLS_LOG_SIMPLE' allows a simple, non-formatted string to be written.
 // Both of the macros automatically use the file name and line number of the
 // point that the macro was invoked.  The 'static' methods
-// 'bsls::Log::logFormatted' and 'bsls::Log::logMessage' provide the same
-// functionality as 'BSLS_LOG' and 'BSLS_LOG_SIMPLE, respectively, except that
-// these two methods allow a file name and line number to be passed in as
+// 'bsls::Log::logFormattedMessage' and 'bsls::Log::logMessage' provide the
+// same functionality as 'BSLS_LOG' and 'BSLS_LOG_SIMPLE, respectively, except
+// that these two methods allow a file name and line number to be passed in as
 // parameters.  This is described in table form as follows:
 //..
 //  ===========================================================================
 //  |                           Ways to Write Log Messages                    |
-//  ===========================================================================
+//  |=========================================================================|
 //  | File Name & Line #  |    Formatted Message    |       Simple String     |
 //  |=====================|=========================|=========================|
 //  |      Automatic      |       BSLS_LOG          |     BSLS_LOG_SIMPLE     |
 //  |---------------------|-------------------------|-------------------------|
-//  |       Manual        | bsls::Log::logFormatted |   bsls::Log::logMessage |
+//  |       Manual        |   logFormattedMessage   |       logMessage        |
 //  ===========================================================================
 //..
 //
@@ -137,8 +137,8 @@ BSLS_IDENT("$Id: $")
 ///Example 2: Logging Formatless Messages
 /// - - - - - - - - - - - - - - - - - - -
 // Suppose we want to write a raw string, which is not meant to be a
-// 'printf'-style format string, to the log.  We can use the macro
-// 'BSLS_LOG_SIMPLE' to do this.
+// 'printf'-style format string, to the log.  We can do this using the macro
+// 'BSLS_LOG_SIMPLE'.
 //
 // First, we define a global association of error codes with error strings:
 //..
@@ -249,7 +249,7 @@ BSLS_IDENT("$Id: $")
                          // BSLS_LOG Macro Definitions
                          // ==========================
 #define BSLS_LOG(...)                                                         \
-        (BloombergLP::bsls::Log::logFormatted(__FILE__, __LINE__, __VA_ARGS__))
+ (BloombergLP::bsls::Log::logFormattedMessage(__FILE__, __LINE__, __VA_ARGS__))
     // Write, to the currently installed log message handler, the formatted
     // string that would result from applying the 'printf'-style formatting
     // rules to the specified '...', using the first parameter as the format
@@ -304,22 +304,10 @@ class Log {
 
   public:
     // CLASS METHODS
-
-                         // Administrative Methods
-
-    static Log::LogMessageHandler logMessageHandler();
-        // Return the address of the currently installed log message handler.
-
-    static void setLogMessageHandler(Log::LogMessageHandler handler);
-        // Install the specified 'handler' as the current log message handler.
-
-
-                         // Dispatcher Methods
-
-    static void logFormatted(const char *file,
-                             int         line,
-                             const char *format,
-                             ...);
+    static void logFormattedMessage(const char *file,
+                                    int         line,
+                                    const char *format,
+                                    ...);
         // Invoke the currently installed log message handler with the
         // specified 'file' as the first parameter and the specified 'line' as
         // the second parameter.  The third parameter to the handler is defined
@@ -341,7 +329,8 @@ class Log {
         // null-terminated C-style string, 'line' is not negative, and
         // 'message' is a null-terminated C-style string.
 
-                         // Standard Log Message Handlers
+    static Log::LogMessageHandler logMessageHandler();
+        // Return the address of the currently installed log message handler.
 
     static void platformDefaultMessageHandler(const char *file,
                                               int         line,
@@ -362,6 +351,9 @@ class Log {
         // string, 'line' is not negative, and 'message' is a null-terminated
         // string.  Note that this function is used as the default log message
         // handler.
+
+    static void setLogMessageHandler(Log::LogMessageHandler handler);
+        // Install the specified 'handler' as the current log message handler.
 
     static void stderrMessageHandler(const char *file,
                                      int         line,
@@ -398,25 +390,6 @@ class Log {
                          // =========
 
 // CLASS METHODS
-                         // Administrative Methods
-inline
-Log::LogMessageHandler Log::logMessageHandler()
-{
-    return reinterpret_cast<LogMessageHandler>(
-        bsls::AtomicOperations::getPtrAcquire(&s_logMessageHandler));
-}
-
-
-inline
-void Log::setLogMessageHandler(Log::LogMessageHandler handler)
-{
-    BSLS_ASSERT_OPT(handler);
-
-    bsls::AtomicOperations::setPtrRelease(&s_logMessageHandler,
-                                          reinterpret_cast<void*>(handler));
-}
-
-                         // Dispatcher Method
 inline
 void Log::logMessage(const char *file, int line, const char *message)
 {
@@ -425,6 +398,22 @@ void Log::logMessage(const char *file, int line, const char *message)
     BSLS_ASSERT_OPT(message);
 
     return (logMessageHandler()) (file, line, message);
+}
+
+inline
+Log::LogMessageHandler Log::logMessageHandler()
+{
+    return reinterpret_cast<LogMessageHandler>(
+        bsls::AtomicOperations::getPtrAcquire(&s_logMessageHandler));
+}
+
+inline
+void Log::setLogMessageHandler(Log::LogMessageHandler handler)
+{
+    BSLS_ASSERT_OPT(handler);
+
+    bsls::AtomicOperations::setPtrRelease(&s_logMessageHandler,
+                                          reinterpret_cast<void*>(handler));
 }
 
 }  // close package namespace

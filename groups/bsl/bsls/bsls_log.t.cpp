@@ -42,31 +42,30 @@ using namespace BloombergLP;
 //: o Setting, retrieving, and invoking the log message handler is thread-safe.
 // ----------------------------------------------------------------------------
 // MACROS
-// [ 9] BSLS_LOG(format, ...)
-// [ 8] BSLS_LOG_SIMPLE(message)
+// [10] BSLS_LOG(format, ...)
+// [ 9] BSLS_LOG_SIMPLE(message)
 //
 // TYPES
 // [ 4] typedef void (*LogMessageHandler)(file, line, message);
 //
 // CLASS METHODS
-// [ 6] static bsls::Log::LogMessageHandler logMessageHandler();
-// [ 6] static void setLogMessageHandler(bsls::Log::LogMessageHandler);
-// [ 9] static void logFormatted(file, line, format, ...);
-// [ 8] static void logMessage(file, line, message);
-// [ 5] static void platformDefaultMessageHandler(file, line, message);
+// [ 7] static bsls::Log::LogMessageHandler logMessageHandler();
+// [ 7] static void setLogMessageHandler(bsls::Log::LogMessageHandler);
+// [10] static void logFormattedMessage(file, line, format, ...);
+// [ 9] static void logMessage(file, line, message);
+// [ 6] static void platformDefaultMessageHandler(file, line, message);
 // [ 4] static void stdoutMessageHandler(file, line, message);
 // [ 4] static void stderrMessageHandler(file, line, message);
 // ----------------------------------------------------------------------------
+// [ 5] Test Driver: static void fillBuffer(buffer, size);
 // [ 3] WINDOWS DEBUG MESSAGE SINK
 // [ 2] TEST-DRIVER LOG MESSAGE HANDLER
 // [ 1] STREAM REDIRECTION APPARATUS
-//
-// [10] USAGE EXAMPLES
-//
+// [11] USAGE EXAMPLES
 // [ *] CONCERN: This test driver is reusable w/other, similar components.
 // [ *] CONCERN: Exceptions thrown in a log message handler are propagated.
 // [ *] CONCERN: Precondition violations are detected when enabled.
-// [ 7] CONCERN: By default, the 'platformDefaultMessageHandler' is used.
+// [ 8] CONCERN: By default, the 'platformDefaultMessageHandler' is used.
 
 
 // ============================================================================
@@ -137,6 +136,13 @@ static const size_t WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE = 4096;
     // least '4092' (i.e. 4096 - sizeof(DWORD)), since this is the maximum
     // string size that 'OutputDebugString' will write.
 
+static const char * const WINDOWS_SUBPROCESS_EVENT_NAME    = "BSLS_LOG_TEST";
+    // This constant represents the name of the Windows 'Event' that will be
+    // used for communication between the main test case and its subprocess so
+    // that the 'OutputDebugString' functionality can be tested.  Both
+    // processes attempt to create an 'Event' with the same name, and will
+    // therefore be able to communicate using this event.
+
 static const size_t LOG_MESSAGE_SINK_BUFFER_SIZE           = 4096;
     // This represents the size of the buffers used by the class
     // 'LogMessageSink' to store the file name and line number values received
@@ -147,7 +153,6 @@ static const size_t OUTPUT_REDIRECTOR_BUFFER_SIZE          = 4096;
     // 'OutputRedirector' to store the captured values loaded in the 'stdout'
     // and 'stderr' error streams.
 
-
 // Keep the below in sync with 'bsls_log.cpp'
 static const size_t WINDOWS_DEBUG_STACK_BUFFER_SIZE        = 1024;
     // This represents the size of the initial stack buffer used in the method
@@ -156,8 +161,8 @@ static const size_t WINDOWS_DEBUG_STACK_BUFFER_SIZE        = 1024;
 
 static const size_t LOG_FORMATTED_STACK_BUFFER_SIZE        = 1024;
     // This represents the size of the initial stack buffer used in the method
-    // 'bsls::Log::logFormatted' when it is formatting its 'printf'-style
-    // output.
+    // 'bsls::Log::logFormattedMessage' when it is formatting its
+    // 'printf'-style output.
 
 
 // Standard test driver globals:
@@ -242,8 +247,59 @@ const DefaultDataRow DEFAULT_DATA[] = {
      "",
      ":0 \n"},
 };
-const size_t NUM_DEFAULT_DATA = sizeof(DEFAULT_DATA) / sizeof(DEFAULT_DATA[0]);
+static const size_t NUM_DEFAULT_DATA = sizeof(DEFAULT_DATA)
+                                       / sizeof(DEFAULT_DATA[0]);
 
+// The Windows implementation of 'platformDefaultMessageHandler' has to format
+// data to a stack-local buffer, and if it does not fit, it has to allocate a
+// new buffer.  We need to test data that has a length around the size of the
+// buffer.  The following buffer will be dynamically initialized by the test
+// using 'fillBuffer', and a large enough sub-string of it will be used to
+// ensure a formatted string of a specific size.
+static const size_t WINDOWS_LARGE_DATA_BUFFER_SIZE =
+                                           WINDOWS_DEBUG_STACK_BUFFER_SIZE + 5;
+static char WINDOWS_LARGE_DATA_BUFFER[WINDOWS_LARGE_DATA_BUFFER_SIZE];
+
+// What kind of final string lengths do we want to test for the Windows buffer?
+// This describes the length of the *final* string, i.e. ":3 <message>\n".
+const size_t WINDOWS_LARGE_DATA_LENGTHS[] = {
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE - 5,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE - 4,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE - 3,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE - 2,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE - 1,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE + 1,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE + 2,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE + 3,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE + 4,
+    WINDOWS_DEBUG_STACK_BUFFER_SIZE + 5
+};
+const size_t NUM_WINDOWS_LARGE_DATA_LENGTHS =
+      sizeof(WINDOWS_LARGE_DATA_LENGTHS)/sizeof(WINDOWS_LARGE_DATA_LENGTHS[0]);
+
+
+
+// ============================================================================
+//                       GLOBAL HELPER FUNCTIONS FOR TESTING
+// ----------------------------------------------------------------------------
+static void fillBuffer(char * const buffer, const size_t size)
+    // Fill the specified 'size' - 1 number of characters in the specified
+    // 'buffer' with a repeated sequence of ['A' - 'Z'], except for the last
+    // repetition in which the sequence will be truncated such that only
+    // 'size' - 1 total characters will have been written.  Write a null byte
+    // to the final position in 'buffer' (index @ 'size' - 1).  The behavior is
+    // undefined unless 'buffer' has at least 'size' bytes available.
+{
+
+    // Fill the substitution buffer with ['A' .. 'Z'] looping.  All of our
+    // systems use ASCII, so 'A' - 'Z' are contiguous.
+    const unsigned char numLetters = 26;
+    for(size_t i = 0; i < size - 1; ++i) {
+        buffer[i] = static_cast<char>('A' + i%numLetters);
+    }
+    buffer[size - 1] = '\0';
+}
 
 // ============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
@@ -268,13 +324,13 @@ class WindowsDebugMessageSink {
     };
 
     // DATA
-    bool              d_enabled;
-    unsigned long     d_expectedPid; //DWORD
-    void             *d_dbWinMutexHandle; //HANDLE
-    void             *d_dbWinDataReadyHandle;
-    void             *d_dbWinBufferReadyHandle;
-    void             *d_dbWinBufferHandle;
-    SharedMemoryData *d_sharedData_p;
+    bool              d_enabled;                // are we enabled?
+    unsigned long     d_expectedPid;            // 'DWORD': our target PID
+    void             *d_dbWinMutexHandle;       // 'HANDLE' to 'DBWin' mutex
+    void             *d_dbWinDataReadyHandle;   // 'HANDLE' to Data Ready Event
+    void             *d_dbWinBufferReadyHandle; // 'HANDLE' to Buffer Ready
+    void             *d_dbWinBufferHandle;      // 'HANDLE' to Data Buffer
+    SharedMemoryData *d_sharedData_p;           // local mapping of data buffer
 
     char d_localBuffer[WINDOWS_DEBUG_MESSAGE_SINK_BUFFER_SIZE];
 
@@ -296,7 +352,9 @@ class WindowsDebugMessageSink {
 
     // MANIPULATORS
     void disable();
-        // De-register this process as the Windows debugger.
+        // De-register this process as the Windows debugger.  The behavior is
+        // undefined unless this function is called at most once during the
+        // life of this object.
 
     bool enable(const unsigned long timeoutMilliseconds);
         // Register this object as the Windows debugger.  If a log message is
@@ -304,35 +362,29 @@ class WindowsDebugMessageSink {
         // until the specified 'timeoutMilliseconds' number of milliseconds
         // have passed.  Return 'true' if this object has been successfully
         // enabled, or return 'false' in case of a timeout or some other error.
+        // The behavior is undefined unless unless this function is called at
+        // most once during the life of this object.
 
     void setTargetProcessId(const unsigned long pid);
         // Set this object to accept only debug messages of processes with the
         // specified 'pid'.  Messages from other processes will be discarded.
-        // By default, the object will monitor all debug messages.  If 'pid' is
-        // zero, the object will return to its default behavior of accepting
-        // all debug messages.  Note that this should not be used for security,
-        // as any process can spoof the source process ID by writing directly
-        // to the debug buffer.
+        // The behavior is undefined unless 'pid' is non-zero.
 
     bool wait(const unsigned long timeoutMilliseconds);
-        // Block until a desired debug message is available or until the
-        // specified 'timeoutMilliseconds' number of milliseconds have elapsed.
-        // If 'setTargetProcessId' has been called, most recently with a
-        // non-zero value, ignore any messages that were not sent by the
-        // process with the process ID specified in 'setTargetProcessId'.
-        // Return 'true' if data becomes available and has been successfully
-        // copied for later inspection through the method 'message'.  Return
+        // Block until a debug message originating from the process with the
+        // PID specified in 'setTargetProcessID' or until the specified
+        // 'timeoutMilliseconds' have elapsed. Return 'true' if data was found
+        // and can be inspected through a later call to 'message'.  Return
         // 'false' if a timeout occurs or if some other error occurs.  The
         // behavior is undefined unless 'enable' has been successfully called
-        // after the latest call, if any, to 'disable'.
+        // and 'setTargetProcessId' has been called.
 
     // ACCESSORS
     const char *message();
-        // Return the latest null-terminated message that was retrieved by a
-        // successful call to 'wait'.  The pointer returned by this method is
-        // valid until 'wait' is successfully called again or until the object
-        // is destroyed.  The behavior is undefined unless 'wait' has been
-        // called successfully.
+        // Return the null-terminated message stored by the last call to
+        // 'wait', if that call was successful.  The behavior is undefined
+        // unless 'wait' has been called and the last call to 'wait' was
+        // successful.
 
 };
 
@@ -548,6 +600,15 @@ void WindowsDebugMessageSink::setTargetProcessId(const unsigned long pid)
 
 bool WindowsDebugMessageSink::wait(const unsigned long timeoutMilliseconds)
 {
+
+    // Implementation note: The functionalityfu in this class, including this
+    // function, can have a much wider contract than it currently does.  The
+    // contract was narrowed because the extra flexibility wasn't being used
+    // so there was no need to add complexity to the test driver.  If this
+    // class is expanded, the contract (and test cases) should be widened to
+    // allow a zero-PID being like a wildcard PID, as well as the ability to
+    // call 'enable' and 'disable' as many times as one wants.
+
     if(!d_enabled) {
         // It is too harmful to let this slide.  Even in non-assert mode, it is
         // worth checking our state.
@@ -631,15 +692,15 @@ struct LogMessageSink {
     // order to more easily support registration of the log message handler.
   public:
     // PUBLIC CLASS DATA
-    static bool s_hasBeenCalled;                         // Have we been called
+    static bool s_hasBeenCalled;                         // have we been called
                                                          // since the last
                                                          // reset?
 
-    static char s_file[LOG_MESSAGE_SINK_BUFFER_SIZE];    // File name buffer
+    static char s_file[LOG_MESSAGE_SINK_BUFFER_SIZE];    // file name buffer
 
-    static int  s_line;                                  // Line number
+    static int  s_line;                                  // line number
 
-    static char s_message[LOG_MESSAGE_SINK_BUFFER_SIZE]; // Message buffer
+    static char s_message[LOG_MESSAGE_SINK_BUFFER_SIZE]; // message buffer
 
     // CLASS METHODS
     static void reset();
@@ -648,12 +709,12 @@ struct LogMessageSink {
         // beginning of 's_message'.
 
     static void testMessageHandler(const char *file,
-                                   const int   line,
+                                   int         line,
                                    const char *message);
         // Copy the specified 'file' string into 's_file'.  Write the specified
         // 'line' to 's_line'. Copy the specified 'message' into 's_message'.
         // The behavior is undefined unless 'f' is a null-terminated string,
-        // 'line' is not negative, and 'msg' is a null-terminated string.
+        // 'line' is not negative, and 'message' is a null-terminated string.
 };
 
 // PUBLIC CLASS DATA
@@ -1443,7 +1504,7 @@ int main(int argc, char *argv[]) {
     printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch(test) { case 0: // zero is always the leading case
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //   Extracted from component header file.
@@ -1484,27 +1545,27 @@ int main(int argc, char *argv[]) {
         handleError(3);
         handleErrorFlexible(__FILE__, __LINE__, 2);
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'logFormatted', MACRO 'BSLS_LOG'
+        // CLASS METHOD 'logFormattedMessage', MACRO 'BSLS_LOG'
         //
         // Concerns:
-        //: 1 'logFormatted' invokes the installed handler with a string
+        //: 1 'logFormattedMessage' invokes the installed handler with a string
         //:
-        //: 2 'logFormatted' properly formats the format string
+        //: 2 'logFormattedMessage' properly formats the format string
         //:
-        //: 3 'logFormatted' can be called with no variadic arguments
+        //: 3 'logFormattedMessage' can be called with no variadic arguments
         //:
-        //: 4 'logFormatted' properly handles final formatted strings of length
-        //:   0 and 1
+        //: 4 'logFormattedMessage' properly handles final formatted strings of
+        //:   length 0 and 1
         //:
-        //: 5 'logFormatted' properly handles final formatted strings of
+        //: 5 'logFormattedMessage' properly handles final formatted strings of
         //:   lengths above, below, and equal to the size of the initial
         //:   stack-allocated buffer
         //:
-        //: 6 'BSLS_LOG' properly invokes 'logFormatted' with the current file
-        //:   name, the line number on which the macro was invoked, the format
-        //:   string, and any and all variadic arguments
+        //: 6 'BSLS_LOG' properly invokes 'logFormattedMessage' with the
+        //:   current file name, the line number on which the macro was
+        //:   invoked, the format string, and any and all variadic arguments
         //:
         //: 7 'BSLS_LOG' can still be called with no variadic arguments
         //:
@@ -1513,19 +1574,20 @@ int main(int argc, char *argv[]) {
         //: 1 Install 'LogMessageSink::testMessageHandler' as the logger's
         //:   handler.
         //:
-        //: 2 Call 'logFormatted' with a simple format string requiring no
-        //:   substitutions, and confirm that the log message sink has
+        //: 2 Call 'logFormattedMessage' with a simple format string requiring
+        //:   no substitutions, and confirm that the log message sink has
         //:   received the expected parameters.  (C-1)  (C-3)
         //:
-        //: 3 Pass into 'logFormatted' a format string and variadic arguments
-        //:   corresponding to very simple output.  (C-2)
+        //: 3 Pass into 'logFormattedMessage' a format string and variadic
+        //:   arguments corresponding to very simple output.  (C-2)
         //:
         //: 4 Populate a sufficiently large buffer with a set of characters,
         //:   followed by a null byte.  This will be used to ensure a formatted
         //:   string of a specific length.
         //:
-        //: 5 Pass into 'logFormatted' the sets of arguments resulting in
-        //:   expected formatted strings with the following formatted lengths:
+        //: 5 Pass into 'logFormattedMessage' the sets of arguments resulting
+        //:   in expected formatted strings with the following formatted
+        //:   lengths:
         //:              ===================================
         //:              0
         //:              1
@@ -1547,12 +1609,12 @@ int main(int argc, char *argv[]) {
         //: 7 Call 'BSLS_LOG' with no variadic arguments.  (C-7)
         //
         // Testing:
-        //   static void logFormatted(file, line, format, ...);
+        //   static void logFormattedMessage(file, line, format, ...);
         //   BSLS_LOG(format, ...)
         // --------------------------------------------------------------------
         if (verbose) {
-            printf("\nCLASS METHOD 'logFormatted', MACRO 'BSLS_LOG'"
-                   "\n============================================\n");
+            printf("\nCLASS METHOD 'logFormattedMessage', MACRO 'BSLS_LOG'"
+                   "\n====================================================\n");
         }
 
         bsls::Log::setLogMessageHandler(&LogMessageSink::testMessageHandler);
@@ -1561,7 +1623,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCall 'logFormatted' with a simple string\n");
+                puts("\nCall 'logFormattedMessage' with a simple string\n");
             }
             LogMessageSink::reset();
 
@@ -1571,9 +1633,9 @@ int main(int argc, char *argv[]) {
 
             const char * const expectedMessage  = testFormat;
 
-            bsls::Log::logFormatted(testFile,
-                                    testLine,
-                                    testFormat);
+            bsls::Log::logFormattedMessage(testFile,
+                                           testLine,
+                                           testFormat);
 
             ASSERT(LogMessageSink::s_hasBeenCalled);
 
@@ -1593,7 +1655,7 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCall 'logFormatted' with a more complex string\n");
+                puts("\nCall 'logFormattedMessage' with a complex string\n");
             }
             LogMessageSink::reset();
 
@@ -1606,11 +1668,11 @@ int main(int argc, char *argv[]) {
             const char * const expectedMessage = "String: This is a string, "
                                                  "Int: 172934";
 
-            bsls::Log::logFormatted(testFile,
-                                    testLine,
-                                    testFormat,
-                                    substitutionStr,
-                                    substitutionInt);
+            bsls::Log::logFormattedMessage(testFile,
+                                           testLine,
+                                           testFormat,
+                                           substitutionStr,
+                                           substitutionInt);
 
             ASSERT(LogMessageSink::s_hasBeenCalled);
 
@@ -1630,22 +1692,14 @@ int main(int argc, char *argv[]) {
 
         {
             if (verbose) {
-                puts("\nCall 'logFormatted' with various-length strings\n");
+                puts("\nCall 'logFormattedMessage' with various lengths.\n");
             }
 
             const size_t SUBSTITUTION_BUFFER_SIZE = 1 +
                                              LOG_FORMATTED_STACK_BUFFER_SIZE*2;
             char substitutionBuffer[SUBSTITUTION_BUFFER_SIZE];
 
-            // Fill the substitution buffer with ['A' .. 'Z'] looping.  It
-            // doesn't really matter what characters are put in.
-            const unsigned char numLetters = 1 +
-                                         static_cast<unsigned char>('Z' - 'A');
 
-            for(size_t i = 0; i < SUBSTITUTION_BUFFER_SIZE - 1; ++i) {
-                substitutionBuffer[i] = static_cast<char>('A' + i%numLetters);
-            }
-            substitutionBuffer[SUBSTITUTION_BUFFER_SIZE - 1] = '\0';
 
             if(veryVerbose) {
                 P(substitutionBuffer)
@@ -1704,10 +1758,10 @@ int main(int argc, char *argv[]) {
 
                 LogMessageSink::reset();
 
-                bsls::Log::logFormatted(testFile,
-                                        testLine,
-                                        "%s",
-                                        localBuffer);
+                bsls::Log::logFormattedMessage(testFile,
+                                               testLine,
+                                               "%s",
+                                               localBuffer);
 
                 ASSERT(LogMessageSink::s_hasBeenCalled);
 
@@ -1808,7 +1862,7 @@ int main(int argc, char *argv[]) {
 
         }
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // CLASS METHOD 'logMessage', MACRO 'BSLS_LOG_SIMPLE'
         //
@@ -1911,7 +1965,7 @@ int main(int argc, char *argv[]) {
             }
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // DEFAULT HANDLER CONFIRMATION
         //
@@ -1934,7 +1988,7 @@ int main(int argc, char *argv[]) {
         ASSERT(bsls::Log::logMessageHandler()
                == &bsls::Log::platformDefaultMessageHandler);
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // SETTING AND RETRIEVING THE HANDLER
         //   Ensure that setting and retrieving a specific handler works as
@@ -1993,7 +2047,7 @@ int main(int argc, char *argv[]) {
                == &LogMessageSink::testMessageHandler);
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // PLATFORM DEFAULT MESSAGE HANDLER
         //
@@ -2002,33 +2056,39 @@ int main(int argc, char *argv[]) {
         //:   'stderrMessageHandler', except in Windows non-console mode.
         //:
         //: 2 In Windows non-console mode, 'platformDefaultMessageHandler'
-        //:   writes a properly formatted string to the Windows debugger.
+        //:   writes a string to the Windows debugger.
         //:
         //: 3 In Windows non-console mode, the string formatted by
-        //:   'platformDefaultMessageHandler' can handle final formatted
-        //:   strings of lengths 0, 1, and values above, below, and equal to
-        //:   the initial stack-allocated buffer (which is only used to
-        //:   implement the Windows non-console mode behavior, so it does not
-        //:   need to be tested for other modes).
+        //:   'platformDefaultMessageHandler' can handle all of the elements
+        //:   in 'DEFAULT_DATA' with which all of the other handlers were
+        //:   tested, as well as final formatted strings equal to and near the
+        //:   internal stack-allocated buffer size.
         //
         // Plan:
         //: 1 For all systems, write a simple message to
         //:   'platformDefaultMessageHandler', capture 'stderr', and confirm
         //:   that the captured output is as expected.  (C-1)
         //:
-        //: 2 [TBD] In Windows, register ourselves as a debugger using the
-        //:   class 'WindowsDebuggerSink'.
+        //: 2 Under Windows:
         //:
-        //: 3 [TBD] Spawn a copy of this test driver, specifying the manual
-        //:   test case '-2'.  This test case will close the handles to
-        //:   'stdout' and 'stderr', effectively putting that process in
-        //:   non-console mode.
+        //:   1 Create the Windows 'Event' 'BSLS_LOG_TEST'.
         //:
-        //: 4 [TBD] Block, waiting for the spawned process to output a message.
-        //:   Confirm that this message has occurred as expected, then release
-        //:   the lock and allow the sub-process to output the next expected
-        //:   string.
+        //:   2 Spawn a copy of this test driver, specifying the manual test
+        //:     case '-2'. [This test case will put itself into non-console
+        //:     mode and wait for further instructions from us.]
         //:
+        //:   3 Declare a 'WindowsDebugMessageSink' object and 'enable' it.
+        //:
+        //:   4 For each element in 'DEFAULT_DATA', set the 'BSLS_LOG_TEST'
+        //:     event and confirm that the expected string was captured.  (C-2)
+        //:
+        //:   5 Fill the large-data buffer using 'fillBuffer()'.
+        //:
+        //:   6 For each length in 'WINDOWS_LARGE_DATA_LENGTHS', set the
+        //:     'BSLS_LOG_TEST' event and confirm that the expected string was
+        //:     captured.  (C-3).
+        //:
+        //:   7 Confirm that the sub-process exits with status '0'.
         //
         // Testing:
         //   static void platformDefaultMessageHandler(file, line, message);
@@ -2066,11 +2126,262 @@ int main(int argc, char *argv[]) {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         {
-            // In this case, we must register ourselves as a debugger, spawn
-            // a sub-process, and then wait for the expected debugger state.
-            // TBD
+            if(verbose) printf("\nCreating event '%s'.\n",
+                                                WINDOWS_SUBPROCESS_EVENT_NAME);
+            HANDLE event = CreateEventA(NULL,
+                                        false,
+                                        false,
+                                        WINDOWS_SUBPROCESS_EVENT_NAME);
+
+            ASSERT(event);
+
+            // Note: This will fail if the current process name or path has a
+            // quote in it, or if it is more than 1019 characters long.  To
+            // make this completely safe, we'd need to implement a true quoting
+            // function as well as dynamic buffer allocation.
+            char commandLineBuffer[1024];
+            if(_snprintf(fileNameBuffer, 1023, "\"%s\" -2", argv[0]) < 0) {
+                if(verbose) puts("\nCurrent file name too long.\n");
+                CloseHandle(event);
+                abort();
+            }
+            commandLineBuffer[1023] = '\0';
+
+            if(verbose) printf("\nStarting process using command: %s\n",
+                                                            commandLineBuffer);
+
+            STARTUPINFO startupInfo;
+            // MSDN docs say to use 'ZeroMemory'
+            ZeroMemory(&startupInfo, sizeof(startupInfo));
+            startupInfo.cb = sizeof(startupInfo);
+
+            PROCESS_INFORMATION processInfo;
+            ZeroMemory(&processInfo, sizeof(processInfo));
+
+            if(!CreateProcessA(NULL,
+                               commandLineBuffer,
+                               NULL,
+                               false,
+                               0,
+                               NULL,
+                               NULL,
+                               &startupInfo,
+                               &processInfo)) {
+                if(verbose) puts("\nCould not create subprocess.\n");
+                CloseHandle(event);
+                abort();
+            }
+
+            const unsigned long pid = processInfo.dwProcessId;
+            if(verbose) printf("\nChild's process ID is %d.\n", pid);
+
+            if(verbose) puts("\nCreating debug sink.\n");
+
+            WindowsDebugMessageSink sink;
+
+            if(verbose)
+                puts("\nAttempting to enable the sink, with 10s timeout.\n");
+
+            ASSERT(sink.enable(10000));
+
+            if(verbose) puts("\nSetting the child's PID in the sink.\n");
+            sink.setTargetProcessId(pid);
+
+            if(verbose) puts("\nChecking default data.\n");
+            for(size_t i = 0; i < NUM_DEFAULT_DATA; ++i) {
+                const int          SOURCE_LINE
+                                    = DEFAULT_DATA[i].d_sourceLine;
+
+                const char * const FILE
+                                    = DEFAULT_DATA[i].d_file;
+
+                const int          LINE
+                                    = DEFAULT_DATA[i].d_line;
+
+                const char * const MESSAGE
+                                    = DEFAULT_DATA[i].d_message;
+
+                const char * const EXPECTED
+                                    = DEFAULT_DATA[i].d_expected;
+
+                if(veryVerbose) {
+                    T_
+                    P_(SOURCE_LINE)
+                    P_(i)
+                    P_(FILE)
+                    P_(LINE)
+                    P_(MESSAGE)
+                    P(EXPECTED)
+                }
+
+                if(veryVerbose) puts("\tSetting event\n");
+                SetEvent(event);
+
+                if(veryVerbose)
+                    puts("\tAttempting to wait for message, 1s timeout.\n");
+                ASSERT(sink.wait(1000));
+
+                LOOP4_ASSERT(i,
+                             SOURCE_LINE,
+                             EXPECTED,
+                             sink.message(),
+                             0 == strcmp(EXPECTED, sink.message()));
+
+            }
+
+            if(verbose) puts("\nFinished with default data.\n");
+            if(verbose) puts("\nTesting long data.\n");
+            if(verbose) puts("\nFilling buffer.\n");
+            fillBuffer(WINDOWS_LARGE_DATA_BUFFER,
+                                               WINDOWS_LARGE_DATA_BUFFER_SIZE);
+            if(veryVeryVerbose)
+                printf("\nFilled buffer: %s\n", WINDOWS_LARGE_DATA_BUFFER);
+
+            for(size_t i = 0; i < NUM_WINDOWS_LARGE_DATA_LENGTHS; i++) {
+                const size_t expectedLength = WINDOWS_LARGE_DATA_LENGTHS[i];
+
+                if(veryVerbose) { T_ P_(i) P(expectedLength) }
+
+                if(veryVerbose) puts("\tSetting event\n");
+                SetEvent(event);
+
+                if(veryVerbose)
+                    puts("\tAttempting to wait for message, 1s timeout.\n");
+                ASSERT(sink.wait(1000));
+
+                if(veryVerbose) puts("\tConfirming lengths.\n");
+                const size_t realLength = strlen(sink.message());
+                LOOP3_ASSERT(i,
+                             expectedLength,
+                             realLength,
+                             realLength == expectedLength);
+
+                if(veryVeryVerbose)
+                    printf("\tReceived message: %s\n", sink.message());
+
+                // Now here is the tricky part.  We first need to confirm that
+                // the string is of the form ":0 <message>\n".
+                if(veryVerbose) puts("\tConfirming format.\n");
+                LOOP3_ASSERT(i,
+                             ':',
+                             sink.message()[0],
+                             ':' == sink.message()[0]);
+
+                LOOP3_ASSERT(i,
+                             '0',
+                             sink.message()[1],
+                             '0' == sink.message()[1]);
+
+                LOOP3_ASSERT(i,
+                             ' ',
+                             sink.message()[2],
+                             ' ' == sink.message()[2]);
+
+                LOOP3_ASSERT(i,
+                             '\n',
+                             sink.message()[realLength-1],
+                             '\n' == sink.message()[realLength-1]);
+
+                // Now, we will simply do an 'strncmp' on the main message.  We
+                // need to know where to start in the string.  If
+                // 'expectedLength' were '4', then we would start at
+                // 'WINDOWS_LARGE_DATA_BUFFER_SIZE - 1', at the terminating
+                // null byte. If 'expectedLength' were increased by 1, we would
+                // decrease the starting point by 1.  Therefore, the formula is
+                // that we start at index:
+                // 'WINDOWS_LARGE_DATA_BUFFER_SIZE - 1 + (4 - expectedLength)'
+                // What is the length of this new expression?  Well, of course
+                // it will just be expectedLength - 4.  Let us express all of
+                // this in variables:
+                if(veryVerbose) puts("\tCalculating indices.\n");
+                const size_t expectedLengthOfMessageSubstring = expectedLength
+                                                                - 4;
+                const size_t indexIntoLargeDataBuffer =
+                                                 WINDOWS_LARGE_DATA_BUFFER_SIZE
+                                                 + 3
+                                                 - expectedLength;
+
+                if(veryVerbose) {
+                    T_
+                    P_(expectedLengthOfMessageSubstring)
+                    P(indexIntoLargeDataBuffer)
+                }
+
+                if(veryVerbose) puts("\tComparing middles.\n");
+                // Now we can use 'strncmp' and find out our result:
+                LOOP4_ASSERT(i,
+                             expectedLength,
+                             expectedLengthOfMessageSubstring,
+                             indexIntoLargeDataBuffer,
+                             0 == strncmp(WINDOWS_LARGE_DATA_BUFFER
+                                                    + indexIntoLargeDataBuffer,
+                                          sink.message() + 3,
+                                          expectedLengthOfMessageSubstring));
+            }
+
+            if(verbose) puts("\nDone with large lengths.\n");
+
+            if(verbose) puts("\nWaiting on child process.\n");
+            ASSERT(WaitForSingleObject(processInfo.hProcess, 1000));
+            
+            unsigned long exitCode;
+            ASSERT(GetExitCodeProcess(processInfo.hProcess, &exitCode));
+            LOOP_ASSERT(exitCode, exitCode == 0);
+            
+            if(verbose) puts("\nClosing handles.\n");
+            CloseHandle(event);
+            CloseHandle(processInfo.hProcess);
+            CloseHandle(processInfo.hThread);
         }
 #endif
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // BUFFER FILLING FUNCTION
+        //
+        // Concerns:
+        //: 1 Function fills a buffer appropriately
+        //
+        // Plan:
+        //: 1 Use 'fillBuffer' to fill a buffer, and compare the results with
+        //:   an expected value.  The size specified for the buffer should be
+        //:   less than its true size so that memory overflow sentinel values
+        //:   can be examined.
+        //
+        // Testing:
+        //   Test Driver: static void fillBuffer(buffer, size);
+        // --------------------------------------------------------------------
+        if (verbose) {
+            printf("\nBUFFER FILLING FUNCTION"
+                   "\n=======================\n");
+        }
+
+        const char expectedValue[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                     "ABC";
+
+        const size_t originalSize = sizeof(expectedValue)
+                                    / sizeof(expectedValue[0]);
+
+        const size_t bufferSize = originalSize + 1; // For sentinel value
+        char buffer[bufferSize];
+
+        buffer[bufferSize - 1] = 0x4a;
+        buffer[bufferSize - 2] = 0x4a;
+
+
+        ASSERT(originalSize < bufferSize);
+        fillBuffer(buffer, originalSize);
+
+        // Make sure final sentinel value was not changed
+        ASSERT(0x4a == buffer[bufferSize - 1]);
+
+        // But that second to last sentinel value was change to '\0'
+        ASSERT('\0' == buffer[bufferSize - 2]);
+
+        // Now do a 'strcmp':
+        ASSERT(0 == strcmp(expectedValue, buffer));
 
       } break;
       case 4: {
@@ -2154,7 +2465,7 @@ int main(int argc, char *argv[]) {
             LOOP2_ASSERT(i, STREAM, redirector.isOutputReady());
 
             // 2 Proper Simple Format
-            if(veryVerbose) puts("Confirming simple string.");
+            if(veryVerbose) puts("\nConfirming simple string.\n");
             LOOP3_ASSERT(i,
                          STREAM,
                          redirector.getOutput(),
@@ -2162,7 +2473,7 @@ int main(int argc, char *argv[]) {
                               "testfile.cpp:1073 Testing basic operation.\n"));
 
             // 3 Proper Complex Format
-            if(veryVerbose) puts("Checking complex combinations.");
+            if(veryVerbose) puts("\nChecking complex combinations.\n");
             for(size_t j = 0; j < NUM_DEFAULT_DATA; ++j) {
                 const int          SOURCE_LINE
                                     = DEFAULT_DATA[j].d_sourceLine;
@@ -2206,7 +2517,7 @@ int main(int argc, char *argv[]) {
             }
 
             // 4 INT_MAX handling
-            if(veryVerbose) puts("Checking INT_MAX.");
+            if(veryVerbose) puts("\nChecking INT_MAX.\n");
 
             const char * const normalFile    = "some_file.cpp";
             const int          extremeLine   = INT_MAX;
@@ -2260,7 +2571,7 @@ int main(int argc, char *argv[]) {
         //
         // Concerns:
         //: 1 A call to 'enable' takes no longer than the specified time-out
-        //:   limit.
+        //:   limit (with an uncertainty).
         //:
         //: 2 After a successful call to 'enable', a call to 'wait' can be
         //:   used to wait for or capture a currently available debug message.
@@ -2311,7 +2622,57 @@ int main(int argc, char *argv[]) {
                    "\n==========================\n");
         }
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        // TBD
+        {
+            if(verbose) puts("\nConstructing object.\n");
+            WindowsDebugMessageSink sink;
+
+            if(verbose) puts("\nAttempting to enable.\n");
+            // Timeouts are in milliseconds
+            ASSERT(sink.enable(10*1000));
+
+            if(verbose) puts("\nWriting string from current process.\n");
+            const char * const message = "~~~~~~~TestMessage!!!\nTest\n";
+            OutputDebugStringA(message);
+
+            // The message should already be available, since we just wrote it.
+            ASSERT(sink.wait(1000));
+            LOOP2_ASSERT(message,
+                         sink.message(),
+                         0 == strcmp(message, sink.message()));
+
+            if(verbose) puts("\nWriting second string:\n");
+            // Try a second time:
+            const char * const newMessage = "A n o t h e r   m e s s a g e\n";
+            OutputDebugStringA(newMessage);
+
+            // The message should already be available, since we just wrote it.
+            ASSERT(sink.wait(1000));
+            LOOP2_ASSERT(newMessage,
+                         sink.message(),
+                         0 == strcmp(newMessage, sink.message()));
+
+
+
+            // There should now be a message available
+            if(verbose) puts("\nWriting string from current process.\n");
+        }
+        {
+            if(verbose) puts("\nConstructing object.\n");
+            WindowsDebugMessageSink sink;
+
+            if(verbose) puts("\nForcing 'enable' to fail.\n");
+            dbWinMutexHandle = OpenMutexA(SYNCHRONIZE, FALSE, "DBWinMutex");
+            if(!dbWinMutexHandle) {
+                d_dbWinMutexHandle = CreateMutexA(NULL, FALSE, "DBWinMutex");
+
+                if(!d_dbWinMutexHandle) {
+                    disable();
+                    return false;                                     // RETURN
+                }
+            }
+            // Grab the mutex it wants so that it can't actually get it.
+            const unsigned long oldTimeMilliseconds = GetTickCount();
+        }
 #else
         if (verbose) {
             puts("\nNot Windows, test passed trivially.\n");
@@ -2340,7 +2701,7 @@ int main(int argc, char *argv[]) {
         //:   confirm that the state variables are valid.  (C-2)
         //:
         //: 3 Call 'LogMessageSink::reset' and confirm that all variables are
-        //:   now valid.  (C-3)
+        //:   now empty again.  (C-3)
         //
         // Testing:
         //   TEST-DRIVER LOG MESSAGE HANDLER
@@ -2951,14 +3312,31 @@ int main(int argc, char *argv[]) {
         //   This test is automatically run as a sub-process by the
         //   'platformDefaultMessageHandler' test case to allow the main test
         //   case to act as a debugger.  This case should not be run manually.
+        //   Ensure that this case is in sync with 'case 6'.
         //
         // Concerns:
-        //: 1 TBD
+        //: 1 [See 'platformDefaultMessageHandler' test.]
         //:
         //
         // Plan:
-        //: 1 TBD
+        //: 1 Get spawned by test driver.
         //:
+        //: 2 Delete 'stderr' handler so that 'platformDefaultMessageHandler'
+        //:   thinks we are in non-console mode.
+        //:
+        //: 3 Open the 'BSLS_LOG_TEST' event.
+        //:
+        //: 4 For each element in 'DEFAULT_DATA', wait for the 'BSLS_LOG_TEST'
+        //:   event to be set, and call 'platformDefaultMessageHandler' with
+        //:   the input values.
+        //:
+        //: 5 Fill the large-data buffer using 'fillBuffer()'.
+        //:
+        //: 6 For each length in 'WINDOWS_LARGE_DATA_LENGTHS', wait for the
+        //:   'BSLS_LOG_TEST' event and write a string of appropriate expected
+        //:   length to 'platformDefaultMessageHandler'.
+        //:
+        //: 7 Close the event and exit with status '0'.
         //
         // Testing:
         //   PLATFORM DEFAULT MESSAGE HANDLER [SUB-PROCESS]
@@ -2971,7 +3349,92 @@ int main(int argc, char *argv[]) {
         puts("\nWARNING: Case '-2' should not be run manually.\n");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-        // TBD
+        {
+            if(verbose) puts("\nDeleting 'stderr' handle.\n");
+            const HANDLE stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
+            ASSERT(CloseHandle(stderrHandle));
+            ASSERT(SetStdHandle(STD_ERROR_HANDLE, NULL));
+            ASSERT(NULL == GetStdHandle(STD_ERROR_HANDLE));
+            
+            if(verbose) printf("\nOpening event '%s'.\n",
+                                                WINDOWS_SUBPROCESS_EVENT_NAME);
+            HANDLE event = OpenEventA(NULL,
+                                      false,
+                                      WINDOWS_SUBPROCESS_EVENT_NAME);
+
+            ASSERT(event);
+
+            if(verbose) puts("\nWriting default data.\n");
+            for(size_t i = 0; i < NUM_DEFAULT_DATA; ++i) {
+                const int          SOURCE_LINE
+                                    = DEFAULT_DATA[i].d_sourceLine;
+
+                const char * const FILE
+                                    = DEFAULT_DATA[i].d_file;
+
+                const int          LINE
+                                    = DEFAULT_DATA[i].d_line;
+
+                const char * const MESSAGE
+                                    = DEFAULT_DATA[i].d_message;
+
+                const char * const EXPECTED
+                                    = DEFAULT_DATA[i].d_expected;
+
+                if(veryVerbose) {
+                    T_
+                    P_(SOURCE_LINE)
+                    P_(i)
+                    P_(FILE)
+                    P_(LINE)
+                    P_(MESSAGE)
+                    P(EXPECTED)
+                }
+
+                if(veryVerbose) puts("\tWaiting on event, 10s timeout.\n");
+                ASSERT(WaitForSingleObject(event, 10000));
+
+                if(veryVerbose) puts("\tCalling handler.\n");
+                bsls::Log::platformDefaultMessageHandler(FILE, LINE, MESSAGE);
+            }
+
+            if(verbose) puts("\nFinished with default data.\n");
+            if(verbose) puts("\Writing long data.\n");
+            if(verbose) puts("\nFilling buffer.\n");
+            fillBuffer(WINDOWS_LARGE_DATA_BUFFER,
+                                               WINDOWS_LARGE_DATA_BUFFER_SIZE);
+            if(veryVeryVerbose)
+                printf("\nFilled buffer: %s\n", WINDOWS_LARGE_DATA_BUFFER);
+
+            for(size_t i = 0; i < NUM_WINDOWS_LARGE_DATA_LENGTHS; i++) {
+                const size_t expectedLength = WINDOWS_LARGE_DATA_LENGTHS[i];
+
+                if(veryVerbose) { T_ P_(i) P(expectedLength) }
+
+                if(veryVerbose) puts("\tCalculating index.\n");
+                const size_t indexIntoLargeDataBuffer =
+                                                 WINDOWS_LARGE_DATA_BUFFER_SIZE
+                                                 + 3
+                                                 - expectedLength;
+                                                 
+                if(veryVerbose) {
+                    T_ P(indexIntoLargeDataBuffer)
+                }
+
+                if(veryVerbose) puts("\tWaiting on event, 10s timeout.\n");
+                ASSERT(WaitForSingleObject(event, 10000));
+
+                if(veryVerbose) puts("\tCalling handler.\n");
+                bsls::Log::platformDefaultMessageHandler(
+                         "",
+                         0,
+                         WINDOWS_LARGE_DATA_BUFFER + indexIntoLargeDataBuffer);
+            }
+
+            if(verbose) puts("\nDone with large lengths.\n");
+
+            if(verbose) puts("\nClosing event handle.\n");
+            CloseHandle(event);
 #endif
       } break;
       default: {
