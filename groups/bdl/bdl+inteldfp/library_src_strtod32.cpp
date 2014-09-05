@@ -1,8 +1,7 @@
 #include <bsls_platform.h>
 
-//#ifdef (BSLS_PLATFORM_OS_LINUX && BSLS_PLATFORM_CMP_GNU) || \
-       //(BSLS_PLATFORM_OS_SOLARIS)
-#if 1
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wcast-qual"
 
@@ -19,4 +18,5 @@ extern "C" {
 }
 
 #  pragma GCC diagnostic pop
+
 #endif
