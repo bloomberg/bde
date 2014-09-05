@@ -106,6 +106,8 @@ BSLS_IDENT("$Id$")
 // DRQS 39471014).
 
 
+// We have decided to disable IBM hardware floating point, at this time.
+
 #if 0 && defined(BSLS_PLATFORM_CMP_IBM) && defined(__IBM_DFP__) && __IBM_DFP__
 
 
@@ -133,8 +135,7 @@ BSLS_IDENT("$Id$")
 #  define BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE 256
 
 #ifndef BDLDFP_DECIMALPLATFORM_C99_TR
-#  if 1 || defined(BSLS_PLATFORM_CMP_GNU) && \
-      (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64))
+#  ifndef BSLS_PLATFORM_OS_WINDOWS
 #    define BDLDFP_DECIMALPLATFORM_INTELDFP  1
 #  else
 #    define BDLDFP_DECIMALPLATFORM_DECNUMBER 1
