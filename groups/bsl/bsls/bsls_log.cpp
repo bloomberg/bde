@@ -349,11 +349,17 @@ void Log::platformDefaultMessageHandler(const char *file,
 {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    // In Windows, we must check if we are in console mode by looking for a
-    // valid handle to 'stderr'.
-    HANDLE stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
-    if(stderrHandle == NULL || stderrHandle == INVALID_HANDLE_VALUE) {
-        // The handle is invalid, so we will just use 'OutputDebugStringA'.
+    // First, we will check if we have a valid handle to 'stderr'.
+    const HANDLE stderrHandle = GetStdHandle(STD_ERROR_HANDLE);
+    if(   stderrHandle == NULL 
+       || stderrHandle == INVALID_HANDLE_VALUE
+       || GetConsoleWindow() == NULL) {
+        // Even if the handle is neither null nor 'INVALID_HANDLE_VALUE', it
+        // may still cause an error to write to it, because a console could
+        // have been available and someone could have called 'FreeConsole',
+        // which closes the handles but does not set them to NULL.  Therefore,
+        // to be safe, we also check for 'GetConsoleWindow'.  Checking both
+        // cases ensures the safest behavior.
 
         BSLS_ASSERT_OPT(file);
         BSLS_ASSERT(line >= 0);
