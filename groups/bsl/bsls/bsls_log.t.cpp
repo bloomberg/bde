@@ -3335,7 +3335,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 if(veryVerbose) puts("\tWaiting on event, 10s timeout.\n");
-                ASSERT(WaitForSingleObject(event, 10000));
+                ASSERT(WAIT_OBJECT_0 == WaitForSingleObject(event, 10000));
 
                 if(veryVerbose) puts("\tCalling handler.\n");
                 bsls::Log::platformDefaultMessageHandler(FILE, LINE, MESSAGE);
@@ -3365,7 +3365,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 if(veryVerbose) puts("\tWaiting on event, 10s timeout.\n");
-                ASSERT(WaitForSingleObject(event, 10000));
+                ASSERT(WAIT_OBJECT_0 == WaitForSingleObject(event, 10000));
 
                 if(veryVerbose) puts("\tCalling handler.\n");
                 bsls::Log::platformDefaultMessageHandler(
