@@ -2140,7 +2140,7 @@ int main(int argc, char *argv[]) {
             // make this completely safe, we'd need to implement a true quoting
             // function as well as dynamic buffer allocation.
             char commandLineBuffer[1024];
-            if(_snprintf(fileNameBuffer, 1023, "\"%s\" -2", argv[0]) < 0) {
+            if(_snprintf(commandLineBuffer, 1023, "\"%s\" -2", argv[0]) < 0) {
                 if(verbose) puts("\nCurrent file name too long.\n");
                 CloseHandle(event);
                 abort();
@@ -2160,6 +2160,7 @@ int main(int argc, char *argv[]) {
 
             if(!CreateProcessA(NULL,
                                commandLineBuffer,
+                               NULL,
                                NULL,
                                false,
                                0,
@@ -2577,39 +2578,13 @@ int main(int argc, char *argv[]) {
         //:   used to wait for or capture a currently available debug message.
         //:
         //: 3 A call to 'wait' takes no longer than the specified time-out
-        //:   limit.
+        //:   limit (with an uncertainty).
         //:
         //: 4 After a successful call to 'wait', the captured message can be
         //:   retrieved by calling 'message'.
         //:
-        //: 5 If other debug strings are written after a successful call to
-        //:   'wait', the buffer returned by 'message' retains the value set by
-        //:   the latest successful call to 'wait'.
-        //:
-        //: 6 If a failed call to 'wait' is made after a successful call to
-        //:   'wait', the buffer returned by 'message' retains the value set by
-        //:   the latest successful call to 'wait'.
-        //:
-        //: 7 By default, 'wait' captures messages originating from all
-        //:   processes.
-        //:
-        //: 8 After a call to 'setTargetProcessID' with a non-zero PID, 'wait'
-        //:   acts as if processes without the expected PID never sent any
-        //:   messages.
-        //:
-        //: 9 After a call to 'setTargetProcessID' with a zero-valued PID,
-        //:   'wait' does not ignore any messages.
-        //:
-        //: 10 If 'wait' was ever called successfully, the buffer returned by
-        //:    'message' will remain valid after a call to 'disable'.
-        //:
-        //: 11 'disable' can be called without any prior successful calls to
-        //:    'enable', and after any prior calls to 'disable'.
-        //:
-        //: 12 'enable' can be successfully called after a call to 'disable'
-        //:
-        //: 13 'wait' can be successfully called after a successful call to
-        //:    'enable' that occurred after a call to 'disable'.
+        //: 5 'wait' will only capture messages with the process ID set in
+        //:   'setTargetProcessID'
         //:
         // Plan:
         //:  1 TBD
@@ -2623,55 +2598,7 @@ int main(int argc, char *argv[]) {
         }
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         {
-            if(verbose) puts("\nConstructing object.\n");
-            WindowsDebugMessageSink sink;
-
-            if(verbose) puts("\nAttempting to enable.\n");
-            // Timeouts are in milliseconds
-            ASSERT(sink.enable(10*1000));
-
-            if(verbose) puts("\nWriting string from current process.\n");
-            const char * const message = "~~~~~~~TestMessage!!!\nTest\n";
-            OutputDebugStringA(message);
-
-            // The message should already be available, since we just wrote it.
-            ASSERT(sink.wait(1000));
-            LOOP2_ASSERT(message,
-                         sink.message(),
-                         0 == strcmp(message, sink.message()));
-
-            if(verbose) puts("\nWriting second string:\n");
-            // Try a second time:
-            const char * const newMessage = "A n o t h e r   m e s s a g e\n";
-            OutputDebugStringA(newMessage);
-
-            // The message should already be available, since we just wrote it.
-            ASSERT(sink.wait(1000));
-            LOOP2_ASSERT(newMessage,
-                         sink.message(),
-                         0 == strcmp(newMessage, sink.message()));
-
-
-
-            // There should now be a message available
-            if(verbose) puts("\nWriting string from current process.\n");
-        }
-        {
-            if(verbose) puts("\nConstructing object.\n");
-            WindowsDebugMessageSink sink;
-
-            if(verbose) puts("\nForcing 'enable' to fail.\n");
-            dbWinMutexHandle = OpenMutexA(SYNCHRONIZE, FALSE, "DBWinMutex");
-            if(!dbWinMutexHandle) {
-                d_dbWinMutexHandle = CreateMutexA(NULL, FALSE, "DBWinMutex");
-
-                if(!d_dbWinMutexHandle) {
-                    disable();
-                    return false;                                     // RETURN
-                }
-            }
-            // Grab the mutex it wants so that it can't actually get it.
-            const unsigned long oldTimeMilliseconds = GetTickCount();
+            // TBD
         }
 #else
         if (verbose) {
@@ -3399,7 +3326,7 @@ int main(int argc, char *argv[]) {
             }
 
             if(verbose) puts("\nFinished with default data.\n");
-            if(verbose) puts("\Writing long data.\n");
+            if(verbose) puts("\nWriting long data.\n");
             if(verbose) puts("\nFilling buffer.\n");
             fillBuffer(WINDOWS_LARGE_DATA_BUFFER,
                                                WINDOWS_LARGE_DATA_BUFFER_SIZE);
@@ -3435,6 +3362,7 @@ int main(int argc, char *argv[]) {
 
             if(verbose) puts("\nClosing event handle.\n");
             CloseHandle(event);
+        }
 #endif
       } break;
       default: {
