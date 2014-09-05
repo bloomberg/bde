@@ -2140,7 +2140,23 @@ int main(int argc, char *argv[]) {
             // make this completely safe, we'd need to implement a true quoting
             // function as well as dynamic buffer allocation.
             char commandLineBuffer[1024];
-            if(_snprintf(commandLineBuffer, 1023, "\"%s\" -2", argv[0]) < 0) {
+            int snprintfStatus;
+
+            if(verbose) {
+                // In verbose mode, start the subprocess in verbose too
+                snprintfStatus = _snprintf(commandLineBuffer,
+                                           1023,
+                                           "\"%s\" -2 V",
+                                           argv[0]);
+            } else {
+                // In non-verbose, start the subprocess in non-verbose
+                snprintfStatus = _snprintf(commandLineBuffer,
+                                           1023,
+                                           "\"%s\" -2",
+                                           argv[0]);
+            }
+
+            if(snprintfStatus < 0) {
                 if(verbose) puts("\nCurrent file name too long.\n");
                 CloseHandle(event);
                 abort();
@@ -2324,11 +2340,11 @@ int main(int argc, char *argv[]) {
 
             if(verbose) puts("\nWaiting on child process.\n");
             ASSERT(WaitForSingleObject(processInfo.hProcess, 1000));
-            
+
             unsigned long exitCode;
             ASSERT(GetExitCodeProcess(processInfo.hProcess, &exitCode));
             LOOP_ASSERT(exitCode, exitCode == 0);
-            
+
             if(verbose) puts("\nClosing handles.\n");
             CloseHandle(event);
             CloseHandle(processInfo.hProcess);
@@ -3273,7 +3289,7 @@ int main(int argc, char *argv[]) {
                    "\n============================================\n");
         }
 
-        puts("\nWARNING: Case '-2' should not be run manually.\n");
+        if(verbose) puts("\nWARNING: Case '-2' should not be run manually.\n");
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         {
@@ -3282,10 +3298,10 @@ int main(int argc, char *argv[]) {
             ASSERT(CloseHandle(stderrHandle));
             ASSERT(SetStdHandle(STD_ERROR_HANDLE, NULL));
             ASSERT(NULL == GetStdHandle(STD_ERROR_HANDLE));
-            
+
             if(verbose) printf("\nOpening event '%s'.\n",
                                                 WINDOWS_SUBPROCESS_EVENT_NAME);
-            HANDLE event = OpenEventA(NULL,
+            HANDLE event = OpenEventA(SYNCHRONIZE,
                                       false,
                                       WINDOWS_SUBPROCESS_EVENT_NAME);
 
@@ -3343,7 +3359,7 @@ int main(int argc, char *argv[]) {
                                                  WINDOWS_LARGE_DATA_BUFFER_SIZE
                                                  + 3
                                                  - expectedLength;
-                                                 
+
                 if(veryVerbose) {
                     T_ P(indexIntoLargeDataBuffer)
                 }
