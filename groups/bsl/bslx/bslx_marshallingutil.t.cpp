@@ -528,7 +528,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 32-Bit Float Arrays" << endl
+                          << "PUT/GET 32-BIT FLOAT ARRAYS" << endl
                           << "===========================" << endl;
 
         typedef float T;
@@ -760,7 +760,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 64-Bit Float Arrays" << endl
+                          << "PUT/GET 64-BIT FLOAT ARRAYS" << endl
                           << "===========================" << endl;
 
         typedef double T;
@@ -1011,7 +1011,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 8-Bit Integer Arrays" << endl
+                          << "PUT/GET 8-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
         typedef char T;
@@ -1263,7 +1263,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 16-Bit Integer Arrays" << endl
+                          << "PUT/GET 16-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
         typedef short T;
@@ -1480,7 +1480,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 24-Bit Integer Arrays" << endl
+                          << "PUT/GET 24-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
         typedef int T;
@@ -1710,7 +1710,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 32-Bit Integer Arrays" << endl
+                          << "PUT/GET 32-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
         typedef int T;
@@ -1937,7 +1937,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 40-Bit Integer Arrays" << endl
+                          << "PUT/GET 40-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
         typedef bsls::Types::Int64 T;
@@ -2172,7 +2172,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 48-Bit Integer Arrays" << endl
+                          << "PUT/GET 48-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
         typedef bsls::Types::Int64 T;
@@ -2407,7 +2407,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 56-Bit Integer Arrays" << endl
+                          << "PUT/GET 56-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
         typedef bsls::Types::Int64 T;
@@ -2642,7 +2642,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 64-Bit Integer Arrays" << endl
+                          << "PUT/GET 64-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
         typedef bsls::Types::Int64 T;
@@ -2874,7 +2874,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 32-Bit Floats" << endl
+                          << "PUT/GET 32-BIT FLOATS" << endl
                           << "=====================" << endl;
 
         typedef float T;
@@ -3115,7 +3115,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 64-Bit Floats" << endl
+                          << "PUT/GET 64-BIT FLOATS" << endl
                           << "=====================" << endl;
 
         typedef double T;
@@ -3368,8 +3368,8 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 8-Bit Integers" << endl
-                          << "=======================" << endl;
+                          << "PUT/GET 8-BIT INTEGERS" << endl
+                          << "======================" << endl;
 
         typedef char T;
         typedef unsigned char U;
@@ -3553,7 +3553,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 16-Bit Integers" << endl
+                          << "PUT/GET 16-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
         typedef short T;
@@ -3702,7 +3702,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 24-Bit Integers" << endl
+                          << "PUT/GET 24-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
         typedef int T;
@@ -3856,7 +3856,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 32-Bit Integers" << endl
+                          << "PUT/GET 32-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
         typedef int T;
@@ -4007,7 +4007,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 40-Bit Integers" << endl
+                          << "PUT/GET 40-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
         typedef bsls::Types::Int64 T;
@@ -4163,7 +4163,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 48-Bit Integers" << endl
+                          << "PUT/GET 48-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
         typedef bsls::Types::Int64 T;
@@ -4320,7 +4320,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 56-Bit Integers" << endl
+                          << "PUT/GET 56-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
         typedef bsls::Types::Int64 T;
@@ -4477,7 +4477,7 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Put/Get 64-Bit Integers" << endl
+                          << "PUT/GET 64-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
         typedef bsls::Types::Int64 T;
@@ -4618,8 +4618,8 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Verifying Single-Precision Format" << endl
-                          << "=================================" << endl;
+                          << "VERIFY SINGLE-PRECISION FORMAT" << endl
+                          << "==============================" << endl;
 
         const double K = 1024;
         const double M = K * K;
@@ -4767,8 +4767,8 @@ int main(int argc, char *argv[]) {
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "Verifying Double-Precision Format" << endl
-                          << "=================================" << endl;
+                          << "VERIFY DOUBLE-PRECISION FORMAT" << endl
+                          << "==============================" << endl;
 
         const double K = 1024;
         const double M = K * K;
