@@ -2339,7 +2339,8 @@ int main(int argc, char *argv[]) {
             if(verbose) puts("\nDone with large lengths.\n");
 
             if(verbose) puts("\nWaiting on child process.\n");
-            ASSERT(WaitForSingleObject(processInfo.hProcess, 1000));
+            ASSERT(WAIT_OBJECT_0 == 
+                              WaitForSingleObject(processInfo.hProcess, 1000));
 
             unsigned long exitCode;
             ASSERT(GetExitCodeProcess(processInfo.hProcess, &exitCode));
