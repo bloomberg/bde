@@ -404,7 +404,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 24: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // STRESS TEST
         //   Provide mechanism to determine performance characteristics.
         //
@@ -417,7 +417,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   STRESS TEST - Used to determine performance characteristics.
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "STRESS TEST" << endl
@@ -497,7 +497,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 23: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 32-BIT FLOAT ARRAYS
         //   Verify put/get operations for 32-bit float arrays.
         //
@@ -522,7 +522,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   putArrayFloat32(char *buf, const float *ary, int count);
         //   getArrayFloat32(float *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 32-BIT FLOAT ARRAYS" << endl
@@ -735,7 +735,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 22: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 64-BIT FLOAT ARRAYS
         //   Verify put/get operations for 64-bit float arrays.
         //
@@ -760,7 +760,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   putArrayFloat64(char *buf, const double *ary, int count);
         //   getArrayFloat64(double *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 64-BIT FLOAT ARRAYS" << endl
@@ -983,7 +983,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 21: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 8-BIT INTEGER ARRAYS
         //   Verify put/get operations for 8-bit integer arrays.
         //
@@ -1012,7 +1012,7 @@ int main(int argc, char *argv[]) {
         //   getArrayInt8(char *var, const char *buf, int count);
         //   getArrayInt8(signed char *var, const char *buf, int count);
         //   getArrayInt8(unsigned char *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 8-BIT INTEGER ARRAYS" << endl
@@ -1243,7 +1243,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 20: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 16-BIT INTEGER ARRAYS
         //   Verify put/get operations for 16-bit integer arrays.
         //
@@ -1270,7 +1270,7 @@ int main(int argc, char *argv[]) {
         //   putArrayInt16(char *buf, const unsigned short *ary, int count);
         //   getArrayInt16(short *var, const char *buf, int count);
         //   getArrayUint16(unsigned short *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 16-BIT INTEGER ARRAYS" << endl
@@ -1465,7 +1465,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 19: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 24-BIT INTEGER ARRAYS
         //   Verify put/get operations for 24-bit integer arrays.
         //
@@ -1492,7 +1492,7 @@ int main(int argc, char *argv[]) {
         //   putArrayInt24(char *buf, const unsigned int *ary, int count);
         //   getArrayInt24(int *var, const char *buf, int count);
         //   getArrayUint24(unsigned int *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 24-BIT INTEGER ARRAYS" << endl
@@ -1701,7 +1701,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 18: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 32-BIT INTEGER ARRAYS
         //   Verify put/get operations for 32-bit integer arrays.
         //
@@ -1728,7 +1728,7 @@ int main(int argc, char *argv[]) {
         //   putArrayInt32(char *buf, const unsigned int *ary, int count);
         //   getArrayInt32(int *var, const char *buf, int count);
         //   getArrayUint32(unsigned int *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 32-BIT INTEGER ARRAYS" << endl
@@ -1936,7 +1936,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 17: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 40-BIT INTEGER ARRAYS
         //   Verify put/get operations for 40-bit integer arrays.
         //
@@ -1963,7 +1963,7 @@ int main(int argc, char *argv[]) {
         //   putArrayInt40(char *buf, const Uint64 *ary, int count);
         //   getArrayInt40(Int64 *var, const char *buf, int count);
         //   getArrayUint40(Uint64 *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 40-BIT INTEGER ARRAYS" << endl
@@ -2177,7 +2177,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 16: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 48-BIT INTEGER ARRAYS
         //   Verify put/get operations for 48-bit integer arrays.
         //
@@ -2204,7 +2204,7 @@ int main(int argc, char *argv[]) {
         //   putArrayInt48(char *buf, const Uint64 *ary, int count);
         //   getArrayInt48(Int64 *var, const char *buf, int count);
         //   getArrayUint48(Uint64 *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 48-BIT INTEGER ARRAYS" << endl
@@ -2418,7 +2418,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 15: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 56-BIT INTEGER ARRAYS
         //   Verify put/get operations for 56-bit integer arrays.
         //
@@ -2445,7 +2445,7 @@ int main(int argc, char *argv[]) {
         //   putArrayInt56(char *buf, const Uint64 *ary, int count);
         //   getArrayInt56(Int64 *var, const char *buf, int count);
         //   getArrayUint56(Uint64 *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 56-BIT INTEGER ARRAYS" << endl
@@ -2659,7 +2659,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 14: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 64-BIT INTEGER ARRAYS
         //   Verify put/get operations for 64-bit integer arrays.
         //
@@ -2686,7 +2686,7 @@ int main(int argc, char *argv[]) {
         //   putArrayInt64(char *buf, const Uint64 *ary, int count);
         //   getArrayInt64(Int64 *var, const char *buf, int count);
         //   getArrayUint64(Uint64 *var, const char *buf, int count);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 64-BIT INTEGER ARRAYS" << endl
@@ -2897,7 +2897,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 13: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 32-BIT FLOATS
         //   Verify put/get operations for 32-bit floats.
         //
@@ -2924,7 +2924,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   putFloat32(char *buf, float val);
         //   getFloat32(float *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 32-BIT FLOATS" << endl
@@ -3140,7 +3140,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 12: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 64-BIT FLOATS
         //   Verify put/get operations for 64-bit floats.
         //
@@ -3167,7 +3167,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   putFloat64(char *buf, double val);
         //   getFloat64(double *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 64-BIT FLOATS" << endl
@@ -3388,7 +3388,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 11: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 8-BIT INTEGERS
         //   Verify put/get operations for 8-bit integers.
         //
@@ -3422,7 +3422,7 @@ int main(int argc, char *argv[]) {
         //   getInt8(char *var, const char *buf);
         //   getInt8(signed char *var, const char *buf);
         //   getInt8(unsigned char *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 8-BIT INTEGERS" << endl
@@ -3581,7 +3581,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 10: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 16-BIT INTEGERS
         //   Verify put/get operations for 16-bit integers.
         //
@@ -3609,7 +3609,7 @@ int main(int argc, char *argv[]) {
         //   putInt16(char *buf, int val);
         //   getInt16(short *var, const char *buf);
         //   getUint16(unsigned short *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 16-BIT INTEGERS" << endl
@@ -3731,7 +3731,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 9: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 24-BIT INTEGERS
         //   Verify put/get operations for 24-bit integers.
         //
@@ -3759,7 +3759,7 @@ int main(int argc, char *argv[]) {
         //   putInt24(char *buf, int val);
         //   getInt24(int *var, const char *buf);
         //   getUint24(unsigned int *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 24-BIT INTEGERS" << endl
@@ -3887,7 +3887,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 8: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 32-BIT INTEGERS
         //   Verify put/get operations for 32-bit integers.
         //
@@ -3915,7 +3915,7 @@ int main(int argc, char *argv[]) {
         //   putInt32(char *buf, int val);
         //   getInt32(int *var, const char *buf);
         //   getUint32(unsigned int *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 32-BIT INTEGERS" << endl
@@ -4040,7 +4040,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 7: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 40-BIT INTEGERS
         //   Verify put/get operations for 40-bit integers.
         //
@@ -4068,7 +4068,7 @@ int main(int argc, char *argv[]) {
         //   putInt40(char *buf, Int64 val);
         //   getInt40(Int64 *var, const char *buf);
         //   getUint40(Uint64 *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 40-BIT INTEGERS" << endl
@@ -4198,7 +4198,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 6: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 48-BIT INTEGERS
         //   Verify put/get operations for 48-bit integers.
         //
@@ -4226,7 +4226,7 @@ int main(int argc, char *argv[]) {
         //   putInt48(char *buf, Int64 val);
         //   getInt48(Int64 *var, const char *buf);
         //   getUint48(Uint64 *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 48-BIT INTEGERS" << endl
@@ -4334,13 +4334,13 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
-            T  V = 0;
-            T TV;
-            U TU;
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
+            T     V = 0;
+            T     TV;
+            U     TU;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4357,7 +4357,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 5: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 56-BIT INTEGERS
         //   Verify put/get operations for 56-bit integers.
         //
@@ -4385,13 +4385,13 @@ int main(int argc, char *argv[]) {
         //   putInt56(char *buf, Int64 val);
         //   getInt56(Int64 *var, const char *buf);
         //   getUint56(Uint64 *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 56-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
-        typedef bsls::Types::Int64 T;
+        typedef bsls::Types::Int64  T;
         typedef bsls::Types::Uint64 U;
 
         const T A = ((((((((((((( (T)  // POSITIVE NUMBER
@@ -4407,8 +4407,8 @@ int main(int argc, char *argv[]) {
         const char *B_SPEC = "\x80\x60\x50\x40\x30\x20\x10";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -4424,11 +4424,11 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T signedNumber = DATA[di].d_number;
-            const U unsignedNumber = (U) DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     signedNumber = DATA[di].d_number;
+            const U     unsignedNumber = (U) DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 7;
+            const int   SIZE = 7;
 
             // Repeat tests at every alignment.
 
@@ -4463,6 +4463,7 @@ int main(int argc, char *argv[]) {
                                                   SIZE));
 
                 static const T INITIAL_VALUES[] = { -99, +99 };
+
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);
 
@@ -4493,13 +4494,13 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
-            T  V = 0;
-            T TV;
-            U TU;
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
+            T     V = 0;
+            T     TV;
+            U     TU;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4516,7 +4517,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 4: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PUT/GET 64-BIT INTEGERS
         //   Verify put/get operations for 64-bit integers.
         //
@@ -4544,13 +4545,13 @@ int main(int argc, char *argv[]) {
         //   putInt64(char *buf, Int64 val);
         //   getInt64(Int64 *var, const char *buf);
         //   getUint64(Uint64 *var, const char *buf);
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PUT/GET 64-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
-        typedef bsls::Types::Int64 T;
+        typedef bsls::Types::Int64  T;
         typedef bsls::Types::Uint64 U;
 
         const T A = ((((((((((((( (T)  // POSITIVE NUMBER
@@ -4566,8 +4567,8 @@ int main(int argc, char *argv[]) {
         const char *B_SPEC = "\x80\x70\x60\x50\x40\x30\x20\x10";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -4583,11 +4584,11 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T signedNumber = DATA[di].d_number;
-            const U unsignedNumber = (U) DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     signedNumber = DATA[di].d_number;
+            const U     unsignedNumber = (U) DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 8;
+            const int   SIZE = 8;
 
             // Repeat tests at every alignment.
 
@@ -4620,6 +4621,7 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(LINE, i, 0 == memcmp(exp, buffer + i, SIZE));
 
                 static const T INITIAL_VALUES[] = { -99, +99 };
+
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);
 
@@ -4648,13 +4650,13 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
-            T  V = 0;
-            T TV;
-            U TU;
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
+            T     V = 0;
+            T     TV;
+            U     TU;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4671,7 +4673,7 @@ int main(int argc, char *argv[]) {
 
       } break;
       case 3: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // VERIFY SINGLE-PRECISION FORMAT
         //   Ensure generated format for 32-bit floats is IEEE-compliant.
         //
@@ -4687,7 +4689,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   EXPLORE FLOAT FORMAT -- make sure format is IEEE-COMPLIANT
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "VERIFY SINGLE-PRECISION FORMAT" << endl
@@ -4700,8 +4702,8 @@ int main(int argc, char *argv[]) {
         typedef float T;
 
         static const struct {
-            int d_lineNum;                      // line number
-            float d_number;                     // literal number
+            int         d_lineNum;              // line number
+            float       d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -4773,14 +4775,14 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const float number = DATA[di].d_number;
-            const char *exp = DATA[di].d_spec;
-            const int SIZE = static_cast<int>(sizeof number);
+            const int    LINE = DATA[di].d_lineNum;
+            const float  number = DATA[di].d_number;
+            const char  *exp = DATA[di].d_spec;
+            const int    SIZE = static_cast<int>(sizeof number);
 
             union {
                 float d_number;
-                char d_bytes[1];
+                char  d_bytes[1];
             } u;
 
             u.d_number = number;
@@ -4820,7 +4822,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 2: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // VERIFY DOUBLE-PRECISION FORMAT
         //   Ensure generated format for 64-bit floats is IEEE-compliant.
         //
@@ -4836,7 +4838,7 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   EXPLORE DOUBLE FORMAT -- make sure format is IEEE-COMPLIANT
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "VERIFY DOUBLE-PRECISION FORMAT" << endl
@@ -4847,8 +4849,8 @@ int main(int argc, char *argv[]) {
         const double B = M * K;
 
         static const struct {
-            int d_lineNum;                      // line number
-            double d_number;                    // literal number
+            int         d_lineNum;              // line number
+            double      d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -4917,14 +4919,14 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const double number = DATA[di].d_number;
-            const char *exp = DATA[di].d_spec;
-            const int SIZE = static_cast<int>(sizeof number);
+            const int     LINE = DATA[di].d_lineNum;
+            const double  number = DATA[di].d_number;
+            const char   *exp = DATA[di].d_spec;
+            const int     SIZE = static_cast<int>(sizeof number);
 
             union {
                 double d_number;
-                char d_bytes[1];
+                char   d_bytes[1];
             } u;
 
             u.d_number = number;
@@ -4964,7 +4966,7 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case 1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // VERIFY TESTING APPARATUS
         //   Before we get started, let's make sure that the basic supporting
         //   test functions work as expected.
@@ -4978,7 +4980,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   SWAP FUNCTION: static inline void swap(T *x, T *y)
         //   REVERSE FUNCTION: void reverse(T *array, int numElements)
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "VERIFY TESTING APPARATUS" << endl
                                   << "========================" << endl;
@@ -4987,19 +4989,25 @@ int main(int argc, char *argv[]) {
         {
             {
                 const char A = 1, B = 2;        ASSERT(1 == A); ASSERT(2 == B);
+
                 char a = A, b = B;              ASSERT(A == a); ASSERT(B == b);
+
                 swap(&a, &b);                   ASSERT(B == a); ASSERT(A == b);
                 swap(&a, &b);                   ASSERT(A == a); ASSERT(B == b);
             }
             {
                 const int A = 1000, B = 2000;   ASSERT(A == 1000);
+
                 int a = A, b = B;               ASSERT(A == a); ASSERT(B == b);
+
                 swap(&a, &b);                   ASSERT(B == a); ASSERT(A == b);
                 swap(&a, &b);                   ASSERT(A == a); ASSERT(B == b);
             }
             {
                 double A = 1e-10, B = 2e-10;    ASSERT(B == 2e-10);
+
                 double a = A, b = B;            ASSERT(A == a); ASSERT(B == b);
+
                 swap(&a, &b);                   ASSERT(B == a); ASSERT(A == b);
                 swap(&a, &b);                   ASSERT(A == a); ASSERT(B == b);
             }
@@ -5018,7 +5026,7 @@ int main(int argc, char *argv[]) {
             }
             {
                 char a[] = { 1, 2 };
-                int S = static_cast<int>(sizeof a / sizeof *a);
+                int  S = static_cast<int>(sizeof a / sizeof *a);
                 ASSERT(1 == a[0]); ASSERT(2 == a[1]);
                 reverse(a, S);
                 ASSERT(2 == a[0]); ASSERT(1 == a[1]);
@@ -5027,7 +5035,7 @@ int main(int argc, char *argv[]) {
             }
             {
                 float a[] = { 1, 2, 3 };
-                int S = static_cast<int>(sizeof a / sizeof *a);
+                int   S = static_cast<int>(sizeof a / sizeof *a);
                 ASSERT(1 == a[0]); ASSERT(2 == a[1]); ASSERT(3 == a[2]);
                 reverse(a, S);
                 ASSERT(3 == a[0]); ASSERT(2 == a[1]); ASSERT(1 == a[2]);
@@ -5036,7 +5044,7 @@ int main(int argc, char *argv[]) {
             }
             {
                 double a[] = { 1, 2, 3, 4, 5, 6 };
-                int S = static_cast<int>(sizeof a / sizeof *a);
+                int    S = static_cast<int>(sizeof a / sizeof *a);
                 ASSERT(1 == a[0]); ASSERT(2 == a[1]); ASSERT(3 == a[2]);
                 ASSERT(4 == a[3]); ASSERT(5 == a[4]); ASSERT(6 == a[5]);
                 reverse(a, S);
