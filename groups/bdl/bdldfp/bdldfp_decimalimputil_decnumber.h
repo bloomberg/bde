@@ -46,10 +46,6 @@ BSLS_IDENT("$Id$")
 #include <bsl_cstring.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_BUFFERBUF
-#include <bdldfp_bufferbuf.h>
-#endif
-
 #ifndef INCLUDED_DECSINGLE
 extern "C" {
 #include <decSingle.h>

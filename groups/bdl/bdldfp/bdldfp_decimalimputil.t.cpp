@@ -1,8 +1,6 @@
 // bdldfp_decimalimputil.t.cpp                                        -*-C++-*-
 #include <bdldfp_decimalimputil.h>
 
-#include <bdldfp_bufferbuf.h>
-
 #include <bdls_testutil.h>
 
 #include <bslma_testallocator.h>
@@ -118,6 +116,57 @@ static void aSsErT(int c, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 namespace BDEC = BloombergLP::bdldfp;
+
+
+                    // ===============
+                    // class BufferBuf
+                    // ===============
+
+template <int Size>
+class BufferBuf : public bsl::streambuf {
+    // A static (capacity) stream buffer helper
+
+    char d_buf[Size + 1];  // Text plus closing NUL character
+
+  public:
+    // CREATORS
+    BufferBuf();
+        // Create an empty 'BufferBuf'.
+
+    // MANIPULATORS
+    void reset();
+        // Clear this buffer (make it empty).
+
+    const char *str();
+        // Return a pointer to a non-modifiable, NUL-terminated string of
+        // characters that is the content of this buffer.
+};
+
+                    // ---------------
+                    // class BufferBuf
+                    // ---------------
+
+template <int Size>
+inline
+BufferBuf<Size>::BufferBuf()
+{
+    reset();
+}
+
+template <int Size>
+inline
+void BufferBuf<Size>::reset()
+{
+    this->setp(this->d_buf, this->d_buf + Size);
+}
+
+template <int Size>
+inline
+const char *BufferBuf<Size>::str()
+{
+    *this->pptr() = 0;
+    return this->pbase();
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
