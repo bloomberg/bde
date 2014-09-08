@@ -156,10 +156,6 @@ int main(int argc, char* argv[])
         ASSERT(false &&
                     "BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX still declared");
         #endif
-
-        #ifdef _WCHAR_T_DEFINED
-        ASSERT(false && "_WCHAR_T_DEFINED still declared");
-        #endif
       } break;
       case 3: {
         // --------------------------------------------------------------------
