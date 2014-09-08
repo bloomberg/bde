@@ -128,8 +128,6 @@ unsigned char *memReverseIfNeeded(void *buffer, size_t count)
 //#error Should reverse, and we will
     // little endian, needs to do some byte juggling
     memrev(buffer, count);
-#else
-#error Should reverse, and we will not
 #endif
     return static_cast<unsigned char*>(buffer) + count;
 }

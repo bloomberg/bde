@@ -262,11 +262,8 @@ unsigned char *memReverseIfNeeded(void *buffer, size_t count)
     // address computed from 'static_cast<unsigned char *>(buffer) + count'.
 {
 #ifdef BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN
-//#error Should reverse, and we will
     // little endian, needs to do some byte juggling
     memrev(buffer, count);
-#else
-#error Should reverse, and we will not
 #endif
     return static_cast<unsigned char*>(buffer) + count;
 }
