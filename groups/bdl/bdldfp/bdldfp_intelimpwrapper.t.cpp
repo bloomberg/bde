@@ -240,16 +240,16 @@ int main(int argc, char* argv[])
         BID_UINT64  doublePrecisionDecimalStorage2 = __bid64_from_int32( 47);
         BID_UINT128   quadPrecisionDecimalStorage2 = __bid128_from_int32(47);
 
-        ASSERT(memcmp(singlePrecisionDecimalStorage,
-                      singlePrecisionDecimalStorage2,
+        ASSERT(memcmp(&singlePrecisionDecimalStorage,
+                      &singlePrecisionDecimalStorage2,
                       sizeof(BID_UINT32)));
 
-        ASSERT(memcmp(doublePrecisionDecimalStorage,
-                      doublePrecisionDecimalStorage2,
+        ASSERT(memcmp(&doublePrecisionDecimalStorage,
+                      &doublePrecisionDecimalStorage2,
                       sizeof(BID_UINT64)));
 
-        ASSERT(memcmp(  quadPrecisionDecimalStorage,
-                        quadPrecisionDecimalStorage2,
+        ASSERT(memcmp(&  quadPrecisionDecimalStorage,
+                      &  quadPrecisionDecimalStorage2,
                       sizeof(BID_UINT128)));
       } break;
       case 1: {
