@@ -110,37 +110,32 @@ using namespace bslx;
 // [22] getArrayFloat64(double *var, const char *buf, int count);
 // [23] getArrayFloat32(float *var, const char *buf, int count);
 //--------------------------------------------------------------------------
-// [ 1] VERIFY TESTING APPARATUS -- make sure our test functions work.
 // [ 1] SWAP FUNCTION: static inline void swap(T *x, T *y)
 // [ 1] REVERSE FUNCTION: void reverse(T *array, int numElements)
 // [ 2] EXPLORE DOUBLE FORMAT -- make sure format is IEEE-COMPLIANT
 // [ 3] EXPLORE FLOAT FORMAT -- make sure format is IEEE-COMPLIANT
 // [24] STRESS TEST - Used to determine performance characteristics.
-// [25] USAGE TEST - Make sure usage example compiles/works as advertised.
+// [25] USAGE EXAMPLE
 //--------------------------------------------------------------------------
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
-namespace {
+static int testStatus = 0;
 
-int testStatus = 0;
-
-void aSsErT(int c, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}  // close unnamed namespace
-
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -190,23 +185,23 @@ static ostream& pBytes(const char *c, int n)
     return cout;
 }
 
-template<typename T>
+template <class TYPE>
 inline
-void swap(T *x, T *y)
-    // Swap the values of the specified objects 'x' and 'y'.  Note that 'T'
+void swap(TYPE *x, TYPE *y)
+    // Swap the values of the specified objects 'x' and 'y'.  Note that 'TYPE'
     // must have value semantic operators COPY CTOR and OP=.
 {
-    T t = *x;
+    TYPE t = *x;
     *x = *y;
     *y = t;
 }
 
-template<typename T>
+template <class TYPE>
 inline
-void reverse(T *array, int numElements)
+void reverse(TYPE *array, int numElements)
     // Reverse the locations of the objects in the specified array.
 {
-    T *top = array + numElements - 1;
+    TYPE *top = array + numElements - 1;
     int middle = numElements/2;  // if odd, middle is reversed already
     for (int i = 0; i < middle; ++i) {
         swap(array + i, top - i);
@@ -472,6 +467,7 @@ int main(int argc, char *argv[]) {
 
         if (testIndividualDoubles) {
             for (i = SIZE - 1; i >= 0; --i)  {
+                if (veryVerbose) {}
                 if (verbose && 0 == i % feedback) cerr << '.';
 
                 MarshallingUtil::putFloat64(b, x);
@@ -484,6 +480,7 @@ int main(int argc, char *argv[]) {
         }
         else {
             for (i = SIZE - 1; i >= 0; --i)  {
+                if (veryVerbose) {}
                 if (verbose && 0 == i % feedback) cerr << '.';
 
                 MarshallingUtil::putArrayFloat64(buffer, xa, COUNT);
@@ -585,6 +582,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putFloat32(buffer, VALUES[i]);
@@ -604,6 +602,7 @@ int main(int argc, char *argv[]) {
         T input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
+                if (veryVerbose) {}
                 input[i] = VALUES[i % NUM_VALUES];
             }
             if (veryVerbose) {
@@ -631,6 +630,7 @@ int main(int argc, char *argv[]) {
                                         buffer2 + align, input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -661,6 +661,7 @@ int main(int argc, char *argv[]) {
                 for (k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -679,6 +680,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // mantissa should be zero filled
                     result2[i] = NEG;   // mantissa should be zero filled
                     LOOP3_ASSERT(length, align, i, input[i] != result1[i]);
@@ -701,6 +703,7 @@ int main(int argc, char *argv[]) {
                     LOOP3_ASSERT(length, align, i, input[i] == result2[i]);
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, i, POS == result1[i]);
                     LOOP3_ASSERT(length, align, i, NEG == result2[i]);
                 }
@@ -755,8 +758,8 @@ int main(int argc, char *argv[]) {
         //: 4 Verify defensive checks are triggered for invalid values.  (C-3)
         //
         // Testing:
-        //   putArrayFloat64(char *buf, const float *ary, int count);
-        //   getArrayFloat64(float *var, const char *buf, int count);
+        //   putArrayFloat64(char *buf, const double *ary, int count);
+        //   getArrayFloat64(double *var, const char *buf, int count);
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -832,6 +835,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putFloat64(buffer, VALUES[i]);
@@ -1012,7 +1016,7 @@ int main(int argc, char *argv[]) {
 
         if (verbose) cout << endl
                           << "PUT/GET 8-BIT INTEGER ARRAYS" << endl
-                          << "=============================" << endl;
+                          << "============================" << endl;
 
         typedef char T;
         typedef signed char S;
@@ -1049,6 +1053,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putInt8(buffer, VALUES[i]);
@@ -1100,6 +1105,7 @@ int main(int argc, char *argv[]) {
                                         buffer3 + align, (S*) input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -1130,6 +1136,7 @@ int main(int argc, char *argv[]) {
 
                 // check leader for overwrite
                 for (k = 0; k < align; ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                     LOOP3_ASSERT(length, align, k, ZZ == buffer3[k]);
@@ -1139,6 +1146,7 @@ int main(int argc, char *argv[]) {
                 for (k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                     LOOP3_ASSERT(length, align, k, ZZ == buffer3[k]);
@@ -1152,6 +1160,7 @@ int main(int argc, char *argv[]) {
                 const U NEG = (U)(S)-1;
 
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // could be signed or unsigned
                     result2[i] = NEG;   // no issue of filling here
                     result3[i] = POS;   // no issue of filling here
@@ -1180,6 +1189,7 @@ int main(int argc, char *argv[]) {
                     LOOP3_ASSERT(length, align, i, S(input[i]) == result3[i]);
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, i, T(POS) == result1[i]);
                     LOOP3_ASSERT(length, align, i, U(NEG) == result2[i]);
                     LOOP3_ASSERT(length, align, i, S(POS) == result3[i]);
@@ -1300,6 +1310,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putInt16(buffer, VALUES[i]);
@@ -1346,6 +1357,7 @@ int main(int argc, char *argv[]) {
                                         buffer2 + align, (U*) input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -1368,6 +1380,7 @@ int main(int argc, char *argv[]) {
 
                 // check leader for overwrite
                 for (k = 0; k < align; ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -1376,6 +1389,7 @@ int main(int argc, char *argv[]) {
                 for (k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -1386,6 +1400,7 @@ int main(int argc, char *argv[]) {
                 const T POS = +1;
                 const U NEG = (U)(T)-1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
                     result2[i] = NEG;   // unsigned should zero-filled
                     LOOP3_ASSERT(length, align, i, input[i] != result1[i]);
@@ -1527,6 +1542,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putInt24(buffer, VALUES[i]);
@@ -1573,6 +1589,7 @@ int main(int argc, char *argv[]) {
                                         buffer2 + align, (U*) input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -1595,6 +1612,7 @@ int main(int argc, char *argv[]) {
 
                 // check leader for overwrite
                 for (k = 0; k < align; ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -1603,6 +1621,7 @@ int main(int argc, char *argv[]) {
                 for (k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -1613,6 +1632,7 @@ int main(int argc, char *argv[]) {
                 const T POS = +1;
                 const U NEG = (U) -1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
                     result2[i] = NEG;   // unsigned should zero-filled
                     LOOP3_ASSERT(length, align, i, input[i] != result1[i]);
@@ -1638,6 +1658,7 @@ int main(int argc, char *argv[]) {
                                      input[i] == (T) result2[i]);
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, i, POS == result1[i]);
                     LOOP3_ASSERT(length, align, i, NEG == result2[i]);
                 }
@@ -1757,6 +1778,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putInt32(buffer, VALUES[i]);
@@ -1776,11 +1798,13 @@ int main(int argc, char *argv[]) {
         T input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
+                if (veryVerbose) {}
                 input[i] = VALUES[i % NUM_VALUES];
             }
             if (veryVerbose) {
                 cout << "inputs: " << endl;
                 for (int k = 0; k < NUM_TRIALS; ++k) {
+                    if (veryVerbose) {}
                     cout << "\t" << k << ".\t" << input[k] << endl;
                 }
             }
@@ -1803,6 +1827,7 @@ int main(int argc, char *argv[]) {
                                         buffer2 + align, (U*) input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -1825,6 +1850,7 @@ int main(int argc, char *argv[]) {
 
                 // check leader for overwrite
                 for (k = 0; k < align; ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -1833,6 +1859,7 @@ int main(int argc, char *argv[]) {
                 for (k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -1843,6 +1870,7 @@ int main(int argc, char *argv[]) {
                 const T POS = +1;
                 const U NEG = (U) -1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
                     result2[i] = NEG;   // unsigned should zero-filled
                     LOOP3_ASSERT(length, align, i, input[i] != result1[i]);
@@ -1865,6 +1893,7 @@ int main(int argc, char *argv[]) {
                     LOOP3_ASSERT(length, align, i, input[i] == (T) result2[i]);
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, i, POS == result1[i]);
                     LOOP3_ASSERT(length, align, i, NEG == result2[i]);
                 }
@@ -1989,6 +2018,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putInt40(buffer, VALUES[i]);
@@ -2035,6 +2065,7 @@ int main(int argc, char *argv[]) {
                                         buffer2 + align, (U*) input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -2057,6 +2088,7 @@ int main(int argc, char *argv[]) {
 
                 // check leader for overwrite
                 for (k = 0; k < align; ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -2065,6 +2097,7 @@ int main(int argc, char *argv[]) {
                 for (int k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -2075,6 +2108,7 @@ int main(int argc, char *argv[]) {
                 const T POS = +1;
                 const U NEG = (U)(T)-1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
                     result2[i] = NEG;   // unsigned should zero-filled
                     LOOP3_ASSERT(length, align, i, input[i] != result1[i]);
@@ -2100,6 +2134,7 @@ int main(int argc, char *argv[]) {
                             input[i] == (T) result2[i]);
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, i, POS == result1[i]);
                     LOOP3_ASSERT(length, align, i, NEG == result2[i]);
                 }
@@ -2224,6 +2259,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putInt48(buffer, VALUES[i]);
@@ -2270,6 +2306,7 @@ int main(int argc, char *argv[]) {
                                         buffer2 + align, (U*) input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -2292,6 +2329,7 @@ int main(int argc, char *argv[]) {
 
                 // check leader for overwrite
                 for (k = 0; k < align; ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -2300,6 +2338,7 @@ int main(int argc, char *argv[]) {
                 for (int k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -2310,6 +2349,7 @@ int main(int argc, char *argv[]) {
                 const T POS = +1;
                 const U NEG = (U)(T)-1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
                     result2[i] = NEG;   // unsigned should zero-filled
                     LOOP3_ASSERT(length, align, i, input[i] != result1[i]);
@@ -2335,6 +2375,7 @@ int main(int argc, char *argv[]) {
                                      input[i] == (T) result2[i]);
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, i, POS == result1[i]);
                     LOOP3_ASSERT(length, align, i, NEG == result2[i]);
                 }
@@ -2459,6 +2500,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putInt56(buffer, VALUES[i]);
@@ -2505,6 +2547,7 @@ int main(int argc, char *argv[]) {
                                         buffer2 + align, (U*) input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -2527,6 +2570,7 @@ int main(int argc, char *argv[]) {
 
                 // check leader for overwrite
                 for (k = 0; k < align; ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -2535,6 +2579,7 @@ int main(int argc, char *argv[]) {
                 for (int k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -2545,6 +2590,7 @@ int main(int argc, char *argv[]) {
                 const T POS = +1;
                 const U NEG = (U)(T)-1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
                     result2[i] = NEG;   // unsigned should zero-filled
                     LOOP3_ASSERT(length, align, i, input[i] != result1[i]);
@@ -2570,6 +2616,7 @@ int main(int argc, char *argv[]) {
                                      input[i] == (T) result2[i]);
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, i, POS == result1[i]);
                     LOOP3_ASSERT(length, align, i, NEG == result2[i]);
                 }
@@ -2694,6 +2741,7 @@ int main(int argc, char *argv[]) {
         {
             int wasError = 0;
             for (i = 0; i < NUM_VALUES; ++i) {
+                if (veryVerbose) {}
                 const char *exp = SPECS[i];
                 char buffer[SIZE];
                 MarshallingUtil::putInt64(buffer, VALUES[i]);
@@ -2740,6 +2788,7 @@ int main(int argc, char *argv[]) {
                                         buffer2 + align, (U*) input, length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
+                    if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
                     int off = align + SIZE * i;
 
@@ -2762,6 +2811,7 @@ int main(int argc, char *argv[]) {
 
                 // check leader for overwrite
                 for (k = 0; k < align; ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -2770,6 +2820,7 @@ int main(int argc, char *argv[]) {
                 for (int k = align + SIZE * length;
                      k < static_cast<int>(sizeof buffer1);
                      ++k) {
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, k, XX == buffer1[k]);
                     LOOP3_ASSERT(length, align, k, YY == buffer2[k]);
                 }
@@ -2780,6 +2831,7 @@ int main(int argc, char *argv[]) {
                 const T POS = +1;
                 const U NEG = (U)(T)-1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
+                    if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
                     result2[i] = NEG;   // unsigned should zero-filled
                     LOOP3_ASSERT(length, align, i, input[i] != result1[i]);
@@ -2802,6 +2854,7 @@ int main(int argc, char *argv[]) {
                     LOOP3_ASSERT(length, align, i, input[i] == (T) result2[i]);
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
+                    if (veryVerbose) {}
                     LOOP3_ASSERT(length, align, i, POS == result1[i]);
                     LOOP3_ASSERT(length, align, i, NEG == result2[i]);
                 }
@@ -2992,6 +3045,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -3039,6 +3093,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, number != x);
@@ -3238,6 +3293,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -3285,6 +3341,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, number != x);
@@ -3404,6 +3461,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -3434,6 +3492,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, xsignedNumber != x);
@@ -3625,6 +3684,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, signedNumber != x);
@@ -3745,6 +3805,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -3777,6 +3838,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, signedNumber != x);
@@ -3900,6 +3962,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -3930,6 +3993,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, signedNumber != x);
@@ -4054,6 +4118,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+              if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -4084,6 +4149,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, signedNumber != x);
@@ -4209,6 +4275,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -4241,6 +4308,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, signedNumber != x);
@@ -4366,6 +4434,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -4398,6 +4467,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, signedNumber != x);
@@ -4523,6 +4593,7 @@ int main(int argc, char *argv[]) {
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -4553,6 +4624,7 @@ int main(int argc, char *argv[]) {
                                                      / sizeof *INITIAL_VALUES);
 
                 for (int k = 0; k < NUM_VALUES; ++k) {
+                    if (veryVerbose) {}
                     {
                         T x = INITIAL_VALUES[k];
                         LOOP3_ASSERT(LINE, i, k, signedNumber != x);
@@ -4893,7 +4965,7 @@ int main(int argc, char *argv[]) {
       } break;
       case 1: {
         // -----------------------------------------------------------------
-        // VERIFY TEST APPARATUS
+        // VERIFY TESTING APPARATUS
         //   Before we get started, let's make sure that the basic supporting
         //   test functions work as expected.
         //
