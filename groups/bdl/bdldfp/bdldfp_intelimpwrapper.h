@@ -34,6 +34,10 @@ BSLS_IDENT("$Id$")
 #define INCLUDED_BDLDFP_DECIMALPLATFORM
 #endif
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #  if !defined(INCLUDED_BID_FUNCTIONS) && !defined(INCLUDED_BID_CONF)
 
 // Controlling macros for the intel library configuration
@@ -44,6 +48,14 @@ BSLS_IDENT("$Id$")
 #    ifndef LINUX
 #      define LINUX
 #      define BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX
+#    endif
+
+// The IBM compiler has trouble with the embedded '__thread' token, under some
+// build modes.  We'll turn it off, for now.  We'll do so for Sun also, since
+// it is disabled in the wrapper-package for that compiler as well.
+
+#    if defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN)
+#      define __thread
 #    endif
 
 // in C++, there's always a 'wchar_t' type, so we need to tell Intel's library
