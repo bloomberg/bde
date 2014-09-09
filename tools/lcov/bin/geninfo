@@ -2425,7 +2425,7 @@ sub graph_read(*$;$$)
 
 		print(STDERR "DEBUG: $op($length)=$result: ");
 		for ($i = 0; $i < length($data); $i++) {
-			my $c = substr($data, $i, 1);;
+			my $c = substr($data, $i, 1);
 			my $n = ord($c);
 
 			$hex .= sprintf("%02x ", $n);

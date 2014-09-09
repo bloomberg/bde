@@ -395,8 +395,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
     switch (test) { case 0:  // zero is always the leading case
     case 12: {
       // --------------------------------------------------------------------

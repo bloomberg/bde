@@ -485,8 +485,7 @@ int main(int argc, char **argv)
     int    test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
     switch (test) { case 0:
       case 1: {
         // --------------------------------------------------------------------
