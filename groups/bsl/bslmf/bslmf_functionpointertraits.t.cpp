@@ -183,8 +183,7 @@ int main(int argc, char *argv[])
     (void) veryVerbose;      // eliminate unused variable warning
     (void) veryVeryVerbose;  // eliminate unused variable warning
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
     switch (test) {
       case 0:  // Zero is always the leading case.
       case 3: {

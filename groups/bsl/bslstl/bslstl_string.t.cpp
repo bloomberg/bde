@@ -3537,8 +3537,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22()
             for (int k = 0; k < NUM_PATTERNS; ++k) {
                 const int         PLINE   = PATTERNS[k].d_lineNum;
                 const char* const PATTERN = PATTERNS[k].d_pattern;
-                const size_t      N       = strlen(PATTERN);;
-
+                const size_t      N       = strlen(PATTERN);
                 const Obj Y(g(PATTERN));
 
                 if (veryVerbose) {
