@@ -44,50 +44,50 @@ using namespace bslx;
 // [ 2] TestOutStream(int sV, int initialCapacity, *ba = 0);
 // [ 2] ~TestOutStream();
 // [ 4] void invalidate();
-// [ 2] void makeNextInvalid();
+// [ 2] makeNextInvalid();
 // [25] putLength(int length);
 // [25] putVersion(int version);
-// [ 2] void reserveCapacity(int newCapacity);
-// [ 2] void reset();
+// [ 2] reserveCapacity(int newCapacity);
+// [ 2] reset();
 // [12] putInt64(bsls::Types::Int64 value);
-// [12] putUint64(bsls::Types::Int64 value);
+// [12] putUint64(bsls::Types::Uint64 value);
 // [11] putInt56(bsls::Types::Int64 value);
-// [11] putUint56(bsls::Types::Int64 value);
+// [11] putUint56(bsls::Types::Uint64 value);
 // [10] putInt48(bsls::Types::Int64 value);
-// [10] putUint48(bsls::Types::Int64 value);
+// [10] putUint48(bsls::Types::Uint64 value);
 // [ 9] putInt40(bsls::Types::Int64 value);
-// [ 9] putUint40(bsls::Types::Int64 value);
+// [ 9] putUint40(bsls::Types::Uint64 value);
 // [ 8] putInt32(int value);
-// [ 8] putUint32(int value);
+// [ 8] putUint32(unsigned int value);
 // [ 7] putInt24(int value);
-// [ 7] putUint24(int value);
+// [ 7] putUint24(unsigned int value);
 // [ 6] putInt16(int value);
-// [ 6] putUint16(int value);
+// [ 6] putUint16(unsigned int value);
 // [ 2] putInt8(int value);
-// [ 2] putUint8(int value);
+// [ 2] putUint8(unsigned int value);
 // [14] putFloat64(double value);
 // [13] putFloat32(float value);
 // [26] putString(const bsl::string& value);
-// [22] putArrayInt64(const bsls::Types::Int64 *array, int numValues);
-// [22] putArrayUint64(const bsls::Types::Uint64 *array, int numValues);
-// [21] putArrayInt56(const bsls::Types::Int64 *array, int numValues);
-// [21] putArrayUint56(const bsls::Types::Uint64 *array, int numValues);
-// [20] putArrayInt48(const bsls::Types::Int64 *array, int numValues);
-// [20] putArrayUint48(const bsls::Types::Uint64 *array, int numValues);
-// [19] putArrayInt40(const bsls::Types::Int64 *array, int numValues);
-// [19] putArrayUint40(const bsls::Types::Uint64 *array, int numValues);
-// [18] putArrayInt32(const int *array, int numValues);
-// [18] putArrayUint32(const unsigned int *array, int numValues);
-// [17] putArrayInt24(const int *array, int numValues);
-// [17] putArrayUint24(const unsigned int *array, int numValues);
-// [16] putArrayInt16(const short *array, int numValues);
-// [16] putArrayUint16(const unsigned short *array, int numValues);
-// [15] putArrayInt8(const char *array, int numValues);
-// [15] putArrayInt8(const signed char *array, int numValues);
-// [15] putArrayUint8(const char *array, int numValues);
-// [15] putArrayUint8(const unsigned char *array, int numValues);
-// [24] putArrayFloat64(const double *array,int numValues);
-// [23] putArrayFloat32(const float *array, int numValues);
+// [22] putArrayInt64(const bsls::Types::Int64 *values, int numValues);
+// [22] putArrayUint64(const bsls::Types::Uint64 *values, int numValues);
+// [21] putArrayInt56(const bsls::Types::Int64 *values, int numValues);
+// [21] putArrayUint56(const bsls::Types::Uint64 *values, int numValues);
+// [20] putArrayInt48(const bsls::Types::Int64 *values, int numValues);
+// [20] putArrayUint48(const bsls::Types::Uint64 *values, int numValues);
+// [19] putArrayInt40(const bsls::Types::Int64 *values, int numValues);
+// [19] putArrayUint40(const bsls::Types::Uint64 *values, int numValues);
+// [18] putArrayInt32(const int *values, int numValues);
+// [18] putArrayUint32(const unsigned int *values, int numValues);
+// [17] putArrayInt24(const int *values, int numValues);
+// [17] putArrayUint24(const unsigned int *values, int numValues);
+// [16] putArrayInt16(const short *values, int numValues);
+// [16] putArrayUint16(const unsigned short *values, int numValues);
+// [15] putArrayInt8(const char *values, int numValues);
+// [15] putArrayInt8(const signed char *values, int numValues);
+// [15] putArrayUint8(const char *values, int numValues);
+// [15] putArrayUint8(const unsigned char *values, int numValues);
+// [24] putArrayFloat64(const double *values, int numValues);
+// [23] putArrayFloat32(const float *values, int numValues);
 // [ 4] operator const void *() const;
 // [ 3] int bdexSerializationVersion() const;
 // [ 3] const char *data() const;
@@ -95,34 +95,30 @@ using namespace bslx;
 // [ 3] int length() const;
 //
 // [ 5] ostream& operator<<(ostream& stream, const TestOutStream&);
-// [27] ByteOutStream& operator<<(ByteOutStream&, const TYPE& value);
+// [27] TestOutStream& operator<<(TestOutStream&, const TYPE& value);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [28] USAGE
+// [28] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
 
-namespace {
+static int testStatus = 0;
 
-int testStatus = 0;
-
-void aSsErT(int c, const char *s, int i)
+static void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
 
-}  // close unnamed namespace
-
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -243,8 +239,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing Usage Examples" << endl
-                                  << "======================" << endl;
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
 
 ///Usage
 ///-----
@@ -370,6 +366,7 @@ int main(int argc, char *argv[])
         {
             bsl::vector<int> value;
             for (int i = 0; i < 5; ++i) {
+                if (veryVerbose) {}
                 Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
                 Obj expected(SERIALIZATION_VERSION);
                 mX << value;
@@ -397,7 +394,7 @@ int main(int argc, char *argv[])
       } break;
       case 26: {
         // --------------------------------------------------------------------
-        // PUT STRING TEST:
+        // PUT STRING TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -485,7 +482,7 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // PUT LENGTH AND VERSION TEST:
+        // PUT LENGTH AND VERSION TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -652,7 +649,7 @@ int main(int argc, char *argv[])
       } break;
       case 24: {
         // --------------------------------------------------------------------
-        // PUT 64-BIT FLOAT ARRAY TEST:
+        // PUT 64-BIT FLOAT ARRAY TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -680,7 +677,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << endl
                  << "PUT 64-BIT FLOAT ARRAY TEST" << endl
-                 << "=============================" << endl;
+                 << "===========================" << endl;
         }
 
         const int SIZE = SIZEOF_FLOAT64;
@@ -768,7 +765,7 @@ int main(int argc, char *argv[])
       } break;
       case 23: {
         // --------------------------------------------------------------------
-        // PUT 32-BIT FLOAT ARRAY TEST:
+        // PUT 32-BIT FLOAT ARRAY TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -796,7 +793,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << endl
                  << "PUT 32-BIT FLOAT ARRAY TEST" << endl
-                 << "=============================" << endl;
+                 << "===========================" << endl;
         }
 
         const int SIZE = SIZEOF_FLOAT32;
@@ -884,7 +881,7 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // PUT 64-BIT INTEGER ARRAYS TEST:
+        // PUT 64-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -906,8 +903,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt64(const int *values, int numValues);
-        //   putArrayUint64(const unsigned int *values, int numValues);
+        //   putArrayInt64(const bsls::Types::Int64 *values, int numValues);
+        //   putArrayUint64(const bsls::Types::Uint64 *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1081,7 +1078,7 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // PUT 56-BIT INTEGER ARRAYS TEST:
+        // PUT 56-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1103,8 +1100,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt56(const int *values, int numValues);
-        //   putArrayUint56(const unsigned int *values, int numValues);
+        //   putArrayInt56(const bsls::Types::Int64 *values, int numValues);
+        //   putArrayUint56(const bsls::Types::Uint64 *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1278,7 +1275,7 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // PUT 48-BIT INTEGER ARRAYS TEST:
+        // PUT 48-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1300,8 +1297,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt48(const int *values, int numValues);
-        //   putArrayUint48(const unsigned int *values, int numValues);
+        //   putArrayInt48(const bsls::Types::Int64 *values, int numValues);
+        //   putArrayUint48(const bsls::Types::Uint64 *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1475,7 +1472,7 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // PUT 40-BIT INTEGER ARRAYS TEST:
+        // PUT 40-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1497,8 +1494,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt40(const int *values, int numValues);
-        //   putArrayUint40(const unsigned int *values, int numValues);
+        //   putArrayInt40(const bsls::Types::Int64 *values, int numValues);
+        //   putArrayUint40(const bsls::Types::Uint64 *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1672,7 +1669,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // PUT 32-BIT INTEGER ARRAYS TEST:
+        // PUT 32-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -1869,7 +1866,7 @@ int main(int argc, char *argv[])
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // PUT 24-BIT INTEGER ARRAYS TEST:
+        // PUT 24-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -2066,7 +2063,7 @@ int main(int argc, char *argv[])
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // PUT 16-BIT INTEGER ARRAYS TEST:
+        // PUT 16-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -2088,8 +2085,8 @@ int main(int argc, char *argv[])
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
-        //   putArrayInt16(const int *values, int numValues);
-        //   putArrayUint16(const unsigned int *values, int numValues);
+        //   putArrayInt16(const short *values, int numValues);
+        //   putArrayUint16(const unsigned short *values, int numValues);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2245,7 +2242,7 @@ int main(int argc, char *argv[])
        } break;
       case 15: {
         // --------------------------------------------------------------------
-        // PUT 8-BIT INTEGER ARRAYS TEST:
+        // PUT 8-BIT INTEGER ARRAYS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -2276,7 +2273,7 @@ int main(int argc, char *argv[])
         if (verbose) {
             cout << endl
                  << "PUT 8-BIT INTEGER ARRAYS TEST" << endl
-                 << "==============================" << endl;
+                 << "=============================" << endl;
         }
 
         const int SIZE = SIZEOF_INT8;
@@ -2572,7 +2569,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // PUT 64-BIT FLOAT TEST:
+        // PUT 64-BIT FLOAT TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -2590,7 +2587,7 @@ int main(int argc, char *argv[])
         //:   methods.  (C-3)
         //
         // Testing:
-        //   putFloat64(float value);
+        //   putFloat64(double value);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -2661,7 +2658,7 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // PUT 32-BIT FLOAT TEST:
+        // PUT 32-BIT FLOAT TEST
         //   Verify the method externalizes the expected bytes.
         //
         // Concerns:
@@ -2750,7 +2747,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // PUT 64-BIT INTEGERS TEST:
+        // PUT 64-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -2900,7 +2897,7 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // PUT 56-BIT INTEGERS TEST:
+        // PUT 56-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3050,7 +3047,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // PUT 48-BIT INTEGERS TEST:
+        // PUT 48-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3200,7 +3197,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // PUT 40-BIT INTEGERS TEST:
+        // PUT 40-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3350,7 +3347,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // PUT 32-BIT INTEGERS TEST:
+        // PUT 32-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3500,7 +3497,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // PUT 24-BIT INTEGERS TEST:
+        // PUT 24-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3650,7 +3647,7 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // PUT 16-BIT INTEGERS TEST:
+        // PUT 16-BIT INTEGERS TEST
         //   Verify the methods externalize the expected bytes.
         //
         // Concerns:
@@ -3668,8 +3665,8 @@ int main(int argc, char *argv[])
         //:   methods.  (C-3)
         //
         // Testing:
-        //   putInt16(short value);
-        //   putUint16(unsigned short value);
+        //   putInt16(int value);
+        //   putUint16(unsigned int value);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3800,7 +3797,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // PRINT OPERATOR TEST:
+        // PRINT OPERATOR TEST
         //   Verify the method produces the expected output format.
         //
         // Concerns:
@@ -3812,7 +3809,7 @@ int main(int argc, char *argv[])
         //:   output format.  (C-1)
         //
         // Testing:
-        //   ostream& operator<<(ostream&, const TestOutStream&);
+        //   ostream& operator<<(ostream& stream, const TestOutStream&);
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -3939,8 +3936,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "INVALIDATE" << endl
-                          << "==========" << endl;
+                          << "STREAM VALIDITY METHODS" << endl
+                          << "=======================" << endl;
 
         if (verbose) cout << "\nTesting invalidate." << endl;
         {
@@ -3953,7 +3950,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // BASIC ACCESSORS TEST:
+        // BASIC ACCESSORS TEST
         //   Verify functionality of the basic accessors.
         //
         // Concerns:
@@ -3995,7 +3992,10 @@ int main(int argc, char *argv[])
         const int NUM_TEST = static_cast<int>(sizeof DATA / sizeof *DATA);
         for (int iLen = 0; iLen < NUM_TEST; iLen++) {
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-            for (int j = 0; j < iLen; j++) mX.putInt8(j);
+            for (int j = 0; j < iLen; j++) {
+                if (veryVerbose) {}
+                mX.putInt8(j);
+            }
 
             if (veryVerbose) { P_(iLen); P(X); }
             const int bytes = iLen * (SIZEOF_CODE + SIZEOF_INT8);
@@ -4015,7 +4015,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // PRIMARY MANIPULATORS TEST:
+        // PRIMARY MANIPULATORS TEST
         //   Verify functionality of primary manipulators.
         //
         // Concerns:
@@ -4065,7 +4065,7 @@ int main(int argc, char *argv[])
         //   ~TestOutStream();
         //   makeNextInvalid();
         //   putInt8(int value);
-        //   putUint8(int value);
+        //   putUint8(unsigned int value);
         //   reset();
         //   reserveCapacity(int newCapacity);
         // --------------------------------------------------------------------
@@ -4296,7 +4296,10 @@ int main(int argc, char *argv[])
             for (int iLen = 1; iLen < NUM_TEST; iLen++) {
                 Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
 
-                for (int j = 0; j < iLen; j++) mX.putInt8(j);
+                for (int j = 0; j < iLen; j++) {
+                    if (veryVerbose) {}
+                    mX.putInt8(j);
+                }
                 mX.reset();
                 if (veryVerbose) { P_(iLen); P(X); }
                 LOOP_ASSERT(iLen, 0 == X.length());
@@ -4381,7 +4384,7 @@ int main(int argc, char *argv[])
             cout << "\nTry putArrayInt8 with x1." << endl;
         }
         const char DATA[] = {0x01, 0x02, 0x03, 0x04};
-        const int SIZE = static_cast<int>(sizeof DATA / sizeof *DATA);
+        const int  SIZE = static_cast<int>(sizeof DATA / sizeof *DATA);
         x1.putArrayInt8(DATA, SIZE);
         if (veryVerbose) { P(x1); }
         const int NUM_BYTES = SIZEOF_CODE + SIZEOF_ARRLEN + SIZEOF_INT8 * SIZE;
