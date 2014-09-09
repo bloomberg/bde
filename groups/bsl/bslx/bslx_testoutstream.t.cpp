@@ -198,7 +198,7 @@ const int SIZEOF_CODE    = SIZEOF_INT8;
 const int SIZEOF_ARRLEN  = SIZEOF_INT32;
 
 //=============================================================================
-//                      MAIN PROGRAM
+//                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 // Then, we compare the contents of the stream to the expected value:
 //..
     const char *theChars = outStream.data();
-    int length = outStream.length();
+    int         length = outStream.length();
     ASSERT(24 == length);
     ASSERT( 0 == bsl::memcmp(theChars,
                              "\xE6\x00\x00\x00\x01\xE6\x00\x00\x00\x02\xE0"
@@ -347,7 +347,9 @@ int main(int argc, char *argv[])
 
         {
             char value = 'a';
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
             Obj expected(SERIALIZATION_VERSION);
             mX << value;
             OutStreamFunctions::bdexStreamOut(expected, value);
@@ -356,7 +358,9 @@ int main(int argc, char *argv[])
         }
         {
             double value = 7.0;
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
             Obj expected(SERIALIZATION_VERSION);
             mX << value;
             OutStreamFunctions::bdexStreamOut(expected, value);
@@ -368,6 +372,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < 5; ++i) {
                 if (veryVerbose) {}
                 Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
                 Obj expected(SERIALIZATION_VERSION);
                 mX << value;
                 OutStreamFunctions::bdexStreamOut(expected, value);
@@ -379,10 +384,12 @@ int main(int argc, char *argv[])
             }
         }
         {
-            float value1 = 3.0;
+            float       value1 = 3.0;
             bsl::string value2 = "hello";
-            short value3 = 2;
+            short       value3 = 2;
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
             Obj expected(SERIALIZATION_VERSION);
             mX << value1 << value2 << value3;
             OutStreamFunctions::bdexStreamOut(expected, value1);
@@ -423,7 +430,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'putString'." << endl;
         {
             const bsl::string DATA = "hello";
+
             const int SIZE = 3 * SIZEOF_INT8 + SIZEOF_INT32 + 5 * SIZEOF_INT8;
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putString(DATA);     mX.putInt8(0xff);
             mX.putString(DATA);     mX.putInt8(0xfe);
@@ -458,7 +467,9 @@ int main(int argc, char *argv[])
                           << endl;
         {
             const bsl::string DATA = "hello";
+
             const int SIZE = 3 * SIZEOF_INT8 + SIZEOF_INT32 + 5 * SIZEOF_INT8;
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putString(DATA);     mX.putInt8(0xff);
             mX.makeNextInvalid();
@@ -641,6 +652,7 @@ int main(int argc, char *argv[])
         {
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putLength(-1));
             ASSERT_PASS(mX.putLength(0));
@@ -687,6 +699,7 @@ int main(int argc, char *argv[])
         }
         {
             const double DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayFloat64(DATA, 0);
             mX.putArrayFloat64(DATA, 1);
@@ -729,6 +742,7 @@ int main(int argc, char *argv[])
         }
         {
             const double DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayFloat64(DATA, 0);
@@ -754,8 +768,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const double DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayFloat64(0, 0));
             ASSERT_FAIL(mX.putArrayFloat64(DATA, -1));
@@ -803,6 +819,7 @@ int main(int argc, char *argv[])
         }
         {
             const float DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayFloat32(DATA, 0);
             mX.putArrayFloat32(DATA, 1);
@@ -845,6 +862,7 @@ int main(int argc, char *argv[])
         }
         {
             const float DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayFloat32(DATA, 0);
@@ -870,8 +888,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const float DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayFloat32(0, 0));
             ASSERT_FAIL(mX.putArrayFloat32(DATA, -1));
@@ -920,6 +940,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt64(DATA, 0);
             mX.putArrayInt64(DATA, 1);
@@ -962,6 +983,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt64(DATA, 0);
@@ -990,6 +1012,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint64(DATA, 0);
             mX.putArrayUint64(DATA, 1);
@@ -1032,6 +1055,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint64(DATA, 0);
@@ -1057,8 +1081,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt64(0, 0));
             ASSERT_FAIL(mX.putArrayInt64(DATA, -1));
@@ -1067,8 +1093,10 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint64(0, 0));
             ASSERT_FAIL(mX.putArrayUint64(DATA, -1));
@@ -1117,6 +1145,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt56(DATA, 0);
             mX.putArrayInt56(DATA, 1);
@@ -1159,6 +1188,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt56(DATA, 0);
@@ -1187,6 +1217,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint56(DATA, 0);
             mX.putArrayUint56(DATA, 1);
@@ -1229,6 +1260,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint56(DATA, 0);
@@ -1254,8 +1286,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt56(0, 0));
             ASSERT_FAIL(mX.putArrayInt56(DATA, -1));
@@ -1264,8 +1298,10 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint56(0, 0));
             ASSERT_FAIL(mX.putArrayUint56(DATA, -1));
@@ -1314,6 +1350,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt48(DATA, 0);
             mX.putArrayInt48(DATA, 1);
@@ -1356,6 +1393,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt48(DATA, 0);
@@ -1384,6 +1422,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint48(DATA, 0);
             mX.putArrayUint48(DATA, 1);
@@ -1426,6 +1465,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint48(DATA, 0);
@@ -1451,8 +1491,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt48(0, 0));
             ASSERT_FAIL(mX.putArrayInt48(DATA, -1));
@@ -1461,8 +1503,10 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint48(0, 0));
             ASSERT_FAIL(mX.putArrayUint48(DATA, -1));
@@ -1511,6 +1555,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt40(DATA, 0);
             mX.putArrayInt40(DATA, 1);
@@ -1553,6 +1598,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt40(DATA, 0);
@@ -1581,6 +1627,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint40(DATA, 0);
             mX.putArrayUint40(DATA, 1);
@@ -1623,6 +1670,7 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint40(DATA, 0);
@@ -1648,8 +1696,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt40(0, 0));
             ASSERT_FAIL(mX.putArrayInt40(DATA, -1));
@@ -1658,8 +1708,10 @@ int main(int argc, char *argv[])
         }
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint40(0, 0));
             ASSERT_FAIL(mX.putArrayUint40(DATA, -1));
@@ -1708,6 +1760,7 @@ int main(int argc, char *argv[])
         }
         {
             const int DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt32(DATA, 0);
             mX.putArrayInt32(DATA, 1);
@@ -1750,6 +1803,7 @@ int main(int argc, char *argv[])
         }
         {
             const int DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt32(DATA, 0);
@@ -1778,6 +1832,7 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint32(DATA, 0);
             mX.putArrayUint32(DATA, 1);
@@ -1820,6 +1875,7 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint32(DATA, 0);
@@ -1845,8 +1901,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const int DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt32(0, 0));
             ASSERT_FAIL(mX.putArrayInt32(DATA, -1));
@@ -1855,8 +1913,10 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint32(0, 0));
             ASSERT_FAIL(mX.putArrayUint32(DATA, -1));
@@ -1905,6 +1965,7 @@ int main(int argc, char *argv[])
         }
         {
             const int DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt24(DATA, 0);
             mX.putArrayInt24(DATA, 1);
@@ -1947,6 +2008,7 @@ int main(int argc, char *argv[])
         }
         {
             const int DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt24(DATA, 0);
@@ -1975,6 +2037,7 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint24(DATA, 0);
             mX.putArrayUint24(DATA, 1);
@@ -2017,6 +2080,7 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint24(DATA, 0);
@@ -2042,8 +2106,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const int DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt24(0, 0));
             ASSERT_FAIL(mX.putArrayInt24(DATA, -1));
@@ -2052,8 +2118,10 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned int DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint24(0, 0));
             ASSERT_FAIL(mX.putArrayUint24(DATA, -1));
@@ -2102,6 +2170,7 @@ int main(int argc, char *argv[])
         }
         {
             const short DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt16(DATA, 0);
             mX.putArrayInt16(DATA, 1);
@@ -2138,6 +2207,7 @@ int main(int argc, char *argv[])
         }
         {
             const short DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt16(DATA, 0);
@@ -2163,6 +2233,7 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint16(DATA, 0);
             mX.putArrayUint16(DATA, 1);
@@ -2199,6 +2270,7 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint16(DATA, 0);
@@ -2221,8 +2293,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const short DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt16(0, 0));
             ASSERT_FAIL(mX.putArrayInt16(DATA, -1));
@@ -2231,8 +2305,10 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned short DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint16(0, 0));
             ASSERT_FAIL(mX.putArrayUint16(DATA, -1));
@@ -2283,6 +2359,7 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt8(DATA, 0);
             mX.putArrayInt8(DATA, 1);
@@ -2320,6 +2397,7 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt8(DATA, 0);
@@ -2345,6 +2423,7 @@ int main(int argc, char *argv[])
         }
         {
             const signed char DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayInt8(DATA, 0);
             mX.putArrayInt8(DATA, 1);
@@ -2382,6 +2461,7 @@ int main(int argc, char *argv[])
         }
         {
             const signed char DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayInt8(DATA, 0);
@@ -2407,6 +2487,7 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint8(DATA, 0);
             mX.putArrayUint8(DATA, 1);
@@ -2444,6 +2525,7 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint8(DATA, 0);
@@ -2470,6 +2552,7 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putArrayUint8(DATA, 0);
             mX.putArrayUint8(DATA, 1);
@@ -2506,6 +2589,7 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
+
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.makeNextInvalid();
             mX.putArrayUint8(DATA, 0);
@@ -2528,8 +2612,10 @@ int main(int argc, char *argv[])
             cout << "\nNegative Testing." << endl;
         {
             const char DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt8((char *)0, 0));
             ASSERT_FAIL(mX.putArrayInt8(DATA, -1));
@@ -2538,8 +2624,10 @@ int main(int argc, char *argv[])
         }
         {
             const signed char DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayInt8((signed char *)0, 0));
             ASSERT_FAIL(mX.putArrayInt8(DATA, -1));
@@ -2548,8 +2636,10 @@ int main(int argc, char *argv[])
         }
         {
             const char DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint8((char *)0, 0));
             ASSERT_FAIL(mX.putArrayUint8(DATA, -1));
@@ -2558,8 +2648,10 @@ int main(int argc, char *argv[])
         }
         {
             const unsigned char DATA[] = {1, 2, 3};
+
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
+
             Obj mX(SERIALIZATION_VERSION);
             ASSERT_FAIL(mX.putArrayUint8((unsigned char *)0, 0));
             ASSERT_FAIL(mX.putArrayUint8(DATA, -1));
@@ -3822,18 +3914,21 @@ int main(int argc, char *argv[])
             cout << "\nTesting print operator." << endl;
         }
 
-        const int SIZE = 1000;     // Must be big enough to hold output string.
-        const char XX = (char) 0xFF; // Value that represents an unset char.
-        char ctrl[SIZE];    memset(ctrl, XX, SIZE);
+        const int   SIZE = 1000;  // Must be big enough to hold output string.
+        const char  XX = static_cast<char>(0xFF);  // Value that represents an
+                                                   // unset char.
+        char        ctrl[SIZE];    memset(ctrl, XX, SIZE);
         const char *CTRL = ctrl;
 
         {
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
             const char *EXPECTED = "";
+
             char buf[SIZE];
             memcpy(buf, CTRL, SIZE);
             ostrstream out(buf, SIZE);    out << X << ends;
-            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            const int  LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) {
                 cout << "\tEXPECTED : " << EXPECTED << endl
                      << "\tACTUAL : "   << buf << endl;
@@ -3845,13 +3940,15 @@ int main(int argc, char *argv[])
         {
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             mX.putInt8(0);  mX.putInt8(1);  mX.putInt8(2);  mX.putInt8(3);
+
             const char *EXPECTED =
                 "\n0000\t" INT8_STR " 00 " INT8_STR " 01"
                        " " INT8_STR " 02 " INT8_STR " 03";
+
             char buf[SIZE];
             memcpy(buf, CTRL, SIZE);
             ostrstream out(buf, SIZE);    out << X << ends;
-            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            const int  LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) {
                 cout << "\tEXPECTED : " << EXPECTED << endl
                      << "\tACTUAL : "   << buf << endl;
@@ -3865,6 +3962,7 @@ int main(int argc, char *argv[])
             mX.putInt8(0);  mX.putInt8(1);  mX.putInt8(2);  mX.putInt8(3);
             mX.putInt8(4);  mX.putInt8(5);  mX.putInt8(6);  mX.putInt8(7);
             mX.putInt8(8);  mX.putInt8(9);  mX.putInt8(10); mX.putInt8(11);
+
             const char *EXPECTED =
                 "\n0000\t" INT8_STR " 00 " INT8_STR " 01"
                        " " INT8_STR " 02 " INT8_STR " 03"
@@ -3872,10 +3970,11 @@ int main(int argc, char *argv[])
                        " " INT8_STR " 06 " INT8_STR " 07"
                 "\n0010\t" INT8_STR " 08 " INT8_STR " 09"
                        " " INT8_STR " 0a " INT8_STR " 0b";
+
             char buf[SIZE];
             memcpy(buf, CTRL, SIZE);
             ostrstream out(buf, SIZE);    out << X << ends;
-            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            const int  LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) {
                 cout << "\tEXPECTED : " << EXPECTED << endl
                      << "\tACTUAL : "   << buf << endl;
@@ -3890,6 +3989,7 @@ int main(int argc, char *argv[])
             mX.putInt8(  4);  mX.putInt8( 5);  mX.putInt8( 6);  mX.putInt8( 7);
             mX.putInt8(  8);  mX.putInt8( 9);  mX.putInt8(10);  mX.putInt8(11);
             mX.putInt8(127);  mX.putInt8(-1);  mX.putInt8(-2);  mX.putInt8(-3);
+
             const char *EXPECTED =
                 "\n0000\t" INT8_STR " 00 " INT8_STR " 01"
                        " " INT8_STR " 02 " INT8_STR " 03"
@@ -3899,10 +3999,11 @@ int main(int argc, char *argv[])
                        " " INT8_STR " 0a " INT8_STR " 0b"
                 "\n0018\t" INT8_STR " 7f " INT8_STR " ff"
                        " " INT8_STR " fe " INT8_STR " fd";
+
             char buf[SIZE];
             memcpy(buf, CTRL, SIZE);
             ostrstream out(buf, SIZE);    out << X << ends;
-            const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
+            const int  LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) {
                 cout << "\tEXPECTED : " << EXPECTED << endl
                      << "\tACTUAL : "   << buf << endl;
@@ -3942,10 +4043,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting invalidate." << endl;
         {
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
-                              ASSERT( X && X.isValid());
+            ASSERT( X && X.isValid());
 
-            mX.invalidate();  ASSERT(!X && !X.isValid());
-            mX.invalidate();  ASSERT(!X && !X.isValid());
+            mX.invalidate();
+            ASSERT(!X && !X.isValid());
+
+            mX.invalidate();
+            ASSERT(!X && !X.isValid());
         }
       } break;
       case 3: {
@@ -3989,7 +4093,7 @@ int main(int argc, char *argv[])
             INT8_TC "\x00" INT8_TC "\x01" INT8_TC "\x02",
             INT8_TC "\x00" INT8_TC "\x01" INT8_TC "\x02" INT8_TC "\x03"
         };
-        const int NUM_TEST = static_cast<int>(sizeof DATA / sizeof *DATA);
+        const int   NUM_TEST = static_cast<int>(sizeof DATA / sizeof *DATA);
         for (int iLen = 0; iLen < NUM_TEST; iLen++) {
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
             for (int j = 0; j < iLen; j++) {
@@ -4008,6 +4112,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bdexSerializationVersion()." << endl;
 
         for (int i = 0; i < 5; ++i) {
+            if (veryVerbose) {}
             Obj x(SERIALIZATION_VERSION + i);
             LOOP_ASSERT(i, SERIALIZATION_VERSION + i ==
                                                  x.bdexSerializationVersion());
@@ -4082,6 +4187,7 @@ int main(int argc, char *argv[])
                           << "constructor w/o allocator." << endl;
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
+
             Obj mX(SERIALIZATION_VERSION, 100);  const Obj& X = mX;
             ASSERT(0 == X.length());
             ASSERT(allocations + 1 == defaultAllocator.numAllocations());
@@ -4117,6 +4223,7 @@ int main(int argc, char *argv[])
         }
         {
             Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
             mX.reserveCapacity(300);     // Make larger than default
             ASSERT(0 == X.length());
@@ -4146,6 +4253,7 @@ int main(int argc, char *argv[])
                           << "constructor w/ allocator." << endl;
         {
             bsls::Types::Int64 allocations = ta.numAllocations();
+
             Obj mX(SERIALIZATION_VERSION, 100, &ta);  const Obj& X = mX;
             ASSERT(0 == X.length());
             ASSERT(allocations + 1 == ta.numAllocations());
@@ -4181,6 +4289,7 @@ int main(int argc, char *argv[])
         }
         {
             Obj mX(SERIALIZATION_VERSION, &ta);  const Obj& X = mX;
+
             bsls::Types::Int64 allocations = ta.numAllocations();
             mX.reserveCapacity(300);     // Make larger than default
             ASSERT(0 == X.length());
@@ -4304,7 +4413,10 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { P_(iLen); P(X); }
                 LOOP_ASSERT(iLen, 0 == X.length());
 
-                for (int j = 0; j < iLen; j++) mX.putInt8(j);
+                for (int j = 0; j < iLen; j++) {
+                    if (veryVerbose) {}
+                    mX.putInt8(j);
+                }
                 mX.invalidate();
                 LOOP_ASSERT(iLen, false == X.isValid());
                 mX.reset();
