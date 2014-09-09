@@ -567,10 +567,10 @@ int main(int argc, char *argv[]) {
         const char *const E_SPEC = "\x4B\x7F\xFF\xFF";
 
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 4;             // size (in bytes) of data in buffer
@@ -584,7 +584,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putFloat32(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -599,7 +599,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 if (veryVerbose) {}
@@ -632,7 +632,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -819,10 +819,10 @@ int main(int argc, char *argv[]) {
 
         const char *const E_SPEC = "\x43\x3F\xFF\xFF\xFF\xFF\xFF\xFF";
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 8;             // size (in bytes) of data in buffer
@@ -837,7 +837,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putFloat64(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -852,7 +852,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 input[i] = VALUES[i % NUM_VALUES];
@@ -883,7 +883,7 @@ int main(int argc, char *argv[]) {
                 // check buffer data
                 for (i = 0; i < length; ++i) {
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -1022,25 +1022,25 @@ int main(int argc, char *argv[]) {
         typedef signed char S;
         typedef unsigned char U;
 
-        const T A = (T)  0x05;  // POSITIVE NUMBER
+        const T     A = (T)  0x05;  // POSITIVE NUMBER
         const char *A_SPEC = "\x05";
 
-        const T B = (T)  0x80;  // NEGATIVE NUMBER
+        const T     B = (T)  0x80;  // NEGATIVE NUMBER
         const char *B_SPEC = "\x80";
 
-        const T C = (T)  0x10;  // POSITIVE NUMBER
+        const T     C = (T)  0x10;  // POSITIVE NUMBER
         const char *C_SPEC = "\x10";
 
-        const T D = (T)  0x08;  // POSITIVE NUMBER
+        const T     D = (T)  0x08;  // POSITIVE NUMBER
         const char *D_SPEC = "\x08";
 
-        const T E = (T)  0xfd;  // NEGATIVE NUMBER
+        const T     E = (T)  0xfd;  // NEGATIVE NUMBER
         const char *E_SPEC = "\xFD";
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 1;             // size (in bytes) of data in buffer
@@ -1055,7 +1055,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putInt8(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -1070,7 +1070,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 input[i] = VALUES[i % NUM_VALUES];
@@ -1107,7 +1107,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -1153,9 +1153,9 @@ int main(int argc, char *argv[]) {
                 }
 
                 // initialize result arrays
-                T result1[NUM_TRIALS];
-                U result2[NUM_TRIALS];
-                S result3[NUM_TRIALS];
+                T       result1[NUM_TRIALS];
+                U       result2[NUM_TRIALS];
+                S       result3[NUM_TRIALS];
                 const S POS = +1;
                 const U NEG = (U)(S)-1;
 
@@ -1198,14 +1198,14 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
-            T TV[4];
-            S SV[4];
-            U UV[4];
+            char  BUFFER[32];
+            T     TV[4];
+            S     SV[4];
+            U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            S *ZSPTR = static_cast<S *>(0);
-            U *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR = static_cast<T *>(0);
+            S    *ZSPTR = static_cast<S *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -1276,28 +1276,28 @@ int main(int argc, char *argv[]) {
                           << "PUT/GET 16-BIT INTEGER ARRAYS" << endl
                           << "=============================" << endl;
 
-        typedef short T;
+        typedef short          T;
         typedef unsigned short U;
 
-        const T A = (     (T)  0x01 << 8) + 0x02;  // POSITIVE NUMBER
+        const T     A = (     (T)  0x01 << 8) + 0x02;  // POSITIVE NUMBER
         const char *A_SPEC = "\x01\x02";
 
-        const T B = (T) ( (T)  0x80 << 8) + 0x70;  // NEGATIVE NUMBER
+        const T     B = (T) ( (T)  0x80 << 8) + 0x70;  // NEGATIVE NUMBER
         const char *B_SPEC = "\x80\x70";
 
-        const T C =     ( (T)  0x10 << 8) + 0x20;  // POSITIVE NUMBER
+        const T     C =     ( (T)  0x10 << 8) + 0x20;  // POSITIVE NUMBER
         const char *C_SPEC = "\x10\x20";
 
-        const T D =     ( (T)  0x08 << 8) + 0x07;  // POSITIVE NUMBER
+        const T     D =     ( (T)  0x08 << 8) + 0x07;  // POSITIVE NUMBER
         const char *D_SPEC = "\x08\x07";
 
-        const T E = (T) ( (T)  0xFF << 8) + 0xFE;  // NEGATIVE NUMBER
+        const T     E = (T) ( (T)  0xFF << 8) + 0xFE;  // NEGATIVE NUMBER
         const char *E_SPEC = "\xFF\xFE";
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 2;             // size (in bytes) of data in buffer
@@ -1312,7 +1312,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putInt16(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -1327,7 +1327,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 input[i] = VALUES[i % NUM_VALUES];
@@ -1359,7 +1359,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -1430,12 +1430,12 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
-            T TV[4];
-            U UV[4];
+            char  BUFFER[32];
+            T     TV[4];
+            U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -1526,10 +1526,10 @@ int main(int argc, char *argv[]) {
 
         const char *E_SPEC = "\xFE\xFD\xFC";
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 3;
@@ -1544,7 +1544,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putInt24(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -1559,7 +1559,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 input[i] = VALUES[i % NUM_VALUES];
@@ -1591,7 +1591,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -1627,8 +1627,8 @@ int main(int argc, char *argv[]) {
                 }
 
                 // initialize result arrays
-                T result1[NUM_TRIALS];
-                U result2[NUM_TRIALS];
+                T       result1[NUM_TRIALS];
+                U       result2[NUM_TRIALS];
                 const T POS = +1;
                 const U NEG = (U) -1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
@@ -1641,9 +1641,9 @@ int main(int argc, char *argv[]) {
 
                 // fetch data from arrays
                 MarshallingUtil::getArrayInt24(result1,
-                                        buffer1 + align, length);
+                                               buffer1 + align, length);
                 MarshallingUtil::getArrayUint24(result2,
-                                        buffer2 + align, length);
+                                                buffer2 + align, length);
 
                 int i = 0;
                 for (; i < length; ++i) {       // check values in range
@@ -1653,9 +1653,10 @@ int main(int argc, char *argv[]) {
                         P(i); P(input[i]); P(result1[i]); P(result2[i]);
                     }
                     LOOP3_ASSERT(length, align, i, input[i] == result1[i]);
-                    if (input[i] > 0)
+                    if (input[i] > 0) {
                         LOOP3_ASSERT(length, align, i,
                                      input[i] == (T) result2[i]);
+                    }
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
                     if (veryVerbose) {}
@@ -1666,12 +1667,12 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
-            T TV[4];
-            U UV[4];
+            char  BUFFER[32];
+            T     TV[4];
+            U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -1762,10 +1763,10 @@ int main(int argc, char *argv[]) {
 
         const char *E_SPEC = "\xFF\xFE\xFD\xFC";
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 4;             // size (in bytes) of data in buffer
@@ -1780,7 +1781,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putInt32(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -1795,7 +1796,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 if (veryVerbose) {}
@@ -1829,7 +1830,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -1865,8 +1866,8 @@ int main(int argc, char *argv[]) {
                 }
 
                 // initialize result arrays
-                T result1[NUM_TRIALS];
-                U result2[NUM_TRIALS];
+                T       result1[NUM_TRIALS];
+                U       result2[NUM_TRIALS];
                 const T POS = +1;
                 const U NEG = (U) -1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
@@ -1879,9 +1880,9 @@ int main(int argc, char *argv[]) {
 
                 // fetch data from arrays
                 MarshallingUtil::getArrayInt32(result1,
-                                        buffer1 + align, length);
+                                               buffer1 + align, length);
                 MarshallingUtil::getArrayUint32(result2,
-                                        buffer2 + align, length);
+                                                buffer2 + align, length);
 
                 int i = 0;
                 for (; i < length; ++i) {       // check values in range
@@ -1901,12 +1902,12 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
-            T TV[4];
-            U UV[4];
+            char  BUFFER[32];
+            T     TV[4];
+            U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -2002,10 +2003,10 @@ int main(int argc, char *argv[]) {
 
         const char *E_SPEC = "\xFC\xFB\xFA\xF9\xF8";
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 5;
@@ -2020,7 +2021,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putInt40(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -2035,7 +2036,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 input[i] = VALUES[i % NUM_VALUES];
@@ -2067,7 +2068,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -2103,8 +2104,8 @@ int main(int argc, char *argv[]) {
                 }
 
                 // initialize result arrays
-                T result1[NUM_TRIALS];
-                U result2[NUM_TRIALS];
+                T       result1[NUM_TRIALS];
+                U       result2[NUM_TRIALS];
                 const T POS = +1;
                 const U NEG = (U)(T)-1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
@@ -2117,9 +2118,9 @@ int main(int argc, char *argv[]) {
 
                 // fetch data from arrays
                 MarshallingUtil::getArrayInt40(result1,
-                                        buffer1 + align, length);
+                                               buffer1 + align, length);
                 MarshallingUtil::getArrayUint40(result2,
-                                        buffer2 + align, length);
+                                                buffer2 + align, length);
 
                 int i = 0;
                 for (; i < length; ++i) {       // check values in range
@@ -2129,9 +2130,10 @@ int main(int argc, char *argv[]) {
                         P(i); P(input[i]); P(result1[i]); P(result2[i]);
                     }
                     LOOP3_ASSERT(length, align, i, input[i] == result1[i]);
-                    if (input[i] > 0)
+                    if (input[i] > 0) {
                         LOOP3_ASSERT(length, align, i,
-                            input[i] == (T) result2[i]);
+                                     input[i] == (T) result2[i]);
+                    }
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
                     if (veryVerbose) {}
@@ -2142,12 +2144,12 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
-            T TV[4];
-            U UV[4];
+            char  BUFFER[32];
+            T     TV[4];
+            U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -2243,10 +2245,10 @@ int main(int argc, char *argv[]) {
 
         const char *E_SPEC = "\xFD\xFC\xFB\xFA\xF9\xF8";
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 6;
@@ -2261,7 +2263,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putInt48(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -2276,7 +2278,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 input[i] = VALUES[i % NUM_VALUES];
@@ -2308,7 +2310,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -2358,9 +2360,9 @@ int main(int argc, char *argv[]) {
 
                 // fetch data from arrays
                 MarshallingUtil::getArrayInt48(result1,
-                                        buffer1 + align, length);
+                                               buffer1 + align, length);
                 MarshallingUtil::getArrayUint48(result2,
-                                        buffer2 + align, length);
+                                                buffer2 + align, length);
 
                 int i = 0;
                 for (; i < length; ++i) {       // check values in range
@@ -2370,9 +2372,10 @@ int main(int argc, char *argv[]) {
                         P(i); P(input[i]); P(result1[i]); P(result2[i]);
                     }
                     LOOP3_ASSERT(length, align, i, input[i] == result1[i]);
-                    if (input[i] > 0)
+                    if (input[i] > 0) {
                         LOOP3_ASSERT(length, align, i,
                                      input[i] == (T) result2[i]);
+                    }
                 }
                 for (; i < NUM_TRIALS; ++i) {   // check values beyond range
                     if (veryVerbose) {}
@@ -2502,7 +2505,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putInt56(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -2517,7 +2520,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 input[i] = VALUES[i % NUM_VALUES];
@@ -2549,7 +2552,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -2624,12 +2627,12 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
-            T TV[4];
-            U UV[4];
+            char  BUFFER[32];
+            T     TV[4];
+            U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -2725,10 +2728,10 @@ int main(int argc, char *argv[]) {
 
         const char *E_SPEC = "\xFF\xFE\xFD\xFC\xFB\xFA\xF9\xF8";
 
-        T VALUES[] = { A, B, C, D, E };
+        T           VALUES[] = { A, B, C, D, E };
         const char *SPECS[] = { A_SPEC, B_SPEC, C_SPEC, D_SPEC, E_SPEC };
-        const int NUM_VALUES = static_cast<int>(sizeof VALUES
-                                                / sizeof *VALUES);
+        const int   NUM_VALUES = static_cast<int>(sizeof VALUES
+                                                  / sizeof *VALUES);
         ASSERT(NUM_VALUES == sizeof SPECS / sizeof *SPECS);
 
         const int SIZE = 8;             // size (in bytes) of data in buffer
@@ -2743,7 +2746,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < NUM_VALUES; ++i) {
                 if (veryVerbose) {}
                 const char *exp = SPECS[i];
-                char buffer[SIZE];
+                char        buffer[SIZE];
                 MarshallingUtil::putInt64(buffer, VALUES[i]);
                 bool isEq = 0 == memcmp(exp, buffer, SIZE);
                 if (veryVerbose || !isEq) {
@@ -2758,7 +2761,7 @@ int main(int argc, char *argv[]) {
         }
 
         const int NUM_TRIALS = 10;
-        T input[NUM_TRIALS];
+        T         input[NUM_TRIALS];
         {   // load repeating pattern: A, B, C, ..., A, B, C, ...
             for (i = 0; i < NUM_TRIALS; ++i) {
                 input[i] = VALUES[i % NUM_VALUES];
@@ -2790,7 +2793,7 @@ int main(int argc, char *argv[]) {
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
                     const char *exp = SPECS[i % NUM_VALUES];
-                    int off = align + SIZE * i;
+                    int         off = align + SIZE * i;
 
                     bool isEq = 0 == memcmp(exp, buffer1 + off, SIZE);
                     if (veryVerbose || !isEq) {
@@ -2826,8 +2829,8 @@ int main(int argc, char *argv[]) {
                 }
 
                 // initialize result arrays
-                T result1[NUM_TRIALS];
-                U result2[NUM_TRIALS];
+                T       result1[NUM_TRIALS];
+                U       result2[NUM_TRIALS];
                 const T POS = +1;
                 const U NEG = (U)(T)-1;
                 for (i = 0; i < NUM_TRIALS; ++i) {
@@ -2840,9 +2843,9 @@ int main(int argc, char *argv[]) {
 
                 // fetch data from arrays
                 MarshallingUtil::getArrayInt64(result1,
-                                        buffer1 + align, length);
+                                               buffer1 + align, length);
                 MarshallingUtil::getArrayUint64(result2,
-                                        buffer2 + align, length);
+                                                buffer2 + align, length);
 
                 int i = 0;
                 for (; i < length; ++i) {       // check values in range
@@ -2862,12 +2865,12 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
-            T TV[4];
-            U UV[4];
+            char  BUFFER[32];
+            T     TV[4];
+            U     UV[4];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -2957,8 +2960,8 @@ int main(int argc, char *argv[]) {
         const char *const Y_SPEC = "\xCB\x0C\x0D\x0E";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -3036,10 +3039,10 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T number = DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     number = DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 4;
+            const int   SIZE = 4;
 
             // Repeat tests at every alignment.
 
@@ -3122,10 +3125,10 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            T TV;
+            T    *ZTPTR = static_cast<T *>(0);
+            T     TV;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3208,8 +3211,8 @@ int main(int argc, char *argv[]) {
         const char *const Y_SPEC = "\xC3\x38\x09\x0A\x0B\x0C\x0D\x0E";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -3284,10 +3287,10 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T number = DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     number = DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 8;
+            const int   SIZE = 8;
 
             // Repeat tests at every alignment.
 
@@ -3370,10 +3373,10 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            T TV;
+            T    *ZTPTR = static_cast<T *>(0);
+            T     TV;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3433,8 +3436,8 @@ int main(int argc, char *argv[]) {
         typedef signed char S;
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -3450,12 +3453,12 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T xsignedNumber = DATA[di].d_number;
-            const U unsignedNumber = (U) DATA[di].d_number;
-            const S signedNumber = (S) DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     xsignedNumber = DATA[di].d_number;
+            const U     unsignedNumber = (U) DATA[di].d_number;
+            const S     signedNumber = (S) DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 1;
+            const int   SIZE = 1;
 
             // Repeat tests at every alignment.
 
@@ -3488,6 +3491,7 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(LINE, i, 0 == memcmp(exp, buffer + i, SIZE));
 
                 static const T INITIAL_VALUES[] = { -99, +99 };
+
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);
 
@@ -3526,7 +3530,7 @@ int main(int argc, char *argv[]) {
 
         { // verify functionality for non-one-byte values
             const int SIZE = 1;
-            char buffer[SIZE + 1];
+            char      buffer[SIZE + 1];
 
             buffer[0] = static_cast<char>(0xb3);
             buffer[SIZE] = static_cast<char>(0xa7);
@@ -3554,15 +3558,15 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
-            S *ZSPTR = static_cast<S *>(0);
-            int V = 0;
-            T TV;
-            U TU;
-            S TS;
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
+            S    *ZSPTR = static_cast<S *>(0);
+            int   V = 0;
+            T     TV;
+            U     TU;
+            S     TS;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3615,7 +3619,7 @@ int main(int argc, char *argv[]) {
                           << "PUT/GET 16-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
-        typedef short T;
+        typedef short          T;
         typedef unsigned short U;
 
         const T A = (0x01 << 8) + 0x02;      // POSITIVE NUMBER
@@ -3627,8 +3631,8 @@ int main(int argc, char *argv[]) {
         const char *B_SPEC = "\x80\x70";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -3644,11 +3648,11 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T signedNumber = DATA[di].d_number;
-            const U unsignedNumber = (U) DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     signedNumber = DATA[di].d_number;
+            const U     unsignedNumber = (U) DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 2;
+            const int   SIZE = 2;
 
             // Repeat tests at every alignment.
 
@@ -3680,6 +3684,7 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(LINE, i, 0 == memcmp(exp, buffer + i, SIZE));
 
                 static const T INITIAL_VALUES[] = { -99, +99 };
+
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);
 
@@ -3708,13 +3713,13 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
-            int V = 0;
-            T TV;
-            U TU;
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
+            int   V = 0;
+            T     TV;
+            U     TU;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3765,7 +3770,7 @@ int main(int argc, char *argv[]) {
                           << "PUT/GET 24-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
-        typedef int T;
+        typedef int          T;
         typedef unsigned int U;
         const T A = ((((( // POSITIVE NUMBER
                          0x00 << 8) + 0x02) << 8) + 0x03) << 8) + 0x04;
@@ -3778,8 +3783,8 @@ int main(int argc, char *argv[]) {
         const char *B_SPEC = "\x80\x60\x50";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -3795,11 +3800,11 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T signedNumber = DATA[di].d_number;
-            const U unsignedNumber = (U) DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     signedNumber = DATA[di].d_number;
+            const U     unsignedNumber = (U) DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 3;
+            const int   SIZE = 3;
 
             // Repeat tests at every alignment.
 
@@ -3834,6 +3839,7 @@ int main(int argc, char *argv[]) {
                                                   SIZE));
 
                 static const T INITIAL_VALUES[] = { -99, +99 };
+
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);
 
@@ -3864,13 +3870,13 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
-            int V = 0;
-            T TV;
-            U TU;
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
+            int   V = 0;
+            T     TV;
+            U     TU;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -3921,7 +3927,7 @@ int main(int argc, char *argv[]) {
                           << "PUT/GET 32-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
-        typedef int T;
+        typedef int          T;
         typedef unsigned int U;
 
         const T A = ((((( // POSITIVE NUMBER
@@ -3935,8 +3941,8 @@ int main(int argc, char *argv[]) {
         const char *B_SPEC = "\x80\x70\x60\x50";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -3952,11 +3958,11 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T signedNumber = DATA[di].d_number;
-            const U unsignedNumber = (U) DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     signedNumber = DATA[di].d_number;
+            const U     unsignedNumber = (U) DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 4;
+            const int   SIZE = 4;
 
             // Repeat tests at every alignment.
 
@@ -3989,6 +3995,7 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(LINE, i, 0 == memcmp(exp, buffer + i, SIZE));
 
                 static const T INITIAL_VALUES[] = { -99, +99 };
+
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);
 
@@ -4017,13 +4024,13 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
-            int V = 0;
-            T TV;
-            U TU;
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
+            int   V = 0;
+            T     TV;
+            U     TU;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4074,7 +4081,7 @@ int main(int argc, char *argv[]) {
                           << "PUT/GET 40-BIT INTEGERS" << endl
                           << "=======================" << endl;
 
-        typedef bsls::Types::Int64 T;
+        typedef bsls::Types::Int64  T;
         typedef bsls::Types::Uint64 U;
 
         const T A = ((((((((((((( (T)  // POSITIVE NUMBER
@@ -4090,8 +4097,8 @@ int main(int argc, char *argv[]) {
         const char *B_SPEC = "\x80\x40\x30\x20\x10";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -4107,18 +4114,18 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T signedNumber = DATA[di].d_number;
-            const U unsignedNumber = (U) DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     signedNumber = DATA[di].d_number;
+            const U     unsignedNumber = (U) DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 5;
+            const int   SIZE = 5;
 
 
             // Repeat tests at every alignment.
 
             char buffer[2 * SIZE];
             for (int i = 0; i < SIZE; ++i) {
-              if (veryVerbose) {}
+                if (veryVerbose) {}
 
                 memset(buffer, '\x69', sizeof buffer);
                 LOOP2_ASSERT(LINE, i, memcmp(exp, buffer + i, SIZE));
@@ -4145,6 +4152,7 @@ int main(int argc, char *argv[]) {
                 LOOP2_ASSERT(LINE, i, 0 == memcmp(exp, buffer + i, SIZE));
 
                 static const T INITIAL_VALUES[] = { -99, +99 };
+
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);
 
@@ -4175,13 +4183,13 @@ int main(int argc, char *argv[]) {
         }
 
         { // negative testing
-            char BUFFER[32];
+            char  BUFFER[32];
             char *ZCHARPTR = static_cast<char *>(0);
-            T *ZTPTR = static_cast<T *>(0);
-            U *ZUPTR = static_cast<U *>(0);
-            T  V = 0;
-            T TV;
-            U TU;
+            T    *ZTPTR = static_cast<T *>(0);
+            U    *ZUPTR = static_cast<U *>(0);
+            T     V = 0;
+            T     TV;
+            U     TU;
 
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
@@ -4248,8 +4256,8 @@ int main(int argc, char *argv[]) {
         const char *B_SPEC = "\x80\x70\x40\x30\x20\x10";
 
         static const struct {
-            int d_lineNum;                      // line number
-            T d_number;                         // literal number
+            int         d_lineNum;              // line number
+            T           d_number;               // literal number
             const char *d_spec;                 // expected bit pattern
         } DATA[] = {
             //L#  number        Bit pattern
@@ -4265,11 +4273,11 @@ int main(int argc, char *argv[]) {
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int LINE = DATA[di].d_lineNum;
-            const T signedNumber = DATA[di].d_number;
-            const U unsignedNumber = (U) DATA[di].d_number;
+            const int   LINE = DATA[di].d_lineNum;
+            const T     signedNumber = DATA[di].d_number;
+            const U     unsignedNumber = (U) DATA[di].d_number;
             const char *exp = DATA[di].d_spec;
-            const int SIZE = 6;
+            const int   SIZE = 6;
 
             // Repeat tests at every alignment.
 
@@ -4304,6 +4312,7 @@ int main(int argc, char *argv[]) {
                                                   SIZE));
 
                 static const T INITIAL_VALUES[] = { -99, +99 };
+
                 const int NUM_VALUES = static_cast<int>(sizeof INITIAL_VALUES
                                                      / sizeof *INITIAL_VALUES);
 
