@@ -1403,36 +1403,47 @@ int main(int argc, char* argv[])
 
             value32 = Util::parse32(         "0.0");
              test32 = Util::binaryToDecimal32(0.0f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "1.0");
              test32 = Util::binaryToDecimal32(1.0f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "10.");
              test32 = Util::binaryToDecimal32(10.f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "42.");
              test32 = Util::binaryToDecimal32(42.f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-1.0");
              test32 = Util::binaryToDecimal32(-1.0f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-10.");
              test32 = Util::binaryToDecimal32(-10.f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-42.");
              test32 = Util::binaryToDecimal32(-42.f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "0.5");
              test32 = Util::binaryToDecimal32(0.5f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "0.25");
              test32 = Util::binaryToDecimal32(0.25f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-0.5");
              test32 = Util::binaryToDecimal32(-0.5f);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-0.25");
              test32 = Util::binaryToDecimal32(-0.25f);
+            ASSERT(Util::equal(value32, test32));
         }
 
         // binaryToDecimal32(double)
@@ -1443,36 +1454,47 @@ int main(int argc, char* argv[])
 
             value32 = Util::parse32(         "0.0");
              test32 = Util::binaryToDecimal32(0.0);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "1.0");
              test32 = Util::binaryToDecimal32(1.0);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "10.");
              test32 = Util::binaryToDecimal32(10.);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "42.");
              test32 = Util::binaryToDecimal32(42.);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-1.0");
              test32 = Util::binaryToDecimal32(-1.0);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-10.");
              test32 = Util::binaryToDecimal32(-10.);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-42.");
              test32 = Util::binaryToDecimal32(-42.);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "0.5");
              test32 = Util::binaryToDecimal32(0.5);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "0.25");
              test32 = Util::binaryToDecimal32(0.25);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-0.5");
              test32 = Util::binaryToDecimal32(-0.5);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-0.25");
              test32 = Util::binaryToDecimal32(-0.25);
+            ASSERT(Util::equal(value32, test32));
         }
 
         // binaryToDecimal32(long double)
@@ -1483,36 +1505,47 @@ int main(int argc, char* argv[])
 
             value32 = Util::parse32(         "0.0");
              test32 = Util::binaryToDecimal32(0.0l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "1.0");
              test32 = Util::binaryToDecimal32(1.0l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "10.");
              test32 = Util::binaryToDecimal32(10.l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "42.");
              test32 = Util::binaryToDecimal32(42.l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-1.0");
              test32 = Util::binaryToDecimal32(-1.0l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-10.");
              test32 = Util::binaryToDecimal32(-10.l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-42.");
              test32 = Util::binaryToDecimal32(-42.l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "0.5");
              test32 = Util::binaryToDecimal32(0.5l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "0.25");
              test32 = Util::binaryToDecimal32(0.25l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-0.5");
              test32 = Util::binaryToDecimal32(-0.5l);
+            ASSERT(Util::equal(value32, test32));
 
             value32 = Util::parse32(         "-0.25");
              test32 = Util::binaryToDecimal32(-0.25l);
+            ASSERT(Util::equal(value32, test32));
         }
 
         // 'binaryToDecimal64(float)'
@@ -1523,36 +1556,47 @@ int main(int argc, char* argv[])
 
             value64 = Util::parse64(         "0.0");
              test64 = Util::binaryToDecimal64(0.0f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "1.0");
              test64 = Util::binaryToDecimal64(1.0f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "10.");
              test64 = Util::binaryToDecimal64(10.f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "42.");
              test64 = Util::binaryToDecimal64(42.f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-1.0");
              test64 = Util::binaryToDecimal64(-1.0f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-10.");
              test64 = Util::binaryToDecimal64(-10.f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-42.");
              test64 = Util::binaryToDecimal64(-42.f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "0.5");
              test64 = Util::binaryToDecimal64(0.5f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "0.25");
              test64 = Util::binaryToDecimal64(0.25f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-0.5");
              test64 = Util::binaryToDecimal64(-0.5f);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-0.25");
              test64 = Util::binaryToDecimal64(-0.25f);
+            ASSERT(Util::equal(value64, test64));
         }
 
         // binaryToDecimal64(double)
@@ -1563,36 +1607,47 @@ int main(int argc, char* argv[])
 
             value64 = Util::parse64(         "0.0");
              test64 = Util::binaryToDecimal64(0.0);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "1.0");
              test64 = Util::binaryToDecimal64(1.0);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "10.");
              test64 = Util::binaryToDecimal64(10.);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "42.");
              test64 = Util::binaryToDecimal64(42.);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-1.0");
              test64 = Util::binaryToDecimal64(-1.0);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-10.");
              test64 = Util::binaryToDecimal64(-10.);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-42.");
              test64 = Util::binaryToDecimal64(-42.);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "0.5");
              test64 = Util::binaryToDecimal64(0.5);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "0.25");
              test64 = Util::binaryToDecimal64(0.25);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-0.5");
              test64 = Util::binaryToDecimal64(-0.5);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-0.25");
              test64 = Util::binaryToDecimal64(-0.25);
+            ASSERT(Util::equal(value64, test64));
         }
 
         // binaryToDecimal64(long double)
@@ -1603,36 +1658,47 @@ int main(int argc, char* argv[])
 
             value64 = Util::parse64(         "0.0");
              test64 = Util::binaryToDecimal64(0.0l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "1.0");
              test64 = Util::binaryToDecimal64(1.0l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "10.");
              test64 = Util::binaryToDecimal64(10.l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "42.");
              test64 = Util::binaryToDecimal64(42.l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-1.0");
              test64 = Util::binaryToDecimal64(-1.0l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-10.");
              test64 = Util::binaryToDecimal64(-10.l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-42.");
              test64 = Util::binaryToDecimal64(-42.l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "0.5");
              test64 = Util::binaryToDecimal64(0.5l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "0.25");
              test64 = Util::binaryToDecimal64(0.25l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-0.5");
              test64 = Util::binaryToDecimal64(-0.5l);
+            ASSERT(Util::equal(value64, test64));
 
             value64 = Util::parse64(         "-0.25");
              test64 = Util::binaryToDecimal64(-0.25l);
+            ASSERT(Util::equal(value64, test64));
         }
 
         // 'binaryToDecimal128(float)'
@@ -1643,36 +1709,47 @@ int main(int argc, char* argv[])
 
             value128 = Util::parse128(         "0.0");
              test128 = Util::binaryToDecimal128(0.0f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "1.0");
              test128 = Util::binaryToDecimal128(1.0f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "10.");
              test128 = Util::binaryToDecimal128(10.f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "42.");
              test128 = Util::binaryToDecimal128(42.f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-1.0");
              test128 = Util::binaryToDecimal128(-1.0f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-10.");
              test128 = Util::binaryToDecimal128(-10.f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-42.");
              test128 = Util::binaryToDecimal128(-42.f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "0.5");
              test128 = Util::binaryToDecimal128(0.5f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "0.25");
              test128 = Util::binaryToDecimal128(0.25f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-0.5");
              test128 = Util::binaryToDecimal128(-0.5f);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-0.25");
              test128 = Util::binaryToDecimal128(-0.25f);
+            ASSERT(Util::equal(value128, test128));
         }
 
         // binaryToDecimal128(double)
@@ -1683,36 +1760,47 @@ int main(int argc, char* argv[])
 
             value128 = Util::parse128(         "0.0");
              test128 = Util::binaryToDecimal128(0.0);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "1.0");
              test128 = Util::binaryToDecimal128(1.0);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "10.");
              test128 = Util::binaryToDecimal128(10.);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "42.");
              test128 = Util::binaryToDecimal128(42.);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-1.0");
              test128 = Util::binaryToDecimal128(-1.0);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-10.");
              test128 = Util::binaryToDecimal128(-10.);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-42.");
              test128 = Util::binaryToDecimal128(-42.);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "0.5");
              test128 = Util::binaryToDecimal128(0.5);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "0.25");
              test128 = Util::binaryToDecimal128(0.25);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-0.5");
              test128 = Util::binaryToDecimal128(-0.5);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-0.25");
              test128 = Util::binaryToDecimal128(-0.25);
+            ASSERT(Util::equal(value128, test128));
         }
 
         // binaryToDecimal128(long double)
@@ -1723,36 +1811,47 @@ int main(int argc, char* argv[])
 
             value128 = Util::parse128(         "0.0");
              test128 = Util::binaryToDecimal128(0.0l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "1.0");
              test128 = Util::binaryToDecimal128(1.0l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "10.");
              test128 = Util::binaryToDecimal128(10.l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "42.");
              test128 = Util::binaryToDecimal128(42.l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-1.0");
              test128 = Util::binaryToDecimal128(-1.0l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-10.");
              test128 = Util::binaryToDecimal128(-10.l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-42.");
              test128 = Util::binaryToDecimal128(-42.l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "0.5");
              test128 = Util::binaryToDecimal128(0.5l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "0.25");
              test128 = Util::binaryToDecimal128(0.25l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-0.5");
              test128 = Util::binaryToDecimal128(-0.5l);
+            ASSERT(Util::equal(value128, test128));
 
             value128 = Util::parse128(         "-0.25");
              test128 = Util::binaryToDecimal128(-0.25l);
+            ASSERT(Util::equal(value128, test128));
         }
       } break;
       case 14: {
