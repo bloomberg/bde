@@ -17,9 +17,9 @@ using namespace BloombergLP;
 using namespace bsl;
 using namespace bslx;
 
-//==========================================================================
+//=============================================================================
 //                              TEST PLAN
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
 // We are testing a suite of functions, each of which is independent (except
@@ -38,7 +38,7 @@ using namespace bslx;
 // 'int' as 32 bits, we either need to assert this as fact or make sure the
 // test case verifies sign- and zero-extensions for get functions appropriately
 // (we have opted to do the latter).
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 4] putInt64(char *buf, Int64 val);
 // [ 5] putInt56(char *buf, Int64 val);
 // [ 6] putInt48(char *buf, Int64 val);
@@ -109,14 +109,14 @@ using namespace bslx;
 // [21] getArrayInt8(unsigned char *var, const char *buf, int count);
 // [22] getArrayFloat64(double *var, const char *buf, int count);
 // [23] getArrayFloat32(float *var, const char *buf, int count);
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // [ 1] SWAP FUNCTION: static inline void swap(T *x, T *y)
 // [ 1] REVERSE FUNCTION: void reverse(T *array, int numElements)
 // [ 2] EXPLORE DOUBLE FORMAT -- make sure format is IEEE-COMPLIANT
 // [ 3] EXPLORE FLOAT FORMAT -- make sure format is IEEE-COMPLIANT
 // [24] STRESS TEST - Used to determine performance characteristics.
 // [25] USAGE EXAMPLE
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -187,13 +187,13 @@ static ostream& pBytes(const char *c, int n)
 
 template <class TYPE>
 inline
-void swap(TYPE *x, TYPE *y)
-    // Swap the values of the specified objects 'x' and 'y'.  Note that 'TYPE'
+void swap(TYPE *a, TYPE *b)
+    // Swap the values of the specified objects 'a' and 'b'.  Note that 'TYPE'
     // must have value semantic operators COPY CTOR and OP=.
 {
-    TYPE t = *x;
-    *x = *y;
-    *y = t;
+    TYPE t = *a;
+    *a = *b;
+    *b = t;
 }
 
 template <class TYPE>
@@ -208,16 +208,16 @@ void reverse(TYPE *array, int numElements)
     }
 }
 
-//==========================================================================
+//=============================================================================
 //                      FUNCTIONS TO MANIPULATE DOUBLES
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //  sign bit    11-bit exponent             52-bit mantissa
 //    /        /                           /
 //  +-+-----------+----------------------------------------------------+
 //  |s|e10......e0|m51...............................................m0|
 //  +-+-----------+----------------------------------------------------+
 //  LSB                                                              MSB
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static ostream& printDoubleBits(ostream& stream, double number)
     // Format the bits in the specified 'number' to the specified 'stream' from
@@ -268,16 +268,16 @@ static void printDouble(ostream& stream, double number)
     printDoubleBits(stream, number) << ": " << number << endl;
 }
 
-//==========================================================================
+//=============================================================================
 //                      FUNCTIONS TO MANIPULATE FLOATS
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //  sign bit    8-bit exponent        23-bit mantissa
 //     /       /                     /
 //    +-+--------+-----------------------+
 //    |s|e7....e0|m22..................m0|
 //    +-+--------+-----------------------+
 //    LSB                              MSB
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 static ostream& printFloatBits(ostream& stream, float number)
     // Format the bits in the specified 'number' to the specified 'stream' from
@@ -328,9 +328,9 @@ static void printFloat(ostream& stream, float number)
     printFloatBits(stream, number) << ": " << number << endl;
 }
 
-//==========================================================================
-//                      MAIN PROGRAM
-//--------------------------------------------------------------------------
+//=============================================================================
+//                               MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
 
@@ -360,8 +360,8 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "USAGE EXAMPLE TEST" << endl
-                          << "==================" << endl;
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
 
 ///Usage
 ///-----
@@ -1018,23 +1018,23 @@ int main(int argc, char *argv[]) {
                           << "PUT/GET 8-BIT INTEGER ARRAYS" << endl
                           << "============================" << endl;
 
-        typedef char T;
-        typedef signed char S;
+        typedef char          T;
+        typedef signed char   S;
         typedef unsigned char U;
 
-        const T     A = (T)  0x05;  // POSITIVE NUMBER
+        const T     A = static_cast<T>(0x05);  // POSITIVE NUMBER
         const char *A_SPEC = "\x05";
 
-        const T     B = (T)  0x80;  // NEGATIVE NUMBER
+        const T     B = static_cast<T>(0x80);  // NEGATIVE NUMBER
         const char *B_SPEC = "\x80";
 
-        const T     C = (T)  0x10;  // POSITIVE NUMBER
+        const T     C = static_cast<T>(0x10);  // POSITIVE NUMBER
         const char *C_SPEC = "\x10";
 
-        const T     D = (T)  0x08;  // POSITIVE NUMBER
+        const T     D = static_cast<T>(0x08);  // POSITIVE NUMBER
         const char *D_SPEC = "\x08";
 
-        const T     E = (T)  0xfd;  // NEGATIVE NUMBER
+        const T     E = static_cast<T>(0xfd);  // NEGATIVE NUMBER
         const char *E_SPEC = "\xFD";
 
         T           VALUES[] = { A, B, C, D, E };
@@ -1097,12 +1097,15 @@ int main(int argc, char *argv[]) {
                 memset(buffer2, YY, sizeof buffer2);
                 memset(buffer3, ZZ, sizeof buffer3);
 
-                MarshallingUtil::putArrayInt8(
-                                        buffer1 + align, (T*) input, length);
-                MarshallingUtil::putArrayInt8(
-                                        buffer2 + align, (U*) input, length);
-                MarshallingUtil::putArrayInt8(
-                                        buffer3 + align, (S*) input, length);
+                MarshallingUtil::putArrayInt8(buffer1 + align,
+                                              reinterpret_cast<T *>(input),
+                                              length);
+                MarshallingUtil::putArrayInt8(buffer2 + align,
+                                              reinterpret_cast<U *>(input),
+                                              length);
+                MarshallingUtil::putArrayInt8(buffer3 + align,
+                                              reinterpret_cast<S *>(input),
+                                              length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
@@ -1157,7 +1160,7 @@ int main(int argc, char *argv[]) {
                 U       result2[NUM_TRIALS];
                 S       result3[NUM_TRIALS];
                 const S POS = +1;
-                const U NEG = (U)(S)-1;
+                const U NEG = static_cast<U>(static_cast<S>(-1));
 
                 for (i = 0; i < NUM_TRIALS; ++i) {
                     if (veryVerbose) {}
@@ -1279,19 +1282,19 @@ int main(int argc, char *argv[]) {
         typedef short          T;
         typedef unsigned short U;
 
-        const T     A = (     (T)  0x01 << 8) + 0x02;  // POSITIVE NUMBER
+        const T     A = static_cast<T>((0x01 << 8) + 0x02);  // POSITIVE NUMBER
         const char *A_SPEC = "\x01\x02";
 
-        const T     B = (T) ( (T)  0x80 << 8) + 0x70;  // NEGATIVE NUMBER
+        const T     B = static_cast<T>((0x80 << 8) + 0x70);  // NEGATIVE NUMBER
         const char *B_SPEC = "\x80\x70";
 
-        const T     C =     ( (T)  0x10 << 8) + 0x20;  // POSITIVE NUMBER
+        const T     C = static_cast<T>((0x10 << 8) + 0x20);  // POSITIVE NUMBER
         const char *C_SPEC = "\x10\x20";
 
-        const T     D =     ( (T)  0x08 << 8) + 0x07;  // POSITIVE NUMBER
+        const T     D = static_cast<T>((0x08 << 8) + 0x07);  // POSITIVE NUMBER
         const char *D_SPEC = "\x08\x07";
 
-        const T     E = (T) ( (T)  0xFF << 8) + 0xFE;  // NEGATIVE NUMBER
+        const T     E = static_cast<T>((0xFF << 8) + 0xFE);  // NEGATIVE NUMBER
         const char *E_SPEC = "\xFF\xFE";
 
         T           VALUES[] = { A, B, C, D, E };
@@ -1351,10 +1354,12 @@ int main(int argc, char *argv[]) {
                 memset(buffer1, XX, sizeof buffer1);
                 memset(buffer2, YY, sizeof buffer2);
 
-                MarshallingUtil::putArrayInt16(
-                                        buffer1 + align, (T*) input, length);
-                MarshallingUtil::putArrayInt16(
-                                        buffer2 + align, (U*) input, length);
+                MarshallingUtil::putArrayInt16(buffer1 + align,
+                                               reinterpret_cast<T *>(input),
+                                               length);
+                MarshallingUtil::putArrayInt16(buffer2 + align,
+                                               reinterpret_cast<U *>(input),
+                                               length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
@@ -1398,7 +1403,7 @@ int main(int argc, char *argv[]) {
                 T result1[NUM_TRIALS];
                 U result2[NUM_TRIALS];
                 const T POS = +1;
-                const U NEG = (U)(T)-1;
+                const U NEG = static_cast<U>(static_cast<T>(-1));
                 for (i = 0; i < NUM_TRIALS; ++i) {
                     if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
@@ -1501,28 +1506,28 @@ int main(int argc, char *argv[]) {
         typedef int T;
         typedef unsigned int U;
 
-        const T A = ((((( (T)  // POSITIVE NUMBER
-                          0x00 << 8) + 0x02) << 8) + 0x03) << 8) + 0x04;
+        const T A = ((((( static_cast<T>  // POSITIVE NUMBER
+                          (0x00) << 8) + 0x02) << 8) + 0x03) << 8) + 0x04;
 
         const char *A_SPEC = "\x02\x03\x04";
 
-        const T B = ((((( (T)  // NEGATIVE NUMBER
-                          0xFF << 8) + 0x80) << 8) + 0x70) << 8) + 0x60;
+        const T B = ((((( static_cast<T>  // NEGATIVE NUMBER
+                          (0xFF) << 8) + 0x80) << 8) + 0x70) << 8) + 0x60;
 
         const char *B_SPEC = "\x80\x70\x60";
 
-        const T C = ((((( (T)  // POSITIVE NUMBER
-                          0x00 << 8) + 0x20) << 8) + 0x30) << 8) + 0x40;
+        const T C = ((((( static_cast<T>  // POSITIVE NUMBER
+                          (0x00) << 8) + 0x20) << 8) + 0x30) << 8) + 0x40;
 
         const char *C_SPEC = "\x20\x30\x40";
 
-        const T D = ((((( (T)  // POSITIVE NUMBER
-                          0x00 << 8) + 0x07) << 8) + 0x06) << 8) + 0x05;
+        const T D = ((((( static_cast<T>  // POSITIVE NUMBER
+                          (0x00) << 8) + 0x07) << 8) + 0x06) << 8) + 0x05;
 
         const char *D_SPEC = "\x07\x06\x05";
 
-        const T E = ((((( (T)  // NEGATIVE NUMBER
-                          0xff << 8) + 0xfe) << 8) + 0xfd) << 8) + 0xfc;
+        const T E = ((((( static_cast<T>  // NEGATIVE NUMBER
+                          (0xff) << 8) + 0xfe) << 8) + 0xfd) << 8) + 0xfc;
 
         const char *E_SPEC = "\xFE\xFD\xFC";
 
@@ -1583,10 +1588,12 @@ int main(int argc, char *argv[]) {
                 memset(buffer1, XX, sizeof buffer1);
                 memset(buffer2, YY, sizeof buffer2);
 
-                MarshallingUtil::putArrayInt24(
-                                        buffer1 + align, (T*) input, length);
-                MarshallingUtil::putArrayInt24(
-                                        buffer2 + align, (U*) input, length);
+                MarshallingUtil::putArrayInt24(buffer1 + align,
+                                               reinterpret_cast<T *>(input),
+                                               length);
+                MarshallingUtil::putArrayInt24(buffer2 + align,
+                                               reinterpret_cast<U *>(input),
+                                               length);
                 // check buffer data
                 for (i = 0; i < length; ++i) {
                     if (veryVerbose) {}
@@ -1630,7 +1637,7 @@ int main(int argc, char *argv[]) {
                 T       result1[NUM_TRIALS];
                 U       result2[NUM_TRIALS];
                 const T POS = +1;
-                const U NEG = (U) -1;
+                const U NEG = static_cast<U>(-1);
                 for (i = 0; i < NUM_TRIALS; ++i) {
                     if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
@@ -1647,9 +1654,10 @@ int main(int argc, char *argv[]) {
 
                 int i = 0;
                 for (; i < length; ++i) {       // check values in range
-                    if (veryVerbose || input[i] != result1[i]
-                                    || ((input[i] != (T) result2[i])
-                                        && (input[i] > 0))) {
+                    if (veryVerbose
+                        || input[i] != result1[i]
+                        || ((input[i] != static_cast<T>(result2[i]))
+                            && (input[i] > 0))) {
                         P(i); P(input[i]); P(result1[i]); P(result2[i]);
                     }
                     LOOP3_ASSERT(length, align, i, input[i] == result1[i]);
@@ -2107,7 +2115,7 @@ int main(int argc, char *argv[]) {
                 T       result1[NUM_TRIALS];
                 U       result2[NUM_TRIALS];
                 const T POS = +1;
-                const U NEG = (U)(T)-1;
+                const U NEG = static_cast<U>(static_cast<T>(-1));
                 for (i = 0; i < NUM_TRIALS; ++i) {
                     if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
@@ -2349,7 +2357,7 @@ int main(int argc, char *argv[]) {
                 T result1[NUM_TRIALS];
                 U result2[NUM_TRIALS];
                 const T POS = +1;
-                const U NEG = (U)(T)-1;
+                const U NEG = static_cast<U>(static_cast<T>(-1));
                 for (i = 0; i < NUM_TRIALS; ++i) {
                     if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
@@ -2591,7 +2599,7 @@ int main(int argc, char *argv[]) {
                 T result1[NUM_TRIALS];
                 U result2[NUM_TRIALS];
                 const T POS = +1;
-                const U NEG = (U)(T)-1;
+                const U NEG = static_cast<U>(static_cast<T>(-1));
                 for (i = 0; i < NUM_TRIALS; ++i) {
                     if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
@@ -2832,7 +2840,7 @@ int main(int argc, char *argv[]) {
                 T       result1[NUM_TRIALS];
                 U       result2[NUM_TRIALS];
                 const T POS = +1;
-                const U NEG = (U)(T)-1;
+                const U NEG = static_cast<U>(static_cast<T>(-1));
                 for (i = 0; i < NUM_TRIALS; ++i) {
                     if (veryVerbose) {}
                     result1[i] = POS;   // signed should be sign-filled
@@ -2843,9 +2851,11 @@ int main(int argc, char *argv[]) {
 
                 // fetch data from arrays
                 MarshallingUtil::getArrayInt64(result1,
-                                               buffer1 + align, length);
+                                               buffer1 + align,
+                                               length);
                 MarshallingUtil::getArrayUint64(result2,
-                                                buffer2 + align, length);
+                                                buffer2 + align,
+                                                length);
 
                 int i = 0;
                 for (; i < length; ++i) {       // check values in range
