@@ -1648,7 +1648,7 @@ int main(int argc, char *argv[])
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
-            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
+            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;
             Obj::construct(objPtr, PAAV4V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
             ASSERT(TA == rawBuf[0].d_allocator_p);
@@ -1659,7 +1659,7 @@ int main(int argc, char *argv[])
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
-            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
+            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;
             Obj::construct(objPtr, V4, V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
             ASSERT(TA == rawBuf[0].d_allocator_p);
@@ -1673,7 +1673,7 @@ int main(int argc, char *argv[])
         const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
-            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
+            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;
             Obj::construct(objPtr, PBBV4V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
             ASSERT(TA == rawBuf[0].d_allocator_p);
@@ -1686,7 +1686,7 @@ int main(int argc, char *argv[])
         const bsls::Types::Int64 NUM_ALLOC2 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
-            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
+            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;
             Obj::construct(objPtr, V4, V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
             ASSERT(TA == rawBuf[0].d_allocator_p);
@@ -1767,7 +1767,7 @@ int main(int argc, char *argv[])
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
-            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
+            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;
             Obj::copyConstruct(objPtr, PAAV4V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
             ASSERT(TA == rawBuf[0].d_allocator_p);
@@ -1781,7 +1781,7 @@ int main(int argc, char *argv[])
         const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
-            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
+            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;
             Obj::copyConstruct(objPtr, PBBV4V4, TA);
             ASSERT(4  == rawBuf[0].d_value);
             ASSERT(TA == rawBuf[0].d_allocator_p);
@@ -1882,7 +1882,7 @@ int main(int argc, char *argv[])
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
-            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;;
+            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;
             Obj::defaultConstruct(objPtr, TA);
             ASSERT(0  == rawBuf[0].d_value);
             ASSERT(TA == rawBuf[0].d_allocator_p);
@@ -1896,7 +1896,7 @@ int main(int argc, char *argv[])
         const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
             my_ClassDef rawBuf[2];
-            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
+            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;
             Obj::defaultConstruct(objPtr, TA);
             ASSERT(0  == rawBuf[0].d_value);
             ASSERT(TA == rawBuf[0].d_allocator_p);

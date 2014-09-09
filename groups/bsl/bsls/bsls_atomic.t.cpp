@@ -2201,7 +2201,7 @@ int main(int argc, char *argv[])
         //   bsls::AtomicInt();
         //   ~bsls::AtomicInt()
         //   bsls::AtomicInt& operator= (int value);
-        //   operator int() const;;
+        //   operator int() const;
         //   bsls::AtomicInt64();
         //   ~bsls::AtomicInt64();
         //   bsls::AtomicInt64& operator= (bsls::Types::Int64 value);

@@ -853,8 +853,7 @@ int main(int argc, char *argv[])
         globalVeryVerbose =     veryVerbose;
     globalVeryVeryVerbose = veryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
     switch (test) { case 0:  // zero is always the leading case
       case 12: {
         // --------------------------------------------------------------------

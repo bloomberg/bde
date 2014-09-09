@@ -3038,7 +3038,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout << "\nCreate object x1 using default ctor." << endl;
-        Obj x1(SERIALIZATION_VERSION);;
+        Obj x1(SERIALIZATION_VERSION);
         ASSERT(0 == x1.length());
 
         if (verbose) cout << "\nTry putInt32 with x1." << endl;
