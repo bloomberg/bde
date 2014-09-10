@@ -1183,7 +1183,7 @@ DecimalImpUtil_IntelDfp::ValueType128
 DecimalImpUtil_IntelDfp::binaryToDecimal128(double value)
 {
     ValueType128 result;
-    result.d_raw = __binary80_to_bid128(value);
+    result.d_raw = __binary64_to_bid128(value);
     return result;
 }
 
