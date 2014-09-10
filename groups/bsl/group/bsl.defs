@@ -34,7 +34,7 @@ unix-*-*-*-*    	_       STL_DEFINES     = $(STL_EXCDEFS)
 !! unix-*-*-*-* 	mt      STL_MTDEFS      =
 unix-*-*-*-*    	_       STL_DEFINES     = $(STL_MTDEFS)
 
-# STL_NATIVE* defines explict locations of native STL, used in packages that
+# STL_NATIVE* defines explicit locations of native STL, used in packages that
 # are beneath bsl+stlport until their test drivers no longer use iostreams;
 # set STL_INCLUDE to STL_NATIVEINC and STL_LDFLAGS to STL_NATIVELIB
 unix-dgux		_	STL_NATIVEINC	= -I/usr/local/como/libcomo
@@ -49,7 +49,7 @@ unix-SunOS-*-*-*	_	STL_CXXFLAGS	= -library=no%rwtools7
 *			_	BDE_CFLAGS	= $(STL_DEFINES) $(STL_CFLAGS)
 *			_	BDE_CXXINCLUDE  = $(STL_INCLUDE)
 *			_	BDE_LDFLAGS	= $(STL_LDFLAGS)
-# AIX compiler requires -I directives on link line to do lazy temlate
+# AIX compiler requires -I directives on link line to do lazy template
 # instantiation.  The $(BSL_INCLUDES) variable is not defined in this .opts file
 # but is constructed automatically by the build tool to have -I options for
 # all needed package dependencies (including BSL_INCLUDE (no S) above)

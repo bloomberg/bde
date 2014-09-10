@@ -964,7 +964,7 @@ inline bool isMutable(const TYPE& /* x */) { return false; }
 
 template <template <class TYPE> class ALLOC_TMPLT>
 void testAllocatorConformance(const char* allocName)
-    // Print to the conlsole the specified 'allocName' and then test the
+    // Print to the console the specified 'allocName' and then test the
     // (template parameter) 'ALLOC_TMPLT' allocator class template (as part of
     // testing the test harness).  Instantiating 'ALLOC_TMPLT<AttribClass5>',
     // check that each nested typedef required for C++03 allocators exists and
@@ -972,7 +972,7 @@ void testAllocatorConformance(const char* allocName)
     // that 'rebind<float>::other' is the same as 'ALLOC_TMPLT<float>'.  Invoke
     // each member function and verify the expected behavior.
 {
-    if (verbose) printf("Testing allocator class temlate %s\n", allocName);
+    if (verbose) printf("Testing allocator class template %s\n", allocName);
 
     typedef ALLOC_TMPLT<AttribClass5> Alloc;
 
@@ -1106,7 +1106,7 @@ void testAllocatorConformance(const char* allocName)
 
 template <class TYPE>
 void testAttribClass(const char* className)
-    // Print to the conlsole the specified 'className' and then test the
+    // Print to the console the specified 'className' and then test the
     // specified 'TYPE' attribute class as part of testing the test harness.
     // Invoke each constructor, then test that the object has the expected
     // attributes and allocator.

@@ -55,7 +55,7 @@ BSLS_IDENT("$Id$")
 // represent a large range of real values (although not precisely) while using
 // a fixed (and reasonable) amount of storage.
 //
-// Floating-pont numbers are constructed from a set of significant digits of a
+// Floating-point numbers are constructed from a set of significant digits of a
 // radix on a sliding scale, where their position is determined by an exponent
 // over the same radix.  For example let's see some 32bit decimal (radix 10)
 // floating-point numbers that have maximum 7 significant digits (significand):
