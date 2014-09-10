@@ -48,6 +48,12 @@ BSLS_IDENT("$Id$")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_DECSINGLE
+extern "C" {
+#include <decSingle.h>
+}
+#endif
+
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -1377,7 +1383,14 @@ DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType64  value,
 {
     BSLS_ASSERT(buffer);
 
-    __bid64_to_string(buffer, value.d_raw);
+    buffer[0] = 0;
+
+
+    value.d_raw = __bid_to_dpd64(value.d_raw);
+    decDouble dpdValue;
+    bsl::memcpy(&dpdValue, &value, sizeof(decDouble));
+
+    decDoubleToString(&dpdValue, buffer);
 }
 
 inline
@@ -1387,7 +1400,13 @@ DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType128  value,
 {
     BSLS_ASSERT(buffer);
 
-    __bid128_to_string(buffer, value.d_raw);
+    buffer[0] = 0;
+
+    value.d_raw = __bid_to_dpd128(value.d_raw);
+    decQuad dpdValue;
+    bsl::memcpy(&dpdValue, &value, sizeof(decQuad));
+
+    decQuadToString(&dpdValue, buffer);
 }
 
 }  // close package namespace
