@@ -17,8 +17,7 @@ int main(int argc, char *argv[])
 {
     int test = argc > 1 ? atoi(argv[1]) : 0;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
     switch (test) {
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -478,8 +478,7 @@ int main(int argc, char* argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
     bslma::TestAllocator  ta(veryVeryVeryVerbose);
     bslma::TestAllocator *pa = &ta;
 
