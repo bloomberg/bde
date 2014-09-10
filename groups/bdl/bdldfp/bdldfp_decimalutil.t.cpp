@@ -905,9 +905,13 @@ int main(int argc, char* argv[])
                 for (  int tiE = 0; tiE < numExps;      ++tiE) {
                     const TYPE value =
                         makeNumber(mantissas[tiM], exps[tiE]);
+                    const int quantum = Util::quantum(value);
 
                     // Test the value of what quantum returns:
-                    ASSERT(Util::quantum(value) == exps[tiE]);
+                    LOOP6_ASSERT(tiM, tiE, mantissas[tiM], exps[tiE],
+                                 value, quantum,
+                                 quantum == exps[tiE]);
+                    BSLMF_ASSERT(BDLDFP_DECIMALPLATFORM_INTELDFP);
                 }
             }
         }
@@ -2654,7 +2658,7 @@ int main(int argc, char* argv[])
             typedef bsl::numeric_limits<Tested> NumLim;
             #define DECLIT(x) BDLDFP_DECIMAL_DL(x)
 
-            const Tested anInt(DECLIT(1234567890123456789012345678901234.0));
+            const Tested anInt(DECLIT(123456789012345678901234567890123.0));
             const Tested oNaNq(NumLim::quiet_NaN());
             const Tested oNaNs(NumLim::signaling_NaN());
             const Tested oZeroP(DECLIT(0.0));
