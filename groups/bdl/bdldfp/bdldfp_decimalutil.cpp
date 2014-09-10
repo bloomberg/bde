@@ -795,7 +795,9 @@ int DecimalUtil::quantum(Decimal128 x)
     BID_UINT64 sign;
     int exponent;
     BID_UINT128 coeff;
-    unpack_BID128_value(&sign, &exponent, &coeff, x.data()->d_raw);
+    BID_UINT128 raw = x.data()->d_raw;
+    BID_SWAP128(raw);
+    unpack_BID128_value(&sign, &exponent, &coeff, raw);
     return exponent - DECIMAL_EXPONENT_BIAS_128;
 #else
 BDLDFP_DISABLE_COMPILE; // Unsupported platform
