@@ -34,9 +34,7 @@ extern "C" {
 #define BDLDFP_DISABLE_COMPILE BSLMF_ASSERT(false)
 
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
-extern "C" {
-#  include <bid_internal.h>
-}
+#include <bdldfp_intelimpwrapper.h>
 #endif
 
 

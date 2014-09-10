@@ -38,7 +38,9 @@ BSLS_IDENT("$Id$")
 #include <bsls_platform.h>
 #endif
 
-#  if !defined(INCLUDED_BID_FUNCTIONS) && !defined(INCLUDED_BID_CONF)
+#  if !defined(INCLUDED_BID_FUNCTIONS) \
+   && !defined(INCLUDED_BID_CONF) \
+   && !defined(INCLUDED_BID_INTERNAL)
 
 // Controlling macros for the intel library configuration
 
@@ -72,6 +74,7 @@ BSLS_IDENT("$Id$")
      extern "C" {
 #     include <bid_conf.h>
 #     include <bid_functions.h>
+#     include <bid_internal.h>
      }
 
 #    undef DECIMAL_CALL_BY_REFERENCE
@@ -86,6 +89,7 @@ BSLS_IDENT("$Id$")
 
 #    define INCLUDED_BID_CONF
 #    define INCLUDED_BID_FUNCTIONS
+#    define INCLUDED_BID_INTERNAL
 #  endif
 
 #endif
