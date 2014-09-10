@@ -1385,12 +1385,7 @@ DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType64  value,
 
     buffer[0] = 0;
 
-
-    value.d_raw = __bid_to_dpd64(value.d_raw);
-    decDouble dpdValue;
-    bsl::memcpy(&dpdValue, &value, sizeof(decDouble));
-
-    decDoubleToString(&dpdValue, buffer);
+    __bid64_to_string(buffer, value.d_raw);
 }
 
 inline
@@ -1402,11 +1397,7 @@ DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType128  value,
 
     buffer[0] = 0;
 
-    value.d_raw = __bid_to_dpd128(value.d_raw);
-    decQuad dpdValue;
-    bsl::memcpy(&dpdValue, &value, sizeof(decQuad));
-
-    decQuadToString(&dpdValue, buffer);
+    __bid128_to_string(buffer, value.d_raw);
 }
 
 }  // close package namespace
