@@ -648,7 +648,7 @@ int main(int argc, char* argv[])
             Util::decimalFromNetwork(&d64, buffer);
             LOOP2_ASSERT(d64, h_d64, d64 == h_d64);
 
-            unsigned int rawData = 0x263934B9C1E28E56llu;
+            unsigned long long rawData = 0x263934B9C1E28E56llu;
 
             Util::decimalToDenselyPacked(buffer, h_d64);
             ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
