@@ -2015,14 +2015,16 @@ list<VALUE, ALLOCATOR>::size_ref() const
 // 23.3.5.2 construct/copy/destroy:
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(const ALLOCATOR& basicAllocator)
-: d_alloc_and_size(basicAllocator, 0)
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, 0)
 {
     create_sentinel();
 }
 
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(size_type n)
-: d_alloc_and_size(ALLOCATOR(), size_type(-1))
+: d_sentinel()
+, d_alloc_and_size(ALLOCATOR(), size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2043,7 +2045,8 @@ template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(size_type n,
                              const VALUE& value,
                              const ALLOCATOR& basicAllocator)
-: d_alloc_and_size(basicAllocator, size_type(-1))
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2055,7 +2058,8 @@ list<VALUE, ALLOCATOR>::list(size_type n,
 
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(const list& original)
-: d_alloc_and_size(
+: d_sentinel()
+, d_alloc_and_size(
       AllocTraits::select_on_container_copy_construction(original.allocator()),
       size_type(-1))
 {
@@ -2073,7 +2077,8 @@ list<VALUE, ALLOCATOR>::list(const list& original)
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(const list&      original,
                              const ALLOCATOR& basicAllocator)
-: d_alloc_and_size(basicAllocator, size_type(-1))
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
@@ -2089,7 +2094,8 @@ list<VALUE, ALLOCATOR>::list(const list&      original,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(list&& original)
-: d_alloc_and_size(original.allocator(), 0)
+: d_sentinel()
+, d_alloc_and_size(original.allocator(), 0)
 {
     // Allocator should be copied, not moved, to ensure identical allocators
     // between this and 'original', otherwise 'swap' will be undefined.
@@ -2100,7 +2106,8 @@ list<VALUE, ALLOCATOR>::list(list&& original)
 
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>::list(list&& original, const ALLOCATOR& basicAllocator)
-: d_alloc_and_size(basicAllocator, size_type(-1))
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, size_type(-1))
 {
     // '*this' is in an invalid but destructible state (size == -1).
 
