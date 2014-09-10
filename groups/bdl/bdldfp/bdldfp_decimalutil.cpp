@@ -10,8 +10,6 @@
 #endif
 BSLS_IDENT("$Id$")
 
-#include <bdldfp_bufferbuf.h>
-
 #include <bdldfp_decimalplatform.h>
 
 #include <bsl_cmath.h>
@@ -51,9 +49,49 @@ namespace bdldfp {
 namespace {
 
 
-                      // parse helper functions
+                    // ===============
+                    // class BufferBuf
+                    // ===============
 
-namespace {
+template <int Size>
+class BufferBuf : public bsl::streambuf {
+    // A static (capacity) stream buffer helper
+
+    char d_buf[Size + 1];  // Text plus closing NUL character
+
+  public:
+    // CREATORS
+    BufferBuf();
+        // Create an empty 'BufferBuf'.
+
+    // MANIPULATORS
+    void reset();
+        // Clear this buffer (make it empty).
+
+    const char *str();
+        // Return a pointer to a non-modifiable, NUL-terminated string of
+        // characters that is the content of this buffer.
+};
+
+                    // ---------------
+                    // class BufferBuf
+                    // ---------------
+
+template <int Size>
+inline
+BufferBuf<Size>::BufferBuf()
+{
+    reset();
+}
+
+template <int Size>
+inline
+void BufferBuf<Size>::reset()
+{
+    this->setp(this->d_buf, this->d_buf + Size);
+}
+
+                      // parse helper functions
 
 int parseDecimal(Decimal32 *o, const char *s)
 {
@@ -69,8 +107,6 @@ int parseDecimal(Decimal128 *o, const char *s)
 {
     return DecimalUtil::parseDecimal128(o,s);
 }
-
-}  // close unnamed namespace
 
 template <class DECIMAL_TYPE, class COEFFICIENT_TYPE>
 inline
