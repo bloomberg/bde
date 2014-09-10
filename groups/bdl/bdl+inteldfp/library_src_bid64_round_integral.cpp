@@ -12,6 +12,12 @@
 #  define __QNX__
 #endif
 
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+#define BID_BIG_ENDIAN 1
+#else
+#define BID_BIG_ENDIAN 0
+#endif
+
 
 extern "C" {
   #include "LIBRARY/src/bid64_round_integral.c"
