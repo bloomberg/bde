@@ -4310,8 +4310,7 @@ int main(int argc, char *argv[])
         ASSERT(!(ptrNilFun() && *ptrNilFun() != *ptr1));
 
 #if 0
-        if (verbose) printf("Should not compile.\n\n");;
-
+        if (verbose) printf("Should not compile.\n\n");
         // COMPARISON SHR PTR TO INT
         ASSERT(ptrNil != 1);
         ASSERT(ptr1 == 1);
@@ -4324,7 +4323,7 @@ int main(int argc, char *argv[])
         ASSERT(1 != ptrNil);
         ASSERT(1 == ptr1);
         ASSERT(2 != ptrNil);
-        ASSERT(2 == ptr1);  printf("r on CC, error on x.\n\n");;
+        ASSERT(2 == ptr1);  printf("r on CC, error on x.\n\n");
 #endif
 
       } break;
@@ -4725,8 +4724,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(1 == numDeletes1);
 
-        if (verbose) printf("\tWith mix of allocators.\n");;
-
+        if (verbose) printf("\tWith mix of allocators.\n");
         bslma::TestAllocator da(veryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultGuard(&da);
 
@@ -4773,8 +4771,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(1 == numDeletes1);
 
-        if (verbose) printf("\tWith mix of deleters.\n");;
-
+        if (verbose) printf("\tWith mix of deleters.\n");
         numDeletes1 = 0;
         numDeletes = 0;
         {

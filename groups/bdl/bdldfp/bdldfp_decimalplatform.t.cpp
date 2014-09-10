@@ -145,8 +145,7 @@ int main(int argc, char* argv[])
 //    int     veryVerbose = argc > 3;
 
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
     switch (test) { case 0:
     case 4: {
         // --------------------------------------------------------------------

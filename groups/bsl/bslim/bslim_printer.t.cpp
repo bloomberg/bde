@@ -592,8 +592,7 @@ int main(int argc, char *argv[])
     int     veryVeryVerbose = argc > 4;
     int veryVeryVeryVerbose = argc > 4;
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
-
+    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
     switch (test) { case 0:  // Zero is always the leading case.
       case 20: {
         // --------------------------------------------------------------------
