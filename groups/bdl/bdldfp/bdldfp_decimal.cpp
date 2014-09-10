@@ -5,7 +5,6 @@
 
 #define BDLDFP_DISABLE_COMPILE BSLMF_ASSERT(false);
 
-#ifndef BDLDFP_DECIMAL_SUN_WORKAROUND
 
 
 // For better ways of binary-decimal FP conversion see:
@@ -818,9 +817,9 @@ bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
 #   define BDLDFP_DECIMAL_RESTORE_STD
 #endif
 
-            // --------------------------------------------------
+            // ---------------------------------------------------
             // std::numeric_limits<BloombergLP::bdldfp::Decimal32>
-            // --------------------------------------------------
+            // ---------------------------------------------------
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min()
@@ -975,9 +974,9 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-            // --------------------------------------------------
+            // ---------------------------------------------------
             // std::numeric_limits<BloombergLP::bdldfp::Decimal64>
-            // --------------------------------------------------
+            // ---------------------------------------------------
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min()
@@ -1138,9 +1137,9 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-            // ---------------------------------------------------
+            // ----------------------------------------------------
             // std::numeric_limits<BloombergLP::bdldfp::Decimal128>
-            // ---------------------------------------------------
+            // ----------------------------------------------------
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min()
@@ -1298,113 +1297,9 @@ BDLDFP_DISABLE_COMPILE; // Unsupported platform
 #endif
 }
 
-// Microsoft has non-standard behavior
-
-#ifndef BSLS_PLATFORM_CMP_MSVC
-
-      // Definitions of const static data memberss of numeric_limits<>
-
-const bool
-     std::numeric_limits<
-        BloombergLP::bdldfp::Decimal_StandardNamespaceCanary>::is_specialized;
-
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_specialized;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::digits;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::digits10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max_digits10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_signed;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_integer;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_exact;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::radix;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min_exponent10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max_exponent10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_infinity;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_quiet_NaN;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_signaling_NaN;
-const std::float_denorm_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_denorm;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_denorm_loss;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_iec559;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_bounded;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_modulo;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::traps;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::tinyness_before;
-const std::float_round_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::round_style;
-
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_specialized;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::digits;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::digits10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max_digits10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_signed;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_integer;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_exact;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::radix;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min_exponent10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max_exponent10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_infinity;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_quiet_NaN;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_signaling_NaN;
-const std::float_denorm_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_denorm;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_denorm_loss;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_iec559;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_bounded;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_modulo;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::traps;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::tinyness_before;
-const std::float_round_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::round_style;
-
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_specialized;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::digits;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::digits10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max_digits10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_signed;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_integer;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_exact;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::radix;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min_exponent10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max_exponent10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_infinity;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_quiet_NaN;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_signaling_NaN;
-const std::float_denorm_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_denorm;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_denorm_loss;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_iec559;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_bounded;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_modulo;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::traps;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::tinyness_before;
-const std::float_round_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::round_style;
-
-#endif // Microsoft is non-standard
-
-
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)
 #   define std bsl
 #   undef BDLDFP_DECIMAL_RESTORE_STD
-#endif
-
-// The endif is for the Sun compiler workaround
 #endif
 
 // ----------------------------------------------------------------------------

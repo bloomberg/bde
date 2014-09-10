@@ -3436,21 +3436,22 @@ class Decimal_StandardNamespaceCanary {
     // name of the standard namespace.  Do not use it.
 };
 
-}  // close package namespace
-}  // close enterprise namespace
+             // =======================================================
+             // template<...> class faux_numeric_limits<NUMERIC, DUMMY>
+             // =======================================================
 
-#if defined(BSL_OVERRIDES_STD) && defined(std)
-#   undef std
-#   define BDLDFP_DECIMAL_RESTORE_STD
-#endif
-namespace std {
+template<typename NUMERIC, typename DUMMY = void>
+class faux_numeric_limits;
+    // This class is used as a base-class for manifest constants in the
+    // 'std::numeric_limits' specializations to overcome a Sun compiler issue.
 
-   // ========================================================================
-   // template<> class numeric_limits<bdldfp::Decimal_StandardNamespaceCanary>
-   // ========================================================================
+             // ===============================================================
+             // class faux_numeric_limits<Decimal_StandardNamespaceCanary, ...>
+             // ===============================================================
 
-template<>
-class numeric_limits<BloombergLP::bdldfp::Decimal_StandardNamespaceCanary> {
+template<typename DUMMY>
+class faux_numeric_limits<Decimal_StandardNamespaceCanary, DUMMY>
+{
     // Explicit full specialization of the standard "traits" template
     // 'std::numeric_limits' for the type
     // 'BloombergLP::bdldfp::Decimal_StandardNamespaceCanary'.  Note that this
@@ -3464,12 +3465,12 @@ class numeric_limits<BloombergLP::bdldfp::Decimal_StandardNamespaceCanary> {
         // numeric type.
 };
 
-             // ==================================================
-             // template<> class numeric_limits<bdldfp::Decimal32>
-             // ==================================================
+             // =========================================================
+             // template<...> class faux_numeric_limits<Decimal32, DUMMY>
+             // =========================================================
 
-template<>
-class numeric_limits<BloombergLP::bdldfp::Decimal32> {
+template<typename DUMMY>
+class faux_numeric_limits<BloombergLP::bdldfp::Decimal32, DUMMY> {
         // Explicit full specialization of the standard "traits" template
         // 'std::numeric_limits' for the type 'BloombergLP::bdldfp::Decimal32'.
 
@@ -3480,15 +3481,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32> {
         // 'std::numeric_limits<BloombergLP::bdldfp::Decimal32>' is
         // meaningfully specialized.  Also means that
         // 'BloombergLP::bdldfp::Decimal32' is a numeric type.
-
-    // CLASS METHODS
-    static BloombergLP::bdldfp::Decimal32 min() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number
-        // 'BloombergLP::bdldfp::Decimal32' can represent (IEEE-754: +1e-95).
-
-    static BloombergLP::bdldfp::Decimal32 max() BSLS_NOTHROW_SPEC;
-        // Return the largest number 'BloombergLP::bdldfp::Decimal32' can
-        // represent (IEEE-754: +9.999999e+96).
 
     static const int digits = 7;
         // The maximum number of significant digits, in the native (10) radix
@@ -3520,15 +3512,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32> {
 
     static const int radix = 10;
         // The base for 'BloombergLP::bdldfp::Decimal32' is decimal or 10.
-
-    static BloombergLP::bdldfp::Decimal32 epsilon() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the 'BloombergLP::bdldfp::Decimal32' type.  (IEEE-754: +1e-6)
-
-    static BloombergLP::bdldfp::Decimal32 round_error() BSLS_NOTHROW_SPEC;
-        // Return the maximum rounding error for the
-        // 'BloombergLP::bdldfp::Decimal32' type.  The actual value returned
-        // depends on the current decimal floating point rounding setting.
 
     static const int min_exponent = -95;
         // The lowest possible negative exponent for the native base of the
@@ -3562,29 +3545,13 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32> {
     static const bool has_signaling_NaN = true;
         // 'BloombergLP::bdldfp::Decimal32' can be a signaling Not a Number.
 
-    static const float_denorm_style has_denorm = denorm_present;
+    static const std::float_denorm_style has_denorm = std::denorm_present;
         // 'BloombergLP::bdldfp::Decimal32' may contain denormal values.
 
     static const bool has_denorm_loss = true;
         // 'BloombergLP::bdldfp::Decimal32' is able to distinguish loss of
         // precision (floating-point underflow) due to denormalization from
         // other causes.
-
-    static BloombergLP::bdldfp::Decimal32 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'BloombergLP::bdldfp::Decimal32' type.  (IEEE-754: +0.000001E-95)
-
-    static BloombergLP::bdldfp::Decimal32 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
-        // 'BloombergLP::bdldfp::Decimal32' type.
-
-    static BloombergLP::bdldfp::Decimal32 quiet_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents non-signaling NaN for the
-        // 'BloombergLP::bdldfp::Decimal32' type.
-
-    static BloombergLP::bdldfp::Decimal32 signaling_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents signaling NaN for the
-        // 'BloombergLP::bdldfp::Decimal32' type.
 
     static const bool is_bounded = true;
         // Decimal floating-point types represent a finite set of values.
@@ -3605,17 +3572,17 @@ class numeric_limits<BloombergLP::bdldfp::Decimal32> {
 
                         // Rounding style
 
-    static const float_round_style round_style = round_indeterminate;
+    static const std::float_round_style round_style = std::round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
         // by the C and C++ Decimal TRs.
 };
 
-             // ==================================================
-             // template<> class numeric_limits<bdldfp::Decimal64>
-             // ==================================================
+             // =========================================================
+             // template<...> class faux_numeric_limits<Decimal64, DUMMY>
+             // =========================================================
 
-template<>
-class numeric_limits<BloombergLP::bdldfp::Decimal64> {
+template<typename DUMMY>
+class faux_numeric_limits<BloombergLP::bdldfp::Decimal64, DUMMY> {
         // Explicit full specialization of the standard "traits" template
         // 'std::numeric_limits' for the type 'BloombergLP::bdldfp::Decimal64'.
 
@@ -3626,15 +3593,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64> {
         // 'std::numeric_limits<BloombergLP::bdldfp::Decimal64>' is
         // meaningfully specialized.  Also means that
         // 'BloombergLP::bdldfp::Decimal64' is a numeric type.
-
-    // CLASS METHODS
-    static BloombergLP::bdldfp::Decimal64 min() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number
-        // 'BloombergLP::bdldfp::Decimal64' can represent (IEEE-754: +1e-383).
-
-    static BloombergLP::bdldfp::Decimal64 max() BSLS_NOTHROW_SPEC;
-        // Return the largest number 'BloombergLP::bdldfp::Decimal64' can
-        // represent (IEEE-754: +9.999999999999999e+384).
 
     static const int digits = 16;
         // The maximum number of significant digits, in the native (10) radix
@@ -3666,15 +3624,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64> {
 
     static const int radix = 10;
         // The base for 'BloombergLP::bdldfp::Decimal64' is decimal or 10.
-
-    static BloombergLP::bdldfp::Decimal64 epsilon() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the 'BloombergLP::bdldfp::Decimal64' type.  (IEEE-754: +1e-15)
-
-    static BloombergLP::bdldfp::Decimal64 round_error() BSLS_NOTHROW_SPEC;
-        // Return the maximum rounding error for the
-        // 'BloombergLP::bdldfp::Decimal64' type.  The actual value returned
-        // depends on the current decimal floating point rounding setting.
 
     static const int min_exponent = -382;
         // The lowest possible negative exponent for the native base of the
@@ -3708,30 +3657,13 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64> {
     static const bool has_signaling_NaN = true;
         // 'BloombergLP::bdldfp::Decimal64' can be a signaling Not a Number.
 
-    static const float_denorm_style has_denorm = denorm_present;
+    static const std::float_denorm_style has_denorm = std::denorm_present;
         // 'BloombergLP::bdldfp::Decimal64' may contain denormal values.
 
     static const bool has_denorm_loss = true;
         // 'BloombergLP::bdldfp::Decimal64' is able to distinguish loss of
         // precision (floating-point underflow) due to denormalization from
         // other causes.
-
-    static BloombergLP::bdldfp::Decimal64 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'BloombergLP::bdldfp::Decimal64' type.
-        // (IEEE-754: +0.000000000000001e-383)
-
-    static BloombergLP::bdldfp::Decimal64 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
-        // 'BloombergLP::bdldfp::Decimal64' type.
-
-    static BloombergLP::bdldfp::Decimal64 quiet_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents non-signaling NaN for the
-        // 'BloombergLP::bdldfp::Decimal64' type.
-
-    static BloombergLP::bdldfp::Decimal64 signaling_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents signaling NaN for the
-        // 'BloombergLP::bdldfp::Decimal64' type.
 
     static const bool is_iec559 = false;
         // Decimal floating-point is not covered by the IEC 559 standard.
@@ -3750,17 +3682,17 @@ class numeric_limits<BloombergLP::bdldfp::Decimal64> {
         // Decimal floating-point types are able to detect if a value is too
         // small to represent as a normalized value before rounding it.
 
-    static const float_round_style round_style = round_indeterminate;
+    static const std::float_round_style round_style = std::round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
         // by the C and C++ Decimal TRs.
 };
 
-             // ===================================================
-             // template<> class numeric_limits<bdldfp::Decimal128>
-             // ===================================================
+             // ==========================================================
+             // template<...> class faux_numeric_limits<Decimal128, DUMMY>
+             // ==========================================================
 
-template<>
-class numeric_limits<BloombergLP::bdldfp::Decimal128> {
+template<typename DUMMY>
+class faux_numeric_limits<BloombergLP::bdldfp::Decimal128, DUMMY> {
         // Explicit full specialization of the standard "traits" template
         // 'std::numeric_limits' for the type
         // 'BloombergLP::bdldfp::Decimal128'.
@@ -3772,16 +3704,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
         // 'std::numeric_limits<BloombergLP::bdldfp::Decimal128>' is
         // meaningfully specialized.  Also means that
         // 'BloombergLP::bdldfp::Decimal128' is a numeric type.
-
-    // CLASS METHODS
-    static BloombergLP::bdldfp::Decimal128 min() BSLS_NOTHROW_SPEC;
-        // Return the smallest positive (also non-zero) number
-        // 'BloombergLP::bdldfp::Decimal128' can represent (IEEE-754:
-        // +1e-6143).
-
-    static BloombergLP::bdldfp::Decimal128 max() BSLS_NOTHROW_SPEC;
-        // Return the largest number 'BloombergLP::bdldfp::Decimal128' can
-        // represent (IEEE-754: +9.999999999999999999999999999999999e+6144).
 
     static const int digits = 34;
         // The maximum number of significant digits, in the native (10) radix
@@ -3813,15 +3735,6 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
 
     static const int radix = 10;
         // The base for 'BloombergLP::bdldfp::Decimal128' is decimal or 10.
-
-    static BloombergLP::bdldfp::Decimal128 epsilon() BSLS_NOTHROW_SPEC;
-        // Return the difference between 1 and the smallest value representable
-        // by the 'BloombergLP::bdldfp::Decimal128' type.  (IEEE-754: +1e-33)
-
-    static BloombergLP::bdldfp::Decimal128 round_error() BSLS_NOTHROW_SPEC;
-        // Return the maximum rounding error for the
-        // 'BloombergLP::bdldfp::Decimal128' type.  The actual value returned
-        // depends on the current decimal floating point rounding setting.
 
     static const int min_exponent = -6142;
         // The lowest possible negative exponent for the native base of the
@@ -3855,30 +3768,13 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
     static const bool has_signaling_NaN = true;
         // 'BloombergLP::bdldfp::Decimal128' can be a signaling Not a Number.
 
-    static const float_denorm_style has_denorm = denorm_present;
+    static const std::float_denorm_style has_denorm = std::denorm_present;
         // 'BloombergLP::bdldfp::Decimal128' may contain denormal values.
 
     static const bool has_denorm_loss = true;
         // 'BloombergLP::bdldfp::Decimal128' is able to distinguish loss of
         // precision (floating-point underflow) due to denormalization from
         // other causes.
-
-    static BloombergLP::bdldfp::Decimal128 denorm_min() BSLS_NOTHROW_SPEC;
-        // Return the smallest non-zero denormalized value for the
-        // 'BloombergLP::bdldfp::Decimal128' type.
-        // (IEEE-754: +0.000000000000000000000000000000001e-6143)
-
-    static BloombergLP::bdldfp::Decimal128 infinity() BSLS_NOTHROW_SPEC;
-        // Return the the value that represents positive infinity for the
-        // 'BloombergLP::bdldfp::Decimal128' type.
-
-    static BloombergLP::bdldfp::Decimal128 quiet_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents non-signaling NaN for the
-        // 'BloombergLP::bdldfp::Decimal128' type.
-
-    static BloombergLP::bdldfp::Decimal128 signaling_NaN() BSLS_NOTHROW_SPEC;
-        // Return a value that represents signaling NaN for the
-        // 'BloombergLP::bdldfp::Decimal128' type.
 
     static const bool is_iec559 = false;
         // Decimal floating-point is not covered by the IEC 559 standard.
@@ -3897,21 +3793,412 @@ class numeric_limits<BloombergLP::bdldfp::Decimal128> {
         // Decimal floating-point types are able to detect if a value is too
         // small to represent as a normalized value before rounding it.
 
-    static const float_round_style round_style = round_indeterminate;
+    static const std::float_round_style round_style = std::round_indeterminate;
         // Decimal floating-point rounding style is defined to be indeterminate
         // by the C and C++ Decimal TRs.
+
+};
+
+                        // --------------------------------------------------
+                        // faux_numeric_limits<Decimal32, ...> member storage
+                        // --------------------------------------------------
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::is_specialized;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal32, DUMMY>::digits;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal32, DUMMY>::digits10;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal32, DUMMY>::max_digits10;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::is_signed;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::is_integer;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::is_exact;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal32, DUMMY>::radix;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal32, DUMMY>::min_exponent;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal32, DUMMY>::min_exponent10;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal32, DUMMY>::max_exponent;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal32, DUMMY>::max_exponent10;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::has_infinity;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::has_quiet_NaN;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::has_signaling_NaN;
+
+template<typename DUMMY>
+const std::float_denorm_style faux_numeric_limits<Decimal32, DUMMY>::has_denorm;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::has_denorm_loss;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::is_iec559;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::is_bounded;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::is_modulo;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::traps;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal32, DUMMY>::tinyness_before;
+
+template<typename DUMMY>
+const std::float_round_style faux_numeric_limits<Decimal32, DUMMY>::round_style;
+
+                        // --------------------------------------------------
+                        // faux_numeric_limits<Decimal64, ...> member storage
+                        // --------------------------------------------------
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::is_specialized;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal64, DUMMY>::digits;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal64, DUMMY>::digits10;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal64, DUMMY>::max_digits10;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::is_signed;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::is_integer;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::is_exact;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal64, DUMMY>::radix;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal64, DUMMY>::min_exponent;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal64, DUMMY>::min_exponent10;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal64, DUMMY>::max_exponent;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal64, DUMMY>::max_exponent10;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::has_infinity;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::has_quiet_NaN;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::has_signaling_NaN;
+
+template<typename DUMMY>
+const std::float_denorm_style faux_numeric_limits<Decimal64, DUMMY>::has_denorm;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::has_denorm_loss;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::is_iec559;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::is_bounded;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::is_modulo;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::traps;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal64, DUMMY>::tinyness_before;
+
+template<typename DUMMY>
+const std::float_round_style faux_numeric_limits<Decimal64, DUMMY>::round_style;
+
+                        // ---------------------------------------------------
+                        // faux_numeric_limits<Decimal128, ...> member storage
+                        // ---------------------------------------------------
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::is_specialized;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal128, DUMMY>::digits;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal128, DUMMY>::digits10;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal128, DUMMY>::max_digits10;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::is_signed;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::is_integer;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::is_exact;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal128, DUMMY>::radix;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal128, DUMMY>::min_exponent;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal128, DUMMY>::min_exponent10;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal128, DUMMY>::max_exponent;
+
+template<typename DUMMY>
+const int faux_numeric_limits<Decimal128, DUMMY>::max_exponent10;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::has_infinity;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::has_quiet_NaN;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::has_signaling_NaN;
+
+template<typename DUMMY>
+const std::float_denorm_style faux_numeric_limits<Decimal128, DUMMY>::has_denorm;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::has_denorm_loss;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::is_iec559;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::is_bounded;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::is_modulo;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::traps;
+
+template<typename DUMMY>
+const bool faux_numeric_limits<Decimal128, DUMMY>::tinyness_before;
+
+template<typename DUMMY>
+const std::float_round_style faux_numeric_limits<Decimal128, DUMMY>::round_style;
+
+}  // close package namespace
+}  // close enterprise namespace
+
+#if defined(BSL_OVERRIDES_STD) && defined(std)
+#   undef std
+#   define BDLDFP_DECIMAL_RESTORE_STD
+#endif
+namespace std {
+
+   // ========================================================================
+   // template<> class numeric_limits<bdldfp::Decimal_StandardNamespaceCanary>
+   // ========================================================================
+
+template<>
+class numeric_limits<BloombergLP::bdldfp::Decimal_StandardNamespaceCanary>
+    : public BloombergLP::bdldfp::faux_numeric_limits<
+        BloombergLP::bdldfp::Decimal_StandardNamespaceCanary> {
+    // Explicit full specialization of the standard "traits" template
+    // 'std::numeric_limits' for the type
+    // 'BloombergLP::bdldfp::Decimal_StandardNamespaceCanary'.  Note that this
+    // specialization is required for technical reasons and it is identical to
+    // the non-specialized default traits.
+};
+
+             // ==================================================
+             // template<> class numeric_limits<bdldfp::Decimal32>
+             // ==================================================
+
+template<>
+class numeric_limits<BloombergLP::bdldfp::Decimal32>
+    : public BloombergLP::bdldfp::faux_numeric_limits<
+        BloombergLP::bdldfp::Decimal32> {
+        // Explicit full specialization of the standard "traits" template
+        // 'std::numeric_limits' for the type 'BloombergLP::bdldfp::Decimal32'.
+
+  public:
+    // CLASS METHODS
+    static BloombergLP::bdldfp::Decimal32 min() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number
+        // 'BloombergLP::bdldfp::Decimal32' can represent (IEEE-754: +1e-95).
+
+    static BloombergLP::bdldfp::Decimal32 max() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'BloombergLP::bdldfp::Decimal32' can
+        // represent (IEEE-754: +9.999999e+96).
+
+    static BloombergLP::bdldfp::Decimal32 epsilon() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the 'BloombergLP::bdldfp::Decimal32' type.  (IEEE-754: +1e-6)
+
+    static BloombergLP::bdldfp::Decimal32 round_error() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the
+        // 'BloombergLP::bdldfp::Decimal32' type.  The actual value returned
+        // depends on the current decimal floating point rounding setting.
+
+    static BloombergLP::bdldfp::Decimal32 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'BloombergLP::bdldfp::Decimal32' type.  (IEEE-754: +0.000001E-95)
+
+    static BloombergLP::bdldfp::Decimal32 infinity() BSLS_NOTHROW_SPEC;
+        // Return the the value that represents positive infinity for the
+        // 'BloombergLP::bdldfp::Decimal32' type.
+
+    static BloombergLP::bdldfp::Decimal32 quiet_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'BloombergLP::bdldfp::Decimal32' type.
+
+    static BloombergLP::bdldfp::Decimal32 signaling_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the
+        // 'BloombergLP::bdldfp::Decimal32' type.
+};
+
+             // ==================================================
+             // template<> class numeric_limits<bdldfp::Decimal64>
+             // ==================================================
+
+template<>
+class numeric_limits<BloombergLP::bdldfp::Decimal64>
+    : public BloombergLP::bdldfp::faux_numeric_limits<
+        BloombergLP::bdldfp::Decimal64> {
+        // Explicit full specialization of the standard "traits" template
+        // 'std::numeric_limits' for the type 'BloombergLP::bdldfp::Decimal64'.
+
+  public:
+    // CLASS METHODS
+    static BloombergLP::bdldfp::Decimal64 min() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number
+        // 'BloombergLP::bdldfp::Decimal64' can represent (IEEE-754: +1e-383).
+
+    static BloombergLP::bdldfp::Decimal64 max() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'BloombergLP::bdldfp::Decimal64' can
+        // represent (IEEE-754: +9.999999999999999e+384).
+
+    static BloombergLP::bdldfp::Decimal64 epsilon() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the 'BloombergLP::bdldfp::Decimal64' type.  (IEEE-754: +1e-15)
+
+    static BloombergLP::bdldfp::Decimal64 round_error() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the
+        // 'BloombergLP::bdldfp::Decimal64' type.  The actual value returned
+        // depends on the current decimal floating point rounding setting.
+
+    static BloombergLP::bdldfp::Decimal64 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'BloombergLP::bdldfp::Decimal64' type.
+        // (IEEE-754: +0.000000000000001e-383)
+
+    static BloombergLP::bdldfp::Decimal64 infinity() BSLS_NOTHROW_SPEC;
+        // Return the the value that represents positive infinity for the
+        // 'BloombergLP::bdldfp::Decimal64' type.
+
+    static BloombergLP::bdldfp::Decimal64 quiet_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'BloombergLP::bdldfp::Decimal64' type.
+
+    static BloombergLP::bdldfp::Decimal64 signaling_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the
+        // 'BloombergLP::bdldfp::Decimal64' type.
+
+};
+
+             // ===================================================
+             // template<> class numeric_limits<bdldfp::Decimal128>
+             // ===================================================
+
+template<>
+class numeric_limits<BloombergLP::bdldfp::Decimal128>
+    : public BloombergLP::bdldfp::faux_numeric_limits<
+        BloombergLP::bdldfp::Decimal128> {
+        // Explicit full specialization of the standard "traits" template
+        // 'std::numeric_limits' for the type
+        // 'BloombergLP::bdldfp::Decimal128'.
+
+  public:
+    // CLASS METHODS
+    static BloombergLP::bdldfp::Decimal128 min() BSLS_NOTHROW_SPEC;
+        // Return the smallest positive (also non-zero) number
+        // 'BloombergLP::bdldfp::Decimal128' can represent (IEEE-754:
+        // +1e-6143).
+
+    static BloombergLP::bdldfp::Decimal128 max() BSLS_NOTHROW_SPEC;
+        // Return the largest number 'BloombergLP::bdldfp::Decimal128' can
+        // represent (IEEE-754: +9.999999999999999999999999999999999e+6144).
+
+    static BloombergLP::bdldfp::Decimal128 epsilon() BSLS_NOTHROW_SPEC;
+        // Return the difference between 1 and the smallest value representable
+        // by the 'BloombergLP::bdldfp::Decimal128' type.  (IEEE-754: +1e-33)
+
+    static BloombergLP::bdldfp::Decimal128 round_error() BSLS_NOTHROW_SPEC;
+        // Return the maximum rounding error for the
+        // 'BloombergLP::bdldfp::Decimal128' type.  The actual value returned
+        // depends on the current decimal floating point rounding setting.
+
+    static BloombergLP::bdldfp::Decimal128 denorm_min() BSLS_NOTHROW_SPEC;
+        // Return the smallest non-zero denormalized value for the
+        // 'BloombergLP::bdldfp::Decimal128' type.
+        // (IEEE-754: +0.000000000000000000000000000000001e-6143)
+
+    static BloombergLP::bdldfp::Decimal128 infinity() BSLS_NOTHROW_SPEC;
+        // Return the the value that represents positive infinity for the
+        // 'BloombergLP::bdldfp::Decimal128' type.
+
+    static BloombergLP::bdldfp::Decimal128 quiet_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents non-signaling NaN for the
+        // 'BloombergLP::bdldfp::Decimal128' type.
+
+    static BloombergLP::bdldfp::Decimal128 signaling_NaN() BSLS_NOTHROW_SPEC;
+        // Return a value that represents signaling NaN for the
+        // 'BloombergLP::bdldfp::Decimal128' type.
+
 };
 
 }  // close std namespace
-
-// ============================================================================
-//                              INLINE DEFINITIONS
-// ============================================================================
 
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)
 #   define std bsl
 #   undef BDLDFP_DECIMAL_RESTORE_STD
 #endif
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
 
                     // THE DECIMAL FLOATING-POINT TYPES
 
