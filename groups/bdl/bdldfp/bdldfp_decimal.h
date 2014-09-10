@@ -3923,8 +3923,8 @@ namespace bdldfp {
 
 inline
 Decimal_Type32::Decimal_Type32()
-: d_value()
 {
+    bsl::memset(&d_value, 0, sizeof(d_value));
 }
 
 inline
@@ -4020,8 +4020,8 @@ DecimalImpUtil::ValueType32 Decimal_Type32::value() const
 // CREATORS
 inline
 Decimal_Type64::Decimal_Type64()
-: d_value()
 {
+    bsl::memset(&d_value, 0, sizeof(d_value));
 }
 
 inline
@@ -4327,8 +4327,8 @@ inline DecimalImpUtil::ValueType64 Decimal_Type64::value() const
 
 inline
 Decimal_Type128::Decimal_Type128()
-: d_value()
 {
+    bsl::memset(&d_value, 0, sizeof(d_value));
 }
 
 inline
