@@ -36,7 +36,7 @@ unsigned int __bid_flag_mask=0;
 
 
 // bid_convert_table[j][k][i] = digit i (base 10^8) of k*2^(26+7*j)
-const BID_UINT32 bid_convert_table[5][128][2] = {
+BID_EXTERN_C const BID_UINT32 bid_convert_table[5][128][2] = {
   {{0, 0}
    , {67108864, 0}
    , {34217728, 1}
@@ -827,7 +827,7 @@ const BID_UINT32 bid_convert_table[5][128][2] = {
 // int min_j[] = { 0, 0, 0, 3 };
 
 // for even k, ((bid_packed_10000_zeros[k>>3])>>(k&7))&3)=greatest(i) s.t. 10^i divides k
-const BID_UINT8 bid_packed_10000_zeros[] = {
+BID_EXTERN_C const BID_UINT8 bid_packed_10000_zeros[] = {
 
   0x3, 0x4, 0x10, 0x40, 0x0, 0x1, 0x4, 0x10, 0x40, 0x0, 0x1, 0x4, 0x20,
   0x40, 0x0, 0x1,
@@ -989,7 +989,7 @@ const BID_UINT8 bid_packed_10000_zeros[] = {
 };
 
 
-const BID_SINT8 bid_factors[1024][2] = {
+BID_EXTERN_C const BID_SINT8 bid_factors[1024][2] = {
   {0, 0}
   , {1, 0}
   , {0, 0}

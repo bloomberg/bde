@@ -132,6 +132,7 @@
     !defined(wnt)
 
 #   include <sys/signal.h>
+#   include <signal.h>
 #   define DPML_SIGNAL(p)	 raise(SIGFPE)
 
 #else
