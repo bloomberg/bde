@@ -339,8 +339,14 @@ bsl::ostream &operator<<(bsl::ostream &o, const D128& d)
 // memory allocation. Return true iff 's' is a valid 'int' literal.
 bool parseInt(const bsl::string& s, int *result, bslma::TestAllocator *pa)
 {
+    if (s.empty()) return 0;                                          // RETURN
+
     bsl::istringstream ss(s, pa);
-    return !(ss >> *result).fail();
+    long long wider;
+    ss >> wider;
+    if (ss.fail() || wider > INT_MAX || wider < INT_MIN) return false;
+    *result = static_cast<int>(wider);
+    return true;
 }
 
 // Parse an 'unsigned int' literal in the specified 's', returning the result
@@ -353,7 +359,11 @@ bool parseUInt(const bsl::string& s, unsigned int *result,
     if (s.empty()) return 0;                                          // RETURN
     if (s[0] == '-') return 0;                                        // RETURN
     bsl::istringstream ss(s, pa);
-    return !(ss >> *result).fail();
+    unsigned long long wider;
+    ss >> wider;
+    if (ss.fail() || wider > UINT_MAX ) return false;
+    *result = static_cast<unsigned int>(wider);
+    return true;
 }
 
 // Parse a 'long long' literal in the specified 's', returning the result in
@@ -363,8 +373,20 @@ bool parseUInt(const bsl::string& s, unsigned int *result,
 bool parseLL(const bsl::string& s, long long *result,
              bslma::TestAllocator *pa)
 {
+    if (s[0] == '-') {
+        bsl::istringstream ss(s, pa);
+        return !(ss >> *result).fail();                               // RETURN
+    }
+
     bsl::istringstream ss(s, pa);
-    return !(ss >> *result).fail();
+    unsigned long long wider;
+    ss >> wider;
+    if (ss.fail() || wider > static_cast<unsigned long long>(
+                                      bsl::numeric_limits<long long>::max())) {
+        return false;                                                 // RETURN
+    }
+    *result = static_cast<long long>(wider);
+    return true;
 }
 
 // Parse an 'unsigned long long' literal in the specified 's', returning the
