@@ -954,57 +954,57 @@ int main(int argc, char* argv[])
             value = Util::makeDecimalRaw32(0, 0);
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer, Util::equal(value, test));
 
             value = Util::makeDecimalRaw32(-1, 0);
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer, Util::equal(value, test));
 
             value = Util::makeDecimalRaw32(42, 0);
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer, Util::equal(value, test));
 
             value = Util::makeDecimalRaw32(-42, 0);
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer, Util::equal(value, test));
 
             value = Util::makeDecimalRaw32(42, 5);
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw32(-42, 5);
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw32(42, -17);
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw32(-42, -17);
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::convertToDecimal32(Util::makeInfinity64(false));
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::convertToDecimal32(Util::makeInfinity64(true));
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::parse32("NaN");
             Util::format(value, buffer);
             test  = Util::parse32(buffer);
-            ASSERT(!Util::equal(test, test));
+            LOOP_ASSERT(buffer,!Util::equal(test, test));
         }
 
         // Testing 'format(ValueType64, char *)'
@@ -1016,57 +1016,57 @@ int main(int argc, char* argv[])
             value = Util::makeDecimalRaw64(0, 0);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw64(-1, 0);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw64(42, 0);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw64(-42, 0);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw64(42, 5);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw64(-42, 5);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw64(42, -17);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw64(-42, -17);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeInfinity64(false);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeInfinity64(true);
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::parse64("NaN");
             Util::format(value, buffer);
             test  = Util::parse64(buffer);
-            ASSERT(!Util::equal(test, test));
+            LOOP_ASSERT(buffer,!Util::equal(test, test));
         }
 
         // Testing 'format(ValueType128, char *)'
@@ -1078,57 +1078,57 @@ int main(int argc, char* argv[])
             value = Util::makeDecimalRaw128(0, 0);
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw128(-1, 0);
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw128(42, 0);
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw128(-42, 0);
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw128(42, 5);
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw128(-42, 5);
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw128(42, -17);
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::makeDecimalRaw128(-42, -17);
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::convertToDecimal128(Util::makeInfinity64(false));
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::convertToDecimal128(Util::makeInfinity64(true));
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(Util::equal(value, test));
+            LOOP_ASSERT(buffer,Util::equal(value, test));
 
             value = Util::parse128("NaN");
             Util::format(value, buffer);
             test  = Util::parse128(buffer);
-            ASSERT(!Util::equal(test, test));
+            LOOP_ASSERT(buffer,!Util::equal(test, test));
         }
       } break;
       case 17: {
