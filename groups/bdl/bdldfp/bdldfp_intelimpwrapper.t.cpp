@@ -1,6 +1,8 @@
 // bdldfp_intelimpwrapper.t.cpp                                       -*-C++-*-
 #include <bdldfp_intelimpwrapper.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -156,6 +158,25 @@ int main(int argc, char* argv[])
         ASSERT(false &&
                     "BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX still declared");
         #endif
+
+        #ifndef BID_BIG_ENDIAN
+        ASSERT(false && "BID_BIG_ENDIAN setting for Intel was not defined.");
+        #else
+        #  ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+        const bool big_endian = true;
+        #  elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+        const bool big_endian = false;
+        #  else
+        ASSERT(false &&
+               "One of big or little endian should have been available"
+               " in bsls_platform");
+        const bool big_endian = false;
+        #  endif
+        ASSERT(BID_BIG_ENDIAN == big_endian
+                       && "BID_BIG_ENDIAN was not set to the correct setting");
+        #endif
+
+
       } break;
       case 3: {
         // --------------------------------------------------------------------

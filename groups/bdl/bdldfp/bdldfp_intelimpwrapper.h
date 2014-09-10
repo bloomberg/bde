@@ -50,6 +50,12 @@ BSLS_IDENT("$Id$")
 #      define BDLDFP_INTELIMPWRAPPER_FAKE_DEFINE_LINUX
 #    endif
 
+#    ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+#      define BID_BIG_ENDIAN 1
+#    else
+#      define BID_BIG_ENDIAN 0
+#    endif
+
 // The IBM compiler has trouble with the embedded '__thread' token, under some
 // build modes.  We'll turn it off, for now.  We'll do so for Sun also, since
 // it is disabled in the wrapper-package for that compiler as well.
