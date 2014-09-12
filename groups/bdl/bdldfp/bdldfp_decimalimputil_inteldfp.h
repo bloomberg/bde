@@ -40,12 +40,20 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_intelimpwrapper.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
+#include <bdldfp_denselypackeddecimalimputil.h>
+#endif
+
 #ifndef INCLUDED_BSL_LOCALE
 #include <bsl_locale.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
 #endif
 
 #ifndef INCLUDED_DECSINGLE
@@ -659,6 +667,30 @@ struct DecimalImpUtil_IntelDfp {
         // Technical Report, except that it is unspecified whether the NaNs
         // returned are quiet or signaling.  The behavior is undefined unless
         // there are 'size' bytes available in 'buffer'.
+
+                        // Densely Packed Conversion Functions
+
+    static ValueType32  convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType32  dpd)
+    static ValueType64  convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType64  dpd)
+    static ValueType128 convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType128 dpd)
+        // Return a 'ValueTypeXX' representing the specified 'dpd', which is
+        // currently in Densely Packed Decimal (DPD) format.  This format is
+        // compatible with the IBM compiler's native type, and the decNumber
+        // library.
+
+    static DenselyPackedDecimalImpUtil::StorageType32  convertToDenselyPacked(
+                                                           ValueType32  value);
+    static DenselyPackedDecimalImpUtil::StorageType64  convertToDenselyPacked(
+                                                           ValueType64  value);
+    static DenselyPackedDecimalImpUtil::StorageType128 convertToDenselyPacked(
+                                                           ValueType128 value);
+        // Return a 'DenselyPackeDecimalImpUtil::StorageTypeXX' representing
+        // the specified 'value' in Densely Packed Decimal (DPD) format.  This
+        // format is compatible with the IBM compiler's native type, and the
+        // decNumber library.
 };
 
 
@@ -1400,6 +1432,92 @@ DecimalImpUtil_IntelDfp::format(DecimalImpUtil_IntelDfp::ValueType128  value,
     buffer[0] = 0;
 
     __bid128_to_string(buffer, value.d_raw);
+}
+
+                        // Densely Packed Conversion Functions
+
+inline
+DecimalImpUtil_IntelDfp::ValueType32
+DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
+                                DenselyPackedDecimalImpUtil::StorageType32 dpd)
+{
+    ValueType32 value;
+    bsl::memcpy(&value, &dpd, sizeof(value));
+
+    ValueType32 result;
+    result.d_raw = __bid_to_dpd32(value.d_raw);
+
+    return result;
+}
+
+inline
+DecimalImpUtil_IntelDfp::ValueType64
+DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
+                                DenselyPackedDecimalImpUtil::StorageType64 dpd)
+{
+    ValueType64 value;
+    bsl::memcpy(&value, &dpd, sizeof(value));
+
+    ValueType64 result;
+    result.d_raw = __bid_to_dpd64(value.d_raw);
+
+    return result;
+}
+
+inline
+DecimalImpUtil_IntelDfp::ValueType128
+DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType128 dpd)
+{
+    ValueType128 value;
+    bsl::memcpy(&value, &dpd, sizeof(value));
+
+    ValueType128 result;
+    result.d_raw = __bid_to_dpd128(value.d_raw);
+
+    return result;
+}
+
+inline
+DenselyPackedDecimalImpUtil::StorageType32
+DecimalImpUtil_IntelDfp::convertToDenselyPacked(
+                                    DecimalImpUtil_IntelDfp::ValueType32 value)
+{
+    ValueType32 result;
+    result.d_raw = __bid_to_dpd32(value.d_raw);
+
+    DenselyPackedDecimalImpUtil::StorageType32 dpd;
+    bsl::memcpy(&dpd, &result, sizeof(dpd));
+
+    return dpd;
+}
+
+inline
+DenselyPackedDecimalImpUtil::StorageType64
+DecimalImpUtil_IntelDfp::convertToDenselyPacked(
+                                    DecimalImpUtil_IntelDfp::ValueType64 value)
+{
+    ValueType64 result;
+    result.d_raw = __bid_to_dpd64(value.d_raw);
+
+    DenselyPackedDecimalImpUtil::StorageType64 dpd;
+    bsl::memcpy(&dpd, &result, sizeof(dpd));
+
+    return dpd;
+}
+
+inline
+DenselyPackedDecimalImpUtil::StorageType128
+DecimalImpUtil_IntelDfp::convertToDenselyPacked(
+                                   DecimalImpUtil_IntelDfp::ValueType128 value)
+{
+    ValueType128 result;
+    result.d_raw = __bid_to_dpd128(value.d_raw);
+
+    DenselyPackedDecimalImpUtil::StorageType128 dpd;
+    bsl::memcpy(&dpd, &result, sizeof(dpd));
+
+    return dpd;
 }
 
 }  // close package namespace

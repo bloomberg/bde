@@ -148,6 +148,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
+#include <bdldfp_denselypackeddecimalimputil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -865,6 +869,19 @@ class DecimalImpUtil {
         // Technical Report, except that it is unspecified whether the NaNs
         // returned are quiet or signaling.  The behavior is undefined unless
         // there are 'size' bytes available in 'buffer'.
+
+                        // Densely Packed Conversion Functions
+
+    static DenselyPackedDecimalImpUtil::StorageType32 convertToDenselyPacked(
+                                                           ValueType32  value);
+    static DenselyPackedDecimalImpUtil::StorageType64 convertToDenselyPacked(
+                                                           ValueType64  value);
+    static DenselyPackedDecimalImpUtil::StorageType128 convertToDenselyPacked(
+                                                           ValueType128 value);
+        // Return a 'DenselyPackeDecimalImpUtil::StorageTypeXX' representing
+        // the specified 'value' in Densely Packed Decimal (DPD) format.  This
+        // format is compatible with the IBM compiler's native type, and the
+        // decNumber library.
 };
 
 // ============================================================================
@@ -1501,6 +1518,28 @@ void DecimalImpUtil::format(DecimalImpUtil::ValueType128 value, char *buffer)
     return Imp::format(value, buffer);
 }
 
+                        // Densely Packed Conversion Functions
+
+inline
+DenselyPackedDecimalImpUtil::StorageType32
+DecimalImpUtil::convertToDenselyPacked(ValueType32 value)
+{
+    return Imp::convertToDenselyPacked(value);
+}
+
+inline
+DenselyPackedDecimalImpUtil::StorageType64
+DecimalImpUtil::convertToDenselyPacked(ValueType64 value)
+{
+    return Imp::convertToDenselyPacked(value);
+}
+
+inline
+DenselyPackedDecimalImpUtil::StorageType128
+DecimalImpUtil::convertToDenselyPacked(ValueType128 value)
+{
+    return Imp::convertToDenselyPacked(value);
+}
 
 }  // close package namespace
 }  // close enterprise namespace

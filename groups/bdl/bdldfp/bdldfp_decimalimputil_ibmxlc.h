@@ -36,6 +36,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_denselypackeddecimalimputil.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTRING
+#include <bsl_cstring.h>
+#endif
+
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
 
 #ifndef INCLUDED_DECSINGLE
@@ -648,6 +652,30 @@ struct DecimalImpUtil_IbmXlc {
         // Technical Report, except that it is unspecified whether the NaNs
         // returned are quiet or signaling.  The behavior is undefined unless
         // there are 'size' bytes available in 'buffer'.
+
+                        // Densely Packed Conversion Functions
+
+    static ValueType32  convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType32  dpd)
+    static ValueType64  convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType64  dpd)
+    static ValueType128 convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType128 dpd)
+        // Return a 'ValueTypeXX' representing the specified 'dpd', which is
+        // currently in Densely Packed Decimal (DPD) format.  This format is
+        // compatible with the IBM compiler's native type, and the decNumber
+        // library.
+
+    static DenselyPackedDecimalImpUtil::StorageType32  convertToDenselyPacked(
+                                                           ValueType32  value);
+    static DenselyPackedDecimalImpUtil::StorageType64  convertToDenselyPacked(
+                                                           ValueType64  value);
+    static DenselyPackedDecimalImpUtil::StorageType128 convertToDenselyPacked(
+                                                           ValueType128 value);
+        // Return a 'DenselyPackeDecimalImpUtil::StorageTypeXX' representing
+        // the specified 'value' in Densely Packed Decimal (DPD) format.  This
+        // format is compatible with the IBM compiler's native type, and the
+        // decNumber library.
 };
 
 // ============================================================================
@@ -1287,6 +1315,73 @@ DecimalImpUtil_IbmXlc::format(DecimalImpUtil_IbmXlc::ValueType128  value,
     return decQuadToString(value, buffer);
 }
 
+                        // Densely Packed Conversion Functions
+
+inline
+DecimalImpUtil_IbmXlc::ValueType32
+DecimalImpUtil_IbmXlc::convertFromDenselyPacked(
+                                DenselyPackedDecimalImpUtil::StorageType32 dpd)
+{
+    DecimalImpUtil_IbmXlc::ValueType32 value;
+    bsl::memcpy(&value, &dpd, sizeof(value));
+
+    return value;
+}
+
+inline
+DecimalImpUtil_IbmXlc::ValueType64
+DecimalImpUtil_IbmXlc::convertFromDenselyPacked(
+                                DenselyPackedDecimalImpUtil::StorageType64 dpd)
+{
+    DecimalImpUtil_IbmXlc::ValueType64 value;
+    bsl::memcpy(&value, &dpd, sizeof(value));
+
+    return value;
+}
+
+inline
+DecimalImpUtil_IbmXlc::ValueType128
+DecimalImpUtil_IbmXlc::convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType128 dpd)
+{
+    DecimalImpUtil_IbmXlc::ValueType128 value;
+    bsl::memcpy(&value, &dpd, sizeof(value));
+
+    return value;
+}
+
+inline
+DenselyPackedDecimalImpUtil::StorageType32
+DecimalImpUtil_IbmXlc::convertToDenselyPacked(
+                                      DecimalImpUtil_IbmXlc::ValueType32 value)
+{
+    DenselyPackedDecimalImpUtil::StorageType32 dpd;
+    bsl::memcpy(&dpd, &value, sizeof(dpd));
+
+    return dpd;
+}
+
+inline
+DenselyPackedDecimalImpUtil::StorageType64
+DecimalImpUtil_IbmXlc::convertToDenselyPacked(
+                                      DecimalImpUtil_IbmXlc::ValueType64 value)
+{
+    DenselyPackedDecimalImpUtil::StorageType64 dpd;
+    bsl::memcpy(&dpd, &value, sizeof(dpd));
+
+    return dpd;
+}
+
+inline
+DenselyPackedDecimalImpUtil::StorageType128
+DecimalImpUtil_IbmXlc::convertToDenselyPacked(
+                                     DecimalImpUtil_IbmXlc::ValueType128 value)
+{
+    DenselyPackedDecimalImpUtil::StorageType128 dpd;
+    bsl::memcpy(&dpd, &value, sizeof(dpd));
+
+    return dpd;
+}
 
 }  // close package namespace
 }  // close enterprise namespace
