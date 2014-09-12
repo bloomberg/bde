@@ -106,7 +106,7 @@ BSLS_IDENT("$Id$")
 #include <bslmf_assert.h>
 #endif
 
-// C99 decimal support on xlC/Aix issues should be resolved (see 
+// C99 decimal support on xlC/Aix issues should be resolved (see
 // DRQS 39471014).
 
 

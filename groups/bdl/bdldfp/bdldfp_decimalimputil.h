@@ -11,7 +11,7 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide a unified low-level interface for decimal floating point.
 //
 //@CLASSES:
-//  bdldfp::DecimalImpUtil: Unified low level decimal floating point functions.
+//  bdldfp::DecimalImpUtil: Unified low-level decimal floating point functions.
 //
 //@SEE ALSO: bdldfp_decimalimputil_inteldfp, bdldfp_decimalimputil_decnumber
 //
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id$")
 //                    bdldfp::DecimalImpUtil::binaryToDecimal128(42.5), d128));
 //..
 //
-///Example 2: Adding two Decimal Floating Point Values
+///Example 2: Adding Two Decimal Floating Point Values
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // Decimal floating point values are frequently used in arithmetic computations
 // where the precise representation of decimal values is of paramount
@@ -765,7 +765,7 @@ class DecimalImpUtil {
 
                         // makeDecimalRaw functions
 
-    static ValueType32  makeDecimalRaw32(int mantissa, int exponent);
+    static ValueType32 makeDecimalRaw32(int mantissa, int exponent);
         // Create a 'ValueType32' object representing a decimal floating point
         // number consisting of the specified 'mantissa' and 'exponent', with
         // the sign given by 'mantissa'.  The behavior is undefined unless
@@ -880,9 +880,9 @@ class DecimalImpUtil {
         // compatible with the IBM compiler's native type, and the decNumber
         // library.
 
-    static DenselyPackedDecimalImpUtil::StorageType32 convertToDenselyPacked(
+    static DenselyPackedDecimalImpUtil::StorageType32  convertToDenselyPacked(
                                                            ValueType32  value);
-    static DenselyPackedDecimalImpUtil::StorageType64 convertToDenselyPacked(
+    static DenselyPackedDecimalImpUtil::StorageType64  convertToDenselyPacked(
                                                            ValueType64  value);
     static DenselyPackedDecimalImpUtil::StorageType128 convertToDenselyPacked(
                                                            ValueType128 value);
@@ -1524,7 +1524,7 @@ DecimalImpUtil::convertFromDenselyPacked(
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::convertFromDenselyPacked(
-                                DenselyPackedDecimalImpUtil::StorageType128 dpd)
+                               DenselyPackedDecimalImpUtil::StorageType128 dpd)
 {
     return Imp::convertFromDenselyPacked(dpd);
 }

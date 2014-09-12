@@ -14,10 +14,10 @@ BSLS_IDENT("$Id$")
 //
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION: This component provides functions that are able to convert
-// between the native decimal types of the platform and various other possible
-// representations, such as binary floating-point, network format (big endian,
-// DPD encoded decimals).
+//@DESCRIPTION: This component provides namespace, 'DecimalConvertUtil',
+// containing functions that are able to convert between the native decimal
+// types of the platform and various other possible representations, such as
+// binary floating-point, network format (big endian, DPD encoded decimals).
 //
 ///Usage
 ///-----
@@ -86,12 +86,12 @@ BSLS_IDENT("$Id$")
 //  assert(number == restored);
 //..
 
-#ifndef INCLUDED_BSLMF_ASSERT
-#include <bslmf_assert.h>
+#ifndef INCLUDED_BDLSCM_VERSION
+#include <bdlscm_version.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
-#include <bdldfp_decimalconvertutil_inteldfp.h>
+#ifndef INCLUDED_BDLDFP_DECIMAL
+#include <bdldfp_decimal.h>
 #endif
 
 #ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_DECNUMBER
@@ -102,16 +102,16 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalconvertutil_ibmxlc.h>
 #endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
-#include <bdldfp_decimal.h>
+#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
+#include <bdldfp_decimalconvertutil_inteldfp.h>
 #endif
 
 #ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL
 #include <bdldfp_decimalimputil.h>
 #endif
 
-#ifndef INCLUDED_BDLSCM_VERSION
-#include <bdlscm_version.h>
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
 #endif
 
 namespace BloombergLP {

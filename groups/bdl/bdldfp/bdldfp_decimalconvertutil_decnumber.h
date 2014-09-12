@@ -40,6 +40,10 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalimputil.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 namespace BloombergLP {
 namespace bdldfp {
                         // ==================================
