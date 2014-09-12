@@ -467,7 +467,6 @@ struct DecimalImpUtil_IntelDfp {
 
     static ValueType32 binaryToDecimal32(      float value);
     static ValueType32 binaryToDecimal32(     double value);
-    static ValueType32 binaryToDecimal32(long double value);
         // Create a 'Decimal32' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -500,7 +499,6 @@ struct DecimalImpUtil_IntelDfp {
 
     static ValueType64 binaryToDecimal64(      float value);
     static ValueType64 binaryToDecimal64(     double value);
-    static ValueType64 binaryToDecimal64(long double value);
         // Create a 'Decimal64' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -533,7 +531,6 @@ struct DecimalImpUtil_IntelDfp {
 
     static ValueType128 binaryToDecimal128(      float value);
     static ValueType128 binaryToDecimal128(     double value);
-    static ValueType128 binaryToDecimal128(long double value);
         // Create a 'Decimal128' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -1166,15 +1163,6 @@ DecimalImpUtil_IntelDfp::binaryToDecimal32(double value)
 }
 
 inline
-DecimalImpUtil_IntelDfp::ValueType32
-DecimalImpUtil_IntelDfp::binaryToDecimal32(long double value)
-{
-    ValueType32 result;
-    result.d_raw = __binary80_to_bid32(value);
-    return result;
-}
-
-inline
 DecimalImpUtil_IntelDfp::ValueType64
 DecimalImpUtil_IntelDfp::binaryToDecimal64(float value)
 {
@@ -1193,16 +1181,6 @@ DecimalImpUtil_IntelDfp::binaryToDecimal64(double value)
 }
 
 inline
-DecimalImpUtil_IntelDfp::ValueType64
-DecimalImpUtil_IntelDfp::binaryToDecimal64(long double value)
-{
-    ValueType64 result;
-    result.d_raw = __binary80_to_bid64(value);
-    return result;
-}
-
-
-inline
 DecimalImpUtil_IntelDfp::ValueType128
 DecimalImpUtil_IntelDfp::binaryToDecimal128(float value)
 {
@@ -1217,15 +1195,6 @@ DecimalImpUtil_IntelDfp::binaryToDecimal128(double value)
 {
     ValueType128 result;
     result.d_raw = __binary64_to_bid128(value);
-    return result;
-}
-
-inline
-DecimalImpUtil_IntelDfp::ValueType128
-DecimalImpUtil_IntelDfp::binaryToDecimal128(long double value)
-{
-    ValueType128 result;
-    result.d_raw = __binary80_to_bid128(value);
     return result;
 }
 

@@ -65,51 +65,6 @@ struct DecimalConvertUtil_IntelDfp {
 
     // CLASS METHODS
 
-                        // decimalToLongDouble functions
-
-    static long double decimal32ToLongDouble (Decimal32  decimal);
-    static long double decimal64ToLongDouble (Decimal64  decimal);
-    static long double decimal128ToLongDouble(Decimal128 decimal);
-    static long double decimalToLongDouble   (Decimal32  decimal);
-    static long double decimalToLongDouble   (Decimal64  decimal);
-    static long double decimalToLongDouble   (Decimal128 decimal);
-        // Return a 'long double' object having the value closest to the value
-        // of the specified 'decimal' object following the conversion rules
-        // defined by IEEE-754:
-        //
-        //: o If the 'decimal' object is a NaN, return a NaN.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative infinity, return
-        //:   infinity of the same sign.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative zero, return zero
-        //:   of the same sign.
-        //:
-        //: o Otherwise if 'decimal' object has an absolute value that is
-        //:   larger than 'std::numeric_limits<long double>::max()', raise the
-        //:   "overflow" floating-point exception and return infinity of the
-        //:   same sign as 'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has an absolute value that is smaller than
-        //:   'std::numeric_limits<long double>::min()', raise the "underflow"
-        //:   floating-point exception and return zero of the same sign as
-        //:   'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has a value that has more significant
-        //:   base-10 digits than 'std::numeric_limits<long double>::digits10',
-        //:   raise the "inexact" floating-point exception, round that value
-        //:   according to the *binary* rounding direction setting of the
-        //:   floating-point environment, and return the result of that.
-        //:
-        //: o Otherwise if 'decimal' has a significand that cannot be exactly
-        //:   represented using binary floating-point, raise the "inexact"
-        //:   floating-point exception, roundthat value according to the
-        //:   *binary* rounding direction setting of the environment, and
-        //:   return the result of that.
-        //:
-        //: o Otherwise use the exact value of the 'other' object for the
-        //:   initialization if this object.
-
                         // decimalToDouble functions
 
     static double decimal32ToDouble (Decimal32  decimal);
@@ -251,54 +206,6 @@ struct DecimalConvertUtil_IntelDfp {
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-                        // ---------------------------------
-                        // class DecimalConvertUtil_IntelDfp
-                        // ---------------------------------
-
-                        // decimalToLongDouble functions
-
-inline
-long double
-DecimalConvertUtil_IntelDfp::decimal32ToLongDouble(Decimal32 decimal)
-{
-    return decimalToLongDouble(decimal);
-}
-
-inline
-long double
-DecimalConvertUtil_IntelDfp::decimal64ToLongDouble(Decimal64 decimal)
-{
-    return decimalToLongDouble(decimal);
-}
-
-inline
-long double
-DecimalConvertUtil_IntelDfp::decimal128ToLongDouble(Decimal128 decimal)
-{
-    return decimalToLongDouble(decimal);
-}
-
-inline
-long double
-DecimalConvertUtil_IntelDfp::decimalToLongDouble(Decimal32 decimal)
-{
-    return __bid32_to_binary80(decimal.data()->d_raw);
-}
-
-inline
-long double
-DecimalConvertUtil_IntelDfp::decimalToLongDouble(Decimal64 decimal)
-{
-    return __bid64_to_binary80(decimal.data()->d_raw);
-}
-
-inline
-long double
-DecimalConvertUtil_IntelDfp::decimalToLongDouble(Decimal128 decimal)
-{
-    return __bid128_to_binary80(decimal.data()->d_raw);
-}
 
                         // decimalToDouble functions
 

@@ -322,26 +322,6 @@ unsigned char *DecimalConvertUtil::decimalFromNetwork(
 
             // Restore a Decimal Floating-Point from a Binary
 
-                        // DecimalFromLongDouble functions
-
-Decimal32 DecimalConvertUtil::decimal32FromLongDouble(long double binary)
-{
-    Decimal32 rv;
-    restoreDecimalFromBinary(&rv, binary);
-    return rv;
-}
-Decimal64 DecimalConvertUtil::decimal64FromLongDouble(long double binary)
-{
-    Decimal64 rv;
-    restoreDecimalFromBinary(&rv, binary);
-    return rv;
-}
-Decimal128 DecimalConvertUtil::decimal128FromLongDouble(long double binary)
-{
-    Decimal128 rv;
-    restoreDecimalFromBinary(&rv, binary);
-    return rv;
-}
 
                         // DecimalFromDouble functions
 

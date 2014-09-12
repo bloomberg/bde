@@ -1476,7 +1476,7 @@ int main(int argc, char* argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTesting class Decimal64"
-                                << "\n=======================" << bsl::endl;
+                               << "\n=======================" << bsl::endl;
 
         if (veryVerbose) bsl::cout << "Constructors" << bsl::endl;
 

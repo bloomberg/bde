@@ -319,7 +319,7 @@ namespace {
 // Testing apparatus
 
 BDEC::DecimalImpUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
-                                                        int       exponent)
+                                                       int       exponent)
     // Return a 64-bit decimal floating point value with the specified
     // 'mantissa' and 'exponent', including for cases in which
     // 'exponent == 0'.  The behavior is undefined unless
@@ -329,7 +329,7 @@ BDEC::DecimalImpUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
     defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
 
-        return BDEC::DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
+    return BDEC::DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
 #else
     return BDEC::DecimalImpUtil::makeDecimalRaw64(mantissa, exponent);
 #endif
@@ -337,7 +337,7 @@ BDEC::DecimalImpUtil::ValueType64 makeDecimalRaw64Zero(long long mantissa,
 
 
 BDEC::DecimalImpUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
-                                                          int       exponent)
+                                                         int       exponent)
     // Return a 128-bit decimal floating point value with the specified
     // 'mantissa' and 'exponent', including for cases in which
     // 'exponent == 0'.  The behavior is undefined unless
@@ -347,11 +347,10 @@ BDEC::DecimalImpUtil::ValueType128 makeDecimalRaw128Zero(long long mantissa,
     defined(BSLS_PLATFORM_CMP_IBM)         && \
     defined(BDLDFP_DECIMALPLATFORM_HARDWARE)
 
-        return BDEC::DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
+    return BDEC::DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 #else
     return BDEC::DecimalImpUtil::makeDecimalRaw128(mantissa, exponent);
 #endif
-
 }
 
 
@@ -1759,7 +1758,6 @@ int main(int argc, char* argv[])
                 unsigned long long x0em5 = 0x2224000000000000ull;
                 ASSERT(!memcmp(&d0em5, &x0em5, 8));
             }
-
             {
                 BDEC::Decimal128 ACTUAL   = makeDecimalRaw128Zero  (42, 5);
                 BDEC::Decimal128 EXPECTED = Util::makeDecimalRaw128(42, 5);

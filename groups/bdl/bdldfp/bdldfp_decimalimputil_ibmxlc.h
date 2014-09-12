@@ -452,7 +452,6 @@ struct DecimalImpUtil_IbmXlc {
 
     static ValueType32 binaryToDecimal32(      float value);
     static ValueType32 binaryToDecimal32(     double value);
-    static ValueType32 binaryToDecimal32(long double value);
         // Create a 'Decimal32' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -485,7 +484,6 @@ struct DecimalImpUtil_IbmXlc {
 
     static ValueType64 binaryToDecimal64(      float value);
     static ValueType64 binaryToDecimal64(     double value);
-    static ValueType64 binaryToDecimal64(long double value);
         // Create a 'Decimal64' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -518,7 +516,6 @@ struct DecimalImpUtil_IbmXlc {
 
     static ValueType128 binaryToDecimal128(      float value);
     static ValueType128 binaryToDecimal128(     double value);
-    static ValueType128 binaryToDecimal128(long double value);
         // Create a 'Decimal128' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -1072,13 +1069,6 @@ DecimalImpUtil_IbmXlc::binaryToDecimal32(double input)
 }
 
 inline
-DecimalImpUtil_IbmXlc::ValueType32
-DecimalImpUtil_IbmXlc::binaryToDecimal32(long double input)
-{
-    return static_cast<ValueType32>(input);
-}
-
-inline
 DecimalImpUtil_IbmXlc::ValueType64
 DecimalImpUtil_IbmXlc::binaryToDecimal64(float input)
 {
@@ -1088,13 +1078,6 @@ DecimalImpUtil_IbmXlc::binaryToDecimal64(float input)
 inline
 DecimalImpUtil_IbmXlc::ValueType64
 DecimalImpUtil_IbmXlc::binaryToDecimal64(double input)
-{
-    return static_cast<ValueType64>(input);
-}
-
-inline
-DecimalImpUtil_IbmXlc::ValueType64
-DecimalImpUtil_IbmXlc::binaryToDecimal64(long double input)
 {
     return static_cast<ValueType64>(input);
 }
@@ -1113,14 +1096,6 @@ DecimalImpUtil_IbmXlc::binaryToDecimal128(double input)
 {
     return static_cast<ValueType128>(input);
 }
-
-inline
-DecimalImpUtil_IbmXlc::ValueType128
-DecimalImpUtil_IbmXlc::binaryToDecimal128(long double input)
-{
-    return static_cast<ValueType128>(input);
-}
-
 
 inline
 DecimalImpUtil_IbmXlc::ValueType32

@@ -86,7 +86,7 @@ struct DecimalImpUtil_DecNumber {
         // 'ValueType32'.  The behavior is undefined if 'value' can
         // be represented exactly in 'ValueType32'.
 
-public:
+  public:
 
     static decContext *getDecNumberContext();
         // Return a pointer providing modifiable access to the floating point
@@ -482,7 +482,6 @@ public:
 
     static ValueType32 binaryToDecimal32(      float value);
     static ValueType32 binaryToDecimal32(     double value);
-    static ValueType32 binaryToDecimal32(long double value);
         // Create a 'Decimal32' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -515,7 +514,6 @@ public:
 
     static ValueType64 binaryToDecimal64(      float value);
     static ValueType64 binaryToDecimal64(     double value);
-    static ValueType64 binaryToDecimal64(long double value);
         // Create a 'Decimal64' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -548,7 +546,6 @@ public:
 
     static ValueType128 binaryToDecimal128(      float value);
     static ValueType128 binaryToDecimal128(     double value);
-    static ValueType128 binaryToDecimal128(long double value);
         // Create a 'Decimal128' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:

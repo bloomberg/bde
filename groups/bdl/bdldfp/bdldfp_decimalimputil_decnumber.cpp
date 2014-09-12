@@ -175,28 +175,6 @@ DecimalImpUtil_DecNumber::binaryToDecimal32(double value)
     return result;
 }
 
-DecimalImpUtil_DecNumber::ValueType32
-DecimalImpUtil_DecNumber::binaryToDecimal32(long double value)
-{
-    ValueType32 result;
-    bdldfp::BufferBuf<48> bb;
-    bsl::ostream out(&bb);
-    out.imbue(bsl::locale::classic());
-    out.precision(7);
-
-    // On some platforms (Visual Studio) 'operator<<' renders something
-    // un-parsable for non-finite values.
-
-    if (!isFinite(value)) {
-        out << nonFiniteToString(value);
-    }
-    else {
-        out << value;
-    }
-    decSingleFromString(&result, bb.str(), getDecNumberContext());
-    return result;
-}
-
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::binaryToDecimal64(float value)
 {
@@ -223,20 +201,6 @@ DecimalImpUtil_DecNumber::binaryToDecimal64(double value)
     return result;
 }
 
-DecimalImpUtil_DecNumber::ValueType64
-DecimalImpUtil_DecNumber::binaryToDecimal64(long double value)
-{
-    ValueType64 result;
-    bdldfp::BufferBuf<48> bb;
-    bsl::ostream out(&bb);
-    out.imbue(bsl::locale::classic());
-    out.precision(16);
-    out << value;
-    decDoubleFromString(&result, bb.str(), getDecNumberContext());
-    return result;
-}
-
-
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::binaryToDecimal128(float value)
 {
@@ -252,19 +216,6 @@ DecimalImpUtil_DecNumber::binaryToDecimal128(float value)
 
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::binaryToDecimal128(double value)
-{
-    ValueType128 result;
-    bdldfp::BufferBuf<48> bb;
-    bsl::ostream out(&bb);
-    out.imbue(bsl::locale::classic());
-    out.precision(34);
-    out << value;
-    decQuadFromString(&result, bb.str(), getDecNumberContext());
-    return result;
-}
-
-DecimalImpUtil_DecNumber::ValueType128
-DecimalImpUtil_DecNumber::binaryToDecimal128(long double value)
 {
     ValueType128 result;
     bdldfp::BufferBuf<48> bb;

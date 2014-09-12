@@ -142,29 +142,6 @@ void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
                           // class DecimalConvertUtil_DecNumber
                           // ----------------------------------
 // CLASS METHODS
-long double
-DecimalConvertUtil_DecNumber::decimalToLongDouble(Decimal32 decimal)
-{
-    long double result;
-    makeBinaryFloatingPoint(&result, decimal);
-    return result;
-}
-
-long double
-DecimalConvertUtil_DecNumber::decimalToLongDouble(Decimal64 decimal)
-{
-    long double result;
-    makeBinaryFloatingPoint(&result, decimal);
-    return result;
-}
-
-long double
-DecimalConvertUtil_DecNumber::decimalToLongDouble(Decimal128 decimal)
-{
-    long double result;
-    makeBinaryFloatingPoint(&result, decimal);
-    return result;
-}
 
                         // decimalToDouble functions
 

@@ -654,7 +654,6 @@ class Decimal_Type32 {
 
     explicit Decimal_Type32(float       other);
     explicit Decimal_Type32(double      other);
-    explicit Decimal_Type32(long double other);
         // Create a 'Decimal32' object having the value closest to the value of
         // the specified 'other' following the conversion rules as defined by
         // IEEE-754:
@@ -1011,7 +1010,6 @@ class Decimal_Type64 {
 
     explicit Decimal_Type64(float       other);
     explicit Decimal_Type64(double      other);
-    explicit Decimal_Type64(long double other);
         // Create a 'Decimal64' object having the value closest to the value of
         // the specified 'other' following the conversion rules as defined by
         // IEEE-754:
@@ -2131,7 +2129,6 @@ class Decimal_Type128 {
 
     explicit Decimal_Type128(float       value);
     explicit Decimal_Type128(double      value);
-    explicit Decimal_Type128(long double value);
         // Create a 'Decimal128' object having the value closest to the
         // specified 'value' subject to the conversion rules as defined by
         // IEEE-754:
@@ -4239,12 +4236,6 @@ Decimal_Type32::Decimal_Type32(double other)
 }
 
 inline
-Decimal_Type32::Decimal_Type32(long double other)
-: d_value(DecimalImpUtil::binaryToDecimal32(other))
-{
-}
-
-inline
 Decimal_Type32::Decimal_Type32(int other)
 : d_value(DecimalImpUtil::int32ToDecimal32(other))
 {
@@ -4339,12 +4330,6 @@ Decimal_Type64::Decimal_Type64(float other)
 
 inline
 Decimal_Type64::Decimal_Type64(double other)
-: d_value(DecimalImpUtil::binaryToDecimal64(other))
-{
-}
-
-inline
-Decimal_Type64::Decimal_Type64(long double other)
 : d_value(DecimalImpUtil::binaryToDecimal64(other))
 {
 }
@@ -4644,12 +4629,6 @@ Decimal_Type128::Decimal_Type128(float value)
 
 inline
 Decimal_Type128::Decimal_Type128(double value)
-: d_value(DecimalImpUtil::binaryToDecimal128(value))
-{
-}
-
-inline
-Decimal_Type128::Decimal_Type128(long double value)
 : d_value(DecimalImpUtil::binaryToDecimal128(value))
 {
 }

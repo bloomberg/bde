@@ -669,7 +669,6 @@ class DecimalImpUtil {
 
     static ValueType32  binaryToDecimal32(      float value);
     static ValueType32  binaryToDecimal32(     double value);
-    static ValueType32  binaryToDecimal32(long double value);
         // Create a 'Decimal32' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -702,7 +701,6 @@ class DecimalImpUtil {
 
     static ValueType64  binaryToDecimal64(      float value);
     static ValueType64  binaryToDecimal64(     double value);
-    static ValueType64  binaryToDecimal64(long double value);
         // Create a 'Decimal64' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -735,7 +733,6 @@ class DecimalImpUtil {
 
     static ValueType128 binaryToDecimal128(      float value);
     static ValueType128 binaryToDecimal128(     double value);
-    static ValueType128 binaryToDecimal128(long double value);
         // Create a 'Decimal128' object having the value closest to the
         // specified 'value' following the conversion rules as defined by
         // IEEE-754:
@@ -1307,14 +1304,6 @@ DecimalImpUtil::binaryToDecimal32(double value)
 }
 
 inline
-DecimalImpUtil::ValueType32
-DecimalImpUtil::binaryToDecimal32(long double value)
-{
-    return Imp::binaryToDecimal32(value);
-}
-
-
-inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::binaryToDecimal64(float value)
 {
@@ -1329,14 +1318,6 @@ DecimalImpUtil::binaryToDecimal64(double value)
 }
 
 inline
-DecimalImpUtil::ValueType64
-DecimalImpUtil::binaryToDecimal64(long double value)
-{
-    return Imp::binaryToDecimal64(value);
-}
-
-
-inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::binaryToDecimal128(float value)
 {
@@ -1346,13 +1327,6 @@ DecimalImpUtil::binaryToDecimal128(float value)
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::binaryToDecimal128(double value)
-{
-    return Imp::binaryToDecimal128(value);
-}
-
-inline
-DecimalImpUtil::ValueType128
-DecimalImpUtil::binaryToDecimal128(long double value)
 {
     return Imp::binaryToDecimal128(value);
 }
