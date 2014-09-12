@@ -2590,7 +2590,8 @@ int main(int argc, char* argv[])
 
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(5e50);
+                out << BDEC::Decimal32(
+                               BDEC::DecimalImpUtil::makeDecimalRaw32(5,  50));
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "5e+50" == s);
@@ -2598,7 +2599,8 @@ int main(int argc, char* argv[])
 
             {
                 bsl::ostringstream out(pa);
-                out << BDEC::Decimal32(5e-50);
+                out << BDEC::Decimal32(
+                               BDEC::DecimalImpUtil::makeDecimalRaw32(5, -50));
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "5e-50" == s);
@@ -2606,7 +2608,8 @@ int main(int argc, char* argv[])
 
             {
                 bsl::ostringstream out(pa);
-                out << bsl::uppercase << BDEC::Decimal32(5e50);
+                out << bsl::uppercase << BDEC::Decimal32(
+                               BDEC::DecimalImpUtil::makeDecimalRaw32(5,  50));
                 bsl::string s(pa);
                 getStringFromStream(out, &s);
                 LOOP_ASSERT(s, "5E+50" == s);
