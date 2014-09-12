@@ -648,7 +648,15 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal32      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    DecimalImpUtil::format(*value.data(), buffer);
+
+    DenselyPackedDecimalImpUtil::StorageType32 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType32 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
@@ -659,7 +667,15 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal64      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    DecimalImpUtil::format(*value.data(), buffer);
+
+    DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType64 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
@@ -670,7 +686,15 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal128     value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    DecimalImpUtil::format(*value.data(), buffer);
+
+    DenselyPackedDecimalImpUtil::StorageType128 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType128 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 
