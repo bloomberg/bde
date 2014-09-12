@@ -34,8 +34,8 @@ BSLS_IDENT("$Id$")
 // First we define values representing the 'coefficient' and 'exponent' (note
 // the result should be the value 42.5):
 //..
-//  long long coefficient = 425; // Yet another name for significand
-//  int exponent          =  -1;
+//  int coefficient = 425; // Yet another name for significand
+//  int exponent    =  -1;
 //..
 // Then we call 'makeDecimal32', 'makeDecimal64', and 'makeDecimal128' to
 // construct a 'Decimal32', 'Decimal64', and 'Decimal128' respectively.

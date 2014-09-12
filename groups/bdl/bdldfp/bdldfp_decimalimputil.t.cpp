@@ -121,64 +121,45 @@ using bsl::atoi;
 // [19] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
+//=============================================================================
+//                    STANDARD BDE ASSERT TEST MACRO
+//-----------------------------------------------------------------------------
 
-// ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+namespace {
 
-static int testStatus = 0;
+int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+void aSsErT(bool b, const char *s, int i)
 {
-    if (c) {
+    if (b) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
-// ============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-// ----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BDLS_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BDLS_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BDLS_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BDLS_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BDLS_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BDLS_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BDLS_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BDLS_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BDLS_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BDLS_TESTUTIL_ASSERTV
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // 'P(X)' without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline.
-#define L_ __LINE__                           // current Line number
+#define Q   BDLS_TESTUTIL_Q   // Quote identifier literally.
+#define P   BDLS_TESTUTIL_P   // Print identifier and value.
+#define P_  BDLS_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BDLS_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BDLS_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -794,7 +775,7 @@ int main(int argc, char* argv[])
     int                test = argc > 1 ? atoi(argv[1]) : 0;
     int             verbose = argc > 2;
     int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;
+    // int     veryVeryVerbose = argc > 4;
     int veryVeryVeryVerbose = argc > 5;  // always the last
 
     using bsls::AssertFailureHandlerGuard;
@@ -806,9 +787,6 @@ int main(int argc, char* argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
-    bslma::TestAllocator  ta(veryVeryVeryVerbose);
-    bslma::TestAllocator *pa = &ta;
 
     typedef BDEC::DecimalImpUtil Util;
 
@@ -850,8 +828,8 @@ int main(int argc, char* argv[])
 // First we define values representing the 'coefficient' and 'exponent' (note
 // the result should be the value 42.5):
 
-    long long coefficient = 425; // Yet another name for significand
-    int exponent          =  -1;
+    int coefficient = 425; // Yet another name for significand
+    int exponent    =  -1;
 
 // Then we call 'makeDecimal32', 'makeDecimal64', and 'makeDecimal128' to
 // construct a 'Decimal32', 'Decimal64', and 'Decimal128' respectively.
@@ -1346,18 +1324,66 @@ int main(int argc, char* argv[])
                 Util::ValueType64  rhs64  = Util::parse64( rhsValue);
                 Util::ValueType128 rhs128 = Util::parse128(rhsValue);
 
-                LOOP4_ASSERT(lhsValue, rhsValue,
-                             lhsOrder, rhsOrder,
-                            Util::less(lhs32, rhs32) == (lhsOrder < rhsOrder));
-                LOOP4_ASSERT(lhsValue, rhsValue,
-                             lhsOrder, rhsOrder,
-                         Util::greater(lhs32, rhs32) == (lhsOrder > rhsOrder));
-                LOOP4_ASSERT(lhsValue, rhsValue,
-                             lhsOrder, rhsOrder,
-                      Util::lessEqual(lhs32, rhs32) == (lhsOrder <= rhsOrder));
-                LOOP4_ASSERT(lhsValue, rhsValue,
-                             lhsOrder, rhsOrder,
-                   Util::greaterEqual(lhs32, rhs32) == (lhsOrder >= rhsOrder));
+                // Test Decimal32.
+                {
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::less(lhs32, rhs32)         == (lhsOrder< rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::greater(lhs32, rhs32)      == (lhsOrder> rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::lessEqual(lhs32, rhs32)    == (lhsOrder<=rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::greaterEqual(lhs32, rhs32) == (lhsOrder>=rhsOrder));
+                }
+
+                // Test Decimal64.
+                {
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::less(lhs64, rhs64)         == (lhsOrder< rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::greater(lhs64, rhs64)      == (lhsOrder> rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::lessEqual(lhs64, rhs64)    == (lhsOrder<=rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::greaterEqual(lhs64, rhs64) == (lhsOrder>=rhsOrder));
+                }
+
+                // Test Decimal128.
+                {
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::less(lhs128, rhs128)        ==(lhsOrder< rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::greater(lhs128, rhs128)     ==(lhsOrder> rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::lessEqual(lhs128, rhs128)   ==(lhsOrder<=rhsOrder));
+                    ASSERTV(
+                     lhsValue, rhsValue,
+                     lhsOrder, rhsOrder,
+                     Util::greaterEqual(lhs128, rhs128)==(lhsOrder>=rhsOrder));
+                }
+
             }
         }
 
@@ -5957,15 +5983,18 @@ int main(int argc, char* argv[])
                     long long int mantissa = mantissas[t_m];
                               int exponent = exponents[t_e];
 
-                    if (mantissa <= 9999999 && mantissa >= -9999999
-                     && exponent <= 90      && exponent >= -101) {
 
-                        bsl::string parseString = makeParseString(mantissa,
-                                                                  exponent);
+                    if (-9999999 <= mantissa && mantissa <= 9999999
+                     && -101     <= exponent && exponent <= 90) {
+                        int intMantissa = static_cast<int>(mantissa);
 
-                        test = Util::makeDecimalRaw32(mantissa, exponent);
-                        witnessAlternate = alternateMakeDecimalRaw32(mantissa,
-                                                                     exponent);
+                        bsl::string parseString = makeParseString(
+                                                        intMantissa, exponent);
+
+                        test = Util::makeDecimalRaw32(intMantissa, exponent);
+                        witnessAlternate = alternateMakeDecimalRaw32(
+                                                        intMantissa, exponent);
+
                         witnessParse = Util::parse32(parseString.c_str());
 
                         LOOP5_ASSERT(t_m, t_e, mantissa, exponent, parseString,
@@ -6022,9 +6051,9 @@ int main(int argc, char* argv[])
                     long long int mantissa = mantissas[t_m];
                               int exponent = exponents[t_e];
 
-                    if (mantissa <= bsl::numeric_limits<int>::max() &&
-                        mantissa >= bsl::numeric_limits<int>::min()) {
-                        int intMantissa = mantissa;
+                    if (mantissa <= bsl::numeric_limits<int>::min() 
+                     && mantissa <= bsl::numeric_limits<int>::max()) {
+                        int intMantissa = static_cast<int>(mantissa);
 
                         bsl::string parseString = makeParseString(intMantissa,
                                                                   exponent);
@@ -6049,9 +6078,9 @@ int main(int argc, char* argv[])
                                                   sizeof(test)));
                     }
 
-                    if (mantissa <= bsl::numeric_limits<unsigned>::max() &&
-                        mantissa >= 0ll) {
-                        unsigned uMantissa = mantissa;
+                    if (0ll      <= mantissa
+                     && mantissa <= bsl::numeric_limits<unsigned>::max()) {
+                        unsigned uMantissa = static_cast<unsigned>(mantissa);
 
                         bsl::string parseString = makeParseString(uMantissa,
                                                                   exponent);
@@ -6076,10 +6105,11 @@ int main(int argc, char* argv[])
                                                   sizeof(test)));
                     }
 
-                    if (mantissa <=
-                              bsl::numeric_limits<unsigned long long>::max() &&
-                        mantissa >= 0ll) {
-                        unsigned long long ullMantissa = mantissa;
+                    if (0ll      <= mantissa) {
+                        // And mantissa <= ULONGLONG_MAX.
+
+                        unsigned long long ullMantissa = 
+                                  static_cast<unsigned long long>(mantissa);
 
                         bsl::string parseString = makeParseString(ullMantissa,
                                                                   exponent);
@@ -6274,7 +6304,7 @@ int main(int argc, char* argv[])
 
                     if (mantissa <= bsl::numeric_limits<int>::max() &&
                         mantissa >= bsl::numeric_limits<int>::min()) {
-                        int intMantissa = mantissa;
+                        int intMantissa = static_cast<int>(mantissa);
 
                         bsl::string parseString = makeParseString(intMantissa,
                                                                   exponent);
@@ -6301,7 +6331,7 @@ int main(int argc, char* argv[])
 
                     if (mantissa <= bsl::numeric_limits<unsigned>::max() &&
                         mantissa >= 0ll) {
-                        unsigned uMantissa = mantissa;
+                        unsigned uMantissa = static_cast<unsigned>(mantissa);
 
                         bsl::string parseString = makeParseString(uMantissa,
                                                                   exponent);
@@ -6326,9 +6356,9 @@ int main(int argc, char* argv[])
                                                   sizeof(test)));
                     }
 
-                    if (mantissa <=
-                              bsl::numeric_limits<unsigned long long>::max() &&
-                        mantissa >= 0ll ) {
+                    if (mantissa >= 0ll) {
+                        // && mantissa <= ULONGLONG_MAX
+
                         unsigned long long ullMantissa = mantissa;
 
                         bsl::string parseString = makeParseString(ullMantissa,
