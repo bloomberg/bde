@@ -1413,7 +1413,7 @@ DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
     bsl::memcpy(&value, &dpd, sizeof(value));
 
     ValueType32 result;
-    result.d_raw = __bid_to_dpd32(value.d_raw);
+    result.d_raw = __bid_dpd_to_bid32(value.d_raw);
 
     return result;
 }
@@ -1427,7 +1427,7 @@ DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
     bsl::memcpy(&value, &dpd, sizeof(value));
 
     ValueType64 result;
-    result.d_raw = __bid_to_dpd64(value.d_raw);
+    result.d_raw = __bid_dpd_to_bid64(value.d_raw);
 
     return result;
 }
@@ -1441,7 +1441,7 @@ DecimalImpUtil_IntelDfp::convertFromDenselyPacked(
     bsl::memcpy(&value, &dpd, sizeof(value));
 
     ValueType128 result;
-    result.d_raw = __bid_to_dpd128(value.d_raw);
+    result.d_raw = __bid_dpd_to_bid128(value.d_raw);
 
     return result;
 }

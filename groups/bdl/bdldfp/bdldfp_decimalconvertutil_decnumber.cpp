@@ -174,7 +174,7 @@ DecimalConvertUtil_DecNumber::decimalToDouble(Decimal128 decimal)
 float
 DecimalConvertUtil_DecNumber::decimalToFloat(Decimal32 decimal)
 {
-    double result;
+    float result;
     makeBinaryFloatingPoint(&result, decimal);
     return result;
 }
@@ -182,7 +182,7 @@ DecimalConvertUtil_DecNumber::decimalToFloat(Decimal32 decimal)
 float
 DecimalConvertUtil_DecNumber::decimalToFloat(Decimal64 decimal)
 {
-    double result;
+    float result;
     makeBinaryFloatingPoint(&result, decimal);
     return result;
 }
