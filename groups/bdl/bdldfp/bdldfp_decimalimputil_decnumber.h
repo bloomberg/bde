@@ -668,6 +668,8 @@ public:
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
         // intrinsics return a signaling NaN.
 
+                        // Formatting Functions
+
     static void format(ValueType32  value, char *buffer);
     static void format(ValueType64  value, char *buffer);
     static void format(ValueType128 value, char *buffer);
@@ -1428,6 +1430,8 @@ DecimalImpUtil_DecNumber::parse128(const char *string)
     decQuadFromString(&result, string, getDecNumberContext());
     return result;
 }
+
+                        // Formatting Functions
 
 inline
 void

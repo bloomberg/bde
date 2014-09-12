@@ -32,7 +32,6 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalplatform.h>
 #endif
 
-
 #ifndef INCLUDED_BDLDFP_DENSELYPACKEDDECIMALIMPUTIL
 #include <bdldfp_denselypackeddecimalimputil.h>
 #endif
@@ -636,6 +635,8 @@ struct DecimalImpUtil_IbmXlc {
         // ISO/EIC TR 24732 C when parsing NaN because the AIX compiler
         // intrinsics return a signaling NaN.
 
+                        // Formatting Functions
+
     static void format(ValueType32  value, char *buffer);
     static void format(ValueType64  value, char *buffer);
     static void format(ValueType128 value, char *buffer);
@@ -649,7 +650,9 @@ struct DecimalImpUtil_IbmXlc {
         // there are 'size' bytes available in 'buffer'.
 };
 
-    // Inline functions
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
 
                         // Integer construction
 
@@ -1251,6 +1254,8 @@ DecimalImpUtil_IbmXlc::parse128(const char *str)
 
     return result;
 }
+
+                        // Formatting Functions
 
 static
 void
