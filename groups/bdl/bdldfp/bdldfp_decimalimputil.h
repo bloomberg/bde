@@ -869,6 +869,17 @@ class DecimalImpUtil {
 
                         // Densely Packed Conversion Functions
 
+    static ValueType32  convertFromDenselyPacked(
+                              DenselyPackedDecimalImpUtil::StorageType32  dpd);
+    static ValueType64  convertFromDenselyPacked(
+                              DenselyPackedDecimalImpUtil::StorageType64  dpd);
+    static ValueType128 convertFromDenselyPacked(
+                              DenselyPackedDecimalImpUtil::StorageType128 dpd);
+        // Return a 'ValueTypeXX' representing the specified 'dpd', which is
+        // currently in Densely Packed Decimal (DPD) format.  This format is
+        // compatible with the IBM compiler's native type, and the decNumber
+        // library.
+
     static DenselyPackedDecimalImpUtil::StorageType32 convertToDenselyPacked(
                                                            ValueType32  value);
     static DenselyPackedDecimalImpUtil::StorageType64 convertToDenselyPacked(
@@ -1493,6 +1504,30 @@ void DecimalImpUtil::format(DecimalImpUtil::ValueType128 value, char *buffer)
 }
 
                         // Densely Packed Conversion Functions
+
+inline
+DecimalImpUtil::ValueType32
+DecimalImpUtil::convertFromDenselyPacked(
+                                DenselyPackedDecimalImpUtil::StorageType32 dpd)
+{
+    return Imp::convertFromDenselyPacked(dpd);
+}
+
+inline
+DecimalImpUtil::ValueType64
+DecimalImpUtil::convertFromDenselyPacked(
+                               DenselyPackedDecimalImpUtil::StorageType64  dpd)
+{
+    return Imp::convertFromDenselyPacked(dpd);
+}
+
+inline
+DecimalImpUtil::ValueType128
+DecimalImpUtil::convertFromDenselyPacked(
+                                DenselyPackedDecimalImpUtil::StorageType128 dpd)
+{
+    return Imp::convertFromDenselyPacked(dpd);
+}
 
 inline
 DenselyPackedDecimalImpUtil::StorageType32
