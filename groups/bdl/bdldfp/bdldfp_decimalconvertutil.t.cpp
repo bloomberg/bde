@@ -648,7 +648,7 @@ int main(int argc, char* argv[])
             Util::decimalFromNetwork(&d64, buffer);
             LOOP2_ASSERT(d64, h_d64, d64 == h_d64);
 
-            unsigned long long rawData = 0x263934B9C1E28E56llu;
+            unsigned long long rawData = 0x263934B9C1E28E56ULL;
 
             Util::decimalToDenselyPacked(buffer, h_d64);
             ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));
@@ -681,8 +681,8 @@ int main(int argc, char* argv[])
             Util::decimalFromNetwork(&d128, buffer);
             LOOP2_ASSERT(d128, h_d128, d128 == h_d128);
 
-            bdldfp::Uint128 rawData(0x2608134B9C1E28E5llu,
-                                    0x6F3C127177823534llu);
+            bdldfp::Uint128 rawData(0x2608134B9C1E28E5ULL,
+                                    0x6F3C127177823534ULL);
 
             Util::decimalToDenselyPacked(buffer, h_d128);
             ASSERT(0 == memcmp(&rawData, buffer, sizeof(rawData)));

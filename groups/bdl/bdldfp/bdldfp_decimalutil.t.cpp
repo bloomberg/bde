@@ -847,7 +847,9 @@ int main(int argc, char* argv[])
                         makeNumber(mantissas[tiM], exps[tiE]);
 
                     // Test the value of what quantum returns:
-                    LOOP6_ASSERT(tiM, tiE, value, mantissas[tiM], exps[tiE], Util::quantum(value), Util::quantum(value) == exps[tiE]);
+                    LOOP6_ASSERT(tiM, tiE, value, mantissas[tiM], exps[tiE],
+                                 Util::quantum(value),
+                                 Util::quantum(value) == exps[tiE]);
                 }
             }
         }
@@ -911,7 +913,6 @@ int main(int argc, char* argv[])
                     LOOP6_ASSERT(tiM, tiE, mantissas[tiM], exps[tiE],
                                  value, quantum,
                                  quantum == exps[tiE]);
-                    BSLMF_ASSERT(BDLDFP_DECIMALPLATFORM_INTELDFP);
                 }
             }
         }

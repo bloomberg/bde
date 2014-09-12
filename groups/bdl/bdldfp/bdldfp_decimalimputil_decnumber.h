@@ -56,9 +56,9 @@ extern "C" {
 namespace BloombergLP {
 namespace bdldfp {
 
-                          // ===============================
-                          // class DecimalImplUtil_DecNumber
-                          // ===============================
+                          // ==============================
+                          // class DecimalImpUtil_DecNumber
+                          // ==============================
 
 struct DecimalImpUtil_DecNumber {
     // This 'struct' provides a namespace for implementation functions that
@@ -70,6 +70,23 @@ struct DecimalImpUtil_DecNumber {
     typedef decSingle ValueType32;
     typedef decDouble ValueType64;
     typedef decQuad   ValueType128;
+
+  private:
+
+    // PRIVATE HELPERS
+    static ValueType32 roundToDecimal32(long long int value);
+    static ValueType32 roundToDecimal32(unsigned long long int value);
+        // Return the specified integral 'value' rounded to the closest
+        // 'ValueType32'.  The behavior is undefined if 'value' can
+        // be represented exactly in 'ValueType32'.
+
+    static ValueType64 roundToDecimal64(long long int value);
+    static ValueType64 roundToDecimal64(unsigned long long int value);
+        // Return the specified integral 'value' rounded to the closest
+        // 'ValueType32'.  The behavior is undefined if 'value' can
+        // be represented exactly in 'ValueType32'.
+
+public:
 
     static decContext *getDecNumberContext();
         // Return a pointer providing modifiable access to the floating point
@@ -668,6 +685,11 @@ struct DecimalImpUtil_DecNumber {
 //                              INLINE DEFINITIONS
 // ============================================================================
 
+                          // ------------------------------
+                          // class DecimalImpUtil_DecNumber
+                          // ------------------------------
+
+// CLASS METHODS
 inline decContext *DecimalImpUtil_DecNumber::getDecNumberContext()
 {
     static decContext context = { 0, 0, 0, DEC_ROUND_HALF_EVEN, 0, 0, 0 };
@@ -680,37 +702,41 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::int32ToDecimal32(int value)
 {
-    union {
+    // *Not* all 'int' values are valid mantissa's for a Decimal32.
+
+    if (-9999999 <= value && value <= 9999999) {
         DecimalImpUtil_DecNumber::ValueType32      result;
         DenselyPackedDecimalImpUtil::StorageType32 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
-
-    return rawAccess.result;
+        raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
+        bsl::memcpy(&result, &raw, sizeof(raw));
+        return result;
+    }
+    return roundToDecimal32((long long int)value);
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::int32ToDecimal64(int value)
 {
-    union {
-        DecimalImpUtil_DecNumber::ValueType64      result;
-        DenselyPackedDecimalImpUtil::StorageType64 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
+    // All 'int' values are valid mantissa's for a Decimal64.
 
-    return rawAccess.result;
+    DecimalImpUtil_DecNumber::ValueType64      result;
+    DenselyPackedDecimalImpUtil::StorageType64 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
+    bsl::memcpy(&result, &raw, sizeof(raw));
+    return result;
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::int32ToDecimal128(int value)
 {
+    // All 'int' values are valid mantissa's for a Decimal128.
+
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
     raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
     bsl::memcpy(&result, &raw, sizeof(raw));
-
     return result;
 }
 
@@ -719,32 +745,37 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::uint32ToDecimal32(unsigned int value)
 {
-    union {
+    // *Not* all 'unsigned int' values are valid mantissa's for a Decimal32.
+
+    if (value <= 9999999) {
         DecimalImpUtil_DecNumber::ValueType32      result;
         DenselyPackedDecimalImpUtil::StorageType32 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
-
-    return rawAccess.result;
+        raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
+        bsl::memcpy(&result, &raw, sizeof(raw));
+        return result;
+    }
+    return roundToDecimal32((unsigned long long int)value);
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::uint32ToDecimal64(unsigned int value)
 {
-    union {
-        DecimalImpUtil_DecNumber::ValueType64      result;
-        DenselyPackedDecimalImpUtil::StorageType64 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
+    // All 'unsigned int' values are valid mantissa's for a Decimal64.
 
-    return rawAccess.result;
+    DecimalImpUtil_DecNumber::ValueType64      result;
+    DenselyPackedDecimalImpUtil::StorageType64 raw;
+    raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
+    bsl::memcpy(&result, &raw, sizeof(raw));
+    return result;
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::uint32ToDecimal128(unsigned int value)
 {
+    // All 'unsigned int' values are valid mantissa's for a Decimal128.
+
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
     raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
@@ -758,32 +789,42 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::int64ToDecimal32(long long int value)
 {
-    union {
+    // *Not* all 'int64' values are valid mantissa's for a Decimal32.
+
+    if (-9999999 <= value && value <= 9999999) {
+        int intValue = static_cast<int>(value);
+
         DecimalImpUtil_DecNumber::ValueType32      result;
         DenselyPackedDecimalImpUtil::StorageType32 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
-
-    return rawAccess.result;
+        raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(intValue, 0);
+        bsl::memcpy(&result, &raw, sizeof(raw));
+        return result;
+    }
+    return roundToDecimal32(value);
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::int64ToDecimal64(long long int value)
 {
-    union {
+    // *Not* all 'int64' values are valid mantissa's for a Decimal64.
+
+    if (-9999999999999999LL <= value && value <= 9999999999999999LL) {
         DecimalImpUtil_DecNumber::ValueType64      result;
         DenselyPackedDecimalImpUtil::StorageType64 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
-
-    return rawAccess.result;
+        raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
+        bsl::memcpy(&result, &raw, sizeof(raw));
+        return result;
+    }
+    return roundToDecimal64(value);
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::int64ToDecimal128(long long int value)
 {
+    // All 'int64' values are valid mantissa's for a Decimal128.
+
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
     raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);
@@ -797,32 +838,40 @@ inline
 DecimalImpUtil_DecNumber::ValueType32
 DecimalImpUtil_DecNumber::uint64ToDecimal32(unsigned long long int value)
 {
-    union {
+    // *Not* all 'Uint64' values are valid mantissa's for a Decimal32.
+
+    if (value <= 9999999) {
+        int intValue = static_cast<int>(value);
         DecimalImpUtil_DecNumber::ValueType32      result;
         DenselyPackedDecimalImpUtil::StorageType32 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(value, 0);
-
-    return rawAccess.result;
+        raw = DenselyPackedDecimalImpUtil::makeDecimalRaw32(intValue, 0);
+        bsl::memcpy(&result, &raw, sizeof(raw));
+        return result;
+    }
+    return roundToDecimal32(value);
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType64
 DecimalImpUtil_DecNumber::uint64ToDecimal64(unsigned long long int value)
 {
-    union {
+    // *Not* all 'Uint64' values are valid mantissa's for a Decimal64.
+
+    if (value <= 9999999999999999LL) {
         DecimalImpUtil_DecNumber::ValueType64      result;
         DenselyPackedDecimalImpUtil::StorageType64 raw;
-    } rawAccess;
-    rawAccess.raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
-
-    return rawAccess.result;
+        raw = DenselyPackedDecimalImpUtil::makeDecimalRaw64(value, 0);
+        bsl::memcpy(&result, &raw, sizeof(raw));
+        return result;
+    }
+    return roundToDecimal64(value);
 }
 
 inline
 DecimalImpUtil_DecNumber::ValueType128
 DecimalImpUtil_DecNumber::uint64ToDecimal128(unsigned long long int value)
 {
+    // All 'Uint64' values are valid mantissa's for a Decimal128.
     DecimalImpUtil_DecNumber::ValueType128      result;
     DenselyPackedDecimalImpUtil::StorageType128 raw;
     raw = DenselyPackedDecimalImpUtil::makeDecimalRaw128(value, 0);

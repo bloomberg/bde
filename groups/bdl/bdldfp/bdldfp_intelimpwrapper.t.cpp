@@ -14,6 +14,7 @@ using bsl::flush;
 using bsl::endl;
 using bsl::atoi;
 
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
@@ -310,6 +311,15 @@ int main(int argc, char* argv[])
 
     return testStatus;
 }
+
+#else // !defined(BSLS_PLATFORM_OS_WINDOWS)
+
+int main()
+{
+    return -1;
+}
+
+#endif // !defined(BSLS_PLATFORM_OS_WINDOWS)
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.

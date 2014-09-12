@@ -135,8 +135,13 @@ void makeBinaryFloatingPoint(BINARY_TYPE *bfp, DECIMAL_TYPE dfp)
     }
 }
 
-}  // close anonymous namesapce 
+}  // close anonymous namespace
 
+
+                          // ----------------------------------
+                          // class DecimalConvertUtil_DecNumber
+                          // ----------------------------------
+// CLASS METHODS
 long double
 DecimalConvertUtil_DecNumber::decimalToLongDouble(Decimal32 decimal)
 {

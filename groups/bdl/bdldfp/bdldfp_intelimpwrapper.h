@@ -38,6 +38,8 @@ BSLS_IDENT("$Id$")
 #include <bsls_platform.h>
 #endif
 
+#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+
 #  if !defined(INCLUDED_BID_FUNCTIONS) \
    && !defined(INCLUDED_BID_CONF) \
    && !defined(INCLUDED_BID_INTERNAL)
@@ -91,6 +93,8 @@ BSLS_IDENT("$Id$")
 #    define INCLUDED_BID_FUNCTIONS
 #    define INCLUDED_BID_INTERNAL
 #  endif
+
+#endif // if !defined(BSLS_PLATFORM_OS_WINDOWS)
 
 #endif
 
