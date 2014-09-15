@@ -115,7 +115,7 @@ struct DenselyPackedDecimalImpUtil {
     static StorageType64 makeDecimalRaw64(         long long int mantissa,
                                                              int exponent);
     static StorageType64 makeDecimalRaw64(unsigned           int mantissa,
-            int exponent);
+                                                             int exponent);
     static StorageType64 makeDecimalRaw64(                   int mantissa,
                                                              int exponent);
         // Create a 'StorageType64' object representing a decimal floating

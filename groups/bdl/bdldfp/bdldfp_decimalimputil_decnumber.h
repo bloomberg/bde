@@ -50,6 +50,10 @@ BSLS_IDENT("$Id$")
 #include <bsl_cstring.h>
 #endif
 
+#ifndef INCLUDED_BSLS_ASSERT
+#include <bsls_assert.h>
+#endif
+
 #ifndef INCLUDED_DECSINGLE
 extern "C" {
 #include <decSingle.h>
