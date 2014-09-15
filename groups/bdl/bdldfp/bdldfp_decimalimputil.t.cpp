@@ -6259,7 +6259,7 @@ int main(int argc, char* argv[])
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
                     if (veryVerbose) cout << "makeDecimalRaw32, exponent num: "
                                           << t_e << ", "
-                                          << exponents[t_m] << endl;
+                                          << exponents[t_e] << endl;
                     long long int mantissa = mantissas[t_m];
                               int exponent = exponents[t_e];
 
@@ -6324,7 +6324,7 @@ int main(int argc, char* argv[])
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
                     if (veryVerbose) cout << "makeDecimalRaw64, exponent num: "
                                           << t_e << ", "
-                                          << exponents[t_m] << endl;
+                                          << exponents[t_e] << endl;
                     long long int mantissa = mantissas[t_m];
                               int exponent = exponents[t_e];
 
@@ -6574,7 +6574,7 @@ int main(int argc, char* argv[])
                 for (int t_e = 0; t_e < numExponents; ++t_e) {
                     if (veryVerbose) cout << "makeDecimalRaw128, exponent num:"
                                           << " " << t_e << ", "
-                                          << exponents[t_m] << endl;
+                                          << exponents[t_e] << endl;
                     long long int mantissa = mantissas[t_m];
                               int exponent = exponents[t_e];
 
