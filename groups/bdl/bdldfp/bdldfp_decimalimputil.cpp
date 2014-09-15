@@ -2,7 +2,7 @@
 #include <bdldfp_decimalimputil.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$")
+BSLS_IDENT_RCSID(bdldfp_decimalimputil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_uint128.h>
 

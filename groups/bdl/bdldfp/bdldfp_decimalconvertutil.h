@@ -14,10 +14,11 @@ BSLS_IDENT("$Id$")
 //
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION: This component provides namespace, 'DecimalConvertUtil',
-// containing functions that are able to convert between the native decimal
-// types of the platform and various other possible representations, such as
-// binary floating-point, network format (big endian, DPD encoded decimals).
+//@DESCRIPTION: This component provides namespace,
+// 'bdldfp::DecimalConvertUtil', containing functions that are able to convert
+// between the native decimal types of the platform and various other possible
+// representations, such as binary floating-point, network format (big endian,
+// DPD encoded decimals).
 //
 ///Usage
 ///-----
@@ -137,7 +138,6 @@ struct DecimalConvertUtil {
 #endif
 
   public:
-
     // CLASS METHODS
 
                         // decimalToDouble functions

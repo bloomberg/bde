@@ -10,15 +10,15 @@ BSLS_IDENT("$Id$")
 //@PURPOSE: Provide decimal floating-point platform information macros.
 //
 //@MACROS:
-//  BDLDFP_DECIMALPLATFORM_C99_TR: We have an use C99 decimal fp support
+//  BDLDFP_DECIMALPLATFORM_C99_TR: using C99 (C-language) decimal fp support
 //  BDLDFP_DECIMALPLATFORM_DECNUMBER: using the 'decNumber' library
 //  BDLDFP_DECIMALPLATFORM_INTELDFP: using the 'IntelDFP' library
-//  BDLDFP_DECIMALPLATFORM_HARDWARE: hardware support for decimals
-//  BDLDFP_DECIMALPLATFORM_SOFTWARE: no hardware support for decimals is used
+//  BDLDFP_DECIMALPLATFORM_HARDWARE: using hardware support for decimals
+//  BDLDFP_DECIMALPLATFORM_SOFTWARE: using software only (no hardware support)
 //  BDLDFP_DECIMALPLATFORM_BIG_ENDIAN: decimals are big endian
 //  BDLDFP_DECIMALPLATFORM_LITTLE_ENDIAN: decimals are little endian
-//  BDLDFP_DECIMALPLATFORM_DPD: densely packed decimal significand
-//  BDLDFP_DECIMALPLATFORM_BININT: binary integer significand
+//  BDLDFP_DECIMALPLATFORM_DPD: using densely packed decimal representation
+//  BDLDFP_DECIMALPLATFORM_BININT: binary integer significand representation
 //  BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE: internal use only (remove)
 //  BDLDFP_DECIMALPLATFORM_C99_QNAN*: internal use only, will be removed
 //  BDLDFP_DECIMALPLATFORM_C99_SNAN*: internal use only, will be removed
@@ -27,11 +27,11 @@ BSLS_IDENT("$Id$")
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros that
 // identify and define platform-specific compile-time attributes that are
-// related to decimal floating-point support.  Most of these attributes are
-// represented by preprocessor macros that are always defined by this component
-// (header) and their replacement value (0 or 1) determines the attribute.
-// Some macros are implentation details, providing platform-specific
-// information that is not useful outside of the BDE implementation.
+// related to decimal floating-point support.  The macros provided by this
+// component are defined to the be non-zero (true) when enabled on a given
+// platform, and are undefined on platforms where they are not enabled.  Some
+// macros are implentation details, providing platform-specific information
+// that is not useful outside of the BDE implementation.
 //
 ///Macros Defining the Underlying Implementation
 ///---------------------------------------------
@@ -69,8 +69,9 @@ BSLS_IDENT("$Id$")
 // to support implementation of encoding conversions.
 //
 // 'BDLDFP_DECIMALPLATFORM_DPD' - Densely Packed Decimal significand
+//                                representation 
 //
-// 'BDLDFP_DECIMALPLATFORM_BININT' - Binary Integer significand
+// 'BDLDFP_DECIMALPLATFORM_BININT' - Binary Integer significand representation
 //
 ///Implementation Detail Macros
 ///----------------------------

@@ -2,7 +2,7 @@
 #include <bdldfp_intelimpwrapper.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$")
+BSLS_IDENT_RCSID(bdldfp_intelimpwrapper_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.

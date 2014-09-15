@@ -2,9 +2,8 @@
 
 #include <bdldfp_decimalconvertutil_decnumber.h>
 
-
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$")
+BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_decnumber_cpp,"$Id$ $CSID$")
 
 #include <bdlscm_version.h>
 #include <bdldfp_decimal.h>

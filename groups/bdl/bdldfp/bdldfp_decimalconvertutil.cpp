@@ -1,10 +1,8 @@
 // bdldfp_decimalconvertutil.cpp                                      -*-C++-*-
 #include <bdldfp_decimalconvertutil.h>
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id$")
+BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_decimalplatform.h>
 

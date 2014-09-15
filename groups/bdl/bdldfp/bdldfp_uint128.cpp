@@ -3,7 +3,7 @@
 #include <bdldfp_uint128.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+BSLS_IDENT_RCSID(bdldfp_uint128_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.

@@ -2,11 +2,9 @@
 #include <bdldfp_decimalimputil_decnumber.h>
 
 #include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_decnumber_cpp,"$Id$ $CSID$")
 
 #include <bsl_iostream.h>
-
-
-BSLS_IDENT("$Id$")
 
 namespace BloombergLP {
 namespace bdldfp {

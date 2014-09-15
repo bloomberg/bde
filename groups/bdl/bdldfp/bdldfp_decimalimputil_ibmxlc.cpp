@@ -2,7 +2,7 @@
 #include <bdldfp_decimalimputil_ibmxlc.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT("$Id$")
+BSLS_IDENT_RCSID(bdldfp_decimalimputil_ibmxlc_cpp,"$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2014 Bloomberg L.P.

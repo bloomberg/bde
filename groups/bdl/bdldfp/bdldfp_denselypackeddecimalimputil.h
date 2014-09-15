@@ -15,8 +15,8 @@ BSLS_IDENT("$Id$")
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
 //@DESCRIPTION: This component provides a namespace,
-// 'bdldfp::DenselyPackeDecimalImpUtil', that supplies a suite of functions for
-// manipulating a Densely Packed Decimal (DPD) representation of a decimal
+// 'bdldfp::DenselyPackedDecimalImpUtil', that supplies a suite of functions
+// for manipulating a Densely Packed Decimal (DPD) representation of a decimal
 // floating point value.
 //
 ///Usage

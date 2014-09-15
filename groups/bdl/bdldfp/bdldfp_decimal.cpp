@@ -1,11 +1,22 @@
 // bdldfp_decimal.cpp                                                 -*-C++-*-
 #include <bdldfp_decimal.h>
 
-// TODO: Remove this #define and the generated bits...
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 
-#define BDLDFP_DISABLE_COMPILE BSLMF_ASSERT(false);
+#include <bsl_algorithm.h>
+#include <bsl_functional.h>
+#include <bsl_istream.h>
+#include <bsl_limits.h>
+#include <bsl_ostream.h>
+#include <bsl_sstream.h>
 
+#include <bslmf_assert.h>
 
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+#include <math.h>
+#include <stdio.h>
+#endif
 
 // For better ways of binary-decimal FP conversion see:
 // http://www.serpentine.com/blog/2011/06/29/...
@@ -28,24 +39,6 @@
 // numeric_limits<>::digits10?  Because it is "helpfully" broken on MS Visual
 // C++ 2008, reports 18 & not 19.
 
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id$")
-
-#include <bsl_algorithm.h>
-#include <bsl_functional.h>
-#include <bsl_istream.h>
-#include <bsl_limits.h>
-#include <bsl_ostream.h>
-#include <bsl_sstream.h>
-
-#include <bslmf_assert.h>
-
-#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
-#include <math.h>
-#include <stdio.h>
-#endif
 
 namespace BloombergLP {
 namespace bdldfp {
@@ -860,7 +853,7 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, -95);
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -879,7 +872,7 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("9.999999e96");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -898,7 +891,7 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, -6);
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -917,7 +910,7 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, 0);
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -936,7 +929,7 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("INF");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -955,7 +948,7 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("NaN");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -974,7 +967,7 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("sNaN");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -994,7 +987,7 @@ BloombergLP::bdldfp::Decimal32
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse32("0.000001E-95");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1017,7 +1010,7 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw64(1, -383);
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1038,7 +1031,7 @@ BloombergLP::bdldfp::Decimal64
     return BloombergLP::bdldfp::DecimalImpUtil::parse64(
                                                       "9.999999999999999e384");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1057,7 +1050,7 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("1e-15");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1076,7 +1069,7 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw64(1, 0);
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1095,7 +1088,7 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("INF");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1117,7 +1110,7 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("NaN");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1136,7 +1129,7 @@ BloombergLP::bdldfp::Decimal64
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse64("sNaN");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1157,7 +1150,7 @@ BloombergLP::bdldfp::Decimal64
     return BloombergLP::bdldfp::DecimalImpUtil::parse64(
                                                      "0.000000000000001e-383");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1180,7 +1173,7 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, -6143);
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1201,7 +1194,7 @@ BloombergLP::bdldfp::Decimal128
     return BloombergLP::bdldfp::DecimalImpUtil::parse128(
                                    "9.999999999999999999999999999999999e6144");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1220,7 +1213,7 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, -33);
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1239,7 +1232,7 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, 0);
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1258,7 +1251,7 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("INF");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1277,7 +1270,7 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("NaN");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1296,7 +1289,7 @@ BloombergLP::bdldfp::Decimal128
 #elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return BloombergLP::bdldfp::DecimalImpUtil::parse128("sNaN");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -1317,7 +1310,7 @@ BloombergLP::bdldfp::Decimal128
     return BloombergLP::bdldfp::DecimalImpUtil::parse128(
                                   "0.000000000000000000000000000000001e-6143");
 #else
-BDLDFP_DISABLE_COMPILE; // Unsupported platform
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
