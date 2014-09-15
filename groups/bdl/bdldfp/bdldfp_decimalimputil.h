@@ -1516,7 +1516,7 @@ DecimalImpUtil::convertFromDenselyPacked(
 inline
 DecimalImpUtil::ValueType64
 DecimalImpUtil::convertFromDenselyPacked(
-                               DenselyPackedDecimalImpUtil::StorageType64  dpd)
+                                DenselyPackedDecimalImpUtil::StorageType64 dpd)
 {
     return Imp::convertFromDenselyPacked(dpd);
 }
@@ -1524,7 +1524,7 @@ DecimalImpUtil::convertFromDenselyPacked(
 inline
 DecimalImpUtil::ValueType128
 DecimalImpUtil::convertFromDenselyPacked(
-                                DenselyPackedDecimalImpUtil::StorageType128 dpd)
+                               DenselyPackedDecimalImpUtil::StorageType128 dpd)
 {
     return Imp::convertFromDenselyPacked(dpd);
 }

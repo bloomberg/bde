@@ -1666,7 +1666,6 @@ int main(int argc, char* argv[])
                    Util::greaterEqual(lhs32, rhs32) == (lhsOrder >= rhsOrder));
             }
         }
-
       } break;
       case 15: {
         // --------------------------------------------------------------------
