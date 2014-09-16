@@ -98,9 +98,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -166,14 +166,12 @@ class StatefulFactory
     void destroy(TYPE *object) const;
 };
 
-
 template <class TYPE>
 void StatelessFactory<TYPE>::destroy(TYPE *object) const
 {
     ASSERT(object);
     ++*object;
 }
-
 
 template <class TYPE>
 TYPE *StatefulFactory<TYPE>::create()
@@ -214,8 +212,8 @@ void debugprint(const ManagedPtrDeleter& obj)
     printf("]");
 }
 
-}  // close namespace bslma
-}  // close namespace BloombergLP
+}  // close package namespace
+}  // close enterprise namespace
 
 
 void destroyWithNoFactory(void * object, void *)
@@ -228,16 +226,16 @@ void destroyWithStatelessFactory(void * object, void *factory)
 {
     ASSERT(object);
     ASSERT(factory);
-    reinterpret_cast<StatelessFactory<int>*>(factory)->destroy(
-                                              reinterpret_cast<int *>(object));
+    static_cast<StatelessFactory<int>*>(factory)->destroy(
+                                                   static_cast<int *>(object));
 }
 
 void destroyWithStatefulFactory(void * object, void *factory)
 {
     ASSERT(object);
     ASSERT(factory);
-    reinterpret_cast<StatefulFactory<int>*>(factory)->destroy(
-                                              reinterpret_cast<int *>(object));
+    static_cast<StatefulFactory<int>*>(factory)->destroy(
+                                                   static_cast<int *>(object));
 }
 
 // ============================================================================
@@ -466,6 +464,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BSLX STREAMING (NOT IMPLEMENTED)
         //   bslx streaming is not implemented for this type.
+        //
+        // Testing:
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBSLX STREAMING (NOT IMPLEMENTED)"
@@ -971,8 +971,9 @@ int main(int argc, char *argv[])
         //:     expected value.  (C-1)
         //
         // Testing:
-        //   bool factory() const;
-        //   int object() const;
+        //   Deleter deleter() const;
+        //   void *factory() const;
+        //   void *object() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBASIC ACCESSORS"

@@ -19,7 +19,11 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a class to store and manage the
 // internal state of a 'bslma::ManagedPtr' object.  It enforces the rules for
 // correct transfer of ownership from one 'bslma::ManagedPtr_Members' object to
-// another.
+// another.  A 'bslma::ManagedPtr' object has two attributes:
+//..
+//  pointer   The address of the object being managed
+//  deleter   The address of a function used to destroy the object at 'pointer'
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -47,17 +51,17 @@ namespace bslma {
                      // ========================
 
 class ManagedPtr_Members {
-    // Non-type-specific managed pointer member variables.  This type exists so
-    // that a 'ManagedPtr_Ref' can point to the representation of a
-    // 'ManagedPtr' even if the '_Ref' object is instantiated on a different
-    // type than the managed pointer type (e.g., in the case of conversions or
-    // aliasing).  'ManagerPtr_Members' also "erases" the types of each member,
-    // so that the same object code can be shared between multiple
-    // instantiations of the 'ManagedPtr' class template, reducing template
-    // bloat.  Note that objects of this type may have an "unset" state, where
-    // the 'd_obj_p' pointer has a null value, and the 'd_deleter' member does
-    // not have a specified value.  If 'd_obj_p' has a null pointer value, then
-    // this object must be in an unset state.
+    // This class provides a type-agnostic container for managed pointer data
+    // members.  This type exists so that a 'ManagedPtr_Ref' can point to the
+    // representation of a 'ManagedPtr' even if the '_Ref' object is
+    // instantiated on a different type than the managed pointer type (e.g., in
+    // the case of conversions or aliasing).  'ManagerPtr_Members' also
+    // "erases" the types of each member, so that the same object code can be
+    // shared between multiple instantiations of the 'ManagedPtr' class
+    // template, reducing template bloat.  Note that objects of this type may
+    // have an "unset" state, where the 'd_obj_p' pointer has a null value, and
+    // the 'd_deleter' member does not have a specified value.  If 'd_obj_p'
+    // has a null pointer value, then this object must be in an unset state.
 
   private:
     // PRIVATE TYPES
@@ -88,8 +92,8 @@ class ManagedPtr_Members {
 
     ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
         // Create a 'ManagedPtr_Members' object having the specified 'object',
-        // 'factory' and 'deleter' unless '0 == object', in which case create a
-        // 'ManagedPtr_Members' object that does not manage a pointer.
+        // 'factory', and 'deleter' unless '0 == object', in which case create
+        // a 'ManagedPtr_Members' object that does not manage a pointer.
 
     ManagedPtr_Members(void        *object,
                        void        *factory,
@@ -112,7 +116,7 @@ class ManagedPtr_Members {
         // managed object will not be destroyed.
 
     void move(ManagedPtr_Members *other);
-        // Re-initialize this object,  having the same 'pointer' as the
+        // Re-initialize this object, having the same 'pointer' as the
         // specified 'other' object, and, if 'pointer' is not 0, the same
         // deleter as 'other', and then put 'other' into an unset set.  Note
         // that any previously managed object will not be destroyed.
@@ -122,7 +126,7 @@ class ManagedPtr_Members {
         // 'other' refers to this object, then re-initialize this object,
         // having the same 'pointer' as the 'other' object, and, if 'pointer'
         // is not 0, the same deleter as 'other', and then put 'other' into an
-        // unset set.
+        // unset state.
 
     void set(void *object, void *factory, DeleterFunc deleter);
         // Re-initialize this object with the specified 'object' pointer value,
@@ -147,10 +151,10 @@ class ManagedPtr_Members {
         // 'pointer' is not null.
 
     void *pointer() const;
-        // Return a pointer to the currently managed object.
+        // Return the address of the currently managed object.
 
     void runDeleter() const;
-        // Destroy the currently managed object(if any).  Note that calling
+        // Destroy the currently managed object (if any).  Note that calling
         // this method twice without assigning a new pointer to manage will
         // produce undefined behavior, unless this object's current deleter
         // specifically supports such usage.

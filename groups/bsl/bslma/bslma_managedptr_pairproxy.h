@@ -46,7 +46,7 @@ namespace bslma {
 template <class POINTER_TYPE, class ASSOCIATED_TYPE>
 struct ManagedPtr_PairProxy {
     // This class is a simple aggregate that may be used to construct a
-    // 'bsl::pair' object.  It will be a POD is the (template parameter)
+    // 'bsl::pair' object.  It will be a POD if the (template parameter)
     // 'ASSOCIATED_TYPE' is a POD.  Note that the names of the data members
     // must exactly match those of 'bsl::pair' to support users simply acting
     // on the results of the function call and not assigning that result to a

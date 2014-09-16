@@ -43,9 +43,9 @@ void aSsErT(bool b, const char *s, int i)
 
 }  // close unnamed namespace
 
-//=============================================================================
+// ============================================================================
 //                      STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -86,8 +86,8 @@ class MyTestObject {
     // test classes in this test driver, so that derived -> base conversions
     // can be tested.  It also signals when its destructor is run by
     // incrementing an externally managed counter, supplied when each object is
-    // created.  Finally, it exposes an internal data structure that can be use
-    // to demonstrate the 'bslma::ManagedPtr' aliasing facility.
+    // created.  Finally, it exposes an internal data structure that can be
+    // used to demonstrate the 'bslma::ManagedPtr' aliasing facility.
 
     // DATA
     volatile int *d_deleteCounter_p;
@@ -99,7 +99,7 @@ class MyTestObject {
         // Create a 'MyTestObject' using the specified 'counter' to record when
         // this object's destructor is run.
 
-    //! MyTestObject(const MyTestObject& original);
+    //! MyTestObject(const MyTestObject& original) = default;
         // Create a 'MyTestObject' object having the same value as the
         // specified 'original' object.
 
@@ -107,7 +107,7 @@ class MyTestObject {
         // Destroy this object.
 
     // MANIPULATORS
-    //! MyTestObject& operator=(const MyTestObject& rhs);
+    //! MyTestObject& operator=(const MyTestObject& rhs) = default;
         // Assign to this object the value of the specified 'rhs' object, and
         // return a reference providing modifiable access to this object.
 
@@ -130,7 +130,7 @@ MyTestObject::MyTestObject(int *counter)
 
 MyTestObject::~MyTestObject()
 {
-    ++(*d_deleteCounter_p);
+    ++*d_deleteCounter_p;
 }
 
 volatile int* MyTestObject::deleteCounter() const

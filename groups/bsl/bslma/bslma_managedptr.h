@@ -1008,7 +1008,7 @@ class ManagedPtr {
     ManagedPtr(MANAGED_TYPE *ptr,
                void         *cookie,
                void        (*deleter)(MANAGED_BASE*, void*));
-        // [!DEPRECATED!] Instead, use:
+        // [!DEPRECATED!]: Instead, use:
         //..
         //  template <class MANAGED_TYPE>
         //  ManagedPtr(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
@@ -1038,7 +1038,7 @@ class ManagedPtr {
     ManagedPtr(MANAGED_TYPE *ptr,
                COOKIE_TYPE  *cookie,
                void        (*deleter)(MANAGED_BASE*, COOKIE_BASE *));
-        // [!DEPRECATED!] Instead, use:
+        // [!DEPRECATED!]: Instead, use:
         //..
         //  template <class MANAGED_TYPE>
         //  ManagedPtr(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
@@ -1178,7 +1178,7 @@ class ManagedPtr {
     void load(MANAGED_TYPE *ptr,
               COOKIE_TYPE  *cookie,
               void        (*deleter)(MANAGED_BASE*, COOKIE_BASE *));
-        // [!DEPRECATED!] Instead, use:
+        // [!DEPRECATED!]: Instead, use:
         //..
         //  template <class MANAGED_TYPE>
         //  void load(MANAGED_TYPE *ptr, void *cookie, DeleterFunc deleter);
@@ -1287,7 +1287,7 @@ struct ManagedPtrUtil {
 
 template <class TARGET_TYPE>
 struct ManagedPtrNilDeleter {
-    // [!DEPRECATED!] Use 'ManagedPtrNoOpDeleter' instead.
+    // [!DEPRECATED!]: Use 'ManagedPtrNoOpDeleter' instead.
     //
     // This utility class provides a general no-op deleter, which is useful
     // when creating managed pointers to stack-allocated objects.  Note that
@@ -1881,6 +1881,10 @@ void ManagedPtr_DefaultDeleter<MANAGED_TYPE>::deleter(void *ptr, void *)
 
 }  // close package namespace
 
+// ============================================================================
+//                                TYPE TRAITS
+// ============================================================================
+
 namespace bslmf {
 
 template <class TARGET_TYPE>
@@ -1890,12 +1894,10 @@ struct HasPointerSemantics<bslma::ManagedPtr<TARGET_TYPE> >
 template <class TARGET_TYPE>
 struct IsBitwiseMoveable<bslma::ManagedPtr<TARGET_TYPE> > : bsl::true_type {};
 
-}  // close namespace bslmf
-
+}  // close traits namespace
 }  // close enterprise namespace
 
 #endif
-
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg Finance L.P.
