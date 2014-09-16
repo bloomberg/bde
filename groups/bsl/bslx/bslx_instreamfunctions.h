@@ -908,7 +908,7 @@ STREAM& InStreamFunctions::bdexStreamIn(STREAM& stream, TYPE& variable)
     using VersionFunctions::maxSupportedBdexVersion;
 
     // Determine if the 'TYPE' requires a version to be externalized using an
-    // arbitrary value for 'serializationVersion'.
+    // arbitrary value for 'versionSelector'.
 
     int version = maxSupportedBdexVersion(&variable, 0);
     if (VersionFunctions::k_NO_VERSION != version) {

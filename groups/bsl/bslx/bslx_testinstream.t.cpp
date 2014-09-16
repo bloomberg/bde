@@ -179,7 +179,7 @@ typedef TestInStream Obj;
 typedef TestOutStream Out;
 typedef TypeCode FC;
 
-const int SERIALIZATION_VERSION = 20131127;
+const int VERSION_SELECTOR = 20131127;
 const int SIZEOF_INT64   = 8;
 const int SIZEOF_INT56   = 7;
 const int SIZEOF_INT48   = 6;
@@ -493,7 +493,7 @@ void testGetArray(const ArrayTestTable *data,
             cout << "\tSPEC : \"" <<  spec << '"' << endl;
         }
 
-        Out o(SERIALIZATION_VERSION);
+        Out o(VERSION_SELECTOR);
         int res = g(&o, spec);
         LOOP2_ASSERT(line, i, 1 == res);
         Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -623,7 +623,7 @@ void testGetScalar(const ScalarTestTable<ElemType> *data,
         if (veryVerbose) {
             cout << "\tSPEC : \"" <<  spec << '"' << endl;
         }
-        Out o(SERIALIZATION_VERSION);
+        Out o(VERSION_SELECTOR);
         int res = g(&o, spec);
         LOOP2_ASSERT(line, i, 1 == res);
         Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -724,7 +724,7 @@ void testGetArrayInputLimit(const InputLimitTestTable *data,
     const int SIZE = 100;
     ElemType array[SIZE];
 
-    Out o(SERIALIZATION_VERSION);
+    Out o(VERSION_SELECTOR);
     int res = g(&o, spec);    ASSERT(res);
 
     {
@@ -828,7 +828,7 @@ void testGetScalarInputLimit(const InputLimitTestTable        *data,
 
     ElemType value;
 
-    Out o(SERIALIZATION_VERSION);
+    Out o(VERSION_SELECTOR);
     int res = g(&o, spec);    ASSERT(res);
 
     {
@@ -1020,11 +1020,13 @@ struct GetArray {
 
       public:
         // CLASS METHODS
-        static int maxSupportedBdexVersion(int serializationVersion);
-            // Return the 'version' to be used with the 'bdexStreamOut' method
-            // corresponding to the specified 'serializationVersion'.  See the
-            // 'bslx' package-level documentation for more information on BDEX
-            // streaming of value-semantic types and containers.
+        static int maxSupportedBdexVersion(int versionSelector);
+            // Return the maximum valid BDEX format version, as indicated by
+            // the specified 'versionSelector', to be passed to the
+            // 'bdexStreamOut' method.  Note that the 'versionSelector' is
+            // expected to be formatted as 'yyyymmdd', a date representation.
+            // See the 'bslx' package-level documentation for more information
+            // on BDEX streaming of value-semantic types and containers.
 
         // CREATORS
         MyPerson();
@@ -1107,7 +1109,7 @@ struct GetArray {
 
     // CLASS METHODS
     inline
-    int MyPerson::maxSupportedBdexVersion(int /* serializationVersion */) {
+    int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
         return 1;
     }
 
@@ -1329,7 +1331,7 @@ int main(int argc, char *argv[]) {
                           << "================" << endl;
 
         for (int requiredInputs = 1; requiredInputs <= 10; ++requiredInputs) {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             for (int i = 0; i < requiredInputs; ++i) {
               o.putInt32(0);
             }
@@ -1390,7 +1392,7 @@ int main(int argc, char *argv[]) {
         {
             char initial = 'a';
             char value = 'b';
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
             Obj mX(o.data(), o.length());
             mX >> value;
@@ -1399,7 +1401,7 @@ int main(int argc, char *argv[]) {
         {
             double initial = 7.0;
             double value = 1.0;
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
             Obj mX(o.data(), o.length());
             mX >> value;
@@ -1410,7 +1412,7 @@ int main(int argc, char *argv[]) {
             bsl::vector<int> value;
             value.push_back(3);
             for (int i = 0; i < 5; ++i) {
-                Out o(SERIALIZATION_VERSION);
+                Out o(VERSION_SELECTOR);
                 o << initial;
                 Obj mX(o.data(), o.length());
                 mX >> value;
@@ -1425,7 +1427,7 @@ int main(int argc, char *argv[]) {
             bsl::string value2 = "bye";
             short initial3 = 2;
             short value3 = 1;
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial1 << initial2 << initial3;
             Obj mX(o.data(), o.length());
             mX >> value1 >> value2 >> value3;
@@ -1463,7 +1465,7 @@ int main(int argc, char *argv[]) {
             cout << "\nTesting 'getString(bsl::string&)'." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));    o.putInt8(0xFF);
             o.putString(bsl::string("beta")) ;    o.putInt8(0xFE);
             o.putString(bsl::string("gamma"));    o.putInt8(0xFD);
@@ -1483,7 +1485,7 @@ int main(int argc, char *argv[]) {
             ASSERT(X.cursor() == X.length());
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));    o.putInt8(0xFF);
             o.makeNextInvalid();
             o.putString(bsl::string("beta")) ;    o.putInt8(0xFE);
@@ -1537,7 +1539,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'getLength'." << endl;
         {
             for (int len = 0; len <= 512; ++len) {
-                TestOutStream out(SERIALIZATION_VERSION);
+                TestOutStream out(VERSION_SELECTOR);
                 out.putVersion(1);
                 out.putLength(len);
                 TestInStream in(out.data(), out.length());
@@ -1622,7 +1624,7 @@ int main(int argc, char *argv[]) {
                           << "===============" << endl;
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -1643,7 +1645,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -1666,7 +1668,7 @@ int main(int argc, char *argv[]) {
         }
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -1841,7 +1843,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef BDE_BUILD_TARGET_EXC
         { // 'getLength'
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(1);
             o.putLength(2);
             o.putLength(3);
@@ -1883,7 +1885,7 @@ int main(int argc, char *argv[]) {
             }
         }
         { // 'getVersion'
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(1);
             o.putVersion(2);
             o.putVersion(3);
@@ -1925,7 +1927,7 @@ int main(int argc, char *argv[]) {
             }
         }
         { // 'getString'
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("aaa"));
             o.putString(bsl::string("ababa"));
             o.putString(bsl::string("abcbabcba"));
@@ -2022,7 +2024,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting 'seek' and 'reset'." << endl;
         {
             const char *SPEC = "k10 k10 k10 k10"; // fairly long stream
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);          ASSERT( 1 == res);
             Obj mX(o.data(), o.length());  const Obj& X = mX;
             ASSERT( 0 == X.cursor());
@@ -4412,7 +4414,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(0);  o.putInt8(1);  o.putInt8(2);  o.putInt8(3);
             Obj mX(o.data(), o.length());  const Obj& X = mX;
             const char *EXPECTED =
@@ -4429,7 +4431,7 @@ int main(int argc, char *argv[]) {
             ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(0);  o.putInt8(1);  o.putInt8(2);  o.putInt8(3);
             o.putInt8(4);  o.putInt8(5);  o.putInt8(6);  o.putInt8(7);
             o.putInt8(8);  o.putInt8(9);  o.putInt8(10); o.putInt8(11);
@@ -4484,7 +4486,7 @@ int main(int argc, char *argv[]) {
             int j;
             LOOP_ASSERT(i, X);
 
-            Out o(SERIALIZATION_VERSION);    o.putInt8(VERSION);
+            Out o(VERSION_SELECTOR);    o.putInt8(VERSION);
             for (j = 0; j < i;  ++j) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
@@ -4521,7 +4523,7 @@ int main(int argc, char *argv[]) {
             LOOP_ASSERT(i, X.cursor() == 0);
 
             // test objects of variable lengths
-            Out o(SERIALIZATION_VERSION);    o.putInt8(VERSION);
+            Out o(VERSION_SELECTOR);    o.putInt8(VERSION);
             for (j = 0; j < i;  ++j) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
@@ -4634,7 +4636,7 @@ int main(int argc, char *argv[]) {
         {
             // Test constructor initialized with a 'char *'.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(1);
             o.putInt8(2);
             o.putInt8(3);
@@ -4656,7 +4658,7 @@ int main(int argc, char *argv[]) {
         {
             // Test constructor initialized with a 'bslstl::StringRef'.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(5);
             o.putInt8(6);
             o.putInt8(7);
@@ -4689,7 +4691,7 @@ int main(int argc, char *argv[]) {
             LOOP_ASSERT(i, !X);
 
             // test objects of variable lengths
-            Out o(SERIALIZATION_VERSION);    o.putInt8(VERSION);
+            Out o(VERSION_SELECTOR);    o.putInt8(VERSION);
             for (int j = 0; j < i;  ++j) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
@@ -4756,9 +4758,9 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nTesting empty spec." << endl;
         {
             const char *SPEC = "";
-            const Out X(SERIALIZATION_VERSION);
+            const Out X(VERSION_SELECTOR);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o) }
             ASSERT(1 == res);
@@ -4771,12 +4773,12 @@ int main(int argc, char *argv[]) {
         {
             const char *SPEC = "A012";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             mX.putInt8(VA[0]);
             mX.putInt8(VA[1]);
             mX.putInt8(VA[2]);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4789,13 +4791,13 @@ int main(int argc, char *argv[]) {
         {
             const char *SPEC = "  A01 \t 2  A3 \t";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             mX.putInt8(VA[0]);
             mX.putInt8(VA[1]);
             mX.putInt8(VA[2]);
             mX.putInt8(VA[3]);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4808,7 +4810,7 @@ int main(int argc, char *argv[]) {
         {
             const char *SPEC = "A0 B12 C0 D12 E345 F67 G8 H90 I123 J45 K6 L78";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             mX.putInt8(VA[0]);
             mX.putInt8(VB[1]);     mX.putInt8(VB[2]);
             mX.putUint8(VC[0]);
@@ -4822,7 +4824,7 @@ int main(int argc, char *argv[]) {
             mX.putFloat32(VK[6]);
             mX.putFloat64(VL[7]);  mX.putFloat64(VL[8]);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4840,10 +4842,10 @@ int main(int argc, char *argv[]) {
                 static char spec[10];    memset((void *) spec, 0, 10);
                 sprintf(spec, "a%d", i);
                 if (veryVerbose) cout << "\tSPEC : \"" << spec << '"' << endl;
-                Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+                Out mX(VERSION_SELECTOR);    const Out& X = mX;
                 mX.putArrayInt8(VA, i);
 
-                Out o(SERIALIZATION_VERSION);
+                Out o(VERSION_SELECTOR);
                 int res = g(&o, spec);
                 if (veryVerbose) { P(o); }
                 ASSERT(1 == res);
@@ -4855,10 +4857,10 @@ int main(int argc, char *argv[]) {
 
             const char *SPEC = "a012";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             for (i = 0; i < 3; ++i) mX.putArrayInt8(VA, i);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4872,7 +4874,7 @@ int main(int argc, char *argv[]) {
         {
             const char *SPEC = "a1 b2 c2 d2 e3 f4 g5 h6 i7 j8 k9 l1";
             if (veryVerbose) cout << "\tSPEC : \"" << SPEC << '"' << endl;
-            Out mX(SERIALIZATION_VERSION);    const Out& X = mX;
+            Out mX(VERSION_SELECTOR);    const Out& X = mX;
             mX.putArrayInt8(VA, 1);
             mX.putArrayInt8(VB, 2);
             mX.putArrayUint8(VC, 2);
@@ -4886,7 +4888,7 @@ int main(int argc, char *argv[]) {
             mX.putArrayFloat32(VK, 9);
             mX.putArrayFloat64(VL, 1);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             int res = g(&o, SPEC);
             if (veryVerbose) { P(o); }
             ASSERT(1 == res);
@@ -4908,7 +4910,7 @@ int main(int argc, char *argv[]) {
             for (int i = 0; i < NUM_TEST; ++i) {
                 if (veryVerbose)
                     cout << "\tSPEC : \"" << SPEC[i] << '"' << endl;
-                Out o(SERIALIZATION_VERSION);
+                Out o(VERSION_SELECTOR);
                 int res = g(&o, SPEC[i]);
                 if (veryVerbose) { P(o); }
                 ASSERT(0 == res);
@@ -4946,7 +4948,7 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << "\nCreate object mX2 w/ an initial value."
                           << endl;
         int i;
-        Out o(SERIALIZATION_VERSION);    o.putInt8(VERSION);
+        Out o(VERSION_SELECTOR);    o.putInt8(VERSION);
         for (i = 0; i < 5; ++i) o.putInt8(i);
         Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
         if (veryVerbose) { P(X2); }

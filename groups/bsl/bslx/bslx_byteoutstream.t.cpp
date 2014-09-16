@@ -84,7 +84,7 @@ using namespace bslx;
 // [24] putArrayFloat64(const double *array, int count);
 // [23] putArrayFloat32(const float *array, int count);
 // [ 4] operator const void *() const;
-// [ 3] int bdexSerializationVersion() const;
+// [ 3] int bdexVersionSelector() const;
 // [ 3] const char *data() const;
 // [ 4] bool isValid() const;
 // [ 3] int length() const;
@@ -149,7 +149,7 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef ByteOutStream Obj;
 
-const int SERIALIZATION_VERSION = 20131127;
+const int VERSION_SELECTOR = 20131127;
 const int SIZEOF_INT64   = 8;
 const int SIZEOF_INT56   = 7;
 const int SIZEOF_INT48   = 6;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 // to 'stdout'.
 //
 // First, we create a 'bslx::ByteOutStream' with an arbitrary value for its
-// 'serializationVersion' and externalize some values:
+// 'versionSelector' and externalize some values:
 //..
     bslx::ByteOutStream outStream(20131127);
     outStream.putInt32(1);
@@ -303,9 +303,9 @@ int main(int argc, char *argv[])
         {
             char value = 'a';
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
-            Obj expected(SERIALIZATION_VERSION);
+            Obj expected(VERSION_SELECTOR);
             mX << value;
             OutStreamFunctions::bdexStreamOut(expected, value);
             ASSERT(X.length() == expected.length());
@@ -314,9 +314,9 @@ int main(int argc, char *argv[])
         {
             double value = 7.0;
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
-            Obj expected(SERIALIZATION_VERSION);
+            Obj expected(VERSION_SELECTOR);
             mX << value;
             OutStreamFunctions::bdexStreamOut(expected, value);
             ASSERT(X.length() == expected.length());
@@ -326,9 +326,9 @@ int main(int argc, char *argv[])
             bsl::vector<int> value;
             for (int i = 0; i < 5; ++i) {
                 if (veryVerbose) { P(i); }
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
-                Obj expected(SERIALIZATION_VERSION);
+                Obj expected(VERSION_SELECTOR);
                 mX << value;
                 OutStreamFunctions::bdexStreamOut(expected, value);
                 LOOP_ASSERT(i, X.length() == expected.length());
@@ -343,9 +343,9 @@ int main(int argc, char *argv[])
             bsl::string value2 = "hello";
             short       value3 = 2;
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
-            Obj expected(SERIALIZATION_VERSION);
+            Obj expected(VERSION_SELECTOR);
             mX << value1 << value2 << value3;
             OutStreamFunctions::bdexStreamOut(expected, value1);
             OutStreamFunctions::bdexStreamOut(expected, value2);
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
             const bsl::string DATA = "hello";
             const int         SIZE = SIZEOF_INT8 + 5 * SIZEOF_INT8;
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putString(DATA);     mX.putInt8(0xff);
             mX.putString(DATA);     mX.putInt8(0xfe);
             mX.putString(DATA);     mX.putInt8(0xfd);
@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
         {
             if (verbose) cout << "\nTesting putLength." << endl;
             {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                        mX.putInt8(0xff);
                 mX.putLength(  1);     mX.putInt8(0xfe);
                 mX.putLength(128);     mX.putInt8(0xfd);
@@ -482,7 +482,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nTesting putVersion." << endl;
             {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                 ASSERT(0 == X.length());
                 mX.putVersion(1);
                 mX.putVersion(2);
@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
                 ASSERT(&mX == &mX.putVersion(7));
             }
             {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                 ASSERT(0 == X.length());
                 mX.putVersion(252);
                 mX.putVersion(253);
@@ -531,7 +531,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putLength(-1));
             ASSERT_SAFE_PASS(mX.putLength(0));
             ASSERT_SAFE_PASS(mX.putLength(1));
@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
         {
             const double DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayFloat64(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayFloat64(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayFloat64(DATA, 2);     mX.putInt8(0xfd);
@@ -615,7 +615,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayFloat64(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayFloat64(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayFloat64(DATA, 0));
@@ -654,7 +654,7 @@ int main(int argc, char *argv[])
         {
             const float DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayFloat32(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayFloat32(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayFloat32(DATA, 2);     mX.putInt8(0xfd);
@@ -700,7 +700,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayFloat32(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayFloat32(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayFloat32(DATA, 0));
@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt64(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayInt64(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayInt64(DATA, 2);     mX.putInt8(0xfd);
@@ -784,7 +784,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint64(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint64(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint64(DATA, 2);     mX.putInt8(0xfd);
@@ -830,7 +830,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt64(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt64(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt64(DATA, 0));
@@ -842,7 +842,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint64(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint64(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint64(DATA, 0));
@@ -882,7 +882,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt56(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayInt56(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayInt56(DATA, 2);     mX.putInt8(0xfd);
@@ -926,7 +926,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint56(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint56(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint56(DATA, 2);     mX.putInt8(0xfd);
@@ -972,7 +972,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt56(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt56(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt56(DATA, 0));
@@ -984,7 +984,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint56(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint56(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint56(DATA, 0));
@@ -1024,7 +1024,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt48(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayInt48(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayInt48(DATA, 2);     mX.putInt8(0xfd);
@@ -1068,7 +1068,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint48(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint48(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint48(DATA, 2);     mX.putInt8(0xfd);
@@ -1114,7 +1114,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt48(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt48(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt48(DATA, 0));
@@ -1126,7 +1126,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint48(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint48(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint48(DATA, 0));
@@ -1166,7 +1166,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Int64 DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt40(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayInt40(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayInt40(DATA, 2);     mX.putInt8(0xfd);
@@ -1210,7 +1210,7 @@ int main(int argc, char *argv[])
         {
             const bsls::Types::Uint64 DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint40(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint40(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint40(DATA, 2);     mX.putInt8(0xfd);
@@ -1256,7 +1256,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt40(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt40(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt40(DATA, 0));
@@ -1268,7 +1268,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint40(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint40(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint40(DATA, 0));
@@ -1308,7 +1308,7 @@ int main(int argc, char *argv[])
         {
             const int DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt32(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayInt32(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayInt32(DATA, 2);     mX.putInt8(0xfd);
@@ -1352,7 +1352,7 @@ int main(int argc, char *argv[])
         {
             const unsigned int DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint32(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint32(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint32(DATA, 2);     mX.putInt8(0xfd);
@@ -1398,7 +1398,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt32(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt32(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt32(DATA, 0));
@@ -1410,7 +1410,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint32(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint32(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint32(DATA, 0));
@@ -1450,7 +1450,7 @@ int main(int argc, char *argv[])
         {
             const int DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt24(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayInt24(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayInt24(DATA, 2);     mX.putInt8(0xfd);
@@ -1494,7 +1494,7 @@ int main(int argc, char *argv[])
         {
             const unsigned int DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint24(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint24(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint24(DATA, 2);     mX.putInt8(0xfd);
@@ -1540,7 +1540,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt24(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt24(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt24(DATA, 0));
@@ -1552,7 +1552,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint24(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint24(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint24(DATA, 0));
@@ -1592,7 +1592,7 @@ int main(int argc, char *argv[])
         {
             const short DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt16(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayInt16(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayInt16(DATA, 2);     mX.putInt8(0xfd);
@@ -1630,7 +1630,7 @@ int main(int argc, char *argv[])
         {
             const unsigned short DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint16(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint16(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint16(DATA, 2);     mX.putInt8(0xfd);
@@ -1670,7 +1670,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt16(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt16(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt16(DATA, 0));
@@ -1682,7 +1682,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint16(0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint16(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint16(DATA, 0));
@@ -1722,7 +1722,7 @@ int main(int argc, char *argv[])
         {
             const char DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayInt8(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayInt8(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayInt8(DATA, 2);     mX.putInt8(0xfd);
@@ -1760,7 +1760,7 @@ int main(int argc, char *argv[])
         {
             const char DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint8(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint8(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint8(DATA, 2);     mX.putInt8(0xfd);
@@ -1799,7 +1799,7 @@ int main(int argc, char *argv[])
         {
             const unsigned char DATA[] = {1, 2, 3};
 
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putArrayUint8(DATA, 0);     mX.putInt8(0xff);
             mX.putArrayUint8(DATA, 1);     mX.putInt8(0xfe);
             mX.putArrayUint8(DATA, 2);     mX.putInt8(0xfd);
@@ -1839,7 +1839,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt8((char *)0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt8(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 0));
@@ -1851,7 +1851,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayInt8((signed char *)0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayInt8(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayInt8(DATA, 0));
@@ -1863,7 +1863,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint8((char *)0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint8(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 0));
@@ -1875,7 +1875,7 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.putArrayUint8((unsigned char *)0, 0));
             ASSERT_SAFE_FAIL(mX.putArrayUint8(DATA, -1));
             ASSERT_SAFE_PASS(mX.putArrayUint8(DATA, 0));
@@ -1908,7 +1908,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putFloat64." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                   mX.putInt8(0xff);
             mX.putFloat64(1);     mX.putInt8(0xfe);
             mX.putFloat64(2);     mX.putInt8(0xfd);
@@ -1968,7 +1968,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putFloat32." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                   mX.putInt8(0xff);
             mX.putFloat32(1);     mX.putInt8(0xfe);
             mX.putFloat32(2);     mX.putInt8(0xfd);
@@ -2029,7 +2029,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putInt64." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                 mX.putInt8(0xff);
             mX.putInt64(1);     mX.putInt8(0xfe);
             mX.putInt64(2);     mX.putInt8(0xfd);
@@ -2067,7 +2067,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint64." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                  mX.putInt8(0xff);
             mX.putUint64(1);     mX.putInt8(0xfe);
             mX.putUint64(2);     mX.putInt8(0xfd);
@@ -2128,7 +2128,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putInt56." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                 mX.putInt8(0xff);
             mX.putInt56(1);     mX.putInt8(0xfe);
             mX.putInt56(2);     mX.putInt8(0xfd);
@@ -2166,7 +2166,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint56." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                  mX.putInt8(0xff);
             mX.putUint56(1);     mX.putInt8(0xfe);
             mX.putUint56(2);     mX.putInt8(0xfd);
@@ -2227,7 +2227,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putInt48." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                 mX.putInt8(0xff);
             mX.putInt48(1);     mX.putInt8(0xfe);
             mX.putInt48(2);     mX.putInt8(0xfd);
@@ -2265,7 +2265,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint48." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                  mX.putInt8(0xff);
             mX.putUint48(1);     mX.putInt8(0xfe);
             mX.putUint48(2);     mX.putInt8(0xfd);
@@ -2326,7 +2326,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putInt40." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                 mX.putInt8(0xff);
             mX.putInt40(1);     mX.putInt8(0xfe);
             mX.putInt40(2);     mX.putInt8(0xfd);
@@ -2364,7 +2364,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint40." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                  mX.putInt8(0xff);
             mX.putUint40(1);     mX.putInt8(0xfe);
             mX.putUint40(2);     mX.putInt8(0xfd);
@@ -2425,7 +2425,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putInt32." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                 mX.putInt8(0xff);
             mX.putInt32(1);     mX.putInt8(0xfe);
             mX.putInt32(2);     mX.putInt8(0xfd);
@@ -2463,7 +2463,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint32." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                  mX.putInt8(0xff);
             mX.putUint32(1);     mX.putInt8(0xfe);
             mX.putUint32(2);     mX.putInt8(0xfd);
@@ -2524,7 +2524,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putInt24." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                 mX.putInt8(0xff);
             mX.putInt24(1);     mX.putInt8(0xfe);
             mX.putInt24(2);     mX.putInt8(0xfd);
@@ -2562,7 +2562,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint24." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                  mX.putInt8(0xff);
             mX.putUint24(1);     mX.putInt8(0xfe);
             mX.putUint24(2);     mX.putInt8(0xfd);
@@ -2623,7 +2623,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putInt16." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                 mX.putInt8(0xff);
             mX.putInt16(1);     mX.putInt8(0xfe);
             mX.putInt16(2);     mX.putInt8(0xfd);
@@ -2661,7 +2661,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint16." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
                                  mX.putInt8(0xff);
             mX.putUint16(1);     mX.putInt8(0xfe);
             mX.putUint16(2);     mX.putInt8(0xfd);
@@ -2725,7 +2725,7 @@ int main(int argc, char *argv[])
         const char *CTRL = ctrl;
 
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             const char *EXPECTED = "";
 
@@ -2741,7 +2741,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putInt8(0);  mX.putInt8(1);  mX.putInt8(2);  mX.putInt8(3);
 
             const char *EXPECTED =
@@ -2759,7 +2759,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putInt8(0);  mX.putInt8(1);  mX.putInt8(2);  mX.putInt8(3);
             mX.putInt8(4);  mX.putInt8(5);  mX.putInt8(6);  mX.putInt8(7);
             mX.putInt8(8);  mX.putInt8(9);  mX.putInt8(10); mX.putInt8(11);
@@ -2780,7 +2780,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             mX.putInt8(  0);  mX.putInt8( 1);  mX.putInt8( 2);  mX.putInt8( 3);
             mX.putInt8(  4);  mX.putInt8( 5);  mX.putInt8( 6);  mX.putInt8( 7);
             mX.putInt8(  8);  mX.putInt8( 9);  mX.putInt8(10);  mX.putInt8(11);
@@ -2831,7 +2831,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting invalidate." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             ASSERT( X &&  X.isValid());
 
             mX.invalidate();
@@ -2849,18 +2849,18 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 'length' and 'data' methods return correct values.
         //:
-        //: 2 'bdexSerializationVersion' returns correct value.
+        //: 2 'bdexVersionSelector' returns correct value.
         //
         // Plan:
         //: 1 Create an empty object, use 'putInt8' to modify state, and
         //:   verify the expected values for the methods.  (C-1)
         //:
-        //: 2 Create empty objects with different 'serializationVersion'
-        //:   constructor values and verify the 'bdexSerializationVersion'
-        //:   method's return value.  (C-2)
+        //: 2 Create empty objects with different 'versionSelector' constructor
+        //:   values and verify the 'bdexVersionSelector' method's return
+        //:   value.  (C-2)
         //
         // Testing:
-        //   int bdexSerializationVersion() const;
+        //   int bdexVersionSelector() const;
         //   const char *data() const;
         //   int length() const;
         // --------------------------------------------------------------------
@@ -2880,7 +2880,7 @@ int main(int argc, char *argv[])
         };
         const int   NUM_TEST = static_cast<int>(sizeof DATA / sizeof *DATA);
         for (int iLen = 0; iLen < NUM_TEST; iLen++) {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             for (int j = 0; j < iLen; j++) {
                 if (veryVerbose) { P(j); }
@@ -2895,13 +2895,12 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(iLen, 0 == memcmp(X.data(), DATA[iLen], bytes));
         }
 
-        if (verbose) cout << "\nTesting bdexSerializationVersion()." << endl;
+        if (verbose) cout << "\nTesting bdexVersionSelector()." << endl;
 
         for (int i = 0; i < 5; ++i) {
             if (veryVerbose) { P(i); }
-            Obj x(SERIALIZATION_VERSION + i);
-            LOOP_ASSERT(i, SERIALIZATION_VERSION + i ==
-                                                 x.bdexSerializationVersion());
+            Obj x(VERSION_SELECTOR + i);
+            LOOP_ASSERT(i, VERSION_SELECTOR + i == x.bdexVersionSelector());
         }
       } break;
       case 2: {
@@ -2966,7 +2965,7 @@ int main(int argc, char *argv[])
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
 
-            Obj mX(SERIALIZATION_VERSION, 100);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR, 100);  const Obj& X = mX;
             ASSERT(0 == X.length());
             ASSERT(allocations + 1 == defaultAllocator.numAllocations());
             mX.putInt8(1);
@@ -2991,7 +2990,7 @@ int main(int argc, char *argv[])
             ASSERT(&mX == &mX.putInt8(1));
         }
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
             mX.reserveCapacity(300);     // Make larger than default
@@ -3019,7 +3018,7 @@ int main(int argc, char *argv[])
         {
             bsls::Types::Int64 allocations = ta.numAllocations();
 
-            Obj mX(SERIALIZATION_VERSION, 100, &ta);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR, 100, &ta);  const Obj& X = mX;
             ASSERT(0 == X.length());
             ASSERT(allocations + 1 == ta.numAllocations());
             mX.putInt8(1);
@@ -3044,7 +3043,7 @@ int main(int argc, char *argv[])
             ASSERT(&mX == &mX.putInt8(1));
         }
         {
-            Obj mX(SERIALIZATION_VERSION, &ta);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR, &ta);  const Obj& X = mX;
 
             bsls::Types::Int64 allocations = ta.numAllocations();
             mX.reserveCapacity(300);     // Make larger than default
@@ -3069,7 +3068,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting putUint8." << endl;
         {
-            Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+            Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
             ASSERT(0 == X.length());
             mX.putUint8(1);
             mX.putUint8(2);
@@ -3097,7 +3096,7 @@ int main(int argc, char *argv[])
         {
             const int NUM_TEST = 5;
             for (int iLen = 1; iLen < NUM_TEST; iLen++) {
-                Obj mX(SERIALIZATION_VERSION);  const Obj& X = mX;
+                Obj mX(VERSION_SELECTOR);  const Obj& X = mX;
 
                 for (int j = 0; j < iLen; j++) {
                     if (veryVerbose) { P(j); }
@@ -3126,11 +3125,11 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard
                                           hG(bsls::AssertTest::failTestDriver);
 
-            ASSERT_SAFE_FAIL(Obj x(SERIALIZATION_VERSION, -1));
-            ASSERT_SAFE_PASS(Obj x(SERIALIZATION_VERSION, 0));
-            ASSERT_SAFE_PASS(Obj x(SERIALIZATION_VERSION, 1));
+            ASSERT_SAFE_FAIL(Obj x(VERSION_SELECTOR, -1));
+            ASSERT_SAFE_PASS(Obj x(VERSION_SELECTOR, 0));
+            ASSERT_SAFE_PASS(Obj x(VERSION_SELECTOR, 1));
 
-            Obj mX(SERIALIZATION_VERSION);
+            Obj mX(VERSION_SELECTOR);
             ASSERT_SAFE_FAIL(mX.reserveCapacity(-1));
             ASSERT_SAFE_PASS(mX.reserveCapacity(0));
             ASSERT_SAFE_PASS(mX.reserveCapacity(1));
@@ -3161,7 +3160,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         if (verbose) cout << "\nCreate object x1 using default ctor." << endl;
-        Obj x1(SERIALIZATION_VERSION);;
+        Obj x1(VERSION_SELECTOR);;
         ASSERT(0 == x1.length());
 
         if (verbose) cout << "\nTry putInt32 with x1." << endl;

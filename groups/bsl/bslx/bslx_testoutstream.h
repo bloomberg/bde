@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 // to 'stdout'.
 //
 // First, we create a 'bslx::TestOutStream' with an arbitrary value for its
-// 'serializationVersion' and externalize some values:
+// 'versionSelector' and externalize some values:
 //..
 //  bslx::TestOutStream outStream(20131127);
 //  outStream.putInt32(1);
@@ -202,26 +202,28 @@ class TestOutStream {
 
   public:
     // CREATORS
-    explicit TestOutStream(int               serializationVersion,
+    explicit TestOutStream(int               versionSelector,
                            bslma::Allocator *basicAllocator = 0);
         // Create an empty test output stream that will use the specified
-        // 'serializationVersion' as needed (see the 'bslx' package-level
-        // documentation for a description of 'serializationVersion').
+        // 'versionSelector' as needed (see the 'bslx' package-level
+        // documentation for a description of 'versionSelector').
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // used.  Note that the 'versionSelector' is expected to be formatted
+        // as 'yyyymmdd', a date representation.
 
-    TestOutStream(int               serializationVersion,
+    TestOutStream(int               versionSelector,
                   int               initialCapacity,
                   bslma::Allocator *basicAllocator = 0);
         // Create an empty test output stream having an initial buffer capacity
         // of at least the specified 'initialCapacity' (in bytes) and that will
-        // use the specified 'serializationVersion' as needed (see the 'bslx'
+        // use the specified 'versionSelector' as needed (see the 'bslx'
         // package-level documentation for a description of
-        // 'serializationVersion').  Optionally specify a 'basicAllocator' used
+        // 'versionSelector').  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined unless
-        // '0 <= initialCapacity'.
+        // '0 <= initialCapacity'.  Note that the 'versionSelector' is expected
+        // to be formatted as 'yyyymmdd', a date representation.
 
     ~TestOutStream();
         // Destroy this object.
@@ -769,9 +771,9 @@ class TestOutStream {
         // An invalid stream is a stream for which an output operation was
         // detected to have failed or 'invalidate' was called.
 
-    int bdexSerializationVersion() const;
-        // Return the 'serializationVersion' to be used with 'operator<<' for
-        // BDEX streaming as per the 'bslx' package-level documentation.
+    int bdexVersionSelector() const;
+        // Return the 'versionSelector' to be used with 'operator<<' for BDEX
+        // streaming as per the 'bslx' package-level documentation.
 
     const char *data() const;
         // Return the address of the contiguous, non-modifiable internal memory
@@ -854,9 +856,9 @@ TestOutStream::operator const void *() const
 }
 
 inline
-int TestOutStream::bdexSerializationVersion() const
+int TestOutStream::bdexVersionSelector() const
 {
-    return d_imp.bdexSerializationVersion();
+    return d_imp.bdexVersionSelector();
 }
 
 inline

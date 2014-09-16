@@ -141,11 +141,13 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CLASS METHODS
-//      static int maxSupportedBdexVersion(int serializationVersion);
-//          // Return the 'version' to be used with the 'bdexStreamOut' method
-//          // corresponding to the specified 'serializationVersion'.  See the
-//          // 'bslx' package-level documentation for more information on BDEX
-//          // streaming of value-semantic types and containers.
+//      static int maxSupportedBdexVersion(int versionSelector);
+//          // Return the maximum valid BDEX format version, as indicated by
+//          // the specified 'versionSelector', to be passed to the
+//          // 'bdexStreamOut' method.  Note that the 'versionSelector' is
+//          // expected to be formatted as 'yyyymmdd', a date representation.
+//          // See the 'bslx' package-level documentation for more information
+//          // on BDEX streaming of value-semantic types and containers.
 //
 //      // CREATORS
 //      MyPoint();
@@ -198,9 +200,9 @@ BSLS_IDENT("$Id: $")
 //
 //  // CLASS METHODS
 //  inline
-//  int MyPoint::maxSupportedBdexVersion(int serializationVersion)
+//  int MyPoint::maxSupportedBdexVersion(int versionSelector)
 //  {
-//      if (serializationVersion >= 20131201) {
+//      if (versionSelector >= 20131201) {
 //          return 2;
 //      }
 //      return 1;
@@ -911,8 +913,8 @@ STREAM& OutStreamFunctions::bdexStreamOut(STREAM& stream, const TYPE& value)
 {
     using VersionFunctions::maxSupportedBdexVersion;
 
-    const int version =
-            maxSupportedBdexVersion(&value, stream.bdexSerializationVersion());
+    const int version = maxSupportedBdexVersion(&value,
+                                                stream.bdexVersionSelector());
     if (VersionFunctions::k_NO_VERSION != version) {
         stream.putVersion(version);
     }
@@ -1219,8 +1221,8 @@ STREAM& OutStreamFunctions::bdexStreamOut(
 {
     using VersionFunctions::maxSupportedBdexVersion;
 
-    const int version =
-            maxSupportedBdexVersion(&value, stream.bdexSerializationVersion());
+    const int version = maxSupportedBdexVersion(&value,
+                                                stream.bdexVersionSelector());
 
     stream.putVersion(version);
     return bdexStreamOut(stream, value, version);

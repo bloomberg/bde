@@ -690,7 +690,7 @@ class MyTestClass {
 
   public:
     // CLASS METHODS
-    static int maxSupportedBdexVersion(int serializationVersion);
+    static int maxSupportedBdexVersion(int versionSelector);
 
     // CREATORS
     MyTestClass() { }
@@ -701,8 +701,8 @@ class MyTestClass {
     STREAM& bdexStreamIn(STREAM& stream, int version);
 };
 
-int MyTestClass::maxSupportedBdexVersion(int serializationVersion) {
-    if (serializationVersion >= 20131201) return 2;
+int MyTestClass::maxSupportedBdexVersion(int versionSelector) {
+    if (versionSelector >= 20131201) return 2;
     return 1;
 }
 

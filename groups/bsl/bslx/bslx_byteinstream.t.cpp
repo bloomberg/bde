@@ -156,7 +156,7 @@ static void aSsErT(int c, const char *s, int i)
 typedef ByteInStream Obj;
 typedef ByteOutStream Out;
 
-const int SERIALIZATION_VERSION = 20131127;
+const int VERSION_SELECTOR = 20131127;
 const int SIZEOF_INT64   = 8;
 const int SIZEOF_INT32   = 4;
 const int SIZEOF_INT16   = 2;
@@ -245,15 +245,15 @@ STREAM& bdexStreamOut(STREAM&                    stream,
 
 inline
 int maxSupportedBdexVersion(const MyStruct::EnumValue *,
-                            int                        serializationVersion)
+                            int                        versionSelector)
     // Return the 'version' to be used with the 'bdexStreamOut' method
-    // corresponding to the specified 'serializationVersion'.  See the 'bslx'
+    // corresponding to the specified 'versionSelector'.  See the 'bslx'
     // package-level documentation for more information on BDEX streaming of
     // value-semantic types and containers.
 {
     using bslx::VersionFunctions::maxSupportedBdexVersion;
 
-    return serializationVersion >= SERIALIZATION_VERSION ? 2 : 1;
+    return versionSelector >= VERSION_SELECTOR ? 2 : 1;
 }
 
 }  // close ThirdParty namespace
@@ -295,11 +295,13 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
 
       public:
         // CLASS METHODS
-        static int maxSupportedBdexVersion(int serializationVersion);
-            // Return the 'version' to be used with the 'bdexStreamOut' method
-            // corresponding to the specified 'serializationVersion'.  See the
-            // 'bslx' package-level documentation for more information on BDEX
-            // streaming of value-semantic types and containers.
+        static int maxSupportedBdexVersion(int versionSelector);
+            // Return the maximum valid BDEX format version, as indicated by
+            // the specified 'versionSelector', to be passed to the
+            // 'bdexStreamOut' method.  Note that the 'versionSelector' is
+            // expected to be formatted as 'yyyymmdd', a date representation.
+            // See the 'bslx' package-level documentation for more information
+            // on BDEX streaming of value-semantic types and containers.
 
         // CREATORS
         MyPerson();
@@ -378,7 +380,7 @@ int maxSupportedBdexVersion(const MyStruct::EnumValue *,
 
     // CLASS METHODS
     inline
-    int MyPerson::maxSupportedBdexVersion(int /* serializationVersion */) {
+    int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
         return 1;
     }
 
@@ -613,7 +615,7 @@ if (veryVerbose) {
         {
             using bslx::VersionFunctions::maxSupportedBdexVersion;
             ThirdParty::MyStruct::EnumValue *v = 0;
-            ASSERT(2 == maxSupportedBdexVersion(v, SERIALIZATION_VERSION));
+            ASSERT(2 == maxSupportedBdexVersion(v, VERSION_SELECTOR));
             ASSERT(1 == maxSupportedBdexVersion(v, 0));
         }
         {
@@ -622,7 +624,7 @@ if (veryVerbose) {
             ThirdParty::MyStruct::EnumValue value   =
                                                      ThirdParty::MyStruct::e_B;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
             P(o.length());
             ASSERT(3 == o.length());
@@ -680,7 +682,7 @@ if (veryVerbose) {
             char initial = 'a';
             char value = 'b';
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
 
             Obj mX(o.data(), o.length());
@@ -691,7 +693,7 @@ if (veryVerbose) {
             double initial = 7.0;
             double value = 1.0;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
 
             Obj mX(o.data(), o.length());
@@ -705,7 +707,7 @@ if (veryVerbose) {
             for (int i = 0; i < 5; ++i) {
                 if (veryVerbose) { P(i); }
 
-                Out o(SERIALIZATION_VERSION);
+                Out o(VERSION_SELECTOR);
                 o << initial;
 
                 Obj mX(o.data(), o.length());
@@ -722,7 +724,7 @@ if (veryVerbose) {
             short       initial3 = 2;
             short       value3 = 1;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial1 << initial2 << initial3;
 
             Obj mX(o.data(), o.length());
@@ -738,7 +740,7 @@ if (veryVerbose) {
             char initial = 'a';
             char value = 'b';
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -754,7 +756,7 @@ if (veryVerbose) {
             char initial = 'a';
             char value = 'b';
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o << initial;
 
             Obj mX(o.data(), o.length());
@@ -796,7 +798,7 @@ if (veryVerbose) {
                           << "===============" << endl;
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -819,7 +821,7 @@ if (veryVerbose) {
         }
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -844,7 +846,7 @@ if (veryVerbose) {
         }
 
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
             o.putString(bsl::string("beta"));
             o.putString(bsl::string("gamma"));
@@ -913,7 +915,7 @@ if (veryVerbose) {
             cout << "\nTesting 'getString(bsl::string&)'." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));    o.putInt8(0xFF);
             o.putString(bsl::string("beta"));     o.putInt8(0xFE);
             o.putString(bsl::string("gamma"));    o.putInt8(0xFD);
@@ -938,7 +940,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -953,7 +955,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putString(bsl::string("alpha"));
 
             Obj mX(o.data(), o.length());
@@ -991,7 +993,7 @@ if (veryVerbose) {
             cout << "\nTesting getLength(int&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(1);             o.putInt8(0xFF);
             o.putLength(128);           o.putInt8(0xFE);
             o.putLength(3);             o.putInt8(0xFD);
@@ -1013,7 +1015,7 @@ if (veryVerbose) {
             ASSERT(X.cursor() == X.length());
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(128);             o.putInt8(0xFD);
             o.putLength(127);             o.putInt8(0xFE);
             o.putLength(256);             o.putInt8(0xFF);
@@ -1037,7 +1039,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1051,7 +1053,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putLength(3);
 
             Obj mX(o.data(), o.length());
@@ -1063,7 +1065,7 @@ if (veryVerbose) {
             cout << "\nTesting getVersion(int&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(1);
             o.putVersion(2);
             o.putVersion(3);
@@ -1081,7 +1083,7 @@ if (veryVerbose) {
             ASSERT(X.cursor() == X.length());
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(252);
             o.putVersion(253);
             o.putVersion(254);
@@ -1101,7 +1103,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1115,7 +1117,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putVersion(3);
 
             Obj mX(o.data(), o.length());
@@ -1157,7 +1159,7 @@ if (veryVerbose) {
             const double DATA[] = { 1, 2, 3 };
             const double V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 0);             o.putInt8(0xFF);
             o.putArrayFloat64(DATA, 1);             o.putInt8(0xFE);
             o.putArrayFloat64(DATA, 2);             o.putInt8(0xFD);
@@ -1194,7 +1196,7 @@ if (veryVerbose) {
 
             const double DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1210,7 +1212,7 @@ if (veryVerbose) {
 
             const double DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -1224,7 +1226,7 @@ if (veryVerbose) {
         {
             double DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat64(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1284,7 +1286,7 @@ if (veryVerbose) {
             const float DATA[] = { 1, 2, 3 };
             const float V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 0);             o.putInt8(0xFF);
             o.putArrayFloat32(DATA, 1);             o.putInt8(0xFE);
             o.putArrayFloat32(DATA, 2);             o.putInt8(0xFD);
@@ -1321,7 +1323,7 @@ if (veryVerbose) {
 
             const float DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1337,7 +1339,7 @@ if (veryVerbose) {
 
             const float DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -1351,7 +1353,7 @@ if (veryVerbose) {
         {
             float DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayFloat32(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1412,7 +1414,7 @@ if (veryVerbose) {
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Int64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt64(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt64(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt64(DATA, 2);             o.putInt8(0xFD);
@@ -1449,7 +1451,7 @@ if (veryVerbose) {
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt64(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1465,7 +1467,7 @@ if (veryVerbose) {
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt64(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -1483,7 +1485,7 @@ if (veryVerbose) {
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Uint64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint64(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint64(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint64(DATA, 2);            o.putInt8(0xFD);
@@ -1520,7 +1522,7 @@ if (veryVerbose) {
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint64(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1536,7 +1538,7 @@ if (veryVerbose) {
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint64(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -1552,7 +1554,7 @@ if (veryVerbose) {
         {
             bsls::Types::Int64 DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt64(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1579,7 +1581,7 @@ if (veryVerbose) {
         {
             bsls::Types::Uint64 DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint64(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1639,7 +1641,7 @@ if (veryVerbose) {
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Int64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt56(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt56(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt56(DATA, 2);             o.putInt8(0xFD);
@@ -1676,7 +1678,7 @@ if (veryVerbose) {
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt56(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1692,7 +1694,7 @@ if (veryVerbose) {
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt56(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -1710,7 +1712,7 @@ if (veryVerbose) {
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Uint64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint56(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint56(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint56(DATA, 2);            o.putInt8(0xFD);
@@ -1746,7 +1748,7 @@ if (veryVerbose) {
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint56(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1762,7 +1764,7 @@ if (veryVerbose) {
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint56(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -1778,7 +1780,7 @@ if (veryVerbose) {
         {
             bsls::Types::Int64 DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt56(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1805,7 +1807,7 @@ if (veryVerbose) {
         {
             bsls::Types::Uint64 DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint56(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -1865,7 +1867,7 @@ if (veryVerbose) {
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Int64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt48(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt48(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt48(DATA, 2);             o.putInt8(0xFD);
@@ -1902,7 +1904,7 @@ if (veryVerbose) {
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt48(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1918,7 +1920,7 @@ if (veryVerbose) {
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt48(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -1936,7 +1938,7 @@ if (veryVerbose) {
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Uint64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint48(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint48(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint48(DATA, 2);            o.putInt8(0xFD);
@@ -1973,7 +1975,7 @@ if (veryVerbose) {
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint48(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -1989,7 +1991,7 @@ if (veryVerbose) {
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint48(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2005,7 +2007,7 @@ if (veryVerbose) {
         {
             bsls::Types::Int64 DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt48(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2032,7 +2034,7 @@ if (veryVerbose) {
         {
             bsls::Types::Uint64 DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint48(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2092,7 +2094,7 @@ if (veryVerbose) {
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Int64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt40(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt40(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt40(DATA, 2);             o.putInt8(0xFD);
@@ -2129,7 +2131,7 @@ if (veryVerbose) {
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt40(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -2145,7 +2147,7 @@ if (veryVerbose) {
 
             const bsls::Types::Int64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt40(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2163,7 +2165,7 @@ if (veryVerbose) {
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
             const bsls::Types::Uint64 V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint40(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint40(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint40(DATA, 2);            o.putInt8(0xFD);
@@ -2200,7 +2202,7 @@ if (veryVerbose) {
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint40(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -2216,7 +2218,7 @@ if (veryVerbose) {
 
             const bsls::Types::Uint64 DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint40(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2232,7 +2234,7 @@ if (veryVerbose) {
         {
             bsls::Types::Int64 DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt40(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2259,7 +2261,7 @@ if (veryVerbose) {
         {
             bsls::Types::Uint64 DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint40(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2319,7 +2321,7 @@ if (veryVerbose) {
             const int DATA[] = { 1, 2, 3 };
             const int V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt32(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt32(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt32(DATA, 2);             o.putInt8(0xFD);
@@ -2356,7 +2358,7 @@ if (veryVerbose) {
 
             const int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt32(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -2372,7 +2374,7 @@ if (veryVerbose) {
 
             const int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt32(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2390,7 +2392,7 @@ if (veryVerbose) {
             const unsigned int DATA[] = { 1, 2, 3 };
             const unsigned int V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint32(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint32(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint32(DATA, 2);            o.putInt8(0xFD);
@@ -2427,7 +2429,7 @@ if (veryVerbose) {
 
             const unsigned int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint32(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -2443,7 +2445,7 @@ if (veryVerbose) {
 
             const unsigned int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint32(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2458,7 +2460,7 @@ if (veryVerbose) {
             cout << "\nNegative Testing." << endl;
         {
             int DATA[5];
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt32(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2484,7 +2486,7 @@ if (veryVerbose) {
         {
             unsigned int DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint32(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2545,7 +2547,7 @@ if (veryVerbose) {
             const int DATA[] = { 1, 2, 3 };
             const int V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt24(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt24(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt24(DATA, 2);             o.putInt8(0xFD);
@@ -2582,7 +2584,7 @@ if (veryVerbose) {
 
             const int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt24(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -2598,7 +2600,7 @@ if (veryVerbose) {
 
             const int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt24(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2616,7 +2618,7 @@ if (veryVerbose) {
             const unsigned int DATA[] = { 1, 2, 3 };
             const unsigned int V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint24(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint24(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint24(DATA, 2);            o.putInt8(0xFD);
@@ -2653,7 +2655,7 @@ if (veryVerbose) {
 
             const unsigned int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint24(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -2669,7 +2671,7 @@ if (veryVerbose) {
 
             const unsigned int DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint24(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2684,7 +2686,7 @@ if (veryVerbose) {
             cout << "\nNegative Testing." << endl;
         {
             int DATA[5];
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt24(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2710,7 +2712,7 @@ if (veryVerbose) {
         {
             unsigned int DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint24(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2770,7 +2772,7 @@ if (veryVerbose) {
             const short DATA[] = { 1, 2, 3 };
             const short V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt16(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt16(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt16(DATA, 2);             o.putInt8(0xFD);
@@ -2807,7 +2809,7 @@ if (veryVerbose) {
 
             const short DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt16(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -2823,7 +2825,7 @@ if (veryVerbose) {
 
             const short DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt16(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2841,7 +2843,7 @@ if (veryVerbose) {
             const unsigned short DATA[] = { 1, 2, 3 };
             const unsigned short V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint16(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint16(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint16(DATA, 2);            o.putInt8(0xFD);
@@ -2878,7 +2880,7 @@ if (veryVerbose) {
 
             const unsigned short DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint16(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -2894,7 +2896,7 @@ if (veryVerbose) {
 
             const unsigned short DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint16(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -2910,7 +2912,7 @@ if (veryVerbose) {
         {
             short DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt16(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2936,7 +2938,7 @@ if (veryVerbose) {
         {
             unsigned short DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint16(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -2999,7 +3001,7 @@ if (veryVerbose) {
             const char DATA[] = { 1, 2, 3 };
             const char V = static_cast<char>(0xFF);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt8(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt8(DATA, 2);             o.putInt8(0xFD);
@@ -3036,7 +3038,7 @@ if (veryVerbose) {
 
             const char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3052,7 +3054,7 @@ if (veryVerbose) {
 
             const char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -3070,7 +3072,7 @@ if (veryVerbose) {
             const signed char DATA[] = { 1, 2, 3 };
             const signed char V = static_cast<signed char>(0xFF);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 0);             o.putInt8(0xFF);
             o.putArrayInt8(DATA, 1);             o.putInt8(0xFE);
             o.putArrayInt8(DATA, 2);             o.putInt8(0xFD);
@@ -3106,7 +3108,7 @@ if (veryVerbose) {
 
             const signed char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3122,7 +3124,7 @@ if (veryVerbose) {
 
             const signed char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -3140,7 +3142,7 @@ if (veryVerbose) {
             const char DATA[] = { 1, 2, 3 };
             const char V = static_cast<char>(0xFF);
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint8(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint8(DATA, 2);            o.putInt8(0xFD);
@@ -3177,7 +3179,7 @@ if (veryVerbose) {
 
             const char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3193,7 +3195,7 @@ if (veryVerbose) {
 
             const char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -3211,7 +3213,7 @@ if (veryVerbose) {
             const unsigned char DATA[] = { 1, 2, 3 };
             const unsigned char V = 0xFF;
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 0);            o.putInt8(0xFF);
             o.putArrayUint8(DATA, 1);            o.putInt8(0xFE);
             o.putArrayUint8(DATA, 2);            o.putInt8(0xFD);
@@ -3247,7 +3249,7 @@ if (veryVerbose) {
 
             const unsigned char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3263,7 +3265,7 @@ if (veryVerbose) {
 
             const unsigned char DATA[] = { 1, 2, 3 };
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 3);
 
             Obj mX(o.data(), o.length());
@@ -3279,7 +3281,7 @@ if (veryVerbose) {
         {
             char DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -3305,7 +3307,7 @@ if (veryVerbose) {
         {
             signed char DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayInt8(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -3332,7 +3334,7 @@ if (veryVerbose) {
         {
             char DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -3358,7 +3360,7 @@ if (veryVerbose) {
         {
             unsigned char DATA[5];
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putArrayUint8(DATA, 5);
 
             bsls::AssertFailureHandlerGuard
@@ -3410,7 +3412,7 @@ if (veryVerbose) {
             cout << "\nTesting getFloat64." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat64(1);           o.putInt8(0xFF);
             o.putFloat64(2);           o.putInt8(0xFE);
             o.putFloat64(3);           o.putInt8(0xFD);
@@ -3434,7 +3436,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat64(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3448,7 +3450,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat64(3);
 
             Obj mX(o.data(), o.length());
@@ -3484,7 +3486,7 @@ if (veryVerbose) {
             cout << "\nTesting getFloat32." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat32(1);           o.putInt8(0xFF);
             o.putFloat32(2);           o.putInt8(0xFE);
             o.putFloat32(3);           o.putInt8(0xFD);
@@ -3508,7 +3510,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat32(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3522,7 +3524,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putFloat32(3);
 
             Obj mX(o.data(), o.length());
@@ -3559,7 +3561,7 @@ if (veryVerbose) {
             cout << "\nTesting getInt64." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt64(1);             o.putInt8(0xFF);
             o.putInt64(2);             o.putInt8(0xFE);
             o.putInt64(3);             o.putInt8(0xFD);
@@ -3583,7 +3585,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt64(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3597,7 +3599,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt64(3);
 
             Obj mX(o.data(), o.length());
@@ -3612,7 +3614,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint64." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint64(1);             o.putInt8(0xFF);
             o.putUint64(2);             o.putInt8(0xFE);
             o.putUint64(3);             o.putInt8(0xFD);
@@ -3636,7 +3638,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint64(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3650,7 +3652,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint64(3);
 
             Obj mX(o.data(), o.length());
@@ -3687,7 +3689,7 @@ if (veryVerbose) {
             cout << "\nTesting getInt56." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt56(1);             o.putInt8(0xFF);
             o.putInt56(2);             o.putInt8(0xFE);
             o.putInt56(3);             o.putInt8(0xFD);
@@ -3711,7 +3713,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt56(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3725,7 +3727,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt56(3);
 
             Obj mX(o.data(), o.length());
@@ -3740,7 +3742,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint56." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint56(1);             o.putInt8(0xFF);
             o.putUint56(2);             o.putInt8(0xFE);
             o.putUint56(3);             o.putInt8(0xFD);
@@ -3764,7 +3766,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint56(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3778,7 +3780,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint56(3);
 
             Obj mX(o.data(), o.length());
@@ -3816,7 +3818,7 @@ if (veryVerbose) {
             cout << "\nTesting getInt48." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt48(1);             o.putInt8(0xFF);
             o.putInt48(2);             o.putInt8(0xFE);
             o.putInt48(3);             o.putInt8(0xFD);
@@ -3840,7 +3842,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt48(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3854,7 +3856,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt48(3);
 
             Obj mX(o.data(), o.length());
@@ -3869,7 +3871,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint48." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint48(1);             o.putInt8(0xFF);
             o.putUint48(2);             o.putInt8(0xFE);
             o.putUint48(3);             o.putInt8(0xFD);
@@ -3893,7 +3895,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint48(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3907,7 +3909,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint48(3);
 
             Obj mX(o.data(), o.length());
@@ -3945,7 +3947,7 @@ if (veryVerbose) {
             cout << "\nTesting getInt40." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt40(1);             o.putInt8(0xFF);
             o.putInt40(2);             o.putInt8(0xFE);
             o.putInt40(3);             o.putInt8(0xFD);
@@ -3969,7 +3971,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt40(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -3983,7 +3985,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt40(3);
 
             Obj mX(o.data(), o.length());
@@ -3998,7 +4000,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint40." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint40(1);             o.putInt8(0xFF);
             o.putUint40(2);             o.putInt8(0xFE);
             o.putUint40(3);             o.putInt8(0xFD);
@@ -4021,7 +4023,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint40(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4035,7 +4037,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint40(3);
 
             Obj mX(o.data(), o.length());
@@ -4073,7 +4075,7 @@ if (veryVerbose) {
             cout << "\nTesting getInt32." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt32(1);             o.putInt8(0xFF);
             o.putInt32(2);             o.putInt8(0xFE);
             o.putInt32(3);             o.putInt8(0xFD);
@@ -4098,7 +4100,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt32(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4112,7 +4114,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt32(3);
 
             Obj mX(o.data(), o.length());
@@ -4127,7 +4129,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint32." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint32(1);             o.putInt8(0xFF);
             o.putUint32(2);             o.putInt8(0xFE);
             o.putUint32(3);             o.putInt8(0xFD);
@@ -4151,7 +4153,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint32(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4165,7 +4167,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint32(3);
 
             Obj mX(o.data(), o.length());
@@ -4203,7 +4205,7 @@ if (veryVerbose) {
             cout << "\nTesting getInt24." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt24(1);             o.putInt8(0xFF);
             o.putInt24(2);             o.putInt8(0xFE);
             o.putInt24(3);             o.putInt8(0xFD);
@@ -4227,7 +4229,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt24(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4241,7 +4243,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt24(3);
 
             Obj mX(o.data(), o.length());
@@ -4256,7 +4258,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint24." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint24(1);             o.putInt8(0xFF);
             o.putUint24(2);             o.putInt8(0xFE);
             o.putUint24(3);             o.putInt8(0xFD);
@@ -4280,7 +4282,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint24(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4294,7 +4296,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint24(3);
 
             Obj mX(o.data(), o.length());
@@ -4332,7 +4334,7 @@ if (veryVerbose) {
             cout << "\nTesting getInt16." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt16(1);             o.putInt8(0xFF);
             o.putInt16(2);             o.putInt8(0xFE);
             o.putInt16(3);             o.putInt8(0xFD);
@@ -4356,7 +4358,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt16(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4370,7 +4372,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt16(3);
 
             Obj mX(o.data(), o.length());
@@ -4385,7 +4387,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint16." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint16(1);             o.putInt8(0xFF);
             o.putUint16(2);             o.putInt8(0xFE);
             o.putUint16(3);             o.putInt8(0xFD);
@@ -4409,7 +4411,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint16(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4423,7 +4425,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint16(3);
 
             Obj mX(o.data(), o.length());
@@ -4463,7 +4465,7 @@ if (veryVerbose) {
             cout << "\nTesting getInt8(signed char&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(1);
             o.putInt8(2);
             o.putInt8(3);
@@ -4485,7 +4487,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4499,7 +4501,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(3);
 
             Obj mX(o.data(), o.length());
@@ -4514,7 +4516,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint8(char&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(1);
             o.putUint8(2);
             o.putUint8(3);
@@ -4536,7 +4538,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4550,7 +4552,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(3);
 
             Obj mX(o.data(), o.length());
@@ -4565,7 +4567,7 @@ if (veryVerbose) {
             cout << "\nTesting getUint8(unsigned char&)." << endl;
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(1);
             o.putUint8(2);
             o.putUint8(3);
@@ -4587,7 +4589,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4601,7 +4603,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putUint8(3);
 
             Obj mX(o.data(), o.length());
@@ -4660,7 +4662,7 @@ if (veryVerbose) {
             ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(0);  o.putInt8(1);  o.putInt8(2);  o.putInt8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4680,7 +4682,7 @@ if (veryVerbose) {
             ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(0);  o.putInt8(1);  o.putInt8(2);  o.putInt8(3);
             o.putInt8(4);  o.putInt8(5);  o.putInt8(6);  o.putInt8(7);
             o.putInt8(8);  o.putInt8(9);  o.putInt8(10); o.putInt8(11);
@@ -4703,7 +4705,7 @@ if (veryVerbose) {
             ASSERT(0 == memcmp(buf + LEN, CTRL + LEN, SIZE - LEN));
         }
         {
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(  0);  o.putInt8( 1);  o.putInt8( 2);  o.putInt8( 3);
             o.putInt8(  4);  o.putInt8( 5);  o.putInt8( 6);  o.putInt8( 7);
             o.putInt8(  8);  o.putInt8( 9);  o.putInt8(10);  o.putInt8(11);
@@ -4763,7 +4765,7 @@ if (veryVerbose) {
             LOOP_ASSERT(i, X);
             LOOP_ASSERT(i, 0 == X.data());
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             for (j = 0; j < i;  j++) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;
@@ -4800,7 +4802,7 @@ if (veryVerbose) {
             LOOP_ASSERT(i, X.cursor() == 0);
 
             // test objects of variable lengths
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             for (j = 0; j < i; j++) {
                 o.putInt8(j);
             }
@@ -4878,7 +4880,7 @@ if (veryVerbose) {
         {
             // Test constructor initialized with a 'char *'.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(1);
             o.putInt8(2);
             o.putInt8(3);
@@ -4900,7 +4902,7 @@ if (veryVerbose) {
         {
             // Test constructor initialized with a 'bslstl::StringRef'.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(5);
             o.putInt8(6);
             o.putInt8(7);
@@ -4924,7 +4926,7 @@ if (veryVerbose) {
         {
             // Verify method has no effect if the stream is invalid.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(3);
 
             Obj mX(o.data(), o.length());  const Obj& X = mX;
@@ -4938,7 +4940,7 @@ if (veryVerbose) {
         {
             // Verify the return value.
 
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             o.putInt8(3);
 
             Obj mX(o.data(), o.length());
@@ -4960,7 +4962,7 @@ if (veryVerbose) {
             LOOP_ASSERT(i, !X);
 
             // test objects of variable lengths
-            Out o(SERIALIZATION_VERSION);
+            Out o(VERSION_SELECTOR);
             for (int j = 0; j < i;  j++) o.putInt8(j);
 
             Obj mX2(o.data(), o.length());  const Obj& X2 = mX2;

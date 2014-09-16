@@ -100,11 +100,13 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CLASS METHODS
-//      static int maxSupportedBdexVersion(int serializationVersion);
-//          // Return the 'version' to be used with the 'bdexStreamOut' method
-//          // corresponding to the specified 'serializationVersion'.  See the
-//          // 'bslx' package-level documentation for more information on BDEX
-//          // streaming of value-semantic types and containers.
+//      static int maxSupportedBdexVersion(int versionSelector);
+//          // Return the maximum valid BDEX format version, as indicated by
+//          // the specified 'versionSelector', to be passed to the
+//          // 'bdexStreamOut' method.  Note that the 'versionSelector' is
+//          // expected to be formatted as 'yyyymmdd', a date representation.
+//          // See the 'bslx' package-level documentation for more information
+//          // on BDEX streaming of value-semantic types and containers.
 //
 //      // CREATORS
 //      MyPerson();
@@ -183,7 +185,7 @@ BSLS_IDENT("$Id: $")
 //
 //  // CLASS METHODS
 //  inline
-//  int MyPerson::maxSupportedBdexVersion(int /* serializationVersion */) {
+//  int MyPerson::maxSupportedBdexVersion(int /* versionSelector */) {
 //      return 1;
 //  }
 //

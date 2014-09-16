@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 // to 'stdout'.
 //
 // First, we create a 'bslx::ByteOutStream' with an arbitrary value for its
-// 'serializationVersion' and externalize some values:
+// 'versionSelector' and externalize some values:
 //..
 //  bslx::ByteOutStream outStream(20131127);
 //  outStream.putInt32(1);
@@ -196,8 +196,8 @@ class ByteOutStream {
     // DATA
     bsl::vector<char> d_buffer;     // byte buffer to write to
 
-    int               d_serializationVersion;
-                                    // 'serializationVersion' to use with
+    int               d_versionSelector;
+                                    // 'versionSelector' to use with
                                     // 'operator<<' as per the 'bslx'
                                     // package-level documentation
 
@@ -219,26 +219,28 @@ class ByteOutStream {
 
   public:
     // CREATORS
-    explicit ByteOutStream(int               serializationVersion,
+    explicit ByteOutStream(int               versionSelector,
                            bslma::Allocator *basicAllocator = 0);
         // Create an empty output byte stream that will use the specified
-        // 'serializationVersion' as needed (see the 'bslx' package-level
-        // documentation for a description of 'serializationVersion').
+        // 'versionSelector' as needed (see the 'bslx' package-level
+        // documentation for a description of 'versionSelector').
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // used.  Note that the 'versionSelector' is expected to be formatted
+        // as 'yyyymmdd', a date representation.
 
-    ByteOutStream(int               serializationVersion,
+    ByteOutStream(int               versionSelector,
                   int               initialCapacity,
                   bslma::Allocator *basicAllocator = 0);
         // Create an empty output byte stream having an initial buffer capacity
         // of at least the specified 'initialCapacity' (in bytes) and that will
-        // use the specified 'serializationVersion' as needed (see the 'bslx'
+        // use the specified 'versionSelector' as needed (see the 'bslx'
         // package-level documentation for a description of
-        // 'serializationVersion').  Optionally specify a 'basicAllocator' used
+        // 'versionSelector').  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.  The behavior is undefined unless
-        // '0 <= initialCapacity'.
+        // '0 <= initialCapacity'.  Note that the 'versionSelector' is expected
+        // to be formatted as 'yyyymmdd', a date representation.
 
     ~ByteOutStream();
         // Destroy this object.
@@ -601,9 +603,9 @@ class ByteOutStream {
         // An invalid stream is a stream for which an output operation was
         // detected to have failed or 'invalidate' was called.
 
-    int bdexSerializationVersion() const;
-        // Return the 'serializationVersion' to be used with 'operator<<' for
-        // BDEX streaming as per the 'bslx' package-level documentation.
+    int bdexVersionSelector() const;
+        // Return the 'versionSelector' to be used with 'operator<<' for BDEX
+        // streaming as per the 'bslx' package-level documentation.
 
     const char *data() const;
         // Return the address of the contiguous, non-modifiable internal memory
@@ -651,20 +653,20 @@ void ByteOutStream::validate()
 
 // CREATORS
 inline
-ByteOutStream::ByteOutStream(int               serializationVersion,
+ByteOutStream::ByteOutStream(int               versionSelector,
                              bslma::Allocator *basicAllocator)
 : d_buffer(basicAllocator)
-, d_serializationVersion(serializationVersion)
+, d_versionSelector(versionSelector)
 , d_validFlag(true)
 {
 }
 
 inline
-ByteOutStream::ByteOutStream(int               serializationVersion,
+ByteOutStream::ByteOutStream(int               versionSelector,
                              int               initialCapacity,
                              bslma::Allocator *basicAllocator)
 : d_buffer(basicAllocator)
-, d_serializationVersion(serializationVersion)
+, d_versionSelector(versionSelector)
 , d_validFlag(true)
 {
     BSLS_ASSERT_SAFE(0 <= initialCapacity);
@@ -1560,9 +1562,9 @@ ByteOutStream::operator const void *() const
 }
 
 inline
-int ByteOutStream::bdexSerializationVersion() const
+int ByteOutStream::bdexVersionSelector() const
 {
-    return d_serializationVersion;
+    return d_versionSelector;
 }
 
 inline
