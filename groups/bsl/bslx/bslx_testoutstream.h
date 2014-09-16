@@ -71,6 +71,23 @@ BSLS_IDENT("$Id: $")
 // *validity*.  Writing to an initially invalid stream has no effect.  Whenever
 // an output operation fails, the stream should be invalidated explicitly.
 //
+///Versioning
+///----------
+// BDEX provides two concepts that support versioning the BDEX serialization
+// format of a type: 'version' and 'versionSelector'.  A 'version' is a 0 based
+// enumeration of the supported formats (e.g., format 0, format 1, etc.).  A
+// 'serializationVersion' is a value which is mapped to the maximum supported
+// 'version' for a component by the component's implementation of
+// 'bdexMaxSupportedVersion'.  Whenever a new 'version' format is implemented
+// within the 'bdexStreamOut' method of a component, a new entry in
+// 'maxSupportedBdexVersion' should be created to expose this new 'version'
+// with a 'serializationVersion' no less than the greatest used
+// 'serializationVersion' throughout the code base.  A simple approach is to
+// use the value 'yyyymmdd', where 'yyyymmdd' corresponds to the implementation
+// date, for the 'versionSelector'.  Any value used as a 'versionSelector' must
+// be a *compile*-time selected value to avoid errors.  See the 'bslx'
+// package-level documentation for more detailed information about versioning.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -204,26 +221,24 @@ class TestOutStream {
     // CREATORS
     explicit TestOutStream(int               versionSelector,
                            bslma::Allocator *basicAllocator = 0);
-        // Create an empty test output stream that will use the specified
-        // 'versionSelector' as needed (see the 'bslx' package-level
-        // documentation for a description of 'versionSelector').
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Note that the 'versionSelector' is expected to be formatted
-        // as 'yyyymmdd', a date representation.
+        // Create an empty output byte stream that will use the specified
+        // (*compile*-time defined) 'versionSelector' as needed (see
+        // {Versioning}).  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  Note that the 'versionSelector' is expected to
+        // be formatted as 'yyyymmdd', a date representation.
 
     TestOutStream(int               versionSelector,
                   int               initialCapacity,
                   bslma::Allocator *basicAllocator = 0);
-        // Create an empty test output stream having an initial buffer capacity
+        // Create an empty output byte stream having an initial buffer capacity
         // of at least the specified 'initialCapacity' (in bytes) and that will
-        // use the specified 'versionSelector' as needed (see the 'bslx'
-        // package-level documentation for a description of
-        // 'versionSelector').  Optionally specify a 'basicAllocator' used
-        // to supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  The behavior is undefined unless
-        // '0 <= initialCapacity'.  Note that the 'versionSelector' is expected
-        // to be formatted as 'yyyymmdd', a date representation.
+        // use the specified (*compile*-time defined) 'versionSelector' as
+        // needed (see {Versioning}).  Optionally specify a 'basicAllocator'
+        // used to supply memory.  If 'basicAllocator' is 0, the currently
+        // installed default allocator is used.  The behavior is undefined
+        // unless '0 <= initialCapacity'.  Note that the 'versionSelector' is
+        // expected to be formatted as 'yyyymmdd', a date representation.
 
     ~TestOutStream();
         // Destroy this object.

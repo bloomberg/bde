@@ -431,6 +431,80 @@
  would use that data member's BDEX methods rather than the stream's methods
  directly.  This is important for encapsulation.
 
+/Recommended Selection of 'versionSelector'
+/-----------------------------------------------
+ BDEX provides two concepts that support versioning the BDEX serialization
+ format of a type: 'version' and 'versionSelector'.  A 'version' is a 0 based
+ enumeration of the supported formats (e.g., format 0, format 1, etc.).  A
+ 'serializationVersion' is a value which is mapped to the maximum supported
+ 'version' for a component by the component's implementation of
+ 'bdexMaxSupportedVersion'.  Whenever a new 'version' format is implemented
+ within the 'bdexStreamOut' method of a component, a new entry in
+ 'maxSupportedBdexVersion' should be created to expose this new 'version' with
+ a 'serializationVersion' no less than the greatest used 'serializationVersion'
+ throughout the code base.  A simple approach is to use the value 'yyyymmdd',
+ where 'yyyymmdd' corresponds to the implementation date, for the
+ 'versionSelector'.
+
+ Clients streaming out a component with BDEX create a stream and supply a
+ 'versionSelector':
+  ..
+    MyObject foo( /* some value */ );
+    bslx::ByteOutStream stream(201422507);   // The date on which this code was
+                                             // written.
+    stream << foo;
+  ..
+ Notice that the 'versionSelector' is a *compile*-time selected value (in this
+ case the date at which the code was written) that can be mapped to the
+ serialization format version of the components being serialized.  Specifying
+ future dates or allowing a run-time selection of 'versionSelector' is error
+ prone: tasks exchanging serialized data are often compiled and deployed at
+ different times, which would result in serialization errors if they were
+ selecting a serialization version at run-time (there is no guarantee the
+ receiver has been rebuilt to accept the updated format version).  Typically,
+ during initial development the output stream will be constructed with the
+ fixed value of 'yyyymmdd' corresponding to the current date and this value
+ will not be changed in future releases.
+
+ For an example, assume the 'MyPoint' class is determined to need 64-bit
+ storage for the coordinate values.  The new 'bdexStreamOut' code might be
+ implemented as:
+..
+ template <class STREAM>
+ STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
+ {
+     switch (version) {
+       case 2: {
+         stream.putInt64(d_x);
+         stream.putInt64(d_y);
+       } break;
+       case 1: { // NOTE: 'd_x' and 'd_y' were switched to 64-bit
+         stream.putInt32(static_cast<int>(d_x));
+         stream.putInt32(static_cast<int>(d_y));
+       } break;
+       default: {
+         stream.invalidate();
+       } break;
+     }
+     return stream;
+ }
+..
+ The corresponding 'maxSupportedBdexVersion', where '20140402' is the date on
+ which the new version is introduced, might look something like:
+..
+ inline
+ int MyPoint::maxSupportedBdexVersion(int versionSelector)
+ {
+     if (versionSelector >= 20140402) {
+         return 2;                                                // RETURN
+     }
+     return 1;
+ }
+..
+ Note that the value used for comparison appends a '0' to this date; this
+ indicates it is the first revision for that date and - although unlikely -
+ subsequent releases on the same day would use consecutively higher values.
+
 /Overloading BDEX Free Functions
 /-------------------------------
  For third-party components, and potentially enumerations, three free functions
@@ -539,67 +613,10 @@
  }  // close ThirdParty namespace
 ..
 
-/Recommended Selection of 'versionSelector'
-/-----------------------------------------------
- In this section we present the recommended method for selecting the
- 'versionSelector' value when implementing the 'maxSupportedBdexVersion'
- method and when constructing an output stream.
-
- Whenever a new 'version' is implemented within the 'bdexStreamOut' method of a
- component, typically a new entry in 'maxSupportedBdexVersion' should be
- created to expose this new 'version'.  Assuming the recommendations for
- selecting the 'versionSelector' when constructing an output stream are
- followed, then a simple approach is to use the value 'yyyymmdd' where
- 'yyyymmdd' corresponds to the current date.
-
- Assuming the recommendations within this Appendix are followed, the best value
- for 'versionSelector' to use is the minimum value that will result in the
- correct externalization 'version' being selected for all externalized objects.
- Any fixed value with 'yyyymmdd' specified as a date in the past will result in
- predictable, safe behavior.  Specifying future dates or allowing a run-time
- selection of 'versionSelector' is error prone.  Typically, during initial
- development the output stream will be constructed with the fixed value of
- 'yyyymmdd' corresponding to the current date and this value will not be
- changed in future releases.
-
- For an example, assume the 'MyPoint' class is determined to need 64-bit
- storage for the coordinate values.  The new 'bdexStreamOut' code might be
- implemented as:
-..
- template <class STREAM>
- STREAM& MyPoint::bdexStreamOut(STREAM& stream, int version) const
- {
-     switch (version) {
-       case 2: {
-         stream.putInt64(d_x);
-         stream.putInt64(d_y);
-       } break;
-       case 1: { // NOTE: 'd_x' and 'd_y' were switched to 64-bit
-         stream.putInt32(static_cast<int>(d_x));
-         stream.putInt32(static_cast<int>(d_y));
-       } break;
-       default: {
-         stream.invalidate();
-       } break;
-     }
-     return stream;
- }
-..
- The corresponding 'maxSupportedBdexVersion', where '20140402' is the date on
- which the new version is introduced, might look something like:
-..
- inline
- int MyPoint::maxSupportedBdexVersion(int versionSelector)
- {
-     if (versionSelector >= 20140402) {
-         return 2;                                                // RETURN
-     }
-     return 1;
- }
-..
- Note that the value used for comparison appends a '0' to this date; this
- indicates it is the first revision for that date and - although unlikely -
- subsequent releases on the same day would use consecutively higher values.
+/Backward Compatibility with Older BDEX Serialization Packages
+/-------------------------------------------------------------
+ Users of the previous implementation of the BDEX concept can find
+ documentation on compatibility in the older package documentation.
 
 @Appendix I: The BDEX 'OutStream' Protocol
  In this section we present the function documentation of BDEX 'OutStream',
