@@ -30,14 +30,19 @@ namespace bsl
     // Import selected symbols into bsl namespace
     using native_std::accumulate;
     using native_std::adjacent_difference;
+    using native_std::inner_product;
+    using native_std::partial_sum;
+    
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    // Import additional names expected by existing code, but not mandated by
+    // the standard header.
     using native_std::bidirectional_iterator_tag;
     using native_std::forward_iterator_tag;
-    using native_std::inner_product;
     using native_std::input_iterator_tag;
     using native_std::iterator;
     using native_std::output_iterator_tag;
-    using native_std::partial_sum;
     using native_std::random_access_iterator_tag;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif

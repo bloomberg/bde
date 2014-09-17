@@ -32,6 +32,14 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
+    using native_std::istrstream;
+    using native_std::ostrstream;
+    using native_std::strstream;
+    using native_std::strstreambuf;
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    // Import additional names expected by existing code, but not mandated by
+    // the standard header.
     using native_std::bad_exception;
     using native_std::basic_ios;
     using native_std::basic_iostream;
@@ -50,20 +58,16 @@ namespace bsl
     using native_std::input_iterator_tag;
     using native_std::ios_base;
     using native_std::istreambuf_iterator;
-    using native_std::istrstream;
     using native_std::iterator;
     using native_std::locale;
     using native_std::num_get;
     using native_std::numpunct;
     using native_std::numpunct_byname;
     using native_std::ostreambuf_iterator;
-    using native_std::ostrstream;
     using native_std::output_iterator_tag;
     using native_std::random_access_iterator_tag;
     using native_std::set_terminate;
     using native_std::set_unexpected;
-    using native_std::strstream;
-    using native_std::strstreambuf;
     using native_std::swap;
     using native_std::terminate;
     using native_std::terminate_handler;
@@ -72,6 +76,7 @@ namespace bsl
     using native_std::unexpected_handler;
     using native_std::use_facet;
     using native_std::ws;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }
 
 #endif
