@@ -14,19 +14,24 @@
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
-//                             ---------
+//                                  TEST PLAN
+//                                  ---------
+//-----------------------------------------------------------------------------
 // [ 3] void deleter(obj, factory)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] Test machinery
+// [ 2] TEST MACHINERY
+// [ 2] class MyTestObject
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -34,12 +39,13 @@ void aSsErT(bool b, const char *s, int i)
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
-
 }
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
+
+// ============================================================================
+//                      STANDARD BDE TEST DRIVER MACROS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
@@ -70,16 +76,18 @@ void aSsErT(bool b, const char *s, int i)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 //=============================================================================
-//                         HELPER CLASSES FOR TESTING
+//                      HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace {
 
 class MyTestObject {
     // This test-class serves three purposes.  It provides a base class for the
     // test classes in this test driver, so that derived -> base conversions
     // can be tested.  It also signals when its destructor is run by
-    // incrementing an externally managed counter, supplied when each object
-    // is created.  Finally, it exposes an internal data structure that can be
-    // use to demonstrate the 'bslma::ManagedPtr' aliasing facility.
+    // incrementing an externally managed counter, supplied when each object is
+    // created.  Finally, it exposes an internal data structure that can be
+    // used to demonstrate the 'bslma::ManagedPtr' aliasing facility.
 
     // DATA
     volatile int *d_deleteCounter_p;
@@ -88,18 +96,30 @@ class MyTestObject {
   public:
     // CREATORS
     explicit MyTestObject(int *counter);
+        // Create a 'MyTestObject' using the specified 'counter' to record when
+        // this object's destructor is run.
 
-    // Use compiler-generated copy constructor and assignment operator
-    // MyTestObject(MyTestObject const& orig);
-    // MyTestObject operator=(MyTestObject const& orig);
+    //! MyTestObject(const MyTestObject& original) = default;
+        // Create a 'MyTestObject' object having the same value as the
+        // specified 'original' object.
 
     virtual ~MyTestObject();
         // Destroy this object.
 
-    // ACCESSORS
-    int *valuePtr(int index = 0) const;
+    // MANIPULATORS
+    //! MyTestObject& operator=(const MyTestObject& rhs) = default;
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
 
+    // ACCESSORS
     volatile int *deleteCounter() const;
+        // Return the address of the counter used to track when this object's
+        // destructor is run.
+
+    int *valuePtr(int index = 0) const;
+        // Return the address of the value associated with the optionally
+        // specified 'index', and the address of the first such object if no
+        // 'index' is specified.
 };
 
 MyTestObject::MyTestObject(int *counter)
@@ -110,7 +130,12 @@ MyTestObject::MyTestObject(int *counter)
 
 MyTestObject::~MyTestObject()
 {
-    ++(*d_deleteCounter_p);
+    ++*d_deleteCounter_p;
+}
+
+volatile int* MyTestObject::deleteCounter() const
+{
+    return d_deleteCounter_p;
 }
 
 inline
@@ -119,11 +144,6 @@ int *MyTestObject::valuePtr(int index) const
     BSLS_ASSERT_SAFE(2 > index);
 
     return d_value + index;
-}
-
-volatile int* MyTestObject::deleteCounter() const
-{
-    return d_deleteCounter_p;
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -141,14 +161,22 @@ class CountedStackDeleter
   public:
     // CREATORS
     explicit CountedStackDeleter(int *counter) : d_deleteCounter_p(counter) {}
+        // Create a 'CountedStackDeleter' using the specified 'counter' to
+        // record when this object is invoked as a deleter.
 
     //! ~CountedStackDeleter();
         // Destroy this object.
 
     // ACCESSORS
     volatile int *deleteCounter() const { return d_deleteCounter_p; }
+        // Return the address of the counter used to track when this object is
+        // invoked as a deleter.
 
     void deleteObject(void *) const
+        // Increment the count of calls to this function.  Note that there is
+        // no attempt to destroy the object pointed to by the function argument
+        // as it is excepted to exist on the function call-stack and by
+        // destroyed on exiting the relevant function scope.
     {
         ++*d_deleteCounter_p;
     }
@@ -159,7 +187,7 @@ class CountedStackDeleter
 }  // close unnamed namespace
 
 //=============================================================================
-//                  TEST PROGRAM
+//                              TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
@@ -169,18 +197,27 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
 
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&da);
+
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&da == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING bslma::ManagedPtr_FactoryDeleter
+        // TESTING 'bslma::ManagedPtr_FactoryDeleter'
         //
         // Concerns:
         //: 1 'bslma::ManagedPtr_FactoryDeleter<T,U>::deleter(obj, factory)'
@@ -199,11 +236,11 @@ int main(int argc, char *argv[])
         //: 1 blah ...
         //
         // Testing:
-        //    ManagedPtr_FactoryDeleter<T,U>::deleter(obj, factory)
+        //    void deleter(obj, factory)
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING bslma::ManagedPtr_FactoryDeleter"
-                            "\n----------------------------------------\n");
+        if (verbose) printf("\nTESTING 'bslma::ManagedPtr_FactoryDeleter'"
+                            "\n==========================================\n");
 
         typedef bslma::ManagedPtr_FactoryDeleter<MyTestObject,
                                              CountedStackDeleter > TestFactory;
@@ -223,7 +260,9 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(parallelCount, 1 == parallelCount);
         }
 
-#if 0
+#if 0   // This is the intended use-case, but cannot be tested directly due to
+        // cyclic dependencies.
+
         if (verbose) printf("\tConfirm the deleter can be registered with "
                              "a managed pointer\n");
 
@@ -315,11 +354,12 @@ int main(int argc, char *argv[])
         //:   allocator guards.
         //
         // Testing:
+        //    TEST MACHINERY
         //    class MyTestObject
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TEST MACHINERY"
-                            "\n----------------------\n");
+                            "\n======================\n");
 
         if (verbose) printf("\tTest class MyTestObject\n");
 
@@ -350,6 +390,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This test exercises basic functionality but *tests* *nothing*.
         //
         // Concerns:
         //   1. That the functions exist with the documented signatures.
@@ -360,11 +401,11 @@ int main(int argc, char *argv[])
         //   sequence to ensure that the basic functionality is as documented.
         //
         // Testing:
-        //   This test exercises basic functionality but *tests* *nothing*.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
-                            "\n--------------\n");
+                            "\n==============\n");
 
         printf("Nothing tested yet.\n");
       } break;

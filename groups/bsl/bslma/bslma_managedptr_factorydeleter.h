@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a basic deleter for the managed pointer class.
 //
 //@CLASSES:
-//  bdema::ManagedPtr_FactoryDeleter: deduced deleter used by bslma::ManagedPtr
+//  bslma::ManagedPtr_FactoryDeleter: deduced deleter used by bslma::ManagedPtr
 //
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
@@ -28,6 +28,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
+
+#pragma bde_verify set ok_unquoted object
 
 namespace BloombergLP {
 namespace bslma {
