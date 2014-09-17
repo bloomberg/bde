@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an exception class to indicate a weak_ptr has expired.
 //
 //@CLASSES:
-//   bslstl::BadWeakPtr: exception class derived from 'native_std' classes
-//    bsl::bad_weak_ptr: alias to an exception type thrown by the bsl library
+//  bslstl::BadWeakPtr: exception class derived from 'native_std' classes
+//  bsl::bad_weak_ptr: alias to an exception type thrown by the bsl library
 //
 //@SEE_ALSO: bslstl_sharedptr, bslstl_stdexceptionutil
 //
@@ -35,10 +35,6 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
-#include <bsls_exceptionutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -66,11 +62,10 @@ typedef native_std::bad_weak_ptr bad_weak_ptr;
 typedef ::BloombergLP::bslstl::BadWeakPtr bad_weak_ptr;
 #endif
 
-}  // close namespace bsl
+}  // close 'bsl' namespace
 
 
 namespace BloombergLP {
-
 namespace bslstl {
 
                        // ================
@@ -90,14 +85,14 @@ class BadWeakPtr : public native_std::exception {
         // storage duration of the lifetime of the program.  Note that the
         // caller should *not* attempt to free this memory.  Note that the
         // 'bsls_exceptionutil' macro 'BSLS_NOTHROW_SPEC' is deliberately not
-        // used here, as a number of standard libraries declare the base
-        // 'exception' class explicitly with the no-throw specification, even
-        // in a build that may not recongnise exceptions.
+        // used here, as a number of standard libraries declare 'what' in the
+        // base 'exception' class explicitly with the no-throw specification,
+        // even in a build that may not recongnise exceptions.
 };
 
-// ===========================================================================
-//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
 
                        // ----------------
                        // class BadWeakPtr
@@ -115,8 +110,7 @@ const char *BadWeakPtr::what() const throw()
     return "bad_weak_ptr";
 }
 
-}  // close namespace bslalg
-
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

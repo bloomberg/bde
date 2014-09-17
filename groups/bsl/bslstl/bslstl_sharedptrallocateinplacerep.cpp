@@ -1,18 +1,17 @@
-// bslstl_badweakptr.cpp                                              -*-C++-*-
-#include <bslstl_badweakptr.h>
+// bslstl_sharedptrallocateinplacerep.cpp                             -*-C++-*-
+#include <bslstl_sharedptrallocateinplacerep.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
-
 namespace bslstl {
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright (C) 2013 Bloomberg Finance L.P.
+// Copyright (C) 2014 Bloomberg L.P.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
