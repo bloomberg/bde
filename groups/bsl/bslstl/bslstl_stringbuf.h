@@ -558,11 +558,14 @@ basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 {
     BSLS_ASSERT(d_mode & ios_base::in);
     BSLS_ASSERT(&d_str[0] <= currentInputPosition);
-    BSLS_ASSERT(currentInputPosition <= &d_str[0] + streamSize());
+    BSLS_ASSERT(currentInputPosition <=
+                        &d_str[0] + static_cast<std::ptrdiff_t>(streamSize()));
 
     char_type *dataPtr = &d_str[0];
 
-    this->setg(dataPtr, currentInputPosition, dataPtr + streamSize());
+    this->setg(dataPtr,
+               currentInputPosition,
+               dataPtr + static_cast<std::ptrdiff_t>(streamSize()));
     return pos_type(currentInputPosition - dataPtr);
 }
 
@@ -599,7 +602,7 @@ void basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
 
         this->setg(dataPtr,
                    dataPtr + inputOffset,
-                   dataPtr + streamSize());
+                   dataPtr + static_cast<std::ptrdiff_t>(streamSize()));
     }
 
     if (d_mode & ios_base::out) {
@@ -672,7 +675,9 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
             inputPtr = this->gptr() + offset;
           } break;
           case ios_base::end: {
-            inputPtr = this->eback() + streamSize() + offset;
+            inputPtr = this->eback()
+                       + static_cast<std::ptrdiff_t>(streamSize())
+                       + offset;
           } break;
           default: {
             BSLS_ASSERT_OPT(false && "invalid seekdir argument");
@@ -680,7 +685,8 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
         }
 
         if (inputPtr < this->eback()
-         || inputPtr > this->eback() + streamSize()) {
+         || inputPtr >
+                   this->eback() + static_cast<std::ptrdiff_t>(streamSize())) {
             // 'inputPtr' is outside the valid range of the string buffer.
 
             return pos_type(off_type(-1));                            // RETURN
@@ -702,14 +708,17 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
             outputPtr = this->pptr() + offset;
           } break;
           case ios_base::end: {
-            outputPtr = this->pbase() + streamSize() + offset;
+            outputPtr = this->pbase()
+                      + static_cast<std::ptrdiff_t>(streamSize())
+                      + offset;
           } break;
           default:
             BSLS_ASSERT_OPT(false && "invalid seekdir argument");
         }
 
         if (outputPtr < this->pbase()
-         || outputPtr > this->pbase() + streamSize()) {
+         || outputPtr >
+                   this->pbase() + static_cast<std::ptrdiff_t>(streamSize())) {
             // 'outputPtr' is outside the valid range of the string buffer.
 
             return pos_type(off_type(-1));                            // RETURN
@@ -1029,7 +1038,8 @@ inline
 typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
     basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
 {
-    return StringType(d_str.begin(), d_str.begin() + streamSize());
+    return StringType(d_str.begin(), d_str.begin()
+                                  + static_cast<std::ptrdiff_t>(streamSize()));
 }
 
 }  // close namespace bsl
