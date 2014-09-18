@@ -14,9 +14,9 @@ BSLS_IDENT("$Id$")
 //
 //@SEE ALSO: bdldfp_decimal, bdldfp_decimalplatform
 //
-//@DESCRIPTION:
-// This component provides functions that are able to convert between the
-// native decimal types of the platform and various other possible
+//@DESCRIPTION: This component provides namespace,
+// 'bdldfp::DecimalConvertUtil', containing functions that are able to convert
+// between the native decimal types of the platform and various other possible
 // representations, such as binary floating-point, network format (big endian,
 // DPD encoded decimals).
 //
@@ -95,6 +95,26 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimal.h>
 #endif
 
+#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_DECNUMBER
+#include <bdldfp_decimalconvertutil_decnumber.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_IBMXLC
+#include <bdldfp_decimalconvertutil_ibmxlc.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL_INTELDFP
+#include <bdldfp_decimalconvertutil_inteldfp.h>
+#endif
+
+#ifndef INCLUDED_BDLDFP_DECIMALIMPUTIL
+#include <bdldfp_decimalimputil.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ASSERT
+#include <bslmf_assert.h>
+#endif
+
 namespace BloombergLP {
 namespace bdldfp {
                         // ========================
@@ -106,54 +126,19 @@ struct DecimalConvertUtil {
     // between the decimal floating-point types of 'bdldfp_decimal' and various
     // other formats.
 
-    // Convert to Binary Floating-Point from C++ Decimal TR
+  private:
+#ifdef BDLDFP_DECIMALPLATFORM_DECNUMBER
+    typedef DecimalConvertUtil_DecNumber Imp;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    typedef DecimalConvertUtil_IntelDfp  Imp;
+#elif defined(BDLDFP_DECIMALPLATFORM_C99_TR)
+    typedef DecimalConvertUtil_IbmXlc    Imp;
+#else
+    BSLMF_ASSERT(false);
+#endif
 
+  public:
     // CLASS METHODS
-
-                        // decimalToLongDouble functions
-
-    static long double decimal32ToLongDouble (Decimal32  decimal);
-    static long double decimal64ToLongDouble (Decimal64  decimal);
-    static long double decimal128ToLongDouble(Decimal128 decimal);
-    static long double decimalToLongDouble   (Decimal32  decimal);
-    static long double decimalToLongDouble   (Decimal64  decimal);
-    static long double decimalToLongDouble   (Decimal128 decimal);
-        // Return a 'long double' object having the value closest to the value
-        // of the specified 'decimal' object following the conversion rules
-        // defined by IEEE-754:
-        //
-        //: o If the 'decimal' object is a NaN, return a NaN.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative infinity, return
-        //:   infinity of the same sign.
-        //:
-        //: o Otherwise if 'decimal' is positive or negative zero, return zero
-        //:   of the same sign.
-        //:
-        //: o Otherwise if 'decimal' object has an absolute value that is
-        //:   larger than 'std::numeric_limits<long double>::max()', raise the
-        //:   "overflow" floating-point exception and return infinity of the
-        //:   same sign as 'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has an absolute value that is smaller than
-        //:   'std::numeric_limits<long double>::min()', raise the "underflow"
-        //:   floating-point exception and return zero of the same sign as
-        //:   'decimal'.
-        //:
-        //: o Otherwise if 'decimal' has a value that has more significant
-        //:   base-10 digits than 'std::numeric_limits<long double>::digits10',
-        //:   raise the "inexact" floating-point exception, round that value
-        //:   according to the *binary* rounding direction setting of the
-        //:   floating-point environment, and return the result of that.
-        //:
-        //: o Otherwise if 'decimal' has a significand that cannot be exactly
-        //:   represented using binary floating-point, raise the "inexact"
-        //:   floating-point exception, roundthat value according to the
-        //:   *binary* rounding direction setting of the environment, and
-        //:   return the result of that.
-        //:
-        //: o Otherwise use the exact value of the 'other' object for the
-        //:   initialization if this object.
 
                         // decimalToDouble functions
 
@@ -245,43 +230,6 @@ struct DecimalConvertUtil {
         //: o Otherwise use the exact value of the 'other' object for the
         //:   initialization if this object.
 
-                        // decimalFromLongDouble functions
-
-    static Decimal32  decimal32FromLongDouble (long double binary);
-    static Decimal64  decimal64FromLongDouble (long double binary);
-    static Decimal128 decimal128FromLongDouble(long double binary);
-        // Return the original decimal floating-point value stored in the
-        // specified 'binary' floating-point value by a call to the
-        // corresponding 'decimalToLongDouble' function earlier.  Thus this
-        // function provides a limited decimal-binary-decimal round-trip
-        // conversion when used together with 'decimalToLongDouble'.  The
-        // behavior is undefined:
-        //
-        //: o unless 'std::numeric_limits<long double>::radix == 2'.
-        //:
-        //: o unless the decimal is read back into the same size decimal type
-        //    that was passed as argument to 'decimalToLongDouble'.
-        //:
-        //: o unless the decimal is read back from an unchanged 'long double'
-        //:   returned by 'decimalToLongDouble'.
-        //:
-        //: o if the decimal originally stored into the 'long double' had more
-        //:   than 'std::numeric_limits<long double>::digits10' significant
-        //:   digits.
-        //:
-        //: o if the absolute value of the decimal originally stored into the
-        //:   'long double' was larger than
-        //:   'std::numeric_limits<long double>::max()'.
-        //:
-        //: o If the absolute value of the decimal originally stored into the
-        //:   'long double' was larger than
-        //:   'std::numeric_limits<long double>::min()'.
-        //
-        // Note that the purpose of this function is to restore a decimal value
-        // that has been stored earlier into a base-2 floating-point type and
-        // *not* to create a decimal from the exact base-2 value.  Use the
-        // conversion constructors when you are not restoring a decimal.
-
                         // decimalFromDouble functions
 
     static Decimal32  decimal32FromDouble (double binary);
@@ -351,6 +299,58 @@ struct DecimalConvertUtil {
         // *not* to create a decimal from the exact base-2 value.  Use the
         // conversion constructors when you are not restoring a decimal.
 
+                        // decimalToDenselyPacked functions
+
+    static void decimal32ToDenselyPacked( unsigned char *buffer,
+                                          Decimal32      decimal);
+    static void decimal64ToDenselyPacked( unsigned char *buffer,
+                                          Decimal64      decimal);
+    static void decimal128ToDenselyPacked(unsigned char *buffer,
+                                          Decimal128     decimal);
+    static void decimalToDenselyPacked(   unsigned char *buffer,
+                                          Decimal32      decimal);
+    static void decimalToDenselyPacked(   unsigned char *buffer,
+                                          Decimal64      decimal);
+    static void decimalToDenselyPacked(   unsigned char *buffer,
+                                          Decimal128     decimal);
+        // Populate the specified 'buffer' with the Densely Packed Decimal
+        // (DPD) representation of the specified 'decimal' value.  The DPD
+        // representations of 'Decimal32', 'Decimal64', and 'Decimal128'
+        // require 4, 8, and 16 bytes respectively.  The behavior is undefined
+        // unless 'buffer' points to a contiguous sequence of at least
+        // 'sizeof(decimal)' bytes.  Note that the DPD representation is
+        // defined in section 3.5 of IEEE 754-2008.
+
+                        // decimalFromDenselyPacked functions
+
+    static Decimal32  decimal32FromDenselyPacked( const unsigned char *buffer);
+    static Decimal64  decimal64FromDenselyPacked( const unsigned char *buffer);
+    static Decimal128 decimal128FromDenselyPacked(const unsigned char *buffer);
+        // Return the native implementation representation of the value of the
+        // same size base-10 floating-point value stored in Densely Packed
+        // Decimal format at the specified 'buffer' address.  The behavior is
+        // undefined unless 'buffer' points to a memory area at least
+        // 'sizeof(decimal)' in size containing a value in DPD format.
+
+    static void decimalFromDenselyPacked(   Decimal32           *decimal,
+                                            const unsigned char *buffer);
+    static void decimalFromDenselyPacked(   Decimal64           *decimal,
+                                            const unsigned char *buffer);
+    static void decimalFromDenselyPacked(   Decimal128          *decimal,
+                                            const unsigned char *buffer);
+    static void decimal32FromDenselyPacked( Decimal32           *decimal,
+                                            const unsigned char *buffer);
+    static void decimal64FromDenselyPacked( Decimal64           *decimal,
+                                            const unsigned char *buffer);
+    static void decimal128FromDenselyPacked(Decimal128          *decimal,
+                                            const unsigned char *buffer);
+        // Store, into the specified 'decimal', the native implmentation
+        // representation of the value of the same size base-10 floating point
+        // value represented in Densely Packed Decimal format, at the specified
+        // 'buffer' address.  The behavior is undefined unless 'buffer' points
+        // to a memory area at least 'sizeof(decimal)' in size containing a
+        // value in DPD format.
+
                         // decimalToNetwork functions
 
     static unsigned char *decimal32ToNetwork(unsigned char *buffer,
@@ -403,8 +403,202 @@ struct DecimalConvertUtil {
 };
 
 // ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
+//                              INLINE DEFINITIONS
 // ============================================================================
+
+
+                        // decimalToDouble functions
+
+inline
+double DecimalConvertUtil::decimal32ToDouble(Decimal32 decimal)
+{
+    return Imp::decimalToDouble(decimal);
+}
+
+inline
+double DecimalConvertUtil::decimal64ToDouble(Decimal64 decimal)
+{
+    return Imp::decimalToDouble(decimal);
+}
+
+inline
+double DecimalConvertUtil::decimal128ToDouble(Decimal128 decimal)
+{
+    return Imp::decimalToDouble(decimal);
+}
+
+inline
+double DecimalConvertUtil::decimalToDouble(Decimal32 decimal)
+{
+    return Imp::decimalToDouble(decimal);
+}
+
+inline
+double DecimalConvertUtil::decimalToDouble(Decimal64 decimal)
+{
+    return Imp::decimalToDouble(decimal);
+}
+
+inline
+double DecimalConvertUtil::decimalToDouble(Decimal128 decimal)
+{
+    return Imp::decimalToDouble(decimal);
+}
+
+                        // decimalToFloat functions
+
+inline
+float DecimalConvertUtil::decimal32ToFloat(Decimal32 decimal)
+{
+    return Imp::decimalToFloat(decimal);
+}
+
+inline
+float DecimalConvertUtil::decimal64ToFloat(Decimal64 decimal)
+{
+    return Imp::decimalToFloat(decimal);
+}
+
+inline
+float DecimalConvertUtil::decimal128ToFloat(Decimal128 decimal)
+{
+    return Imp::decimalToFloat(decimal);
+}
+
+inline
+float DecimalConvertUtil::decimalToFloat(Decimal32 decimal)
+{
+    return Imp::decimalToFloat(decimal);
+}
+
+inline
+float DecimalConvertUtil::decimalToFloat(Decimal64 decimal)
+{
+    return Imp::decimalToFloat(decimal);
+}
+
+inline
+float DecimalConvertUtil::decimalToFloat(Decimal128 decimal)
+{
+    return Imp::decimalToFloat(decimal);
+}
+
+                        // decimalToDenselyPacked functions
+
+inline
+void DecimalConvertUtil::decimal32ToDenselyPacked(unsigned char *buffer,
+                                                  Decimal32      decimal)
+{
+    Imp::decimalToDenselyPacked(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimal64ToDenselyPacked(unsigned char *buffer,
+                                                  Decimal64      decimal)
+{
+    Imp::decimalToDenselyPacked(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimal128ToDenselyPacked(unsigned char *buffer,
+                                                  Decimal128     decimal)
+{
+    Imp::decimalToDenselyPacked(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
+                                                Decimal32      decimal)
+{
+    Imp::decimalToDenselyPacked(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
+                                                Decimal64      decimal)
+{
+    Imp::decimalToDenselyPacked(buffer, decimal);
+}
+
+inline
+void DecimalConvertUtil::decimalToDenselyPacked(unsigned char *buffer,
+                                                Decimal128     decimal)
+{
+    Imp::decimalToDenselyPacked(buffer, decimal);
+}
+
+
+                        // decimalFromDenselyPacked functions
+
+inline
+Decimal32
+DecimalConvertUtil::decimal32FromDenselyPacked(const unsigned char *buffer)
+{
+    return Imp::decimal32FromDenselyPacked(buffer);
+}
+
+inline
+Decimal64
+DecimalConvertUtil::decimal64FromDenselyPacked(const unsigned char *buffer)
+{
+    return Imp::decimal64FromDenselyPacked(buffer);
+}
+
+inline
+Decimal128
+DecimalConvertUtil::decimal128FromDenselyPacked(const unsigned char *buffer)
+{
+    return Imp::decimal128FromDenselyPacked(buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromDenselyPacked(Decimal32           *decimal,
+                                             const unsigned char *buffer)
+{
+    Imp::decimalFromDenselyPacked(decimal, buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromDenselyPacked(Decimal64           *decimal,
+                                             const unsigned char *buffer)
+{
+    Imp::decimalFromDenselyPacked(decimal, buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimalFromDenselyPacked(Decimal128          *decimal,
+                                             const unsigned char *buffer)
+{
+    Imp::decimalFromDenselyPacked(decimal, buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimal32FromDenselyPacked(Decimal32           *decimal,
+                                               const unsigned char *buffer)
+{
+    *decimal = Imp::decimal32FromDenselyPacked(buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimal64FromDenselyPacked(Decimal64           *decimal,
+                                               const unsigned char *buffer)
+{
+    *decimal = Imp::decimal64FromDenselyPacked(buffer);
+}
+
+inline
+void
+DecimalConvertUtil::decimal128FromDenselyPacked(Decimal128          *decimal,
+                                                const unsigned char *buffer)
+{
+    *decimal = Imp::decimal128FromDenselyPacked(buffer);
+}
+
 
 }  // close package namespace
 }  // close enterprise namespace
