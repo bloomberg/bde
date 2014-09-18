@@ -8,7 +8,7 @@ namespace BloombergLP {
 
 namespace bslstl {
 
-}  // close namespace bslalg
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
