@@ -1,5 +1,22 @@
 // bdldfp_decimal.cpp                                                 -*-C++-*-
-#ifndef BDLDFP_DECIMAL_SUN_WORKAROUND
+#include <bdldfp_decimal.h>
+
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
+
+#include <bsl_algorithm.h>
+#include <bsl_functional.h>
+#include <bsl_istream.h>
+#include <bsl_limits.h>
+#include <bsl_ostream.h>
+#include <bsl_sstream.h>
+
+#include <bslmf_assert.h>
+
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
+#include <math.h>
+#include <stdio.h>
+#endif
 
 // For better ways of binary-decimal FP conversion see:
 // http://www.serpentine.com/blog/2011/06/29/...
@@ -22,76 +39,11 @@
 // numeric_limits<>::digits10?  Because it is "helpfully" broken on MS Visual
 // C++ 2008, reports 18 & not 19.
 
-#include <bdldfp_decimal.h>
-
-#ifndef INCLUDED_BSLS_IDENT
-#include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id$")
-
-#include <bsl_algorithm.h>
-#include <bsl_functional.h>
-#include <bsl_istream.h>
-#include <bsl_limits.h>
-#include <bsl_ostream.h>
-#include <bsl_sstream.h>
-#include <bsl_cstring.h>
-
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-#include <math.h>
-#include <stdio.h>
-#endif
 
 namespace BloombergLP {
 namespace bdldfp {
 
 namespace {
-                    // ===============
-                    // class BufferBuf
-                    // ===============
-
-template <int Size>
-class BufferBuf : public bsl::streambuf {
-    // A static (capacity) stream buffer helper
-
-    char d_buf[Size + 1];  // Text plus closing NUL character
-
-  public:
-    // CREATORS
-    BufferBuf();
-        // Create an empty 'BufferBuf'.
-
-    // MANIPULATORS
-    void reset();
-        // Clear this buffer (make it empty).
-
-    const char *str();
-        // Return a pointer to a non-modifiable, NUL-terminated string of
-        // characters that is the content of this buffer.
-};
-                    // ---------------
-                    // class BufferBuf
-                    // ---------------
-
-template <int Size>
-BufferBuf<Size>::BufferBuf()
-{
-    reset();
-}
-
-template <int Size>
-void BufferBuf<Size>::reset()
-{
-    this->setp(this->d_buf, this->d_buf + Size);
-}
-
-template <int Size>
-const char *BufferBuf<Size>::str()
-{
-    *this->pptr() = 0;
-    return this->pbase();
-}
-
                     // ================
                     // class NotIsSpace
                     // ================
@@ -3039,262 +2991,182 @@ Decimal128 operator/(unsigned long long lhs, Decimal128 rhs)
     return Decimal128(lhs) /= rhs;
 #endif
 }
-Decimal128 operator/(Decimal128 lhs, unsigned long long rhs)
+
+template <class CHARTYPE>
+bool
+NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() / rhs;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs /= Decimal128(rhs);
-#endif
+    return !this->d_ctype.is(bsl::ctype_base::space, character);
 }
 
-                       // Homogeneous relational operators
+                         // Print helper function
 
-bool operator==(Decimal128 lhs, Decimal128 rhs)
+template <class CHARTYPE, class TRAITS, class DECIMAL>
+bsl::basic_ostream<CHARTYPE, TRAITS>&
+print(bsl::basic_ostream<CHARTYPE, TRAITS>& out,
+      DECIMAL                               value)
 {
-    return DecimalImplUtil::equals(lhs.value(), rhs.value());
-}
-
-bool operator!=(Decimal128 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return !(lhs == rhs);
-#endif
-}
-
-bool operator<(Decimal128 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    decQuad result;
-    decQuadCompare(&result, lhs.data(), rhs.data(), getContext());
-    return decQuadIsNegative(&result);
-#endif
+    typename bsl::basic_ostream<CHARTYPE, TRAITS>::sentry kerberos(out);
+    if (kerberos) {
+        typedef BloombergLP::bdldfp::DecimalNumPut<CHARTYPE> Facet;
+        const Facet& facet(bsl::has_facet<Facet>(out.getloc())
+                           ? bsl::use_facet<Facet>(out.getloc())
+                           : Facet::object());
+        facet.put(bsl::ostreambuf_iterator<CHARTYPE, TRAITS>(out),
+                  out,
+                  out.fill(),
+                  value);
+    }
+    return out;
 }
 
-bool operator>(Decimal128 lhs, Decimal128 rhs)
+                         // Read helper function
+
+template <class CHARTYPE, class TRAITS, class DECIMAL>
+bsl::basic_istream<CHARTYPE, TRAITS>&
+read(bsl::basic_istream<CHARTYPE, TRAITS>& in,
+     DECIMAL&                              value)
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return rhs < lhs;
-#endif
+    typename bsl::basic_istream<CHARTYPE, TRAITS>::sentry kerberos(in);
+    if (kerberos) {
+        typedef BloombergLP::bdldfp::DecimalNumGet<CHARTYPE> Facet;
+        const Facet& facet(bsl::has_facet<Facet>(in.getloc())
+                           ? bsl::use_facet<Facet>(in.getloc())
+                           : Facet::object());
+        bsl::ios_base::iostate err = bsl::ios_base::iostate();
+        facet.get(bsl::istreambuf_iterator<CHARTYPE, TRAITS>(in),
+                  bsl::istreambuf_iterator<CHARTYPE, TRAITS>(),
+                  in,
+                  err,
+                  value);
+        if (err) {
+            in.setstate(err);
+        }
+    }
+    return in;
 }
 
-bool operator<=(Decimal128 lhs, Decimal128 rhs)
+
+template <class ITER_TYPE, class CHAR_TYPE>
+ITER_TYPE fillN(ITER_TYPE iter, int numCharacters, CHAR_TYPE character)
+    // Assign to the specified output 'iter' the specified 'character' the
+    // specified 'numCharacters' times, incrementing 'iter' between each
+    // assignment, and then return the resulting incremented iterator.   Note
+    // that this is an implementation of C++11 standard 'std::fill_n' that has
+    // been specifialized slightly for filling characters; it is provided here
+    // because the C++98 definition of 'fill_n' returns 'void'.
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return !(rhs < lhs);
-#endif
+  while (numCharacters > 0) {
+    *iter = character;
+    ++iter;
+    --numCharacters;
+  }
+  return iter;
 }
 
-bool operator>=(Decimal128 lhs, Decimal128 rhs)
+template <class ITER_TYPE, class CHAR_TYPE>
+ITER_TYPE
+doPutCommon(ITER_TYPE       out,
+            bsl::ios_base&  format,
+            CHAR_TYPE       fillCharacter,
+            char           *buffer)
+    // Widen the specified 'buffer' into a string of the specified 'CHAR_TYPE',
+    // and output the represented decimal number to the specified 'out',
+    // adjusting for the formatting flags in the specified 'format' and using
+    // the specified 'fillCharacter'.  Currently, formatting for the
+    // formatting flags of justification, width, uppercase, and showpos are
+    // supported.
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return !(lhs < rhs);
-#endif
+    const int size = strlen(buffer);
+    char *end = buffer + size;
+
+    // Widen the buffer.
+    CHAR_TYPE wbuffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+
+    bsl::use_facet<std::ctype<CHAR_TYPE> >(
+                                  format.getloc()).widen(buffer, end, wbuffer);
+
+    const int  width   = format.width();
+    const bool showPos = format.flags() & bsl::ios_base::showpos;
+    const bool hasSign = wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                                                 format.getloc()).widen('-') ||
+                         wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                                                 format.getloc()).widen('+');
+    const bool addPlusSign = showPos & !hasSign;  // Do we need to add '+'?
+
+    int surplus = bsl::max(0, width - size);  // Emit this many fillers.
+    if (addPlusSign) {
+        // Need to add a '+' character.
+        --surplus;
+    }
+
+    CHAR_TYPE *wend       = wbuffer + size;
+    CHAR_TYPE *wbufferPos = wbuffer;
+
+
+    // Make use of the 'uppercase' flag to fix the capitalization of the
+    // alphabets in the number.
+
+    if (format.flags() & bsl::ios_base::uppercase) {
+        bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                                       format.getloc()).toupper(wbuffer, wend);
+    }
+    else {
+        bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
+                                       format.getloc()).tolower(wbuffer, wend);
+    }
+
+    switch (format.flags() & bsl::ios_base::adjustfield) {
+      case bsl::ios_base::left: {
+
+          // Left justify. Pad characters to the right.
+
+          if (addPlusSign) {
+              *out++ = '+';
+          }
+
+          out = bsl::copy(wbufferPos, wend, out);
+          out = fillN(out, surplus, fillCharacter);
+          break;
+      }
+
+      case bsl::ios_base::internal: {
+
+          // Internal justify. Pad characters after sign.
+
+          if (hasSign) {
+              *out++ = *wbufferPos++;
+          }
+          else if (addPlusSign) {
+              *out++ = '+';
+          }
+
+          out = fillN(out, surplus, fillCharacter);
+          out = bsl::copy(wbufferPos, wend, out);
+          break;
+      }
+
+      case bsl::ios_base::right:
+      default: {
+
+          // Right justify. Pad characters to the left.
+
+          out = fillN(out, surplus, fillCharacter);
+
+          if (addPlusSign) {
+              *out++ = '+';
+          }
+
+          out = bsl::copy(wbufferPos, wend, out);
+          break;
+      }
+    }
+
+    return out;
 }
 
-                        // Heterogeneous operator==
+}  // close unnamed namespace
 
-bool operator==(Decimal32 lhs, Decimal128 rhs)
-{
-    return DecimalImplUtil::equals(lhs.value(), rhs.value());
-}
-bool operator==(Decimal128 lhs, Decimal32 rhs)
-{
-    return DecimalImplUtil::equals(lhs.value(), rhs.value());
-}
-bool operator==(Decimal64 lhs, Decimal128 rhs)
-{
-    return DecimalImplUtil::equals(lhs.value(), rhs.value());
-}
-bool operator==(Decimal128 lhs, Decimal64 rhs)
-{
-    return DecimalImplUtil::equals(lhs.value(), rhs.value());
-}
-
-                        // Heterogeneous operator!=
-
-bool operator!=(Decimal32 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) != rhs;
-#endif
-}
-bool operator!=(Decimal128 lhs, Decimal32 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs != Decimal128(rhs);
-#endif
-}
-bool operator!=(Decimal64 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) != rhs;
-#endif
-}
-bool operator!=(Decimal128 lhs, Decimal64 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() != rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs != Decimal128(rhs);
-#endif
-}
-
-                        // Heterogeneous operator<
-
-bool operator<(Decimal32 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) < rhs;
-#endif
-}
-bool operator<(Decimal128 lhs, Decimal32 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs < Decimal128(rhs);
-#endif
-}
-bool operator<(Decimal64 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) < rhs;
-#endif
-}
-bool operator<(Decimal128 lhs, Decimal64 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() < rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs < Decimal128(rhs);
-#endif
-}
-
-                        // Heterogeneous operator<=
-
-bool operator<=(Decimal32 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) <= rhs;
-#endif
-}
-bool operator<=(Decimal128 lhs, Decimal32 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs <= Decimal128(rhs);
-#endif
-}
-bool operator<=(Decimal64 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) <= rhs;
-#endif
-}
-bool operator<=(Decimal128 lhs, Decimal64 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() <= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs <= Decimal128(rhs);
-#endif
-}
-
-                        // Heterogeneous operator>
-
-bool operator>(Decimal32 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) > rhs;
-#endif
-}
-bool operator>(Decimal128 lhs, Decimal32 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs > Decimal128(rhs);
-#endif
-}
-bool operator>(Decimal64 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) > rhs;
-#endif
-}
-bool operator>(Decimal128 lhs, Decimal64 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() > rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs > Decimal128(rhs);
-#endif
-}
-
-                        // Heterogeneous operator>=
-
-bool operator>=(Decimal32 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) >= rhs;
-#endif
-}
-bool operator>=(Decimal128 lhs, Decimal32 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs >= Decimal128(rhs);
-#endif
-}
-bool operator>=(Decimal64 lhs, Decimal128 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return Decimal128(lhs) >= rhs;
-#endif
-}
-bool operator>=(Decimal128 lhs, Decimal64 rhs)
-{
-#if BDLDFP_DECIMALPLATFORM_C99_TR
-    return lhs.value() >= rhs.value();
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
-    return lhs >= Decimal128(rhs);
-#endif
-}
 
                             // -------------------
                             // class DecimalNumGet
@@ -3363,6 +3235,8 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::get(
 {
     return this->do_get(begin, end, str, err, value);
 }
+
+                        // do_get Functions
 
 template <class CHARTYPE, class INPUTITERATOR>
 typename DecimalNumGet<CHARTYPE, INPUTITERATOR>::iter_type
@@ -3441,7 +3315,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
     }
     if (hasDigit) {
         *to = '\0';
-        value = DecimalImplUtil::parse32(buffer);
+        value = DecimalImpUtil::parse32(buffer);
     }
     else {
         err = bsl::ios_base::failbit;
@@ -3526,7 +3400,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
     }
     if (hasDigit) {
         *to = '\0';
-        value = DecimalImplUtil::parse64(buffer);
+        value = DecimalImpUtil::parse64(buffer);
     }
     else {
         err = bsl::ios_base::failbit;
@@ -3585,7 +3459,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
             *to = ctype.narrow(*begin, ' ');
         }
     }
-    // exponent (but not a stand-alone exponent
+    // exponent (but not a stand-alone exponent)
     if (hasDigit && begin != end && to != toEnd
         && ctype.narrow(ctype.tolower(*begin), ' ') == 'e') {
         *to = 'e';
@@ -3611,7 +3485,7 @@ DecimalNumGet<CHARTYPE, INPUTITERATOR>::do_get(
     }
     if (hasDigit) {
         *to = '\0';
-        value = DecimalImplUtil::parse128(buffer);
+        value = DecimalImpUtil::parse128(buffer);
     }
     else {
         err = bsl::ios_base::failbit;
@@ -3689,7 +3563,15 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal32      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    format(value.data(), buffer, sizeof(buffer));
+
+    DenselyPackedDecimalImpUtil::StorageType32 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType32 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
@@ -3700,7 +3582,15 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal64      value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    format(value.data(), buffer, sizeof(buffer));
+
+    DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType64 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
@@ -3711,7 +3601,15 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 Decimal128     value) const
 {
     char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-    format(value.data(), buffer, sizeof(buffer));
+
+    DenselyPackedDecimalImpUtil::StorageType128 dpdStorage;
+    dpdStorage = DecimalImpUtil::convertToDenselyPacked(*value.data());
+
+    DecimalImpUtil_DecNumber::ValueType128 dpdValue;
+    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+
+    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
+
     return doPutCommon(out, ios_format, fill, &buffer[0]);
 }
 
@@ -3721,7 +3619,6 @@ template class DecimalNumPut<char, bsl::ostreambuf_iterator<char> >;
 template class DecimalNumPut<wchar_t, bsl::ostreambuf_iterator<wchar_t> >;
 
 }  // close package namespace
-}  // close enterprise namespace
 
                      // Streaming operators implementations
 
@@ -3729,24 +3626,24 @@ template class DecimalNumPut<wchar_t, bsl::ostreambuf_iterator<wchar_t> >;
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
-                               Decimal32                             object)
+bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
+                   Decimal32                             object)
 {
     return print(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
-                               Decimal64                             object)
+bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
+                   Decimal64                             object)
 {
     return print(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_ostream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
-                               Decimal128                            object)
+bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
+                   Decimal128                            object)
 {
     return print(stream, object);
 }
@@ -3755,24 +3652,24 @@ BloombergLP::bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
-                               Decimal32&                            object)
+bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
+                   Decimal32&                            object)
 {
     return read(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
-                               Decimal64&                            object)
+bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
+                   Decimal64&                            object)
 {
     return read(stream, object);
 }
 
 template <class CHARTYPE, class TRAITS>
 bsl::basic_istream<CHARTYPE, TRAITS>&
-BloombergLP::bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
-                               Decimal128&                           object)
+bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
+                   Decimal128&                           object)
 {
     return read(stream, object);
 }
@@ -3783,74 +3680,75 @@ BloombergLP::bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
 
 template
 bsl::basic_istream<char>&
-BloombergLP::bdldfp::operator>> <char, bsl::char_traits<char> >(
-                                        bsl::basic_istream<char>&      in,
-                                        BloombergLP::bdldfp::Decimal32& value);
+bdldfp::operator>> <char, bsl::char_traits<char> >(
+                                        bsl::basic_istream<char>& in,
+                                        bdldfp::Decimal32&        value);
 template
 bsl::basic_istream<wchar_t>&
-BloombergLP::bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
-                                        bsl::basic_istream<wchar_t>&   in,
-                                        BloombergLP::bdldfp::Decimal32& value);
+bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
+                                        bsl::basic_istream<wchar_t>& in,
+                                        bdldfp::Decimal32&           value);
 
 template
 bsl::basic_ostream<char>&
-BloombergLP::bdldfp::operator<< <char, bsl::char_traits<char> >(
-                                         bsl::basic_ostream<char>&     out,
-                                         BloombergLP::bdldfp::Decimal32 value);
+bdldfp::operator<< <char, bsl::char_traits<char> >(
+                                         bsl::basic_ostream<char>& out,
+                                         bdldfp::Decimal32         value);
 template
 bsl::basic_ostream<wchar_t>&
-BloombergLP::bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
-                                         bsl::basic_ostream<wchar_t>&  out,
-                                         BloombergLP::bdldfp::Decimal32 value);
+bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
+                                         bsl::basic_ostream<wchar_t>& out,
+                                         bdldfp::Decimal32            value);
 
                                 // Decimal64
 
 template
 bsl::basic_istream<char>&
-BloombergLP::bdldfp::operator>> <char, bsl::char_traits<char> >(
-                                        bsl::basic_istream<char>&      in,
-                                        BloombergLP::bdldfp::Decimal64& value);
+bdldfp::operator>> <char, bsl::char_traits<char> >(
+                                        bsl::basic_istream<char>& in,
+                                        bdldfp::Decimal64&        value);
 template
 bsl::basic_istream<wchar_t>&
-BloombergLP::bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
-                                        bsl::basic_istream<wchar_t>&   in,
-                                        BloombergLP::bdldfp::Decimal64& value);
+bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
+                                        bsl::basic_istream<wchar_t>& in,
+                                        bdldfp::Decimal64&           value);
 
 template
 bsl::basic_ostream<char>&
-BloombergLP::bdldfp::operator<< <char, bsl::char_traits<char> >(
-                                         bsl::basic_ostream<char>&     out,
-                                         BloombergLP::bdldfp::Decimal64 value);
+bdldfp::operator<< <char, bsl::char_traits<char> >(
+                                         bsl::basic_ostream<char>& out,
+                                         bdldfp::Decimal64         value);
 template
 bsl::basic_ostream<wchar_t>&
-BloombergLP::bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
-                                         bsl::basic_ostream<wchar_t>&  out,
-                                         BloombergLP::bdldfp::Decimal64 value);
+bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
+                                         bsl::basic_ostream<wchar_t>& out,
+                                         bdldfp::Decimal64            value);
 
                                 // Decimal128
 
 template
 bsl::basic_istream<char>&
-BloombergLP::bdldfp::operator>> <char, bsl::char_traits<char> >(
-                                       bsl::basic_istream<char>&       in,
-                                       BloombergLP::bdldfp::Decimal128& value);
+bdldfp::operator>> <char, bsl::char_traits<char> >(
+                                       bsl::basic_istream<char>& in,
+                                       bdldfp::Decimal128&       value);
 template
 bsl::basic_istream<wchar_t>&
-BloombergLP::bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
-                                       bsl::basic_istream<wchar_t>&    in,
-                                       BloombergLP::bdldfp::Decimal128& value);
+bdldfp::operator>> <wchar_t, bsl::char_traits<wchar_t> >(
+                                       bsl::basic_istream<wchar_t>& in,
+                                       bdldfp::Decimal128&          value);
 
 template
 bsl::basic_ostream<char>&
-BloombergLP::bdldfp::operator<< <char, bsl::char_traits<char> >(
-                                        bsl::basic_ostream<char>&      out,
-                                        BloombergLP::bdldfp::Decimal128 value);
+bdldfp::operator<< <char, bsl::char_traits<char> >(
+                                        bsl::basic_ostream<char>& out,
+                                        bdldfp::Decimal128        value);
 template
 bsl::basic_ostream<wchar_t>&
-BloombergLP::bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
-                                        bsl::basic_ostream<wchar_t>&   out,
-                                        BloombergLP::bdldfp::Decimal128 value);
+bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
+                                        bsl::basic_ostream<wchar_t>& out,
+                                        bdldfp::Decimal128           value);
 
+}  // close enterprise namespace
                   // std::numeric_limits<> specializations
 
 #if defined(BSL_OVERRIDES_STD) && defined(std)
@@ -3858,21 +3756,26 @@ BloombergLP::bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
 #   define BDLDFP_DECIMAL_RESTORE_STD
 #endif
 
-            // --------------------------------------------------
+            // ---------------------------------------------------
             // std::numeric_limits<BloombergLP::bdldfp::Decimal32>
-            // --------------------------------------------------
+            // ---------------------------------------------------
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-95df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "1e-95", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "1e-95",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, -95);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -3880,13 +3783,18 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 9.999999e96df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "9.999999e96", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "9.999999e96",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse32("9.999999e96");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -3894,13 +3802,18 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::epsilon()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-6df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "1e-6", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "1e-6",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, -6);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -3908,13 +3821,18 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::round_error()
     BSLS_NOTHROW_SPEC
 { // TBD TODO - determine the real value from the round mode!
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1.0df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "1.0",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw32(1, 0);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -3922,13 +3840,18 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::infinity()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return HUGE_VAL_D32;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "INF",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse32("INF");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -3936,13 +3859,18 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::quiet_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_QNAN32;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "NaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse32("NaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -3950,13 +3878,18 @@ BloombergLP::bdldfp::Decimal32
    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::signaling_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_SNAN32;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
-    decSingleFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
+    decSingleFromString(&rv, "sNaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse32("sNaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -3964,33 +3897,42 @@ BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::denorm_min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 0.000001E-95df;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decSingle (endianness!)
     decSingle rv;
     decSingleFromString(&rv,
                         "0.000001E-95",
-                        BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse32("0.000001E-95");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
-            // --------------------------------------------------
+            // ---------------------------------------------------
             // std::numeric_limits<BloombergLP::bdldfp::Decimal64>
-            // --------------------------------------------------
+            // ---------------------------------------------------
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-383dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "1e-383", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "1e-383",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw64(1, -383);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -3998,15 +3940,20 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 9.999999999999999e384dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv,
                         "9.999999999999999e384",
-                        BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse64(
+                                                      "9.999999999999999e384");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4014,13 +3961,18 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::epsilon()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-15dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "1e-15", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "1e-15",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse64("1e-15");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4028,13 +3980,18 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::round_error()
     BSLS_NOTHROW_SPEC
 {  // TBD TODO - determine the real value from the round mode!
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1.0dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "1.0",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw64(1, 0);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4042,13 +3999,18 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::infinity()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return HUGE_VAL_D64;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "INF",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse64("INF");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4056,13 +4018,21 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::quiet_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_QNAN64;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "qNaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
+    BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv) != 0);
+    decDouble rv2 = rv;
+    BSLS_ASSERT(reinterpret_cast<const unsigned long long &>(rv2) != 0);
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse64("NaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4070,13 +4040,18 @@ BloombergLP::bdldfp::Decimal64
    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::signaling_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_SNAN64;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
-    decDoubleFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
+    decDoubleFromString(&rv, "sNaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse64("sNaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4084,33 +4059,43 @@ BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::denorm_min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 0.000000000000001e-383dd;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decDouble (endianness!)
     decDouble rv;
     decDoubleFromString(&rv,
                         "0.000000000000001e-383",
-                        BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse64(
+                                                     "0.000000000000001e-383");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
-            // ---------------------------------------------------
+            // ----------------------------------------------------
             // std::numeric_limits<BloombergLP::bdldfp::Decimal128>
-            // ---------------------------------------------------
+            // ----------------------------------------------------
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-6143dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "1e-6143", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "1e-6143",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, -6143);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4118,15 +4103,20 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 9.999999999999999999999999999999999e6144dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv,
                       "9.999999999999999999999999999999999e6144",
-                      BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse128(
+                                   "9.999999999999999999999999999999999e6144");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4134,13 +4124,18 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::epsilon()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1e-33dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "1e-33", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "1e-33",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, -33);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4148,13 +4143,18 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::round_error()
     BSLS_NOTHROW_SPEC
 {  // TBD TODO - determine the real value from the round mode setting!
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 1.0dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "1.0", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "1.0",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::makeDecimalRaw128(1, 0);
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4162,13 +4162,18 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::infinity()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return HUGE_VAL_D128;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "INF", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "INF",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse128("INF");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4176,13 +4181,18 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::quiet_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_QNAN128;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "NaN", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "NaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse128("NaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4190,13 +4200,18 @@ BloombergLP::bdldfp::Decimal128
   std::numeric_limits<BloombergLP::bdldfp::Decimal128>::signaling_NaN()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return BDLDFP_DECIMALPLATFORM_C99_QNAN128;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
-    decQuadFromString(&rv, "sNaN", BloombergLP::bdldfp::getContext());
+    decQuadFromString(&rv, "sNaN",
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse128("sNaN");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
 
@@ -4204,125 +4219,26 @@ BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::denorm_min()
     BSLS_NOTHROW_SPEC
 {
-#if BDLDFP_DECIMALPLATFORM_C99_TR
+#ifdef BDLDFP_DECIMALPLATFORM_C99_TR
     return 0.000000000000000000000000000000001e-6143dl;
-#elif BDLDFP_DECIMALPLATFORM_DECNUMBER
+#elif defined(BDLDFP_DECIMALPLATFORM_DECNUMBER)
     // TBD TODO - just return a statically initialized decQuad (endianness!)
     decQuad rv;
     decQuadFromString(&rv,
                       "0.000000000000000000000000000000001e-6143",
-                      BloombergLP::bdldfp::getContext());
+         BloombergLP::bdldfp::DecimalImpUtil_DecNumber::getDecNumberContext());
     return rv;
+#elif defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
+    return BloombergLP::bdldfp::DecimalImpUtil::parse128(
+                                  "0.000000000000000000000000000000001e-6143");
+#else
+BSLMF_ASSERT(false);; // Unsupported platform
 #endif
 }
-
-
-// Microsoft has non-standard behavior
-
-#ifndef BSLS_PLATFORM_CMP_MSVC
-
-      // Definitions of const static data memberss of numeric_limits<>
-
-const bool
-     std::numeric_limits<
-        BloombergLP::bdldfp::Decimal_StandardNamespaceCanary>::is_specialized;
-
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_specialized;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::digits;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::digits10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max_digits10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_signed;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_integer;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_exact;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::radix;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min_exponent10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max_exponent10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_infinity;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_quiet_NaN;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_signaling_NaN;
-const std::float_denorm_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_denorm;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::has_denorm_loss;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_iec559;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_bounded;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::is_modulo;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal32>::traps;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::tinyness_before;
-const std::float_round_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::round_style;
-
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_specialized;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::digits;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::digits10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max_digits10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_signed;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_integer;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_exact;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::radix;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min_exponent10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max_exponent10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_infinity;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_quiet_NaN;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_signaling_NaN;
-const std::float_denorm_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_denorm;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::has_denorm_loss;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_iec559;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_bounded;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::is_modulo;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal64>::traps;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::tinyness_before;
-const std::float_round_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::round_style;
-
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_specialized;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::digits;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::digits10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max_digits10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_signed;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_integer;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_exact;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::radix;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min_exponent10;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max_exponent;
-const int std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max_exponent10;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_infinity;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_quiet_NaN;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_signaling_NaN;
-const std::float_denorm_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_denorm;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::has_denorm_loss;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_iec559;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_bounded;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::is_modulo;
-const bool std::numeric_limits<BloombergLP::bdldfp::Decimal128>::traps;
-const bool
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::tinyness_before;
-const std::float_round_style
-    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::round_style;
-
-#endif // Microsoft is non-standard
 
 #if defined(BDLDFP_DECIMAL_RESTORE_STD)
 #   define std bsl
 #   undef BDLDFP_DECIMAL_RESTORE_STD
-#endif
-
-// The endif is for the Sun compiler workaround
 #endif
 
 // ----------------------------------------------------------------------------
