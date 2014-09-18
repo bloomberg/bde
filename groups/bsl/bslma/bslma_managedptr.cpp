@@ -37,26 +37,6 @@ void ManagedPtrUtil::noOpDeleter(void *, void *)
 {
 }
 
-                         // ------------------------
-                         // class ManagedPtr_ImpUtil
-                         // ------------------------
-
-void ManagedPtr_ImpUtil::checkDefaultAllocatorIsNewDeleteAllocator()
-{
-    static bool firstBadCall = false;
-    if (!firstBadCall) {
-        bslma::Allocator *allocator =  bslma::Default::allocator();
-        bslma::Allocator *expected  = &bslma::NewDeleteAllocator::singleton();
-        if (allocator != expected) {
-            firstBadCall = true;
-            fprintf(stderr,
-                  "WARNING: Constructing a managed pointer without an "
-                  "allocator when the default is not the NewDelete allocator; "
-                  "see {TEAM BDEI:SMART POINTER CONSTRUCTORS<GO>}\n");
-        }
-    }
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 
