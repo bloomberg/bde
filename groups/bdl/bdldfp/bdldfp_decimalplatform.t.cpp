@@ -2,10 +2,12 @@
 
 #include <bdldfp_decimalplatform.h>
 
+#include <bslmf_issame.h>
+
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 
-#include <bslmf_issame.h>
+#include <string.h>
 
 using namespace BloombergLP;
 using bsl::cout;
