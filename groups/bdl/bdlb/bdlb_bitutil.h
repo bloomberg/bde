@@ -146,7 +146,7 @@ struct BitUtil {
     // PRIVATE CONSTANTS
     enum {
         k_BITS_PER_INT32 = 32,  // bits used to represent an 'int32_t'
-        k_BITS_PER_INT64 = 64,  // bits used to represent an 'int64_t'
+        k_BITS_PER_INT64 = 64   // bits used to represent an 'int64_t'
     };
 
   public:

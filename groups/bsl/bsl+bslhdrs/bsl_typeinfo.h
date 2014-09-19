@@ -26,18 +26,10 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::terminate_handler;
-    using native_std::unexpected_handler;
     using native_std::bad_cast;
-    using native_std::bad_exception;
     using native_std::bad_typeid;
-    using native_std::exception;
-    using native_std::set_terminate;
-    using native_std::set_unexpected;
-    using native_std::terminate;
     using native_std::type_info;
-    using native_std::uncaught_exception;
-    using native_std::unexpected;
+
 }
 
 #endif

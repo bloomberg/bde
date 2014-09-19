@@ -4,7 +4,14 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bslma_default.h>                      // for testing only
 #include <bslma_testallocator.h>                // for testing only
+
+namespace BloombergLP {
+namespace bslma {
+
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg Finance L.P.

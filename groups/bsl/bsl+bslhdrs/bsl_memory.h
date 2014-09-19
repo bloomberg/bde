@@ -32,7 +32,6 @@ namespace bsl
     //  using native_std::allocator;
     //..
 
-    using native_std::advance;
     using native_std::auto_ptr;
     using native_std::get_temporary_buffer;
     using native_std::raw_storage_iterator;

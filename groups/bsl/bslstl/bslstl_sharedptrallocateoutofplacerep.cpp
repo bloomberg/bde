@@ -1,43 +1,14 @@
-// bsl_strstream.h                                                    -*-C++-*-
-#ifndef INCLUDED_BSL_STRSTREAM
-#define INCLUDED_BSL_STRSTREAM
+// bslstl_sharedptrallocateoutofplacerep.cpp                          -*-C++-*-
+#include <bslstl_sharedptrallocateoutofplacerep.h>
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
-BSLS_IDENT("$Id: $")
+BSLS_IDENT("$Id$ $CSID$")
 
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
-//
-//@SEE_ALSO: package bsl+stdhdrs
-//
-//@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
-// defined in the corresponding C++ standard header.  Include the native
-// compiler-provided standard header, and also directly include Bloomberg's
-// implementation of the C++ standard type (if one exists).  Finally, place the
-// included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+namespace BloombergLP {
+namespace bslstl {
 
-#ifndef INCLUDED_BSLS_NATIVESTD
-#include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif 
-
-#include <strstream>
-
-namespace bsl
-{
-    // Import selected symbols into bsl namespace
-    using native_std::istrstream;
-    using native_std::ostrstream;
-    using native_std::strstream;
-    using native_std::strstreambuf;
-
-}
-
-#endif
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright (C) 2013 Bloomberg Finance L.P.

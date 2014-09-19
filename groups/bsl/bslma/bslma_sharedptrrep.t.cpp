@@ -16,10 +16,15 @@
 #endif
 #endif
 
+#pragma bdeverify -FD01  // Test-machinery lacks a contract
+#pragma bdeverify -TP06  // Test-case indexing thing
+#pragma bdeverify -TP09  // Test-case indexing thing
+#pragma bdeverify -TP18  // Test-case banners are ALL-CAPS
+
 using namespace BloombergLP;
 
 //=============================================================================
-//                             TEST PLAN
+//                                  TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
@@ -28,7 +33,7 @@ using namespace BloombergLP;
 // - The test plans are still to be written (so marked TBD).
 //-----------------------------------------------------------------------------
 // bslma::SharedPtrRep
-//------------------------
+//--------------------
 // [ 9] void managedPtrDeleter(void *, bslma::SharedPtrRep *rep); // TBD
 // [ 2] bslma::SharedPtrRep();
 // [ 3] void acquireRef();
@@ -48,12 +53,15 @@ using namespace BloombergLP;
 // [10] USAGE EXAMPLE // TBD
 //-----------------------------------------------------------------------------
 
-//=============================================================================
-//                    STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-int testStatus = 0;
+// ============================================================================
+//                      STANDARD BDE ASSERT TEST MACROS
+// ----------------------------------------------------------------------------
+// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
+// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
+
+int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
 {
@@ -66,7 +74,7 @@ void aSsErT(bool b, const char *s, int i)
 }  // close unnamed namespace
 
 //=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
+//                     STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -116,33 +124,34 @@ typedef bslma::SharedPtrRep Obj;
 typedef MyTestImplementation TObj;
 
 //=============================================================================
-//               GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
+//             GLOBAL HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
                          // ==========================
                          // class MyTestImplementation
                          // ==========================
 
-class MyTestImplementation : public bslma::SharedPtrRep{
+class MyTestImplementation : public bslma::SharedPtrRep {
     // This class provides an implementation for 'bslma::SharedPtrRep' so that
     // it can be initialized and tested.
 
     // DATA
     int d_numRepDisposed;
     int d_numObjectDisposed;
+
   public:
     // CREATORS
     MyTestImplementation();
 
-    // ACCESSORS
-    bool getNumRepDisposed();
-    bool getNumObjectDisposed();
-    virtual void *originalPtr() const;
-
     // MANIPULATORS
-    virtual void disposeRep();
     virtual void disposeObject();
+    virtual void disposeRep();
     virtual void *getDeleter(const std::type_info& type);
+
+    // ACCESSORS
+    bool getNumObjectDisposed();
+    bool getNumRepDisposed();
+    virtual void *originalPtr() const;
 };
 
                          // --------------------------
@@ -156,31 +165,7 @@ MyTestImplementation::MyTestImplementation()
 {
 }
 
-bool MyTestImplementation::getNumRepDisposed()
-{
-    return d_numRepDisposed;
-}
-
-// ACCESSORS
-bool MyTestImplementation::getNumObjectDisposed()
-{
-    return d_numObjectDisposed;
-}
-
-void *MyTestImplementation::originalPtr() const
-{
-   return NULL;
-}
-
 // MANIPULATORS
-void MyTestImplementation::disposeRep()
-{
-    // The implementation of this method allows verification on whether
-    // 'disposeRep' is called or not.
-
-    ++d_numRepDisposed;
-}
-
 void MyTestImplementation::disposeObject()
 {
     // The implementation of this method allows verification on whether
@@ -189,9 +174,33 @@ void MyTestImplementation::disposeObject()
     ++d_numObjectDisposed;
 }
 
-void *MyTestImplementation::getDeleter(const std::type_info& type)
+void MyTestImplementation::disposeRep()
+{
+    // The implementation of this method allows verification on whether
+    // 'disposeRep' is called or not.
+
+    ++d_numRepDisposed;
+}
+
+void *MyTestImplementation::getDeleter(const std::type_info& /*type*/)
 {
     return 0;
+}
+
+// ACCESSORS
+bool MyTestImplementation::getNumObjectDisposed()
+{
+    return d_numObjectDisposed;
+}
+
+bool MyTestImplementation::getNumRepDisposed()
+{
+    return d_numRepDisposed;
+}
+
+void *MyTestImplementation::originalPtr() const
+{
+    return NULL;
 }
 
 #if 0  // TBD Need an appropriately levelized usage example
@@ -385,18 +394,34 @@ bdet_Datetime *MySharedDatetime::ptr() const {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVerbose;
+    (void)veryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static intialization locekd the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::Default::setDefaultAllocator(&defaultAllocator);
+
+    // Confirm no static intialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     bslma::TestAllocator ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
 #if 0  // TBD Need an appropriately levelized usage example
-    case 10: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -431,7 +456,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == ta.numDeallocations());
       } break;
 #endif
-    case 9: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING 'managedPtrDeleter'
         //
@@ -446,7 +471,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void managedPtrDeleter(void*, bslma::SharedPtrRep *rep);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'managedPtrDeleter'"
+        if (verbose) printf("\nTESTING 'managedPtrDeleter'"
                             "\n===========================\n");
         {
             TObj t;
@@ -476,39 +501,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   void incrementRefs(int incrementAmount = 1);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'incrementRefs'"
+        if (verbose) printf("\nTESTING 'incrementRefs'"
                             "\n=======================\n");
-        {
-            TObj t;
-            Obj& x = t;
-            Obj const& X = x;
-
-            ASSERT(1 == X.numReferences());
-
-            x.incrementRefs();
-            ASSERT(2 == X.numReferences());
-
-            x.incrementRefs();
-            ASSERT(3 == X.numReferences());
-
-            x.incrementRefs(1);
-            ASSERT(4 == X.numReferences());
-
-            x.releaseRef();
-            x.releaseRef();
-            x.releaseRef();
-
-            ASSERT(1 == X.numReferences());
-
-            x.incrementRefs(3);
-            ASSERT(4 == X.numReferences());
-
-            x.incrementRefs(3);
-            ASSERT(7 == X.numReferences());
-
-            x.incrementRefs(3);
-            ASSERT(10 == X.numReferences());
-        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -528,7 +522,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bool tryAcquireRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'tryAcquireRef'"
+        if (verbose) printf("\nTESTING 'tryAcquireRef'"
                             "\n=======================\n");
         {
             TObj t;
@@ -563,7 +557,7 @@ int main(int argc, char *argv[])
         //   void resetCountsRaw(int numSharedReferences,
         //                       int numWeakReferences);
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'resetCountsRaw'"
+        if (verbose) printf("\nTESTING 'resetCountsRaw'"
                             "\n========================\n");
         {
             TObj t;
@@ -589,7 +583,7 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'disposeObject' and 'disposeRep'
+        // TESTING 'disposeObject' AND 'disposeRep'
         //
         // Concerns:
         //   1) disposeObject() is called when there is no shared reference.
@@ -607,7 +601,7 @@ int main(int argc, char *argv[])
         //   void disposeObject();
         //   void disposeRep();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'disposeObject' and 'disposeRep'"
+        if (verbose) printf("\nTESTING 'disposeObject' AND 'disposeRep'"
                             "\n========================================\n");
         {
             TObj t;
@@ -650,7 +644,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING 'releaseRef' and 'releaseWeakRef'
+        // TESTING 'releaseRef' AND 'releaseWeakRef'
         //
         // Concerns:
         //   'releaseRef' and 'releaseWeakRef' is decrementing the reference
@@ -665,8 +659,8 @@ int main(int argc, char *argv[])
         //   void releaseRef();
         //   void releaseWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'acquireRef' and 'releaseRef'"
-                            "\n=====================================\n");
+        if (verbose) printf("\nTESTING 'releaseRef' AND 'releaseWeakRef'"
+                            "\n=========================================\n");
         {
             TObj t;
             Obj& x = t;
@@ -704,7 +698,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING 'acquireRef' and 'acquireWeakRef'
+        // TESTING 'acquireRef' AND 'acquireWeakRef'
         //
         // Concerns:
         //   'acquireRef' and 'acquireWeakRef' is incrementing the reference
@@ -718,8 +712,8 @@ int main(int argc, char *argv[])
         //   void acquireRef();
         //   void acquireWeakRef();
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting 'acquireRef' and 'releaseRef'"
-                            "\n=====================================\n");
+        if (verbose) printf("\nTESTING 'acquireRef' AND 'acquireWeakRef'"
+                            "\n=========================================\n");
         {
             TObj t;
             Obj& x = t;
@@ -767,8 +761,8 @@ int main(int argc, char *argv[])
         //   int numWeakReferences() const;
         //   bool hasUniqueOwner() const;
         // --------------------------------------------------------------------
-        if (verbose) printf("\nTesting Constructors and Destructor"
-                            "\n===================================\n");
+        if (verbose) printf("\nTESTING BASIC CONSTRUCTORS AND ACCESSOR"
+                            "\n=======================================\n");
 
         if (verbose) printf("\nTesting default constructor"
                             "\n---------------------------\n");
@@ -786,9 +780,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
-        // Testing:
+        // Concerns:
         //   This test exercises basic functionality but tests nothing.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
         {
@@ -818,6 +816,11 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
+                0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

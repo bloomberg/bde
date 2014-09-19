@@ -115,6 +115,10 @@ BSLS_IDENT("$Id: $")
 //  assert(3 == p->bitpos());
 //..
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsls {
@@ -132,6 +136,24 @@ struct Util_Identity {
     typedef TYPE type;  // alias of the template parameter 'TYPE'.
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class TYPE>
+struct Util_RemoveReference {
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct Util_RemoveReference<TYPE&> {
+    typedef TYPE type;
+};
+
+template <class TYPE>
+struct Util_RemoveReference<TYPE&&> {
+    typedef TYPE type;
+};
+
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
                                  // ===========
                                  // struct Util
                                  // ===========
@@ -142,8 +164,8 @@ struct Util {
     // library.
 
     // CLASS METHODS
-    template <class BSLS_TYPE>
-    static BSLS_TYPE *addressOf(BSLS_TYPE& obj);
+    template <class TYPE>
+    static TYPE *addressOf(TYPE& obj);
         // Return the address of the specified 'obj', even if 'operator&' is
         // overloaded for objects of type 'BSLS_TYPE'.  Behavior is undefined
         // unless 'BSLS_TYPE' is an object type.  Note that this function
@@ -162,7 +184,18 @@ struct Util {
     static
     typename Util_Identity<RESULT(ARG1, ARG2)>::type *addressOf(
                                                      RESULT (&fn)(ARG1, ARG2));
-        // Return the address of the specified function 'fn'.
+        // Return the address of the specified function 'fn'.  Note that this
+        // implementation supports functions of only a limited number of
+        // parameters, determined by the current needs of the BDE software.  A
+        // more general form that will support an arbitrary number of function
+        // parameters will be available with C++11.
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    template <class TYPE>
+    static TYPE&& forward(typename Util_RemoveReference<TYPE>::type&  t);
+    template <class TYPE>
+    static TYPE&& forward(typename Util_RemoveReference<TYPE>::type&& t);
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 };
 
 }  // close package namespace
@@ -195,16 +228,16 @@ namespace bsls {
 // Windows, and simply taking the address with the '&' operator on all other
 // platforms.
 
-// ===========================================================================
+// ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
-// ===========================================================================
+// ============================================================================
 
 // CLASS METHODS
-template <class BSLS_TYPE>
+template <class TYPE>
 inline
-BSLS_TYPE *Util::addressOf(BSLS_TYPE& obj)
+TYPE *Util::addressOf(TYPE& obj)
 {
-    return static_cast<BSLS_TYPE *>(
+    return static_cast<TYPE *>(
         static_cast<void *>(
             const_cast<char *>(&reinterpret_cast<const volatile char&>(obj))));
 }
@@ -233,9 +266,21 @@ Util::addressOf(RESULT (&fn)(ARG1, ARG2))
     return fn;
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class TYPE>
+TYPE&& Util::forward(typename Util_RemoveReference<TYPE>::type& t)
+{
+    return static_cast<TYPE&&>(t);
+}
+
+template <class TYPE>
+TYPE&& Util::forward(typename Util_RemoveReference<TYPE>::type&& t)
+{
+    return static_cast<TYPE&&>(t);
+}
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
 }  // close package namespace
-
-
 }  // close enterprise namespace
 
 #endif
