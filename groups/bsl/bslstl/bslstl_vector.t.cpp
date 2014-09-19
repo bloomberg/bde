@@ -5,7 +5,6 @@
 #include <bslstl_allocator.h>
 #include <bslstl_forwarditerator.h>
 #include <bslstl_iterator.h>
-#include <bslstl_list.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -1101,6 +1100,174 @@ typename CharArray<TYPE>::const_iterator CharArray<TYPE>::begin() const {
 template <class TYPE>
 typename CharArray<TYPE>::const_iterator CharArray<TYPE>::end() const {
     return const_iterator(d_value.end());
+}
+
+                              // ========================
+                              // class FixedArrayIterator
+                              // ========================
+
+// FORWARD DECLARATIONS
+template <class TYPE>
+class FixedArray;
+
+template <class TYPE>
+class FixedArrayIterator {
+    // This testing class provides simple, fixed size array with a non-pointer
+    // iterator for use in test case 24.
+
+    // DATA
+    FixedArray<TYPE> *d_array_p;
+    int               d_index;
+
+  public:
+    typedef std::forward_iterator_tag  iterator_category;
+    typedef int                        difference_type;
+    typedef int                        size_type;
+    typedef TYPE                       value_type;
+    typedef TYPE                      *pointer;
+    typedef TYPE&                      reference;
+
+    // CREATORS
+    FixedArrayIterator(const FixedArray<TYPE> *array, int index);
+
+    FixedArrayIterator(const FixedArrayIterator<TYPE>& obj);
+
+    // MANIPULATORS
+    FixedArrayIterator<TYPE>& operator++();
+
+    // ACCESSORS
+    TYPE& operator*() const;
+
+    bool isEqual(const FixedArrayIterator<TYPE>& obj) const;
+};
+
+// FREE OPERATORS
+template <class TYPE>
+bool operator==(const FixedArrayIterator<TYPE>& lhs,
+                const FixedArrayIterator<TYPE>& rhs);
+
+template <class TYPE>
+bool operator!=(const FixedArrayIterator<TYPE>& lhs,
+                const FixedArrayIterator<TYPE>& rhs);
+
+// CREATORS
+template <class TYPE>
+FixedArrayIterator<TYPE>::FixedArrayIterator(const FixedArray<TYPE> *array,
+                                             int                     index)
+: d_array_p(const_cast<FixedArray<TYPE> *>(array))
+, d_index(index)
+{
+}
+
+template <class TYPE>
+FixedArrayIterator<TYPE>::FixedArrayIterator(
+                                           const FixedArrayIterator<TYPE>& obj)
+: d_array_p(obj.d_array_p)
+, d_index(obj.d_index)
+{
+}
+
+// MANIPULATORS
+template <class TYPE>
+FixedArrayIterator<TYPE>& FixedArrayIterator<TYPE>::operator++()
+{
+    ++d_index;
+    return *this;
+}
+
+// ACCESSORS
+template <class TYPE>
+TYPE& FixedArrayIterator<TYPE>::operator*() const
+{
+    return d_array_p->operator[](d_index);
+}
+
+template <class TYPE>
+bool FixedArrayIterator<TYPE>::
+                             isEqual(const FixedArrayIterator<TYPE>& obj) const
+{
+    return (d_array_p == obj.d_array_p && d_index == obj.d_index);
+}
+
+// FREE OPERATORS
+template <class TYPE>
+bool operator==(const FixedArrayIterator<TYPE>& lhs,
+                const FixedArrayIterator<TYPE>& rhs)
+{
+    return lhs.isEqual(rhs);
+}
+
+template <class TYPE>
+bool operator!=(const FixedArrayIterator<TYPE>& lhs,
+                const FixedArrayIterator<TYPE>& rhs)
+{
+    return !lhs.isEqual(rhs);
+}
+
+                              // ================
+                              // class FixedArray
+                              // ================
+
+#define k_FIXED_ARRAY_SIZE 100
+
+template <class TYPE>
+class FixedArray {
+    // This testing class provides simple, fixed size array with a non-pointer
+    // iterator for use in test case 24.
+
+  public:
+    // PUBLIC TYPES
+    typedef FixedArrayIterator<TYPE> iterator;
+
+  private:
+    // DATA
+    TYPE d_data[k_FIXED_ARRAY_SIZE];
+    int  d_length;
+
+  public:
+    // CREATORS
+    FixedArray();
+
+    // MANIPULATORS
+    TYPE& operator[](int index);
+
+    void push_back(const TYPE& value);
+
+    // ACCESSORS
+    iterator begin() const;
+
+    iterator end() const;
+};
+
+// CREATORS
+template <class TYPE>
+FixedArray<TYPE>::FixedArray()
+: d_length(0)
+{
+}
+
+// MANIPULATORS
+template <class TYPE>
+TYPE& FixedArray<TYPE>::operator[](int index)
+{
+    return d_data[index];
+}
+
+template <class TYPE>
+void FixedArray<TYPE>::push_back(const TYPE& value)
+{
+    d_data[d_length++] = value;
+}
+
+// ACCESSORS
+template <class TYPE>
+typename FixedArray<TYPE>::iterator FixedArray<TYPE>::begin() const {
+    return typename FixedArray<TYPE>::iterator(this, 0);
+}
+
+template <class TYPE>
+typename FixedArray<TYPE>::iterator FixedArray<TYPE>::end() const {
+    return typename FixedArray<TYPE>::iterator(this, d_length);
 }
 
                               // ====================
@@ -9516,9 +9683,9 @@ int main(int argc, char *argv[])
                                      TestFunc<VD> };
         const int NUM_VALUES = sizeof VALUES / sizeof VALUES[0];
 
-        typedef list<charFnPtr>::iterator ListIterator;
+        typedef FixedArray<charFnPtr>::iterator ArrayIterator;
 
-        list<charFnPtr> l;
+        FixedArray<charFnPtr> l;
         l.push_back(TestFunc<VA>);
         l.push_back(TestFunc<VB>);
         l.push_back(TestFunc<VC>);
@@ -9532,7 +9699,7 @@ int main(int argc, char *argv[])
             // Check the elements of w.
             vector<charFnPtr>::iterator wit = w.begin();
 
-            for (ListIterator it = l.begin(); it != l.end(); ++it) {
+            for (ArrayIterator it = l.begin(); it != l.end(); ++it) {
                 ASSERT(wit != w.end());
                 ASSERT(*it == *wit);
                 ++wit;
@@ -9545,7 +9712,7 @@ int main(int argc, char *argv[])
             // Check the elements of w.
             wit = w.begin();
 
-            for (ListIterator it = l.begin(); it != l.end(); ++it) {
+            for (ArrayIterator it = l.begin(); it != l.end(); ++it) {
                 ASSERT(wit != w.end());
                 ASSERT(*it == *wit);
                 ++wit;
@@ -9567,7 +9734,7 @@ int main(int argc, char *argv[])
             // Check the elements of w.
             vector<charFnPtr>::iterator wit = w.begin();
 
-            for (ListIterator it = l.begin(); it != l.end(); ++it) {
+            for (ArrayIterator it = l.begin(); it != l.end(); ++it) {
                 ASSERT(wit != w.end());
                 ASSERT(*it == *wit);
                 ++wit;
@@ -9586,7 +9753,7 @@ int main(int argc, char *argv[])
                 ++wit;
             }
 
-            for (ListIterator it = l.begin(); it != l.end(); ++it) {
+            for (ArrayIterator it = l.begin(); it != l.end(); ++it) {
                 ASSERT(wit != w.end());
                 ASSERT(*it == *wit);
                 ++wit;

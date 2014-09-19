@@ -1,8 +1,7 @@
-// bufferallocator.cpp                                                -*-C++-*-
-#include <bufferallocator.h>
+// pkg_bufferallocator.cpp                                            -*-C++-*-
+#include <pkg_bufferallocator.h>
 
 #include <bsls_alignmentutil.h>
-#include <bsls_assert.h>
 
 namespace Enterprise {
 namespace pkg {
@@ -12,15 +11,14 @@ namespace pkg {
                         // ---------------------
 
 // MANIPULATORS
-void *BufferAllocator::allocate(bsls::Types::size_type size)
+void *BufferAllocator::allocate(BloombergLP::bsls::Types::size_type size)
 {
-    BSLS_ASSERT_SAFE(0 <= size);
+    // Calculate the appropriate aligned offset.
 
-    // Calculate the appropriate aligned offset
-
-    const int offset = bsls::AlignmentUtil::calculateAlignmentOffset(
-                                  d_buffer_p + d_cursor,
-                                      bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+    const int offset =
+                    BloombergLP::bsls::AlignmentUtil::calculateAlignmentOffset(
+                         d_buffer_p + d_cursor,
+                         BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
     if (d_cursor + offset + size > d_bufferSize) {
         return d_allocator_p->allocate(size);                         // RETURN

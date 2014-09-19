@@ -796,7 +796,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta2.numBlocksInUse());
         ASSERT(0 == ta3.numBlocksInUse());
 
-      } break;;
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TRAITS TEST

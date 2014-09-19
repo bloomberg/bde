@@ -603,6 +603,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 #endif
 
+#ifndef INCLUDED_BSLH_HASH
+#include <bslh_hash.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
 #endif
@@ -1508,6 +1512,11 @@ class basic_string
         // Append the specified 'character' at the end of this string, and
         // return a reference providing modifiable access to this string.
 
+    basic_string& operator+=(
+        const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
+        // Append the specified 'strRef' at the end of this string. Return a
+        // reference providing modifiable access to this string.
+
     basic_string& append(const basic_string& suffix);
     basic_string& append(const basic_string& suffix,
                          size_type           position,
@@ -2397,6 +2406,11 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
     // 'is.fail()' will become true.
 
 // HASH SPECIALIZATIONS
+template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+void hashAppend(HASHALG& hashAlg,
+                const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&  input);
+    // Pass the specified 'input' to the specified 'hashAlg'
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 std::size_t
 hashBasicString(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str);
@@ -2407,21 +2421,6 @@ std::size_t hashBasicString(const string& str);
 
 std::size_t hashBasicString(const wstring& str);
     // Return a hash value for the specified 'str'.
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
-    // Specialization of 'hash' for 'basic_string'.
-{
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(hash, bsl::is_trivially_copyable);
-
-    std::size_t operator()(const basic_string<CHAR_TYPE,
-                           CHAR_TRAITS, ALLOCATOR>& str) const
-        // Return a hash value computed using the specified 'str' value.
-    {
-        return hashBasicString(str);
-    }
-};
 
 // ============================================================================
 //                       FUNCTION TEMPLATE DEFINITIONS
@@ -3619,6 +3618,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 {
     push_back(character);
     return *this;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
+               const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRefData)
+{
+    return append(strRefData.begin(),strRefData.end());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5565,22 +5572,21 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&    is,
 }
 
 // HASH SPECIALIZATIONS
+template <class HASHALG, class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+void hashAppend(HASHALG& hashAlg,
+                const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&  input)
+{
+        using ::BloombergLP::bslh::hashAppend;
+    hashAlg(input.data(), sizeof(CHAR_TYPE)*input.size());
+    hashAppend(hashAlg, input.size());
+}
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 std::size_t
 hashBasicString(const basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str)
 {
-    unsigned long hashValue = 0;
-    typedef typename basic_string<CHAR_TYPE,
-                              CHAR_TRAITS, ALLOCATOR>::const_pointer const_ptr;
-
-    std::size_t  len  = str.size();
-    const_ptr    data = str.data();
-
-    for (std::size_t i = 0; i < len; ++i) {
-        hashValue = 5 * hashValue + data[i];
-    }
-
-    return std::size_t(hashValue);
+    return ::BloombergLP::bslh::Hash<>()(str);
 }
 
 }  // close namespace bsl

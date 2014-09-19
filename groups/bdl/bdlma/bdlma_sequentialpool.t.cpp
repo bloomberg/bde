@@ -1248,7 +1248,7 @@ int main(int argc, char *argv[])
         //   checks are triggered.
         //
         // Testing:
-        //   void *allocate(size_type size);;
+        //   void *allocate(size_type size);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "'allocate' TEST" << endl

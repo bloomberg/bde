@@ -20,7 +20,7 @@ void readLines(bsl::istream& inputStream)
         lines.push_back(input);
     }
 
-    // Continue processing the read data
+    // Continue processing the read data.
 }
 
 // ----------------------------------------------------------------------------

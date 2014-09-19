@@ -1172,8 +1172,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 {
     size_type frontSize = position - fromBegin;
     Iterator  begin     = fromBegin;
-    Iterator  dest      = begin - numElements;;
-
+    Iterator  dest      = begin - numElements;
     // In case of aliasing, make a copy of the value.
     ConstructorProxy<VALUE_TYPE>
                                  tempValue(value, bslma::Default::allocator());
@@ -1213,7 +1212,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 {
     size_type frontSize = position - fromBegin;
     Iterator  begin     = fromBegin;
-    Iterator  dest      = begin - numElements;;
+    Iterator  dest      = begin - numElements;
     size_type numDest;
 
     // In case of aliasing, make a copy of the value.
@@ -1270,7 +1269,7 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 {
     size_type frontSize = position - fromBegin;
     Iterator  begin     = fromBegin;
-    Iterator  dest      = begin - numElements;;
+    Iterator  dest      = begin - numElements;
     size_type numDest;
 
     Guard guard(dest, dest);
@@ -1726,7 +1725,7 @@ DequePrimitives<VALUE_TYPE, 1>
 {
     size_type frontSize = position - fromBegin;
     Iterator  begin     = fromBegin;
-    Iterator  dest      = begin - numElements;;
+    Iterator  dest      = begin - numElements;
     size_type numDest;
 
     ConstructorProxy<VALUE_TYPE>
@@ -1782,7 +1781,7 @@ DequePrimitives<VALUE_TYPE, 1>
 {
     size_type frontSize = position - fromBegin;
     Iterator  begin     = fromBegin;
-    Iterator  dest      = begin - numElements;;
+    Iterator  dest      = begin - numElements;
     size_type numDest;
 
     Guard guard(dest, dest);

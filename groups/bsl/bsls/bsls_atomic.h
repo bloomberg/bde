@@ -81,11 +81,11 @@ BSLS_IDENT("$Id: $")
 //
 // However, stores in thread A can be ordered with loads in thread B using a
 // combination of store-release and load-acquire operations.  A store-release
-// operations in thread A followed by a load-acquire operation in thread B
-// to *the* *same* *memory* *location* guarantees that thread B sees all other
+// operation in thread A followed by a load-acquire operation in thread B
+// to the *same* *memory* *location* guarantees that thread B sees all other
 // stores done in thread A prior to the store-release operation.  The
 // store-release in thread A effectively synchronizes the memory state with the
-// load-acquire in thread A.
+// load-acquire in thread B.
 //
 // An acquire-release operation is a load-modify-store operation that, if
 // performed in both threads A and B on the same memory location, synchronizes

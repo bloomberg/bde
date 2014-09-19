@@ -5671,7 +5671,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
             // Test insert duplicate key.
             ASSERTV(RESULT.first == x.insert(value).first);
-            ASSERTV(false        == x.insert(value).second);;
+            ASSERTV(false        == x.insert(value).second);
             ASSERTV(i + 1        == X.size());
 
             ASSERTV(X != Y);
@@ -5961,7 +5961,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
             ASSERTV(*RESULT.first == testKeys[i]);
             ASSERTV(X.end() == RESULT.second ||
-                   *RESULT.second != testKeys[i]);;
+                   *RESULT.second != testKeys[i]);
         }
         for (size_t i = 0; i < numValues; ++i) {
             x.erase(testKeys[i]);

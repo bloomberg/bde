@@ -607,9 +607,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
-
-
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
     cout.precision(35);
 
     static const long long TEST_NONZERO_MANTISSAS[] = {

@@ -256,11 +256,11 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocator.h>
 #endif
 
-#if !defined(BDE_OMIT_DEPRECATED_INTERNAL_ONLY)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef INCLUDED_BSLMA_MANAGEDPTR_PAIRPROXY
 #include <bslma_managedptr_pairproxy.h>
 #endif
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
@@ -536,14 +536,14 @@ class pair : public Pair_Imp<T1, T2,
         // undefined unless 'T1' is constructible from 'U1' and 'T2' is
         // constructible from from 'U2'.
 
-#if !defined(BDE_OMIT_DEPRECATED_INTERNAL_ONLY)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <typename U1, typename U2>
     pair(const BloombergLP::bslma::ManagedPtr_PairProxy<U1, U2>&
                                                               rhs); // IMPLICIT
         // Create a pair that has the same value as the specified 'rhs' pair
         // proxy.  The behavior is undefined unless 'T1' is constructible from
         // 'U1' and 'T2' is constructible from from 'U2'.
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     ~pair();
         // Destroy this object.  Call destructors on 'first' and 'second'.
@@ -878,14 +878,14 @@ pair<T1, T2>::pair(const native_std::pair<U1, U2>&  rhs,
 {
 }
 
-#if !defined(BDE_OMIT_DEPRECATED_INTERNAL_ONLY)
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <typename T1, typename T2>
 template <typename U1, typename U2>
 pair<T1, T2>::pair(const BloombergLP::bslma::ManagedPtr_PairProxy<U1, U2>& rhs)
 : Base(rhs.first, rhs.second)
 {
 }
-#endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <typename T1, typename T2>
 inline

@@ -1498,22 +1498,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
                           / static_cast<double>(X.bucket_count()) <
                                                           X.max_load_factor());
 
-                if (!TYPE_ALLOC) {
-                    numPasses = 0;
-                    EXCEPTION_TEST_BEGIN(mX) {
-                        ++numPasses;
-                        valuesB.resetIterators();
-
-                        mX.insert(valuesB.index(len2), valuesB.end());
-                    } EXCEPTION_TEST_END
-
-                    // verify insert didn't alloc
-
-                    ASSERTV(LINE, SPEC, 1 == numPasses);
-                }
-                else {
-                    mX.insert(valuesB.index(len2), valuesB.end());
-                }
+                mX.insert(valuesB.index(len2), valuesB.end());
 
                 ASSERTV(LINE, SPEC, LENGTH == X.size());
                 ASSERTV(-1 == verifySpec(X, SPEC));
