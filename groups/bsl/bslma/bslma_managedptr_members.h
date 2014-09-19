@@ -39,8 +39,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#pragma bde_verify set ok_unquoted object
-
 namespace BloombergLP {
 namespace bslma {
 
