@@ -56,7 +56,7 @@ repositories, please see
 
 License
 -------
-The BDE libraries are distributed under a simple MIT-style license; see the LICENSE file at the top of the source tree for more information.
+The BDE libraries are distributed under the Apache License (version 2.0); see the LICENSE file at the top of the source tree for more information.
 
 Question, Comments and Feedback
 ===============================
