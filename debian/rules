@@ -136,11 +136,15 @@ libbsl-rs-binary: libbsl-rs
 # dev binary targets
 # ============================================================================
 
+# The _INSTALL_HEADERS rule excludes bdl+inteldfp's subdirectories by name.
+# Otherwise, the copy fails on Linux, since the headers in bdl+inteldfp are
+# duplicated down in bdl+inteldfp/LIBRARY.  (DRQS 57002187)
+
 PACKAGES_NO_INSTALL:=bsl+stdhdrs
 define GROUP_template
 GROUP_$(1)_DEPENDS:=$(shell cat groups/$(1)/group/$(1).dep)
 GROUP_$(1)_INSTALL_PACKAGES:=$(filter-out $(PACKAGES_NO_INSTALL),$(shell cat groups/$(1)/group/$(1).mem | perl -pi -e 's/\#.*$$//'))
-GROUP_$(1)_INSTALL_HEADERS:=$$(foreach package,$$(GROUP_$(1)_INSTALL_PACKAGES),$$(shell find groups/$(1)/$$(package)/ -name '*.h'))
+GROUP_$(1)_INSTALL_HEADERS:=$$(foreach package,$$(GROUP_$(1)_INSTALL_PACKAGES),$$(shell find groups/$(1)/$$(package)/ -name '*.h' | grep -v bdl+inteldfp/LIBRARY | grep -v bdl+inteldfp/TESTS))
 endef
 
 $(foreach group,$(GROUPS),$(eval $(call GROUP_template,$(group))))
