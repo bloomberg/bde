@@ -1,5 +1,12 @@
-bsl-internal (2.22.0.3) unstable; urgency=low
+bsl-internal (2.22.0.4) unstable; urgency=low
 
+  * eb4da49 [APPROVAL] origin/review/limit-header-copies-for-inteldfp-drqs-57002187 to releases/2.22.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Sep 2014 13:48:15 -0400
+
+bsl-internal (2.22.0.3) git; urgency=low
+
+  * 85291e1 bump changelog
   * 9c70541 [APPROVAL] OSS bump-version-to-2.22 to master
   * 0f470a3 [APPROVAL] bump-version-to-2.22 to master
   * 5bf6354 bump version to 2.22.0
@@ -99,7 +106,7 @@ bsl-internal (2.22.0.3) unstable; urgency=low
   * c9a58b6 [APPROVAL] pending/master/bdlb_bitutil to master
   * 0798a38 [APPROVAL] pending/master/correct_array_primitives_compiler_check_drqs51229610 to master
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Sep 2014 10:12:41 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Sep 2014 11:17:40 -0400
 
 bsl-internal (2.20.2.2) git; urgency=low
 
