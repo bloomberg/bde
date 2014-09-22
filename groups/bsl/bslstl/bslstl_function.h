@@ -1045,7 +1045,9 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
           FUNC &srcFunc = *static_cast<FUNC*>(input.asPtr());
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-          ::new (wrappedFunc_p) FUNC(std::move(srcFunc));
+          bslalg::ScalarPrimitives::moveConstruct(wrappedFunc_p,
+                                                  srcFunc,
+                                                  rep->d_allocator_p);
 #else
           bslalg::ScalarPrimitives::copyConstruct(wrappedFunc_p,
                                                   srcFunc,
@@ -1149,7 +1151,7 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
                                      Function_Rep  *rep,
                                      PtrOrSize_t    input)
 {
-    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+    typedef typename bslma::AllocatorAdaptor<ALLOC>::Type Adaptor;
 
     switch (opCode) {
       case e_MOVE_CONSTRUCT: // Fall through: allocators are always copied
@@ -1296,7 +1298,7 @@ void *bsl::Function_Rep::initRep(std::size_t  sooFuncSize,
                                  integral_constant<AllocCategory,
                                                    e_ERASED_STATEFUL_ALLOC>)
 {
-    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+    typedef typename bslma::AllocatorAdaptor<ALLOC>::Type Adaptor;
 
     static const std::size_t allocSize = sizeof(Adaptor);
 
@@ -1361,7 +1363,7 @@ void *bsl::Function_Rep::initRep(std::size_t sooFuncSize,
 {
     // Since ALLOC is an empty type, we need only one instance of it.
     // This single instance is wrapped in an adaptor.
-    static bslma::AllocatorAdaptor<ALLOC> allocInstance(alloc);
+    static typename bslma::AllocatorAdaptor<ALLOC>::Type allocInstance(alloc);
 
     return initRep(sooFuncSize, &allocInstance,
                    integral_constant<AllocCategory, e_BSLMA_ALLOC_PTR>());
@@ -1388,7 +1390,7 @@ bool bsl::Function_Rep::equalAlloc(const ALLOC&,
 {
     BSLMF_ASSERT((is_same<typename ALLOC::value_type, char>::value));
 
-    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+    typedef typename bslma::AllocatorAdaptor<ALLOC>::Type Adaptor;
 
     // If the our allocator has the same type as the adapted stateless
     // allocator, then they are assumed equal.
@@ -1401,7 +1403,7 @@ bool bsl::Function_Rep::equalAlloc(const ALLOC& alloc,
 {
     BSLMF_ASSERT((is_same<typename ALLOC::value_type, char>::value));
 
-    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+    typedef typename bslma::AllocatorAdaptor<ALLOC>::Type Adaptor;
 
     // Try to cast our allocator into the same type as the adapted 'ALLOC'.
     Adaptor *thisAdaptor = dynamic_cast<Adaptor*>(d_allocator_p);

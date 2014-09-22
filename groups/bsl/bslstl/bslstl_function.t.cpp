@@ -1500,7 +1500,7 @@ void testFunctor(const char *prototypeStr)
 template <class ALLOC>
 struct CheckAlloc
 {
-    typedef bslma::AllocatorAdaptor<ALLOC> Adaptor;
+    typedef typename bslma::AllocatorAdaptor<ALLOC>::Type Adaptor;
     static const std::size_t k_SIZE = (bsl::is_empty<ALLOC>::value ?
                                        0 : sizeof(Adaptor));
     static const std::size_t k_MAX_OVERHEAD =
@@ -1595,31 +1595,36 @@ bool areEqualAlloc(const ALLOC1& a, class bsl::allocator<TP>& b)
     return CheckAlloc<ALLOC1>(a).areEqualAlloc(b.mechanism());
 }
 
-template <class FUNC>
-bool isPropagatedAllocatorImp(const FUNC& f, bslma::Allocator *alloc,
+template <class FUNC, class ALLOC>
+inline
+bool isPropagatedAllocatorImp(const FUNC& f, const ALLOC& alloc,
                               bsl::true_type /* usesBslmaAlloc */)
-    // Return true if 'f.allocator()' for the specified 'f' functor returns
-    // the specified 'alloc'; otherwise return false.  Note that
-    // 'bslma::UsesBslmaAllocator<FUNC>' must derive from 'true_type'.
+    // Return true if 'f.allocator()' for the specified 'f' functor returns an
+    // adaptor equivalent to the specified 'alloc'; otherwise return false.
+    // This overload is for when 'bslma::UsesBslmaAllocator<FUNC>' derives
+    // from 'true_type' and 'alloc' is a non-pointer.
 {
-    return f.allocator() == alloc;
+    return areEqualAlloc(f.allocator(), alloc);
 }
 
-template <class FUNC>
-bool isPropagatedAllocatorImp(const FUNC&, bslma::Allocator *,
+template <class FUNC, class ALLOC>
+inline
+bool isPropagatedAllocatorImp(const FUNC&, const ALLOC&,
                               bsl::false_type /* usesBslmaAlloc */)
-    // Return false.  Note that 'bslma::UsesBslmaAllocator<FUNC>' is expected
-    // to derive from 'false_type', meaning that 'FUNC' does not use an
-    // allocator.
+    // Return true.  This overload is for when
+    // 'bslma::UsesBslmaAllocator<FUNC>' derives from 'false_type', meaning
+    // that 'FUNC' does not use an allocator and, thus, allocator propagation
+    // can be assumed to be successfull.
 {
     return true;
 }
 
-template <class FUNC>
-bool isPropagatedAllocator(const FUNC& f, bslma::Allocator *alloc)
+template <class FUNC, class ALLOC>
+inline
+bool isPropagatedAllocator(const FUNC& f, const ALLOC& alloc)
     // Return true if 'f.allocator()' for the specified 'f' functor returns
-    // the specified 'alloc' or if 'f' does not use a 'bslma::Allocator*' at
-    // all; otherwise return false.
+    // the equivalent of the specified 'alloc' or if 'f' does not use a
+    // 'bslma::Allocator*' at all; otherwise return false.
 {
     return isPropagatedAllocatorImp(f, alloc,
                                     bslma::UsesBslmaAllocator<FUNC>());
@@ -1688,7 +1693,7 @@ void testFuncWithAlloc(int line, FUNC func, WhatIsInplace inplace)
                 LOOP_ASSERT(line, target_p);
                 if (target_p) {
                     LOOP_ASSERT(line, func == *target_p);
-                    LOOP_ASSERT(line, isPropagatedAllocator(*target_p, &ta));
+                    LOOP_ASSERT(line, isPropagatedAllocator(*target_p, alloc));
                     LOOP_ASSERT(line, 0x4005 == f(IntWrapper(0x4000), 5));
                 }
             }
