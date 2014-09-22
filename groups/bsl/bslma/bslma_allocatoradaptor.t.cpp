@@ -229,7 +229,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
     int usageExample1()
     {
         MagicAllocator<char> ma(true);
-        bslma::AllocatorAdaptor<MagicAllocator<char> > maa(ma);
+        bslma::AllocatorAdaptor<MagicAllocator<char> >::Type maa(ma);
   
         my::FilePath usrbin("/usr/local/bin", &maa);
   

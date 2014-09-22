@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 //  int main()
 //  {
 //      MagicAllocator<char> ma(true);
-//      bslma::AllocatorAdaptor<MagicAllocator<char> > maa(ma);
+//      bslma::AllocatorAdaptor<MagicAllocator<char> >::Type maa(ma);
 //
 //      my::FilePath usrbin("/usr/local/bin", &maa);
 //
@@ -197,7 +197,8 @@ class AllocatorAdaptor_Imp : public Allocator {
 
   public:
     // TYPES
-    typedef STL_ALLOC StlAllocatorType;
+    typedef AllocatorAdaptor_Imp Type;
+    typedef STL_ALLOC            StlAllocatorType;
 
     // CREATORS
     AllocatorAdaptor_Imp(); // = default
@@ -239,7 +240,10 @@ class AllocatorAdaptor_Imp : public Allocator {
 template <class STL_ALLOC>
 using AllocatorAdaptor = 
     AllocatorAdaptor_Imp<typename STL_ALLOC::template rebind<char>::other>;
-    // Polymorphic wrapper around an STL-style allocator.
+    // Polymorphic wrapper around an STL-style allocator.  Note that
+    // 'AllocatorAdaptor<A>::Type' is the same type regardless of whether or
+    // not the compiler supports alias templates.  It should be used,
+    // therefore, whenever the exact type of the adaptor is important.
 #else
 template <class STL_ALLOC>
 class AllocatorAdaptor : public
@@ -248,7 +252,10 @@ class AllocatorAdaptor : public
     // Polymorphic wrapper around an object of the specified 'STL_ALLOC'
     // STL-style allocator template parameter.  A pointer to an object of this
     // class can thus be used with any component that uses BDE-style memory
-    // allocation.
+    // allocation.  Note that 'AllocatorAdaptor<A>::Type' is the same type
+    // regardless of whether or not the compiler supports alias templates.  It
+    // should be used, therefore, whenever the exact type of the adaptor is
+    // important.
 
     typedef typename STL_ALLOC::template rebind<char>::other ReboundSTLAlloc;
 
