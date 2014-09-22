@@ -1168,7 +1168,8 @@ class SmallSTLAllocator :
     // Allocator that is small enough to fit in the SmallObjectBuffer
     // alongside SmallFunctor.
 
-    typedef bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> > Adaptor;
+    typedef
+      typename bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> >::Type Adaptor;
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor) -
                    sizeof(SmallFunctor)];
 public:
@@ -1188,7 +1189,8 @@ class MediumSTLAllocator :
     // Allocator that is small enough to fit in the SmallObjectBuffer
     // by itself or with a stateless functor.
 
-    typedef bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> > Adaptor;
+    typedef
+      typename bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> >::Type Adaptor;
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor)];
 public:
     explicit MediumSTLAllocator(bslma::TestAllocator *mechanism)
@@ -1206,7 +1208,8 @@ class LargeSTLAllocator :
 {
     // Allocator that is too large to fit in the SmallObjectBuffer.
 
-    typedef bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> > Adaptor;
+    typedef
+      typename bslma::AllocatorAdaptor<TinySTLAllocator<TYPE> >::Type Adaptor;
     char d_padding[sizeof(SmallObjectBuffer) - sizeof(Adaptor) + 1];
 public:
     explicit LargeSTLAllocator(bslma::TestAllocator *mechanism)
@@ -4275,9 +4278,10 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("with stateless allocator\n");
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef EmptySTLAllocator<double>                         Alloc;
-            typedef EmptySTLAllocator<bool>                           Alloc2;
-            typedef bslma::AllocatorAdaptor<EmptySTLAllocator<char> > Adaptor;
+            typedef EmptySTLAllocator<double> Alloc;
+            typedef EmptySTLAllocator<bool>   Alloc2;
+            typedef typename
+              bslma::AllocatorAdaptor<EmptySTLAllocator<char> >::Type Adaptor;
             EXCEPTION_TEST_TRY {
 
                 globalAllocMonitor.reset();
@@ -4295,6 +4299,8 @@ int main(int argc, char *argv[])
                 bsl::function<int(float)> f2(bsl::allocator_arg, alloc2,
                                              bsl::nullptr_t());
                 ASSERT(! f2);
+                // Every use of stateless allocator 'EmptySTLAllocator<char>'
+                // yields the identical adaptor.
                 ASSERT(erasedAlloc == f2.allocator());
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
@@ -4303,8 +4309,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("with tiny to medium allocator\n");
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef TinySTLAllocator<double>                         Alloc;
-            typedef bslma::AllocatorAdaptor<TinySTLAllocator<char> > Adaptor;
+            typedef TinySTLAllocator<double> Alloc;
             EXCEPTION_TEST_TRY {
 
                 globalAllocMonitor.reset();
@@ -4313,28 +4318,21 @@ int main(int argc, char *argv[])
             
                 bsl::function<int(float)> f(bsl::allocator_arg, alloc);
                 ASSERT(! f);
-                bslma::Allocator *erasedAlloc = f.allocator();
-                Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-                ASSERT(adaptor);
-                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(areEqualAlloc(alloc, f.allocator()));
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
 
                 bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
                                              bsl::nullptr_t());
                 ASSERT(! f2);
-                erasedAlloc = f.allocator();
-                adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-                ASSERT(adaptor);
-                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(areEqualAlloc(alloc, f2.allocator()));
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
             } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
         
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef SmallSTLAllocator<double>                         Alloc;
-            typedef bslma::AllocatorAdaptor<SmallSTLAllocator<char> > Adaptor;
+            typedef SmallSTLAllocator<double> Alloc;
             EXCEPTION_TEST_TRY {
 
                 globalAllocMonitor.reset();
@@ -4343,28 +4341,21 @@ int main(int argc, char *argv[])
             
                 bsl::function<int(float)> f(bsl::allocator_arg, alloc);
                 ASSERT(! f);
-                bslma::Allocator *erasedAlloc = f.allocator();
-                Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-                ASSERT(adaptor);
-                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(areEqualAlloc(alloc, f.allocator()));
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
 
                 bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
                                              bsl::nullptr_t());
                 ASSERT(! f2);
-                erasedAlloc = f.allocator();
-                adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-                ASSERT(adaptor);
-                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(areEqualAlloc(alloc, f2.allocator()));
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
             } EXCEPTION_TEST_ENDTRY;
         } EXCEPTION_TEST_END;
         
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef MediumSTLAllocator<double>                         Alloc;
-            typedef bslma::AllocatorAdaptor<MediumSTLAllocator<char> > Adaptor;
+            typedef MediumSTLAllocator<double> Alloc;
             EXCEPTION_TEST_TRY {
 
                 globalAllocMonitor.reset();
@@ -4373,20 +4364,14 @@ int main(int argc, char *argv[])
             
                 bsl::function<int(float)> f(bsl::allocator_arg, alloc);
                 ASSERT(! f);
-                bslma::Allocator *erasedAlloc = f.allocator();
-                Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-                ASSERT(adaptor);
-                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(areEqualAlloc(alloc, f.allocator()));
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
 
                 bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
                                              bsl::nullptr_t());
                 ASSERT(! f2);
-                erasedAlloc = f.allocator();
-                adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-                ASSERT(adaptor);
-                ASSERT(adaptor->adaptedAllocator() == alloc);
+                ASSERT(areEqualAlloc(alloc, f2.allocator()));
                 ASSERT(0 == ta.numBlocksInUse());
                 ASSERT(globalAllocMonitor.isInUseSame());
             } EXCEPTION_TEST_ENDTRY;
@@ -4394,8 +4379,7 @@ int main(int argc, char *argv[])
         
         if (veryVerbose) printf("with large allocator\n");
         EXCEPTION_TEST_BEGIN(&ta, NULL) {
-            typedef LargeSTLAllocator<double>                         Alloc;
-            typedef bslma::AllocatorAdaptor<LargeSTLAllocator<char> > Adaptor;
+            typedef LargeSTLAllocator<double> Alloc;
             EXCEPTION_TEST_TRY {
 
                 globalAllocMonitor.reset();
@@ -4405,20 +4389,14 @@ int main(int argc, char *argv[])
                 {
                     bsl::function<int(float)> f(bsl::allocator_arg, alloc);
                     ASSERT(! f);
-                    bslma::Allocator *erasedAlloc = f.allocator();
-                    Adaptor *adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-                    ASSERT(adaptor);
-                    ASSERT(adaptor->adaptedAllocator() == alloc);
+                    ASSERT(areEqualAlloc(alloc, f.allocator()));
                     ASSERT(1 == ta.numBlocksInUse());
                     ASSERT(globalAllocMonitor.isInUseSame());
 
                     bsl::function<int(float)> f2(bsl::allocator_arg, alloc,
                                                  bsl::nullptr_t());
                     ASSERT(! f2);
-                    erasedAlloc = f.allocator();
-                    adaptor = dynamic_cast<Adaptor *>(erasedAlloc);
-                    ASSERT(adaptor);
-                    ASSERT(adaptor->adaptedAllocator() == alloc);
+                    ASSERT(areEqualAlloc(alloc, f2.allocator()));
                     ASSERT(2 == ta.numBlocksInUse());
                     ASSERT(globalAllocMonitor.isInUseSame());
                 }
