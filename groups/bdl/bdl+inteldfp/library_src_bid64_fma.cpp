@@ -1,6 +1,6 @@
 #include <bsls_platform.h>
 
-#ifndef BSLS_PLATFORM_OS_WINDOWS
+#if 1
 
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wcast-qual"

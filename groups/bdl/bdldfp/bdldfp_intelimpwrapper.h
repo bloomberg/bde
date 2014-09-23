@@ -31,14 +31,13 @@ BSLS_IDENT("$Id$")
 
 #ifndef INCLUDED_BDLDFP_DECIMALPLATFORM
 #include <bdldfp_decimalplatform.h>
-#define INCLUDED_BDLDFP_DECIMALPLATFORM
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
-#if !defined(BSLS_PLATFORM_OS_WINDOWS)
+#if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 
 #  if !defined(INCLUDED_BID_FUNCTIONS) \
    && !defined(INCLUDED_BID_CONF) \
@@ -94,7 +93,7 @@ BSLS_IDENT("$Id$")
 #    define INCLUDED_BID_INTERNAL
 #  endif
 
-#endif // if !defined(BSLS_PLATFORM_OS_WINDOWS)
+#endif // if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
 
 #endif
 
