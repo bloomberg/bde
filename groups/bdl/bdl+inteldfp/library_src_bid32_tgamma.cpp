@@ -7,9 +7,14 @@
 
 #ifdef __GNUC__
 #  define _WCHAR_T
-#else
+#elif !defined(BSLS_PLATFORM_OS_WINDOWS)
 #  define __thread
 #  define __QNX__
+#endif
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+#  define LINUX
+#  define efi2
 #endif
 
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
