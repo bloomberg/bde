@@ -1455,7 +1455,7 @@ void TestDriver::testCase4()
 
 void TestDriver::testCase3()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING 'Decimal64'
     //   Ensure that 'Decimal64' functions correctly
     //
@@ -1466,14 +1466,14 @@ void TestDriver::testCase3()
     // Plan:
     //: 1 Expected value testing will be used.
     //:
-    //: 2 All forms of LHS and RHS combinations for all free operators will
-    //:   be tested.
+    //: 2 All forms of LHS and RHS combinations for all free operators will be
+    //:   tested.
     //:
     //: 3 Every member operator will be tested
     //
     // Testing:
     //   'class Decimal64'
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) bsl::cout << "\nTesting class Decimal64"
                            << "\n=======================" << bsl::endl;

@@ -807,23 +807,23 @@ struct TestDriver {
 
 void TestDriver::testCase21()
 {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //
-        // Concerns:
-        //:  1 Usage example compiles
-        //
-        // Plan:
-        //:  1 Copy-and-paste usage example into test driver.
-        //:  2 Replace 'assert' with 'ASSERT'.
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // TESTING USAGE EXAMPLE
+    //
+    // Concerns:
+    //:  1 Usage example compiles
+    //
+    // Plan:
+    //:  1 Copy-and-paste usage example into test driver.
+    //:  2 Replace 'assert' with 'ASSERT'.
+    //
+    // Testing:
+    //   USAGE EXAMPLE
+    // ------------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "TESTING USAGE EXAMPLE" << endl
-                          << "=====================" << endl;
+    if (verbose) cout << endl
+                      << "TESTING USAGE EXAMPLE" << endl
+                      << "=====================" << endl;
 
 ///Usage
 ///-----
@@ -909,38 +909,39 @@ void TestDriver::testCase21()
 
 void TestDriver::testCase20()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING CONVERSION FROM DENSELY PACKED
     //
     // Concerns:
-    //:  1 Values in the implementation format are created faithfully
-    //:    and correctly when converted from  the DPD format.
+    //:  1 Values in the implementation format are created faithfully and
+    //:    correctly when converted from  the DPD format.
     //:
     //:  2 The value, after conversion, has the same cohort as the original
     //:    value.
     //:
     //:  3 32, 64, and 128 bit variations all work correctly.
     //:
-    //:  4 Special cases, such as Infinity and NaN are represented
-    //:    correctly as DPD.
+    //:  4 Special cases, such as Infinity and NaN are represented correctly as
+    //:    DPD.
     //:
     //:  5 The implementation format values correctly survive round-trip
     //:    encoding.
     //
     // Plan:
-    //:  1 Iterate through a set of test mantissa and convert them to DPD,
-    //:    then convert back to the implementation format, comparing the
-    //:    results.  (C-1..3)
+    //:  1 Iterate through a set of test mantissa and convert them to DPD, then
+    //:    convert back to the implementation format, comparing the results.
+    //:    (C-1..3)
     //:
-    //:  2 Test the special case values explicitly, by converting to DPD,
-    //:    then using the conversion back.  Check that the properties of
-    //:    these special cases hold.  (C-2..5)
+    //:  2 Test the special case values explicitly, by converting to DPD, then
+    //:    using the conversion back.  Check that the properties of these
+    //:    special cases hold.  (C-2..5)
     //
     // Testing
     //   convertFromDenselyPacked(ValueType32)
     //   convertFromDenselyPacked(ValueType64)
     //   convertFromDenselyPacked(ValueType128)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
     if (verbose) cout << endl
                       << "TESTING CONVERSION FROM DENSELY PACKED" << endl
                       << "======================================" << endl;
@@ -1217,35 +1218,36 @@ void TestDriver::testCase20()
 
 void TestDriver::testCase19()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING CONVERSION TO DENSELY PACKED
     //
     // Concerns:
-    //:  1 Values in the implementation format are represented faithfully
-    //:    and correctly in the DPD format, when converted.
+    //:  1 Values in the implementation format are represented faithfully and
+    //:    correctly in the DPD format, when converted.
     //:
     //:  2 The value, after conversion, has the same cohort as the original
     //:    value.
     //:
     //:  3 32, 64, and 128 bit variations all work correctly.
     //:
-    //:  4 Special cases, such as Infinity and NaN are represented
-    //:    correctly as DPD.
+    //:  4 Special cases, such as Infinity and NaN are represented correctly as
+    //:    DPD.
     //
     // Plan:
     //:  1 Iterate through a set of test mantissa and convert them to DPD,
     //:    comparing the result to a canonically constructed value in DPD.
     //:    (C-1..3)
     //:
-    //:  2 Test the special case values explicitly, by converting to DPD,
-    //:    then using the conversion back.  Check that the properties of
-    //:    these special cases hold. (C-3,4)
+    //:  2 Test the special case values explicitly, by converting to DPD, then
+    //:    using the conversion back.  Check that the properties of these
+    //:    special cases hold. (C-3,4)
     //
     // Testing
     //   convertToDenselyPacked(ValueType32)
     //   convertToDenselyPacked(ValueType64)
     //   convertToDenselyPacked(ValueType128)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
     if (verbose) cout << endl
                       << "TESTING CONVERSION TO DENSELY PACKED" << endl
                       << "====================================" << endl;
@@ -1522,15 +1524,14 @@ void TestDriver::testCase19()
 
 void TestDriver::testCase18()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING 'format'
     //
     // Concerns:
     //:  1 Formatted output accurately represents the value of a Decimal in
     //:    some human readable form.
     //:
-    //:  2 Formatted output can be re-read as a Decimal with the same
-    //:    value.
+    //:  2 Formatted output can be re-read as a Decimal with the same value.
     //
     // Plan:
     //:  1 Output will be formatted, and then reloaded
@@ -1539,7 +1540,7 @@ void TestDriver::testCase18()
     //   format(ValueType32,  char *)
     //   format(ValueType64,  char *)
     //   format(ValueType128, char *)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "TESTING 'format'" << endl
@@ -1736,7 +1737,7 @@ void TestDriver::testCase18()
 
 void TestDriver::testCase17()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING 'scaleB'
     //
     // Concerns:
@@ -1749,7 +1750,7 @@ void TestDriver::testCase17()
     //   scaleB(ValueType32,  int)
     //   scaleB(ValueType64,  int)
     //   scaleB(ValueType128, int)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "TESTING 'scaleB'" << endl
@@ -1817,26 +1818,24 @@ void TestDriver::testCase17()
 
 void TestDriver::testCase16()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING COMPARISON FUNCTIONS
     //
     // Concerns:
-    //:  1 Infinities are at the ends of all ordered comparision
-    //:    arrangements.
+    //:  1 Infinities are at the ends of all ordered comparision arrangements.
     //:
     //:  2 Positive numbers are greater than negative numbers.
     //:
-    //:  3 'NaN' is neither greater nor less than any value, including
-    //:    itself.
+    //:  3 'NaN' is neither greater nor less than any value, including itself.
     //:
     //:  4 Zero compares neither less nor greater than itself.
     //:
     //:  5 Transitivity is preserved.
     //
     // Plan:
-    //:  1 A set of representative values for 32, 64, and 128-bit types
-    //:    will be created and each compared against each other, under
-    //:    assertion for the correct result. (C-2,5)
+    //:  1 A set of representative values for 32, 64, and 128-bit types will be
+    //:    created and each compared against each other, under assertion for
+    //:    the correct result. (C-2,5)
     //:
     //:  2 Zeros of both signs will be in the data set. (C-4)
     //:
@@ -1857,7 +1856,7 @@ void TestDriver::testCase16()
     //   greaterEqual(ValueType32,  ValueType32)
     //   greaterEqual(ValueType64,  ValueType64)
     //   greaterEqual(ValueType128, ValueType128)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "TESTING COMPARISON FUNCTIONS" << endl
@@ -2014,25 +2013,23 @@ void TestDriver::testCase16()
                  lhsOrder, rhsOrder,
                  Util::greaterEqual(lhs128, rhs128)==(lhsOrder>=rhsOrder));
             }
-
         }
     }
 }
 
 void TestDriver::testCase15()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING 'binaryToDecimalXX'
     //
     // Concerns:
-    //:  1 Conversion to Decimal preserves precise value, where possible.
-    //:    The bases of 10, and 2 are only able to cross convert when the
-    //:    actual value is proper sum of fractions of powers-of-two.
+    //:  1 Conversion to Decimal preserves precise value, where possible.  The
+    //:    bases of 10, and 2 are only able to cross convert when the actual
+    //:    value is proper sum of fractions of powers-of-two.
     //
     // Plan:
-    //:  1 Convert several values that are 'integral' and sums of
-    //:    power-of-two fractions (which just counts as whole numbers).
-    //:    (C-1)
+    //:  1 Convert several values that are 'integral' and sums of power-of-two
+    //:    fractions (which just counts as whole numbers).  (C-1)
     //
     // Testing:
     //   binaryToDecimal32 (float)
@@ -2041,7 +2038,7 @@ void TestDriver::testCase15()
     //   binaryToDecimal64 (double)
     //   binaryToDecimal128(float)
     //   binaryToDecimal128(double)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "TESTING 'binaryToDecimalXX'" << endl
@@ -2357,7 +2354,7 @@ void TestDriver::testCase15()
 
 void TestDriver::testCase14()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING '[u]intXXToDecimalXX'
     //
     // Concerns:
@@ -2370,8 +2367,8 @@ void TestDriver::testCase14()
     //:  4 Rounding is handled appropriately.
     //
     //Plan:
-    //:  1 Run numerous mantissas through the conversion functions and
-    //:    compare the results with 'parse(mantissaAsString)'.  (C-1..4)
+    //:  1 Run numerous mantissas through the conversion functions and compare
+    //:    the results with 'parse(mantissaAsString)'.  (C-1..4)
     //
     // Testing:
     //    int32ToDecimal32 (                   int)
@@ -2386,7 +2383,7 @@ void TestDriver::testCase14()
     //   uint32ToDecimal128(unsigned           int)
     //    int64ToDecimal128(         long long int)
     //   uint64ToDecimal128(unsigned long long int)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "TESTING '[u]intXXToDecimalXX'" << endl
@@ -2466,12 +2463,11 @@ void TestDriver::testCase14()
                                    Util::int64ToDecimal128(MANTISSA)));
         }
     }
-
 }
 
 void TestDriver::testCase13()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING 'makeDecimal64'
     //
     // Concerns:
@@ -2482,33 +2478,31 @@ void TestDriver::testCase13()
     //:   mantissa has a magnitude too great to be represented by a 64-bit
     //:   decimal floating point value.
     //:
-    //: 3 The correct rounding behavior is performed when the magnitude
-    //:   of the specified number is too great to be represented by a
-    //:   64-bit decimal floating point value.
+    //: 3 The correct rounding behavior is performed when the magnitude of the
+    //:   specified number is too great to be represented by a 64-bit decimal
+    //:   floating point value.
     //:
     //: 4 The correct sign is preserved when rounding to zero or infinite
     //:   values.
     //:
-    //: 5 If the mantissa and exponent are in range for 64-bit decimal
-    //:   floating point numbers (i.e.,
-    //:   'abs(mantissa) <= 9,999,999,999,999,999' and
-    //:   '-398 <= exponent <= 369', the 64-bit decimal floating number
-    //:   consisting of the mantissa and exponent is returned without
-    //:   rounding.
+    //: 5 If the mantissa and exponent are in range for 64-bit decimal floating
+    //:   point numbers (i.e., 'abs(mantissa) <= 9,999,999,999,999,999' and
+    //:   '-398 <= exponent <= 369'), the 64-bit decimal floating number
+    //:   consisting of the mantissa and exponent is returned without rounding.
     //:
     //: 6 The four overloads of 'makeDecimal64' perform properly.
     //:
-    //: 7 Note that this test is adapted from the original 'makeDecimal64'
-    //:   test in the old 'bdldfp::DecimalImplUtil' component.
+    //: 7 Note that this test is adapted from the original 'makeDecimal64' test
+    //:   in the old 'bdldfp::DecimalImplUtil' component.
     //
     // Plan:
-    //: 1 Test that 'makeDecimal64' returns a value that is 'equals' to
-    //:   the value given by 'parse64' called on a string containing the
-    //:   specified 'mantissa' and 'exponent'.
+    //: 1 Test that 'makeDecimal64' returns a value that is 'equals' to the
+    //:   value given by 'parse64' called on a string containing the specified
+    //:   'mantissa' and 'exponent'.
     //:
     //: 2 Test 'makeDecimal64' on values for which both the mantissa and
-    //:   exponent are in the range of 64-bit decimal floating point. The
-    //:   value returned should be identical in bits to that returned by
+    //:   exponent are in the range of 64-bit decimal floating point. The value
+    //:   returned should be identical in bits to that returned by
     //:   'makeDecimal64Raw' called on 'mantissa' and 'exponent'.
     //:
     //: 3 For each mantissa, exponent pair, test 'makeDecimal64' for all
@@ -2519,7 +2513,8 @@ void TestDriver::testCase13()
     //   makeDecimal64(unsigned           int, int)
     //   makeDecimal64(         long long int, int)
     //   makeDecimal64(unsigned long long int, int)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+
     if (verbose) bsl::cout << bsl::endl
                            << "TESTING 'makeDecimal64'" << bsl::endl
                            << "=======================" << bsl::endl;
@@ -2619,18 +2614,18 @@ void TestDriver::testCase13()
 
 void TestDriver::testCase12()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // INFINITY CREATION 'makeInfinity64(bool)'
     //
     // Concerns:
-    //:  1 'makeInfinity64' should return an infinity value which is
-    //:    positive, when passed no arguments.
+    //:  1 'makeInfinity64' should return an infinity value which is positive,
+    //:    when passed no arguments.
     //:
-    //:  2 'makeInfinity64' should return an infinity value which is
-    //:    positive, when passed a 'false' argument.
+    //:  2 'makeInfinity64' should return an infinity value which is positive,
+    //:    when passed a 'false' argument.
     //:
-    //:  2 'makeInfinity64' should return an infinity value which is
-    //:    negative, when passed a 'true' argument.
+    //:  2 'makeInfinity64' should return an infinity value which is negative,
+    //:    when passed a 'true' argument.
     //
     // Plan:
     //:  1 call 'makeInfinity' with no arguments.  (C-1)
@@ -2641,7 +2636,7 @@ void TestDriver::testCase12()
     //
     // Testing:
     //   makeInfinity64(bool)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "INFINITY CREATION 'makeInfinity64(bool)'" << endl
@@ -2665,7 +2660,7 @@ void TestDriver::testCase12()
 
 void TestDriver::testCase11()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // PARSING 'parse32', 'parse64', AND 'parse128'
     //
     // Concerns:
@@ -2687,7 +2682,7 @@ void TestDriver::testCase11()
     //   parse32 (const char *)
     //   parse64 (const char *)
     //   parse128(const char *)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "PARSING 'parse32', 'parse64', AND 'parse128'"
@@ -3099,7 +3094,7 @@ void TestDriver::testCase11()
 
 void TestDriver::testCase10()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // CROSS CONVERSION 'convertToDecimalXX'
     //
     // Concerns:
@@ -3110,8 +3105,8 @@ void TestDriver::testCase10()
     //:  3 NaN value-states should convert correctly.
     //
     // Plan:
-    //:  1 Convert some values to wider types, and confirm the value is
-    //:    as expected.
+    //:  1 Convert some values to wider types, and confirm the value is as
+    //:    expected.
     //:
     //:  2 Convert some values to narrower types, and confirm the value is
     //:    preserved or truncated as appropriate.
@@ -3124,7 +3119,7 @@ void TestDriver::testCase10()
     //   convertToDecimal64( const ValueType128&)
     //   convertToDecimal128(const ValueType32&)
     //   convertToDecimal128(const ValueType64&)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "CROSS CONVERSION 'convertToDecimalXX'" << endl
@@ -3412,7 +3407,7 @@ void TestDriver::testCase10()
 
 void TestDriver::testCase9()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // ARITHMETIC FUNCTION 'negate'
     //
     // Concerns:
@@ -3430,7 +3425,7 @@ void TestDriver::testCase9()
     //   negate(ValueType32)
     //   negate(ValueType64)
     //   negate(ValueType128)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "ARITHMETIC FUNCTION 'negate'" << endl
@@ -3523,11 +3518,11 @@ void TestDriver::testCase9()
 
 void TestDriver::testCase8()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // ARITHMETIC FUNCTION 'divide'
     //
     // Concerns:
-    //:  1 'divide' should never (except in identity, 'NaN' and 'Inf'
+    //:  1 'divide' should never (except in identity, 'NaN' and 'Inf' cases)
     //:    cases) return the same value as at least one of the operands.
     //:
     //:  2 'divide' behaves correctly with identity operand (1).
@@ -3558,17 +3553,16 @@ void TestDriver::testCase8()
     //:
     //:  2 Test identity with '1' case. (C-2)
     //:
-    //:  3 When not dealing with special cases (or rounding cases), make
-    //:    sure the result value does not compare equal to either source.
-    //:    (C-3)
+    //:  3 When not dealing with special cases (or rounding cases), make sure
+    //:    the result value does not compare equal to either source.  (C-3)
     //:
-    //:  4 Test all 16 special cases in the chart, which covers both
-    //:    orders. (C-4,6)
+    //:  4 Test all 16 special cases in the chart, which covers both orders.
+    //:    (C-4,6)
     //
     // Testing:
     //   divide(ValueType64,  ValueType64)
     //   divide(ValueType128, ValueType128)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "ARITHMETIC FUNCTION 'divide'" << endl
@@ -3742,21 +3736,20 @@ void TestDriver::testCase8()
 
 void TestDriver::testCase7()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // ARITHMETIC FUNCTION 'multiply'
     //
     // Concerns:
-    //:  1 'multiply' should never (except in identity, 'NaN' and 'Inf'
-    //:    cases) return the same value as at least one of the operands.
+    //:  1 'multiply' should never (except in identity, 'NaN' and 'Inf' cases)
+    //:    return the same value as at least one of the operands.
     //:
     //:  2 'multiply' behaves correctly with identity operand (1).
     //:
-    //:  3 'multiply' will return a distinct value from both of its
-    //:    operands, when both are non-zero and value-states (not 'NaN' or
-    //:    'Inf').
+    //:  3 'multiply' will return a distinct value from both of its operands,
+    //:    when both are non-zero and value-states (not 'NaN' or 'Inf').
     //:
-    //:  4 'multiply' to 'NaN' or 'Inf' should follow the IEEE rules for
-    //:    the cases listed in this chart:
+    //:  4 'multiply' to 'NaN' or 'Inf' should follow the IEEE rules for the
+    //:    cases listed in this chart:
     //:
     //:             L * R|-Inf|Normal|+Inf|NaN|
     //:            ------+----+------+----+---+
@@ -3768,8 +3761,7 @@ void TestDriver::testCase7()
     //:            ------+----+------+----+---+
     //:              NaN | NaN|  NaN | NaN|NaN|
     //:
-    //:  5 'multiply' behaves reasonably when working with different
-    //:    quanta.
+    //:  5 'multiply' behaves reasonably when working with different quanta.
     //:
     //:  6 'multiply' by 0 behaves as expected.
     //
@@ -3779,9 +3771,8 @@ void TestDriver::testCase7()
     //:
     //:  2 Test identity with '1' case. (C-2)
     //:
-    //:  3 When not dealing with special cases (or rounding cases), make
-    //:    sure the result value does not compare equal to either source.
-    //:    (C-3)
+    //:  3 When not dealing with special cases (or rounding cases), make sure
+    //:    the result value does not compare equal to either source. (C-3)
     //:
     //:  4 Test all 16 special cases in the chart, which covers both
     //:    orders. (C-4,6)
@@ -3789,7 +3780,7 @@ void TestDriver::testCase7()
     // Testing:
     //   multiply(ValueType64,  ValueType64)
     //   multiply(ValueType128, ValueType128)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "ARITHMETIC FUNCTION 'multiply'" << endl
@@ -3949,21 +3940,20 @@ void TestDriver::testCase7()
 
 void TestDriver::testCase6()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // ARITHMETIC FUNCTION 'subtract'
     //
     // Concerns:
-    //:  1 'subtract' should never (except in identity, 'NaN' and 'Inf'
-    //:    cases) return the same value as at least one of the operands.
+    //:  1 'subtract' should never (except in identity, 'NaN' and 'Inf' cases)
+    //:    return the same value as at least one of the operands.
     //:
     //:  2 'subtract' behaves correctly with identity operands (0 and -0).
     //:
-    //:  3 'subtract' will return a distinct value from both of its
-    //:    operands, when both are non-zero and value-states (not 'NaN' or
-    //:    'Inf').
+    //:  3 'subtract' will return a distinct value from both of its operands,
+    //:    when both are non-zero and value-states (not 'NaN' or 'Inf').
     //:
-    //:  4 'subtract' to 'NaN' or 'Inf' should follow the IEEE rules for
-    //:    the cases listed in this chart:
+    //:  4 'subtract' to 'NaN' or 'Inf' should follow the IEEE rules for the
+    //:    cases listed in this chart:
     //:
     //:             L - R|-Inf|Normal|+Inf|NaN|
     //:            ------+----+------+----+---+
@@ -3984,17 +3974,16 @@ void TestDriver::testCase6()
     //:
     //:  2 Test identity with both '-0' and '0' cases. (C-2)
     //:
-    //:  3 When not dealing with special cases (or rounding cases), make
-    //:    sure the result value does not compare equal to either source.
-    //:    (C-3)
+    //:  3 When not dealing with special cases (or rounding cases), make sure
+    //:    the result value does not compare equal to either source. (C-3)
     //:
-    //:  4 Test all 16 special cases in the chart, which covers both
-    //:    orders. (C-4,6)
+    //:  4 Test all 16 special cases in the chart, which covers both orders.
+    //:    (C-4,6)
     //
     // Testing:
     //   subtract(ValueType64,  ValueType64)
     //   subtract(ValueType128, ValueType128)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "ARITHMETIC FUNCTION 'subtract'" << endl
@@ -4155,20 +4144,20 @@ void TestDriver::testCase6()
 
 void TestDriver::testCase5()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // ARITHMETIC FUNCTION 'add'
     //
     // Concerns:
-    //:  1 'add' should never (except in 'NaN' and 'Inf' cases) return the
-    //:    same value as at least one of the operands.
+    //:  1 'add' should never (except in 'NaN' and 'Inf' cases) return the same
+    //:    value as at least one of the operands.
     //:
     //:  2 'add' behaves correctly with identity operands (0 and -0).
     //:
-    //:  3 'add' will return a distinct value from both of its operands,
-    //:    when both are non-zero and value-states (not 'NaN' or 'Inf').
+    //:  3 'add' will return a distinct value from both of its operands, when
+    //:    both are non-zero and value-states (not 'NaN' or 'Inf').
     //:
-    //:  4 'add' to 'NaN' or 'Inf' should follow the IEEE rules for the
-    //:    cases listed in this chart:
+    //:  4 'add' to 'NaN' or 'Inf' should follow the IEEE rules for the cases
+    //:    listed in this chart:
     //:
     //:             L + R|-Inf|Normal|+Inf|NaN|
     //:            ------+----+------+----+---+
@@ -4182,8 +4171,7 @@ void TestDriver::testCase5()
     //:
     //:  5 'add' behaves reasonably when working with different quanta.
     //:
-    //:  6 'add' must be a commutative operation (when avoiding corner
-    //     cases).
+    //:  6 'add' must be a commutative operation (when avoiding corner cases).
     //
     // Plan:
     //:  1 Test a handful of expected values of different exponent and
@@ -4191,17 +4179,16 @@ void TestDriver::testCase5()
     //:
     //:  2 Test identity with both '-0' and '0' cases. (C-2)
     //:
-    //:  3 When not dealing with special cases (or rounding cases), make
-    //:    sure the result value does not compare equal to either source.
-    //:    (C-3)
+    //:  3 When not dealing with special cases (or rounding cases), make sure
+    //:    the result value does not compare equal to either source.  (C-3)
     //:
-    //:  4 Test all 16 special cases in the chart, which covers both
-    //:    orders. (C-4,6)
+    //:  4 Test all 16 special cases in the chart, which covers both orders.
+    //:    (C-4,6)
     //
     // Testing:
     //   add(ValueType64,  ValueType64)
     //   add(ValueType128, ValueType128)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "ARITHMETIC FUNCTION 'add'" << endl
@@ -4372,16 +4359,15 @@ void TestDriver::testCase5()
 
 void TestDriver::testCase4()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // INEQUALITY COMPARISON 'Util::notEqual'
     //
     // Concerns:
-    //:  1 'notEqual' should return false if the bit patterns are the same
-    //:    (and are not a bit pattern representing a 'NaN').
+    //:  1 'notEqual' should return false if the bit patterns are the same (and
+    //:    are not a bit pattern representing a 'NaN').
     //:
-    //:  2 'notEqual' should return false if the bit patterns are
-    //:    different, but represent the same value.  I.e. '10e0' should be
-    //:    equal to '1e1'.
+    //:  2 'notEqual' should return false if the bit patterns are different,
+    //:    but represent the same value.  I.e. '10e0' should be equal to '1e1'.
     //:
     //:  3 Values which differ by only one of sign, exponent, or mantissa
     //:    should not be equal.
@@ -4392,8 +4378,8 @@ void TestDriver::testCase4()
     //:    function (to the underlying implementation), but some
     //:    implementations require a call to a helper function to determine
     //:    value.  This means that we don't have to aggressively test this
-    //:    function, but should perform more than a cursory forwarding
-    //:    test.  (This will result in more than a simple forwarding test.)
+    //:    function, but should perform more than a cursory forwarding test.
+    //:    (This will result in more than a simple forwarding test.)
     //:
     //:  6 Equality is a "Commutative" operation.
     //:       'A == B' implies 'B == A'
@@ -4407,10 +4393,10 @@ void TestDriver::testCase4()
     //:       'A == B' and 'B == C' implies 'A == C'.
     //:    (Transitive property.)
     //:
-    //:  9 Any two things equal to each other are both inequal to an
-    //:    inequal third.
-    //:    (Transitive property.)
+    //:  9 Any two things equal to each other are both inequal to an inequal
+    //:    third.
     //:       'A == B' and 'B != C' implies 'A != C'
+    //:    (Transitive property.)
     //:
     //: 10 'NaN' and 'Inf' states are excluded from these rules and instead
     //:    have the following properties:
@@ -4452,7 +4438,7 @@ void TestDriver::testCase4()
     //   notEqual(ValueType64,  ValueType64)
     //   notEqual(ValueType128, ValueType128)
     //   TEST 'notEqual' FOR 'NaN' CORRECTNESS
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "INEQUALITY COMPARISON 'Util::notEqual'" << endl
@@ -5475,16 +5461,15 @@ void TestDriver::testCase4()
 
 void TestDriver::testCase3()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // EQUALITY COMPARISON 'Util::equal'
     //
     // Concerns:
-    //:  1 'equal' should return true if the bit patterns are the same (and
-    //:    are not a bit pattern representing a 'NaN').
+    //:  1 'equal' should return true if the bit patterns are the same (and are
+    //:    not a bit pattern representing a 'NaN').
     //:
-    //:  2 'equal' should return true if the bit patterns are different,
-    //:    but represent the same value.  I.e. '10e0' should be equal to
-    //:    '1e1'.
+    //:  2 'equal' should return true if the bit patterns are different, but
+    //:    represent the same value.  I.e. '10e0' should be equal to '1e1'.
     //:
     //:  3 Values which differ by only one of sign, exponent, or mantissa
     //:    should not be equal.
@@ -5495,14 +5480,14 @@ void TestDriver::testCase3()
     //:    function (to the underlying implementation), but some
     //:    implementations require a call to a helper function to determine
     //:    value.  This means that we don't have to aggressively test this
-    //:    function, but should perform more than a cursory forwarding
-    //:    test.  (This will result in more than a simple forwarding test.)
+    //:    function, but should perform more than a cursory forwarding test.
+    //:    (This will result in more than a simple forwarding test.)
     //:
-    //:  6 Equality is a "Commutative" operation.
+    //:  6 Equality is a "Commutative" operation:
     //:       'A == B' implies 'B == A'
     //:    (Commutative property.)
     //:
-    //:  7 Equality is a "Commutative" operation in the negative.
+    //:  7 Equality is a "Commutative" operation in the negative:
     //:       'A != B' implies 'B != A'
     //:    (Commutative property.)
     //:
@@ -5510,10 +5495,10 @@ void TestDriver::testCase3()
     //:       'A == B' and 'B == C' implies 'A == C'.
     //:    (Transitive property.)
     //:
-    //:  9 Any two things equal to each other are both inequal to an
-    //:    inequal third.
-    //:    (Transitive property.)
+    //:  9 Any two things equal to each other are both inequal to an inequal
+    //:    third:
     //:       'A == B' and 'B != C' implies 'A != C'
+    //:    (Transitive property.)
     //:
     //: 10 'NaN' and 'Inf' states are excluded from these rules and instead
     //:    have the following properties:
@@ -6541,23 +6526,22 @@ void TestDriver::testCase3()
 
 void TestDriver::testCase2()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // TESTING 'makeDecimalRaw'
     //
     // Concerns:
-    //: 1 'makeDecimalRawXX' constructs a decimal floating point value
-    //:   having the specified mantissa and exponent, with no rounding.
+    //: 1 'makeDecimalRawXX' constructs a decimal floating point value having
+    //:   the specified mantissa and exponent, with no rounding.
     //:
-    //: 2 The correctness of the conversion of each 3-digit group (or
-    //:   declet) into a 10-bit binary-encoded declet.  Note that this is
-    //:   superfluous on BID architectures, but causes no significant
-    //:   slowdown.
+    //: 2 The correctness of the conversion of each 3-digit group (or declet)
+    //:   into a 10-bit binary-encoded declet.  Note that this is superfluous
+    //:   on BID architectures, but causes no significant slowdown.
     //:
-    //: 3 The conversion of each 3-digit declet into a 10-bit
-    //:   binary-encoded declet does not intefere each other.
+    //: 3 The conversion of each 3-digit declet into a 10-bit binary-encoded
+    //:   declet does not intefere each other.
     //:
-    //: 4 The combination field is correctly computed given the leading
-    //:   digit of the mantissa and the exponent.
+    //: 4 The combination field is correctly computed given the leading digit
+    //:   of the mantissa and the exponent.
     //:
     //: 5 'makeDecimalRawXX' asserts in the right build modes for undefined
     //:   behavior.
@@ -6575,9 +6559,9 @@ void TestDriver::testCase2()
     //:
     //: 3 Test a mantissa of each length in base 10.  (C-1..4, 6)
     //:
-    //: 4 Test that 'makeDecimalRawXX' returns the same value as the
-    //:   decimal created by invoking the decNumber constructors using
-    //:   binary-coded decimals.  (C-1..4, 6)
+    //: 4 Test that 'makeDecimalRawXX' returns the same value as the decimal
+    //:   created by invoking the decNumber constructors using binary-coded
+    //:   decimals.  (C-1..4, 6)
     //
     // Testing:
     //   makeDecimalRaw32 (                   int, int)
@@ -6589,7 +6573,7 @@ void TestDriver::testCase2()
     //   makeDecimalRaw128(         long long int, int)
     //   makeDecimalRaw128(unsigned           int, int)
     //   makeDecimalRaw128(                   int, int)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
     if (verbose) cout << endl
                       << "TESTING 'makeDecimalRaw'" << endl
@@ -6708,7 +6692,7 @@ void TestDriver::testCase2()
                 long long int mantissa = mantissas[t_m];
                           int exponent = exponents[t_e];
 
-                if (mantissa <= bsl::numeric_limits<int>::min() 
+                if (mantissa <= bsl::numeric_limits<int>::min()
                  && mantissa <= bsl::numeric_limits<int>::max()) {
                     int intMantissa = static_cast<int>(mantissa);
 
@@ -6765,7 +6749,7 @@ void TestDriver::testCase2()
                 if (0ll      <= mantissa) {
                     // And mantissa <= ULONGLONG_MAX.
 
-                    unsigned long long ullMantissa = 
+                    unsigned long long ullMantissa =
                               static_cast<unsigned long long>(mantissa);
 
                     bsl::string parseString = makeParseString(ullMantissa,
@@ -7243,7 +7227,7 @@ void TestDriver::testCase2()
 
 void TestDriver::testCase1()
 {
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     // BREATHING TEST
     //
     // Concerns:
@@ -7255,7 +7239,7 @@ void TestDriver::testCase1()
     // Testing:
     //   BREATHING TEST
     //   checkLiteral(double)
-    // --------------------------------------------------------------------
+    // ------------------------------------------------------------------------
     if (verbose) cout << endl << "BREATHING TEST"
                       << endl << "==============" << endl;
 
