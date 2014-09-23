@@ -58,8 +58,8 @@ int main(int argc, char *argv[])
         val | val;
         val ^ val;
 
-        val == val;
-        val != val;
+        ASSERT(true  == (val == val));
+	ASSERT(false == (val != val));
 
 
         const bsls::Types::Uint64 VALUE_A = 0;

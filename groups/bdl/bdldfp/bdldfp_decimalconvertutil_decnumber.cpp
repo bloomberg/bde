@@ -10,6 +10,9 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_decnumber_cpp,"$Id$ $CSID$")
 #include <bdldfp_decimalplatform.h>
 #include <bdldfp_decimalimputil.h>
 
+#include <bsl_ostream.h>
+#include <bsl_istream.h>
+
 namespace BloombergLP {
 namespace bdldfp {
 
