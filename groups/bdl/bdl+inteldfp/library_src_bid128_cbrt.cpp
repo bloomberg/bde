@@ -15,6 +15,15 @@
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #  define LINUX
 #  define efi2
+#else
+#  define WINNT
+#  define WINDOWS
+#  define WNT
+#  ifdef BSLS_PLATFORM_CPU_32_BIT
+#    define ia32
+#  else
+#    define efi2
+#  endif
 #endif
 
 #ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
