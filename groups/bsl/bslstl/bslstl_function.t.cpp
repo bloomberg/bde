@@ -909,7 +909,7 @@ public:
 
     enum { IS_STATELESS = false };
 
-    SmallFunctorWithAlloc(int v, bslma::Allocator *alloc)
+    SmallFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
         : SmallFunctor(v), d_alloc_p(alloc) { }
 
     SmallFunctorWithAlloc(const SmallFunctorWithAlloc&  other,
@@ -958,7 +958,7 @@ public:
     BSLMF_NESTED_TRAIT_DECLARATION(LargeFunctorWithAlloc,
                                    bslmf::IsBitwiseMoveable);
 
-    LargeFunctorWithAlloc(int v, bslma::Allocator *alloc)
+    LargeFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
         : SmallFunctorWithAlloc(v, alloc)
         { std::memset(d_padding, 0xee, sizeof(d_padding)); }
 
@@ -1598,22 +1598,21 @@ bool areEqualAlloc(const ALLOC1& a, class bsl::allocator<TP>& b)
     return CheckAlloc<ALLOC1>(a).areEqualAlloc(b.mechanism());
 }
 
-template <class FUNC, class ALLOC>
+template <class FUNC>
 inline
-bool isPropagatedAllocatorImp(const FUNC& f, const ALLOC& alloc,
-                              bsl::true_type /* usesBslmaAlloc */)
+bool hasPropagatedAllocatorImp(const Obj& f, bsl::true_type /*usesBslmaAlloc*/)
     // Return true if 'f.allocator()' for the specified 'f' functor returns an
     // adaptor equivalent to the specified 'alloc'; otherwise return false.
     // This overload is for when 'bslma::UsesBslmaAllocator<FUNC>' derives
     // from 'true_type' and 'alloc' is a non-pointer.
 {
-    return areEqualAlloc(f.allocator(), alloc);
+    const FUNC *target = f.target<FUNC>();
+    return f.allocator() == target->allocator();
 }
 
-template <class FUNC, class ALLOC>
+template <class FUNC>
 inline
-bool isPropagatedAllocatorImp(const FUNC&, const ALLOC&,
-                              bsl::false_type /* usesBslmaAlloc */)
+bool hasPropagatedAllocatorImp(const Obj&, bsl::false_type /*usesBslmaAlloc*/)
     // Return true.  This overload is for when
     // 'bslma::UsesBslmaAllocator<FUNC>' derives from 'false_type', meaning
     // that 'FUNC' does not use an allocator and, thus, allocator propagation
@@ -1622,15 +1621,15 @@ bool isPropagatedAllocatorImp(const FUNC&, const ALLOC&,
     return true;
 }
 
-template <class FUNC, class ALLOC>
+template <class FUNC>
 inline
-bool isPropagatedAllocator(const FUNC& f, const ALLOC& alloc)
+bool hasPropagatedAllocator(const Obj& f)
     // Return true if 'f.allocator()' for the specified 'f' functor returns
     // the equivalent of the specified 'alloc' or if 'f' does not use a
     // 'bslma::Allocator*' at all; otherwise return false.
 {
-    return isPropagatedAllocatorImp(f, alloc,
-                                    bslma::UsesBslmaAllocator<FUNC>());
+    return hasPropagatedAllocatorImp<FUNC>(f,
+                                           bslma::UsesBslmaAllocator<FUNC>());
 }
 
 enum WhatIsInplace {
@@ -1642,8 +1641,6 @@ enum WhatIsInplace {
 template <class ALLOC, class FUNC>
 void testFuncWithAlloc(int line, FUNC func, WhatIsInplace inplace)
 {
-    typedef bsl::function<int(IntWrapper,int)> Obj;
-
     const std::size_t inplaceFuncSize = (bsl::is_empty<FUNC>::value ? 0 :
                                          isNullPtr(func)            ? 0 :
                                          sizeof(FUNC));
@@ -1696,7 +1693,7 @@ void testFuncWithAlloc(int line, FUNC func, WhatIsInplace inplace)
                 LOOP_ASSERT(line, target_p);
                 if (target_p) {
                     LOOP_ASSERT(line, func == *target_p);
-                    LOOP_ASSERT(line, isPropagatedAllocator(*target_p, alloc));
+                    LOOP_ASSERT(line, hasPropagatedAllocator<FUNC>(f));
                     LOOP_ASSERT(line, 0x4005 == f(IntWrapper(0x4000), 5));
                 }
             }
@@ -1717,15 +1714,13 @@ void testFuncWithAlloc(int line, FUNC func, WhatIsInplace inplace)
 
 template <class ALLOC, class FUNC>
 void testCopyCtorWithAlloc(FUNC        func,
-                           const bsl::function<int(IntWrapper,int)>& original,
+                           const Obj&  original,
                            const char *originalAllocName,
                            const char *copyAllocName)
 {
     if (veryVeryVerbose)
         printf("\tAlloc: orig = %s, copy = %s\n", originalAllocName,
                copyAllocName);
-
-    typedef bsl::function<int(IntWrapper,int)> Obj;
 
     bool copyAllocNone = (0 == std::strcmp(copyAllocName, "none"));
 
@@ -1778,6 +1773,7 @@ void testCopyCtorWithAlloc(FUNC        func,
             ASSERT(copy.target_type() == original.target_type());
             ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(copyAlloc,
                                                     copy.allocator()));
+            ASSERT(hasPropagatedAllocator<FUNC>(copy));
             ASSERT(! copy == ! original);
 
             if (copy) {
@@ -1816,8 +1812,6 @@ void testCopyCtorWithAlloc(FUNC        func,
 template <class ORIGINAL_ALLOC, class FUNC>
 void testCopyCtor(FUNC func, const char *originalAllocName)
 {
-    typedef bsl::function<int(IntWrapper,int)> Obj;
-
     // Construct the original 'function'
     bslma::TestAllocator originalTa;
     ORIGINAL_ALLOC originalAlloc(&originalTa);
@@ -1855,8 +1849,6 @@ void testCopyCtor(FUNC func, const char *originalAllocName)
 template <class ALLOC, class FUNC>
 void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
 {
-    typedef bsl::function<int(IntWrapper,int)> Obj;
-
     if (veryVeryVerbose) {
         if (extended) {
             printf("\tsource and dest using same alloc: %s\n", allocName);
@@ -1929,8 +1921,7 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
 
         if (extended) {
             // Use extended move constructor.
-            ::new(&destBuf) Obj(bsl::allocator_arg, alloc,
-                                       std::move(source));
+            ::new(&destBuf) Obj(bsl::allocator_arg, alloc, std::move(source));
         }
         else {
             // Use normal move constructor
@@ -1941,6 +1932,8 @@ void testMoveCtorWithSameAlloc(FUNC func, bool extended, const char *allocName)
         Obj& dest = destBuf.object();
         
         ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(alloc, source.allocator()));
+        ASSERT(CheckAlloc<ALLOC>::areEqualAlloc(alloc, dest.allocator()));
+        ASSERT(hasPropagatedAllocator<FUNC>(dest));
         if (usesSmallObjectOptimization) {
             // Wrapped functor is allocated within the small buffer.  The
             // source functor would be moved-from, but not empty.
@@ -1997,8 +1990,6 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
                                     const char *sourceAllocName,
                                     const char *destAllocName)
 {
-    typedef bsl::function<int(IntWrapper,int)> Obj;
-
     if (veryVeryVerbose)
         printf("\tAlloc: source = %s, dest = %s\n", sourceAllocName,
                destAllocName);
@@ -2051,6 +2042,8 @@ void testMoveCtorWithDifferentAlloc(FUNC        func,
                 ASSERT(isEmpty == ! dest);
                 ASSERT(CheckAlloc<DEST_ALLOC>::areEqualAlloc(destAlloc,
                                                             dest.allocator()));
+
+                ASSERT(hasPropagatedAllocator<FUNC>(dest));
 
                 if (dest) {
 
@@ -2125,8 +2118,13 @@ bool AreEqualFunctions(const Obj& inA, const Obj& inB)
     // return false.  As a special case, if 'inB' is the special object
     // 'movedFromMarker', then return 'true' if 'inA' is empty or wraps an
     // invocable of type 'FUNC' that holds the moved-from value of 'FUNC';
-    // otherwise return false.
+    // otherwise return false.  This function also asserts that 'inA' and
+    // 'inB' have correct allocator propagation from the 'function' object to
+    // the wrapped functor.
 {
+    ASSERT(hasPropagatedAllocator<FUNC>(inA));
+    ASSERT(hasPropagatedAllocator<FUNC>(inB));
+
     if (&inA == &inB) {
         return true;
     }
@@ -2588,6 +2586,9 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                              lhs(1, 2) == exp(1, 2));
             }
+
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         hasPropagatedAllocator<FUNC>(lhs));
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
@@ -2631,6 +2632,9 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                              lhs(1, 2) == exp(1, 2));
             }
+
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         hasPropagatedAllocator<FUNC>(lhs));
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
@@ -2715,6 +2719,9 @@ void testAssignFromFunctor(const Obj&   lhsIn,
                 LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
                              lhs(1, 2) == exp(1, 2));
             }
+
+            LOOP3_ASSERT(allocName, lhsFuncName, rhsFuncName,
+                         hasPropagatedAllocator<FUNC>(lhs));
         }
         EXCEPTION_TEST_CATCH {
             // verify that both lhs and rhs are unchanged
@@ -2843,12 +2850,15 @@ int main(int argc, char *argv[])
         //: 3 If the rhs is an rvalue, the assignment will put it into a
         //:   moved-from state.
         //: 4 After the assignment, the allocator of the lhs is unchanged.
-        //: 5 The change in memory allocation is the same as if the lhs were
+        //: 5 If assignment is from a functor that takes an allocator, the
+        //:   copy of that functor in the lhs will get its allocator from the
+        //:   lhs function object.
+        //: 6 The change in memory allocation is the same as if the lhs were
         //:   destroyed then re-constructed with its original allocator and
         //:   with the specified functor.
-        //: 6 The above concerns apply to the entire range of functor types
+        //: 7 The above concerns apply to the entire range of functor types
         //:   and allocator types for the lhs and functor types for the rhs.
-        //: 7 If an exception is thrown, both lhs and rhs are unchanged.
+        //: 8 If an exception is thrown, both lhs and rhs are unchanged.
         //
         // Plan:
         //: 1 For concern 1, assign from functor to a 'function' object and
@@ -2865,11 +2875,13 @@ int main(int argc, char *argv[])
         //: 4 For concern 4, check the allocator of the lhs after assignment
         //:   and verify that it is equivalent to the allocator before the
         //:   assignment.
-        //: 5 For concern 5, measure the memory use for constructing the lhs
+        //: 5 For concern 5, verify that the lhs after the assignment uses
+        //:   allocator propagation.
+        //: 6 For concern 6, measure the memory use for constructing the lhs
         //:   and the memory use for constructing a 'function' from the rhs.
         //:   After assigning from the rhs to the lhs, verify that the memory
         //:   change is the difference between these memory values.
-        //: 6 For concern 6, construct an array of 'function' objects created
+        //: 7 For concern 7, construct an array of 'function' objects created
         //:   with different functor types.  Package the steps above into a
         //:   template function 'testAssignFromFunctor', which is
         //:   parameterized by allocator type and functor type.  The test
@@ -2878,7 +2890,7 @@ int main(int argc, char *argv[])
         //:   Instantiate 'testAssignFromFunctor' with each combination of our
         //:   test allocator and test functor types.  Call each instantiation
         //:   with each functor in the data array.
-        //: 7 For concern 7, test assignments in within the exception-test
+        //: 8 For concern 8, test assignments in within the exception-test
         //:   framework and verify that, on exception, both operands retain
         //:   their original values.
         //
@@ -2900,7 +2912,7 @@ int main(int argc, char *argv[])
             // Data for one dimension of test
 
             int               d_line;           // Line number
-            Obj               d_function;       // function object to swap
+            Obj               d_function;       // function object to assign
             const char       *d_funcName;       // function object name
         };
 
@@ -2919,6 +2931,8 @@ int main(int argc, char *argv[])
             TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
             TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(LargeFunctorWithAlloc, 0x1000            ),
         };
 
         const int dataSize = sizeof(data) / sizeof(data[0]);
@@ -3033,6 +3047,28 @@ int main(int argc, char *argv[])
             TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
             TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
 
+            if (veryVerbose) printf("Assign %s = "
+                                    "SmallFunctorWithAlloc(0x2000)\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *,   SmallFunctorWithAlloc(0x2000) );
+            TEST(bsl::allocator<char>,     SmallFunctorWithAlloc(0x2000) );
+            TEST(EmptySTLAllocator<char>,  SmallFunctorWithAlloc(0x2000) );
+            TEST(TinySTLAllocator<char>,   SmallFunctorWithAlloc(0x2000) );
+            TEST(SmallSTLAllocator<char>,  SmallFunctorWithAlloc(0x2000) );
+            TEST(MediumSTLAllocator<char>, SmallFunctorWithAlloc(0x2000) );
+            TEST(LargeSTLAllocator<char>,  SmallFunctorWithAlloc(0x2000) );
+
+            if (veryVerbose) printf("Assign %s = "
+                                    "LargeFunctorWithAlloc(0x2000)\n",
+                                    funcName);
+            TEST(bslma::TestAllocator *,   LargeFunctorWithAlloc(0x2000) );
+            TEST(bsl::allocator<char>,     LargeFunctorWithAlloc(0x2000) );
+            TEST(EmptySTLAllocator<char>,  LargeFunctorWithAlloc(0x2000) );
+            TEST(TinySTLAllocator<char>,   LargeFunctorWithAlloc(0x2000) );
+            TEST(SmallSTLAllocator<char>,  LargeFunctorWithAlloc(0x2000) );
+            TEST(MediumSTLAllocator<char>, LargeFunctorWithAlloc(0x2000) );
+            TEST(LargeSTLAllocator<char>,  LargeFunctorWithAlloc(0x2000) );
+
         } // end for (each array item)
 
 #undef TEST
@@ -3117,6 +3153,8 @@ int main(int argc, char *argv[])
             TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
             TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(LargeFunctorWithAlloc, 0x1000            ),
         };
         
 #undef TEST_ITEM
@@ -3156,7 +3194,9 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The rhs of an assignment wraps a functor equal to the lhs before
         //:   the assignment for both copy assignment and move assignment.
-        //: 2 The allocator of the lhs is not changed by the assignment.
+        //: 2 The allocator of the lhs is not changed by the assignment and
+        //:   its wrapped functor's allocator (if any) continues to reflect
+        //:   proper allocator propagation.
         //: 3 The rhs of a copy assignment is not changed.
         //: 4 For move assignment, if the lhs and rhs allocators are same type
         //:   and compare equal, no memory is allocated and the rhs is swapped
@@ -3192,8 +3232,9 @@ int main(int argc, char *argv[])
         //:   target of 'b'.  Make another pair of copies, 'a2' and 'b2' and
         //:   repeat the test for move assignment.
         //: 2 For concern 2, verify that allocators of 'a1' and 'a2' after the
-        //:   assignments in step 1 match the allocator used to construct
-        //:   them.
+        //:   assignments in step 1 match the allocator used to construct them
+        //:   and that the wrapped functors' allocators (if any) continue to
+        //:   reflect proper allocator propagation.
         //: 3 For concern 3, verify that the target type and target of 'b1'
         //:   matches the target type and target of 'b'.
         //: 4 For concern 4, check the allocators of 'a2' and 'b2' before the
@@ -3218,7 +3259,10 @@ int main(int argc, char *argv[])
         //:   allocator).
         //: 8 For concerns 8 and 9, package the above steps into a function
         //:   template, 'testAssign', which is instantiated on two allocator
-        //:   types and takes two 'function' object arguments.  In
+        //:   types and takes two 'function' object arguments as well as
+        //:   comparison functions for each functor type.  The comparison
+        //:   function are used to test if the targets compare equal and to
+        //:   assert that they have proper allocator-propagation.  In
         //:   'testAssign', 'a' is copied into 'a1' and 'a2' using the first
         //:   allocator and 'b' is copied into 'b1' and 'b2' using the second
         //:   allocator argument.  Create two arrays where each array element
@@ -3258,7 +3302,7 @@ int main(int argc, char *argv[])
             AreEqualFuncPtr_t d_areEqualFunc_p; // comparison function
         };
 
-#define TEST_ITEM(F, V)                          \
+#define TEST_ITEM(F, V)                                                       \
         { L_, Obj(F(V)), #F "(" #V ")", &AreEqualFunctions<F> }
 
         TestData dataA[] = {
@@ -3273,6 +3317,8 @@ int main(int argc, char *argv[])
             TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
             TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(LargeFunctorWithAlloc, 0x1000            ),
         };
 
         int dataASize = sizeof(dataA) / sizeof(TestData);
@@ -3289,6 +3335,8 @@ int main(int argc, char *argv[])
             TEST_ITEM(NothrowSmallFunctor  , 0x4000            ),
             TEST_ITEM(ThrowingSmallFunctor , 0x6000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc, 0x1000            ),
+            TEST_ITEM(LargeFunctorWithAlloc, 0x2000            ),
         };
 
 #undef TEST_ITEM
@@ -3363,17 +3411,22 @@ int main(int argc, char *argv[])
         //:   b2.target_type()', '*a.target<FB>() == *b2.target<FB>()',
         //:   'b.target_type() == a2.target_type()', '*b.target<FB>() ==
         //:   *a2.target<FB>()'. Also verify that the allocators of both
-        //:   objects are compare equal to their original values.  (Since the
-        //:   allocators of 'a' and 'b' were the same before the swap, it is
-        //:   unimportant whether the allocators are swapped or not.)
+        //:   objects are compare equal to their original values and that the
+        //:   wrapped functors' allocators (if any) continue to reflect proper
+        //:   allocator propagation.  (Since the allocators of 'a' and 'b'
+        //:   were the same before the swap, it is unimportant whether the
+        //:   allocators are swapped or not.)
         //: 2 For concern 2, check the memory in use by the allocator and by
         //:   the global heap after constructing 'a', 'b', 'a2', and 'b2' and
         //:   verify that the amount of memory in use after the swap is the
         //:   same as before the swap.
         //: 3 For concerns 3 and 4, package the above steps into a function
         //:   template, 'testSwap', which is instantiated on an allocator type
-        //:   and takes two 'function' object arguments.  'testSwap' copies
-        //:   the input arguments using the specified allocator type before
+        //:   and takes two 'function' object arguments as well as comparison
+        //:   functions for each functor type. The comparison function are
+        //:   used to test if the targets compare equal and to assert that
+        //:   they have proper allocator-propagation.  'testSwap' copies the
+        //:   input arguments using the specified allocator type before
         //:   swapping them.  Create two arrays where each array element
         //:   contains a function object and a pointer to a function that can
         //:   compare that function for equality.  Each function object is
@@ -3423,9 +3476,11 @@ int main(int argc, char *argv[])
             TEST_ITEM(SmallFunctor         , 0x2000            ),
             TEST_ITEM(MediumFunctor        , 0x4000            ),
             TEST_ITEM(LargeFunctor         , 0x6000            ),
-            TEST_ITEM(NothrowSmallFunctor   , 0x3000            ),
+            TEST_ITEM(NothrowSmallFunctor  , 0x3000            ),
             TEST_ITEM(ThrowingSmallFunctor , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc, 0x1000            ),
+            TEST_ITEM(LargeFunctorWithAlloc, 0x2000            ),
         };
 
         int dataASize = sizeof(dataA) / sizeof(TestData);
@@ -3439,9 +3494,11 @@ int main(int argc, char *argv[])
             TEST_ITEM(SmallFunctor         , 0x3000            ),
             TEST_ITEM(MediumFunctor        , 0x5000            ),
             TEST_ITEM(LargeFunctor         , 0x7000            ),
-            TEST_ITEM(NothrowSmallFunctor   , 0x4000            ),
+            TEST_ITEM(NothrowSmallFunctor  , 0x4000            ),
             TEST_ITEM(ThrowingSmallFunctor , 0x6000            ),
             TEST_ITEM(ThrowingEmptyFunctor , 0                 ),
+            TEST_ITEM(SmallFunctorWithAlloc, 0x2000            ),
+            TEST_ITEM(LargeFunctorWithAlloc, 0x1000            ),
         };
 
 #undef TEST_ITEM
@@ -3501,19 +3558,22 @@ int main(int argc, char *argv[])
         //:   source allocator after the move is unchanged.
         //: 6 If the allocator-extended move constructor is invoked
         //:   then the destination will use the specified allocator.
-        //: 7 The net memory consumption of the source and destination after
+        //: 7 If 'FUNC' takes a 'bslma::Allocator*', then the wrapped functor
+        //:   will use the same allocator as the 'function' object (i.e., the
+        //:   allocator is propagated).
+        //: 8 The net memory consumption of the source and destination after
         //:   the move is equal to the memory consumption of the source before
         //:   the move plus up to one block (if the source allocator does not
         //:   fit in the small-object buffer).
-        //: 8 The above concerns apply to 'func' arguments of type pointer to
+        //: 9 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
         //:   various sizes with or without throwing move constructors.
-        //: 9 The above concerns apply to allocators arguments that are
+        //: 10 The above concerns apply to allocators arguments that are
         //:   pointers to type derived from 'bslma::Allocator',
         //:   'bsl::allocator' instantiations, stateless STL-style allocators,
         //:   and stateful STL-style allocators of various sizes.  The
         //:   original and copy can use different allocators.
-        //: 10 If the functor move-constructor or the allocator throws an
+        //: 11 If the functor move-constructor or the allocator throws an
         //:   exception, then no resources are leaked.
         //
         // Plan:
@@ -3540,23 +3600,29 @@ int main(int argc, char *argv[])
         //:   the allocator for the destination matches the allocator passed
         //:   into the constructor and that the source allocator is unchanged
         //:   before and after the move operation.
-        //: 7 For concern 7, measure the memory used to construct the source
+        //: 7 For concern 7, perform the above steps using a small and a large
+        //:   'FUNC' type that take a 'bslma::Allocator*' as well as with
+        //:   functors that don't take a 'bslma::Allocator*.  In the former
+        //:   case, verify that the functor wrapped within the
+        //:   newly-constructed 'function' object uses the same allocator as
+        //:   the newly-created object itself.
+        //: 8 For concern 8, measure the memory used to construct the source
         //:   object and the additional memory consumed in move-constructing
         //:   the destination object.  If the source allocator fits in
         //:   the small-object buffer, verify that the net memory consumption
         //:   did not change during the move; otherwise, verify that the net
         //:   memory consumption increased by one block.
-        //: 8 For concerns 8 and 9, package all of the previous plan steps
+        //: 9 For concerns 9 and 10, package all of the previous plan steps
         //:   into a function template 'testMoveCtor', instantiated with a
         //:   functor and allocator.  This test template will create an
         //:   original 'function' object using the passed-in functor and
         //:   allocator and -- using a fresh copy each time -- move it with
         //:   the move constructor and with several invocations of the
         //:   extended move constructor, passing in allocators of all of the
-        //:   types described in concern 9.  Invoke 'testMoveCtor' with many
+        //:   types described in concern 10.  Invoke 'testMoveCtor' with many
         //:   combinations of functor and allocator types so that every
         //:   category combination is represented.
-        //: 9 For concern 10, performed the above steps within the exception
+        //: 10 For concern 11, performed the above steps within the exception
         //:   test framework and verify that, on exception, memory allocation
         //:   does not change and no functor objects are leaked.
         //
@@ -3670,6 +3736,26 @@ int main(int argc, char *argv[])
         TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
         TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
 
+        bslma::TestAllocator xa;
+
+        if (veryVerbose) std::printf("FUNC is SmallFunctorWithAlloc(0)\n");
+        TEST(bslma::TestAllocator *  , SmallFunctorWithAlloc(0, &xa));
+        TEST(bsl::allocator<char>    , SmallFunctorWithAlloc(0, &xa));
+        TEST(EmptySTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+        TEST(TinySTLAllocator<char>  , SmallFunctorWithAlloc(0, &xa));
+        TEST(SmallSTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+        TEST(MediumSTLAllocator<char>, SmallFunctorWithAlloc(0, &xa));
+        TEST(LargeSTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+
+        if (veryVerbose) std::printf("FUNC is LargeFunctorWithAlloc(0)\n");
+        TEST(bslma::TestAllocator *  , LargeFunctorWithAlloc(0, &xa));
+        TEST(bsl::allocator<char>    , LargeFunctorWithAlloc(0, &xa));
+        TEST(EmptySTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+        TEST(TinySTLAllocator<char>  , LargeFunctorWithAlloc(0, &xa));
+        TEST(SmallSTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+        TEST(MediumSTLAllocator<char>, LargeFunctorWithAlloc(0, &xa));
+        TEST(LargeSTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+
 #undef TEST
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -3695,18 +3781,20 @@ int main(int argc, char *argv[])
         //:   'bslma::Default::defaultAllocator()' at the time of the copy.
         //: 6 If the allocator-extended copy constructor is invoked
         //:   then the copy will use the specified allocator.
-        //: 7 The memory allocated by this constructor is the same as if the
+        //: 7 If 'FUNC' takes a 'bslma::Allocator*', then the 'function'
+        //:   allocator is propagated to the wrapped functor.
+        //: 8 The memory allocated by this constructor is the same as if the
         //:   copy were created like the original, except using the specified
         //:   allocator (or default allocator if none specified).
-        //: 8 The above concerns apply to 'func' arguments of type pointer to
+        //: 9 The above concerns apply to 'func' arguments of type pointer to
         //:   function, pointer to member function, or functor types of
         //:   various sizes with or without throwing move constructors.
-        //: 9 The above concerns apply to allocators arguments that are
+        //: 10 The above concerns apply to allocators arguments that are
         //:   pointers to type derived from 'bslma::Allocator',
         //:   'bsl::allocator' instantiations, stateless STL-style allocators,
         //:   and stateful STL-style allocators of various sizes.  The
         //:   original and copy can use different allocators.
-        //: 10 If the functor copy-constructor or the allocator throws an
+        //: 11 If the functor copy-constructor or the allocator throws an
         //:   exception, then no resources are leaked.
         //
         // Plan:
@@ -3731,22 +3819,28 @@ int main(int argc, char *argv[])
         //: 6 For concern 6, use the extended copy constructor and verify that
         //:   the allocator for the copy matches the allocator passed into the
         //:   constructor (as was done for the previous test case).
-        //: 7 For concern 7, construct a function object 'f1' using a specific
+        //: 7 For concern 7, perform the above steps using a small and a large
+        //:   'FUNC' type that take a 'bslma::Allocator*' as well as with
+        //:   functors that don't take a 'bslma::Allocator*.  In the former
+        //:   case, verify that the functor wrapped within the
+        //:   newly-constructed 'function' object uses the same allocator as
+        //:   the newly-created object itself.
+        //: 8 For concern 8, construct a function object 'f1' using a specific
         //:   'func' argument and allocator 'a1'.  Construct a second function
         //:   object 'f1' using the same 'func' argument and an allocator
         //:   'a2'.  Using the extended copy constructor, create a copy of
         //:   'f1' using allocator 'a2'.  Verify that the memory allocations
         //:   during this construction match those in constructing 'f2'.
-        //: 8 For concerns 8 and 9, package all of the previous plan steps
+        //: 9 For concerns 9 and 10, package all of the previous plan steps
         //:   into a function template 'testCopyCtor', instantiated with a
         //:   functor and allocator.  This test template will create an
         //:   original 'function' object using the passed-in functor and
         //:   allocator and copy it with the copy constructor and with several
         //:   invocations of the extended copy constructor, passing in
-        //:   allocators of all of the types described in concern 9.  Invoke
+        //:   allocators of all of the types described in concern 10.  Invoke
         //:   'testCopyCtor' with many combinations of functor and allocator
         //:   types so that every category combination is represented.
-        //: 9 For concern 10, performed the above steps within the exception
+        //: 10 For concern 11, performed the above steps within the exception
         //:   test framework and verify that, on exception, memory allocation
         //:   does not change and no functor objects are leaked.
         //
@@ -3858,6 +3952,26 @@ int main(int argc, char *argv[])
         if (veryVerbose) std::printf("FUNC is ThrowingEmptyFunctor()\n");
         TEST(bslma::TestAllocator *  , ThrowingEmptyFunctor()     );
         TEST(LargeSTLAllocator<char> , ThrowingEmptyFunctor()     );
+
+        bslma::TestAllocator xa;
+
+        if (veryVerbose) std::printf("FUNC is SmallFunctorWithAlloc(0)\n");
+        TEST(bslma::TestAllocator *  , SmallFunctorWithAlloc(0, &xa));
+        TEST(bsl::allocator<char>    , SmallFunctorWithAlloc(0, &xa));
+        TEST(EmptySTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+        TEST(TinySTLAllocator<char>  , SmallFunctorWithAlloc(0, &xa));
+        TEST(SmallSTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+        TEST(MediumSTLAllocator<char>, SmallFunctorWithAlloc(0, &xa));
+        TEST(LargeSTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
+
+        if (veryVerbose) std::printf("FUNC is LargeFunctorWithAlloc(0)\n");
+        TEST(bslma::TestAllocator *  , LargeFunctorWithAlloc(0, &xa));
+        TEST(bsl::allocator<char>    , LargeFunctorWithAlloc(0, &xa));
+        TEST(EmptySTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+        TEST(TinySTLAllocator<char>  , LargeFunctorWithAlloc(0, &xa));
+        TEST(SmallSTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
+        TEST(MediumSTLAllocator<char>, LargeFunctorWithAlloc(0, &xa));
+        TEST(LargeSTLAllocator<char> , LargeFunctorWithAlloc(0, &xa));
 
 #undef TEST
 
@@ -4574,7 +4688,7 @@ int main(int argc, char *argv[])
         //:   possible argument-list lengths (e.g. 0, 1, and 9 arguments).
         //:   Invoke 'testPtrToConstMemFunc' with object types 'IntWrapper',
         //:   'IntWrapper&', 'IntWrapper*', and 'SmartPtr<IntWrapper>', as
-        //:   well as 'const' and versions of the preceding.
+        //:   well as 'const' versions of the preceding.
         //: 8 For concern 8, create a class, 'IntWrapperDerived' derived from
         //:   'IntWrapper'.  Invoke 'testPtrToConstMemFunc' with object types
         //:   'IntWrapperDerived', 'IntWrapperDerived&', 'IntWrapperDerived*',

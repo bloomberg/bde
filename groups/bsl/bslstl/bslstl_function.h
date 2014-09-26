@@ -1113,7 +1113,7 @@ bsl::Function_Rep::functionManager(ManagerOpCode  opCode,
             // We could use 'ScalarPrimitives::destructiveMove', but since
             // 'ScalarPrimitives' does not yet support rvalue references,
             // we've already had to do all of the dispatching of
-            // 'destructiveMove' and are better off, just doing a copy here.
+            // 'destructiveMove' and are better off just doing a copy here.
             bslalg::ScalarPrimitives::copyConstruct(wrappedFunc_p,
                                                     srcFunc,
                                                     rep->d_allocator_p);
