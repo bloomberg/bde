@@ -79,11 +79,11 @@ BSLS_IDENT("$Id$")
 #     include <bid_internal.h>
      }
 
-// Intel's bid_internal.h #define's P7, P16, and P34, which we don't need.
+// Intel #define's several symbols we don't want to leak out.
 
-#undef P7
-#undef P16
-#undef P34
+#    undef P7
+#    undef P16
+#    undef P34
 
 #    undef DECIMAL_CALL_BY_REFERENCE
 #    undef DECIMAL_GLOBAL_ROUNDING
