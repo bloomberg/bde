@@ -1,8 +1,14 @@
-bsl-internal (2.22.0.6) unstable; urgency=low
+bsl-internal (2.22.0.7) unstable; urgency=low
 
-  * No commits found
+  * 168e9cf [APPROVAL] origin/review/undef-P7-in-bdldfp-drqs-57209949 to releases/2.22.x
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Sep 2014 13:49:01 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 27 Sep 2014 14:33:41 -0400
+
+bsl-internal (2.22.0.6) git; urgency=low
+
+  * daaff42 bump changelog to 2.22.0.6
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Sep 2014 14:15:36 -0400
 
 bsl-internal (2.22.0.4) git; urgency=low
 
