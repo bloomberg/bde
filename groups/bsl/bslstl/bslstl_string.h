@@ -1022,10 +1022,10 @@ class basic_string
         // modifying any data members.
 
     void privateCopy(const basic_string& original);
-        // Copy the 'original' string content into this string object, assuming
-        // that the default copy constructor of the 'String_Imp' base class and
-        // the appropriate copy constructor of the 'bslstl::ContainerBase' base
-        // class have just been run.
+        // Copy the specified 'original' string content into this string
+        // object, assuming that the default copy constructor of the
+        // 'String_Imp' base class and the appropriate copy constructor of the
+        // 'bslstl::ContainerBase' base class have just been run.
 
     basic_string& privateAppendDispatch(iterator begin,
                                         iterator end);
@@ -1306,7 +1306,7 @@ class basic_string
         // 'numChars != npos' and 'position + numChars < original.length()'.
 
     basic_string(const CHAR_TYPE  *characterString,
-                 const ALLOCATOR&  basicAllocator = ALLOCATOR());
+                 const ALLOCATOR&  basicAllocator = ALLOCATOR());   // IMPLICIT
     basic_string(const CHAR_TYPE  *characterString,
                  size_type         numChars,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());
@@ -1351,7 +1351,7 @@ class basic_string
         // default-constructed allocator is used.
 
     basic_string(const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef,
-                 const ALLOCATOR& basicAllocator = ALLOCATOR());
+                 const ALLOCATOR& basicAllocator = ALLOCATOR());    // IMPLICIT
         // Create a string that has the same value as the specified 'strRef'
         // string.  The resulting string will contain the same sequence of
         // characters as 'strRef'.  Optionally specify the 'basicAllocator'
@@ -1538,6 +1538,11 @@ class basic_string
         // specified 'numChars' characters in the array starting at the
         // specified 'characterString' address, and return a reference
         // providing modifiable access to this string.
+
+    basic_string& assign(
+                  const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef);
+        // Assign to this string the value of the specified 'strRef' string,
+        // and return a reference providing modifiable access to this string.
 
     basic_string& assign(size_type numChars, CHAR_TYPE character);
         // Assign to this string the value of a string of the specified
@@ -2112,11 +2117,11 @@ class basic_string
         // the specified 'lhsPosition' of length 'lhsNumChars' or
         // 'length() - lhsPosition', whichever is smaller, with the string
         // constructed from the specified 'numChars' characters in the array
-        // starting at the specified 'other' address, and return a
-        // negative value if this string is less than 'other', a positive value
-        // if it is more than 'other', and 0 in case of equality.  Throw
-        // 'out_of_range' if 'lhsPosition > length()'.  See "Lexicographical
-        // Comparisons" for definitions.
+        // starting at the specified 'other' address, and return a negative
+        // value if this string is less than 'other', a positive value if it is
+        // more than 'other', and 0 in case of equality.  Throw 'out_of_range'
+        // if 'lhsPosition > length()'.  See "Lexicographical Comparisons" for
+        // definitions.
 
     int compare(size_type        lhsPosition,
                 size_type        lhsNumChars,
@@ -3578,9 +3583,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
-               const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRefData)
+               const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
 {
-    return append(strRefData.begin(),strRefData.end());
+    return append(strRef.begin(),strRef.end());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -3741,6 +3746,14 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
     }
 
     return privateAssign(characterString, numChars);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
+                   const BloombergLP::bslstl::StringRefData<CHAR_TYPE>& strRef)
+{
+    return assign(strRef.begin(), strRef.end());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
