@@ -309,9 +309,10 @@ class MyInStream {
         // Return the index of the next byte to be extracted from this stream.
 
     bool isEmpty() const;
-        // Return 'true' if this stream is empty, and 'false' otherwise.  Note
-        // that this function enables higher-level components to verify that,
-        // after successfully reading all expected data, no data remains.
+        // Return 'true' if this stream is empty, and 'false' otherwise.
+        // Note that this function enables higher-level types to verify
+        // that, after successfully reading all expected data, no data
+        // remains.
 
     int length() const;
         // Return the total number of bytes stored in this stream.

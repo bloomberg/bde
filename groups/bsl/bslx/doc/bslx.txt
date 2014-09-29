@@ -111,7 +111,8 @@
  needed version on a per object-type basis.  While the list of versions
  supported by an object is typically a sequential set of numbers starting with
  1, the 'versionSelector' is expected to be formatted as "YYYYMMDD", a date
- representation.
+ representation.  For example, an integral 'versionSelector' value of 20140402
+ represents the date 2014/04/02 (April 2, 2014).
 
  If a top-level object is of a type directly supported by the BDEX-compliant
  stream, no version is externalized for the data.  For the stream-supported
@@ -432,31 +433,30 @@
  directly.  This is important for encapsulation.
 
 /Recommended Selection of 'versionSelector'
-/-----------------------------------------------
+/------------------------------------------
  BDEX provides two concepts that support versioning the BDEX serialization
- format of a type: 'version' and 'versionSelector'.  A 'version' is a 0 based
- enumeration of the supported formats (e.g., format 0, format 1, etc.).  A
- 'serializationVersion' is a value which is mapped to the maximum supported
- 'version' for a component by the component's implementation of
- 'bdexMaxSupportedVersion'.  Whenever a new 'version' format is implemented
- within the 'bdexStreamOut' method of a component, a new entry in
- 'maxSupportedBdexVersion' should be created to expose this new 'version' with
- a 'serializationVersion' no less than the greatest used 'serializationVersion'
- throughout the code base.  A simple approach is to use the value "YYYYMMDD",
- where "YYYYMMDD" corresponds to the implementation date, for the
- 'versionSelector'.
+ format of a type: 'version' and 'versionSelector'.  A 'version' is a 1-based
+ enumeration of the supported formats (e.g., format 1, format 2, etc.).  A
+ 'versionSelector' is a value that is mapped to the maximum supported 'version'
+ for a type by the type's implementation of 'maxSupportedBdexVersion'.
+ Whenever a new 'version' format is implemented within the 'bdexStreamOut'
+ method of a type, a new entry in 'maxSupportedBdexVersion' should be created
+ to expose this new 'version' with a 'versionSelector' no less than the
+ greatest used 'versionSelector' throughout the code base.  A simple approach
+ is to use the value "YYYYMMDD", where "YYYYMMDD" corresponds to the
+ implementation date, for the 'versionSelector'.
 
- Clients streaming out a component with BDEX create a stream and supply a
+ Clients streaming out a type with BDEX create a stream and supply a
  'versionSelector':
   ..
     MyObject foo( /* some value */ );
-    bslx::ByteOutStream stream(201422507);   // The date on which this code was
-                                             // written.
+    bslx::ByteOutStream stream(20140725);   // The date on which this code was
+                                            // written.
     stream << foo;
   ..
- Notice that the 'versionSelector' is a *compile*-time selected value (in this
+ Notice that the 'versionSelector' is a *compile*-time-selected value (in this
  case the date at which the code was written) that can be mapped to the
- serialization format version of the components being serialized.  Specifying
+ serialization format version of the types being serialized.  Specifying
  future dates or allowing a run-time selection of 'versionSelector' is error
  prone: tasks exchanging serialized data are often compiled and deployed at
  different times, which would result in serialization errors if they were
@@ -489,7 +489,7 @@
      return stream;
  }
 ..
- The corresponding 'maxSupportedBdexVersion', where '20140402' is the date on
+ The corresponding 'maxSupportedBdexVersion', where 2014/04/02 is the date on
  which the new version is introduced, might look something like:
 ..
  inline
@@ -1518,8 +1518,8 @@
 
      bool isEmpty() const;
          // Return 'true' if this stream is empty, and 'false' otherwise.  Note
-         // that this function enables higher-level components to verify that,
-         // after successfully reading all expected data, no data remains.
+         // that this function enables higher-level types to verify that, after
+         // successfully reading all expected data, no data remains.
 
      int length() const;
          // Return the total number of bytes stored in the external memory
