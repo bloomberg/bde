@@ -74,19 +74,19 @@ BSLS_IDENT("$Id: $")
 ///Versioning
 ///----------
 // BDEX provides two concepts that support versioning the BDEX serialization
-// format of a type: 'version' and 'versionSelector'.  A 'version' is a 0 based
-// enumeration of the supported formats (e.g., format 0, format 1, etc.).  A
-// 'versionSelector' is a value which is mapped to the maximum supported
-// 'version' for a component by the component's implementation of
-// 'bdexMaxSupportedVersion'.  Whenever a new 'version' format is implemented
-// within the 'bdexStreamOut' method of a component, a new entry in
-// 'maxSupportedBdexVersion' should be created to expose this new 'version'
-// with a 'versionSelector' no less than the greatest used 'versionSelector'
-// throughout the code base.  A simple approach is to use the value "YYYYMMDD",
-// where "YYYYMMDD" corresponds to the implementation date, for the
-// 'versionSelector'.  Any value used as a 'versionSelector' must be a
-// *compile*-time-selected value to avoid errors.  See the 'bslx'
-// package-level documentation for more detailed information about versioning.
+// format of a type: 'version' and 'versionSelector'.  A 'version' is a 1-based
+// integer of the supported formats (e.g., format 1, format 2, etc.).  A
+// 'versionSelector' is a value which is mapped to a 'version' for a type by
+// the type's implementation of 'maxSupportedBdexVersion'.  Whenever a new
+// 'version' format is implemented within the 'bdexStreamOut' method of a type,
+// a new mapping in 'maxSupportedBdexVersion' should be created to expose this
+// new 'version' with a 'versionSelector' no less than the greatest used
+// 'versionSelector' throughout the code base.  A simple approach is to use a
+// value having the pattern "YYYYMMDD", where "YYYYMMDD" corresponds to the
+// implementation date of the corresponding 'version' format.  Any value used
+// as a 'versionSelector' must be a *compile*-time-selected value to avoid
+// errors.  See the 'bslx' package-level documentation for more detailed
+// information about versioning.
 //
 ///Usage
 ///-----
